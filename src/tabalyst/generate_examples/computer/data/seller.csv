@@ -1,0 +1,52 @@
+id,en,fr,market,seller_type_id
+acer_direct_ca,Acer Canada,Acer Canada,ca,manufacturer
+apple_direct_ca,Apple Canada,Apple Canada,ca,manufacturer
+asus_direct_ca,ASUS Canada,ASUS Canada,ca,manufacturer
+dell_direct_ca,Dell Canada,Dell Canada,ca,manufacturer
+framework_direct_ca,Framework Canada,Framework Canada,ca,manufacturer
+hp_direct_ca,HP Canada,HP Canada,ca,manufacturer
+lenovo_direct_ca,Lenovo Canada,Lenovo Canada,ca,manufacturer
+microsoft_direct_ca,Microsoft Canada,Microsoft Canada,ca,manufacturer
+msi_direct_ca,MSI Canada,MSI Canada,ca,manufacturer
+razer_direct_ca,Razer Canada,Razer Canada,ca,manufacturer
+samsung_direct_ca,Samsung Canada,Samsung Canada,ca,manufacturer
+tech_store_ca,Tech Store Canada,Boutique Tech Canada,ca,retailer
+computer_shop_ca,Computer Shop Canada,Boutique Informatique Canada,ca,retailer
+business_it_ca,Business IT Canada,TI Entreprise Canada,ca,authorized_reseller
+marketplace_vendor_ca,Marketplace Vendor Canada,Vendeur Marketplace Canada,ca,marketplace_seller
+it_distributor_ca,IT Distributor Canada,Distributeur TI Canada,ca,distributor
+refurbished_computers_ca,Refurbished Computers Canada,Ordinateurs reconditionnés Canada,ca,refurbisher
+acer_direct_us,Acer United States,Acer États-Unis,us,manufacturer
+apple_direct_us,Apple United States,Apple États-Unis,us,manufacturer
+asus_direct_us,ASUS United States,ASUS États-Unis,us,manufacturer
+dell_direct_us,Dell United States,Dell États-Unis,us,manufacturer
+framework_direct_us,Framework United States,Framework États-Unis,us,manufacturer
+hp_direct_us,HP United States,HP États-Unis,us,manufacturer
+lenovo_direct_us,Lenovo United States,Lenovo États-Unis,us,manufacturer
+microsoft_direct_us,Microsoft United States,Microsoft États-Unis,us,manufacturer
+msi_direct_us,MSI United States,MSI États-Unis,us,manufacturer
+razer_direct_us,Razer United States,Razer États-Unis,us,manufacturer
+samsung_direct_us,Samsung United States,Samsung États-Unis,us,manufacturer
+tech_store_us,Tech Store USA,Boutique Tech USA,us,retailer
+computer_shop_us,Computer Shop USA,Boutique Informatique USA,us,retailer
+business_it_us,Business IT USA,TI Entreprise USA,us,authorized_reseller
+marketplace_vendor_us,Marketplace Vendor USA,Vendeur Marketplace USA,us,marketplace_seller
+it_distributor_us,IT Distributor USA,Distributeur TI USA,us,distributor
+refurbished_computers_us,Refurbished Computers USA,Ordinateurs reconditionnés USA,us,refurbisher
+acer_direct_eu,Acer Europe,Acer Europe,eu,manufacturer
+apple_direct_eu,Apple Europe,Apple Europe,eu,manufacturer
+asus_direct_eu,ASUS Europe,ASUS Europe,eu,manufacturer
+dell_direct_eu,Dell Europe,Dell Europe,eu,manufacturer
+framework_direct_eu,Framework Europe,Framework Europe,eu,manufacturer
+hp_direct_eu,HP Europe,HP Europe,eu,manufacturer
+lenovo_direct_eu,Lenovo Europe,Lenovo Europe,eu,manufacturer
+microsoft_direct_eu,Microsoft Europe,Microsoft Europe,eu,manufacturer
+msi_direct_eu,MSI Europe,MSI Europe,eu,manufacturer
+razer_direct_eu,Razer Europe,Razer Europe,eu,manufacturer
+samsung_direct_eu,Samsung Europe,Samsung Europe,eu,manufacturer
+tech_store_eu,Tech Store Europe,Boutique Tech Europe,eu,retailer
+computer_shop_eu,Computer Shop Europe,Boutique Informatique Europe,eu,retailer
+business_it_eu,Business IT Europe,TI Entreprise Europe,eu,authorized_reseller
+marketplace_vendor_eu,Marketplace Vendor Europe,Vendeur Marketplace Europe,eu,marketplace_seller
+it_distributor_eu,IT Distributor Europe,Distributeur TI Europe,eu,distributor
+refurbished_computers_eu,Refurbished Computers Europe,Ordinateurs reconditionnés Europe,eu,refurbisher

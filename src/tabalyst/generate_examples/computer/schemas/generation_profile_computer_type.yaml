@@ -1,0 +1,5 @@
+type: weighted_relation
+columns:
+  generation_profile_id: {type: string, required: true, references: generation_profile.id}
+  computer_type_id: {type: string, required: true, references: computer_type.id}
+  weight: {type: number, required: true}

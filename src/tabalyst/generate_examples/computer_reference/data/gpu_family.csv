@@ -1,0 +1,15 @@
+id,en,fr
+nvidia_geforce_rtx_50,GeForce RTX 50 Series,Série GeForce RTX 50
+nvidia_geforce_rtx_40,GeForce RTX 40 Series,Série GeForce RTX 40
+nvidia_geforce_rtx_30,GeForce RTX 30 Series,Série GeForce RTX 30
+nvidia_rtx_pro,RTX PRO,RTX PRO
+amd_radeon_rx_9000,Radeon RX 9000 Series,Série Radeon RX 9000
+amd_radeon_rx_7000,Radeon RX 7000 Series,Série Radeon RX 7000
+amd_radeon_800m,Radeon 800M Series,Série Radeon 800M
+amd_radeon_700m,Radeon 700M Series,Série Radeon 700M
+intel_arc_b,Arc B-Series,Série Arc B
+intel_arc_a,Arc A-Series,Série Arc A
+intel_arc_integrated,Arc Graphics,Arc Graphics
+intel_uhd,UHD Graphics,UHD Graphics
+apple_gpu,Apple GPU,GPU Apple
+qualcomm_adreno,Adreno GPU,GPU Adreno

@@ -51,3 +51,44 @@ def detector(field_result: dict, detector_id: str) -> dict:
 
 def stages(field_result: dict) -> dict[str, dict]:
     return {item["stage"]: item for item in field_result["normalization"]["stages"]}
+
+
+def complete_cardinality(value: int) -> dict:
+    """The cardinality block of a field whose distinct values were all counted."""
+    return {
+        "status": "complete",
+        "value": value,
+        "accuracy": "exact",
+        "domain": "original",
+        "identity_accuracy": "exact",
+    }
+
+
+def without_estimate(cardinality: dict) -> dict:
+    """The cardinality block without its KMV estimate (tested on its own)."""
+    return {name: value for name, value in cardinality.items() if name != "estimate"}
+
+
+def limited_cardinality(
+    reason: str,
+    limit: int,
+    lower_bound: int,
+    upper_bound: int,
+    *,
+    reached: int | None = None,
+    overflow: int | None = None,
+) -> dict:
+    """The cardinality block of a field whose table was released."""
+    block = {
+        "status": "limited",
+        "reason": reason,
+        "limit": limit,
+        "lower_bound": lower_bound,
+        "domain": "original",
+        "identity_accuracy": "exact",
+        "upper_bound": upper_bound,
+    }
+    if reached is not None:
+        block["threshold_reached_at_record"] = reached
+        block["overflow_detected_at_record"] = overflow
+    return block

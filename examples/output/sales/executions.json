@@ -357,6 +357,771 @@
         "dirty": true,
         "state": "6c22a1c3+working"
       }
+    },
+    {
+      "timestamp": "2026-10-07T05:08:25.507901Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.096,
+      "total_seconds": 0.1599,
+      "git": {
+        "available": true,
+        "commit": "21643748b45cc411b1621a12fe9b17252395057b",
+        "dirty": true,
+        "state": "21643748+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-07T05:56:03.708689Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0943,
+      "total_seconds": 0.1633,
+      "git": {
+        "available": true,
+        "commit": "46f7f247ed79098e0b5e2bbdde72a73c12ba2e1d",
+        "dirty": true,
+        "state": "46f7f247+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-07T06:22:11.342614Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0766,
+      "total_seconds": 0.1493,
+      "git": {
+        "available": true,
+        "commit": "1153f2cca803a728e82978e0414d5041a006f408",
+        "dirty": true,
+        "state": "1153f2cc+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T03:46:19.006264Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1145,
+      "total_seconds": 0.1912,
+      "git": {
+        "available": true,
+        "commit": "b33f62deee1bbda261a8bffb928308d45aa9dbe3",
+        "dirty": true,
+        "state": "b33f62de+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T12:08:18.766441Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1002,
+      "total_seconds": 0.1731,
+      "git": {
+        "available": true,
+        "commit": "e16eb515dc5c4c0ef193d908c2da3bb06a4e82c1",
+        "dirty": true,
+        "state": "e16eb515+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T12:30:49.586517Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.076,
+      "total_seconds": 0.1513,
+      "git": {
+        "available": true,
+        "commit": "e16eb515dc5c4c0ef193d908c2da3bb06a4e82c1",
+        "dirty": true,
+        "state": "e16eb515+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T16:07:22.807803Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1009,
+      "total_seconds": 0.1747,
+      "git": {
+        "available": true,
+        "commit": "a7ce56fcb13f54d68f8840a763b41123ed841540",
+        "dirty": true,
+        "state": "a7ce56fc+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T17:25:27.496007Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1094,
+      "total_seconds": 0.1839,
+      "git": {
+        "available": true,
+        "commit": "a7ce56fcb13f54d68f8840a763b41123ed841540",
+        "dirty": true,
+        "state": "a7ce56fc+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T18:46:26.721485Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1155,
+      "total_seconds": 0.1907,
+      "git": {
+        "available": true,
+        "commit": "a1180328c85f9907cb2d57af2d996da3f3d7d31b",
+        "dirty": true,
+        "state": "a1180328+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T18:49:22.081372Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0838,
+      "total_seconds": 0.1625,
+      "git": {
+        "available": true,
+        "commit": "a1180328c85f9907cb2d57af2d996da3f3d7d31b",
+        "dirty": true,
+        "state": "a1180328+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T19:02:39.417119Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0873,
+      "total_seconds": 0.1603,
+      "git": {
+        "available": true,
+        "commit": "e9be551cfdea2df398fbde439a0b2ce2550e1170",
+        "dirty": true,
+        "state": "e9be551c+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T20:17:33.979390Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1034,
+      "total_seconds": 0.1742,
+      "git": {
+        "available": true,
+        "commit": "647bac6ea04d8b053426f86ade37a1dd0b9ff50c",
+        "dirty": true,
+        "state": "647bac6e+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T22:20:53.142874Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1019,
+      "total_seconds": 0.1996,
+      "git": {
+        "available": true,
+        "commit": "38d5353666efe1de7cdd33d164b54c350541d6b0",
+        "dirty": true,
+        "state": "38d53536+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T22:25:52.380972Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0736,
+      "total_seconds": 0.1776,
+      "git": {
+        "available": true,
+        "commit": "38d5353666efe1de7cdd33d164b54c350541d6b0",
+        "dirty": true,
+        "state": "38d53536+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T03:00:29.131543Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0878,
+      "total_seconds": 0.1956,
+      "git": {
+        "available": true,
+        "commit": "3a7dc4786435347c8db1e9c860854ed2cc52ae67",
+        "dirty": true,
+        "state": "3a7dc478+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T03:47:26.663516Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0913,
+      "total_seconds": 0.2062,
+      "git": {
+        "available": true,
+        "commit": "d1750c3704e37dc6984f925d80df5424398d28dc",
+        "dirty": true,
+        "state": "d1750c37+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T04:29:59.862469Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0904,
+      "total_seconds": 0.2039,
+      "git": {
+        "available": true,
+        "commit": "d818d555c9bd941651be8130d5caa8b2d5e07df6",
+        "dirty": true,
+        "state": "d818d555+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T11:48:49.307528Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0882,
+      "total_seconds": 0.1937,
+      "git": {
+        "available": true,
+        "commit": "d818d555c9bd941651be8130d5caa8b2d5e07df6",
+        "dirty": true,
+        "state": "d818d555+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T13:30:39.524736Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1069,
+      "total_seconds": 0.2365,
+      "git": {
+        "available": true,
+        "commit": "72c24f81ada397422c8b586ccf29927ee46ae9bb",
+        "dirty": true,
+        "state": "72c24f81+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T16:09:56.755109Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1157,
+      "total_seconds": 0.2478,
+      "git": {
+        "available": true,
+        "commit": "5bedfd1ffadc4372c7ced2aaa94131d798fc4edc",
+        "dirty": true,
+        "state": "5bedfd1f+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T17:32:00.100610Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1139,
+      "total_seconds": 0.2704,
+      "git": {
+        "available": true,
+        "commit": "cd659e84af9f57af5595e7cac64842869cb1add4",
+        "dirty": true,
+        "state": "cd659e84+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T17:49:26.159239Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1152,
+      "total_seconds": 0.2704,
+      "git": {
+        "available": true,
+        "commit": "cd659e84af9f57af5595e7cac64842869cb1add4",
+        "dirty": true,
+        "state": "cd659e84+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T18:52:59.385963Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1254,
+      "total_seconds": 0.2934,
+      "git": {
+        "available": true,
+        "commit": "cd659e84af9f57af5595e7cac64842869cb1add4",
+        "dirty": true,
+        "state": "cd659e84+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T19:34:26.848953Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1107,
+      "total_seconds": 0.2599,
+      "git": {
+        "available": true,
+        "commit": "5e6e8889def3d3cab5f504f0f8c06e40820874db",
+        "dirty": true,
+        "state": "5e6e8889+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T21:21:03.959864Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.118,
+      "total_seconds": 0.267,
+      "git": {
+        "available": true,
+        "commit": "acbee9a20e41211904fe68fe0276510a8097eb3d",
+        "dirty": true,
+        "state": "acbee9a2+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T21:36:53.280395Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.066,
+      "total_seconds": 0.2166,
+      "git": {
+        "available": true,
+        "commit": "acbee9a20e41211904fe68fe0276510a8097eb3d",
+        "dirty": true,
+        "state": "acbee9a2+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T22:47:03.111073Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1061,
+      "total_seconds": 0.2498,
+      "git": {
+        "available": true,
+        "commit": "5c0884fb5fa7ede5b6042d7ac6c0aee117cd0565",
+        "dirty": true,
+        "state": "5c0884fb+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-10T21:18:56.555272Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1062,
+      "total_seconds": 0.2484,
+      "git": {
+        "available": true,
+        "commit": "338fd448418fe935fe419e2f29c8c62757440dc7",
+        "dirty": true,
+        "state": "338fd448+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T00:00:24.665695Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1033,
+      "total_seconds": 0.2509,
+      "git": {
+        "available": true,
+        "commit": "338fd448418fe935fe419e2f29c8c62757440dc7",
+        "dirty": true,
+        "state": "338fd448+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T01:27:53.032267Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1249,
+      "total_seconds": 0.2724,
+      "git": {
+        "available": true,
+        "commit": "e78a8593ef9b6e2b13f4115e04356180a61341a9",
+        "dirty": true,
+        "state": "e78a8593+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T23:28:18.334376Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1161,
+      "total_seconds": 0.2632,
+      "git": {
+        "available": true,
+        "commit": "77737d835df851caff568efb66bd67e05fcd3436",
+        "dirty": true,
+        "state": "77737d83+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T23:37:15.372701Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0656,
+      "total_seconds": 0.2051,
+      "git": {
+        "available": true,
+        "commit": "77737d835df851caff568efb66bd67e05fcd3436",
+        "dirty": true,
+        "state": "77737d83+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T00:21:15.678080Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0839,
+      "total_seconds": 0.2235,
+      "git": {
+        "available": true,
+        "commit": "77737d835df851caff568efb66bd67e05fcd3436",
+        "dirty": true,
+        "state": "77737d83+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T00:29:54.270760Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0634,
+      "total_seconds": 0.2066,
+      "git": {
+        "available": true,
+        "commit": "77737d835df851caff568efb66bd67e05fcd3436",
+        "dirty": true,
+        "state": "77737d83+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T01:40:59.746722Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.116,
+      "total_seconds": 0.2618,
+      "git": {
+        "available": true,
+        "commit": "2b7f5e12fd2d1a4ac6d7dca7a0eae6458cad36d1",
+        "dirty": true,
+        "state": "2b7f5e12+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T02:14:19.059370Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0806,
+      "total_seconds": 0.2177,
+      "git": {
+        "available": true,
+        "commit": "f227f605f98c47b15c5e37597e6675785e23041f",
+        "dirty": true,
+        "state": "f227f605+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T03:10:02.673536Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0621,
+      "total_seconds": 0.204,
+      "git": {
+        "available": true,
+        "commit": "c0b9067e2033217bdc32e533990fd2c81f28d7ec",
+        "dirty": true,
+        "state": "c0b9067e+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T04:06:24.658218Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.063,
+      "total_seconds": 0.2034,
+      "git": {
+        "available": true,
+        "commit": "f21f62fd4ec17d7e850ae80bfe079688b11768f7",
+        "dirty": true,
+        "state": "f21f62fd+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T10:14:31.987638Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0907,
+      "total_seconds": 0.2659,
+      "git": {
+        "available": true,
+        "commit": "f21f62fd4ec17d7e850ae80bfe079688b11768f7",
+        "dirty": true,
+        "state": "f21f62fd+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T16:36:57.556672Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1103,
+      "total_seconds": 0.2598,
+      "git": {
+        "available": true,
+        "commit": "76eb1c68b4a949ac2b46b760d91f055d31a20929",
+        "dirty": true,
+        "state": "76eb1c68+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T17:32:20.049879Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1093,
+      "total_seconds": 0.2531,
+      "git": {
+        "available": true,
+        "commit": "981aec706f8153c44fd6813be0c89fce9d27d478",
+        "dirty": true,
+        "state": "981aec70+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T21:44:53.536794Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1334,
+      "total_seconds": 0.289,
+      "git": {
+        "available": true,
+        "commit": "1072f3d4f5791c683854b829a777e65dcca1174e",
+        "dirty": true,
+        "state": "1072f3d4+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T23:04:12.446933Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1159,
+      "total_seconds": 0.28,
+      "git": {
+        "available": true,
+        "commit": "d20c35bebf12419f80bd1a2b3b8bf6ed97747f89",
+        "dirty": true,
+        "state": "d20c35be+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T23:20:50.829156Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0644,
+      "total_seconds": 0.2256,
+      "git": {
+        "available": true,
+        "commit": "d20c35bebf12419f80bd1a2b3b8bf6ed97747f89",
+        "dirty": true,
+        "state": "d20c35be+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-13T01:41:28.218194Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1214,
+      "total_seconds": 0.277,
+      "git": {
+        "available": true,
+        "commit": "1933fb045ea28055a5129795ff8e0d6bd9d15ea5",
+        "dirty": true,
+        "state": "1933fb04+working"
+      }
     }
   ]
 }

@@ -1,0 +1,8 @@
+model_generation_id,cpu_model_id,weight
+thinkpad_t14_gen5,intel_core_ultra_5_225u,0.55
+thinkpad_t14_gen5,intel_core_ultra_7_258v,0.45
+thinkpad_t14_gen6,intel_core_ultra_5_225u,0.35
+thinkpad_t14_gen6,intel_core_ultra_7_258v,0.65
+legion_5_gen9,amd_ryzen_7_8840u,1.00
+legion_5_gen10,amd_ryzen_ai_7_350,0.65
+legion_5_gen10,amd_ryzen_ai_9_hx_370,0.35

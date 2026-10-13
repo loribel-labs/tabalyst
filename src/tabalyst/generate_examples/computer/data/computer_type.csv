@@ -1,0 +1,7 @@
+id,en,fr,weight
+laptop,Laptop,Ordinateur portable,1
+desktop,Desktop,Ordinateur de bureau,1
+all_in_one,All-in-One,Tout-en-un,1
+mini_pc,Mini PC,Mini PC,1
+single_board_computer,Single-board computer,Ordinateur monocarte,1
+server,Server,Serveur,1

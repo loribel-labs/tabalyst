@@ -86,7 +86,7 @@ def main():
                 "source": str(args.source),
                 "records": staged.result.scope.records_analyzed,
                 "build_seconds": round(elapsed, 3),
-                "scan_with_hook_seconds": staged.result.duration_seconds,
+                "scan_with_hook_seconds": staged.result.run.duration_seconds,
                 "reopen_validation_seconds": round(reopen, 3),
                 "database_hash_seconds": round(hash_seconds, 3),
                 "peak_process_bytes": _memory_bytes()[1],

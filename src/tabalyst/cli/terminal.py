@@ -25,6 +25,15 @@ COLLECTION_HELP = (
 )
 
 
+def plural(count: int, word: str) -> str:
+    """``count`` and ``word`` in the plural unless the count is one; a word ending
+    in ``is`` (analysis) becomes ``es``."""
+    if word.endswith("is"):
+        word = word[:-2] + ("is" if count == 1 else "es")
+        return f"{count:,} {word}"
+    return f"{count:,} {word}{'' if count == 1 else 's'}"
+
+
 def collection_paths(values: list[str] | None) -> list[str] | None:
     """``--collection`` values as absolute paths (see ``expand_collection``)."""
     if values is None:
@@ -86,9 +95,13 @@ class ProgressPrinter:
         if not self.enabled or event.index is None or event.total is None:
             return
         label = self._labels[event.phase]
+        if event.detail and event.phase == ProgressPhase.READING:
+            label = f"{label} ({event.detail})"
         message = f"[{event.index}/{event.total}] {event.source.name} - {label}"
         if event.bytes_read is not None and event.bytes_total:
             message += f" {100 * event.bytes_read // event.bytes_total}%"
+        if event.duration_seconds is not None:
+            message += f" - {event.duration_seconds:.2f}s"
         padded = message.ljust(self._width)
         finished = event.phase in {ProgressPhase.COMPLETE, ProgressPhase.FAILED}
         typer.echo(f"\r{padded}", nl=finished, err=True)

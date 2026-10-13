@@ -16,7 +16,7 @@ import pytest
 from scan_helpers import write_text
 
 from tabalyst.report_config import ReportConfig
-from tabalyst.reporting import render_report
+from tabalyst.reporting import dataset_views, render_report
 from tabalyst.service import analyze_csv
 
 pytestmark = pytest.mark.lot("5d")
@@ -30,7 +30,7 @@ def _config(**scan) -> ReportConfig:
 
 def _column(profile, name):
     return next(
-        column for column in profile.datasets[0].columns if column.name == name
+        column for column in profile.report.datasets[0].columns if column.name == name
     )
 
 
@@ -89,9 +89,9 @@ def test_variant_groups_list_raw_spellings_and_raise_an_issue(tmp_path):
         "montreal",
         "MONTREAL",
     }
-    issues = {issue.code: issue for issue in profile.datasets[0].issues}
-    assert issues["variant_groups"].count == 1
-    assert issues["variant_groups"].severity == "info"
+    findings = {item.rule: item for item in profile.observations.items}
+    assert findings["variant_groups"].count == 1
+    assert findings["variant_groups"].status == "candidate_anomaly"
     html = render_report(profile)
     assert 'id="variant-table"' in html
     assert "Compared distinct" in html
@@ -113,21 +113,26 @@ def test_variant_groups_of_a_sensitive_column_are_masked(tmp_path):
 
 
 def test_limited_measures_name_their_field_measure_and_setting(tmp_path):
+    # A spelling that trimming changes: without one, no stage changes anything
+    # and the variant groups are exact (design 10), not limited.
     source = write_text(
-        tmp_path, "ids.csv", "id\n" + "".join(f"v{i}\n" for i in range(12))
+        tmp_path, "ids.csv", "id\n" + "".join(f"v{i}\n" for i in range(12)) + '" v0"\n'
     )
 
     profile = analyze_csv(source, _config(limits={"max_distinct_per_field": 10}))
 
-    limits = profile.datasets[0].limits
-    measures = {measure.measure: measure for measure in limits.measures}
+    limits = dataset_views(profile)[0].limits
+    measures = {measure.measure: measure for measure in limits.items}
     cardinality = measures["values.cardinality"]
-    assert cardinality.column_id == profile.datasets[0].columns[0].id
-    assert cardinality.path == "id"
+    assert cardinality.column_id == profile.report.datasets[0].columns[0].id
+    assert cardinality.field_path == "id"
     assert cardinality.reason == "distinct_limit"
     assert cardinality.limit == 10
     assert cardinality.lower_bound == 11
-    assert "normalization.stages.casefold.cardinality" in measures
+    # A stage that changed nothing repeats the limit of its input: it is
+    # listed once, at the stage that changed something (design 18.13).
+    assert "normalization.stages.trim.cardinality" in measures
+    assert "normalization.stages.casefold.cardinality" not in measures
     assert "normalization.variant_groups" in measures
     assert [item.code for item in limits.diagnostics] == ["measures_limited"]
     html = render_report(profile)
@@ -141,8 +146,8 @@ def test_limits_section_is_absent_when_nothing_is_limited(tmp_path):
 
     profile = analyze_csv(source)
 
-    limits = profile.datasets[0].limits
-    assert limits.measures == []
+    limits = dataset_views(profile)[0].limits
+    assert limits.items == []
     assert limits.diagnostics == []
     assert limits.untracked_observations == 0
     assert 'id="limits"' not in render_report(profile)
@@ -156,10 +161,10 @@ def test_structural_limits_and_diagnostics_of_a_json_dataset(tmp_path):
         source, _config(limits={"max_depth": 2, "max_fields": 3})
     )
 
-    limits = profile.datasets[0].limits
-    paths = next(item for item in limits.measures if item.measure == "structure.paths")
+    limits = dataset_views(profile)[0].limits
+    paths = next(item for item in limits.items if item.measure == "structure.paths")
     assert paths.column_id is None
-    assert paths.path is None
+    assert paths.field_path is None
     assert paths.reason == "field_limit"
     assert paths.lower_bound == 4
     assert limits.untracked_observations > 0
@@ -169,8 +174,8 @@ def test_structural_limits_and_diagnostics_of_a_json_dataset(tmp_path):
     depth = next(item for item in limits.diagnostics if item.code == "depth_limit")
     assert depth.level == "warning"
     assert depth.locations[0].record == 1
-    assert profile.datasets[0].structure.path_status == "limited"
-    assert profile.datasets[0].structure.path_count is None
+    assert profile.report.datasets[0].structure.path_status == "limited"
+    assert profile.report.datasets[0].structure.path_count is None
 
 
 def test_excluded_records_appear_as_diagnostics(tmp_path):
@@ -178,7 +183,7 @@ def test_excluded_records_appear_as_diagnostics(tmp_path):
 
     profile = analyze_csv(source, _config(errors={"policy": "tolerant"}))
 
-    [diagnostic] = profile.datasets[0].limits.diagnostics
+    [diagnostic] = dataset_views(profile)[0].limits.diagnostics
     assert diagnostic.code == "csv_width_mismatch"
     assert diagnostic.level == "error"
     assert diagnostic.locations[0].record == 2
@@ -198,7 +203,7 @@ def test_json_structure_lists_containers_presence_and_arrays(tmp_path):
 
     profile = analyze_csv(source)
 
-    datasets = {dataset.id: dataset for dataset in profile.datasets}
+    datasets = {dataset.id: dataset for dataset in profile.report.datasets}
     customers = datasets["$.customers[]"].structure
     assert customers.record_types == {"object": 3}
     assert customers.path_status == "complete"
@@ -240,5 +245,5 @@ def test_csv_sources_have_no_structure_section(tmp_path):
 
     profile = analyze_csv(source)
 
-    assert profile.datasets[0].structure is None
+    assert profile.report.datasets[0].structure is None
     assert 'id="structure"' not in render_report(profile)

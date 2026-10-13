@@ -1,0 +1,10 @@
+id,en,fr
+intel_consumer,Intel consumer chipset,Chipset grand public Intel
+intel_business,Intel business chipset,Chipset professionnel Intel
+intel_workstation,Intel workstation chipset,Chipset station de travail Intel
+intel_server,Intel server chipset,Chipset serveur Intel
+amd_consumer,AMD consumer chipset,Chipset grand public AMD
+amd_workstation,AMD workstation chipset,Chipset station de travail AMD
+amd_server,AMD server chipset,Chipset serveur AMD
+soc_integrated,SoC integrated chipset,Chipset intégré au SoC
+proprietary,Proprietary chipset,Chipset propriétaire

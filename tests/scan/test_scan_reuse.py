@@ -48,10 +48,17 @@ def _report(*arguments):
 
 
 def _comparable(profile: dict) -> dict:
-    return {
+    # What varies between runs: the scan's ``run`` and the report's own timing.
+    # The second pass is compared apart: a report of a scan document reads no
+    # source, so it holds fewer analyses than the report of the source.
+    report = {
         key: value
-        for key, value in profile.items()
+        for key, value in profile["report"].items()
         if key not in {"generated_at", "processing_seconds"}
+    }
+    return {
+        **{k: v for k, v in profile.items() if k not in {"run", "analyses"}},
+        "report": report,
     }
 
 
@@ -64,7 +71,12 @@ def test_report_from_a_scan_equals_the_direct_report(tmp_path):
     config = _config(
         tmp_path,
         "config.json",
-        {"value_examples": {"inline_display_size": 2}, "scan": {"records": {"preview": 2}}},
+        {
+            "report": {
+                "value_examples": {"inline_display_size": 2},
+                "row_sample": {"start": 2, "middle": 0, "end": 0},
+            },
+        },
     )
     scan_document = _scan(source, "--config", config)
     direct = tmp_path / "direct" / "data.html"
@@ -76,7 +88,14 @@ def test_report_from_a_scan_equals_the_direct_report(tmp_path):
     reused = json.loads((tmp_path / "data.json").read_text(encoding="utf-8"))
     expected = json.loads(direct.with_suffix(".json").read_text(encoding="utf-8"))
     assert _comparable(reused) == _comparable(expected)
-    assert reused["datasets"][0]["summary"]["duplicate_row_count"] == 1
+    # A report of a scan document reads no source and says what it left out.
+    assert expected["analyses"]["outcome"] == "ran"
+    # What the scan alone answers (the values patterns leave out, the repeated
+    # values of its samples) is computed; the rest is left out.
+    assert reused["analyses"]["outcome"] == "ran"
+    assert reused["analyses"]["deep"]["run"]["source_read"] is False
+    assert reused["analyses"]["deep"]["run"]["skipped"] > 0
+    assert reused["report"]["datasets"][0]["summary"]["duplicate_row_count"] == 1
     assert (tmp_path / "data.html").exists()
     history = json.loads((tmp_path / "executions.json").read_text(encoding="utf-8"))
     assert history["executions"][0]["source_file"] == "data.csv"
@@ -86,12 +105,12 @@ def test_report_from_a_scan_includes_the_scan_duration(tmp_path):
     source = write_text(tmp_path, "data.csv", ROWS)
     scan_document = _scan(source)
     document = json.loads(scan_document.read_text(encoding="utf-8"))
-    document["duration_seconds"] = 12.5
+    document["run"]["duration_seconds"] = 12.5
     scan_document.write_text(json.dumps(document), encoding="utf-8")
 
     profile = analyze_scan(scan_document)
 
-    assert 12.5 < profile.processing_seconds < 17.5
+    assert 12.5 < profile.report.processing_seconds < 17.5
     assert _report("--scan", scan_document).exit_code == 0
     history = json.loads((tmp_path / "executions.json").read_text(encoding="utf-8"))
     entry = history["executions"][0]
@@ -108,8 +127,8 @@ def test_report_from_a_scan_never_reads_the_source(tmp_path, monkeypatch):
     monkeypatch.setattr(csv_reader.CsvReader, "__iter__", refuse)
     profile = analyze_scan(scan_document)
 
-    assert profile.datasets[0].summary.row_count == 3
-    assert profile.config.scan.records.preview == 10
+    assert profile.report.datasets[0].summary.row_count == 3
+    assert profile.config.records.sample.edge == 50
 
 
 def test_a_missing_source_is_accepted(tmp_path):
@@ -119,8 +138,13 @@ def test_a_missing_source_is_accepted(tmp_path):
 
     profile = analyze_scan(scan_document)
 
-    assert profile.source.filename == "data.csv"
-    assert profile.datasets[0].preview[0].values == ["1", "aaa@aaaaaaa.aaa", "Paris"]
+    assert profile.source.name == "data.csv"
+    first = profile.datasets[0].records.sample.rows[0]
+    assert [first.values[field.id] for field in profile.datasets[0].fields] == [
+        ["1"],
+        ["aaa@aaaaaaa.aaa"],
+        ["Paris"],
+    ]
 
 
 def test_a_source_of_another_size_is_stale(tmp_path):
@@ -153,7 +177,7 @@ def test_a_touched_source_with_the_same_content_is_fresh(tmp_path):
     stat = source.stat()
     os.utime(source, (stat.st_atime, stat.st_mtime + 10))
 
-    assert analyze_scan(scan_document).datasets[0].summary.row_count == 3
+    assert analyze_scan(scan_document).report.datasets[0].summary.row_count == 3
 
 
 def test_other_scan_settings_in_the_configuration_are_stale(tmp_path):
@@ -162,16 +186,18 @@ def test_other_scan_settings_in_the_configuration_are_stale(tmp_path):
     other = _config(tmp_path, "other.json", {"scan": {"limits": {"max_samples": 5}}})
     same = _config(tmp_path, "same.json", {"scan": {"random_seed": 42}})
     presentation = _config(
-        tmp_path, "presentation.json", {"value_examples": {"inline_display_size": 1}}
+        tmp_path,
+        "presentation.json",
+        {"report": {"value_examples": {"inline_display_size": 1}}},
     )
 
     result = _report("--scan", scan_document, "--config", other)
 
     assert result.exit_code == 2
     assert "Stale scan" in result.stderr
-    assert analyze_scan(scan_document, same).datasets[0].summary.row_count == 3
+    assert analyze_scan(scan_document, same).report.datasets[0].summary.row_count == 3
     profile = analyze_scan(scan_document, presentation)
-    assert profile.config.value_examples.inline_display_size == 1
+    assert profile.report.config.value_examples.inline_display_size == 1
 
 
 def test_scan_settings_of_the_document_apply(tmp_path):
@@ -181,8 +207,8 @@ def test_scan_settings_of_the_document_apply(tmp_path):
 
     profile = analyze_scan(scan_document)
 
-    assert profile.source.delimiter == ";"
-    assert profile.config.scan.csv.delimiter == ";"
+    assert profile.source.csv.delimiter == ";"
+    assert profile.config.csv.delimiter == ";"
 
 
 def test_csv_options_cannot_be_combined_with_scan(tmp_path):

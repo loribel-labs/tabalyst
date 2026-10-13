@@ -36,7 +36,7 @@ from tabalyst.scanner.records import PathTokens, record_digest
 
 def semantic(result):
     return result.model_dump(
-        mode="json", by_alias=True, exclude={"started_at", "duration_seconds"}
+        mode="json", by_alias=True, exclude={"run"}
     )
 
 
@@ -384,7 +384,7 @@ def test_reopen_rejects_invalid_database(tmp_path, change):
     if change == "scan":
         staged.scan_path.write_bytes(
             staged.scan_path.read_bytes().replace(
-                b'"name": "source.csv"', b'"name": "other.csv"'
+                b'"name":"source.csv"', b'"name":"other.csv"'
             )
         )
     else:

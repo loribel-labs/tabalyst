@@ -76,9 +76,10 @@ def test_config_encoding_and_explicit_separator_precedence(tmp_path):
         tmp_path / "configured.html",
         config_path=config,
     )
-    assert configured["source"]["delimiter"] == ";"
+    assert configured["source"]["csv"]["delimiter"] == ";"
     assert configured["source"]["encoding"] == "cp1252"
-    assert configured["datasets"][0]["preview"][0]["values"][0] == "Montréal"
+    first = configured["datasets"][0]["records"]["sample"]["rows"][0]
+    assert first["values"]["column_1"] == ["Montréal"]
 
     explicit_source = tmp_path / "explicit.csv"
     explicit_source.write_text("city|value\nQuébec|2\n", encoding="utf-8")
@@ -89,7 +90,7 @@ def test_config_encoding_and_explicit_separator_precedence(tmp_path):
         encoding="utf-8",
         config_path=config,
     )
-    assert explicit["source"]["delimiter"] == "|"
+    assert explicit["source"]["csv"]["delimiter"] == "|"
     assert explicit["source"]["encoding"] == "utf-8"
 
 
@@ -217,3 +218,41 @@ def test_cli_has_concise_user_errors(tmp_path):
     assert result.exit_code == 4
     assert "ending in .html" in result.output
     assert "Traceback" not in result.output
+
+
+def test_every_public_name_resolves_on_first_use():
+    missing = [name for name in tabalyst.__all__ if getattr(tabalyst, name, None) is None]
+
+    assert missing == []
+    assert set(tabalyst.__all__) - {"__version__"} - set(tabalyst._LAZY) <= {
+        "ConfigurationError",
+        "InputError",
+        "ReportError",
+        "TabalystError",
+    }
+    assert all(getattr(tabalyst, name) is not None for name in tabalyst._LAZY)
+    assert set(tabalyst._LAZY) <= set(dir(tabalyst))
+
+
+def test_unknown_public_name_raises_attribute_error():
+    with pytest.raises(AttributeError, match="no attribute 'not_a_name'"):
+        tabalyst.not_a_name  # noqa: B018
+
+
+def test_worker_modules_do_not_load_the_services_of_the_package():
+    """A scan worker imports the engine only: the report, the planner and the
+    services would cost every worker memory (lot 12)."""
+    import subprocess
+    import sys
+
+    code = (
+        "import sys; import tabalyst.scanner.values, tabalyst.scanner.detectors.registry; "
+        "heavy = [m for m in ('tabalyst.report_service', 'tabalyst.service', "
+        "'tabalyst.scanner.api', 'tabalyst.scanner.planner', 'jinja2') if m in sys.modules]; "
+        "print(heavy)"
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", code], check=True, capture_output=True, text=True
+    )
+
+    assert completed.stdout.strip() == "[]"

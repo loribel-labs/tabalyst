@@ -18,6 +18,12 @@ from fractions import Fraction
 
 from tabalyst.errors import ConfigurationError
 from tabalyst.scanner.config import ScanConfig, exact_share
+from tabalyst.scanner.convention_rule import (
+    EVIDENCE,
+    NumberRule,
+    ambiguous_thousands,
+    dotted_thousands,
+)
 from tabalyst.scanner.detectors.base import (
     Classification,
     Detector,
@@ -39,7 +45,7 @@ from tabalyst.scanner.detectors.temporal import DateDetector
 from tabalyst.scanner.detectors.url import UrlDetector
 from tabalyst.scanner.detectors.uuid import UuidDetector
 from tabalyst.scanner.exposure import SHOW, ExposureGate
-from tabalyst.scanner.measures import UNCONVERTIBLE
+from tabalyst.scanner.measures import UNCONVERTIBLE, ThousandsReadings, ValueMeasures
 from tabalyst.scanner.models import (
     Adaptive,
     Coverage,
@@ -116,6 +122,17 @@ class DetectorRegistry:
 
     def __contains__(self, identifier: object) -> bool:
         return identifier in self._classes
+
+
+def replayable() -> dict[str, type[Detector]]:
+    """The built-in detectors a second pass can replay on the strings of a field
+    (design 20.20): those that classify one string at a time, and nothing else
+    than strings."""
+    return {
+        detector.id: detector
+        for detector in BUILT_INS
+        if detector.scope == "value" and detector.accepts == frozenset({"string"})
+    }
 
 
 def default_registry() -> DetectorRegistry:
@@ -468,6 +485,7 @@ class DetectorSet:
         "_exposure",
         "_field_scope",
         "_number",
+        "_number_rule",
         "_plans",
         "_shape_cache",
         "active",
@@ -503,6 +521,10 @@ class DetectorSet:
         index = {detector.id: i for i, detector in enumerate(active)}
         self._number = index.get("number")
         self._date = index.get("date")
+        # The rule of the ambiguous numbers (design 20.27), ``None`` when the
+        # evidence of a column can decide nothing.
+        rule = NumberRule.of(config.detectors.number.model_dump())
+        self._number_rule = rule if self._number is not None and rule.active else None
         self.max_examples = config.limits.max_evidence_examples
         self.max_length = config.limits.max_stored_value_length
         self.minimum_share = exact_share(config.detection.minimum_share)
@@ -719,6 +741,9 @@ class DetectorSet:
         rules of ``technical.string_family``."""
         families = measures.families
         numeric = measures.numeric
+        # Numbers with two readings wait for the convention of the column
+        # (design 20.27): only when the evidence can decide it.
+        readings = self._number_rule is not None
         other = 0
         # Longer values that neither detector recognized are text.
         candidates = [
@@ -748,15 +773,68 @@ class DetectorSet:
                     if family == "text":
                         family = "integer" if integer else "number"
                     if _is_number(found.value):
-                        numeric.add(found.value, not integer, False, count)
-                elif state == "ambiguous" and family == "text":
-                    family = "number"
+                        # The format first: most numbers are not ``0.0``,
+                        # and this loop runs for every distinct string.
+                        dotted = (
+                            dotted_thousands(found)
+                            if readings and found.format == "0.0"
+                            else None
+                        )
+                        if dotted is None:
+                            numeric.add(found.value, not integer, False, count)
+                        else:
+                            if measures.dotted_numbers is None:
+                                measures.dotted_numbers = ThousandsReadings(
+                                    numeric.median_values is not None
+                                )
+                            measures.dotted_numbers.add(dotted, count)
+                elif state == "ambiguous":
+                    if readings:
+                        if measures.ambiguous_numbers is None:
+                            measures.ambiguous_numbers = ThousandsReadings(
+                                numeric.median_values is not None
+                            )
+                        measures.ambiguous_numbers.add(
+                            ambiguous_thousands(values[j]), count
+                        )
+                    if family == "text":
+                        family = "number"
             if family != "text":
                 families[family] = families.get(family, 0) + count
                 other += count
         text = sum(counts) - other
         if text:
             families["text"] = families.get("text", 0) + text
+
+    def number_convention(self, measures: ValueMeasures) -> str | None:
+        """The convention the unambiguous numbers of a finished field prove, when
+        it reads at least one value (design 20.27), else ``None``. Writes the
+        ``resolution`` of the number detector, so call it once, before
+        ``results``."""
+        rule, index = self._number_rule, self._number
+        if rule is None or index is None:
+            return None
+        tally = measures.tallies[index]
+        accumulator = tally.accumulator if tally.error is None else None
+        evidence = getattr(accumulator, "evidence", None)
+        if evidence is None:
+            return None
+        convention = rule.convention(evidence)
+        if convention is None:
+            return None
+        ambiguous, dotted = measures.ambiguous_numbers, measures.dotted_numbers
+        resolved = (0 if ambiguous is None else ambiguous.count) + (
+            dotted.count if convention == "comma" and dotted is not None else 0
+        )
+        if not resolved:
+            return None
+        accumulator.resolution = {  # type: ignore[union-attr]
+            "convention": convention,
+            "source": EVIDENCE,
+            "evidence": dict(evidence),
+            "resolved": resolved,
+        }
+        return convention
 
     def gate(self, tallies: list[DetectorTally]) -> ExposureGate | None:
         """The exposure gate of a sensitive field, ``None`` otherwise."""

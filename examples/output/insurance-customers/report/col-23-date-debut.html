@@ -547,9 +547,89 @@ td.ex .tip.show{display:block}
 .column-grid .schema{margin:0}
 .column-json{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0;padding:10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--s0);color:var(--text-2);font:400 11px/1.5 var(--f-mono)}
 @media (max-width:650px){.column-line{align-items:flex-start}.column-line b{white-space:normal}}
+
+/* lot 5: accuracy labels, finding status, pager. Shape and text carry the
+   meaning, never the color alone. */
+.acc{display:inline-flex;align-items:center;gap:4px;font:500 10.5px/1 var(--f-mono);letter-spacing:.04em;text-transform:uppercase;padding:3px 6px;border-radius:var(--r-xs);border:1px solid var(--line-strong);color:var(--text-2);white-space:nowrap}
+.acc::before{font-weight:600}
+.acc-exact::before{content:"="}
+.acc-estimated{border-style:dotted}
+.acc-estimated::before{content:"\2248"}
+.acc-sample{border-style:dashed}
+.acc-sample::before{content:"\223C"}
+.acc-at_least{border-color:rgba(249,133,16,.6);color:var(--attn-text)}
+.acc-at_least::before{content:"\2265"}
+.acc-fingerprint{border-style:dashed}
+.acc-fingerprint::before{content:"#"}
+.acc-not_computed{border-style:dashed;color:var(--text-3)}
+.acc-not_computed::before{content:"\2205"}
+.lb{color:var(--attn-text)}
+.est{white-space:nowrap}
+.st{display:inline-flex;align-items:center;gap:6px;font:500 11px/1.2 var(--f-mono);color:var(--text-2);white-space:nowrap}
+.st i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--attn)}
+.st-cand i,.findings li.cand i{background:transparent;border:1.5px solid var(--attn)}
+.st-info i{background:var(--d2)}
+.findings li.cand i{width:7px;height:7px;box-sizing:border-box}
+.findings li.cand i,.findings li.warn i{flex:none}
+.st-t{font:500 10.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);margin-right:4px}
+.cut{margin-left:6px;font:500 10.5px/1 var(--f-mono);color:var(--attn-text);white-space:nowrap}
+.pill.on{border-color:var(--text-3);color:var(--text)}
+.pager{margin-top:10px}
+.pager[hidden]{display:none}
+.pat{white-space:pre-wrap;overflow-wrap:anywhere}
+.periods{margin:10px 0;border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 12px}
+.periods summary{cursor:pointer;font-size:13px}
+.periods .tscroll{max-height:320px;overflow:auto;margin-top:10px}
+.periods td.bar{width:60%}
+.periods td.bar span{display:block;height:6px;border-radius:3px;background:var(--d2)}
+/* ---- relationships (lot 8b) ---- */
+.rel{margin:10px 0 4px}
+.rel-more,.rel-mirror{margin:12px 0;border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 12px}
+.rel-more>summary,.rel-mirror>summary{cursor:pointer;font-size:13px;color:var(--text-2)}
+.rel-more[open]>summary,.rel-mirror[open]>summary{margin-bottom:10px}
+.rel-sum{margin:0 0 12px;font-size:13px;max-width:80ch}
+.subh2{font:600 13px/1.3 var(--f-display);margin:20px 0 6px;color:var(--text)}
+.subh2 .n{font-weight:400;color:var(--text-3);margin-left:6px}
+.rel>.metrics{margin-bottom:14px}
+.rel-more>.metrics{margin-bottom:14px}
+.rel-grid td.rel-c{background:color-mix(in srgb,var(--d2) calc(var(--w,0)*45%),transparent);vertical-align:top}
+.rel-grid td.rel-c b{display:block;font-weight:600;color:var(--text)}
+.rel-grid td.rel-c small{display:block;font-size:11px;color:var(--text-2)}
+.rel-grid td.rel-c.dom{box-shadow:inset 0 -2px 0 var(--d3)}
+.rel-grid td.rel-c.exc b{color:var(--attn-text)}
+.rel-grid tfoot th,.rel-grid tfoot td{border-top:1px solid var(--line-strong);font-weight:600}
+
+/* Insight cards (second-pass results laid out with their accuracy) */
+.ins{border:1px solid var(--line);border-radius:var(--r-md);background:var(--g-card);box-shadow:var(--hl);padding:4px 16px 14px;margin-top:var(--joint);min-width:0}
+.ins-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.ins-h .subh{margin:14px 0 4px;min-width:0;overflow-wrap:anywhere}
+.ins-acc{display:inline-flex;flex-wrap:wrap;gap:6px}
+.ins-sum{margin:0 0 8px;font-size:12.5px}
+.ins-facts{margin:8px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:0 var(--joint)}
+.ins-facts>div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:7px 0;border-bottom:1px solid var(--line);min-width:0}
+.ins-facts dt{flex:0 0 auto;max-width:50%;color:var(--text-2);font-size:13px;overflow-wrap:break-word}
+.ins-facts dd{margin:0;font:500 12.5px/1.4 var(--f-mono);color:var(--text);text-align:right;min-width:0;flex:1 1 0;overflow-wrap:anywhere}
+.ins-bars-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:4px var(--joint);margin-top:14px}
+.ins-bars{min-width:0}
+.ins-bars .rcard-title{margin-bottom:6px;font-size:13px}
+.ins-bar{display:grid;grid-template-columns:minmax(64px,28%) 1fr auto;align-items:center;gap:10px;padding:2px 0;font:400 12px/1.4 var(--f-mono);color:var(--text-2)}
+.ins-bar .l{min-width:0;overflow-wrap:anywhere}
+.ins-bar .tr{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.ins-bar .tr span{display:block;height:100%;min-width:2px;background:var(--d2);border-radius:3px}
+.ins-bar b{font-weight:500;color:var(--text);text-align:right;white-space:nowrap}
+.ins-bar b small{margin-left:8px;color:var(--text-3);font-weight:400}
+.ins-cap{margin:16px 0 6px}
+.ins td.ins-v{text-align:left;min-width:14ch}
+.ins td code{white-space:pre-wrap;overflow-wrap:anywhere}
+.ins-fam{margin:26px 0 0}
+@media (max-width:650px){.ins{padding:2px 12px 12px}.ins-facts>div{flex-direction:column;gap:2px}.ins-facts dt{max-width:none}.ins-facts dd{text-align:left;flex:none}.ins-bar{grid-template-columns:minmax(56px,34%) 1fr auto}}
 </style>
 </head>
 <body>
+
+
+
+
 <a class="skip" href="#content">Skip to column report</a>
 <div class="shell">
 <aside class="side" aria-label="Column navigation">
@@ -563,10 +643,12 @@ td.ex .tip.show{display:block}
     <a class="rep-tab" href="#dates"><small>04</small>Dates<span class="ct">5</span></a>
 
 
-    <a class="rep-tab" href="#transformations"><small>07</small>Transformations</a>
-    <a class="rep-tab" href="#scan-evidence"><small>08</small>Scan evidence</a>
-    <a class="rep-tab" href="#sample"><small>09</small>Data sample<span class="ct">20</span></a>
+    <a class="rep-tab" href="#patterns"><small>07</small>Patterns</a>
+    <a class="rep-tab" href="#transformations"><small>08</small>Transformations</a>
+    <a class="rep-tab" href="#scan-evidence"><small>09</small>Scan evidence</a>
+    <a class="rep-tab" href="#sample"><small>10</small>Data sample<span class="ct">30</span></a>
 
+    <a class="rep-tab" href="#insights"><small>12</small>Insights<span class="ct">2</span></a>
     <p class="side-group">Navigation</p>
     <a class="rep-tab" href="../report.html"><small>↖</small>Full report</a>
   </nav>
@@ -576,14 +658,14 @@ td.ex .tip.show{display:block}
 <header class="rhead"><div class="wrap"><p class="eyebrow">Column report · insurance-customers.csv</p><div class="rhead-top"><div><h1>date_debut</h1><ul class="facts"><li><b>Column 23</b> of 34</li><li><code>date_debut</code></li><li>3,000 rows</li></ul></div><a class="btn" href="../report.html">← Full report</a></div></div></header>
 <main id="content" class="wrap content" tabindex="-1">
 <section class="panel" id="overview" aria-labelledby="overview-h"><div class="phead"><div><p class="eyebrow">01 / Overview</p><h2 id="overview-h">Column overview</h2><p>Profile, values and formats at a glance.</p></div></div><div class="pbody">
-  <dl class="metrics"><div class="metric"><dt>Analyzable values</dt><dd><span class="v">3,000</span><span class="s">in 3,000 rows</span></dd></div><div class="metric"><dt>Missing</dt><dd><span class="v">0.0<small>%</small></span><span class="s">0 values</span></dd></div><div class="metric"><dt>Distinct</dt><dd><span class="v">2,409</span><span class="s">random sample</span></dd></div><div class="metric attn"><dt>Type errors</dt><dd><span class="v">7</span><span class="s">0.23%</span></dd></div></dl>
+  <dl class="metrics"><div class="metric"><dt>Analyzable values</dt><dd><span class="v">3,000</span><span class="s">in 3,000 rows</span></dd></div><div class="metric"><dt>Missing</dt><dd><span class="v">0.0<small>%</small></span><span class="s">0 values</span></dd></div><div class="metric"><dt>Distinct</dt><dd><span class="v">2,409</span><span class="s"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · random sample</span></dd></div><div class="metric attn"><dt>Type errors</dt><dd><span class="v">7</span><span class="s">0.23%</span></dd></div></dl>
   <div class="column-grid"><div class="rcard"><p class="rcard-title">Interpretation</p><dl class="schema"><dt>Inferred type</dt><dd><span class="pill">date</span></dd><dt>Semantic type</dt><dd><span class="pill">date</span></dd><dt>Confidence</dt><dd>99.8%</dd><dt>Exposure</dt><dd>Normal</dd></dl></div>
   <div class="rcard"><p class="rcard-title">Value coverage</p><p class="muted">100 stored distinct values · random sample.</p><p class="muted">The full value list appears below.</p></div>
   <div class="rcard"><p class="rcard-title">Detected formats</p><p><span class="pill">date</span> 2,658 matched</p><div class="column-line"><code>YYYY-MM-DD</code><b>2,170 · 72.33%</b></div><div class="column-line"><code>DD-MM-YYYY</code><b>338 · 11.27%</b></div><div class="column-line"><code>MM-DD-YYYY</code><b>142 · 4.73%</b></div><div class="column-line"><code>YYYY/MM/DD</code><b>6 · 0.2%</b></div><div class="column-line"><code>DD/MM/YYYY</code><b>2 · 0.07%</b></div><p class="rcard-title">Date formats</p><div class="column-line"><code>YYYY-MM-DD</code><b>2,170 · 72.33%</b></div><div class="column-line"><code>DD-MM-YYYY</code><b>338 · 11.27%</b></div><div class="column-line"><code>MM-DD-YYYY</code><b>142 · 4.73%</b></div><div class="column-line"><code>YYYY/MM/DD</code><b>6 · 0.2%</b></div><div class="column-line"><code>DD/MM/YYYY</code><b>2 · 0.07%</b></div></div>
   <div class="rcard"><p class="rcard-title">Type counts</p><div class="column-line"><span>date</span><b>2,993</b></div><div class="column-line"><span>text</span><b>7</b></div><p class="rcard-title">Native types</p><div class="column-line"><span>string</span><b>3,000</b></div></div>
-  <div class="rcard"><p class="rcard-title">Observations</p><div class="column-line"><span>Date values matching more than one day-month order<small class="sub-n">warning</small></span><b>1,630</b></div></div></div>
+  <div class="rcard"><p class="rcard-title">Observations</p><div class="column-line"><span><span class="st st-cand" title="Worth a look: a rule cannot confirm it is an error"><i aria-hidden="true"></i>Candidate anomaly</span> Values outside the type of their column<small class="sub-n"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · values out of 3,000</small></span><b>7</b></div><div class="column-line"><span><span class="st st-cand" title="Worth a look: a rule cannot confirm it is an error"><i aria-hidden="true"></i>Candidate anomaly</span> Date values matching more than one day-month order<small class="sub-n"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · values out of 2,993</small></span><b>335</b></div></div></div>
 </div></section>
-<section class="panel" id="values" aria-labelledby="values-h"><div class="phead"><div><p class="eyebrow">02 / Distribution</p><h2 id="values-h">Values<span class="n">(20)</span></h2><p>A random sample from 2,409 distinct values. Counts are occurrences in the analyzed column.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><code>2017-10-09</code><b>5</b></div><div class="column-line"><code>2024-03-23</code><b>5</b></div><div class="column-line"><code>2026-05-02</code><b>5</b></div><div class="column-line"><code>2020-10-10</code><b>3</b></div><div class="column-line"><code>2022-02-28</code><b>3</b></div><div class="column-line"><code>04-06-2023</code><b>1</b></div><div class="column-line"><code>19-08-2022</code><b>1</b></div><div class="column-line"><code>2017-11-08</code><b>1</b></div><div class="column-line"><code>2019-02-07</code><b>1</b></div><div class="column-line"><code>2020-02-14</code><b>1</b></div><div class="column-line"><code>2020-03-30</code><b>1</b></div><div class="column-line"><code>2020-04-03</code><b>1</b></div><div class="column-line"><code>2020-06-30</code><b>1</b></div><div class="column-line"><code>2021-12-05</code><b>1</b></div><div class="column-line"><code>2022-01-01</code><b>1</b></div><div class="column-line"><code>2022-07-08</code><b>1</b></div><div class="column-line"><code>2024-08-26</code><b>1</b></div><div class="column-line"><code>2027-06-13</code><b>1</b></div><div class="column-line"><code>2027-06-17</code><b>1</b></div><div class="column-line"><code>24-08-2020</code><b>1</b></div></div></div></section>
+<section class="panel" id="values" aria-labelledby="values-h"><div class="phead"><div><p class="eyebrow">02 / Distribution</p><h2 id="values-h">Values<span class="n">(20)</span></h2><p>A random sample from 2,409 distinct values. Each count is the exact frequency of that value in the analyzed column.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><code>2017-10-09</code><b>5</b></div><div class="column-line"><code>2024-03-23</code><b>5</b></div><div class="column-line"><code>2026-05-02</code><b>5</b></div><div class="column-line"><code>2025-06-15</code><b>2</b></div><div class="column-line"><code>22-06-2022</code><b>2</b></div><div class="column-line"><code>05-05-2024</code><b>1</b></div><div class="column-line"><code>2017-08-21</code><b>1</b></div><div class="column-line"><code>2018-06-18</code><b>1</b></div><div class="column-line"><code>2019-12-09</code><b>1</b></div><div class="column-line"><code>2022-03-30</code><b>1</b></div><div class="column-line"><code>2022-06-20</code><b>1</b></div><div class="column-line"><code>2022-08-08</code><b>1</b></div><div class="column-line"><code>2022-09-07</code><b>1</b></div><div class="column-line"><code>2022-10-19</code><b>1</b></div><div class="column-line"><code>2023-09-01</code><b>1</b></div><div class="column-line"><code>2023-10-23</code><b>1</b></div><div class="column-line"><code>2024-02-22</code><b>1</b></div><div class="column-line"><code>2024-03-09</code><b>1</b></div><div class="column-line"><code>25-06-2024</code><b>1</b></div><div class="column-line"><code>28-03-2026</code><b>1</b></div></div></div></section>
 <section class="panel" id="detectors" aria-labelledby="detectors-h"><div class="phead"><div><p class="eyebrow">03 / Detection</p><h2 id="detectors-h">Detectors and formats</h2><p>All detectors that recognized values in this column.</p></div></div><div class="pbody column-grid"><div class="rcard"><p class="rcard-title">Date</p><dl class="schema"><dt>Status</dt><dd>complete</dd><dt>Eligible</dt><dd>3,000</dd><dt>Matched</dt><dd>2,658 (88.6%)</dd><dt>Ambiguous</dt><dd>335</dd><dt>Invalid</dt><dd>7</dd><dt>Tested</dt><dd>3,000</dd><dt>Not tested</dt><dd>0</dd><dt>Not matched</dt><dd>0</dd></dl><div class="column-line"><code>YYYY-MM-DD</code><b>2,170 · 72.33%</b></div><div class="column-line"><code>DD-MM-YYYY</code><b>338 · 11.27%</b></div><div class="column-line"><code>MM-DD-YYYY</code><b>142 · 4.73%</b></div><div class="column-line"><code>YYYY/MM/DD</code><b>6 · 0.2%</b></div><div class="column-line"><code>DD/MM/YYYY</code><b>2 · 0.07%</b></div><p class="rcard-title">Examples by outcome</p><div class="column-line"><span>matched<small class="sub-n">2020-07-16 · 2027-06-02 · 2016-09-30 · 2023-03-29 · 2017-05-26 · 2025-05-17 · 2025-03-16 · 2018-07-30 · 2022-06-11 · 2022-09-27</small></span></div><div class="column-line"><span>ambiguous<small class="sub-n">04-12-2025 · 12-12-2021 · 06-12-2018 · 02-04-2025 · 11-12-2025 · 12-04-2017 · 11-07-2025 · 09-08-2022 · 01-02-2017 · 01-03-2026</small></span></div><div class="column-line"><span>invalid<small class="sub-n">2026-13-40 · 13-40-2026</small></span></div><p class="rcard-title">Detector details</p><pre class="column-json">{
   "ambiguity": {
     "candidates": [
@@ -606,8 +688,9 @@ td.ex .tip.show{display:block}
 <section class="panel" id="dates" aria-labelledby="dates-h"><div class="phead"><div><p class="eyebrow">04 / Dates</p><h2 id="dates-h">Date analysis</h2><p>Ambiguous dates remain unresolved unless an order was configured.</p></div></div><div class="pbody"><dl class="metrics"><div class="metric"><dt>Valid</dt><dd><span class="v">2,658</span><span class="s">88.6%</span></dd></div><div class="metric attn"><dt>Ambiguous</dt><dd><span class="v">335</span><span class="s">11.17%</span></dd></div><div class="metric attn"><dt>Invalid dates</dt><dd><span class="v">7</span><span class="s">0.23%</span></dd></div><div class="metric"><dt>Other values</dt><dd><span class="v">0</span><span class="s">0.0%</span></dd></div></dl><div class="column-grid"><div class="rcard"><p class="rcard-title">Breakdown · mixed</p><div class="column-line"><span>YYYY-MM-DD</span><b>2,170 · 72.33%</b></div><div class="column-line"><span>DD-MM-YYYY</span><b>338 · 11.27%</b></div><div class="column-line"><span>Ambiguous: DD-MM-YYYY or MM-DD-YYYY</span><b>335 · 11.17%</b></div><div class="column-line"><span>MM-DD-YYYY</span><b>142 · 4.73%</b></div><div class="column-line"><span>YYYY/MM/DD</span><b>6 · 0.2%</b></div><div class="column-line"><span>DD/MM/YYYY</span><b>2 · 0.07%</b></div><div class="column-line"><span>Invalid date</span><b>7 · 0.23%</b></div><div class="column-line"><span>Not a date</span><b>0 · 0.0%</b></div></div><div class="rcard"><p class="rcard-title">Formats · 5</p><div class="column-line"><span><code>YYYY-MM-DD</code> · YMD · <code>-</code></span><b>2,170 · 72.33%</b></div><div class="column-line"><span><code>DD-MM-YYYY</code> · DMY · <code>-</code></span><b>338 · 11.27%</b></div><div class="column-line"><span><code>MM-DD-YYYY</code> · MDY · <code>-</code></span><b>142 · 4.73%</b></div><div class="column-line"><span><code>YYYY/MM/DD</code> · YMD · <code>/</code></span><b>6 · 0.2%</b></div><div class="column-line"><span><code>DD/MM/YYYY</code> · DMY · <code>/</code></span><b>2 · 0.07%</b></div></div><div class="rcard"><p class="rcard-title">Ambiguity evidence</p><div class="column-line"><span>DMY</span><b>340</b></div><div class="column-line"><span>MDY</span><b>142</b></div><p class="muted">Resolved order: none</p></div></div></div></section>
 
 
-<section class="panel" id="transformations" aria-labelledby="transformations-h"><div class="phead"><div><p class="eyebrow">07 / Cleaning</p><h2 id="transformations-h">Transformations</h2><p>Normalization preserves the raw values in the data sample.</p></div></div><div class="pbody"><div class="column-grid"><div class="rcard"><p class="rcard-title">Stages</p><div class="column-line"><span>raw<small class="sub-n">– changed · –</small></span><b>2,409</b></div><div class="column-line"><span>nfc<small class="sub-n">0 changed · 0.0%</small></span><b>2,409</b></div><div class="column-line"><span>trim<small class="sub-n">0 changed · 0.0%</small></span><b>2,409</b></div><div class="column-line"><span>collapse whitespace<small class="sub-n">0 changed · 0.0%</small></span><b>2,409</b></div><div class="column-line"><span>casefold<small class="sub-n">0 changed · 0.0%</small></span><b>2,409</b></div><div class="column-line"><span>strip accents<small class="sub-n">0 changed · 0.0%</small></span><b>2,409</b></div></div><div class="rcard"><p class="rcard-title">Variant groups · 0</p><p class="muted">No stored variant groups.</p></div></div></div></section>
-<section class="panel" id="scan-evidence" aria-labelledby="scan-evidence-h"><div class="phead"><div><p class="eyebrow">08 / Scan</p><h2 id="scan-evidence-h">Scan evidence</h2><p>Field facts retained from the Scan document.</p></div></div><div class="pbody column-grid">
+<section class="panel" id="patterns" aria-labelledby="patterns-h"><div class="phead"><div><p class="eyebrow">07 / Shapes</p><h2 id="patterns-h">Patterns</h2><p>Structural patterns inferred from the distinct values the scan sampled: <code>9</code> a digit, <code>X</code> a capital, <code>x</code> a lowercase letter, <code>@</code> any letter, <code>#</code> a letter or a digit. Shares count distinct values, not occurrences in the file.</p></div></div><div class="pbody"><p class="muted"><span class="acc acc-not_computed" title="Not computed by this scan">not computed</span> Only text and mixed columns have patterns.</p></div></section>
+<section class="panel" id="transformations" aria-labelledby="transformations-h"><div class="phead"><div><p class="eyebrow">08 / Cleaning</p><h2 id="transformations-h">Transformations</h2><p>Normalization preserves the raw values in the data sample.</p></div></div><div class="pbody"><div class="column-grid"><div class="rcard"><p class="rcard-title">Stages</p><div class="column-line"><span>raw<small class="sub-n">– changed · –</small></span><b>2,409</b></div><div class="column-line"><span>nfc<small class="sub-n">0 changed · 0.0%</small></span><b>2,409</b></div><div class="column-line"><span>trim<small class="sub-n">0 changed · 0.0%</small></span><b>2,409</b></div><div class="column-line"><span>collapse whitespace<small class="sub-n">0 changed · 0.0%</small></span><b>2,409</b></div><div class="column-line"><span>casefold<small class="sub-n">0 changed · 0.0%</small></span><b>2,409</b></div><div class="column-line"><span>strip accents<small class="sub-n">0 changed · 0.0%</small></span><b>2,409</b></div></div><div class="rcard"><p class="rcard-title">Variant groups · 0</p><p class="muted">No stored variant groups.</p></div></div></div></section>
+<section class="panel" id="scan-evidence" aria-labelledby="scan-evidence-h"><div class="phead"><div><p class="eyebrow">09 / Scan</p><h2 id="scan-evidence-h">Scan evidence</h2><p>Field facts retained from the Scan document.</p></div></div><div class="pbody column-grid">
 <div class="rcard"><p class="rcard-title">Presence and missing</p><dl class="schema"><dt>First record</dt><dd>1</dd><dt>Occurrences</dt><dd>3,000</dd><dt>Parent</dt><dd>object</dd><dt>Parents</dt><dd>3,000</dd><dt>Present</dt><dd>3,000</dd><dt>Absent</dt><dd>0</dd></dl><div class="column-line"><span>absent</span><b>0</b></div><div class="column-line"><span>null</span><b>0</b></div><div class="column-line"><span>empty</span><b>0</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><p class="muted">Missing definition: absent, null, empty, blank, marker</p></div>
 <div class="rcard"><p class="rcard-title">First and last values</p><div class="column-line"><span>First · record 1<small class="sub-n"><code>2020-07-16</code> · string</small></span></div><div class="column-line"><span>Last · record 3000<small class="sub-n"><code>25-04-2026</code> · string</small></span></div><p class="rcard-title">String categories</p><div class="column-line"><span>count</span><b>3,000</b></div><div class="column-line"><span>empty</span><b>0</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><div class="column-line"><span>content</span><b>3,000</b></div></div>
 <div class="rcard"><p class="rcard-title">String characteristics</p><div class="column-line"><span>non ascii</span><b>0</b></div><div class="column-line"><span>with line breaks</span><b>0</b></div><div class="column-line"><span>with control characters</span><b>0</b></div><div class="column-line"><span>with surrounding whitespace</span><b>0</b></div><div class="column-line"><span>with repeated whitespace</span><b>0</b></div><div class="column-line"><span>uppercase</span><b>0</b></div><div class="column-line"><span>lowercase</span><b>0</b></div><div class="column-line"><span>mixed case</span><b>0</b></div><div class="column-line"><span>no letters</span><b>3,000</b></div><p class="rcard-title">Scan length histogram</p><div class="column-line"><span>10 characters</span><b>3,000</b></div></div>
@@ -615,9 +698,20 @@ td.ex .tip.show{display:block}
 
 <div class="rcard"><p class="rcard-title">Temporal range</p><p class="muted">2,658 recognized; 335 ambiguous.</p><div class="column-line"><span>date<small class="sub-n">2016-09-19 → 2027-08-30</small><small class="sub-n">2016: 74 · 2017: 244 · 2018: 215 · 2019: 234 · 2020: 256 · 2021: 269 · 2022: 261 · 2023: 280 · 2024: 267 · 2025: 311 · 2026: 232 · 2027: 15</small></span><b>2,658</b></div></div>
 </div></section>
-<section class="panel" id="sample" aria-labelledby="sample-h"><div class="phead"><div><p class="eyebrow">09 / Raw values</p><h2 id="sample-h">Data sample</h2><p>First 20 records, with original row numbers.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><b>Row 1</b><span><code>2020-07-16</code></span></div><div class="column-line"><b>Row 2</b><span><code>2027-06-02</code></span></div><div class="column-line"><b>Row 3</b><span><code>2016-09-30</code></span></div><div class="column-line"><b>Row 4</b><span><code>2023-03-29</code></span></div><div class="column-line"><b>Row 5</b><span><code>2017-05-26</code></span></div><div class="column-line"><b>Row 6</b><span><code>2025-05-17</code></span></div><div class="column-line"><b>Row 7</b><span><code>2025-03-16</code></span></div><div class="column-line"><b>Row 8</b><span><code>2018-07-30</code></span></div><div class="column-line"><b>Row 9</b><span><code>2022-06-11</code></span></div><div class="column-line"><b>Row 10</b><span><code>2022-09-27</code></span></div><div class="column-line"><b>Row 11</b><span><code>2024-09-11</code></span></div><div class="column-line"><b>Row 12</b><span><code>2017-07-01</code></span></div><div class="column-line"><b>Row 13</b><span><code>2021-02-26</code></span></div><div class="column-line"><b>Row 14</b><span><code>2026-01-07</code></span></div><div class="column-line"><b>Row 15</b><span><code>2023-02-16</code></span></div><div class="column-line"><b>Row 16</b><span><code>2025-08-01</code></span></div><div class="column-line"><b>Row 17</b><span><code>2020-01-28</code></span></div><div class="column-line"><b>Row 18</b><span><code>2024-12-20</code></span></div><div class="column-line"><b>Row 19</b><span><code>2026-06-14</code></span></div><div class="column-line"><b>Row 20</b><span><code>2024-02-22</code></span></div></div></div></section>
+<section class="panel" id="sample" aria-labelledby="sample-h"><div class="phead"><div><p class="eyebrow">10 / Raw values</p><h2 id="sample-h">Data sample</h2><p>10 at the start, 10 sampled from the interior and 10 at the end, with original row numbers. The sampled rows are not uniform over the whole file.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><b>Row 1</b><span class="pill">Start</span><span><code>2020-07-16</code></span></div><div class="column-line"><b>Row 2</b><span class="pill">Start</span><span><code>2027-06-02</code></span></div><div class="column-line"><b>Row 3</b><span class="pill">Start</span><span><code>2016-09-30</code></span></div><div class="column-line"><b>Row 4</b><span class="pill">Start</span><span><code>2023-03-29</code></span></div><div class="column-line"><b>Row 5</b><span class="pill">Start</span><span><code>2017-05-26</code></span></div><div class="column-line"><b>Row 6</b><span class="pill">Start</span><span><code>2025-05-17</code></span></div><div class="column-line"><b>Row 7</b><span class="pill">Start</span><span><code>2025-03-16</code></span></div><div class="column-line"><b>Row 8</b><span class="pill">Start</span><span><code>2018-07-30</code></span></div><div class="column-line"><b>Row 9</b><span class="pill">Start</span><span><code>2022-06-11</code></span></div><div class="column-line"><b>Row 10</b><span class="pill">Start</span><span><code>2022-09-27</code></span></div><div class="column-line"><b>Row 405</b><span class="pill">Sampled</span><span><code>2023-07-30</code></span></div><div class="column-line"><b>Row 427</b><span class="pill">Sampled</span><span><code>2023-12-27</code></span></div><div class="column-line"><b>Row 470</b><span class="pill">Sampled</span><span><code>2024-05-14</code></span></div><div class="column-line"><b>Row 493</b><span class="pill">Sampled</span><span><code>2020-10-02</code></span></div><div class="column-line"><b>Row 782</b><span class="pill">Sampled</span><span><code>2018-10-21</code></span></div><div class="column-line"><b>Row 1305</b><span class="pill">Sampled</span><span><code>29-09-2021</code></span></div><div class="column-line"><b>Row 1761</b><span class="pill">Sampled</span><span><code>2022-04-06</code></span></div><div class="column-line"><b>Row 2020</b><span class="pill">Sampled</span><span><code>2024-05-15</code></span></div><div class="column-line"><b>Row 2044</b><span class="pill">Sampled</span><span><code>2020-05-05</code></span></div><div class="column-line"><b>Row 2277</b><span class="pill">Sampled</span><span><code>2022-06-22</code></span></div><div class="column-line"><b>Row 2991</b><span class="pill">End</span><span><code>05-12-2024</code></span></div><div class="column-line"><b>Row 2992</b><span class="pill">End</span><span><code>15-02-2022</code></span></div><div class="column-line"><b>Row 2993</b><span class="pill">End</span><span><code>13-08-2022</code></span></div><div class="column-line"><b>Row 2994</b><span class="pill">End</span><span><code>18-05-2018</code></span></div><div class="column-line"><b>Row 2995</b><span class="pill">End</span><span><code>22-06-2022</code></span></div><div class="column-line"><b>Row 2996</b><span class="pill">End</span><span><code>28-07-2018</code></span></div><div class="column-line"><b>Row 2997</b><span class="pill">End</span><span><code>10-05-2025</code></span></div><div class="column-line"><b>Row 2998</b><span class="pill">End</span><span><code>27-06-2017</code></span></div><div class="column-line"><b>Row 2999</b><span class="pill">End</span><span><code>06-08-2025</code></span></div><div class="column-line"><b>Row 3000</b><span class="pill">End</span><span><code>25-04-2026</code></span></div></div></div></section>
 
-</main></div><footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">Tabalyst<span class="ver">v0.6.1</span></a><p>Local-first CSV and JSON profiling.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://docs.tabalyst.com/" target="_blank" rel="noopener noreferrer">Documentation <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>Tabalyst © 2026 Gregory Borelli · MPL-2.0 · Open source project by Loribel Labs</span><span>Report generated locally</span></div></div></footer></div></div>
+<section class="panel" id="insights" aria-labelledby="insights-h"><div class="phead"><div><p class="eyebrow">12 / Insights</p><h2 id="insights-h">Insights<span class="n">(2)</span></h2><p>What the second pass found in the values of this column, and what the report reads from the Scan, with the accuracy of each figure.</p></div></div><div class="pbody"><article class="ins" id="c-i-10-residual-values-residuals" aria-labelledby="c-i-10-residual-values-residuals-h"><header class="ins-h"><h3 class="subh" id="c-i-10-residual-values-residuals-h">Values left out by patterns and detectors<span class="n"><code>date_debut</code></span></h3><span class="ins-acc"><span class="acc acc-exact" title="Counted on every value of the file">exact</span></span></header>
+<p class="muted ins-sum">3,000 values read.</p>
+<dl class="ins-facts"><div><dt>Values read</dt><dd>3,000</dd></div><div><dt>Left out: date found them invalid</dt><dd>7 occurrences<small class="sub-n">2 distinct values</small></dd></div></dl>
+
+<p class="rcard-title ins-cap">Why date found them invalid <span class="acc acc-exact" title="Counted on every value of the file">exact</span></p><div class="tscroll" tabindex="0" role="region" aria-label="Why date found them invalid"><table class="dtable"><thead><tr><th scope="col"><div class="hc"><span class="ht">Reason</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Occurrences</span></div></th></tr></thead><tbody><tr><th scope="row">invalid calendar date</th><td class="num">7</td></tr></tbody></table></div><p class="rcard-title ins-cap">Most frequent values left out (1) <span class="acc acc-exact" title="Counted on every value of the file">exact</span></p><div class="tscroll" tabindex="0" role="region" aria-label="Most frequent values left out (1)"><table class="dtable"><thead><tr><th scope="col"><div class="hc"><span class="ht">Value</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Occurrences</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">First record</span></div></th></tr></thead><tbody><tr><th scope="row"><code>2026-13-40</code></th><td class="num">5</td><td class="num">689</td></tr><tr><th scope="row"><code>13-40-2026</code></th><td class="num">2</td><td class="num">1,162</td></tr></tbody></table></div><p class="rcard-title ins-cap">Detectors replayed on every value <span class="acc acc-exact" title="Counted on every value of the file">exact</span></p><div class="tscroll" tabindex="0" role="region" aria-label="Detectors replayed on every value"><table class="dtable"><thead><tr><th scope="col"><div class="hc"><span class="ht">Detector</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Eligible</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Matched</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Ambiguous</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Invalid</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Not matched</span></div></th></tr></thead><tbody><tr><th scope="row"><code>date</code></th><td class="num">3,000</td><td class="num">2,658</td><td class="num">335</td><td class="num">7</td><td class="num">0</td></tr></tbody></table></div>
+</article><article class="ins" id="c-s-column_23" aria-labelledby="c-s-column_23-h"><header class="ins-h"><h3 class="subh" id="c-s-column_23-h">Read from the Scan<span class="n"><code>date_debut</code></span></h3><span class="ins-acc"><span class="acc acc-exact" title="Counted on every value of the file">exact</span></span></header>
+<p class="muted ins-sum">Derived from the Scan, without reading the source again.</p>
+<dl class="ins-facts"><div><dt>Values outside the listed frequencies</dt><dd>2,692 of 3,000 (89.7%)</dd></div><div><dt>Dates by decade</dt><dd>2010s 767, 2020s 1,891</dd></div><div><dt>Empty months between the first and the last date</dt><dd>5 of 132<small class="sub-n">longest run 2, 2026-10 to 2026-11</small></dd></div></dl>
+
+
+</article></div></section>
+</main></div><footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">Tabalyst<span class="ver">v0.7.0</span></a><p>Local-first CSV and JSON profiling.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://docs.tabalyst.com/" target="_blank" rel="noopener noreferrer">Documentation <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>Tabalyst © 2026 Gregory Borelli · MPL-2.0 · Open source project by Loribel Labs</span><span>Report generated locally</span></div></div></footer></div></div>
 <script>// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
@@ -734,17 +828,30 @@ td.ex .tip.show{display:block}
     ['equal', '=', 'Equal to'], ['greater', '>', 'Greater than'], ['greaterOrEqual', '≥', 'Greater than or equal'],
     ['less', '<', 'Less than'], ['lessOrEqual', '≤', 'Less than or equal'], ['between', '[··]', 'Between (inclusive)'],
   ];
+  /* Numbers are compared as the text the report wrote: an integer beyond 2^53
+     is compared as a BigInt, so a large counter is never rounded silently. */
+  const INTEGER = /^[+-]?\d+$/;
+  const toNum = (t) => { const n = Number(t); return Number.isNaN(n) ? parseFloat(t) : n; };
+  const numCmp = (x, y) => {
+    x = String(x).trim(); y = String(y).trim();
+    if ((x.length > 15 || y.length > 15) && INTEGER.test(x) && INTEGER.test(y)) {
+      const a = BigInt(x), b = BigInt(y);
+      return a < b ? -1 : a > b ? 1 : 0;
+    }
+    const a = toNum(x), b = toNum(y);
+    return a < b ? -1 : a > b ? 1 : 0;
+  };
   const numTest = (f) => (raw) => {
-    if (String(raw).trim() === '') return false;
-    const x = Number(raw);
-    if (!Number.isFinite(x)) return false;
+    const t = String(raw).trim();
+    if (t === '' || !Number.isFinite(Number(t))) return false;
+    const c = numCmp(t, f.as);
     switch (f.op) {
-      case 'equal': return x === f.a;
-      case 'greater': return x > f.a;
-      case 'greaterOrEqual': return x >= f.a;
-      case 'less': return x < f.a;
-      case 'lessOrEqual': return x <= f.a;
-      default: return x >= f.a && x <= f.b;
+      case 'equal': return c === 0;
+      case 'greater': return c > 0;
+      case 'greaterOrEqual': return c >= 0;
+      case 'less': return c < 0;
+      case 'lessOrEqual': return c <= 0;
+      default: return c >= 0 && numCmp(t, f.bs) <= 0;
     }
   };
 
@@ -806,6 +913,10 @@ td.ex .tip.show{display:block}
     const filters = new Map();
     let sort = null;
     const cellVal = (r, idx) => { const c = r.cells[idx]; return c.dataset.v !== undefined ? c.dataset.v : c.textContent.trim(); };
+    /* paged tables show pageSize rows at a time; filters and sorting see every row */
+    const pageSize = Number(table.dataset.pageSize) || 0;
+    const more = document.querySelector('[data-more="' + table.id + '"]');
+    let limit = pageSize;
 
     const ctrl = {
       extraActive: () => (extra ? extra.active() : false),
@@ -815,23 +926,31 @@ td.ex .tip.show{display:block}
         rows.forEach((r) => {
           let ok = extra ? extra.test(r) : true;
           if (ok) for (const [idx, f] of filters) { if (!f.test(cellVal(r, idx))) { ok = false; break; } }
+          r.dataset.f = ok ? '' : '1';
           r.hidden = !ok;
           if (ok) visible++;
         });
         let order = rows.slice();
         if (sort) {
           const num = heads[sort.idx].dataset.kind === 'num';
-          const key = (r) => { const v = cellVal(r, sort.idx); return num ? (v === '' ? null : parseFloat(v)) : v.toLowerCase(); };
+          const key = (r) => { const v = cellVal(r, sort.idx); return num ? (v === '' ? null : v) : v.toLowerCase(); };
           order.sort((a, b) => {
             const x = key(a), y = key(b);
             if (x === null && y === null) return a.dataset.i - b.dataset.i;
             if (x === null) return 1;            // empty values always last
             if (y === null) return -1;
-            const c = num ? x - y : x.localeCompare(y, undefined, { numeric: true });
+            const c = num ? numCmp(x, y) : x.localeCompare(y, undefined, { numeric: true });
             return (sort.dir === 'asc' ? c : -c) || a.dataset.i - b.dataset.i;
           });
         }
         order.forEach((r) => tbody.appendChild(r));
+        let shown = visible;
+        if (pageSize) {
+          shown = Math.min(limit, visible);
+          let n = 0;
+          order.forEach((r) => { if (r.dataset.f !== '1') r.hidden = n++ >= limit; });
+          if (more) more.hidden = visible <= limit;
+        }
         heads.forEach((th, idx) => {
           const s = $('.hb-s', th), f = $('.hb-f', th);
           if (!s) return;
@@ -844,12 +963,12 @@ td.ex .tip.show{display:block}
           th.classList.toggle('filtered', filters.has(idx));
           f.setAttribute('aria-label', 'Filter ' + th.dataset.label + (filters.has(idx) ? ' (active)' : ''));
         });
-        if (live) live.textContent = visible + ' of ' + rows.length + ' ' + noun;
+        if (live) live.textContent = (shown < visible ? shown + ' shown, ' : '') + visible + ' of ' + rows.length + ' ' + noun;
         resetBtns.forEach((b) => { b.hidden = !ctrl.isActive(); });
         refreshGlobal();
       },
       reset() {
-        filters.clear(); sort = null;
+        filters.clear(); sort = null; limit = pageSize;
         if (extra) extra.reset();
         if (openMenu && table.contains(openMenu.btn)) closeMenu();
         ctrl.apply();
@@ -897,8 +1016,8 @@ td.ex .tip.show{display:block}
         '</div><div class="fm-fields"><input type="number" step="any" autocomplete="off" class="fm-a"><input type="number" step="any" autocomplete="off" class="fm-b" placeholder="Maximum" aria-label="Maximum (inclusive)"></div>' +
         '<div class="fm-err" aria-live="polite" hidden></div>';
       const a = $('.fm-a', body), b = $('.fm-b', body), err = $('.fm-err', body);
-      if (Number.isFinite(cur.a)) a.value = cur.a;
-      if (Number.isFinite(cur.b)) b.value = cur.b;
+      if (cur.as !== undefined) a.value = cur.as;
+      if (cur.bs !== undefined) b.value = cur.bs;
       const update = () => {
         const between = op === 'between';
         b.hidden = !between;
@@ -911,7 +1030,7 @@ td.ex .tip.show{display:block}
         err.textContent = reversed ? 'Minimum must not exceed maximum.' : '';
         a.setAttribute('aria-invalid', String(reversed)); b.setAttribute('aria-invalid', String(reversed));
         const active = Number.isFinite(lo) && (!between || Number.isFinite(hi)) && !reversed;
-        if (active) { const f = { op, a: lo, b: hi }; f.test = numTest(f); filters.set(idx, f); } else filters.delete(idx);
+        if (active) { const f = { op, a: lo, b: hi, as: a.value, bs: b.value }; f.test = numTest(f); filters.set(idx, f); } else filters.delete(idx);
         setTitleClear(filters.has(idx));
         ctrl.apply();
       };
@@ -981,7 +1100,14 @@ td.ex .tip.show{display:block}
     });
 
     resetBtns.forEach((b) => b.addEventListener('click', () => ctrl.reset()));
+    if (more) more.addEventListener('click', () => {
+      limit += pageSize;
+      ctrl.apply();
+      // the button hides itself once everything is shown: keep the keyboard in the table
+      if (more.hidden) { const box = table.closest('.tscroll'); if (box) box.focus({ preventScroll: true }); }
+    });
     controllers.push(ctrl);
+    if (pageSize) ctrl.apply();
     return ctrl;
   };
 

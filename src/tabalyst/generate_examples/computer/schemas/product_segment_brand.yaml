@@ -1,0 +1,5 @@
+type: relation
+columns:
+  product_segment_id: {type: string, required: true, references: product_segment.id}
+  brand_id: {type: string, required: true, references: brand.id}
+unique: [product_segment_id, brand_id]

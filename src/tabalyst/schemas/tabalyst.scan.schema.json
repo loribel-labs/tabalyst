@@ -1,0 +1,6264 @@
+{
+  "$defs": {
+    "Adaptive": {
+      "additionalProperties": false,
+      "description": "Design 13: the detector reacted to ``warmup_reactions`` of the first\n``skipped_after`` distinct values of the field, none or at most\n``detection.rare_share`` of them, so later values other than probes were\nnot tested. ``diagnostic`` points to the warning raised when a probe\nreacted after a warm-up without any reaction.",
+      "properties": {
+        "skipped_after": {
+          "title": "Skipped After",
+          "type": "integer"
+        },
+        "warmup_reactions": {
+          "title": "Warmup Reactions",
+          "type": "integer"
+        },
+        "not_tested": {
+          "title": "Not Tested",
+          "type": "integer"
+        },
+        "diagnostic": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Diagnostic"
+        }
+      },
+      "required": [
+        "skipped_after",
+        "warmup_reactions",
+        "not_tested",
+        "diagnostic"
+      ],
+      "title": "Adaptive",
+      "type": "object"
+    },
+    "ArraySettings": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "preserve",
+          "default": "preserve",
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "title": "ArraySettings",
+      "type": "object"
+    },
+    "ArrayStats": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "empty": {
+          "title": "Empty",
+          "type": "integer"
+        },
+        "min_length": {
+          "title": "Min Length",
+          "type": "integer"
+        },
+        "max_length": {
+          "title": "Max Length",
+          "type": "integer"
+        },
+        "total_items": {
+          "title": "Total Items",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "count",
+        "empty",
+        "min_length",
+        "max_length",
+        "total_items"
+      ],
+      "title": "ArrayStats",
+      "type": "object"
+    },
+    "BooleanCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "true": {
+          "title": "True",
+          "type": "integer"
+        },
+        "false": {
+          "title": "False",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "true",
+        "false"
+      ],
+      "title": "BooleanCounts",
+      "type": "object"
+    },
+    "BooleanSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "pairs": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Pairs",
+          "type": "array"
+        }
+      },
+      "title": "BooleanSettings",
+      "type": "object"
+    },
+    "ByLength": {
+      "additionalProperties": false,
+      "description": "Samples by length of the original text (design 18.7), a stratum for each\nof at most ``max_lengths`` tracked lengths with ``per_length_k`` values each.\n\nA stratum lists the ``id`` of its values; one that is already in the\n``listed`` of ``samples`` is not copied, ``listed`` here holds the others and\nits ids continue the numbering of the sample. ``limited`` says that some\nstored values are in no stratum: ``other`` sums them. ``max_lengths`` is the\nnumber in force, ``requested_max_lengths`` the one asked for when the memory\nbudget (design 18.10) granted fewer.",
+      "properties": {
+        "domain": {
+          "const": "original",
+          "title": "Domain",
+          "type": "string"
+        },
+        "unit": {
+          "const": "characters",
+          "title": "Unit",
+          "type": "string"
+        },
+        "per_length_k": {
+          "title": "Per Length K",
+          "type": "integer"
+        },
+        "max_lengths": {
+          "title": "Max Lengths",
+          "type": "integer"
+        },
+        "requested_max_lengths": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Max Lengths"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "limited": {
+          "title": "Limited",
+          "type": "boolean"
+        },
+        "tracked": {
+          "title": "Tracked",
+          "type": "integer"
+        },
+        "strata": {
+          "items": {
+            "$ref": "#/$defs/LengthStratum"
+          },
+          "title": "Strata",
+          "type": "array"
+        },
+        "other": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LengthOther"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/SampleEntry"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "domain",
+        "unit",
+        "per_length_k",
+        "max_lengths",
+        "limited",
+        "tracked",
+        "strata",
+        "listed"
+      ],
+      "title": "ByLength",
+      "type": "object"
+    },
+    "CardinalityComplete": {
+      "additionalProperties": false,
+      "description": "Exact distinct count of the original values (design 9.1).",
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "integer"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "partial",
+            "unknown"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "domain": {
+          "title": "Domain",
+          "type": "string"
+        },
+        "identity_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "partial",
+            "unknown"
+          ],
+          "title": "Identity Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "accuracy",
+        "domain",
+        "identity_accuracy",
+        "status"
+      ],
+      "title": "CardinalityComplete",
+      "type": "object"
+    },
+    "CardinalityEstimate": {
+      "additionalProperties": false,
+      "description": "KMV estimate of the distinct original values (design 18.5).\n\n``value`` is held within the certain bounds of the envelope;\n``unclamped_value`` is the raw estimator, present only when a bound\nchanged it. ``theta_hex`` (the sample threshold) is absent for a sensitive\nfield: it is the priority of one of its values. A field with long texts\nhas two disjoint domains: ``parts`` gives each (the estimate is their sum)\nand ``k`` and ``theta_hex`` are then those of the parts.",
+      "properties": {
+        "accuracy": {
+          "const": "estimated",
+          "default": "estimated",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "method": {
+          "const": "kmv",
+          "title": "Method",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "unclamped_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unclamped Value"
+        },
+        "relative_standard_error": {
+          "title": "Relative Standard Error",
+          "type": "number"
+        },
+        "k": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "K"
+        },
+        "theta_hex": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Theta Hex"
+        },
+        "parts": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EstimatePart"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parts"
+        }
+      },
+      "required": [
+        "method",
+        "value",
+        "relative_standard_error"
+      ],
+      "title": "CardinalityEstimate",
+      "type": "object"
+    },
+    "CardinalityLimited": {
+      "additionalProperties": false,
+      "description": "Distinct count that stopped being tracked (design 9.1).\n\n``upper_bound`` is the certain maximum (the analyzed values);\n``threshold_reached_at_record`` and ``overflow_detected_at_record`` are the\nrecords where the table reached its limit T and where T + 1 values were\nproven, for the reason ``distinct_limit`` only.",
+      "properties": {
+        "status": {
+          "const": "limited",
+          "default": "limited",
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "limit": {
+          "title": "Limit",
+          "type": "integer"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        },
+        "domain": {
+          "title": "Domain",
+          "type": "string"
+        },
+        "identity_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "partial",
+            "unknown"
+          ],
+          "title": "Identity Accuracy",
+          "type": "string"
+        },
+        "upper_bound": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper Bound"
+        },
+        "threshold_reached_at_record": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold Reached At Record"
+        },
+        "overflow_detected_at_record": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Overflow Detected At Record"
+        },
+        "estimate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CardinalityEstimate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "reason",
+        "limit",
+        "domain",
+        "identity_accuracy",
+        "status"
+      ],
+      "title": "CardinalityLimited",
+      "type": "object"
+    },
+    "CollectionScope": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": [
+            "auto",
+            "explicit"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "requested": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Requested"
+        }
+      },
+      "required": [
+        "mode",
+        "requested"
+      ],
+      "title": "CollectionScope",
+      "type": "object"
+    },
+    "ColumnSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "title": "Column",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "column"
+      ],
+      "title": "ColumnSegment",
+      "type": "object"
+    },
+    "Complete_BooleanCounts_": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/BooleanCounts"
+        }
+      },
+      "required": [
+        "value",
+        "status"
+      ],
+      "title": "Complete[BooleanCounts]",
+      "type": "object"
+    },
+    "Complete_Frequencies_": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/Frequencies"
+        }
+      },
+      "required": [
+        "value",
+        "status"
+      ],
+      "title": "Complete[Frequencies]",
+      "type": "object"
+    },
+    "Complete_NumericStats_": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/NumericStats"
+        }
+      },
+      "required": [
+        "value",
+        "status"
+      ],
+      "title": "Complete[NumericStats]",
+      "type": "object"
+    },
+    "Complete_StringLengths_": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/StringLengths"
+        }
+      },
+      "required": [
+        "value",
+        "status"
+      ],
+      "title": "Complete[StringLengths]",
+      "type": "object"
+    },
+    "Complete_TemporalStats_": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/TemporalStats"
+        }
+      },
+      "required": [
+        "value",
+        "status"
+      ],
+      "title": "Complete[TemporalStats]",
+      "type": "object"
+    },
+    "Complete_Union_int__float__": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "status"
+      ],
+      "title": "Complete[Union[int, float]]",
+      "type": "object"
+    },
+    "Complete_VariantGroups_": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/VariantGroups"
+        }
+      },
+      "required": [
+        "value",
+        "status"
+      ],
+      "title": "Complete[VariantGroups]",
+      "type": "object"
+    },
+    "Complete_int_": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "status"
+      ],
+      "title": "Complete[int]",
+      "type": "object"
+    },
+    "Coverage": {
+      "additionalProperties": false,
+      "description": "Design 12.2: ``tested = eligible - not_tested`` and ``tested = matched +\nambiguous + invalid + not_matched``. ``share_tested`` is ``null`` when no\nvalue was tested.",
+      "properties": {
+        "eligible": {
+          "title": "Eligible",
+          "type": "integer"
+        },
+        "tested": {
+          "title": "Tested",
+          "type": "integer"
+        },
+        "matched": {
+          "title": "Matched",
+          "type": "integer"
+        },
+        "ambiguous": {
+          "title": "Ambiguous",
+          "type": "integer"
+        },
+        "invalid": {
+          "title": "Invalid",
+          "type": "integer"
+        },
+        "not_matched": {
+          "title": "Not Matched",
+          "type": "integer"
+        },
+        "not_tested": {
+          "title": "Not Tested",
+          "type": "integer"
+        },
+        "share_tested": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Share Tested"
+        },
+        "share_eligible": {
+          "title": "Share Eligible",
+          "type": "number"
+        }
+      },
+      "required": [
+        "eligible",
+        "tested",
+        "matched",
+        "ambiguous",
+        "invalid",
+        "not_matched",
+        "not_tested",
+        "share_tested",
+        "share_eligible"
+      ],
+      "title": "Coverage",
+      "type": "object"
+    },
+    "CsvConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "encoding": {
+          "default": "utf-8-sig",
+          "title": "Encoding",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "title": "Delimiter",
+          "type": "string"
+        }
+      },
+      "title": "CsvConfig",
+      "type": "object"
+    },
+    "CsvSourceInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "title": "Delimiter",
+          "type": "string"
+        },
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "header": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Header",
+          "type": "array"
+        },
+        "bom": {
+          "title": "Bom",
+          "type": "boolean"
+        },
+        "line_ending": {
+          "anyOf": [
+            {
+              "enum": [
+                "lf",
+                "crlf",
+                "cr",
+                "mixed"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Line Ending"
+        }
+      },
+      "required": [
+        "delimiter",
+        "quote",
+        "header",
+        "bom",
+        "line_ending"
+      ],
+      "title": "CsvSourceInfo",
+      "type": "object"
+    },
+    "CurrencySettings": {
+      "additionalProperties": false,
+      "description": "Conventions of the number part of amounts, set independently of\n``detectors.number``.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "conventions": {
+          "items": {
+            "enum": [
+              "dot",
+              "comma"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Conventions",
+          "type": "array"
+        },
+        "ambiguous_convention": {
+          "anyOf": [
+            {
+              "enum": [
+                "dot",
+                "comma"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ambiguous Convention"
+        },
+        "infer_convention": {
+          "default": true,
+          "title": "Infer Convention",
+          "type": "boolean"
+        },
+        "min_evidence": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Min Evidence",
+          "type": "integer"
+        }
+      },
+      "title": "CurrencySettings",
+      "type": "object"
+    },
+    "DatasetResult": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "table",
+            "document",
+            "collection"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "collection_path": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/KeySegment"
+                  },
+                  {
+                    "$ref": "#/$defs/ItemsSegment"
+                  },
+                  {
+                    "$ref": "#/$defs/ColumnSegment"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Collection Path"
+        },
+        "record_count": {
+          "title": "Record Count",
+          "type": "integer"
+        },
+        "record_types": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "enum": [
+              "null",
+              "boolean",
+              "integer",
+              "number",
+              "string",
+              "object",
+              "array"
+            ]
+          },
+          "title": "Record Types",
+          "type": "object"
+        },
+        "structure": {
+          "$ref": "#/$defs/Structure"
+        },
+        "records": {
+          "$ref": "#/$defs/Records"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/FieldResult"
+          },
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "collection_path",
+        "record_count",
+        "record_types",
+        "structure",
+        "records",
+        "fields"
+      ],
+      "title": "DatasetResult",
+      "type": "object"
+    },
+    "DateSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "orders": {
+          "items": {
+            "enum": [
+              "YMD",
+              "MDY",
+              "DMY"
+            ],
+            "type": "string"
+          },
+          "title": "Orders",
+          "type": "array"
+        },
+        "separators": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Separators",
+          "type": "array"
+        },
+        "ambiguous_order": {
+          "anyOf": [
+            {
+              "enum": [
+                "MDY",
+                "DMY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ambiguous Order"
+        },
+        "month_languages": {
+          "items": {
+            "enum": [
+              "en",
+              "fr"
+            ],
+            "type": "string"
+          },
+          "title": "Month Languages",
+          "type": "array"
+        }
+      },
+      "title": "DateSettings",
+      "type": "object"
+    },
+    "Derived": {
+      "additionalProperties": false,
+      "description": "Analyses computed after the scan from its samples (specification 5.2).",
+      "properties": {
+        "patterns": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DerivedPatterns"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Derived",
+      "type": "object"
+    },
+    "DerivedPatterns": {
+      "additionalProperties": false,
+      "description": "Structural patterns inferred from the samples, one entry per field\n(design 18.12). They are distinct from the configured ``pattern:<id>``\ndetectors.",
+      "properties": {
+        "grammar": {
+          "$ref": "#/$defs/PatternGrammar"
+        },
+        "domain": {
+          "const": "original",
+          "title": "Domain",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "complete": "#/$defs/FieldPatternsComplete",
+                "failed": "#/$defs/FieldPatternsFailed",
+                "not_applicable": "#/$defs/FieldPatternsNotApplicable"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/FieldPatternsComplete"
+              },
+              {
+                "$ref": "#/$defs/FieldPatternsNotApplicable"
+              },
+              {
+                "$ref": "#/$defs/FieldPatternsFailed"
+              }
+            ]
+          },
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "grammar",
+        "domain",
+        "fields"
+      ],
+      "title": "DerivedPatterns",
+      "type": "object"
+    },
+    "DetectionSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "minimum_share": {
+          "default": 0.95,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Minimum Share",
+          "type": "number"
+        },
+        "warmup_values": {
+          "default": 10000,
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Warmup Values",
+          "type": "integer"
+        },
+        "probe_interval": {
+          "default": 100,
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Probe Interval",
+          "type": "integer"
+        },
+        "rare_share": {
+          "default": 0.001,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Rare Share",
+          "type": "number"
+        }
+      },
+      "title": "DetectionSettings",
+      "type": "object"
+    },
+    "DetectorComplete": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "coverage": {
+          "$ref": "#/$defs/Coverage"
+        },
+        "formats": {
+          "items": {
+            "$ref": "#/$defs/FormatCount"
+          },
+          "title": "Formats",
+          "type": "array"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "adaptive": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Adaptive"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "coverage",
+        "formats",
+        "evidence",
+        "details",
+        "adaptive",
+        "status"
+      ],
+      "title": "DetectorComplete",
+      "type": "object"
+    },
+    "DetectorDisabled": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "status": {
+          "const": "disabled",
+          "default": "disabled",
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "status"
+      ],
+      "title": "DetectorDisabled",
+      "type": "object"
+    },
+    "DetectorFailed": {
+      "additionalProperties": false,
+      "description": "A failure is never reported as values that did not match (CA19).",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "status": {
+          "const": "failed",
+          "default": "failed",
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "diagnostic": {
+          "title": "Diagnostic",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "reason",
+        "diagnostic",
+        "status"
+      ],
+      "title": "DetectorFailed",
+      "type": "object"
+    },
+    "DetectorNotApplicable": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "status": {
+          "const": "not_applicable",
+          "default": "not_applicable",
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "reason",
+        "status"
+      ],
+      "title": "DetectorNotApplicable",
+      "type": "object"
+    },
+    "DetectorSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "number": {
+          "$ref": "#/$defs/NumberSettings"
+        },
+        "date": {
+          "$ref": "#/$defs/DateSettings"
+        },
+        "boolean": {
+          "$ref": "#/$defs/BooleanSettings"
+        },
+        "enumeration": {
+          "$ref": "#/$defs/EnumerationSettings"
+        },
+        "email": {
+          "$ref": "#/$defs/EmailSettings"
+        },
+        "url": {
+          "$ref": "#/$defs/UrlSettings"
+        },
+        "phone": {
+          "$ref": "#/$defs/PhoneSettings"
+        },
+        "postal_code": {
+          "$ref": "#/$defs/PostalCodeSettings"
+        },
+        "currency": {
+          "$ref": "#/$defs/CurrencySettings"
+        },
+        "percentage": {
+          "$ref": "#/$defs/PercentageSettings"
+        },
+        "quantity": {
+          "$ref": "#/$defs/QuantitySettings"
+        },
+        "uuid": {
+          "$ref": "#/$defs/UuidSettings"
+        },
+        "ip_address": {
+          "$ref": "#/$defs/IpAddressSettings"
+        }
+      },
+      "title": "DetectorSettings",
+      "type": "object"
+    },
+    "Diagnostic": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "fatal",
+            "error",
+            "warning"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dataset"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Field"
+        },
+        "detector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Detector"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "locations": {
+          "items": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "title": "Locations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "level",
+        "message",
+        "count",
+        "dataset",
+        "field",
+        "detector",
+        "details",
+        "locations"
+      ],
+      "title": "Diagnostic",
+      "type": "object"
+    },
+    "DigestInfo": {
+      "additionalProperties": false,
+      "description": "Function that gives a long text its digest (design 18.6).",
+      "properties": {
+        "algorithm": {
+          "title": "Algorithm",
+          "type": "string"
+        },
+        "bits": {
+          "title": "Bits",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "algorithm",
+        "bits"
+      ],
+      "title": "DigestInfo",
+      "type": "object"
+    },
+    "Disabled": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "disabled",
+          "default": "disabled",
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "title": "Disabled",
+      "type": "object",
+      "required": [
+        "status"
+      ]
+    },
+    "DuplicateRecords": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_int_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_int_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Count"
+        },
+        "records": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Records",
+          "type": "array"
+        }
+      },
+      "required": [
+        "count",
+        "records"
+      ],
+      "title": "DuplicateRecords",
+      "type": "object"
+    },
+    "EmailSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_tracked_domains": {
+          "default": 10000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Tracked Domains",
+          "type": "integer"
+        },
+        "max_listed_domains": {
+          "default": 20,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Listed Domains",
+          "type": "integer"
+        }
+      },
+      "title": "EmailSettings",
+      "type": "object"
+    },
+    "EngineInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "normalization_version": {
+          "title": "Normalization Version",
+          "type": "integer"
+        },
+        "detectors": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Detectors",
+          "type": "object"
+        }
+      },
+      "required": [
+        "version",
+        "normalization_version",
+        "detectors"
+      ],
+      "title": "EngineInfo",
+      "type": "object"
+    },
+    "EnumerationSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "minimum_values": {
+          "default": 500,
+          "minimum": 1,
+          "title": "Minimum Values",
+          "type": "integer"
+        },
+        "maximum_distinct": {
+          "default": 49,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Maximum Distinct",
+          "type": "integer"
+        },
+        "case_sensitive": {
+          "default": true,
+          "title": "Case Sensitive",
+          "type": "boolean"
+        }
+      },
+      "title": "EnumerationSettings",
+      "type": "object"
+    },
+    "ErrorSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "policy": {
+          "anyOf": [
+            {
+              "enum": [
+                "strict",
+                "tolerant"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy"
+        },
+        "max_locations": {
+          "default": 10,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Locations",
+          "type": "integer"
+        }
+      },
+      "title": "ErrorSettings",
+      "type": "object"
+    },
+    "EstimatePart": {
+      "additionalProperties": false,
+      "description": "One of the two disjoint domains of an estimate that adds up: the values\nstored in the sample (``values``) and the long texts (``long_texts``),\neach exact or estimated by KMV (design 18.6).",
+      "properties": {
+        "domain": {
+          "enum": [
+            "values",
+            "long_texts"
+          ],
+          "title": "Domain",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "estimated"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "relative_standard_error": {
+          "title": "Relative Standard Error",
+          "type": "number"
+        },
+        "k": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "K"
+        },
+        "theta_hex": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Theta Hex"
+        }
+      },
+      "required": [
+        "domain",
+        "accuracy",
+        "value",
+        "relative_standard_error"
+      ],
+      "title": "EstimatePart",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "description": "First distinct analytical values of each state, bounded by\n``limits.max_evidence_examples``.",
+      "properties": {
+        "matched": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Matched",
+          "type": "array"
+        },
+        "ambiguous": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ambiguous",
+          "type": "array"
+        },
+        "invalid": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Invalid",
+          "type": "array"
+        },
+        "not_matched": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Not Matched",
+          "type": "array"
+        }
+      },
+      "required": [
+        "matched",
+        "ambiguous",
+        "invalid",
+        "not_matched"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "ExcelSettings": {
+      "additionalProperties": false,
+      "description": "The table read from an Excel workbook: a sheet or a named table, and the\n1-based sheet row of the header of a sheet (``null``: detected).",
+      "properties": {
+        "dataset_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset Path"
+        },
+        "header_row": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Header Row"
+        }
+      },
+      "title": "ExcelSettings",
+      "type": "object"
+    },
+    "ExcelSourceInfo": {
+      "additionalProperties": false,
+      "description": "The table read from a workbook: where it is and what its header says.",
+      "properties": {
+        "dataset_path": {
+          "title": "Dataset Path",
+          "type": "string"
+        },
+        "sheet": {
+          "title": "Sheet",
+          "type": "string"
+        },
+        "table": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Table"
+        },
+        "range": {
+          "title": "Range",
+          "type": "string"
+        },
+        "header_row": {
+          "title": "Header Row",
+          "type": "integer"
+        },
+        "header": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Header",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dataset_path",
+        "sheet",
+        "table",
+        "range",
+        "header_row",
+        "header"
+      ],
+      "title": "ExcelSourceInfo",
+      "type": "object"
+    },
+    "ExposureSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "sensitive_values": {
+          "default": "mask",
+          "enum": [
+            "mask",
+            "hide",
+            "show"
+          ],
+          "title": "Sensitive Values",
+          "type": "string"
+        }
+      },
+      "title": "ExposureSettings",
+      "type": "object"
+    },
+    "Failed": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "failed",
+          "default": "failed",
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "diagnostic": {
+          "title": "Diagnostic",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "reason",
+        "diagnostic",
+        "status"
+      ],
+      "title": "Failed",
+      "type": "object"
+    },
+    "FieldPatternsComplete": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "population": {
+          "$ref": "#/$defs/PatternPopulation"
+        },
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/PatternCandidate"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "other": {
+          "$ref": "#/$defs/PatternOther"
+        },
+        "overlaps": {
+          "items": {
+            "$ref": "#/$defs/PatternOverlap"
+          },
+          "title": "Overlaps",
+          "type": "array"
+        },
+        "limits": {
+          "items": {
+            "enum": [
+              "max_patterns",
+              "max_values"
+            ],
+            "type": "string"
+          },
+          "title": "Limits",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dataset",
+        "field",
+        "population",
+        "candidates",
+        "other",
+        "overlaps",
+        "limits",
+        "status"
+      ],
+      "title": "FieldPatternsComplete",
+      "type": "object"
+    },
+    "FieldPatternsFailed": {
+      "additionalProperties": false,
+      "description": "The inference raised on this field: the other fields and analyses are\nunaffected and ``diagnostic`` points to the ``pattern_inference_failed``\nerror (the exception type only: its message could quote a value).",
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "const": "failed",
+          "default": "failed",
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "const": "inference_error",
+          "default": "inference_error",
+          "title": "Reason",
+          "type": "string"
+        },
+        "diagnostic": {
+          "title": "Diagnostic",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "dataset",
+        "field",
+        "diagnostic",
+        "status"
+      ],
+      "title": "FieldPatternsFailed",
+      "type": "object"
+    },
+    "FieldPatternsNotApplicable": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "const": "not_applicable",
+          "default": "not_applicable",
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset",
+        "field",
+        "reason",
+        "status"
+      ],
+      "title": "FieldPatternsNotApplicable",
+      "type": "object"
+    },
+    "FieldResult": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "path": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/KeySegment"
+              },
+              {
+                "$ref": "#/$defs/ItemsSegment"
+              },
+              {
+                "$ref": "#/$defs/ColumnSegment"
+              }
+            ]
+          },
+          "title": "Path",
+          "type": "array"
+        },
+        "display": {
+          "title": "Display",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Parent"
+        },
+        "collection": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Collection"
+        },
+        "first_record": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "First Record"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "presence": {
+          "$ref": "#/$defs/Presence"
+        },
+        "native_types": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "enum": [
+              "null",
+              "boolean",
+              "integer",
+              "number",
+              "string",
+              "object",
+              "array"
+            ]
+          },
+          "title": "Native Types",
+          "type": "object"
+        },
+        "strings": {
+          "$ref": "#/$defs/StringCategories"
+        },
+        "missing": {
+          "$ref": "#/$defs/Missing"
+        },
+        "arrays": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArrayStats"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "values": {
+          "$ref": "#/$defs/FieldValues"
+        },
+        "string_characteristics": {
+          "$ref": "#/$defs/StringCharacteristics"
+        },
+        "string_lengths": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_StringLengths_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_StringLengths_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "String Lengths"
+        },
+        "numeric": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_NumericStats_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_NumericStats_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Numeric"
+        },
+        "booleans": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_BooleanCounts_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_BooleanCounts_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Booleans"
+        },
+        "temporal": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_TemporalStats_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_TemporalStats_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Temporal"
+        },
+        "normalization": {
+          "$ref": "#/$defs/Normalization"
+        },
+        "technical_type": {
+          "$ref": "#/$defs/TechnicalType"
+        },
+        "detectors": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "complete": "#/$defs/DetectorComplete",
+                "disabled": "#/$defs/DetectorDisabled",
+                "failed": "#/$defs/DetectorFailed",
+                "not_applicable": "#/$defs/DetectorNotApplicable"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/DetectorComplete"
+              },
+              {
+                "$ref": "#/$defs/DetectorNotApplicable"
+              },
+              {
+                "$ref": "#/$defs/DetectorDisabled"
+              },
+              {
+                "$ref": "#/$defs/DetectorFailed"
+              }
+            ]
+          },
+          "title": "Detectors",
+          "type": "array"
+        },
+        "interpretations": {
+          "$ref": "#/$defs/Interpretations"
+        },
+        "sensitive": {
+          "title": "Sensitive",
+          "type": "boolean"
+        },
+        "exposure": {
+          "anyOf": [
+            {
+              "enum": [
+                "mask",
+                "hide",
+                "show"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Exposure"
+        }
+      },
+      "required": [
+        "id",
+        "path",
+        "display",
+        "name",
+        "parent",
+        "collection",
+        "first_record",
+        "occurrences",
+        "presence",
+        "native_types",
+        "strings",
+        "missing",
+        "arrays",
+        "values",
+        "string_characteristics",
+        "string_lengths",
+        "numeric",
+        "booleans",
+        "temporal",
+        "normalization",
+        "technical_type",
+        "detectors",
+        "interpretations",
+        "sensitive",
+        "exposure"
+      ],
+      "title": "FieldResult",
+      "type": "object"
+    },
+    "FieldValues": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "cardinality": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/CardinalityComplete",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/CardinalityLimited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/CardinalityComplete"
+            },
+            {
+              "$ref": "#/$defs/CardinalityLimited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Cardinality"
+        },
+        "frequencies": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_Frequencies_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_Frequencies_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Frequencies"
+        },
+        "samples": {
+          "$ref": "#/$defs/Samples"
+        },
+        "first": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ValueAt"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ValueAt"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "count",
+        "cardinality",
+        "frequencies",
+        "samples",
+        "first",
+        "last"
+      ],
+      "title": "FieldValues",
+      "type": "object"
+    },
+    "FlattenSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "separator": {
+          "default": ".",
+          "title": "Separator",
+          "type": "string"
+        },
+        "max_depth": {
+          "anyOf": [
+            {
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Depth"
+        }
+      },
+      "title": "FlattenSettings",
+      "type": "object"
+    },
+    "FormatCount": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "title": "Format",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "format",
+        "count"
+      ],
+      "title": "FormatCount",
+      "type": "object"
+    },
+    "Frequencies": {
+      "additionalProperties": false,
+      "properties": {
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/ValueCount"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "distinct",
+        "listed",
+        "truncated"
+      ],
+      "title": "Frequencies",
+      "type": "object"
+    },
+    "InterpretationCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "detector": {
+          "title": "Detector",
+          "type": "string"
+        },
+        "matched": {
+          "title": "Matched",
+          "type": "integer"
+        },
+        "share_eligible": {
+          "title": "Share Eligible",
+          "type": "number"
+        }
+      },
+      "required": [
+        "detector",
+        "matched",
+        "share_eligible"
+      ],
+      "title": "InterpretationCandidate",
+      "type": "object"
+    },
+    "Interpretations": {
+      "additionalProperties": false,
+      "description": "Detectors whose ``share_eligible`` reaches ``detection.minimum_share``;\n``primary`` only when exactly one qualifies (design 12.4).",
+      "properties": {
+        "primary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Primary"
+        },
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/InterpretationCandidate"
+          },
+          "title": "Candidates",
+          "type": "array"
+        }
+      },
+      "required": [
+        "primary",
+        "candidates"
+      ],
+      "title": "Interpretations",
+      "type": "object"
+    },
+    "IpAddressSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "versions": {
+          "items": {
+            "enum": [
+              "ipv4",
+              "ipv6"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Versions",
+          "type": "array"
+        }
+      },
+      "title": "IpAddressSettings",
+      "type": "object"
+    },
+    "ItemsSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "const": true,
+          "default": true,
+          "title": "Items",
+          "type": "boolean"
+        }
+      },
+      "title": "ItemsSegment",
+      "type": "object"
+    },
+    "JsonSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "collections": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Collections"
+        },
+        "discovery_max_depth": {
+          "default": 3,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Discovery Max Depth",
+          "type": "integer"
+        },
+        "flatten": {
+          "$ref": "#/$defs/FlattenSettings"
+        },
+        "arrays": {
+          "$ref": "#/$defs/ArraySettings"
+        }
+      },
+      "title": "JsonSettings",
+      "type": "object"
+    },
+    "KeySegment": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "title": "Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "title": "KeySegment",
+      "type": "object"
+    },
+    "LengthCount": {
+      "additionalProperties": false,
+      "properties": {
+        "length": {
+          "title": "Length",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "length",
+        "count"
+      ],
+      "title": "LengthCount",
+      "type": "object"
+    },
+    "LengthOther": {
+      "additionalProperties": false,
+      "description": "What the strata by length do not hold: ``lengths`` distinct lengths that\nare not tracked and the ``occurrences`` counted while they were not\n(design 18.7). The strata and ``other`` add up to every stored value.",
+      "properties": {
+        "lengths": {
+          "title": "Lengths",
+          "type": "integer"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "lengths",
+        "occurrences"
+      ],
+      "title": "LengthOther",
+      "type": "object"
+    },
+    "LengthStratum": {
+      "additionalProperties": false,
+      "description": "The values of one length, a bottom-k sample of the originals.\n\n``ids`` number entries of ``samples.listed`` or of ``by_length.listed``;\n``kept`` of the ``of`` values sampled are listed (exposure withholds them).\n``count_accuracy`` is ``exact`` when the length was tracked from its first\noccurrence; ``partial`` when it was admitted late, and then the counts cover\nthe occurrences from ``tracking_started_at_occurrence`` on (LEN-05).\n``selection`` is ``all`` while the stratum dropped no value.",
+      "properties": {
+        "length": {
+          "title": "Length",
+          "type": "integer"
+        },
+        "selection": {
+          "enum": [
+            "all",
+            "bottom_k"
+          ],
+          "title": "Selection",
+          "type": "string"
+        },
+        "kept": {
+          "title": "Kept",
+          "type": "integer"
+        },
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "count_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "partial",
+            "unknown"
+          ],
+          "title": "Count Accuracy",
+          "type": "string"
+        },
+        "tracking_started_at_occurrence": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tracking Started At Occurrence"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "ids": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "length",
+        "selection",
+        "kept",
+        "of",
+        "occurrences",
+        "count_accuracy",
+        "ids"
+      ],
+      "title": "LengthStratum",
+      "type": "object"
+    },
+    "Limit": {
+      "additionalProperties": false,
+      "description": "What the scan could not establish (QUAL-04): a measure stopped by a\nlimit, a sample that was cut or withheld, a structure that was truncated.\nA limit is never a defect of the data. ``measure`` is the location in the\ndataset or field; ``diagnostic`` points to the error of a failed analysis.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Field"
+        },
+        "measure": {
+          "title": "Measure",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limit"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        },
+        "diagnostic": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Diagnostic"
+        }
+      },
+      "required": [
+        "id",
+        "measure",
+        "reason"
+      ],
+      "title": "Limit",
+      "type": "object"
+    },
+    "LimitSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "max_fields": {
+          "default": 10000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Fields",
+          "type": "integer"
+        },
+        "max_depth": {
+          "default": 64,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Depth",
+          "type": "integer"
+        },
+        "max_record_observations": {
+          "default": 100000,
+          "maximum": 100000000,
+          "minimum": 1,
+          "title": "Max Record Observations",
+          "type": "integer"
+        },
+        "max_line_bytes": {
+          "default": 16777216,
+          "maximum": 268435456,
+          "minimum": 1,
+          "title": "Max Line Bytes",
+          "type": "integer"
+        },
+        "max_distinct_per_field": {
+          "default": 100000,
+          "maximum": 50000000,
+          "minimum": 1,
+          "title": "Max Distinct Per Field",
+          "type": "integer"
+        },
+        "max_tracked_values": {
+          "default": 2000000,
+          "maximum": 500000000,
+          "minimum": 1,
+          "title": "Max Tracked Values",
+          "type": "integer"
+        },
+        "max_stored_value_length": {
+          "default": 1000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Stored Value Length",
+          "type": "integer"
+        },
+        "max_listed_frequencies": {
+          "default": 100,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Max Listed Frequencies",
+          "type": "integer"
+        },
+        "max_samples": {
+          "default": 10000,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Max Samples",
+          "type": "integer"
+        },
+        "max_long_samples": {
+          "default": 100,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Long Samples",
+          "type": "integer"
+        },
+        "long_preview_chars": {
+          "default": 200,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Long Preview Chars",
+          "type": "integer"
+        },
+        "max_samples_per_length": {
+          "default": 100,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Samples Per Length",
+          "type": "integer"
+        },
+        "max_length_strata": {
+          "default": 64,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Length Strata",
+          "type": "integer"
+        },
+        "max_sample_memory": {
+          "default": 536870912,
+          "maximum": 1099511627776,
+          "minimum": 1,
+          "title": "Max Sample Memory",
+          "type": "integer"
+        },
+        "max_variant_groups": {
+          "default": 100,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Max Variant Groups",
+          "type": "integer"
+        },
+        "max_variants_per_group": {
+          "default": 20,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Variants Per Group",
+          "type": "integer"
+        },
+        "max_evidence_examples": {
+          "default": 10,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Max Evidence Examples",
+          "type": "integer"
+        },
+        "max_tracked_records": {
+          "default": 2000000,
+          "maximum": 500000000,
+          "minimum": 1,
+          "title": "Max Tracked Records",
+          "type": "integer"
+        },
+        "max_listed_records": {
+          "default": 10,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Listed Records",
+          "type": "integer"
+        }
+      },
+      "title": "LimitSettings",
+      "type": "object"
+    },
+    "Limited": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "limited",
+          "default": "limited",
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "limit": {
+          "title": "Limit",
+          "type": "integer"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        }
+      },
+      "required": [
+        "reason",
+        "limit",
+        "status"
+      ],
+      "title": "Limited",
+      "type": "object"
+    },
+    "LongTextEntry": {
+      "additionalProperties": false,
+      "description": "A sampled long text: bounded preview, original sizes and digest of the\ncomplete content, which is its identity (design 18.6).",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "digest": {
+          "title": "Digest",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "preview": {
+          "title": "Preview",
+          "type": "string"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "original_length_chars": {
+          "title": "Original Length Chars",
+          "type": "integer"
+        },
+        "original_length_bytes": {
+          "title": "Original Length Bytes",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "count_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "partial",
+            "unknown"
+          ],
+          "title": "Count Accuracy",
+          "type": "string"
+        },
+        "identity_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "partial",
+            "unknown"
+          ],
+          "title": "Identity Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "digest",
+        "type",
+        "preview",
+        "truncated",
+        "original_length_chars",
+        "original_length_bytes",
+        "count",
+        "count_accuracy",
+        "identity_accuracy"
+      ],
+      "title": "LongTextEntry",
+      "type": "object"
+    },
+    "LongTexts": {
+      "additionalProperties": false,
+      "description": "Sample of the values longer than ``limits.max_stored_value_length``.\n\n``occurrences`` counts every occurrence of a long value, exactly. ``of``\nlong texts are sampled, ``kept`` listed (exposure can withhold them). Like\n``Samples`` it is ``all`` until a text was dropped, then ``bottom_k``; ``k``\nis the size granted (design 18.10), ``requested_k`` the one asked for when\nthe budget made it smaller.",
+      "properties": {
+        "selection": {
+          "enum": [
+            "all",
+            "bottom_k"
+          ],
+          "title": "Selection",
+          "type": "string"
+        },
+        "k": {
+          "title": "K",
+          "type": "integer"
+        },
+        "requested_k": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested K"
+        },
+        "preview_chars": {
+          "title": "Preview Chars",
+          "type": "integer"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "kept": {
+          "title": "Kept",
+          "type": "integer"
+        },
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "digest": {
+          "$ref": "#/$defs/DigestInfo"
+        },
+        "hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SampleHash"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/LongTextEntry"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "selection",
+        "k",
+        "preview_chars",
+        "occurrences",
+        "kept",
+        "of",
+        "digest",
+        "listed"
+      ],
+      "title": "LongTexts",
+      "type": "object"
+    },
+    "Missing": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "definition": {
+          "items": {
+            "enum": [
+              "absent",
+              "null",
+              "empty",
+              "blank",
+              "marker"
+            ],
+            "type": "string"
+          },
+          "title": "Definition",
+          "type": "array"
+        },
+        "components": {
+          "$ref": "#/$defs/MissingComponents"
+        }
+      },
+      "required": [
+        "count",
+        "definition",
+        "components"
+      ],
+      "title": "Missing",
+      "type": "object"
+    },
+    "MissingComponents": {
+      "additionalProperties": false,
+      "properties": {
+        "absent": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Absent"
+        },
+        "null": {
+          "title": "Null",
+          "type": "integer"
+        },
+        "empty": {
+          "title": "Empty",
+          "type": "integer"
+        },
+        "blank": {
+          "title": "Blank",
+          "type": "integer"
+        },
+        "marker": {
+          "title": "Marker",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "absent",
+        "null",
+        "empty",
+        "blank",
+        "marker"
+      ],
+      "title": "MissingComponents",
+      "type": "object"
+    },
+    "Normalization": {
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "stages": {
+          "items": {
+            "$ref": "#/$defs/NormalizationStage"
+          },
+          "title": "Stages",
+          "type": "array"
+        },
+        "variant_groups": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_VariantGroups_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_VariantGroups_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Variant Groups"
+        }
+      },
+      "required": [
+        "version",
+        "stages",
+        "variant_groups"
+      ],
+      "title": "Normalization",
+      "type": "object"
+    },
+    "NormalizationSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "nfc": {
+          "default": true,
+          "title": "Nfc",
+          "type": "boolean"
+        },
+        "trim": {
+          "default": true,
+          "title": "Trim",
+          "type": "boolean"
+        },
+        "collapse_whitespace": {
+          "default": true,
+          "title": "Collapse Whitespace",
+          "type": "boolean"
+        },
+        "casefold": {
+          "default": true,
+          "title": "Casefold",
+          "type": "boolean"
+        },
+        "strip_accents": {
+          "default": true,
+          "title": "Strip Accents",
+          "type": "boolean"
+        }
+      },
+      "title": "NormalizationSettings",
+      "type": "object"
+    },
+    "NormalizationStage": {
+      "additionalProperties": false,
+      "description": "``changed`` and ``cardinality`` are ``null`` for a disabled stage and\n``changed`` for ``raw``.\n\n``equals`` names the stage whose output this one received (the previous\nenabled stage, or ``raw``) when ``changed`` is 0: no occurrence was\nmodified, so the distinct values are the same and so is ``cardinality``,\ncomplete or limited (design 10). A limited stage that changed something\nhas no ``equals``: its count is not derived from the raw table (D13).\n``cardinality`` of a limited stage never carries the estimate or the upper\nbound of ``values.cardinality``, which is where to read them.",
+      "properties": {
+        "stage": {
+          "enum": [
+            "raw",
+            "nfc",
+            "trim",
+            "collapse_whitespace",
+            "casefold",
+            "strip_accents"
+          ],
+          "title": "Stage",
+          "type": "string"
+        },
+        "enabled": {
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "changed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Changed"
+        },
+        "cardinality": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "complete": "#/$defs/Complete_int_",
+                  "disabled": "#/$defs/Disabled",
+                  "failed": "#/$defs/Failed",
+                  "limited": "#/$defs/Limited",
+                  "not_applicable": "#/$defs/NotApplicable"
+                },
+                "propertyName": "status"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Complete_int_"
+                },
+                {
+                  "$ref": "#/$defs/Limited"
+                },
+                {
+                  "$ref": "#/$defs/NotApplicable"
+                },
+                {
+                  "$ref": "#/$defs/Disabled"
+                },
+                {
+                  "$ref": "#/$defs/Failed"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cardinality"
+        },
+        "equals": {
+          "anyOf": [
+            {
+              "enum": [
+                "raw",
+                "nfc",
+                "trim",
+                "collapse_whitespace",
+                "casefold",
+                "strip_accents"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Equals"
+        }
+      },
+      "required": [
+        "stage",
+        "enabled",
+        "changed",
+        "cardinality"
+      ],
+      "title": "NormalizationStage",
+      "type": "object"
+    },
+    "NotApplicable": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "not_applicable",
+          "default": "not_applicable",
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason",
+        "status"
+      ],
+      "title": "NotApplicable",
+      "type": "object"
+    },
+    "NumberSettings": {
+      "additionalProperties": false,
+      "description": "``dot``: decimal point, thousands grouped by ``,`` or a space; ``comma``:\ndecimal comma, thousands grouped by ``.`` or a space (design 12.10).\n\n``infer_convention`` (on by default) reads the ambiguous numbers, such as\n``1,234``, in the convention the unambiguous numbers of the column prove, at\nleast ``min_evidence`` of them and none proving the other (design 20.27);\n``ambiguous_convention`` always wins. ``detectors.number`` applies them in the\nScan; the amount detectors (``currency``, ``percentage``, ``quantity``)\ninherit them, but the Scan counts no number of an amount, so they change\nnothing there: the second pass applies them to the numbers of the values\nwith a unit (design 20.28).",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "conventions": {
+          "items": {
+            "enum": [
+              "dot",
+              "comma"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Conventions",
+          "type": "array"
+        },
+        "ambiguous_convention": {
+          "anyOf": [
+            {
+              "enum": [
+                "dot",
+                "comma"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ambiguous Convention"
+        },
+        "infer_convention": {
+          "default": true,
+          "title": "Infer Convention",
+          "type": "boolean"
+        },
+        "min_evidence": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Min Evidence",
+          "type": "integer"
+        }
+      },
+      "title": "NumberSettings",
+      "type": "object"
+    },
+    "NumericCoverage": {
+      "additionalProperties": false,
+      "description": "The values of the field that the numeric block describes: ``count`` of\nthe block out of ``of``, the analyzable values (``values.count``).",
+      "properties": {
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "share": {
+          "title": "Share",
+          "type": "number"
+        }
+      },
+      "required": [
+        "of",
+        "share"
+      ],
+      "title": "NumericCoverage",
+      "type": "object"
+    },
+    "NumericStats": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "native_count": {
+          "title": "Native Count",
+          "type": "integer"
+        },
+        "text_count": {
+          "title": "Text Count",
+          "type": "integer"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Max"
+        },
+        "sum": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Sum"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Mean"
+        },
+        "population_variance": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Population Variance"
+        },
+        "population_std": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Population Std"
+        },
+        "positive": {
+          "title": "Positive",
+          "type": "integer"
+        },
+        "negative": {
+          "title": "Negative",
+          "type": "integer"
+        },
+        "zero": {
+          "title": "Zero",
+          "type": "integer"
+        },
+        "integral_decimals": {
+          "title": "Integral Decimals",
+          "type": "integer"
+        },
+        "median": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_Union_int__float__",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_Union_int__float__"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Median"
+        },
+        "coverage": {
+          "$ref": "#/$defs/NumericCoverage"
+        }
+      },
+      "required": [
+        "count",
+        "native_count",
+        "text_count",
+        "min",
+        "max",
+        "sum",
+        "mean",
+        "population_variance",
+        "population_std",
+        "positive",
+        "negative",
+        "zero",
+        "integral_decimals",
+        "median",
+        "coverage"
+      ],
+      "title": "NumericStats",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "description": "A finding about the data (QUAL-02), computed from the facts of the scan\nby the versioned ``rule`` and never from values.\n\n``status`` says how much to trust it: ``informational`` is a remark that\nmay be perfectly valid, ``candidate_anomaly`` a signal that a rule cannot\nconfirm, ``confirmed_issue`` a defect by the structure of the source.\n``dataset`` and ``field`` locate it (both absent for the whole scan);\n``records`` lists the first record indices, ``patterns`` the inferred\npatterns, ``diagnostics`` the diagnostics and ``limited_by`` the limits\nthat stop its count from being exact.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "rule": {
+          "title": "Rule",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "presence",
+            "records",
+            "types",
+            "dates",
+            "normalization",
+            "names",
+            "values",
+            "patterns"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "informational",
+            "candidate_anomaly",
+            "confirmed_issue"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Field"
+        },
+        "population": {
+          "enum": [
+            "value_slots",
+            "content_strings",
+            "occurrences",
+            "records",
+            "distinct_values",
+            "groups",
+            "columns"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "of": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Of"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "lower_bound",
+            "sample"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "records": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Records",
+          "type": "array"
+        },
+        "patterns": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Patterns",
+          "type": "array"
+        },
+        "diagnostics": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Diagnostics",
+          "type": "array"
+        },
+        "limited_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limited By",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "rule",
+        "category",
+        "status",
+        "population",
+        "count",
+        "accuracy"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "ObservationSettings": {
+      "additionalProperties": false,
+      "description": "Observations, quality issues and limits derived from the finished scan\n(design 18.13). ``max_items`` bounds the observations and, separately, the\nlimits that are listed; the summaries count them all.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_items": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Max Items",
+          "type": "integer"
+        }
+      },
+      "title": "ObservationSettings",
+      "type": "object"
+    },
+    "Observations": {
+      "additionalProperties": false,
+      "description": "Findings of the scan on the data and on itself (design 18.13), derived\nfrom the facts and from ``derived``, without reading the source.\n\n``items`` hold the confirmed issues first, then the candidate anomalies,\nthen the informational remarks; ``limits`` are apart. At most\n``scan.observations.max_items`` of each are listed and ``truncated`` says\nthat the summaries count more.",
+      "properties": {
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "summary": {
+          "$ref": "#/$defs/QualitySummary"
+        },
+        "datasets": {
+          "items": {
+            "$ref": "#/$defs/QualitySummary"
+          },
+          "title": "Datasets",
+          "type": "array"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Observation"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "limits": {
+          "items": {
+            "$ref": "#/$defs/Limit"
+          },
+          "title": "Limits",
+          "type": "array"
+        }
+      },
+      "required": [
+        "version",
+        "truncated",
+        "summary",
+        "datasets",
+        "items",
+        "limits"
+      ],
+      "title": "Observations",
+      "type": "object"
+    },
+    "PatternCandidate": {
+      "additionalProperties": false,
+      "description": "A structural pattern found in the samples of a field (PAT-06).\n\n``examples`` are ids of entries of the field's samples. ``generalization``\nis 0 for the structures as read, 1 when adjacent letters were merged and 2\nwhen letters and digits were; ``merged_structures`` counts the structures\nthe candidate stands for.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "principal",
+            "secondary"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "signature": {
+          "items": {
+            "$ref": "#/$defs/PatternToken"
+          },
+          "title": "Signature",
+          "type": "array"
+        },
+        "render": {
+          "title": "Render",
+          "type": "string"
+        },
+        "lengths": {
+          "$ref": "#/$defs/PatternLengths"
+        },
+        "generalization": {
+          "title": "Generalization",
+          "type": "integer"
+        },
+        "merged_structures": {
+          "title": "Merged Structures",
+          "type": "integer"
+        },
+        "coverage": {
+          "$ref": "#/$defs/PatternCoverage"
+        },
+        "confidence": {
+          "$ref": "#/$defs/PatternConfidence"
+        },
+        "examples": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Examples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "role",
+        "signature",
+        "render",
+        "lengths",
+        "generalization",
+        "merged_structures",
+        "coverage",
+        "confidence",
+        "examples"
+      ],
+      "title": "PatternCandidate",
+      "type": "object"
+    },
+    "PatternConfidence": {
+      "additionalProperties": false,
+      "description": "Heuristic confidence, not a calibrated probability: the share of the\ncandidate damped by its support, ``share * n / (n + 1)``.",
+      "properties": {
+        "method": {
+          "const": "laplace_share",
+          "title": "Method",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "method",
+        "value"
+      ],
+      "title": "PatternConfidence",
+      "type": "object"
+    },
+    "PatternCoverage": {
+      "additionalProperties": false,
+      "description": "Distinct values of the inference population that the candidate takes.\n``basis`` is ``all_distinct`` when the population is every distinct stored\nvalue of the field, ``sample`` when it is a sample: a discovery indicator,\nnever a frequency of the file (specification 10.1).",
+      "properties": {
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "share": {
+          "title": "Share",
+          "type": "number"
+        },
+        "basis": {
+          "enum": [
+            "all_distinct",
+            "sample"
+          ],
+          "title": "Basis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "distinct",
+        "share",
+        "basis"
+      ],
+      "title": "PatternCoverage",
+      "type": "object"
+    },
+    "PatternExcluded": {
+      "additionalProperties": false,
+      "description": "What did not take part in the inference. ``long_text_occurrences`` counts\noccurrences of values too long to be stored (their previews never serve:\nLONG-05); the others count distinct sampled values.",
+      "properties": {
+        "long_text_occurrences": {
+          "title": "Long Text Occurrences",
+          "type": "integer"
+        },
+        "non_string_values": {
+          "title": "Non String Values",
+          "type": "integer"
+        },
+        "empty_values": {
+          "title": "Empty Values",
+          "type": "integer"
+        },
+        "too_long_values": {
+          "title": "Too Long Values",
+          "type": "integer"
+        },
+        "too_complex_values": {
+          "title": "Too Complex Values",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "long_text_occurrences",
+        "non_string_values",
+        "empty_values",
+        "too_long_values",
+        "too_complex_values"
+      ],
+      "title": "PatternExcluded",
+      "type": "object"
+    },
+    "PatternGrammar": {
+      "additionalProperties": false,
+      "description": "The versioned grammar and generalization rules (PAT-04).",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "title": "PatternGrammar",
+      "type": "object"
+    },
+    "PatternInferenceSettings": {
+      "additionalProperties": false,
+      "description": "Inference of structural patterns from the samples (design 18.12).\n\nThe inference reads the samples of the finished scan, never the source.\n``max_patterns`` bounds the candidates of a field, ``max_value_length`` the\nstored values that take part (longer ones are counted as excluded) and\n``min_distinct`` the distinct values a candidate needs.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_patterns": {
+          "default": 8,
+          "maximum": 64,
+          "minimum": 1,
+          "title": "Max Patterns",
+          "type": "integer"
+        },
+        "max_value_length": {
+          "default": 64,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Value Length",
+          "type": "integer"
+        },
+        "min_distinct": {
+          "default": 2,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Min Distinct",
+          "type": "integer"
+        }
+      },
+      "title": "PatternInferenceSettings",
+      "type": "object"
+    },
+    "PatternLengths": {
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "title": "Min",
+          "type": "integer"
+        },
+        "max": {
+          "title": "Max",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "title": "PatternLengths",
+      "type": "object"
+    },
+    "PatternOther": {
+      "additionalProperties": false,
+      "description": "The values no candidate takes, with the number of structures they have.",
+      "properties": {
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "share": {
+          "title": "Share",
+          "type": "number"
+        },
+        "structures": {
+          "title": "Structures",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "distinct",
+        "share",
+        "structures"
+      ],
+      "title": "PatternOther",
+      "type": "object"
+    },
+    "PatternOverlap": {
+      "additionalProperties": false,
+      "description": "Distinct values that match every pattern of ``patterns`` (PAT-08).",
+      "properties": {
+        "patterns": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Patterns",
+          "type": "array"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "patterns",
+        "values"
+      ],
+      "title": "PatternOverlap",
+      "type": "object"
+    },
+    "PatternPopulation": {
+      "additionalProperties": false,
+      "description": "The values the inference read. ``distinct`` took part out of\n``available`` usable values (a cap on the population may leave some out).",
+      "properties": {
+        "source": {
+          "const": "samples",
+          "title": "Source",
+          "type": "string"
+        },
+        "selection": {
+          "enum": [
+            "all",
+            "bottom_k"
+          ],
+          "title": "Selection",
+          "type": "string"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "available": {
+          "title": "Available",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "excluded": {
+          "$ref": "#/$defs/PatternExcluded"
+        }
+      },
+      "required": [
+        "source",
+        "selection",
+        "complete",
+        "available",
+        "distinct",
+        "excluded"
+      ],
+      "title": "PatternPopulation",
+      "type": "object"
+    },
+    "PatternSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "regex": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Regex",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "accepts": {
+          "items": {
+            "enum": [
+              "string",
+              "integer",
+              "number",
+              "boolean"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Accepts",
+          "type": "array"
+        },
+        "sensitive": {
+          "default": false,
+          "title": "Sensitive",
+          "type": "boolean"
+        },
+        "max_input_length": {
+          "default": 256,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Max Input Length",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "regex"
+      ],
+      "title": "PatternSettings",
+      "type": "object"
+    },
+    "PatternToken": {
+      "additionalProperties": false,
+      "description": "One token of a pattern signature (design 18.12): a class of characters\nrepeated ``min`` to ``max`` times (characters), or a ``literal`` text\nrepeated ``min`` to ``max`` times.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "digit_ascii",
+            "upper_ascii",
+            "lower_ascii",
+            "letter_unicode",
+            "alphanumeric",
+            "literal"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        },
+        "min": {
+          "title": "Min",
+          "type": "integer"
+        },
+        "max": {
+          "title": "Max",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "min",
+        "max"
+      ],
+      "title": "PatternToken",
+      "type": "object"
+    },
+    "PercentageSettings": {
+      "additionalProperties": false,
+      "description": "Conventions of the number part of percentages, set independently of\n``detectors.number``.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "conventions": {
+          "items": {
+            "enum": [
+              "dot",
+              "comma"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Conventions",
+          "type": "array"
+        },
+        "ambiguous_convention": {
+          "anyOf": [
+            {
+              "enum": [
+                "dot",
+                "comma"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ambiguous Convention"
+        },
+        "infer_convention": {
+          "default": true,
+          "title": "Infer Convention",
+          "type": "boolean"
+        },
+        "min_evidence": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Min Evidence",
+          "type": "integer"
+        }
+      },
+      "title": "PercentageSettings",
+      "type": "object"
+    },
+    "PhoneSettings": {
+      "additionalProperties": false,
+      "description": "``nanp``: Canada, the United States and the other NANP countries;\n``fr``: France.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "regions": {
+          "items": {
+            "enum": [
+              "nanp",
+              "fr"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Regions",
+          "type": "array"
+        }
+      },
+      "title": "PhoneSettings",
+      "type": "object"
+    },
+    "PostalCodeSettings": {
+      "additionalProperties": false,
+      "description": "``ca``: Canadian postal codes; ``us``: United States ZIP codes.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "regions": {
+          "items": {
+            "enum": [
+              "ca",
+              "us"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Regions",
+          "type": "array"
+        }
+      },
+      "title": "PostalCodeSettings",
+      "type": "object"
+    },
+    "Presence": {
+      "additionalProperties": false,
+      "properties": {
+        "parent_type": {
+          "enum": [
+            "object",
+            "array",
+            "record"
+          ],
+          "title": "Parent Type",
+          "type": "string"
+        },
+        "parent_count": {
+          "title": "Parent Count",
+          "type": "integer"
+        },
+        "present": {
+          "title": "Present",
+          "type": "integer"
+        },
+        "absent": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Absent"
+        }
+      },
+      "required": [
+        "parent_type",
+        "parent_count",
+        "present",
+        "absent"
+      ],
+      "title": "Presence",
+      "type": "object"
+    },
+    "QualitySummary": {
+      "additionalProperties": false,
+      "description": "What was found, whole scan (``dataset`` absent) or one dataset, counted\nbefore ``scan.observations.max_items`` cuts the lists. ``has_observations``\nis any observation, ``has_quality_issues`` a candidate anomaly or a\nconfirmed issue, ``has_limits`` any limit; they stand for the counts.",
+      "properties": {
+        "dataset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset"
+        },
+        "informational": {
+          "title": "Informational",
+          "type": "integer"
+        },
+        "candidate_anomalies": {
+          "title": "Candidate Anomalies",
+          "type": "integer"
+        },
+        "confirmed_issues": {
+          "title": "Confirmed Issues",
+          "type": "integer"
+        },
+        "limits": {
+          "title": "Limits",
+          "type": "integer"
+        },
+        "has_observations": {
+          "title": "Has Observations",
+          "type": "boolean"
+        },
+        "has_quality_issues": {
+          "title": "Has Quality Issues",
+          "type": "boolean"
+        },
+        "has_limits": {
+          "title": "Has Limits",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "informational",
+        "candidate_anomalies",
+        "confirmed_issues",
+        "limits",
+        "has_observations",
+        "has_quality_issues",
+        "has_limits"
+      ],
+      "title": "QualitySummary",
+      "type": "object"
+    },
+    "QuantitySettings": {
+      "additionalProperties": false,
+      "description": "Conventions of the number part of quantities, set independently of\n``detectors.number``, and the counted units of ``details``.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "conventions": {
+          "items": {
+            "enum": [
+              "dot",
+              "comma"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Conventions",
+          "type": "array"
+        },
+        "ambiguous_convention": {
+          "anyOf": [
+            {
+              "enum": [
+                "dot",
+                "comma"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ambiguous Convention"
+        },
+        "infer_convention": {
+          "default": true,
+          "title": "Infer Convention",
+          "type": "boolean"
+        },
+        "min_evidence": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Min Evidence",
+          "type": "integer"
+        },
+        "max_tracked_units": {
+          "default": 10000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Tracked Units",
+          "type": "integer"
+        },
+        "max_listed_units": {
+          "default": 20,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Listed Units",
+          "type": "integer"
+        }
+      },
+      "title": "QuantitySettings",
+      "type": "object"
+    },
+    "RecordList": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "records": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Records",
+          "type": "array"
+        }
+      },
+      "required": [
+        "count",
+        "records"
+      ],
+      "title": "RecordList",
+      "type": "object"
+    },
+    "RecordSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "duplicates": {
+          "default": true,
+          "title": "Duplicates",
+          "type": "boolean"
+        },
+        "sample": {
+          "$ref": "#/$defs/RowSampleSettings"
+        }
+      },
+      "title": "RecordSettings",
+      "type": "object"
+    },
+    "Records": {
+      "additionalProperties": false,
+      "properties": {
+        "with_missing": {
+          "$ref": "#/$defs/RecordList"
+        },
+        "empty": {
+          "$ref": "#/$defs/RecordList"
+        },
+        "duplicates": {
+          "$ref": "#/$defs/DuplicateRecords"
+        },
+        "sample": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RowSample"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "with_missing",
+        "empty",
+        "duplicates"
+      ],
+      "title": "Records",
+      "type": "object"
+    },
+    "RowPopulation": {
+      "additionalProperties": false,
+      "description": "The records read (``records``) and the ones the middle is drawn from:\npositions ``edge`` + 1 to ``records`` - ``edge``, ``interior`` of them\n(``scope`` names it, ROW-07).",
+      "properties": {
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "interior": {
+          "title": "Interior",
+          "type": "integer"
+        },
+        "scope": {
+          "const": "interior_rows",
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "records",
+        "interior",
+        "scope"
+      ],
+      "title": "RowPopulation",
+      "type": "object"
+    },
+    "RowSample": {
+      "additionalProperties": false,
+      "description": "Common row sample of a dataset: first rows, a bottom-k of the interior\nand last rows, the same cells for every projected field (design 18.11).\n\n``middle_k`` is the size of the middle in force, below ``requested.middle``\nwhen the byte budget cut it (``reason`` is then ``memory_budget``, which\nalso covers start or end rows left out). ``complete`` says that every record\nread is a row. ``threshold`` (16 hexadecimal digits) is the largest priority\nkept in the middle, written once a middle row was dropped. ``fields`` are\nthe projected field ids; ``fields_limited`` says that untracked paths are not\nprojected. ``bytes`` is the modelled size of the rows kept, ``max_bytes`` the\nbudget of the scan. ``kept`` rows are listed out of the ``of`` sampled: a\nReport keeps the header and no row (``kept`` 0).",
+      "properties": {
+        "selection": {
+          "const": "start_middle_end",
+          "title": "Selection",
+          "type": "string"
+        },
+        "hash": {
+          "$ref": "#/$defs/SampleHash"
+        },
+        "requested": {
+          "$ref": "#/$defs/RowSizes"
+        },
+        "middle_k": {
+          "title": "Middle K",
+          "type": "integer"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "population": {
+          "$ref": "#/$defs/RowPopulation"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "fields_limited": {
+          "title": "Fields Limited",
+          "type": "boolean"
+        },
+        "cell_chars": {
+          "title": "Cell Chars",
+          "type": "integer"
+        },
+        "truncated_cells": {
+          "title": "Truncated Cells",
+          "type": "integer"
+        },
+        "bytes": {
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "max_bytes": {
+          "title": "Max Bytes",
+          "type": "integer"
+        },
+        "kept": {
+          "title": "Kept",
+          "type": "integer"
+        },
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "rows": {
+          "items": {
+            "$ref": "#/$defs/SampleRow"
+          },
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "selection",
+        "hash",
+        "requested",
+        "middle_k",
+        "population",
+        "complete",
+        "fields",
+        "fields_limited",
+        "cell_chars",
+        "truncated_cells",
+        "bytes",
+        "max_bytes",
+        "kept",
+        "of",
+        "rows"
+      ],
+      "title": "RowSample",
+      "type": "object"
+    },
+    "RowSampleSettings": {
+      "additionalProperties": false,
+      "description": "Row sample of a dataset (design 18.11): ``edge`` first rows, ``edge`` last\nrows and a bottom-k of the interior, ``rows`` in all; 0 rows turns it off.\n\n``max_bytes`` is the budget, in bytes of a cost model, of the cells kept by\nthe whole scan.",
+      "properties": {
+        "rows": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "edge": {
+          "default": 50,
+          "maximum": 50000,
+          "minimum": 0,
+          "title": "Edge",
+          "type": "integer"
+        },
+        "cell_chars": {
+          "default": 200,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Cell Chars",
+          "type": "integer"
+        },
+        "max_bytes": {
+          "default": 16777216,
+          "maximum": 1099511627776,
+          "minimum": 1048576,
+          "title": "Max Bytes",
+          "type": "integer"
+        }
+      },
+      "title": "RowSampleSettings",
+      "type": "object"
+    },
+    "RowSizes": {
+      "additionalProperties": false,
+      "description": "Sizes asked for: ``rows`` in all, ``edge`` first and ``edge`` last rows,\nand ``middle`` = ``rows`` - 2 * ``edge`` rows of the interior.",
+      "properties": {
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "edge": {
+          "title": "Edge",
+          "type": "integer"
+        },
+        "middle": {
+          "title": "Middle",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rows",
+        "edge",
+        "middle"
+      ],
+      "title": "RowSizes",
+      "type": "object"
+    },
+    "RunCounters": {
+      "additionalProperties": false,
+      "description": "Optional diagnostic counters of a run (``scan(counters=True)``).",
+      "properties": {
+        "sampling": {
+          "$ref": "#/$defs/SamplingCounters"
+        }
+      },
+      "required": [
+        "sampling"
+      ],
+      "title": "RunCounters",
+      "type": "object"
+    },
+    "RunInfo": {
+      "additionalProperties": false,
+      "description": "What varies from one run to the next on the same source: it is not part\nof the description of the data.",
+      "properties": {
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "duration_seconds": {
+          "title": "Duration Seconds",
+          "type": "number"
+        },
+        "timings": {
+          "$ref": "#/$defs/Timings"
+        },
+        "workers": {
+          "title": "Workers",
+          "type": "integer"
+        },
+        "peak_memory_bytes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Peak Memory Bytes"
+        },
+        "counters": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunCounters"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "started_at",
+        "duration_seconds",
+        "timings",
+        "workers",
+        "peak_memory_bytes"
+      ],
+      "title": "RunInfo",
+      "type": "object"
+    },
+    "SampleEntry": {
+      "additionalProperties": false,
+      "description": "A sampled original value with its exact count (design 18.9).\n\n``id`` numbers the entry in the listing of the Scan and stays the same in a\nReport that keeps a subset of it.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "count_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "partial",
+            "unknown"
+          ],
+          "title": "Count Accuracy",
+          "type": "string"
+        },
+        "identity_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "partial",
+            "unknown"
+          ],
+          "title": "Identity Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "type",
+        "count",
+        "id",
+        "count_accuracy",
+        "identity_accuracy"
+      ],
+      "title": "SampleEntry",
+      "type": "object"
+    },
+    "SampleHash": {
+      "additionalProperties": false,
+      "description": "Priority function of a bottom-k sample (design 18.3).",
+      "properties": {
+        "algorithm": {
+          "title": "Algorithm",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "bits": {
+          "title": "Bits",
+          "type": "integer"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "algorithm",
+        "version",
+        "bits",
+        "seed"
+      ],
+      "title": "SampleHash",
+      "type": "object"
+    },
+    "SampleRow": {
+      "additionalProperties": false,
+      "description": "A row of the row sample: its position in the dataset (the record index),\nthe groups it belongs to and the cells of the projected fields.\n\n``values`` holds the canonical text per field id, through its exposure: a\nlist when the path repeats, ``null`` for a JSON null or a hidden cell, no\nkey for a field absent from the record. ``truncated`` lists the\nfields whose cell was cut at ``cell_chars`` (design 18.11).",
+      "properties": {
+        "record": {
+          "title": "Record",
+          "type": "integer"
+        },
+        "origins": {
+          "items": {
+            "enum": [
+              "start",
+              "middle",
+              "end"
+            ],
+            "type": "string"
+          },
+          "title": "Origins",
+          "type": "array"
+        },
+        "values": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Values",
+          "type": "object"
+        },
+        "truncated": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Truncated",
+          "type": "array"
+        }
+      },
+      "required": [
+        "record",
+        "origins",
+        "values"
+      ],
+      "title": "SampleRow",
+      "type": "object"
+    },
+    "Samples": {
+      "additionalProperties": false,
+      "description": "Distinct original values with their exact counts (design 18.9).\n\n``all`` lists every distinct value, in first-seen order; ``bottom_k`` the\nones of smallest priority, in ascending priority, and names ``k``, the\n``hash`` and the ``threshold`` (the largest priority kept, as hexadecimal\ndigits; absent while no value was dropped and for a sensitive field).\n\n``kept`` values are listed out of the ``of`` the scan sampled: a Scan has\n``kept == of`` unless exposure withheld values (``mask`` merges, ``hide``\nlists none); a Report keeps fewer (design 19.4) and says so here.",
+      "properties": {
+        "selection": {
+          "enum": [
+            "all",
+            "bottom_k"
+          ],
+          "title": "Selection",
+          "type": "string"
+        },
+        "kept": {
+          "title": "Kept",
+          "type": "integer"
+        },
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/SampleEntry"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "k": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "K"
+        },
+        "requested_k": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested K"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SampleHash"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "long_texts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LongTexts"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "by_length": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ByLength"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "selection",
+        "kept",
+        "of",
+        "listed"
+      ],
+      "title": "Samples",
+      "type": "object"
+    },
+    "SamplingCounters": {
+      "additionalProperties": false,
+      "description": "Work of the bottom-k samplers over all fields (design 18.4). Counters\nthat the scan could not measure are not written; a count of 0 is a\nmeasured zero.",
+      "properties": {
+        "hashed_keys": {
+          "title": "Hashed Keys",
+          "type": "integer"
+        },
+        "hit_keys": {
+          "title": "Hit Keys",
+          "type": "integer"
+        },
+        "admitted_keys": {
+          "title": "Admitted Keys",
+          "type": "integer"
+        },
+        "rejected_keys": {
+          "title": "Rejected Keys",
+          "type": "integer"
+        },
+        "evicted_keys": {
+          "title": "Evicted Keys",
+          "type": "integer"
+        },
+        "long_texts_hashed": {
+          "title": "Long Texts Hashed",
+          "type": "integer"
+        },
+        "long_bytes_hashed": {
+          "title": "Long Bytes Hashed",
+          "type": "integer"
+        },
+        "bottom_k_fields": {
+          "title": "Bottom K Fields",
+          "type": "integer"
+        },
+        "reduced_fields": {
+          "title": "Reduced Fields",
+          "type": "integer"
+        },
+        "strata_fields": {
+          "title": "Strata Fields",
+          "type": "integer"
+        },
+        "strata_limited_fields": {
+          "title": "Strata Limited Fields",
+          "type": "integer"
+        },
+        "k_effective_min": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "K Effective Min"
+        },
+        "k_effective_max": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "K Effective Max"
+        },
+        "sample_model_bytes": {
+          "title": "Sample Model Bytes",
+          "type": "integer"
+        },
+        "long_model_bytes": {
+          "title": "Long Model Bytes",
+          "type": "integer"
+        },
+        "length_model_bytes": {
+          "title": "Length Model Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "hashed_keys",
+        "hit_keys",
+        "admitted_keys",
+        "rejected_keys",
+        "evicted_keys",
+        "long_texts_hashed",
+        "long_bytes_hashed",
+        "bottom_k_fields",
+        "reduced_fields",
+        "strata_fields",
+        "strata_limited_fields",
+        "sample_model_bytes",
+        "long_model_bytes",
+        "length_model_bytes"
+      ],
+      "title": "SamplingCounters",
+      "type": "object"
+    },
+    "ScanConfig": {
+      "additionalProperties": false,
+      "description": "Validated scan settings; every section has defaults.",
+      "properties": {
+        "csv": {
+          "$ref": "#/$defs/CsvConfig"
+        },
+        "json": {
+          "$ref": "#/$defs/JsonSettings"
+        },
+        "excel": {
+          "$ref": "#/$defs/ExcelSettings"
+        },
+        "errors": {
+          "$ref": "#/$defs/ErrorSettings"
+        },
+        "values": {
+          "$ref": "#/$defs/ValueSettings"
+        },
+        "normalization": {
+          "$ref": "#/$defs/NormalizationSettings"
+        },
+        "limits": {
+          "$ref": "#/$defs/LimitSettings"
+        },
+        "records": {
+          "$ref": "#/$defs/RecordSettings"
+        },
+        "types": {
+          "$ref": "#/$defs/TypeSettings"
+        },
+        "detection": {
+          "$ref": "#/$defs/DetectionSettings"
+        },
+        "detectors": {
+          "$ref": "#/$defs/DetectorSettings"
+        },
+        "patterns": {
+          "items": {
+            "$ref": "#/$defs/PatternSettings"
+          },
+          "maxItems": 200,
+          "title": "Patterns",
+          "type": "array"
+        },
+        "exposure": {
+          "$ref": "#/$defs/ExposureSettings"
+        },
+        "pattern_inference": {
+          "$ref": "#/$defs/PatternInferenceSettings"
+        },
+        "observations": {
+          "$ref": "#/$defs/ObservationSettings"
+        },
+        "random_seed": {
+          "default": 42,
+          "exclusiveMaximum": 18446744073709551616,
+          "minimum": 0,
+          "title": "Random Seed",
+          "type": "integer"
+        }
+      },
+      "title": "ScanConfig",
+      "type": "object"
+    },
+    "Scope": {
+      "additionalProperties": false,
+      "properties": {
+        "collections": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CollectionScope"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "records_read": {
+          "title": "Records Read",
+          "type": "integer"
+        },
+        "records_analyzed": {
+          "title": "Records Analyzed",
+          "type": "integer"
+        },
+        "records_excluded": {
+          "title": "Records Excluded",
+          "type": "integer"
+        },
+        "exclusions": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Exclusions",
+          "type": "object"
+        }
+      },
+      "required": [
+        "collections",
+        "records_read",
+        "records_analyzed",
+        "records_excluded",
+        "exclusions"
+      ],
+      "title": "Scope",
+      "type": "object"
+    },
+    "SourceInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "enum": [
+            "csv",
+            "json",
+            "jsonl",
+            "excel"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "size_bytes": {
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "modified_at": {
+          "format": "date-time",
+          "title": "Modified At",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "encoding": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Encoding"
+        },
+        "shape": {
+          "$ref": "#/$defs/SourceShape"
+        },
+        "csv": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CsvSourceInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "excel": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExcelSourceInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "format",
+        "name",
+        "size_bytes",
+        "modified_at",
+        "sha256",
+        "encoding",
+        "shape",
+        "csv"
+      ],
+      "title": "SourceInfo",
+      "type": "object"
+    },
+    "SourceShape": {
+      "additionalProperties": false,
+      "description": "Global size of the source, whatever the dataset.",
+      "properties": {
+        "lines": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Lines"
+        },
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "columns": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Columns"
+        },
+        "fields": {
+          "title": "Fields",
+          "type": "integer"
+        },
+        "datasets": {
+          "title": "Datasets",
+          "type": "integer"
+        },
+        "cells": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cells"
+        },
+        "missing_cells": {
+          "title": "Missing Cells",
+          "type": "integer"
+        },
+        "records_with_missing": {
+          "title": "Records With Missing",
+          "type": "integer"
+        },
+        "empty_records": {
+          "title": "Empty Records",
+          "type": "integer"
+        },
+        "duplicate_records": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duplicate Records"
+        }
+      },
+      "required": [
+        "lines",
+        "records",
+        "columns",
+        "fields",
+        "datasets",
+        "cells",
+        "missing_cells",
+        "records_with_missing",
+        "empty_records",
+        "duplicate_records"
+      ],
+      "title": "SourceShape",
+      "type": "object"
+    },
+    "StringCategories": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "empty": {
+          "title": "Empty",
+          "type": "integer"
+        },
+        "blank": {
+          "title": "Blank",
+          "type": "integer"
+        },
+        "marker": {
+          "title": "Marker",
+          "type": "integer"
+        },
+        "content": {
+          "title": "Content",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "count",
+        "empty",
+        "blank",
+        "marker",
+        "content"
+      ],
+      "title": "StringCategories",
+      "type": "object"
+    },
+    "StringCharacteristics": {
+      "additionalProperties": false,
+      "properties": {
+        "non_ascii": {
+          "title": "Non Ascii",
+          "type": "integer"
+        },
+        "with_line_breaks": {
+          "title": "With Line Breaks",
+          "type": "integer"
+        },
+        "with_control_characters": {
+          "title": "With Control Characters",
+          "type": "integer"
+        },
+        "with_surrounding_whitespace": {
+          "title": "With Surrounding Whitespace",
+          "type": "integer"
+        },
+        "with_repeated_whitespace": {
+          "title": "With Repeated Whitespace",
+          "type": "integer"
+        },
+        "uppercase": {
+          "title": "Uppercase",
+          "type": "integer"
+        },
+        "lowercase": {
+          "title": "Lowercase",
+          "type": "integer"
+        },
+        "mixed_case": {
+          "title": "Mixed Case",
+          "type": "integer"
+        },
+        "no_letters": {
+          "title": "No Letters",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "non_ascii",
+        "with_line_breaks",
+        "with_control_characters",
+        "with_surrounding_whitespace",
+        "with_repeated_whitespace",
+        "uppercase",
+        "lowercase",
+        "mixed_case",
+        "no_letters"
+      ],
+      "title": "StringCharacteristics",
+      "type": "object"
+    },
+    "StringLengths": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "min_length": {
+          "title": "Min Length",
+          "type": "integer"
+        },
+        "max_length": {
+          "title": "Max Length",
+          "type": "integer"
+        },
+        "mean_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Mean Length"
+        },
+        "median_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Median Length"
+        },
+        "length_histogram": {
+          "items": {
+            "$ref": "#/$defs/LengthCount"
+          },
+          "title": "Length Histogram",
+          "type": "array"
+        }
+      },
+      "required": [
+        "count",
+        "min_length",
+        "max_length",
+        "mean_length",
+        "median_length",
+        "length_histogram"
+      ],
+      "title": "StringLengths",
+      "type": "object"
+    },
+    "Structure": {
+      "additionalProperties": false,
+      "properties": {
+        "paths": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_int_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_int_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Paths"
+        },
+        "untracked_observations": {
+          "title": "Untracked Observations",
+          "type": "integer"
+        },
+        "depth_truncated_observations": {
+          "title": "Depth Truncated Observations",
+          "type": "integer"
+        },
+        "max_depth_seen": {
+          "title": "Max Depth Seen",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "paths",
+        "untracked_observations",
+        "depth_truncated_observations",
+        "max_depth_seen"
+      ],
+      "title": "Structure",
+      "type": "object"
+    },
+    "TechnicalType": {
+      "additionalProperties": false,
+      "description": "Port of the current type inference (design 9.7): ``confidence`` is the\naccepted share, ``null`` without values; ``outside_count`` is ``null`` for\n``mixed``.",
+      "properties": {
+        "type": {
+          "enum": [
+            "integer",
+            "number",
+            "date",
+            "boolean",
+            "text",
+            "mixed",
+            "empty"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Confidence"
+        },
+        "counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts",
+          "type": "object"
+        },
+        "outside_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Outside Count"
+        }
+      },
+      "required": [
+        "type",
+        "confidence",
+        "counts",
+        "outside_count"
+      ],
+      "title": "TechnicalType",
+      "type": "object"
+    },
+    "TemporalKind": {
+      "additionalProperties": false,
+      "description": "Values of one kind; ``min`` and ``max`` are ISO strings. Aware values\ncompare as instants; naive and aware values are never compared.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "date",
+            "datetime_naive",
+            "datetime_aware",
+            "time"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "min": {
+          "title": "Min",
+          "type": "string"
+        },
+        "max": {
+          "title": "Max",
+          "type": "string"
+        },
+        "years": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/YearCount"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Years"
+        }
+      },
+      "required": [
+        "kind",
+        "count",
+        "min",
+        "max",
+        "years"
+      ],
+      "title": "TemporalKind",
+      "type": "object"
+    },
+    "TemporalStats": {
+      "additionalProperties": false,
+      "description": "Temporal values of the date detector; ``ambiguous`` values are counted\nand excluded (design 9.6).",
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "ambiguous": {
+          "title": "Ambiguous",
+          "type": "integer"
+        },
+        "kinds": {
+          "items": {
+            "$ref": "#/$defs/TemporalKind"
+          },
+          "title": "Kinds",
+          "type": "array"
+        }
+      },
+      "required": [
+        "count",
+        "ambiguous",
+        "kinds"
+      ],
+      "title": "TemporalStats",
+      "type": "object"
+    },
+    "Timings": {
+      "additionalProperties": false,
+      "description": "Where ``RunInfo.duration_seconds`` went; the five parts add up to it.",
+      "properties": {
+        "reading": {
+          "title": "Reading",
+          "type": "number"
+        },
+        "analysis": {
+          "title": "Analysis",
+          "type": "number"
+        },
+        "finalize": {
+          "title": "Finalize",
+          "type": "number"
+        },
+        "derived": {
+          "title": "Derived",
+          "type": "number"
+        },
+        "other": {
+          "title": "Other",
+          "type": "number"
+        }
+      },
+      "required": [
+        "reading",
+        "analysis",
+        "finalize",
+        "derived",
+        "other"
+      ],
+      "title": "Timings",
+      "type": "object"
+    },
+    "TypeSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "minimum_confidence": {
+          "default": 0.95,
+          "exclusiveMinimum": 0.5,
+          "maximum": 1,
+          "title": "Minimum Confidence",
+          "type": "number"
+        }
+      },
+      "title": "TypeSettings",
+      "type": "object"
+    },
+    "UrlSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "schemes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Schemes",
+          "type": "array"
+        },
+        "www": {
+          "default": true,
+          "title": "Www",
+          "type": "boolean"
+        },
+        "max_tracked_hosts": {
+          "default": 10000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Tracked Hosts",
+          "type": "integer"
+        },
+        "max_listed_hosts": {
+          "default": 20,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Listed Hosts",
+          "type": "integer"
+        }
+      },
+      "title": "UrlSettings",
+      "type": "object"
+    },
+    "UuidSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "UuidSettings",
+      "type": "object"
+    },
+    "ValueAt": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "record": {
+          "title": "Record",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "type",
+        "record"
+      ],
+      "title": "ValueAt",
+      "type": "object"
+    },
+    "ValueCount": {
+      "additionalProperties": false,
+      "description": "An analytical value in its canonical text, with its native type.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "type",
+        "count"
+      ],
+      "title": "ValueCount",
+      "type": "object"
+    },
+    "ValueSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "null_markers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Null Markers",
+          "type": "array"
+        },
+        "null_markers_case_sensitive": {
+          "default": true,
+          "title": "Null Markers Case Sensitive",
+          "type": "boolean"
+        },
+        "missing": {
+          "items": {
+            "enum": [
+              "absent",
+              "null",
+              "empty",
+              "blank",
+              "marker"
+            ],
+            "type": "string"
+          },
+          "title": "Missing",
+          "type": "array"
+        }
+      },
+      "title": "ValueSettings",
+      "type": "object"
+    },
+    "Variant": {
+      "additionalProperties": false,
+      "description": "A raw string variant of a comparison key.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "count"
+      ],
+      "title": "Variant",
+      "type": "object"
+    },
+    "VariantGroup": {
+      "additionalProperties": false,
+      "description": "A comparison key with at least two distinct raw variants; ``count`` and\n``distinct`` cover every variant, ``variants`` the most frequent ones.",
+      "properties": {
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "variants": {
+          "items": {
+            "$ref": "#/$defs/Variant"
+          },
+          "title": "Variants",
+          "type": "array"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "key",
+        "count",
+        "distinct",
+        "variants",
+        "truncated"
+      ],
+      "title": "VariantGroup",
+      "type": "object"
+    },
+    "VariantGroups": {
+      "additionalProperties": false,
+      "properties": {
+        "groups": {
+          "title": "Groups",
+          "type": "integer"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/VariantGroup"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "groups",
+        "listed",
+        "truncated"
+      ],
+      "title": "VariantGroups",
+      "type": "object"
+    },
+    "YearCount": {
+      "additionalProperties": false,
+      "properties": {
+        "year": {
+          "title": "Year",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "year",
+        "count"
+      ],
+      "title": "YearCount",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "tabalyst.scan",
+      "default": "tabalyst.scan",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 3
+    },
+    "engine": {
+      "$ref": "#/$defs/EngineInfo"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "run": {
+      "$ref": "#/$defs/RunInfo"
+    },
+    "source": {
+      "$ref": "#/$defs/SourceInfo"
+    },
+    "config": {
+      "$ref": "#/$defs/ScanConfig"
+    },
+    "config_sha256": {
+      "title": "Config Sha256",
+      "type": "string"
+    },
+    "scope": {
+      "$ref": "#/$defs/Scope"
+    },
+    "datasets": {
+      "items": {
+        "$ref": "#/$defs/DatasetResult"
+      },
+      "title": "Datasets",
+      "type": "array"
+    },
+    "diagnostics": {
+      "items": {
+        "$ref": "#/$defs/Diagnostic"
+      },
+      "title": "Diagnostics",
+      "type": "array"
+    },
+    "derived": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Derived"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "observations": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Observations"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "analyses": {
+      "description": "Results of the second pass."
+    },
+    "report": {
+      "description": "What a Report adds to the base: generation and presentation."
+    }
+  },
+  "required": [
+    "engine",
+    "status",
+    "run",
+    "source",
+    "config",
+    "config_sha256",
+    "scope",
+    "datasets",
+    "diagnostics",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst Scan",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Base document tabalyst.scan, format 0.2.0 revision 3."
+}

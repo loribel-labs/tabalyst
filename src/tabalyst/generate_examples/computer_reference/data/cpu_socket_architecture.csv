@@ -1,0 +1,12 @@
+cpu_socket_id,cpu_architecture_id
+lga1700,x86_64
+lga1851,x86_64
+am4,x86_64
+am5,x86_64
+str5,x86_64
+sp5,x86_64
+bga,x86_64
+bga,arm64
+soldered,x86_64
+soldered,arm64
+proprietary,arm64

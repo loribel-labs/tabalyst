@@ -4,25 +4,43 @@ Iteration 1 implements `CSV -> report.json -> report.html` with a single global
 JSON file. Its column summaries stay inside that file. The format is experimental;
 breaking changes are expected while iterating.
 
-Report profiles use `format_version: "0.2.0"` and start at
-`format_revision: 1`. The integer revision increases for each meaningful
+Report profiles use `format_version: "0.2.0"` and started at
+`format_revision: 1` (published); the structure of revision 2, a superset of the
+Scan document, is not published yet. The integer revision increases for each meaningful
 structural or semantic change. See the
 [JSON profile changelog](../en/report/profile-changelog.md).
 
 ## Boundaries
 
 - `report_profile.py`: builds the report profile from a `ScanResult`, fresh
-  or read back from a scan document; record-level facts (preview, duplicate,
-  empty and incomplete records) come from the `records` block of each scan
-  dataset. No file access.
+  or read back from a scan document; record-level facts (duplicate, empty and
+  incomplete records) come from the `records` block of each scan dataset, and
+  `report_base` reduces the samples and the row sample the Report keeps. No file
+  access.
 - `report_config.py`: `ReportConfig`, the effective report settings: the
-  top-level presentation settings and the `scan` configuration.
-- `models.py`: Pydantic models of the report profile (format 0.2.0, revision 1: one
-  profile per dataset in `datasets`, with its limits and, for JSON, its
-  structure; column scan evidence is retained for standalone detail pages).
+  presentation settings (the `report` object of the files) and the `scan`
+  configuration.
+- `models.py`: Pydantic models of the report document (`tabalyst.report`, format
+  0.2.0, revision 2): the Scan base at its own paths and a `report` block with
+  one projection per dataset (summary, columns and, for JSON, structure). The
+  facts and the findings of the Scan are not copied into the projections.
+- `report_views.py`: what the pages read, computed at render time and never
+  serialized: `ColumnView` (a column projection with the canonical Scan `field`,
+  the derived `numeric`, `date_profile` and `string_profile`, the qualified
+  distinct count, the findings, limits and patterns of the field) and
+  `DatasetView` (the quality, limits and rows of the dataset).
+- `report_sections.py` and `report_labels.py`: the builders of those views from
+  `observations`, `derived` and `records.sample` of the base, and the words the
+  pages print (rule titles, statuses, accuracy kinds, limit names). Nothing in the
+  pages recomputes a rule (design 18.14).
+- `scan_document.py`: the common loader of the Scan base, read from a Scan or a
+  Report (`load_document`, `load_base`), its capabilities and the identity of the
+  base (`facts_sha256`).
+- `report_schema.py`: the JSON Schema of the Report, beside the Scan's
+  (`scanner/schema.py`); `python scripts/scan_schema.py` writes both.
 - `config.py`: validated settings, loaded from optional JSON configuration files.
-  `load_config_layers()` validates every file completely (top-level settings and
-  the `scan` section), rejects the settings moved to `scan` with their new
+  `load_config_layers()` validates every file completely (the top-level `csv`, the
+  `report` and `scan` objects), rejects the settings moved with their new
   location, and merges files in order; each command resolves its own settings
   from the merged layers.
 - `service.py`: public `analyze(...)` orchestration plus the reusable
@@ -56,9 +74,10 @@ structural or semantic change. See the
   unsafe outputs reject the batch before any reading), sequential inspections
   and the visible Inspect file writes (`generate_inspections()`); `inspect()` is
   its single-source form in the public API.
-- `generate_definition.py`: strict, bounded YAML version 1 loading and located
-  validation for Generate. `generate_service.py` resolves overrides, apportions
-  rows, plans every artifact and owns staging and best-effort publication.
+- `generate_definition.py`: historical YAML version 1 validation; the development
+  service rejects this published format. `generate_service.py` resolves
+  overrides, apportions rows, plans every artifact and owns staging and
+  best-effort publication.
   `generate_csv.py` is the UTF-8/LF streaming writer adapted from the Generate
   prototype. `generate_values.py` evaluates elementary and dependent columns,
   with shared entity pools and stable random streams. Lot 3 adds relations and
@@ -67,6 +86,18 @@ structural or semantic change. See the
   `generate_insurance.py` loads and validates packaged Insurance tables and
   generates one coherent 33-field branch row per request; the shared CSV
   writer and combine pass produce its three branch files and union.
+  `generate_package.py` validates versioned packages for all three domains.
+  The single Computer package is bundled and available as `--example computer`;
+  `generate_computer_output.py` streams its paired EN/FR
+  CSVs and metadata, optionally formatting physical measures with localized
+  units at export. With an explicit Computer anomaly profile,
+  `generate_service.py` also plans altered EN/FR CSVs, cell logs, and summaries
+  through the shared anomaly pass. It protects
+  package resources and the request file, then stages and publishes them with
+  the existing best-effort restoration rule. CRM uses a versioned package with
+  generated column schemas; `generate_columns_package.py` validates it and
+  shares the column execution engine. Insurance uses the same bundled package layout;
+  the v1 reader has been removed from the development checkout.
 - `projects/`: private DuckDB project storage, not used by default Scan/Report
   (design in
   `scan/project-storage.md`): `identity.py` (ULID project ids), `location.py`
@@ -82,7 +113,8 @@ structural or semantic change. See the
   generations retain the first 10,000 raw typed analyzable values per field
   and their continuing counts, with explicit omissions. Complete record
   facts/memberships persist independently. Validation checks all retained
-  data and Scan invariants; discarded cells cannot be reconstructed or used
+  data and the Scan invariants (`scanner.validation.check_scan`, then the
+  catalog); discarded cells cannot be reconstructed or used
   to recompute digests at reopen. DuckDB is pinned to 1.5.5 with a physical
   `v1.4.0` target. The loader owns only its new staging directory.
 - `projects/_publication.py`, `_generation.py`, `_locks.py`, `_sync.py` and
@@ -268,7 +300,7 @@ are excluded and listed by the `excluded_records` issue.
 Raw strings are preserved. Missing cells follow `scan.values`: empty and
 whitespace-only cells by default, plus configured markers compared after
 trimming. Distinct values, examples, types and lengths use the analytical value
-(NFC, trim, collapse whitespace). The preview and duplicate-row comparison
+(NFC, trim, collapse whitespace). The row sample and duplicate-row comparison
 retain raw values; duplicate counts exclude each group's first row and compare
 a 128-bit BLAKE2b digest per row, one per distinct row, the only record-level
 state that grows with the file (lot 5c bounds it).
@@ -281,11 +313,12 @@ column evidence (design 12.6): the report shows the evidence and suggests
 otherwise the scan's primary interpretation. Values of sensitive columns are
 masked by default in examples, value profiles and the preview.
 
-Each column materializes `with_issues`: missing values, inferred type `mixed` or
-unresolved ambiguous dates. Dataset-level type counts, section counts and date
-aggregates are also serialized so the HTML renderer does not recreate analysis
+A column has quality issues when an observation of the Scan about it is a
+confirmed issue or a candidate anomaly (design 18.13 and 18.14); the pages read
+that from `observations`. Dataset-level type counts, section counts and date
+aggregates are serialized so the HTML renderer does not recreate analysis
 rules. A measure stopped by a scan limit is `null` in the profile, shown as
-`limited`, and listed by the `limited_measures` issue.
+`limited` or as a lower bound, and listed among the limits of the observations.
 
 JSON and HTML may include raw data and should be shared accordingly. The
 generated report is self-contained and does not need an internet connection.
@@ -341,4 +374,193 @@ lot 5a, `tabalyst report` is built on it; since lot 5c, it can reuse a scan
 document (`--scan`). Since lot 6, it processes distinct values in batches
 and hands the values of large sources to worker processes
 (`scanner/workers.py`), plain subprocesses of the running interpreter, with
-the same results (design section 13).
+the same results (design section 13), at most 6. The second pass shares the
+routes of the fields of a CSV file between workers the same way
+(`scanner/secondpass/parallel.py`, design 20.18). The public names of the
+`tabalyst` and `tabalyst.scanner` packages load on first use (PEP 562), so that a
+worker imports only the engine.
+
+The Scan and JSON work (bottom-k samplers, Report as a superset of the Scan,
+second pass) is specified in [scan/design.md](scan/design.md) sections 18 to
+21 and mapped to the code in [scan/scan-json-mapping.md](scan/scan-json-mapping.md);
+its baselines are in [scan/benchmarks.md](scan/benchmarks.md) and measured by
+`benchmarks/scan_json_baseline.py`; the matrix of the specification (17.2) is run by
+`benchmarks/final_matrix.py` on the layouts of `benchmarks/matrix_layouts.py` (lot 11). What Explore consumes of these
+documents is fixed in design 20.17 and by `tests/scan/test_explore_contract.py`. Its contract tests (`tests/scan/test_contract_*.py`)
+carry `@pytest.mark.scan_json_lot("<lot>")`: a test of a lot missing from
+`ENABLED_LOTS` in `tests/scan/scan_json_gate.py` is a strict expected failure,
+so the lot that delivers the behavior must enable it. Lot `0` tests describe
+current behavior and guard it.
+
+`scanner/bottomk.py` (lot 2a) is the bottom-k sampler and the KMV estimate,
+isolated from the product. `scanner/valuesample.py` (lot 2b) is the sample of
+original values of a field: a plain dictionary while the field has at most K
+distinct values, a `BottomKSampler` beyond, exposure applied at the end. It
+belongs to `ValueProcessor`, in the scan process or in the worker of the field
+(design 18.3), and the Report ranks an `all` sample with the same hash
+(`report_profile.report_sample`). The choice of its hash is measured by
+`benchmarks/bottomk_hash.py` (design 18.8, [scan/benchmarks.md](scan/benchmarks.md)).
+
+`scanner/longtext.py` (lot 2c) is the small bottom-k of the values longer than
+`max_stored_value_length`: preview, lengths and a digest of the whole content
+(design 18.6); `ValueSample` routes those values to it. `scanner/memory.py` is
+the memory budget of the samples, in bytes of a cost model (design 18.10): the
+scan process reserves the size of each sample in reading order, whatever the
+number of workers, and the size in force is in the document (`requested_k`,
+`reason`). Batches of rows (CSV) and of streamed values are also bounded by
+size (design 13).
+
+`scanner/planner/` (lot 6a) is the registry of analyzers and the planner of the second pass
+(design 20.5). It reads a finished Scan (`facts.py` builds one `FieldFacts` per field), asks
+each analyzer of `analyzers/` whether it applies, is already answered, what it costs and how
+useful it is, and selects under a firm memory budget with shared states counted once. It
+runs nothing: `plan_service.py` is its boundary for the CLI (`tabalyst scan --plan`) and the
+API. `facts_sha256` lives in `scanner/identity.py` so that the planner does not import the
+document loader.
+
+Lot 6b calibrated it (design 20.2, 20.3, 20.6). `costmodel.py` holds every size, budget and CPU
+class, measured by `benchmarks/planner_costs.py` and checked against `tracemalloc` by tests;
+an automatic choice stays within 128 MiB and a request or a forced plan within a hard budget of
+512 MiB. `secondpass.py` estimates the time from the first pass, outside the plan so that it
+stays the same on any machine, and says whether a run needs a confirmation (`plan_second_pass`,
+`combine_confirmations`); `cli/confirm.py` is the gate that asks in a terminal and refuses with
+exit code 3 elsewhere, wired to the command at lot 7a. `source_guard.py` checks that a plan
+belongs to its Scan and that the source can be read again with the size recorded, and compares
+the digest of the second reading at its end.
+
+`scanner/secondpass/` (lot 7a) is the executor of the second pass (design 20.4, 20.7).
+`executor.run_second_pass` reads the source once through the reader of the format
+(`readers/factory.open_reader`, shared with the first pass), `routing.py` hands each selected
+field to its analyses, `replay.py` repeats the first pass's decisions on a cell (content or
+not, analytical text, number) with the same normalizer, classifier and number detector, and
+`accumulators.py` and `bins.py` count and read quantiles exactly. Each result is checked
+against the Scan before it is kept, and nothing is returned before the digest of the reading
+has been compared with the Scan's. `document.py` and `models.py` are the separate document
+`<stem>.deep.json` (key of each result, partial reuse), `schema.py` its JSON Schema.
+`exactset.py` (lot 7b) is the exact distinct count of the original values: one set per kind of
+key (digit strings by length, texts, JSON integers and numbers), a pool of the bytes the plan
+gave the exact sets of the run, and a field that is stopped with a lower bound when the pool
+cannot hold it (design 20.8); `frequencies.py` is the table of the exact frequencies.
+`patterns.py` and `periods.py` (lot 7c) are the validation of the inferred patterns on every
+occurrence (compiled possessive regular expressions for ASCII values, the token matcher of
+`patterninfer` for the rest, one exclusive classification, derived from the exact counts of
+the Scan without reading when it holds every distinct value; design 20.9) and the dates per
+calendar period (the date detector of the Scan's configuration on the analytical text, dates
+as written; design 20.10). `deep_service.py` is the boundary for the CLI and the API
+(`prepare_deep`, `execute_deep`, `generate_deep`); it never prompts. The `deep` settings
+(`DeepSettings` in `config.py`) are not part of `ScanConfig`, so they never make a Scan stale;
+`DeepSection` adds `mode`, which only tells Report whether to plan.
+
+`pearson.py` (lot 8a, design 20.12) holds the pairs of numeric columns: `ColumnFeed` converts a
+column once per batch for every pair that uses it, `PairAccumulator` keeps the stable co-moments
+of the rows where both columns have a number and the rows left out, and the `Router` hands it the
+aligned rows (the batches of a CSV file, or the records of a JSON or Excel source buffered by
+`PAIR_FEED_ROWS`). The choice of the pairs is the planner's: `planner/relations.py` scores them on
+the row sample of the Scan when the plan is made, within its own column and work budgets, and the
+arithmetic (`scanner/pearson.py`) is shared by the two stages. A complete sample of a CSV file
+answers without reading the source.
+
+`secondpass/crosstab.py` (lot 8b, design 20.13) holds the tables of a category against a feature:
+`CodeFeed` converts a column into classes once per batch for every table that uses it (the `Router`
+accepts several feeds on one column: the category, the pattern and the length of the same column),
+and `CrosstabAccumulator` counts the pairs of codes of a batch, keeps the first rows of every cell and
+builds the result (margins, purity in both directions, exceptions, Cramér's V, candidate rules).
+The classes are the Scan's (`scanner/features.py`: the candidates of the inferred patterns, the lengths
+of the exact histogram, the prefixes of the listed values, the exact frequencies of a category), so
+the planner and the executor agree and no axis is created while the source streams. The tables are
+chosen by `planner/crosstabs.py` on the row sample, as the pairs are by `planner/relations.py`; both
+explorations are proposed by a `PairAnalyzer`, which is how the planner asks any analysis of two
+columns for its candidates. `report_relations.py` prints the result in the Relationships section.
+
+`secondpass/drift.py` (lot 19, design 20.30) follows a field by position: `DriftAccumulator` counts, for each of ten
+slices of records in file order, the values (so the missing ones: the records minus the values) and, for a field the Scan lists whole,
+each value, and checks them against the Scan; `FieldRoute.strings` cuts a CSV batch at the end of a slice. `secondpass/matrix.py`
+(design 20.31) counts the records that lack a value in two columns at once: `MatrixAccumulator` is an accumulator of the dataset that
+the `Router` feeds with the rows of a batch or the records of a source (`Router(matrices=)`), in bit sets of a batch, for the
+members `planner/facts.matrix_members` gives, which the planner and the executor share.
+
+`secondpass/structure.py` (lot 18, design 20.33) counts what JSON adds to a table: `ArrayAccumulator` is the route's counter of the
+lengths of the arrays of a field (`FieldRoute.array`, fed by the observation `array` whose value is the length), and `KeySets` the
+sets of keys of the objects at a path, as integers with a bit per key the Scan named; `StructureAccumulator` is the sweep of the
+dataset (`Router(structures=)`): an object starts at its own observation and the observations of its keys follow it in document
+order. The root of the records is no field of the Scan, so the plan names it `$` (`facts.ROOT_FIELD`, `root_facts`, `Analyzer.roots`)
+and the executor stands one in (`_root_field`). `secondpass/texts.py` (design 20.34) holds `TextAccumulator` (constant counters,
+the route of a CSV field can run in a worker: `PARTS` has `texts`) and `FingerprintAccumulator` (BLAKE2b 128 bits, a table of
+digests in the pool of the exact sets, so it stays in the process). `secondpass/forms.py` (design 20.35, decision O61) counts masks
+and the classes of `detectors/ip.py` and `detectors/phone.py` for a masked field, with the floor `floored`; `PARTS` has `forms`.
+`planner/analyzers/distinct.py` no longer blocks a masked or hidden field: its result is two numbers.
+
+`planner/stratification.py` (lot 9, design 20.14) is the advice on stratified sampling a plan can carry
+(`plan.stratification`). It is not an analyzer: it has no executor and does not take part in the
+selection. It reads the facts and the row sample of the Scan, and the arithmetic it shares with
+`sampling.py` is `scanner/stratify.py` (the classic allocation, a saturating product of cardinalities),
+so that the advice describes the rule the sample applies. The sample counts its strata before it
+reads rows again and stops at `max_strata`.
+
+`scanner/smart/` (lot 10a, design 20.15) is the plan of a smart sample, `SamplingPlan`: targets by family
+(`targets.py`), their weights (`weights.py`, monotone and capped), the sizes, the reserve, the budget of
+candidate rows and the readings of the source (`plan.py`), and its text (`render.py`). It is not an
+analyzer and not a member of `AnalysisPlan`: it reads the Scan and, when it is current for that Scan, the
+second-pass document, so it has its own identity. `plan_service.generate_plans(smart=)` builds it beside
+the plan of analyses and `scan --plan --smart` prints it. It reads no source; the selection of the rows is
+lot 10b.
+
+
+`scan_page.py` (lot 10b, design 16.8) writes the web page of an explicit `tabalyst scan`: `generate_scans(html=True)`
+renders `build_profile` with no analyses and writes `<stem>.scan.html` beside the scan document; the report, the plan and
+the sample scan with `html=False`. With `--deep` the page is written again after the second pass.
+
+`scanner/smart/` also holds the selection of the rows (lot 10b, design 20.16): `evaluate.py` turns the
+predicates of the plan into tests on the cells of a row, `select.py` is the bounded pool of candidates and the
+greedy cover, `execute.py` the one guarded reading, `estimate.py` the time and the confirmation, `result.py`
+the report `tabalyst.sample`. `smart_service.py` is the boundary of the CLI and the API (`prepare_smart_samples`,
+`execute_smart_samples`); `sampling.py` only gains the method and `write_sample_csv`. `generate_samples` reads a
+current stored Scan to stop an excessive `stratified` run (`shared_scan_service.stored_scan`, D23).
+`sample_page.py` (lot 11, design 20.16) renders the report `tabalyst.sample` as `<stem>.sample.html` from the document
+alone (`templates/sample.html`, `--no-html`, `generate_samples(html=)`); it is not part of the format.
+
+`report_chain.py` (lot 7c, design 20.11) is the second pass inside Report: `plan_chain` after the
+Scan (`mode` `auto`, `forced` or `off`, reading the source or not), `run_chain` that runs it and
+writes `<stem>.deep.json` through `deep_store.write_deep` and returns the `AnalysesBlock` the
+Report embeds as `analyses`. `service.py` splits a Report into `_scan_resolved` /
+`_scan_document_resolved` (the first pass, a `ScannedReport`) and `write_scanned_report` (the
+second pass, the profile and the files), so that `report_service.generate_reports` can ask once for
+the whole batch of a forced second pass between the two. The renderer stays pure: `report_deep.py`
+builds the views of the `analyses` member (the Second pass section, the exact distinct count, the
+median, the validated patterns, the periods) and reads no source.
+`report_insights.py` (lot 20, design 20.29) builds from the same member the insight cards of the Report
+(`InsightCard`: facts, bars and tables, each with its own accuracy) and the figures derived from the Scan
+(`report_measures.py`); `templates/insights.html` is the macro the report and the column pages share. A card has a
+`scope` (the dataset panel, the pages of its columns or both): the drift and the columns missing together (lot 19, design 20.32)
+print one card for the dataset and one for each column. The lot 18 cards (design 20.36) add the families `structure`, `texts`
+and `forms`; the card of the sets of keys of the records has the scope `dataset` and no column, a card of masks is printed only
+when its masks are masks (`mask(form) == form`) and its classes belong to the closed lists, whatever the exposure the document says,
+and the digests of a hidden column are not listed. The accuracy `fingerprint` joins `exact`, `estimated`, `sample` and `at_least`.
+
+`scanner/lengthsample.py` (lot 3a) is the bottom-k per length, a stratum for each
+of a bounded number of lengths (design 18.7). `ValueSample` starts it when the
+sample becomes a `bottom_k` and feeds it the priorities it computed once for the
+sample; its output is `values.samples.by_length`, whose values are the sample's
+`id`s or a small pool. `memory.py` reserves its share (an eighth of the budget)
+as it does for the long texts.
+
+`scanner/rowsample.py` (lot 3b) is the row sample of a dataset: the first rows, a bottom-k of the interior by a priority
+of the position (`RowPriority`, one hash call for eight rows) and the last rows, with the cells of the same row for every
+projected field (design 18.11). `RowSampler` lives in `RecordFacts`, in the scan process, and takes the CSV batches
+(`add_batch`) as well as single records (`add_record`); its bytes come from a budget shared by the datasets of the scan
+(`records.sample.max_bytes`). Its output is `records.sample`; the Report base keeps the header and no row.
+
+`scanner/patterninfer.py` (lot 4a) infers the structural patterns of the text fields from the samples of the
+finished scan (design 18.12): the token grammar, the linear matcher, the candidates and their exclusive
+classification. `scan()` calls it once after `finalize`, the output is `ScanResult.derived.patterns`, which the
+Report carries and `facts_sha256` leaves out; `validation.py` checks it.
+
+`scanner/quality.py` (lot 4b) turns the facts of the finished scan and `derived.patterns` into the observations,
+quality issues and limits of `ScanResult.observations` (design 18.13): 13 rules with a fixed category and status,
+the limits apart, summaries with the three flags, and the cut to `scan.observations.max_items`. `scan()` calls it
+once, after the patterns, with the source and the scope already built; an exception becomes an
+`observations_failed` error and leaves the block out. Its walker of `limited` envelopes is shared with the Report
+(`build_limits`), and the Report carries the block as it is. The adaptive normalization is in `values.py`
+(`_normalization`): a stage that changed nothing takes the count of its input (design 10).
+
+`report_sections.py` and `report_labels.py` (lot 5) turn the findings of the Scan into what the pages print: the observations of a dataset and of a column grouped by rule with their status, the limits, the inferred patterns with the examples a Report still holds, the rows of the sample, and the distinct count of a column as exact, a lower bound or an estimate (design 18.14). The pages are rendered from the document alone, print at most `DISPLAY_LIMITS` of each list, and write integers exactly (`BigInt` in the sort and the numeric filters).

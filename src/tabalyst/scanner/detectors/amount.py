@@ -21,6 +21,10 @@ from collections.abc import Mapping
 from tabalyst.scanner.detectors.base import AmbiguityAccumulator, Classification
 from tabalyst.scanner.detectors.number import NumberDetector
 
+# What the ``measure`` method of the three detectors returns for a value they
+# match (design 20.19): the classification, the marker or unit, whether it is
+# written before the number and whether a space separates them.
+MeasureReading = tuple[Classification, str, bool, bool]
 # Spaces accepted between a number and its marker or unit, and as thousands
 # separators by the number detector.
 SPACES = "   "

@@ -136,8 +136,7 @@ a tenth of the time of a scan.
   documentation describes the latest release.
 - **English report.** The HTML report is only available in English.
 - **Raw data in outputs.** The report, the JSON profile and scan documents
-  contain values from the source file, including a preview of the first rows
-  in reports. Values of sensitive fields, such as email addresses and phone
+  contain values from the source file, including a sample of rows in reports. Values of sensitive fields, such as email addresses and phone
   numbers, are masked by default, but values of every other field are listed.
   Share them as you would share the data.
 - **Patterns are trusted.** Regular expressions of scan patterns run without a

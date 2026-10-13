@@ -62,8 +62,9 @@ def test_scan_writes_shared_scan_document_without_database(tmp_path, monkeypatch
         "id",
         "city",
     ]
-    # Nothing else, such as a temporary file, is left beside the source.
-    assert sorted(path.name for path in tmp_path.iterdir()) == ["customers.csv", "storage"]
+    # Nothing else than the page, such as a temporary file, is left beside the source.
+    names = sorted(path.name for path in tmp_path.iterdir())
+    assert names == ["customers.csv", "customers.scan.html", "storage"]
 
 
 def test_scan_accepts_json_sources_and_collections(tmp_path):
@@ -222,7 +223,7 @@ def test_scan_configuration_files_merge_in_order(tmp_path):
     first = _config(
         tmp_path / "first.json",
         {
-            "value_examples": {"inline_display_size": 5},
+            "report": {"value_examples": {"inline_display_size": 5}},
             "scan": {
                 "values": {"null_markers": ["N/A", "NULL"]},
                 "detectors": {"number": {"conventions": ["dot"]}},
@@ -287,12 +288,15 @@ def test_invalid_configuration_names_file_and_key(tmp_path, document, message):
 def test_report_ignores_a_valid_scan_section(tmp_path):
     config = _config(
         tmp_path / "config.json",
-        {"value_examples": {"inline_display_size": 4}, "scan": {"csv": {"delimiter": ";"}}},
+        {
+            "report": {"value_examples": {"inline_display_size": 4}},
+            "scan": {"csv": {"delimiter": ";"}},
+        },
     )
 
     report_config = load_config([config])
 
-    assert report_config.value_examples.inline_display_size == 4
+    assert report_config.report.value_examples.inline_display_size == 4
     assert report_config.csv.delimiter == ","
     assert resolve_scan_config([config]).csv.delimiter == ";"
 
@@ -312,8 +316,7 @@ def test_configuration_file_must_hold_a_json_object(tmp_path):
 
 def _scan_document(path: Path) -> dict:
     document = json.loads(path.read_text(encoding="utf-8"))
-    document.pop("started_at")
-    document.pop("duration_seconds")
+    document.pop("run")
     return document
 
 

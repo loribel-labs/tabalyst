@@ -19,6 +19,31 @@ so memory depends on the configured limits, not on the number of records. The
 structure of the result is described in the
 [scan format reference](format.md).
 
+## The web page of a scan
+
+`tabalyst scan` also writes the web page of the scan, so that you can read what the
+scan found without a report:
+
+```console
+tabalyst scan customers.csv
+```
+
+This writes `customers.scan.html` beside the source. With `-o` the page is beside
+the scan document with the same name (`scans/customers.scan.json` gives
+`scans/customers.scan.html`), and with `-d` in that folder. It is the page that
+[`tabalyst report --scan`](#report-from-a-scan) gives, built from the scan alone and
+without reading the source: the analyses of a [second pass](../scan/deep.md) show
+when you scan with `--deep` and are marked as not run otherwise. Pass `--no-html`
+to skip it. The page of a scan in the local storage is replaced at every scan; the page of a
+standalone scan (`-o` or `-d`) needs `--force` like its document.
+
+Only an explicit `tabalyst scan` writes a page. A scan that another command makes
+by itself, such as a report, a sample or a plan, writes none.
+
+Writing the page adds a second or two after the scan (1.9 s on a million rows and
+34 columns, 1.3 s on 90,000 rows); the scan itself is not slower. A page that cannot
+be written is a warning: the scan document is already written.
+
 ## Scan JSON files
 
 Files ending in `.json` are read as JSON, files ending in `.jsonl` or `.ndjson`
@@ -154,6 +179,18 @@ byte order mark by default:
 tabalyst scan data.csv --delimiter ";" --encoding cp1252
 ```
 
+## Add histograms with a second pass
+
+```console
+tabalyst scan customers.csv --deep
+```
+
+`--deep` reads the file a second time and writes `deep.json` beside the scan, with
+the histogram, the exact or estimated median and the quantiles of the numeric
+fields, the exact number of distinct values of identifier-like fields and the
+exact count of every value of some small fields. The scan is not changed. It asks first when the run is costly. See [Add
+histograms and exact medians](deep.md).
+
 ## Errors and partial scans
 
 By default, a CSV record with the wrong number of fields, or a JSON object with
@@ -184,7 +221,7 @@ shown: share a scan as you would share the data.
 
 Files of 16 MiB or more are analyzed by several processes: Tabalyst reads the
 file once and hands the values of each field to a worker process, one per
-spare processor, at most 8. The scan document is the same whatever the
+spare processor, at most 6. The scan document is the same whatever the
 number of workers. Choose the number with `--workers`, or keep the scan in
 one process with `--workers 1`, for example on a shared machine:
 
@@ -231,7 +268,7 @@ This writes `customers.html` and `customers.json` beside the scan document,
 named after the source it records; a JSON source `orders.json` gives
 `orders.report.html`. The report is the one `tabalyst report customers.csv`
 writes with the same scan settings, since the scan document holds everything
-it needs, including duplicate rows and the preview. `-o`, `-d`, `--force` and
+it needs, including duplicate rows and the row sample. `-o`, `-d`, `--force` and
 wildcards work as for sources:
 
 ```console

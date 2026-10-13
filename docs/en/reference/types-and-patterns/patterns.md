@@ -19,7 +19,7 @@ from several detectors at once.
 
 | Detector ID | What is recognized | Representative forms and limits |
 | --- | --- | --- |
-| `number` | Integers, decimals and scientific notation under configured dot/comma conventions. | `42`, `12.5`, `12,5`, `1e3`; `1,234` may be ambiguous until a convention is set. |
+| `number` | Integers, decimals and scientific notation under configured dot/comma conventions. | `42`, `12.5`, `12,5`, `1e3`; `1,234` is ambiguous unless a convention is set or the other numbers of its column prove one. |
 | `date` | Numeric dates, ISO date-times, times and English/French month-name dates. | `2026-10-06`, `02/03/2026`, `2026-10-06T12:30Z`, `13:45`, `26 September 2026`. Orders and separators are configurable; impossible dates are invalid, and ambiguous DMY/MDY values stay unresolved by default. |
 | `boolean` | Configured pairs of textual truth values. | Defaults: `true/false`, `yes/no`, `y/n`, `oui/non`, `vrai/faux`; native JSON booleans are already technical values. |
 | `enumeration` | A low-cardinality field, considered as a whole. | Defaults: at least 500 eligible values and at most 49 distinct analytical values; case-sensitive by default. |
@@ -34,7 +34,7 @@ from several detectors at once.
 | `ip_address` | IPv4 dotted decimal and IPv6 text, including compressed and embedded-IPv4 forms. | Invalid octets, leading zeros, compression and group counts can be reported. |
 
 `email`, `phone` and `ip_address` are sensitive detectors. When they match a
-field, its examples, value profile and preview are masked by default. A
+field, its examples, value profile and rows of the data sample are masked by default. A
 configured pattern can also be sensitive. `postal_code` is not sensitive by
 default. See [exposure settings](../configuration.md#sensitive-values-and-sampling).
 

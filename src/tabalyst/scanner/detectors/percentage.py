@@ -19,6 +19,7 @@ from tabalyst.scanner.detectors.amount import (
     SPACES,
     AmountAccumulator,
     AmountReader,
+    MeasureReading,
 )
 from tabalyst.scanner.detectors.base import Classification, Detector
 
@@ -46,6 +47,18 @@ class PercentageDetector(Detector):
     def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
         classify = self.classify
         return [classify(value) if value[-1:] == "%" else None for value in values]
+
+    def measure(self, value: str) -> MeasureReading | None:
+        """``classify`` and the ``%`` it read, for the second pass (design
+        20.19); ``None`` when not matched. A test keeps it equal to
+        ``classify``."""
+        if value[-1:] != "%":
+            return None
+        match = _PERCENTAGE.fullmatch(value)
+        if match is None:
+            return None
+        found = self.reader.read(match["sign"], match["body"], "", match["space"] + "%")
+        return None if found is None else (found, "%", False, bool(match["space"]))
 
     def accumulator(self) -> AmountAccumulator:
         return self.reader.accumulator()

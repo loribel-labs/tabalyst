@@ -1,0 +1,5 @@
+id,en,fr
+discrete_cpu,Discrete CPU,Processeur séparé
+soc,System on a chip,Système sur puce
+apu,Accelerated Processing Unit,Unité de traitement accéléré
+server_soc,Server system on a chip,Système sur puce serveur

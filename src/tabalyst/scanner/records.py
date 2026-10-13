@@ -31,20 +31,18 @@ import operator
 from array import array
 
 from tabalyst.scanner.config import ScanConfig
-from tabalyst.scanner.exposure import mask
 from tabalyst.scanner.field import StringClassifier
-from tabalyst.scanner.measures import canonical_text
 from tabalyst.scanner.models import (
     Complete,
     Disabled,
     DuplicateRecords,
     Limited,
-    PreviewRecord,
     RecordList,
     Records,
 )
 from tabalyst.scanner.observations import Record, RecordBatch
 from tabalyst.scanner.paths import ROOT, FieldPath
+from tabalyst.scanner.rowsample import RowBudget, RowSampler
 
 CONTAINER_TYPES = frozenset({"object", "array"})
 # Paths numbered for the digests; later paths use their ``repr``.
@@ -177,7 +175,9 @@ class RecordContext:
         "listed",
         "missing",
         "null_missing",
-        "preview",
+        "row_budget",
+        "sample",
+        "seed",
         "strings",
     )
 
@@ -186,10 +186,13 @@ class RecordContext:
         # String categories counted as missing (design section 7).
         self.missing = frozenset(config.values.missing) - {"absent", "null"}
         self.null_missing = "null" in config.values.missing
-        self.preview = config.records.preview
         self.duplicates = config.records.duplicates
         self.listed = config.limits.max_listed_records
         self.budget = DuplicateBudget(config.limits.max_tracked_records)
+        # Row samples (design 18.11): the byte budget is the scan's.
+        self.sample = config.records.sample
+        self.seed = config.random_seed
+        self.row_budget = RowBudget(self.sample.max_bytes)
 
     def is_missing(self, value: str) -> bool:
         return self.strings.category(value) in self.missing
@@ -204,6 +207,7 @@ class RecordFacts:
     __slots__ = (
         "_context",
         "_paths",
+        "_sample",
         "_seen",
         "_table",
         "duplicate_count",
@@ -212,7 +216,6 @@ class RecordFacts:
         "empty_records",
         "missing_count",
         "missing_records",
-        "preview",
         "untracked",
     )
 
@@ -223,8 +226,11 @@ class RecordFacts:
         self._seen: set[bytes] = set()
         self._paths = PathTokens()
         self._table = TableLayout(declared) if declared else None
-        # Observed scalar values of the first records, per path.
-        self.preview: list[tuple[int, dict[FieldPath, list[tuple[str, str | None]]]]] = []
+        self._sample = (
+            RowSampler(context.sample, context.seed, context.row_budget, declared)
+            if context.sample.rows
+            else None
+        )
         self.missing_count = 0
         self.missing_records: list[int] = []
         self.empty_count = 0
@@ -237,8 +243,6 @@ class RecordFacts:
     def add(self, record: Record) -> None:
         context = self._context
         index = record.index
-        keep_preview = len(self.preview) < context.preview
-        values: dict[FieldPath, list[tuple[str, str | None]]] = {}
         missing = scalars = 0
         for observation in record.observations:
             native = observation.type
@@ -246,19 +250,9 @@ class RecordFacts:
                 continue
             scalars += 1
             if native == "null":
-                text = None
                 missing += context.null_missing
             elif native == "string":
-                text = observation.value
-                missing += context.is_missing(text)
-            elif keep_preview:
-                text = canonical_text(native, observation.value)
-            else:
-                continue
-            if keep_preview:
-                values.setdefault(observation.path, []).append((native, text))
-        if keep_preview:
-            self.preview.append((index, values))
+                missing += context.is_missing(observation.value)
         listed = context.listed
         if missing:
             self.missing_count += 1
@@ -270,6 +264,8 @@ class RecordFacts:
                     self.empty_records.append(index)
         if context.duplicates:
             self._compare(self._digest(record), index)
+        if self._sample is not None:
+            self._sample.add_record(record)
 
     def add_batch(self, batch: RecordBatch, irregular: bool) -> None:
         """Facts of records whose values are the strings of their row, one per
@@ -280,18 +276,6 @@ class RecordFacts:
         rows = batch.rows
         start = batch.start
         paths = self._table.paths[1:]
-        room = context.preview - len(self.preview)
-        if room > 0:
-            for offset, row in enumerate(rows[:room]):
-                self.preview.append(
-                    (
-                        start + offset,
-                        {
-                            path: [("string", value)]
-                            for path, value in zip(paths, row, strict=True)
-                        },
-                    )
-                )
         missing = context.missing
         if irregular:
             category = context.strings.category
@@ -318,6 +302,8 @@ class RecordFacts:
             compare = self._compare
             for offset, digest in enumerate(map(_table_digest, rows)):
                 compare(digest, start + offset)
+        if self._sample is not None:
+            self._sample.add_batch(start, rows)
 
     def _digest(self, record: Record) -> bytes:
         return record_digest(record, self._table, self._paths)
@@ -337,7 +323,11 @@ class RecordFacts:
             budget.untracked += 1
 
     def finalize(
-        self, ids: dict[FieldPath, str], exposures: dict[FieldPath, str | None]
+        self,
+        ids: dict[FieldPath, str],
+        exposures: dict[FieldPath, str | None],
+        scalar_ids: list[str],
+        fields_limited: bool,
     ) -> Records:
         context = self._context
         if not context.duplicates:
@@ -356,42 +346,15 @@ class RecordFacts:
             ),
             empty=RecordList(count=self.empty_count, records=self.empty_records),
             duplicates=DuplicateRecords(count=count, records=self.duplicate_records),
-            preview=[
-                PreviewRecord(
-                    record=index, values=self._exposed(observed, ids, exposures)
+            sample=(
+                None
+                if self._sample is None
+                else self._sample.finalize(
+                    ids,
+                    exposures,
+                    scalar_ids,
+                    fields_limited,
+                    self._context.is_content,
                 )
-                for index, observed in self.preview
-            ],
+            ),
         )
-
-    def _exposed(
-        self,
-        observed: dict[FieldPath, list[tuple[str, str | None]]],
-        ids: dict[FieldPath, str],
-        exposures: dict[FieldPath, str | None],
-    ) -> dict[str, list[str | None] | None]:
-        """Preview values of the listed fields, through their exposure (design
-        12.8). Nulls and strings that are not content are shown as read; a
-        hidden value hides its whole cell."""
-        cells: dict[str, list[str | None] | None] = {}
-        for path, values in observed.items():
-            field_id = ids.get(path)
-            if field_id is None:
-                continue
-            exposure = exposures.get(path)
-            if exposure in (None, "show"):
-                cells[field_id] = [text for _, text in values]
-                continue
-            texts: list[str | None] | None = []
-            for native, text in values:
-                if text is None or (
-                    native == "string" and not self._context.is_content(text)
-                ):
-                    texts.append(text)
-                elif exposure == "mask":
-                    texts.append(mask(text))
-                else:
-                    texts = None
-                    break
-            cells[field_id] = texts
-        return cells

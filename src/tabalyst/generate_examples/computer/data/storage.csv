@@ -1,0 +1,35 @@
+id,en,fr,storage_type,capacity_gb
+microsd_64gb,64 GB microSD,64 Go microSD,microsd,64
+hdd_500gb,500 GB HDD,500 Go HDD,hdd,500
+hdd_1tb,1 TB HDD,1 To HDD,hdd,1000
+hdd_2tb,2 TB HDD,2 To HDD,hdd,2000
+hdd_4tb,4 TB HDD,4 To HDD,hdd,4000
+hdd_8tb,8 TB HDD,8 To HDD,hdd,8000
+hdd_12tb,12 TB HDD,12 To HDD,hdd,12000
+hdd_16tb,16 TB HDD,16 To HDD,hdd,16000
+sata_ssd_128gb,128 GB SATA SSD,128 Go SSD SATA,sata_ssd,128
+sata_ssd_256gb,256 GB SATA SSD,256 Go SSD SATA,sata_ssd,256
+sata_ssd_500gb,500 GB SATA SSD,500 Go SSD SATA,sata_ssd,500
+sata_ssd_512gb,512 GB SATA SSD,512 Go SSD SATA,sata_ssd,512
+sata_ssd_1tb,1 TB SATA SSD,1 To SSD SATA,sata_ssd,1000
+sata_ssd_2tb,2 TB SATA SSD,2 To SSD SATA,sata_ssd,2000
+sata_ssd_4tb,4 TB SATA SSD,4 To SSD SATA,sata_ssd,4000
+nvme_ssd_128gb,128 GB NVMe SSD,128 Go SSD NVMe,nvme_ssd,128
+nvme_ssd_256gb,256 GB NVMe SSD,256 Go SSD NVMe,nvme_ssd,256
+nvme_ssd_512gb,512 GB NVMe SSD,512 Go SSD NVMe,nvme_ssd,512
+nvme_ssd_1tb,1 TB NVMe SSD,1 To SSD NVMe,nvme_ssd,1000
+nvme_ssd_2tb,2 TB NVMe SSD,2 To SSD NVMe,nvme_ssd,2000
+nvme_ssd_4tb,4 TB NVMe SSD,4 To SSD NVMe,nvme_ssd,4000
+nvme_ssd_8tb,8 TB NVMe SSD,8 To SSD NVMe,nvme_ssd,8000
+pcie_ssd_512gb,512 GB PCIe SSD,512 Go SSD PCIe,pcie_ssd,512
+pcie_ssd_1tb,1 TB PCIe SSD,1 To SSD PCIe,pcie_ssd,1000
+pcie_ssd_2tb,2 TB PCIe SSD,2 To SSD PCIe,pcie_ssd,2000
+pcie_ssd_4tb,4 TB PCIe SSD,4 To SSD PCIe,pcie_ssd,4000
+pcie_ssd_8tb,8 TB PCIe SSD,8 To SSD PCIe,pcie_ssd,8000
+emmc_64gb,64 GB eMMC,64 Go eMMC,emmc,64
+emmc_128gb,128 GB eMMC,128 Go eMMC,emmc,128
+emmc_256gb,256 GB eMMC,256 Go eMMC,emmc,256
+ufs_128gb,128 GB UFS,128 Go UFS,ufs,128
+ufs_256gb,256 GB UFS,256 Go UFS,ufs,256
+ufs_512gb,512 GB UFS,512 Go UFS,ufs,512
+ufs_1tb,1 TB UFS,1 To UFS,ufs,1000

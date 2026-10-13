@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Strict, located YAML definition loading, adapted from the prototype loader."""
+"""Validate the shared column execution model and provide strict package YAML parsing."""
 
 from __future__ import annotations
 
@@ -12,13 +12,12 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn, TypeGuard
 
 import yaml
 
-from tabalyst.errors import ConfigurationError, InputError
+from tabalyst.errors import ConfigurationError
 
-MAX_BYTES = 1_048_576
 MAX_DATASETS = 64
 MAX_COLUMNS = 256
 MAX_ROWS = 10_000_000
@@ -119,7 +118,7 @@ class GenerateDefinition:
     anomaly_profiles: tuple[dict[str, Any], ...]
 
 
-def _fail(source: Path, value: Any, message: str) -> None:
+def _fail(source: Path, value: Any, message: str) -> NoReturn:
     line = getattr(value, "line", 1)
     column = getattr(value, "column", 1)
     raise ConfigurationError(f"{source}:{line}:{column}: {message}")
@@ -152,8 +151,9 @@ def _positive(source: Path, value: Any, where: str, maximum: int = MAX_ROWS) -> 
     return value
 
 
-def _bounded_number(value: Any) -> bool:
-    return type(value) in (int, float) and abs(value) <= MAX_NUMBER and math.isfinite(value)
+def _bounded_number(value: object) -> TypeGuard[int | float]:
+    return (isinstance(value, (int, float)) and type(value) in (int, float)
+            and abs(value) <= MAX_NUMBER and math.isfinite(value))
 
 
 def _date(source: Path, value: Any, where: str) -> str:
@@ -199,7 +199,7 @@ def _columns(source: Path, value: Any, where: str) -> None:
             from tabalyst.generate_references import FIELDS
 
             provider = generator.get("provider")
-            if provider not in FIELDS or generator.get("field") not in FIELDS[provider]:
+            if not isinstance(provider, str) or provider not in FIELDS or generator.get("field") not in FIELDS[provider]:
                 _fail(source, generator, "common needs a supported provider and field")
             _id(source, generator.get("group"), "common.group")
             if item["type"] != "string":
@@ -271,7 +271,7 @@ def _columns(source: Path, value: Any, where: str) -> None:
                         parsed = parser(generator[bound])
                     except (TypeError, ValueError):
                         _fail(source, generator, f"{kind}.{bound} must be ISO")
-                    if parsed.isoformat() != generator[bound] or (kind == "datetime" and parsed.tzinfo is not None):
+                    if parsed.isoformat() != generator[bound] or (isinstance(parsed, datetime) and parsed.tzinfo is not None):
                         _fail(source, generator, f"{kind}.{bound} must be canonical local ISO")
             if "min" in generator and "max" in generator and generator["min"] > generator["max"]:
                 _fail(source, generator, f"{kind} requires min <= max")
@@ -382,35 +382,12 @@ def _columns(source: Path, value: Any, where: str) -> None:
                 _fail(source, generator, "relative_date source must use ISO format")
 
 
-def load_generate_definition(path: str | Path) -> GenerateDefinition:
-    """Load one bounded YAML document and validate its v1 structure."""
-    source = Path(path).resolve()
-    try:
-        exists = source.is_file()
-        size = source.stat().st_size if exists else 0
-    except OSError as exc:
-        raise InputError(f"Cannot inspect definition file {source}: {exc}") from exc
-    if not exists:
-        raise InputError(f"Definition file does not exist: {source}")
-    if size > MAX_BYTES:
-        raise ConfigurationError(f"{source}: definition exceeds {MAX_BYTES} bytes")
-    try:
-        with source.open("r", encoding="utf-8") as stream:
-            root = yaml.load(stream, Loader=StrictLoader)
-    except (yaml.YAMLError, UnicodeError) as exc:
-        mark = getattr(exc, "problem_mark", None)
-        position = f":{mark.line + 1}:{mark.column + 1}" if mark else ""
-        raise ConfigurationError(f"{source}{position}: invalid YAML: {exc}") from exc
-    except ConfigurationError as exc:
-        raise ConfigurationError(f"{source}: {exc}") from exc
-    except OSError as exc:
-        raise InputError(f"Cannot read definition file {source}: {exc}") from exc
+def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:
+    """Validate the normalized column model assembled from a package."""
     root = _mapping(source, root, "definition", {
-        "definition_version", "id", "defaults", "csv", "schemas", "entities",
+        "id", "defaults", "csv", "schemas", "entities",
         "cohorts", "datasets", "anomaly_profiles",
     })
-    if type(root.get("definition_version")) is not int or root["definition_version"] != 1:
-        _fail(source, root, "definition_version must be 1")
     identifier = _id(source, root.get("id"), "definition id")
     defaults = _mapping(source, root.get("defaults", {}), "defaults", {"seed", "as_of_date"})
     if "seed" in defaults and type(defaults["seed"]) is not int:
@@ -565,7 +542,7 @@ def load_generate_definition(path: str | Path) -> GenerateDefinition:
                 _fail(source, operation, "operation.value must be text")
             if operation["kind"] in {"set_missing", "duplicate"} and "value" in operation:
                 _fail(source, operation, "operation.value is unused for this kind")
-            if operation["kind"] == "format" and value not in {"upper", "lower", "strip", "date_slash", "phone_spaces"}:
+            if operation["kind"] == "format" and value not in {"upper", "lower", "strip", "date_slash", "phone_spaces", "unit_gb"}:
                 _fail(source, operation, "unknown format mutation")
             if "when" in operation and (not isinstance(operation["when"], dict)
                 or len(operation["when"]) != 1 or any(not isinstance(k, str) or not isinstance(v, str)

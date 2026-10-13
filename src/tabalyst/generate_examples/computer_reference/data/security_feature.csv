@@ -1,0 +1,13 @@
+id,en,fr
+tpm_2_0,TPM 2.0,TPM 2.0
+firmware_tpm,Firmware TPM,TPM micrologiciel
+fingerprint_reader,Fingerprint reader,Lecteur d’empreintes digitales
+face_authentication,Facial authentication,Authentification faciale
+smart_card_reader,Smart card reader,Lecteur de carte à puce
+privacy_shutter,Camera privacy shutter,Obturateur de confidentialité de la caméra
+privacy_screen,Privacy screen,Écran de confidentialité
+kensington_lock,Kensington lock slot,Emplacement antivol Kensington
+bios_password,BIOS password,Mot de passe BIOS
+drive_encryption,Drive encryption,Chiffrement du disque
+secure_boot,Secure Boot,Démarrage sécurisé
+self_encrypting_drive,Self-encrypting drive,Disque autochiffrant

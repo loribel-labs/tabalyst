@@ -10,6 +10,22 @@ normalization and future detectors, not only raw reading speed.
 
     python benchmarks/generate_data.py --rows 100000 -o benchmarks/data/synthetic-100k.csv
     python benchmarks/generate_data.py --rows 100000 -o benchmarks/data/synthetic-100k.json
+    python benchmarks/generate_data.py --rows 1000000 --layout worst-width -o D:/GIT.test/tabalyst/bench/worst-width-1m.csv
+    python benchmarks/generate_data.py --rows 500000 --layout many-lengths -o D:/GIT.test/tabalyst/bench/many-lengths-500k.csv
+
+The ``worst-width`` layout (CSV only) is the stress case of the bottom-k work:
+30 columns, five of them unique identifiers (``id``, ``customer_uuid``,
+``email``, ``account_number``, ``session_token``).
+
+The ``long-text`` layout (CSV only) is the stress case of the long text sample:
+two columns of texts from 200 to 8,000 characters (``description``, mostly
+unique and sharing a 400-character prefix; ``summary``, unique) next to
+ordinary short columns.
+
+The ``many-lengths`` layout (CSV only) is the stress case of the samples by
+length: random texts whose lengths vary widely (``name`` 3 to 40 characters,
+``comment`` 10 to 200, ``code`` 6 to 12, ``wide`` 1 to 400, more lengths than
+the 64 a field tracks), a unique ``id`` and a 37-value ``label``.
 """
 
 import argparse
@@ -127,6 +143,72 @@ def _record(rng: random.Random, index: int) -> dict[str, object]:
     }
 
 
+WIDE_FIELDS = [
+    *FIELDS,
+    "account_number", "session_token", "region_code", "segment", "channel",
+    "risk_class", "renewal", "discount", "tenure_months", "note",
+]  # fmt: skip
+
+
+def _wide_record(rng: random.Random, index: int) -> dict[str, object]:
+    """A record of 30 columns: those of ``_record`` plus two more identifiers
+    and eight ordinary columns."""
+    record = _record(rng, index)
+    record["account_number"] = f"ACC-{index:09d}"
+    record["session_token"] = f"{rng.getrandbits(96):024x}"
+    record["region_code"] = rng.choice(["QC-01", "QC-02", "ON-01", "ON-02", "BC-01"])
+    record["segment"] = rng.choice(["retail", "retail", "business", "premium"])
+    record["channel"] = rng.choice(["web", "phone", "branch", "partner"])
+    record["risk_class"] = rng.choice("ABCDE")
+    record["renewal"] = rng.choice(BOOLEANS)
+    record["discount"] = rng.choice([0, 5, 10, 15, 20])
+    record["tenure_months"] = rng.randint(0, 240)
+    record["note"] = "" if rng.random() < 0.7 else rng.choice(WORDS)
+    return record
+
+
+LONG_TEXT_FIELDS = ["id", "category", "status", "title", "summary", "description"]
+_LONG_PREFIX = " ".join(WORDS * 12)[:400]
+
+
+def _long_text_record(rng: random.Random, index: int) -> dict[str, object]:
+    """A record with two long text columns: a long ``description`` that shares
+    its first 400 characters and repeats for a third of the rows, and a
+    ``summary``, unique."""
+    words = rng.choices(WORDS, k=1_400)
+    length = rng.choice([200, 800, 1_500, 3_000, 8_000])
+    key = index if rng.random() < 0.7 else rng.randint(1, 5_000)
+    return {
+        "id": index,
+        "category": rng.choice(["claim", "quote", "renewal", "complaint"]),
+        "status": rng.choice(STATUSES),
+        "title": f"Case {index:07d} {rng.choice(WORDS)} {rng.choice(WORDS)}",
+        "summary": f"S{index:07d} " + " ".join(words[: rng.randint(30, 150)]),
+        "description": (_LONG_PREFIX + f" #{key:07d} " + " ".join(words))[:length]
+        + f" #{key:07d}",
+    }
+
+
+MANY_LENGTHS_FIELDS = ["name", "comment", "code", "wide", "id", "label"]
+_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789 "
+
+
+def _many_lengths_record(rng: random.Random, index: int) -> dict[str, object]:
+    """A record whose text columns have many different lengths."""
+
+    def text(low: int, high: int, alphabet: str = _ALPHABET) -> str:
+        return "".join(rng.choices(alphabet, k=rng.randint(low, high))).strip() or "x"
+
+    return {
+        "name": text(3, 40),
+        "comment": text(10, 200),
+        "code": text(6, 12, "ABCDEF0123456789"),
+        "wide": text(1, 400),
+        "id": f"{index:09d}",
+        "label": f"cat{index % 37}",
+    }
+
+
 def _csv_value(field: str, value: object) -> str:
     if value is None:
         return "N/A"
@@ -135,14 +217,19 @@ def _csv_value(field: str, value: object) -> str:
     return str(value)
 
 
-def write_csv(path: Path, rows: int, seed: int) -> None:
+def write_csv(path: Path, rows: int, seed: int, layout: str = "standard") -> None:
     rng = random.Random(seed)
+    fields, build = {
+        "worst-width": (WIDE_FIELDS, _wide_record),
+        "long-text": (LONG_TEXT_FIELDS, _long_text_record),
+        "many-lengths": (MANY_LENGTHS_FIELDS, _many_lengths_record),
+    }.get(layout, (FIELDS, _record))
     with path.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.writer(stream)
-        writer.writerow(FIELDS)
+        writer.writerow(fields)
         for index in range(1, rows + 1):
-            record = _record(rng, index)
-            writer.writerow(_csv_value(field, record[field]) for field in FIELDS)
+            record = build(rng, index)
+            writer.writerow(_csv_value(field, record[field]) for field in fields)
 
 
 def write_json(path: Path, rows: int, seed: int) -> None:
@@ -198,6 +285,16 @@ def main() -> None:
     parser.add_argument("--rows", type=int, required=True)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
+        "--layout",
+        choices=["standard", "worst-width", "long-text", "many-lengths"],
+        default="standard",
+        help=(
+            "worst-width: 30 columns including 5 unique identifiers; long-text: "
+            "two columns of long texts; many-lengths: texts of many lengths "
+            "(CSV only)."
+        ),
+    )
+    parser.add_argument(
         "-o",
         "--output",
         type=Path,
@@ -207,8 +304,10 @@ def main() -> None:
     args = parser.parse_args()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     suffix = args.output.suffix.lower()
+    if args.layout != "standard" and suffix != ".csv":
+        parser.error("the worst-width, long-text and many-lengths layouts write CSV only")
     if suffix == ".csv":
-        write_csv(args.output, args.rows, args.seed)
+        write_csv(args.output, args.rows, args.seed, args.layout)
     elif suffix == ".json":
         write_json(args.output, args.rows, args.seed)
     elif suffix == ".jsonl":

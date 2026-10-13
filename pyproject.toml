@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tabalyst"
-version = "0.6.2"
+version = "0.7.0"
 description = "Open-source toolkit for understanding and working with unfamiliar data."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -47,6 +47,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "build>=1.2",
+    "jsonschema>=4",
     "pytest>=8",
     "pytest-cov>=6",
     "ruff>=0.11",
@@ -58,9 +59,10 @@ tabalyst = "tabalyst.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["tabalyst.generate_examples.computer.data", "tabalyst.generate_examples.computer_reference*"]
 
 [tool.setuptools.package-data]
-tabalyst = ["templates/*.html", "static/*.css", "static/*.js", "generate_examples/*.yaml", "generate_resources/**/*.csv", "generate_resources/*.md"]
+tabalyst = ["templates/*.html", "static/*.css", "static/*.js", "schemas/*.json", "generate_examples/crm/*.yaml", "generate_examples/crm/schemas/*.yaml", "generate_examples/insurance/*.yaml", "generate_examples/insurance/schemas/*.yaml", "generate_examples/insurance/data/*.csv", "generate_examples/insurance/*.md", "generate_examples/computer/*.yaml", "generate_examples/computer/*.md", "generate_examples/computer/schemas/*.yaml", "generate_examples/computer/data/*.csv", "generate_resources/**/*.csv", "generate_resources/*.md"]
 
 [project.urls]
 Homepage = "https://github.com/loribel-labs/tabalyst"
@@ -72,6 +74,7 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 markers = [
     "lot(name): Tabalyst Scan implementation lot that provides the tested behavior",
+    "scan_json_lot(name): Scan and JSON work lot (plan 2026-10-06) that provides the tested behavior; lot 0 tests describe current behavior",
     "inspect_lot(name): Tabalyst Inspect implementation lot that provides the tested behavior",
 ]
 

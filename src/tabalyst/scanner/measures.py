@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import math
 import re
+from array import array
 from decimal import (
     Clamped,
     Context,
@@ -35,6 +36,7 @@ from tabalyst.scanner.models import (
     LengthCount,
     Limited,
     NotApplicable,
+    NumericCoverage,
     NumericStats,
     StringCharacteristics,
     StringLengths,
@@ -174,6 +176,63 @@ def weighted_median(pairs: list[tuple[object, int]], total: int) -> Fraction:
     return (Fraction(lower) + Fraction(upper)) / 2
 
 
+class ThousandsReadings:
+    """Numbers whose two readings are the integer N and N / 1000 (design 20.27):
+    the ambiguous ``1,234`` and the strict decimal ``1.234``. They are kept as N,
+    exactly and compactly, until the finalization of the field knows which
+    reading its column proves (``NumericAccumulator.absorb``).
+
+    ``values`` and ``weights`` hold the ``(N, count)`` pairs of the median while
+    the frequency table is complete, 16 bytes a pair; N has at most six digits.
+    """
+
+    __slots__ = (
+        "count",
+        "maximum",
+        "minimum",
+        "negative",
+        "squares",
+        "thousands",
+        "total",
+        "values",
+        "weights",
+    )
+
+    def __init__(self, keep_pairs: bool) -> None:
+        self.count = 0
+        self.total = 0
+        self.squares = 0
+        self.minimum = 0
+        self.maximum = 0
+        self.negative = 0
+        # Occurrences of a multiple of 1,000: integral when read as N / 1000.
+        self.thousands = 0
+        self.values: array[int] | None = array("q") if keep_pairs else None
+        self.weights: array[int] | None = array("q") if keep_pairs else None
+
+    def add(self, n: int, count: int) -> None:
+        if not self.count:
+            self.minimum = self.maximum = n
+        elif n < self.minimum:
+            self.minimum = n
+        elif n > self.maximum:
+            self.maximum = n
+        self.count += count
+        self.total += n * count
+        self.squares += n * n * count
+        if n < 0:
+            self.negative += count
+        if not n % 1000:
+            self.thousands += count
+        if self.values is not None:
+            self.values.append(n)
+            self.weights.append(count)  # type: ignore[union-attr]
+
+    def release(self) -> None:
+        """Forget the pairs of the median: the table of the field is released."""
+        self.values = self.weights = None
+
+
 class NumericAccumulator:
     """Exact numeric statistics (design section 9.4).
 
@@ -263,13 +322,89 @@ class NumericAccumulator:
         if self.median_values is not None:
             self.median_values.append((number, count))
 
-    def finalize(self, table_limit: Limited | None):
+    def merge(self, other: NumericAccumulator) -> None:
+        """Add what ``other`` counted, as if its values had been added here.
+        The median values are not merged: the caller computes the median."""
+        self.count += other.count
+        self.native_count += other.native_count
+        self.median_values = None
+        if other.imprecise:
+            self.imprecise = True
+        if self.imprecise or not other.count:
+            return
+        self.int_sum += other.int_sum
+        self.int_sumsq += other.int_sumsq
+        context = _EXACT
+        self.dec_sum = context.add(self.dec_sum, other.dec_sum)
+        self.dec_sumsq = context.add(self.dec_sumsq, other.dec_sumsq)
+        self.integral_decimals += other.integral_decimals
+        self.positive += other.positive
+        self.negative += other.negative
+        self.zero += other.zero
+        if self.minimum is None or other.minimum < self.minimum:  # type: ignore[operator]
+            self.minimum = other.minimum
+        if self.maximum is None or other.maximum > self.maximum:  # type: ignore[operator]
+            self.maximum = other.maximum
+
+    def absorb(self, readings: ThousandsReadings, integer: bool) -> None:
+        """Add the numbers of ``readings`` as if each had been added here, read as
+        N when ``integer``, else as N / 1000 written as a decimal. Text values,
+        never zero (a thousands group starts with 1 to 9)."""
+        if not readings.count:
+            return
+        self.count += readings.count
+        if self.imprecise:
+            return
+        context = _EXACT
+        low: int | Decimal
+        high: int | Decimal
+        if integer:
+            self.int_sum += readings.total
+            self.int_sumsq += readings.squares
+            low, high = readings.minimum, readings.maximum
+        else:
+            try:
+                self.dec_sum = context.add(
+                    self.dec_sum, context.scaleb(Decimal(readings.total), -3)
+                )
+                self.dec_sumsq = context.add(
+                    self.dec_sumsq, context.scaleb(Decimal(readings.squares), -6)
+                )
+            except DecimalException:
+                self.imprecise = True
+                self.median_values = None
+                return
+            self.integral_decimals += readings.thousands
+            low = context.scaleb(Decimal(readings.minimum), -3)
+            high = context.scaleb(Decimal(readings.maximum), -3)
+        self.negative += readings.negative
+        self.positive += readings.count - readings.negative
+        if self.minimum is None or low < self.minimum:
+            self.minimum = low
+        if self.maximum is None or high > self.maximum:
+            self.maximum = high
+        medians = self.median_values
+        if medians is None:
+            return
+        if readings.values is None:
+            self.median_values = None
+        elif integer:
+            medians.extend(zip(readings.values, readings.weights))  # type: ignore[arg-type]
+        else:
+            medians.extend(
+                (context.scaleb(Decimal(n), -3), count)
+                for n, count in zip(readings.values, readings.weights)  # type: ignore[arg-type]
+            )
+
+    def finalize(self, table_limit: Limited | None, values: int | None = None):
+        """``values`` is the analyzable values of the field, for ``coverage``."""
         if not self.count:
             return NotApplicable(reason="no_values")
         imprecise = Limited(reason="precision", limit=PRECISION)
         if self.imprecise:
             return imprecise
         n = self.count
+        of = max(values or n, n)
         total = self.int_sum + Fraction(self.dec_sum)
         squares = self.int_sumsq + Fraction(self.dec_sumsq)
         variance = (n * squares - total * total) / (n * n)
@@ -296,6 +431,9 @@ class NumericAccumulator:
                     zero=self.zero,
                     integral_decimals=self.integral_decimals,
                     median=median,
+                    coverage=NumericCoverage(
+                        of=of, share=n / of
+                    ),
                 )
             )
         except Unrepresentable:
@@ -338,7 +476,9 @@ class ValueMeasures:
     """
 
     __slots__ = (
+        "ambiguous_numbers",
         "changes",
+        "dotted_numbers",
         "families",
         "flags",
         "lengths",
@@ -354,10 +494,29 @@ class ValueMeasures:
         # them (design section 10).
         self.changes: dict[int, int] = {}
         self.numeric = NumericAccumulator()
+        # Ambiguous numbers (``1,234``) and strict decimals ``d.ddd``, kept as
+        # integers until the field knows the convention its values prove
+        # (design 20.27); ``None`` until one is met.
+        self.ambiguous_numbers: ThousandsReadings | None = None
+        self.dotted_numbers: ThousandsReadings | None = None
         # Values per technical type family (design 9.7).
         self.families: dict[str, int] = {}
         # One tally per active detector, aligned with the active detectors.
         self.tallies = tallies
+
+    def read_thousands(self, convention: str | None) -> None:
+        """Add the kept numbers to ``numeric`` in the convention the column
+        proves (design 20.27): the ambiguous ones are read in it, and the strict
+        decimals ``d.ddd`` are thousands under ``comma``; without a convention
+        the ambiguous ones stay out and ``d.ddd`` is the decimal of the strict
+        rule. The kept numbers are then forgotten, so a second call adds
+        nothing."""
+        ambiguous, dotted = self.ambiguous_numbers, self.dotted_numbers
+        self.ambiguous_numbers = self.dotted_numbers = None
+        if ambiguous is not None and convention is not None:
+            self.numeric.absorb(ambiguous, integer=convention == "dot")
+        if dotted is not None:
+            self.numeric.absorb(dotted, integer=convention == "comma")
 
     @property
     def changed(self) -> list[int]:

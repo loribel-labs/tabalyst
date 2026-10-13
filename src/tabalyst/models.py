@@ -2,55 +2,44 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Serializable report profile (revision 10), independent from presentation.
+"""Serializable report document (format ``tabalyst.report``, revision 3).
 
-Built from a Tabalyst Scan result by ``report_profile.py``.
+The document is the Scan base at the same paths, plus a ``report`` block with
+the generation data, the presentation settings and the projections by dataset
+and field identifier. Built from a Tabalyst Scan result by ``report_profile.py``.
+The findings of the Scan (observations, limits, patterns) and its row sample are
+read from the base, never copied into the projections.
 """
 
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, FiniteFloat
+from pydantic import BaseModel, ConfigDict, FiniteFloat, model_serializer
 
-from tabalyst.report_config import ReportConfig
+from tabalyst.config import PresentationSettings
+from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.models import (
     Adaptive,
-    BooleanCounts,
     Coverage,
+    DatasetResult,
+    Derived,
+    Diagnostic,
+    EngineInfo,
     Evidence,
-    Missing,
-    Presence,
-    StringCategories,
-    StringCharacteristics,
-    StringLengths,
-    TemporalStats,
-    ValueAt,
+    Observations,
+    RunInfo,
+    Scope,
 )
-from tabalyst.scanner.models import NumericStats as ScanNumericStats
+from tabalyst.scanner.models import SourceInfo as ScanSource
+from tabalyst.scanner.secondpass.models import DeepResult
+
+FORMAT = "tabalyst.report"
+FORMAT_VERSION = "0.2.0"
+FORMAT_REVISION = 3
 
 
 class ResultModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
-
-
-class SourceInfo(ResultModel):
-    filename: str
-    format: Literal["csv", "json", "jsonl", "excel"]
-    size_bytes: int
-    sha256: str
-    # Null for an Excel workbook, which has no text encoding.
-    encoding: str | None
-    # Null for JSON, JSONL and Excel sources.
-    delimiter: str | None
-
-
-class NumericStats(ResultModel):
-    minimum: FiniteFloat
-    maximum: FiniteFloat
-    range: FiniteFloat
-    mean: FiniteFloat
-    # Null when the scan limited the median (its frequency table was released).
-    median: FiniteFloat | None
 
 
 MeasureStatus = Literal["complete", "limited", "not_applicable", "disabled", "failed"]
@@ -102,69 +91,6 @@ class NormalizationStats(ResultModel):
     variant_groups_truncated: bool
 
 
-class DateFormatCount(ResultModel):
-    format: str
-    # Null for formats that are not numeric dates (month names, times).
-    order: Literal["YMD", "MDY", "DMY"] | None
-    separator: str | None
-    count: int
-    percent: float
-    iso: bool = False
-
-
-class DateBreakdownItem(ResultModel):
-    label: str
-    category: Literal["valid", "ambiguous", "invalid", "not_date"]
-    count: int
-    percent: float
-
-
-class DateProfile(ResultModel):
-    status: Literal["valid", "multiple_formats", "mixed", "ambiguous", "invalid"]
-    present_count: int
-    valid_count: int
-    valid_percent: float
-    ambiguous_count: int
-    ambiguous_percent: float
-    invalid_date_count: int
-    invalid_date_percent: float
-    not_date_count: int
-    not_date_percent: float
-    resolved_ambiguous_order: Literal["MDY", "DMY"] | None = None
-    ambiguous_order_source: Literal["config"] | None = None
-    # Unambiguous values per day-month order, exposed and never applied.
-    ambiguity_evidence: dict[str, int]
-    formats: list[DateFormatCount]
-    format_count: int
-    breakdown: list[DateBreakdownItem]
-
-
-class StringLengthExample(ResultModel):
-    value: str
-    count: int
-
-
-class StringLengthDistribution(ResultModel):
-    length: int
-    count: int
-    percent: float
-    relative_percent: float
-    examples: list[StringLengthExample]
-
-
-class StringProfile(ResultModel):
-    status: Literal["very_short", "short", "medium", "long", "very_long"]
-    present_count: int
-    minimum_length: int
-    maximum_length: int
-    mean_length: FiniteFloat
-    median_length: FiniteFloat
-    distinct_length_count: int
-    fixed_length: int | None = None
-    length_distribution: list[StringLengthDistribution]
-    representative_examples: list[str]
-
-
 class ValueOccurrence(ResultModel):
     value: str
     count: int
@@ -201,25 +127,6 @@ class DetectorProfile(ResultModel):
     adaptive: Adaptive | None = None
 
 
-class ScanFieldDetails(ResultModel):
-    """Useful bounded field evidence retained from the exposed Scan document."""
-
-    first_record: int | None
-    occurrences: int
-    value_count: int
-    presence: Presence
-    native_types: dict[str, int]
-    strings: StringCategories
-    missing: Missing
-    first: ValueAt | None
-    last: ValueAt | None
-    string_characteristics: StringCharacteristics
-    string_lengths: StringLengths | None
-    numeric: ScanNumericStats | None
-    booleans: BooleanCounts | None
-    temporal: TemporalStats | None
-
-
 class ColumnProfile(ResultModel):
     id: str
     name: str
@@ -236,7 +143,6 @@ class ColumnProfile(ResultModel):
     type_error_percent: float | None
     missing_count: int
     missing_percent: float
-    with_issues: bool
     normalization: NormalizationStats
     # Null when a scan limit released the frequency table of the column.
     distinct_count: int | None
@@ -245,12 +151,8 @@ class ColumnProfile(ResultModel):
     semantic_type: str | None = None
     # How the values of a sensitive column are exposed, null otherwise.
     exposure: Literal["mask", "hide", "show"] | None = None
-    date_profile: DateProfile | None = None
-    string_profile: StringProfile | None = None
-    numeric: NumericStats | None = None
     # Detectors that recognized values, in scan order; failed ones included.
     detectors: list[DetectorProfile] = []
-    scan_details: ScanFieldDetails | None = None
 
 
 class DatasetSummary(ResultModel):
@@ -268,7 +170,6 @@ class DatasetSummary(ResultModel):
     empty_row_count: int
     empty_column_count: int
     constant_column_count: int
-    with_issues_column_count: int
     numeric_column_count: int
     date_column_count: int
     string_column_count: int
@@ -295,68 +196,6 @@ class DatasetDateSummary(ResultModel):
     not_date_count: int
     maximum_column_ambiguous_count: int
     columns: list[DatasetDateColumnSummary]
-
-
-class Issue(ResultModel):
-    code: str
-    severity: Literal["info", "warning"]
-    message: str
-    count: int
-    column_ids: list[str]
-    row_numbers: list[int]
-
-
-class PreviewRow(ResultModel):
-    row_number: int
-    # Null for a hidden value of a sensitive column, or a JSON value absent
-    # from the record; the values of an items path are joined with ", ".
-    values: list[str | None]
-    # Positions (0-based) of the values absent from a JSON record.
-    absent: list[int] = []
-
-
-class MeasureLimit(ResultModel):
-    """A scan measure stopped by a limit (design 8 and 11)."""
-
-    # Null for a measure of the dataset.
-    column_id: str | None
-    # Display path of the scan field, null for a measure of the dataset.
-    path: str | None
-    # Location of the envelope in the scan result, such as
-    # ``values.cardinality`` or ``normalization.stages.casefold.cardinality``.
-    measure: str
-    reason: str
-    limit: int
-    lower_bound: int | None
-
-
-class DiagnosticLocation(ResultModel):
-    record: int
-    # CSV line, or 0-based JSON element index; null when not applicable.
-    line: int | None = None
-    element: int | None = None
-
-
-class DiagnosticProfile(ResultModel):
-    code: str
-    level: Literal["fatal", "error", "warning"]
-    message: str
-    count: int
-    # Null for a diagnostic of the whole scan.
-    dataset: str | None
-    path: str | None
-    detector: str | None
-    locations: list[DiagnosticLocation]
-
-
-class DatasetLimits(ResultModel):
-    """What the scan could not measure completely in a dataset."""
-
-    measures: list[MeasureLimit]
-    untracked_observations: int
-    depth_truncated_observations: int
-    # Diagnostics of this dataset and of the whole scan.
-    diagnostics: list[DiagnosticProfile]
 
 
 class ArrayProfile(ResultModel):
@@ -413,17 +252,109 @@ class DatasetProfile(ResultModel):
     summary: DatasetSummary
     date_summary: DatasetDateSummary | None = None
     columns: list[ColumnProfile]
-    issues: list[Issue]
-    preview: list[PreviewRow]
-    limits: DatasetLimits
     structure: DatasetStructure | None = None
 
 
-class ReportProfile(ResultModel):
-    format_version: Literal["0.2.0"] = "0.2.0"
-    format_revision: Literal[1] = 1
+class ReportGenerator(ResultModel):
+    name: Literal["tabalyst"] = "tabalyst"
+    version: str
+
+
+class BaseScan(ResultModel):
+    """The base a Report stands on (design 19.5): the identity of the Scan it
+    holds, so that the base can be recognized, compared and extracted."""
+
+    format: Literal["tabalyst.scan"]
+    format_version: Literal["0.2.0"]
+    format_revision: int
+    engine_version: str
+    source_sha256: str
+    config_sha256: str
+    # SHA-256 of the facts: the base without ``run`` and without the contents
+    # of the samples, so that a Report has the identity of its Scan whatever
+    # its presentation settings or the sample values it kept.
+    facts_sha256: str
+
+
+class ReportBlock(ResultModel):
+    """What a Report adds to the Scan base."""
+
     generated_at: datetime
+    generator: ReportGenerator
     processing_seconds: FiniteFloat
-    source: SourceInfo
-    config: ReportConfig
+    # Presentation only; the Scan configuration is the root ``config``.
+    config: PresentationSettings
+    base_scan: BaseScan
+    # One projection per dataset shown, identified by the dataset ``id``; its
+    # columns are identified by the field ``id``.
     datasets: list[DatasetProfile]
+
+
+AnalysesMode = Literal["auto", "forced", "off"]
+AnalysesOutcome = Literal[
+    "ran", "reused", "nothing_selected", "disabled", "unavailable", "failed"
+]
+
+
+class AnalysesBlock(ResultModel):
+    """What the second pass did for this Report (design 20.1, rule R1).
+
+    ``mode`` says who decided: ``auto`` (the planner, on benefit and cost),
+    ``forced`` (``--deep`` or ``deep.mode`` ``force``) or ``off`` (``deep.mode``
+    ``off``). ``outcome`` is ``ran`` (analyses were computed), ``reused`` (stored
+    results were enough), ``nothing_selected``, ``disabled``, ``unavailable``
+    (the analyses that need the source could not read it: ``reason`` says why and
+    each is ``skipped`` in ``deep``) or ``failed`` (an automatic second pass met
+    an error and the Report goes without it). ``deep`` is the second-pass
+    document, the plan with what it kept, left out and why, and the results; it
+    is absent when no plan was made."""
+
+    mode: AnalysesMode
+    outcome: AnalysesOutcome
+    reason: str | None = None
+    deep: DeepResult | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        data = handler(self)
+        for name in ("reason", "deep"):
+            if data.get(name, 0) is None:
+                del data[name]
+        return data
+
+
+class ReportProfile(ResultModel):
+    """The Report document: the Scan base, then the ``report`` block."""
+
+    # Plain names of the fields of the base, as in a Scan document.
+    model_config = ConfigDict(extra="forbid", serialize_by_alias=True)
+
+    format: Literal["tabalyst.report"] = FORMAT
+    format_version: Literal["0.2.0"] = FORMAT_VERSION
+    format_revision: Literal[3] = FORMAT_REVISION
+    engine: EngineInfo
+    status: Literal["complete", "partial"]
+    run: RunInfo
+    source: ScanSource
+    config: ScanConfig
+    config_sha256: str
+    scope: Scope
+    datasets: list[DatasetResult]
+    diagnostics: list[Diagnostic]
+    # The ``derived`` block of the Scan, carried as it is: a Report keeps fewer
+    # sample values and cannot compute it again (design 19.3).
+    derived: Derived | None = None
+    # Likewise the ``observations`` block, computed by the Scan from its facts.
+    observations: Observations | None = None
+    # What the second pass added to the Report (design 20.4); the common loader
+    # ignores it, like ``report``.
+    analyses: AnalysesBlock | None = None
+    report: ReportBlock
+
+    @model_serializer(mode="wrap")
+    def _omit_derived(self, handler) -> dict[str, Any]:
+        data = handler(self)
+        for name in ("derived", "observations", "analyses"):
+            if data.get(name, 0) is None:
+                del data[name]
+        return data

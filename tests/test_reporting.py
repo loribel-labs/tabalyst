@@ -15,6 +15,7 @@ from tabalyst.execution_log import tabalyst_version
 from tabalyst.reporting import (
     breakable,
     column_pages,
+    dataset_views,
     format_number,
     format_seconds,
     format_size,
@@ -29,9 +30,17 @@ def isolated_storage(monkeypatch, tmp_path):
 
 def test_report_numbers_use_scientific_notation_only_above_threshold():
     assert format_number(10**10) == "10,000,000,000"
-    assert format_number(12_345_678_901) == "1.2346e+10"
-    assert format_number(-123_456_789_012) == "-1.2346e+11"
+    assert format_number(12_345_678_901.5) == "1.2346e+10"
+    assert format_number(-123_456_789_012.5) == "-1.2346e+11"
     assert format_number(1234.5) == "1,234.5"
+
+
+def test_integers_are_never_shortened_or_rounded():
+    # F06: only a float, which already is an approximation, is shortened.
+    assert format_number(12_345_678_901) == "12,345,678,901"
+    assert format_number(-123_456_789_012) == "-123,456,789,012"
+    assert format_number(9_007_199_254_740_993) == "9,007,199,254,740,993"
+    assert format_number(10**30 + 1) == "1,000,000,000,000,000,000,000,000,000,001"
 
 
 def test_report_metadata_formats_duration_and_source_size_compactly():
@@ -71,7 +80,8 @@ def test_csv_content_cannot_inject_markup(tmp_path):
     assert payload not in html
     assert "<img src=x" not in html
     assert "&lt;script&gt;" in html
-    assert profile.datasets[0].preview[0].values[0] == payload
+    first = profile.datasets[0].records.sample.rows[0]
+    assert first.values["column_1"] == [payload]
 
 
 def test_header_only_report_is_renderable(tmp_path):
@@ -113,8 +123,8 @@ def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
     assert '<section class="panel" id="columns"' in html
     assert '<section class="panel" id="sample"' in html
     assert 'Numeric analysis' in html
-    assert html.count('class="rep-tab"') == 9
-    for section in ("overview", "columns", "transformations", "numeric", "dates", "strings", "detectors", "sample", "settings"):
+    assert html.count('class="rep-tab"') == 10
+    for section in ("overview", "observations", "columns", "transformations", "numeric", "dates", "strings", "detectors", "sample", "settings"):
         assert f'href="#{section}"' in html
 
     assert 'data-label="Median"' in html
@@ -131,7 +141,7 @@ def test_report_omits_navigation_for_absent_analysis_sections(tmp_path):
     assert 'href="#numeric"' not in html
     assert 'href="#dates"' not in html
     assert 'href="#strings"' in html
-    assert html.count('<div class="metric') == 4
+    assert html.split('id="observations"')[0].count('<div class="metric') == 4
 
 
 def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):
@@ -151,7 +161,7 @@ def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):
 
     parser = Cells()
     parser.feed(render_report(profile))
-    expected = str(profile.datasets[0].columns[0].numeric.minimum)
+    expected = str(dataset_views(profile)[0].columns[0].numeric.minimum)
     assert any(cell["data-v"] == expected for cell in parser.values)
     assert any(
         cell["data-v"] == "33.33"
@@ -232,9 +242,9 @@ def test_column_page_shows_all_stored_enum_values_and_escapes_them(tmp_path):
     assert "open" in html and "closed" in html
     assert "&lt;b&gt;bad&lt;/b&gt;" in html
     assert "<b>bad</b>" not in html
-    assert column.scan_details.value_count == 3
-    assert column.scan_details.first.value == "open"
-    assert column.scan_details.last.value == "<b>bad</b>"
+    assert column.field.values.count == 3
+    assert column.field.values.first.value == "open"
+    assert column.field.values.last.value == "<b>bad</b>"
 
 
 def test_json_datasets_get_distinct_numbered_column_pages(tmp_path):
@@ -249,7 +259,7 @@ def test_json_datasets_get_distinct_numbered_column_pages(tmp_path):
 
     pages = sorted((tmp_path / "report").glob("col-*.html"))
     profile = json.loads(output.with_suffix(".json").read_text(encoding="utf-8"))
-    assert len(pages) == sum(len(dataset["columns"]) for dataset in profile["datasets"])
+    assert len(pages) == sum(len(dataset["columns"]) for dataset in profile["report"]["datasets"])
     assert [int(page.name.split("-")[1]) for page in pages] == list(
         range(1, len(pages) + 1)
     )
@@ -261,13 +271,14 @@ def test_scan_evidence_keeps_sensitive_values_masked(tmp_path):
     source.write_text("email\nalice@example.org\nbob@example.org\n", encoding="utf-8")
 
     profile = analyze_csv(source)
-    column = profile.datasets[0].columns[0]
-    html = render_column_report(profile, profile.datasets[0], column, "../report.html")
+    dataset = dataset_views(profile)[0]
+    column = dataset.columns[0]
+    html = render_column_report(profile, dataset, column, "../report.html")
 
     assert column.exposure == "mask"
     assert "alice@example.org" not in profile.model_dump_json()
     assert "alice@example.org" not in html
-    assert column.scan_details.first.value != "alice@example.org"
+    assert column.field.values.first.value != "alice@example.org"
 
 
 def test_enumeration_keeps_all_values_above_general_display_limit(tmp_path):
@@ -278,7 +289,7 @@ def test_enumeration_keeps_all_values_above_general_display_limit(tmp_path):
         scan={"detectors": {"enumeration": {"minimum_values": 1}}},
     )
 
-    column = analyze_csv(source, config).datasets[0].columns[0]
+    column = analyze_csv(source, config).report.datasets[0].columns[0]
 
     assert column.semantic_type == "enumeration"
     assert column.value_profile.selection == "complete"

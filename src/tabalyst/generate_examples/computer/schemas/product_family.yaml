@@ -1,0 +1,6 @@
+type: dictionary
+columns:
+  id: {type: string, required: true, unique: true}
+  en: {type: string, required: true}
+  fr: {type: string, required: true}
+  brand_id: {type: string, required: true, references: brand.id}

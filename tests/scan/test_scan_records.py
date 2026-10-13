@@ -5,8 +5,9 @@
 """Scan contract: record facts of each dataset (lot 5c, design 9.10).
 
 Records with missing values, empty records, duplicate records under the
-``limits.max_tracked_records`` budget, and the preview of the first records
-through the exposure of their fields.
+``limits.max_tracked_records`` budget, and the first records (the start of the
+row sample, which replaced the preview at lot 5) through the exposure of their
+fields.
 """
 
 import json
@@ -25,12 +26,18 @@ def _records(result: dict, dataset_id: str = "rows") -> dict:
     return dataset(result, dataset_id)["records"]
 
 
+def _rows(result: dict, dataset_id: str = "rows") -> list[dict]:
+    """The rows of the row sample, in source order for a small dataset."""
+    return _records(result, dataset_id)["sample"]["rows"]
+
+
 def test_csv_records_block(tmp_path):
     source = write_text(
         tmp_path, "rows.csv", "a,b\n1,x\n,\n1,x\n2,\n , \n1,x\n"
     )
 
-    records = _records(run_scan(source))
+    result = run_scan(source)
+    records = _records(result)
 
     assert records["with_missing"] == {"count": 3, "records": [2, 4, 5]}
     assert records["empty"] == {"count": 2, "records": [2, 5]}
@@ -38,11 +45,13 @@ def test_csv_records_block(tmp_path):
         "count": {"status": "complete", "value": 2},
         "records": [3, 6],
     }
-    assert records["preview"][0] == {
+    assert "preview" not in records
+    assert _rows(result)[0] == {
         "record": 1,
+        "origins": ["start", "end"],
         "values": {"column_1": ["1"], "column_2": ["x"]},
     }
-    assert records["preview"][4]["values"] == {"column_1": [" "], "column_2": [" "]}
+    assert _rows(result)[4]["values"] == {"column_1": [" "], "column_2": [" "]}
 
 
 def test_csv_duplicates_keep_cell_boundaries(tmp_path):
@@ -93,12 +102,12 @@ def test_json_records_compare_every_observation(tmp_path):
     assert records["with_missing"]["count"] == 4
     assert records["empty"]["count"] == 0
     ids = {item["display"]: item["id"] for item in dataset(result, "$[]")["fields"]}
-    assert records["preview"][0]["values"] == {
+    assert _rows(result, "$[]")[0]["values"] == {
         ids["id"]: ["1"],
         ids["tags[]"]: ["a", "b"],
         ids["note"]: [None],
     }
-    assert records["preview"][4]["values"] == {}
+    assert _rows(result, "$[]")[4]["values"] == {}
 
 
 def test_duplicates_are_compared_within_a_dataset(tmp_path):
@@ -160,17 +169,20 @@ def test_duplicates_can_be_disabled(tmp_path):
     assert records["duplicates"] == {"count": {"status": "disabled"}, "records": []}
 
 
-def test_listings_and_preview_are_bounded(tmp_path):
+def test_listings_and_the_start_of_the_sample_are_bounded(tmp_path):
     source = write_text(tmp_path, "rows.csv", "a,b\n" + ",\n" * 5 + "1,1\n" * 5)
+    sample = {"rows": 4, "edge": 2}
 
-    records = _records(
-        run_scan(source, records={"preview": 2}, limits={"max_listed_records": 3})
+    result = run_scan(
+        source, records={"sample": sample}, limits={"max_listed_records": 3}
     )
 
+    records = _records(result)
     assert records["with_missing"] == {"count": 5, "records": [1, 2, 3]}
     assert records["duplicates"]["records"] == [2, 3, 4]
-    assert [item["record"] for item in records["preview"]] == [1, 2]
-    assert _records(run_scan(source, records={"preview": 0}))["preview"] == []
+    starts = [item["record"] for item in _rows(result) if "start" in item["origins"]]
+    assert starts == [1, 2]
+    assert "sample" not in _records(run_scan(source, records={"sample": {"rows": 0}}))
 
 
 @pytest.mark.parametrize(
@@ -181,11 +193,11 @@ def test_listings_and_preview_are_bounded(tmp_path):
         ("show", ["ann1@example.com"]),
     ],
 )
-def test_preview_goes_through_the_exposure(tmp_path, mode, expected):
+def test_the_sample_goes_through_the_exposure(tmp_path, mode, expected):
     rows = "".join(f"ann{index}@example.com,{index}\n" for index in range(1, 4))
     source = write_text(tmp_path, "mails.csv", "email,n\n" + rows + ",4\nN/A,5\n")
 
-    records = _records(
+    rows = _rows(
         run_scan(
             source,
             exposure={"sensitive_values": mode},
@@ -193,10 +205,10 @@ def test_preview_goes_through_the_exposure(tmp_path, mode, expected):
         )
     )
 
-    assert records["preview"][0]["values"]["column_1"] == expected
+    assert rows[0]["values"]["column_1"] == expected
     # Values that are not content stay as read.
-    assert records["preview"][3]["values"]["column_1"] == [""]
-    assert records["preview"][4]["values"]["column_1"] == ["N/A"]
+    assert rows[3]["values"]["column_1"] == [""]
+    assert rows[4]["values"]["column_1"] == ["N/A"]
 
 
 def test_hidden_value_hides_its_whole_cell(tmp_path):
@@ -208,17 +220,17 @@ def test_hidden_value_hides_its_whole_cell(tmp_path):
 
     result = run_scan(source, exposure={"sensitive_values": "hide"})
 
-    (values,) = [item["values"] for item in _records(result, "$[]")["preview"]]
+    (values,) = [item["values"] for item in _rows(result, "$[]")]
     assert list(values.values()) == [None]
 
 
-def test_untracked_fields_are_not_previewed(tmp_path):
+def test_untracked_fields_are_not_in_the_sample(tmp_path):
     source = write_text(tmp_path, "items.json", json.dumps([{"a": 1, "b": 2}]))
 
     result = run_scan(source, limits={"max_fields": 1})
 
     ids = [item["id"] for item in dataset(result, "$[]")["fields"]]
-    assert list(_records(result, "$[]")["preview"][0]["values"]) == ids
+    assert list(_rows(result, "$[]")[0]["values"]) == ids
 
 
 # The report -------------------------------------------------------------------
@@ -226,7 +238,7 @@ def test_untracked_fields_are_not_previewed(tmp_path):
 
 def _report(source, **scan):
     profile = analyze_csv(source, ReportConfig.model_validate({"scan": scan}))
-    return profile, profile.datasets[0]
+    return profile, profile.report.datasets[0]
 
 
 def test_report_shows_a_limited_duplicate_count_as_a_lower_bound(tmp_path):
@@ -238,8 +250,10 @@ def test_report_shows_a_limited_duplicate_count_as_a_lower_bound(tmp_path):
         1,
         "limited",
     )
-    (issue,) = [item for item in current.issues if item.code == "duplicate_rows"]
-    assert issue.message.endswith("at least")
+    (finding,) = [
+        item for item in profile.observations.items if item.rule == "duplicate_rows"
+    ]
+    assert finding.accuracy == "lower_bound"
     assert "At least, beyond the first occurrence" in render_report(profile)
 
 
@@ -250,13 +264,17 @@ def test_report_without_duplicate_comparison(tmp_path):
 
     assert current.summary.duplicate_row_count is None
     assert current.summary.duplicate_row_status == "disabled"
-    assert "duplicate_rows" not in {issue.code for issue in current.issues}
+    assert "duplicate_rows" not in {item.rule for item in profile.observations.items}
     assert "Not checked" in render_report(profile)
 
 
-def test_report_preview_size_is_a_scan_setting(tmp_path):
-    source = write_text(tmp_path, "rows.csv", "a\n1\n2\n3\n")
+def test_report_row_sample_size_is_a_report_setting(tmp_path):
+    source = write_text(tmp_path, "rows.csv", "a\n1\n2\n3\n4\n5\n")
+    config = ReportConfig.model_validate(
+        {"row_sample": {"start": 2, "middle": 0, "end": 0}}
+    )
 
-    _profile, current = _report(source, records={"preview": 2})
+    profile = analyze_csv(source, config)
 
-    assert [row.row_number for row in current.preview] == [1, 2]
+    rows = profile.datasets[0].records.sample.rows
+    assert [row.record for row in rows] == [1, 2]

@@ -3,6 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import json
+import tomllib
+from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
@@ -12,6 +14,7 @@ from tabalyst.config import load_config
 from tabalyst.execution_log import tabalyst_version
 
 runner = CliRunner()
+ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture(autouse=True)
@@ -19,8 +22,13 @@ def _isolated_project_home(tmp_path, monkeypatch):
     monkeypatch.setenv("TABALYST_HOME", str(tmp_path.parent / f"{tmp_path.name}-storage"))
 
 
+def _pyproject_version() -> str:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    return str(project["project"]["version"])
+
+
 def test_source_checkout_reports_pyproject_version():
-    assert tabalyst_version() == "0.6.2"
+    assert tabalyst_version() == _pyproject_version()
 
 
 def test_root_help_and_version_describe_the_toolkit():
@@ -31,7 +39,7 @@ def test_root_help_and_version_describe_the_toolkit():
 
     version_result = runner.invoke(app, ["--version"])
     assert version_result.exit_code == 0
-    assert version_result.output.strip() == "0.6.2"
+    assert version_result.output.strip() == _pyproject_version()
 
 
 def test_report_generates_html_json_and_history(tmp_path):
@@ -46,7 +54,10 @@ def test_report_generates_html_json_and_history(tmp_path):
     assert "2 rows and 2 columns" in result.stderr
     profile_json = html.with_suffix(".json")
     data = json.loads(profile_json.read_text(encoding="utf-8"))
-    assert data["datasets"][0]["preview"][0]["values"][0] == "001"
+    assert data["datasets"][0]["records"]["sample"]["rows"][0]["values"] == {
+        "column_1": ["001"],
+        "column_2": ["3"],
+    }
     generated_html = html.read_text(encoding="utf-8")
     assert "Tabalyst Design Model · Signature v1.0" in generated_html
     assert "cdn." not in generated_html
@@ -297,7 +308,7 @@ def test_config_and_cli_input_overrides_are_applied(tmp_path):
                 "scan": {
                     "csv": {"delimiter": ";", "encoding": "cp1252"},
                     "values": {"null_markers": ["NULL"]},
-                    "records": {"preview": 0},
+                    "records": {"sample": {"rows": 0}},
                 },
             }
         )
@@ -324,9 +335,9 @@ def test_config_and_cli_input_overrides_are_applied(tmp_path):
 
     assert result.exit_code == 0, result.output
     data = json.loads(output.with_suffix(".json").read_text(encoding="utf-8"))
-    assert data["datasets"][0]["summary"]["missing_count"] == 1
-    assert data["datasets"][0]["preview"] == []
-    assert data["source"]["delimiter"] == ","
+    assert data["report"]["datasets"][0]["summary"]["missing_count"] == 1
+    assert "sample" not in data["datasets"][0]["records"]
+    assert data["source"]["csv"]["delimiter"] == ","
     assert data["source"]["encoding"] == "utf-8"
 
 
@@ -408,18 +419,20 @@ def test_nested_configuration_sections_merge_recursively(tmp_path):
     first.write_text(
         json.dumps(
             {
-                "value_examples": {
-                    "full_distribution_max_distinct": 25,
-                    "short_text_result_size": 8,
+                "report": {
+                    "value_examples": {
+                        "full_distribution_max_distinct": 25,
+                        "short_text_result_size": 8,
+                    }
                 }
             }
         )
     )
     second.write_text(
-        json.dumps({"value_examples": {"full_distribution_max_distinct": 40}})
+        json.dumps({"report": {"value_examples": {"full_distribution_max_distinct": 40}}})
     )
 
-    config = load_config([first, second])
+    config = load_config([first, second]).report
 
     assert config.value_examples.full_distribution_max_distinct == 40
     assert config.value_examples.short_text_result_size == 8
@@ -432,8 +445,10 @@ def test_nested_configuration_sections_merge_recursively(tmp_path):
         '{"unexpected": true}',
         "[1, 2]",
         '{"csv": {"delimiter": "||"}}',
-        '{"string_analysis": {"short_max_length": 3}}',
-        '{"value_examples": {"inline_display_size": 0}}',
+        '{"report": {"string_analysis": {"short_max_length": 3}}}',
+        '{"report": {"value_examples": {"inline_display_size": 0}}}',
+        '{"string_analysis": {"short_max_length": 30}}',
+        '{"value_examples": {"inline_display_size": 4}}',
     ],
 )
 def test_invalid_config_is_rejected(tmp_path, content):

@@ -6,6 +6,7 @@
 
 import csv
 import re
+import shutil
 from collections import Counter
 from pathlib import Path
 
@@ -14,9 +15,12 @@ from typer.testing import CliRunner
 
 from tabalyst.cli.app import app
 from tabalyst.errors import ConfigurationError
-from tabalyst.generate_definition import load_generate_definition
 from tabalyst.generate_references import SCHEMAS, CommonProvider, CommonReferences
-from tabalyst.generate_service import build_generate_plan, generate_datasets
+from tabalyst.generate_service import (
+    build_generate_plan,
+    generate_datasets,
+    validate_generate_package,
+)
 
 
 def _rows(path: Path) -> list[dict[str, str]]:
@@ -41,7 +45,7 @@ def test_all_thirteen_resources_are_loaded_and_linked() -> None:
 
 
 def test_four_families_cohere_and_reproduce(tmp_path: Path) -> None:
-    source = Path(__file__).resolve().parents[1] / "examples/generate/input/common-references.yaml"
+    source = Path(__file__).resolve().parents[1] / "examples/generate/common-references"
     first = tmp_path / "first.csv"
     second = tmp_path / "second.csv"
     generate_datasets(build_generate_plan(source, output=first, rows=3000))
@@ -97,20 +101,22 @@ def test_all_provider_tables_affect_output() -> None:
 
 
 @pytest.mark.parametrize("bad, message", [
-    ("provider: person", "common needs a supported provider"),
+    ("provider: person", "PACKAGE_PROVIDER"),
     ("profile: mixed", "common.profile"),
     ("group: person", "common.group"),
 ])
 def test_common_definition_is_strict(tmp_path: Path, bad: str, message: str) -> None:
-    source = Path(__file__).resolve().parents[1] / "examples/generate/input/common-references.yaml"
-    text = source.read_text(encoding="utf-8")
+    source = Path(__file__).resolve().parents[1] / "examples/generate/common-references"
+    package = tmp_path / "package"
+    shutil.copytree(source, package)
+    schema = package / "schemas/contacts.yaml"
+    text = schema.read_text(encoding="utf-8")
     if bad == "provider: person":
-        text = text.replace("provider: person", "provider: unknown", 1)
+        text = text.replace("name: common.person", "name: unknown.person", 1)
     elif bad == "profile: mixed":
         text = text.replace("profile: mixed", "profile: bogus", 1)
     else:
         text = text.replace("group: person", "group: ../bad", 1)
-    path = tmp_path / "bad.yaml"
-    path.write_text(text, encoding="utf-8")
+    schema.write_text(text, encoding="utf-8")
     with pytest.raises(ConfigurationError, match=message):
-        load_generate_definition(path)
+        validate_generate_package(package)

@@ -6,10 +6,13 @@
 
 ``build_profile`` turns a scan result, fresh or read back from a scan
 document, into the profile that ``reporting.py`` renders: the columns come
-from the scan fields, the preview, duplicate, empty and incomplete rows from
-the records block of each dataset. Normalization stages and variant groups,
-limited measures, diagnostics and the structure of JSON datasets are carried
-over for their report sections. No file access here.
+from the scan fields, the duplicate, empty and incomplete rows from the
+records block of each dataset. Normalization stages and variant groups and the
+structure of JSON datasets are carried over for their report sections. The
+findings of the scan (observations, limits, patterns) and its row sample are
+not copied: the Report holds the Scan base, with the sample reduced
+(``report_base``), and the pages read them from it (``report_sections``). No
+file access here.
 
 The report presents the scan: it never resolves an ambiguity the scan left
 open (design 12.6). Ambiguous dates stay ambiguous, with the evidence of the
@@ -20,40 +23,30 @@ import math
 import random
 import re
 from collections import Counter
+from dataclasses import dataclass
 from datetime import UTC, datetime
-from itertools import combinations, islice
+from itertools import combinations
 
-from pydantic import BaseModel
-
+from tabalyst._version import __version__
+from tabalyst.config import PresentationSettings, RowSampleSettings
 from tabalyst.errors import ConfigurationError
 from tabalyst.models import (
+    AnalysesBlock,
     ArrayProfile,
+    BaseScan,
     ColumnProfile,
     DatasetDateColumnSummary,
     DatasetDateSummary,
-    DatasetLimits,
     DatasetProfile,
     DatasetStructure,
     DatasetSummary,
-    DateBreakdownItem,
-    DateFormatCount,
-    DateProfile,
     DetectorFormat,
     DetectorProfile,
-    DiagnosticLocation,
-    DiagnosticProfile,
-    Issue,
-    MeasureLimit,
     NormalizationStage,
     NormalizationStats,
-    NumericStats,
-    PreviewRow,
+    ReportBlock,
+    ReportGenerator,
     ReportProfile,
-    ScanFieldDetails,
-    SourceInfo,
-    StringLengthDistribution,
-    StringLengthExample,
-    StringProfile,
     StructureField,
     ValueOccurrence,
     ValueProfile,
@@ -61,37 +54,34 @@ from tabalyst.models import (
     VariantGroup,
 )
 from tabalyst.report_config import ReportConfig
-from tabalyst.scanner.engine import has_limited_measure
+from tabalyst.report_sections import cardinality_view
+from tabalyst.report_views import (
+    DateBreakdownItem,
+    DateFormatCount,
+    DateProfile,
+    NumericStats,
+    StringLengthDistribution,
+    StringLengthExample,
+    StringProfile,
+)
+from tabalyst.scan_document import facts_sha256
+from tabalyst.scanner.bottomk import BottomKSampler
 from tabalyst.scanner.models import (
+    ByLength,
     Complete,
     DatasetResult,
     DetectorComplete,
     DetectorFailed,
     FieldResult,
     Limited,
-    Records,
+    RowSample,
+    SampleEntry,
     ScanResult,
     ValueCount,
 )
+from tabalyst.scanner.rowsample import RowPriority
 
-# Row numbers listed by an issue.
-LISTED_ROWS = 10
-# Diagnostics of records excluded under the tolerant error policy.
-EXCLUSION_CODES = frozenset(
-    {
-        "csv_width_mismatch",
-        "record_too_large",
-        "json_duplicate_key",
-        "jsonl_invalid_line",
-        "jsonl_record_not_object",
-        "jsonl_line_too_long",
-    }
-)
 CONTAINER_TYPES = frozenset({"object", "array"})
-# Separator of the values an items path takes in one record of the preview.
-PREVIEW_SEPARATOR = ", "
-# Stages whose output is the analytical value (design section 10).
-ANALYTICAL_STAGES = ("nfc", "trim", "collapse_whitespace")
 # Interpretations that repeat the technical type.
 TECHNICAL_INTERPRETATIONS = frozenset({"number", "boolean"})
 DATE_ORDERS = frozenset({"YMD", "MDY", "DMY"})
@@ -270,14 +260,10 @@ def build_date_profile(field: FieldResult) -> DateProfile | None:
 
 
 def _distinct_count(field: FieldResult) -> int | None:
-    """Distinct analytical values; raw counts, even for a masked column."""
-    measure = field.values.cardinality
-    for stage in field.normalization.stages:
-        if stage.stage in ANALYTICAL_STAGES and stage.enabled:
-            measure = stage.cardinality
-    if measure.status == "complete":
-        return measure.value
-    return 0 if measure.status == "not_applicable" else None
+    """Distinct analytical values when exact; raw counts, even for a masked
+    column. The qualified count is ``report_sections.cardinality_view``."""
+    view = cardinality_view(field)
+    return view.value if view.kind == "exact" else None
 
 
 def _listed_values(field: FieldResult) -> tuple[list[ValueCount], bool]:
@@ -290,18 +276,39 @@ def _listed_values(field: FieldResult) -> tuple[list[ValueCount], bool]:
     return frequencies.value.listed, not frequencies.value.truncated
 
 
+def report_sample(field: FieldResult, seed: int, size: int) -> list[SampleEntry]:
+    """The values of the scan sample of ``field`` that the report uses and
+    keeps in its base: all of them up to ``size`` (``kept_per_column``),
+    otherwise the ``size`` of smallest priority (design 19.4): the head of a
+    ``bottom_k`` sample, or the ones a bottom-k would keep of an ``all`` sample,
+    which the scan listed without a hash. A scan of any sample size therefore
+    gives the same examples."""
+    samples = field.values.samples
+    listed = samples.listed
+    if len(listed) <= size:
+        return listed
+    if samples.selection == "bottom_k":
+        return listed[:size]
+    entries = {(item.type, item.value): item for item in listed}
+    sampler = BottomKSampler(size, seed=seed)
+    sampler.update(entries, [item.count for item in listed])
+    return [entries[entry.key] for entry in sampler.entries()]
+
+
 def build_value_profile(
     field: FieldResult,
     *,
     inferred_type: str,
     position: int,
     config: ReportConfig,
+    sample: list[ValueCount] | None = None,
 ) -> ValueProfile:
     """Bounded, reproducible value representation.
 
     Every value when the listing is complete and short enough; otherwise a
-    selection among the scan samples, which are a uniform sample of the
-    distinct values drawn with ``scan.random_seed``.
+    selection among the report sample (``report_sample``), at most
+    ``value_examples.kept_per_column`` distinct values of the scan sample.
+    ``sample`` is that report sample when the caller already drew it.
     """
     settings = config.value_examples
     listed, complete = _listed_values(field)
@@ -317,14 +324,18 @@ def build_value_profile(
             ],
         )
 
-    counts = {item.value: item.count for item in field.values.samples.listed}
+    if sample is None:
+        sample = report_sample(
+            field, config.scan.random_seed, settings.kept_per_column
+        )
+    counts = {item.value: item.count for item in sample}
     population = sorted(counts)
     counts.update((item.value, item.count) for item in listed)
     candidates = random.Random(config.scan.random_seed + position).sample(
         population, len(population)
     )
     frequent_items = listed or sorted(
-        field.values.samples.listed, key=lambda item: (-item.count, item.value)
+        sample, key=lambda item: (-item.count, item.value)
     )
     frequent = [item.value for item in frequent_items[: settings.inline_display_size]]
     lengths = sorted(len(value) for value in candidates)
@@ -380,10 +391,14 @@ def build_value_profile(
 
 
 def build_string_profile(
-    field: FieldResult, inferred_type: str, config: ReportConfig
+    field: FieldResult,
+    inferred_type: str,
+    config: ReportConfig,
+    sample: list[ValueCount] | None = None,
 ) -> StringProfile | None:
     """Length classes and exact length counts; examples per length come from
-    the listed frequencies, then the samples."""
+    the listed frequencies, then the report sample (``sample`` when the caller
+    already drew it)."""
     measure = field.string_lengths
     if inferred_type != "text" or measure.status != "complete" or not measure.value.count:
         return None
@@ -405,7 +420,14 @@ def build_string_profile(
         listed, _ = _listed_values(field)
         pool = {item.value: item.count for item in listed}
         for item in sorted(
-            field.values.samples.listed, key=lambda item: (-item.count, item.value)
+            sample
+            if sample is not None
+            else report_sample(
+                field,
+                config.scan.random_seed,
+                config.value_examples.kept_per_column,
+            ),
+            key=lambda item: (-item.count, item.value),
         ):
             pool.setdefault(item.value, item.count)
         examples: dict[int, list[StringLengthExample]] = {}
@@ -443,16 +465,19 @@ def build_string_profile(
 
 
 def build_numeric(field: FieldResult, inferred_type: str) -> NumericStats | None:
-    """Exact scan statistics as floats, for numeric columns."""
+    """Exact scan statistics for numeric columns: integers keep every digit."""
     if inferred_type not in {"integer", "number"} or field.numeric.status != "complete":
         return None
     stats = field.numeric.value
     median = stats.median
-    values = [float(stats.min), float(stats.max), float(stats.mean)]
+    # Integers stay integers: converting to float would round a large value.
+    values = [stats.min, stats.max, stats.mean]
     values.append(values[1] - values[0])
     if median.status == "complete":
-        values.append(float(median.value))
-    if not all(math.isfinite(value) for value in values):
+        values.append(median.value)
+    if not all(
+        isinstance(value, int) or math.isfinite(value) for value in values
+    ):
         return None
     return NumericStats(
         minimum=values[0],
@@ -588,9 +613,32 @@ def value_slots(field: FieldResult) -> int:
     return field.occurrences + (field.presence.absent or 0)
 
 
+@dataclass(frozen=True)
+class ColumnViews:
+    """What the report computes from the facts of a field and does not store:
+    the document keeps the facts, these are read from the base (design 19.3)."""
+
+    numeric: NumericStats | None
+    date_profile: DateProfile | None
+    string_profile: StringProfile | None
+
+
+def build_views(
+    field: FieldResult,
+    inferred_type: str,
+    config: ReportConfig,
+    sample: list[ValueCount] | None = None,
+) -> ColumnViews:
+    return ColumnViews(
+        numeric=build_numeric(field, inferred_type),
+        date_profile=build_date_profile(field),
+        string_profile=build_string_profile(field, inferred_type, config, sample),
+    )
+
+
 def build_column(
     field: FieldResult, *, position: int, name: str, config: ReportConfig
-) -> ColumnProfile:
+) -> tuple[ColumnProfile, ColumnViews]:
     row_count = value_slots(field)
     technical = field.technical_type
     inferred = technical.type
@@ -602,13 +650,16 @@ def build_column(
         # Containers kept whole at the flatten limit: no scalar family.
         inferred = "complex"
         type_counts = complex_counts
-    date_profile = build_date_profile(field)
+    sample = report_sample(
+        field, config.scan.random_seed, config.value_examples.kept_per_column
+    )
+    views = build_views(field, inferred, config, sample)
     value_profile = build_value_profile(
-        field, inferred_type=inferred, position=position, config=config
+        field, inferred_type=inferred, position=position, config=config, sample=sample
     )
     missing = field.missing.count
     outside = technical.outside_count
-    return ColumnProfile(
+    column = ColumnProfile(
         id=field.id,
         name=name,
         path=field.display,
@@ -622,11 +673,6 @@ def build_column(
         ),
         missing_count=missing,
         missing_percent=percent(missing, row_count),
-        with_issues=(
-            missing > 0
-            or inferred == "mixed"
-            or bool(date_profile and date_profile.ambiguous_count)
-        ),
         normalization=build_normalization(field, row_count),
         distinct_count=_distinct_count(field),
         examples=[
@@ -636,140 +682,12 @@ def build_column(
         value_profile=value_profile,
         semantic_type=semantic_type(field),
         exposure=field.exposure,
-        date_profile=date_profile,
-        string_profile=build_string_profile(field, inferred, config),
-        numeric=build_numeric(field, inferred),
         detectors=build_detectors(field),
-        scan_details=ScanFieldDetails(
-            first_record=field.first_record,
-            occurrences=field.occurrences,
-            value_count=field.values.count,
-            presence=field.presence,
-            native_types=dict(field.native_types),
-            strings=field.strings,
-            missing=field.missing,
-            first=field.values.first,
-            last=field.values.last,
-            string_characteristics=field.string_characteristics,
-            string_lengths=(
-                field.string_lengths.value
-                if isinstance(field.string_lengths, Complete)
-                else None
-            ),
-            numeric=field.numeric.value if isinstance(field.numeric, Complete) else None,
-            booleans=(
-                field.booleans.value if isinstance(field.booleans, Complete) else None
-            ),
-            temporal=(
-                field.temporal.value if isinstance(field.temporal, Complete) else None
-            ),
-        ),
     )
+    return column, views
 
 
-def _preview(records: Records, fields: list[FieldResult]) -> list[PreviewRow]:
-    """Preview rows of the scan, already exposed (design 12.8). A JSON value
-    absent from the record is null; the values of an items path are joined;
-    a JSON null is the text ``null``."""
-    preview = []
-    for record in records.preview:
-        exposed: list[str | None] = []
-        absent = []
-        for position, field in enumerate(fields):
-            if field.id not in record.values:
-                absent.append(position)
-                exposed.append(None)
-                continue
-            texts = record.values[field.id]
-            exposed.append(
-                None
-                if texts is None
-                else PREVIEW_SEPARATOR.join(
-                    "null" if text is None else text for text in texts
-                )
-            )
-        preview.append(
-            PreviewRow(row_number=record.record, values=exposed, absent=absent)
-        )
-    return preview
-
-
-# Limits and structure -------------------------------------------------------
-
-
-def _limited_measures(model: object, location: str):
-    """Every ``limited`` envelope under a scan model, with its location. The
-    ``value`` of a complete envelope is left out of locations; list items are
-    named by their stage or id."""
-    if isinstance(model, Limited):
-        yield location, model
-    elif isinstance(model, BaseModel):
-        for name in type(model).model_fields:
-            if isinstance(model, Complete):
-                inner = location
-            else:
-                inner = f"{location}.{name}" if location else name
-            yield from _limited_measures(getattr(model, name), inner)
-    elif isinstance(model, list):
-        for index, item in enumerate(model):
-            label = getattr(item, "stage", None) or getattr(item, "id", None)
-            yield from _limited_measures(item, f"{location}.{label or index}")
-
-
-def build_limits(
-    result: ScanResult, dataset: DatasetResult, columns: dict[str, str]
-) -> DatasetLimits:
-    """Limited measures of the dataset and of each field, structural
-    truncation, and the diagnostics of the dataset and of the whole scan.
-    ``columns`` maps the field ids shown as columns to their column ids."""
-    displays = {field.id: field.display for field in dataset.fields}
-    measures = [
-        MeasureLimit(
-            column_id=None,
-            path=None,
-            measure=location,
-            reason=measure.reason,
-            limit=measure.limit,
-            lower_bound=measure.lower_bound,
-        )
-        for part in ("structure", "records")
-        for location, measure in _limited_measures(getattr(dataset, part), part)
-    ]
-    measures += [
-        MeasureLimit(
-            column_id=columns.get(field.id),
-            path=field.display,
-            measure=location,
-            reason=measure.reason,
-            limit=measure.limit,
-            lower_bound=measure.lower_bound,
-        )
-        for field in dataset.fields
-        for location, measure in _limited_measures(field, "")
-    ]
-    diagnostics = [
-        DiagnosticProfile(
-            code=diagnostic.code,
-            level=diagnostic.level,
-            message=diagnostic.message,
-            count=diagnostic.count,
-            dataset=diagnostic.dataset,
-            path=displays.get(diagnostic.field, diagnostic.field),
-            detector=diagnostic.detector,
-            locations=[
-                DiagnosticLocation.model_validate(location)
-                for location in diagnostic.locations
-            ],
-        )
-        for diagnostic in result.diagnostics
-        if diagnostic.dataset in (None, dataset.id)
-    ]
-    return DatasetLimits(
-        measures=measures,
-        untracked_observations=dataset.structure.untracked_observations,
-        depth_truncated_observations=dataset.structure.depth_truncated_observations,
-        diagnostics=diagnostics,
-    )
+# Structure ------------------------------------------------------------------
 
 
 def build_structure(dataset: DatasetResult, columns: set[str]) -> DatasetStructure:
@@ -846,9 +764,14 @@ def report_fields(result: ScanResult, dataset: DatasetResult) -> list[FieldResul
     ]
 
 
-def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
+def build_profile(
+    result: ScanResult,
+    config: ReportConfig,
+    analyses: AnalysesBlock | None = None,
+) -> ReportProfile:
     """The report profile of a scan: one dataset per scan dataset holding at
-    least one column. ``config.scan`` must be the configuration of the scan."""
+    least one column. ``config.scan`` must be the configuration of the scan.
+    ``analyses`` is what the second pass added, if it was planned."""
     header = result.source.header
     if header is not None:
         width = len(header)
@@ -876,23 +799,115 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
                     config,
                 )
             )
-    source = result.source
-    return ReportProfile(
-        generated_at=datetime.now(UTC),
-        processing_seconds=result.duration_seconds,
-        source=SourceInfo(
-            filename=source.name,
-            format=source.format,
-            size_bytes=source.size_bytes,
-            sha256=source.sha256,
-            encoding=source.encoding,
-            delimiter=(
-                result.source.csv.delimiter if result.source.csv is not None else None
-            ),
-        ),
-        config=config,
-        datasets=datasets,
+    base = report_base(
+        result, config.value_examples.kept_per_column, config.row_sample
     )
+    return ReportProfile(
+        engine=base.engine,
+        status=base.status,
+        run=base.run,
+        source=base.source,
+        config=base.config,
+        config_sha256=base.config_sha256,
+        scope=base.scope,
+        datasets=base.datasets,
+        diagnostics=base.diagnostics,
+        derived=base.derived,
+        observations=base.observations,
+        analyses=analyses,
+        report=ReportBlock(
+            generated_at=datetime.now(UTC),
+            generator=ReportGenerator(version=__version__),
+            processing_seconds=result.run.duration_seconds,
+            config=PresentationSettings.model_validate(
+                config.model_dump(exclude={"scan"})
+            ),
+            base_scan=BaseScan(
+                format=base.format,
+                format_version=base.format_version,
+                format_revision=base.format_revision,
+                engine_version=base.engine.version,
+                source_sha256=base.source.sha256,
+                config_sha256=base.config_sha256,
+                facts_sha256=facts_sha256(result),
+            ),
+            datasets=datasets,
+        ),
+    )
+
+
+def _without_members(block: ByLength) -> ByLength:
+    """The samples by length of the scan without the values of their strata:
+    the ids would point at values the Report does not keep (design 19.4). Each
+    stratum keeps its length, counts and accuracy and says ``kept`` 0."""
+    strata = [
+        stratum.model_copy(update={"kept": 0, "ids": []}) for stratum in block.strata
+    ]
+    return block.model_copy(update={"strata": strata, "listed": []})
+
+
+def report_rows(sample: RowSample, seed: int, settings: RowSampleSettings) -> RowSample:
+    """The row sample a Report keeps: the first ``start`` rows, the last ``end``
+    rows and the ``middle`` rows of the interior with the smallest priorities,
+    which are the rows a bottom-k of that size would have kept (an exact subset
+    of the Scan's, design 19.4). The header is the Scan's; ``kept`` and ``of``
+    say what was dropped."""
+    priority = RowPriority(seed)
+    rows = sample.rows
+    starts = [row for row in rows if "start" in row.origins][: settings.start]
+    ends = [row for row in rows if "end" in row.origins]
+    ends = ends[max(0, len(ends) - settings.end) :] if settings.end else []
+    interior = sorted(
+        (row for row in rows if row.origins == ["middle"]),
+        key=lambda row: (priority.at(row.record), row.record),
+    )[: settings.middle]
+    chosen = {row.record: row for row in (*starts, *interior, *ends)}
+    kept = [
+        row
+        for group in (
+            [row for row in rows if "start" in row.origins],
+            [row for row in rows if row.origins == ["middle"]],
+            [row for row in rows if row.origins == ["end"]],
+        )
+        for row in group
+        if row.record in chosen
+    ]
+    return sample.model_copy(update={"kept": len(kept), "rows": kept})
+
+
+def report_base(
+    result: ScanResult, size: int, rows: RowSampleSettings | None = None
+) -> ScanResult:
+    """The base a Report holds: the scan, with the sample of each field reduced
+    to ``size`` values at most (``report_sample``), its size declared by ``kept``
+    and ``of`` (design 19.4); the samples by length keep their counts and drop their
+    members, and the row sample keeps the rows ``rows`` asks for
+    (``report_rows``). Everything else is the scan's, unchanged."""
+    seed = result.config.random_seed
+    datasets = []
+    for dataset in result.datasets:
+        fields = []
+        for field in dataset.fields:
+            samples = field.values.samples
+            kept = report_sample(field, seed, size)
+            changes: dict[str, object] = {}
+            if len(kept) < len(samples.listed):
+                changes.update(kept=len(kept), listed=kept)
+            if samples.by_length is not None:
+                changes["by_length"] = _without_members(samples.by_length)
+            if changes:
+                reduced = samples.model_copy(update=changes)
+                values = field.values.model_copy(update={"samples": reduced})
+                field = field.model_copy(update={"values": values})
+            fields.append(field)
+        changes = {"fields": fields}
+        sample = dataset.records.sample
+        if sample is not None:
+            # The rows are the Scan's: the Report states what it kept.
+            kept = report_rows(sample, seed, rows or RowSampleSettings())
+            changes["records"] = dataset.records.model_copy(update={"sample": kept})
+        datasets.append(dataset.model_copy(update=changes))
+    return result.model_copy(update={"datasets": datasets})
 
 
 def build_dataset(
@@ -903,7 +918,7 @@ def build_dataset(
 ) -> DatasetProfile:
     tabular = result.source.header is not None
     row_count = dataset.record_count
-    columns = [
+    built = [
         build_column(
             field,
             position=field.path[0].column if tabular else position,
@@ -912,6 +927,8 @@ def build_dataset(
         )
         for position, field in enumerate(fields, start=1)
     ]
+    columns = [column for column, _ in built]
+    views = [view for _, view in built]
     cell_count = sum(value_slots(field) for field in fields)
     missing_count = sum(column.missing_count for column in columns)
     trim_count = sum(column.normalization.trim_count for column in columns)
@@ -920,54 +937,21 @@ def build_dataset(
     )
     empty = [column.id for column in columns if column.inferred_type == "empty"]
     constant = [column.id for column in columns if column.distinct_count == 1]
-    mixed = [column.id for column in columns if column.inferred_type == "mixed"]
-    numeric_columns = [column for column in columns if column.numeric is not None]
-    date_columns = [column for column in columns if column.date_profile is not None]
-    string_columns = [column for column in columns if column.string_profile is not None]
-    date_profiles = [column.date_profile for column in date_columns]
-    ambiguous_columns = [
-        column for column in date_columns if column.date_profile.ambiguous_count
+    numeric_columns = [view for view in views if view.numeric is not None]
+    date_pairs = [
+        (column, view.date_profile)
+        for column, view in zip(columns, views, strict=True)
+        if view.date_profile is not None
     ]
+    date_columns = [column for column, _ in date_pairs]
+    string_columns = [view for view in views if view.string_profile is not None]
+    date_profiles = [profile for _, profile in date_pairs]
     inferred_type_counts = Counter(column.inferred_type for column in columns)
     semantic_type_counts = Counter(column.semantic_type or "none" for column in columns)
     date_present_count = sum(profile.present_count for profile in date_profiles)
     date_ambiguous_count = sum(profile.ambiguous_count for profile in date_profiles)
     maximum_column_ambiguous_count = max(
         (profile.ambiguous_count for profile in date_profiles), default=0
-    )
-    issues = []
-
-    def add_issue(
-        code, message, count, ids=(), rows=(), severity="warning", always=False
-    ):
-        if count or always:
-            issues.append(
-                Issue(
-                    code=code,
-                    severity=severity,
-                    message=message,
-                    count=count,
-                    column_ids=list(ids),
-                    row_numbers=list(islice(rows, LISTED_ROWS)),
-                )
-            )
-
-    exclusions = [
-        diagnostic
-        for diagnostic in result.diagnostics
-        if diagnostic.code in EXCLUSION_CODES
-        and diagnostic.dataset in (None, dataset.id)
-    ]
-    excluded_rows = [
-        location["record"]
-        for diagnostic in exclusions
-        for location in diagnostic.locations
-    ]
-    add_issue(
-        "excluded_records",
-        "Records excluded by the tolerant error policy, not analyzed",
-        sum(diagnostic.count for diagnostic in exclusions),
-        rows=sorted(excluded_rows),
     )
     records = dataset.records
     duplicates = records.duplicates
@@ -980,90 +964,6 @@ def build_dataset(
     else:
         duplicate_status = "disabled"
         duplicate_count = None
-    add_issue(
-        "duplicate_rows",
-        "Duplicate rows beyond their first occurrence"
-        + (", at least" if duplicate_status == "limited" else ""),
-        duplicate_count,
-        rows=duplicates.records,
-    )
-    add_issue(
-        "missing_values",
-        "Missing cells",
-        missing_count,
-        [column.id for column in columns if column.missing_count],
-        records.with_missing.records,
-    )
-    add_issue("empty_columns", "Columns without any present values", len(empty), empty)
-    add_issue(
-        "trimmed_cells",
-        "Cells changed by trimming surrounding whitespace",
-        trim_count,
-        [column.id for column in columns if column.normalization.trim_count],
-        severity="info",
-        always=True,
-    )
-    add_issue(
-        "collapsed_whitespace",
-        "Cells changed by collapsing repeated internal whitespace",
-        collapse_count,
-        [
-            column.id
-            for column in columns
-            if column.normalization.collapse_internal_whitespace_count
-        ],
-        severity="info",
-        always=True,
-    )
-    variant_columns = [
-        column for column in columns if column.normalization.variant_group_count
-    ]
-    add_issue(
-        "variant_groups",
-        "Values written in several ways that normalization compares as equal",
-        sum(column.normalization.variant_group_count for column in variant_columns),
-        [column.id for column in variant_columns],
-        severity="info",
-    )
-    add_issue(
-        "constant_columns",
-        "Columns with one distinct present value",
-        len(constant),
-        constant,
-        severity="info",
-    )
-    add_issue("mixed_types", "Columns with mixed value types", len(mixed), mixed)
-    add_issue(
-        "ambiguous_dates",
-        "Date values matching more than one day-month order",
-        date_ambiguous_count,
-        [column.id for column in ambiguous_columns],
-    )
-    header_counts = Counter(result.source.header or ())
-    bad_headers = [
-        column.id
-        for column in columns
-        if tabular
-        and (not column.name.strip() or header_counts[column.name] > 1)
-    ]
-    add_issue(
-        "ambiguous_headers",
-        "Blank or repeated column names",
-        len(bad_headers),
-        bad_headers,
-    )
-    limited = [
-        column.id
-        for column, field in zip(columns, fields, strict=True)
-        if has_limited_measure(field)
-    ]
-    add_issue(
-        "limited_measures",
-        "Columns with measures stopped by a scan limit",
-        len(limited),
-        limited,
-        severity="info",
-    )
 
     return DatasetProfile(
         id=dataset.id,
@@ -1081,7 +981,6 @@ def build_dataset(
             empty_row_count=records.empty.count,
             empty_column_count=len(empty),
             constant_column_count=len(constant),
-            with_issues_column_count=sum(column.with_issues for column in columns),
             numeric_column_count=len(numeric_columns),
             date_column_count=len(date_columns),
             string_column_count=len(string_columns),
@@ -1112,26 +1011,20 @@ def build_dataset(
                         column_id=column.id,
                         name=column.name,
                         position=column.position,
-                        ambiguous_count=column.date_profile.ambiguous_count,
+                        ambiguous_count=profile.ambiguous_count,
                         relative_ambiguous_percent=percent(
-                            column.date_profile.ambiguous_count,
+                            profile.ambiguous_count,
                             maximum_column_ambiguous_count,
                         ),
                     )
-                    for column in ambiguous_columns
+                    for column, profile in date_pairs
+                    if profile.ambiguous_count
                 ],
             )
             if date_columns
             else None
         ),
         columns=columns,
-        issues=issues,
-        preview=_preview(records, fields),
-        limits=build_limits(
-            result,
-            dataset,
-            {field.id: column.id for field, column in zip(fields, columns, strict=True)},
-        ),
         structure=(
             None
             if tabular

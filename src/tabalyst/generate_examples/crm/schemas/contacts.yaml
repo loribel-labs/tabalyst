@@ -1,0 +1,219 @@
+columns:
+- name: contact_id
+  type: string
+  generate:
+    kind: sequence
+    prefix: C
+    width: 6
+- name: first_name
+  type: string
+  generate:
+    kind: provider
+    group: person
+    field: first_name
+    profile: mixed
+    name: common.person
+- name: family_name
+  type: string
+  generate:
+    kind: provider
+    group: person
+    field: family_name
+    profile: mixed
+    name: common.person
+- name: person_language
+  type: string
+  generate:
+    kind: provider
+    group: person
+    field: language
+    profile: mixed
+    name: common.person
+- name: company_id
+  type: string
+  generate:
+    kind: reference
+    entity: accounts
+    field: company_id
+- name: company_name
+  type: string
+  generate:
+    kind: reference
+    entity: accounts
+    field: company_name
+- name: industry
+  type: string
+  generate:
+    kind: reference
+    entity: accounts
+    field: industry
+- name: company_size
+  type: string
+  generate:
+    kind: reference
+    entity: accounts
+    field: company_size
+- name: country
+  type: string
+  generate:
+    kind: reference
+    entity: accounts
+    field: country
+- name: city
+  type: string
+  generate:
+    kind: reference
+    entity: accounts
+    field: city
+- name: province_code
+  type: string
+  generate:
+    kind: reference
+    entity: accounts
+    field: province_code
+- name: postal_code
+  type: string
+  generate:
+    kind: reference
+    entity: accounts
+    field: postal_code
+- name: email
+  type: string
+  depends_on:
+  - first_name
+  - family_name
+  - province_code
+  - person_language
+  generate:
+    kind: provider
+    group: contact
+    field: email
+    first: first_name
+    last: family_name
+    province: province_code
+    language: person_language
+    name: common.contact
+  missing: 0.02
+- name: phone
+  type: string
+  depends_on:
+  - first_name
+  - family_name
+  - province_code
+  - person_language
+  generate:
+    kind: provider
+    group: contact
+    field: phone
+    first: first_name
+    last: family_name
+    province: province_code
+    language: person_language
+    name: common.contact
+  missing: 0.03
+- name: job_title
+  type: string
+  generate:
+    kind: choice
+    weights:
+      Manager: 25
+      Director: 15
+      Coordinator: 18
+      Analyst: 17
+      Specialist: 15
+      Executive: 10
+- name: lead_source
+  type: string
+  generate:
+    kind: choice
+    weights:
+      Website: 33
+      Referral: 27
+      Event: 16
+      Partner: 14
+      Outbound: 10
+- name: lifecycle_stage
+  type: string
+  generate:
+    kind: choice
+    weights:
+      Lead: 37
+      Qualified: 25
+      Opportunity: 22
+      Customer: 16
+- name: lead_status
+  type: string
+  depends_on:
+  - lifecycle_stage
+  generate:
+    kind: conditional
+    from: lifecycle_stage
+    cases:
+      Lead: New
+      Qualified: Working
+      Opportunity: Negotiating
+      Customer: Converted
+    default: Unknown
+- name: owner
+  type: string
+  generate:
+    kind: choice
+    weights:
+      Alex Chen: 1
+      Morgan Lee: 1
+      Sam Patel: 1
+      Taylor Roy: 1
+      Jordan Tremblay: 1
+  missing: 0.01
+- name: marketing_opt_in
+  type: boolean
+  generate:
+    kind: boolean
+- name: created_at
+  type: date
+  generate:
+    kind: date
+    min: '2019-01-01'
+    max: '2026-06-30'
+- name: last_activity_at
+  type: date
+  generate:
+    kind: date
+    min: '2021-01-01'
+    max: '2026-09-30'
+  missing: 0.11
+- name: opportunity_stage
+  type: string
+  generate:
+    kind: choice
+    weights:
+      Discovery: 12
+      Proposal: 11
+      Negotiation: 7
+      Closed Won: 4
+      Closed Lost: 2
+- name: opportunity_amount
+  type: decimal
+  cohort: pipeline
+  generate:
+    kind: decimal
+    min: 1500
+    max: 175000
+    scale: 2
+  missing: 0.08
+- name: opportunity_probability
+  type: integer
+  cohort: pipeline
+  generate:
+    kind: integer
+    min: 0
+    max: 100
+  missing: 0.03
+- name: opportunity_close_date
+  type: date
+  cohort: pipeline
+  generate:
+    kind: date
+    min: '2024-01-01'
+    max: '2027-09-30'
+  missing: 0.04

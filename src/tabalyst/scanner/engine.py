@@ -30,21 +30,43 @@ from tabalyst.scanner.records import RecordContext
 from tabalyst.scanner.structure import DatasetState
 from tabalyst.scanner.values import ValueContext
 
-# Fields named in the message of a ``measures_limited`` warning.
-LISTED_LIMITED_FIELDS = 10
+
+def _reduced_samples(results: list[DatasetResult]) -> int:
+    """Fields whose sample, long text sample or samples by length the memory
+    budget cut."""
+    count = 0
+    for result in results:
+        for field in result.fields:
+            samples = field.values.samples
+            long = samples.long_texts
+            strata = samples.by_length
+            if (
+                samples.reason is not None
+                or (long is not None and long.requested_k is not None)
+                or (strata is not None and strata.requested_max_lengths is not None)
+            ):
+                count += 1
+    return count
+
+
+def limited_measures(field: FieldResult) -> dict[str, str]:
+    """The limited measures of a field, by location, with their reason."""
+    # Variant groups are limited only with the raw table today; listed so a
+    # later limit of their own cannot be missed.
+    measures = {
+        "values.cardinality": field.values.cardinality,
+        "numeric": field.numeric,
+        "normalization.variant_groups": field.normalization.variant_groups,
+    }
+    return {
+        location: measure.reason
+        for location, measure in measures.items()
+        if measure.status == "limited"
+    }
 
 
 def has_limited_measure(field: FieldResult) -> bool:
-    # Variant groups are limited only with the raw table today; listed so a
-    # later limit of their own cannot be missed.
-    return any(
-        measure.status == "limited"
-        for measure in (
-            field.values.cardinality,
-            field.numeric,
-            field.normalization.variant_groups,
-        )
-    )
+    return bool(limited_measures(field))
 
 
 class ScanEngine:
@@ -111,15 +133,19 @@ class ScanEngine:
 
     def finalize(self) -> list[DatasetResult]:
         pool = self.values.pool
+        trackers = [
+            field.values
+            for state in self.datasets.values()
+            for field in state.fields.values()
+            if field.values is not None
+        ]
+        # The sample budget is spent in field order, whichever process builds
+        # the samples afterwards (design 18.10).
+        for tracker in trackers:
+            tracker.reserve()
         if pool is not None:
             # Workers finalize every field at once, the largest tables first
             # for balance; results are then taken in field order.
-            trackers = [
-                field.values
-                for state in self.datasets.values()
-                for field in state.fields.values()
-                if field.values is not None
-            ]
             trackers.sort(
                 key=lambda tracker: -len(tracker.table)
                 if tracker.table is not None
@@ -166,6 +192,18 @@ class ScanEngine:
                 "global_budget. Raise limits.max_tracked_values to keep them.",
                 count=budget.released,
             )
+        reduced = _reduced_samples(results)
+        if reduced:
+            self.diagnostics.add(
+                "sample_budget",
+                "warning",
+                f"The samples of {reduced} fields were cut to fit "
+                f"limits.max_sample_memory ({limits.max_sample_memory} bytes): "
+                "their sample is smaller than the size asked for and its KMV "
+                "estimate less precise. Raise limits.max_sample_memory to "
+                "keep them.",
+                count=reduced,
+            )
         records = self.records.budget
         if records.untracked:
             self.diagnostics.add(
@@ -179,19 +217,18 @@ class ScanEngine:
                 count=records.untracked,
             )
         for result in results:
-            limited = [
-                field.display for field in result.fields if has_limited_measure(field)
-            ]
-            if limited:
-                named = ", ".join(limited[:LISTED_LIMITED_FIELDS])
-                if len(limited) > LISTED_LIMITED_FIELDS:
-                    named += f" and {len(limited) - LISTED_LIMITED_FIELDS} more"
-                self.diagnostics.add(
-                    "measures_limited",
-                    "warning",
-                    f"Some measures of {len(limited)} field(s) are limited: "
-                    f"{named}. The status of each measure gives its reason.",
-                    dataset=result.id,
-                    count=len(limited),
-                )
+            for field in result.fields:
+                limited = limited_measures(field)
+                if limited:
+                    self.diagnostics.add(
+                        "measures_limited",
+                        "warning",
+                        f"Some measures of {field.display} are limited: "
+                        f"{', '.join(limited)}. The status of each measure "
+                        "gives its reason.",
+                        dataset=result.id,
+                        field=field.id,
+                        count=len(limited),
+                        details={"measures": limited},
+                    )
         return results

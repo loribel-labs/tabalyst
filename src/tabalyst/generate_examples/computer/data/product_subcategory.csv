@@ -1,0 +1,20 @@
+id,en,fr,product_category_id
+consumer_laptop,Consumer laptop,Ordinateur portable grand public,laptops
+business_laptop,Business laptop,Ordinateur portable professionnel,laptops
+gaming_laptop,Gaming laptop,Ordinateur portable de jeu,laptops
+creator_laptop,Creator laptop,Ordinateur portable pour création,laptops
+mobile_workstation,Mobile workstation,Station de travail mobile,workstations
+convertible_laptop,Convertible laptop,Ordinateur portable convertible,laptops
+detachable_laptop,Detachable laptop,Ordinateur portable détachable,laptops
+consumer_desktop,Consumer desktop,Ordinateur de bureau grand public,desktops
+business_desktop,Business desktop,Ordinateur de bureau professionnel,desktops
+gaming_desktop,Gaming desktop,Ordinateur de bureau de jeu,desktops
+desktop_workstation,Desktop workstation,Station de travail de bureau,workstations
+small_form_factor_pc,Small form factor PC,PC petit format,desktops
+micro_pc,Micro PC,Micro PC,desktops
+mini_pc,Mini PC,Mini PC,mini_pc
+all_in_one_pc,All-in-One PC,PC tout-en-un,all_in_one
+rack_server,Rack server,Serveur en rack,servers
+tower_server,Tower server,Serveur tour,servers
+blade_server,Blade server,Serveur lame,servers
+single_board_computer,Single-board computer,Ordinateur monocarte,single_board_computers

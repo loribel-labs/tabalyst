@@ -11,11 +11,14 @@ from pathlib import Path
 from tabalyst.batch import plan_outputs, validate_outputs
 from tabalyst.config import resolve_config
 from tabalyst.errors import InputError, TabalystError
+from tabalyst.progress import ProgressCallback
 from tabalyst.sampling import (
+    DEFAULT_MAX_STRATA,
     SampleMethod,
     SampleResult,
     default_sample_output,
     sample_csv,
+    stratification_fields,
     validate_sample_options,
 )
 from tabalyst.service import ConfigPath, _config_paths
@@ -55,6 +58,61 @@ class BatchSampleResult:
         return not self.failures
 
 
+def _refuse_excessive_stratification(
+    sources: Sequence[Path],
+    fields: Sequence[str],
+    *,
+    config_path: ConfigPath | None,
+    delimiter: str | None,
+    encoding: str | None,
+) -> None:
+    """Stop a stratified sample whose strata a stored Scan already shows to be
+    excessive (D23, STRAT-07), before the source is read for it.
+
+    Only a current stored Scan is used: none is ever made for this. A product of
+    cardinalities that is a bound proves a risk, not an explosion, so an explicit
+    ``--max-strata`` allows the run (and the runtime cap stays). Raises
+    ``InputError`` naming the advice.
+    """
+    from tabalyst.config import load_config_layers
+    from tabalyst.errors import ConfigurationError
+    from tabalyst.scanner.config import scan_config_from_layer
+    from tabalyst.scanner.planner import Stratify, advise_stratification
+    from tabalyst.scanner.planner.reasons import reason_text
+    from tabalyst.shared_scan_service import stored_scan
+
+    _, layer = load_config_layers(_config_paths(config_path))
+    config = scan_config_from_layer(layer, delimiter=delimiter, encoding=encoding)
+    for source in sources:
+        scan = stored_scan(source, config)
+        if scan is None or len(scan.datasets) != 1:
+            continue
+        try:
+            advice = advise_stratification(scan, Stratify(combinations=(tuple(fields),) if len(fields) > 1 else ()))
+        except ConfigurationError:
+            continue
+        if len(fields) > 1:
+            [combination] = advice.combinations
+            if combination.risk != "excessive":
+                continue
+            strata = f"up to {combination.strata_bound:,}{'+' if combination.saturated else ''}"
+            codes = combination.reasons + combination.suggestions
+        else:
+            column = next((c for c in advice.columns if fields[0] in (c.display, c.field)), None)
+            limit = advice.limits.max_states
+            if column is None or column.strata_basis != "exact" or (column.strata or 0) <= limit:
+                continue
+            strata = f"{column.strata:,}"
+            codes = column.reasons
+        why = "; ".join(reason_text(code) for code in codes)
+        raise InputError(
+            f"{source.name}: stratifying by {', '.join(fields)} makes {strata} strata, "
+            f"more than the {advice.limits.max_states:,} a sample may hold ({why}). "
+            "Nothing was read. Use fewer or less detailed fields, tabalyst sample "
+            "--sample-method smart, or pass --max-strata to run it anyway."
+        )
+
+
 def build_sample_plan(
     input_specs: Sequence[str | Path],
     *,
@@ -90,7 +148,7 @@ def generate_samples(
     method: SampleMethod | str,
     rows: int | None = None,
     percent: float | None = None,
-    field: str | None = None,
+    field: str | Sequence[str] | None = None,
     seed: int | None = None,
     output: str | Path | None = None,
     output_dir: str | Path | None = None,
@@ -98,18 +156,59 @@ def generate_samples(
     encoding: str | None = None,
     config_path: ConfigPath | None = None,
     force: bool = False,
+    max_strata: int | None = None,
+    confirmed: bool = False,
+    html: bool = True,
+    on_progress: ProgressCallback | None = None,
 ) -> BatchSampleResult:
-    """Plan and execute one or more CSV samples."""
+    """Plan and execute one or more CSV samples.
 
+    A smart sample (design 20.16) scans the file first, or reuses its current
+    Scan, and never prompts: it raises ``SelectionConfirmationRequired`` before
+    reading any source again when the batch needs a confirmation and ``confirmed``
+    is false (rule R1). It also writes the web page of its report unless ``html``
+    is false; the other methods ignore ``html``.
+    """
+
+    explicit_limit = max_strata is not None
+    max_strata = DEFAULT_MAX_STRATA if max_strata is None else max_strata
     selected_method = validate_sample_options(
-        method, rows=rows, percent=percent, field=field
+        method, rows=rows, percent=percent, field=field, max_strata=max_strata
     )
+    if selected_method is SampleMethod.SMART:
+        from tabalyst.smart_service import execute_smart_samples, prepare_smart_samples
+
+        preparation = prepare_smart_samples(
+            input_specs,
+            rows=rows,
+            percent=percent,
+            seed=seed,
+            output=output,
+            output_dir=output_dir,
+            delimiter=delimiter,
+            encoding=encoding,
+            config_path=config_path,
+            force=force,
+            html=html,
+            on_progress=on_progress,
+        )
+        return execute_smart_samples(
+            preparation, confirmed=confirmed, on_progress=on_progress
+        )
     config = resolve_config(
         _config_paths(config_path), separator=delimiter, encoding=encoding
     )
     plan = build_sample_plan(
         input_specs, output=output, output_dir=output_dir, force=force
     )
+    if selected_method is SampleMethod.STRATIFIED and not explicit_limit:
+        _refuse_excessive_stratification(
+            [job.source for job in plan.jobs],
+            stratification_fields(field),
+            config_path=config_path,
+            delimiter=delimiter,
+            encoding=encoding,
+        )
     successes: list[SampleSuccess] = []
     failures: list[SampleFailure] = []
     for job in plan.jobs:
@@ -125,6 +224,7 @@ def generate_samples(
                 delimiter=config.csv.delimiter,
                 encoding=config.csv.encoding,
                 force=force,
+                max_strata=max_strata,
             )
         except TabalystError as exc:
             failures.append(SampleFailure(job=job, error=exc))

@@ -117,7 +117,7 @@ def test_report_preserves_recorded_csv_settings_when_reusing(tmp_path, monkeypat
     assert report.exit_code == 0, report.output
     assert scan_path.read_bytes() == first_bytes
     profile = json.loads((tmp_path / "semicolon.json").read_text())
-    assert profile["source"]["delimiter"] == ";"
+    assert profile["source"]["csv"]["delimiter"] == ";"
 
     settings = tmp_path / "config.json"
     settings.write_text(json.dumps({"scan": {"csv": {"delimiter": ";"}}}))

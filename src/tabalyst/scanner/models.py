@@ -22,7 +22,7 @@ T = TypeVar("T")
 
 FORMAT = "tabalyst.scan"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 1
+FORMAT_REVISION = 3
 
 
 class ScanModel(BaseModel):
@@ -37,6 +37,16 @@ class Complete(ScanModel, Generic[T]):
     value: T
 
 
+# ``Any``: a serialized model is a plain dict whose values are JSON data.
+def _omit_none(data: dict[str, Any], names: tuple[str, ...]) -> dict[str, Any]:
+    """Drop the optional members that carry no information (absent is not
+    ``null``: the contract names them only when they are known)."""
+    for name in names:
+        if data.get(name, 0) is None:
+            del data[name]
+    return data
+
+
 class Limited(ScanModel):
     status: Literal["limited"] = "limited"
     reason: str
@@ -45,10 +55,7 @@ class Limited(ScanModel):
 
     @model_serializer(mode="wrap")
     def _omit_unproven_bound(self, handler) -> dict[str, Any]:
-        data = handler(self)
-        if data.get("lower_bound") is None:
-            data.pop("lower_bound", None)
-        return data
+        return _omit_none(handler(self), ("lower_bound",))
 
 
 class NotApplicable(ScanModel):
@@ -75,6 +82,99 @@ def measure(value_type: Any) -> Any:
 
 
 IntMeasure = measure(int)
+
+# Accuracy of a value or of the identity of the values it counts (design 18.1):
+# ``exact``, ``estimated`` by a named method, ``fingerprint_based`` (equality of
+# a digest, not of the whole value) or ``unknown``.
+Accuracy = Literal["exact", "estimated", "fingerprint_based", "partial", "unknown"]
+
+
+class EstimatePart(ScanModel):
+    """One of the two disjoint domains of an estimate that adds up: the values
+    stored in the sample (``values``) and the long texts (``long_texts``),
+    each exact or estimated by KMV (design 18.6)."""
+
+    domain: Literal["values", "long_texts"]
+    accuracy: Literal["exact", "estimated"]
+    value: float
+    relative_standard_error: float
+    k: int | None = None
+    theta_hex: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("k", "theta_hex"))
+
+
+class CardinalityEstimate(ScanModel):
+    """KMV estimate of the distinct original values (design 18.5).
+
+    ``value`` is held within the certain bounds of the envelope;
+    ``unclamped_value`` is the raw estimator, present only when a bound
+    changed it. ``theta_hex`` (the sample threshold) is absent for a sensitive
+    field: it is the priority of one of its values. A field with long texts
+    has two disjoint domains: ``parts`` gives each (the estimate is their sum)
+    and ``k`` and ``theta_hex`` are then those of the parts.
+    """
+
+    accuracy: Literal["estimated"] = "estimated"
+    method: Literal["kmv"]
+    value: float
+    unclamped_value: float | None = None
+    relative_standard_error: float
+    k: int | None = None
+    theta_hex: str | None = None
+    parts: list[EstimatePart] | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(
+            handler(self), ("unclamped_value", "k", "theta_hex", "parts")
+        )
+
+
+class CardinalityComplete(Complete[int]):
+    """Exact distinct count of the original values (design 9.1)."""
+
+    accuracy: Accuracy
+    domain: str
+    identity_accuracy: Accuracy
+
+
+class CardinalityLimited(Limited):
+    """Distinct count that stopped being tracked (design 9.1).
+
+    ``upper_bound`` is the certain maximum (the analyzed values);
+    ``threshold_reached_at_record`` and ``overflow_detected_at_record`` are the
+    records where the table reached its limit T and where T + 1 values were
+    proven, for the reason ``distinct_limit`` only.
+    """
+
+    domain: str
+    identity_accuracy: Accuracy
+    upper_bound: int | None = None
+    threshold_reached_at_record: int | None = None
+    overflow_detected_at_record: int | None = None
+    estimate: CardinalityEstimate | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(
+            handler(self),
+            (
+                "lower_bound",
+                "upper_bound",
+                "threshold_reached_at_record",
+                "overflow_detected_at_record",
+                "estimate",
+            ),
+        )
+
+
+Cardinality = Annotated[
+    CardinalityComplete | CardinalityLimited | NotApplicable | Disabled | Failed,
+    Field(discriminator="status"),
+]
 
 
 # Paths ------------------------------------------------------------------------
@@ -155,14 +255,192 @@ class Frequencies(ScanModel):
     truncated: bool
 
 
+class SampleEntry(ValueCount):
+    """A sampled original value with its exact count (design 18.9).
+
+    ``id`` numbers the entry in the listing of the Scan and stays the same in a
+    Report that keeps a subset of it.
+    """
+
+    id: int
+    count_accuracy: Accuracy
+    identity_accuracy: Accuracy
+
+
+class SampleHash(ScanModel):
+    """Priority function of a bottom-k sample (design 18.3)."""
+
+    algorithm: str
+    version: int
+    bits: int
+    seed: int
+
+
+class LongTextEntry(ScanModel):
+    """A sampled long text: bounded preview, original sizes and digest of the
+    complete content, which is its identity (design 18.6)."""
+
+    id: int
+    digest: str
+    type: ScalarType
+    preview: str
+    truncated: bool
+    original_length_chars: int
+    original_length_bytes: int
+    count: int
+    count_accuracy: Accuracy
+    identity_accuracy: Accuracy
+
+
+class DigestInfo(ScanModel):
+    """Function that gives a long text its digest (design 18.6)."""
+
+    algorithm: str
+    bits: int
+
+
+class LongTexts(ScanModel):
+    """Sample of the values longer than ``limits.max_stored_value_length``.
+
+    ``occurrences`` counts every occurrence of a long value, exactly. ``of``
+    long texts are sampled, ``kept`` listed (exposure can withhold them). Like
+    ``Samples`` it is ``all`` until a text was dropped, then ``bottom_k``; ``k``
+    is the size granted (design 18.10), ``requested_k`` the one asked for when
+    the budget made it smaller.
+    """
+
+    selection: Literal["all", "bottom_k"]
+    k: int
+    requested_k: int | None = None
+    preview_chars: int
+    occurrences: int
+    kept: int
+    of: int
+    digest: DigestInfo
+    hash: SampleHash | None = None
+    threshold: str | None = None
+    listed: list[LongTextEntry]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("requested_k", "hash", "threshold"))
+
+
+class LengthOther(ScanModel):
+    """What the strata by length do not hold: ``lengths`` distinct lengths that
+    are not tracked and the ``occurrences`` counted while they were not
+    (design 18.7). The strata and ``other`` add up to every stored value."""
+
+    lengths: int
+    occurrences: int
+
+
+class LengthStratum(ScanModel):
+    """The values of one length, a bottom-k sample of the originals.
+
+    ``ids`` number entries of ``samples.listed`` or of ``by_length.listed``;
+    ``kept`` of the ``of`` values sampled are listed (exposure withholds them).
+    ``count_accuracy`` is ``exact`` when the length was tracked from its first
+    occurrence; ``partial`` when it was admitted late, and then the counts cover
+    the occurrences from ``tracking_started_at_occurrence`` on (LEN-05).
+    ``selection`` is ``all`` while the stratum dropped no value.
+    """
+
+    length: int
+    selection: Literal["all", "bottom_k"]
+    kept: int
+    of: int
+    occurrences: int
+    count_accuracy: Accuracy
+    tracking_started_at_occurrence: int | None = None
+    threshold: str | None = None
+    ids: list[int]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(
+            handler(self), ("tracking_started_at_occurrence", "threshold")
+        )
+
+
+class ByLength(ScanModel):
+    """Samples by length of the original text (design 18.7), a stratum for each
+    of at most ``max_lengths`` tracked lengths with ``per_length_k`` values each.
+
+    A stratum lists the ``id`` of its values; one that is already in the
+    ``listed`` of ``samples`` is not copied, ``listed`` here holds the others and
+    its ids continue the numbering of the sample. ``limited`` says that some
+    stored values are in no stratum: ``other`` sums them. ``max_lengths`` is the
+    number in force, ``requested_max_lengths`` the one asked for when the memory
+    budget (design 18.10) granted fewer.
+    """
+
+    domain: Literal["original"]
+    unit: Literal["characters"]
+    per_length_k: int
+    max_lengths: int
+    requested_max_lengths: int | None = None
+    reason: str | None = None
+    limited: bool
+    tracked: int
+    strata: list[LengthStratum]
+    other: LengthOther | None = None
+    listed: list[SampleEntry]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("requested_max_lengths", "reason", "other"))
+
+
 class Samples(ScanModel):
-    selection: Literal["all", "uniform_distinct", "first_seen"]
-    listed: list[ValueCount]
+    """Distinct original values with their exact counts (design 18.9).
+
+    ``all`` lists every distinct value, in first-seen order; ``bottom_k`` the
+    ones of smallest priority, in ascending priority, and names ``k``, the
+    ``hash`` and the ``threshold`` (the largest priority kept, as hexadecimal
+    digits; absent while no value was dropped and for a sensitive field).
+
+    ``kept`` values are listed out of the ``of`` the scan sampled: a Scan has
+    ``kept == of`` unless exposure withheld values (``mask`` merges, ``hide``
+    lists none); a Report keeps fewer (design 19.4) and says so here."""
+
+    selection: Literal["all", "bottom_k"]
+    kept: int
+    of: int
+    listed: list[SampleEntry]
+    k: int | None = None
+    # The size asked for, written only when the memory budget granted less
+    # (design 18.10); ``reason`` is then ``memory_budget``.
+    requested_k: int | None = None
+    reason: str | None = None
+    hash: SampleHash | None = None
+    threshold: str | None = None
+    # The values longer than ``limits.max_stored_value_length``, absent when
+    # the field has none (design 18.6).
+    long_texts: LongTexts | None = None
+    # Samples by length of the stored values, only for a ``bottom_k`` sample
+    # (an ``all`` sample lists every value) and when they are turned on.
+    by_length: ByLength | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_bottom_k(self, handler) -> dict[str, Any]:
+        return _omit_none(
+            handler(self),
+            (
+                "k",
+                "requested_k",
+                "reason",
+                "hash",
+                "threshold",
+                "long_texts",
+                "by_length",
+            ),
+        )
 
 
 class FieldValues(ScanModel):
     count: int
-    cardinality: IntMeasure
+    cardinality: Cardinality
     frequencies: measure(Frequencies)
     samples: Samples
     first: ValueAt | None
@@ -198,6 +476,14 @@ class StringLengths(ScanModel):
 Number = int | float
 
 
+class NumericCoverage(ScanModel):
+    """The values of the field that the numeric block describes: ``count`` of
+    the block out of ``of``, the analyzable values (``values.count``)."""
+
+    of: int
+    share: float
+
+
 class NumericStats(ScanModel):
     count: int
     native_count: int
@@ -213,6 +499,7 @@ class NumericStats(ScanModel):
     zero: int
     integral_decimals: int
     median: measure(Number)
+    coverage: NumericCoverage
 
 
 class BooleanCounts(ScanModel):
@@ -227,12 +514,26 @@ StageName = Literal[
 
 class NormalizationStage(ScanModel):
     """``changed`` and ``cardinality`` are ``null`` for a disabled stage and
-    ``changed`` for ``raw``."""
+    ``changed`` for ``raw``.
+
+    ``equals`` names the stage whose output this one received (the previous
+    enabled stage, or ``raw``) when ``changed`` is 0: no occurrence was
+    modified, so the distinct values are the same and so is ``cardinality``,
+    complete or limited (design 10). A limited stage that changed something
+    has no ``equals``: its count is not derived from the raw table (D13).
+    ``cardinality`` of a limited stage never carries the estimate or the upper
+    bound of ``values.cardinality``, which is where to read them.
+    """
 
     stage: StageName
     enabled: bool
     changed: int | None
     cardinality: IntMeasure | None
+    equals: StageName | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_equals(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("equals",))
 
 
 class Variant(ScanModel):
@@ -456,19 +757,119 @@ class DuplicateRecords(ScanModel):
     records: list[int]
 
 
-class PreviewRecord(ScanModel):
+RowOrigin = Literal["start", "middle", "end"]
+
+
+class SampleRow(ScanModel):
+    """A row of the row sample: its position in the dataset (the record index),
+    the groups it belongs to and the cells of the projected fields.
+
+    ``values`` holds the canonical text per field id, through its exposure: a
+    list when the path repeats, ``null`` for a JSON null or a hidden cell, no
+    key for a field absent from the record. ``truncated`` lists the
+    fields whose cell was cut at ``cell_chars`` (design 18.11).
+    """
+
     record: int
-    # Values per field id, as canonical text, through the field's exposure.
-    # A JSON null is null; a cell holding a hidden value is null; a field
-    # absent from the record has no key.
+    origins: list[RowOrigin]
     values: dict[str, list[str | None] | None]
+    truncated: list[str] = Field(default_factory=list)
+
+    @model_serializer(mode="wrap")
+    def _omit_untruncated(self, handler) -> dict[str, Any]:
+        data = handler(self)
+        if not data.get("truncated"):
+            data.pop("truncated", None)
+        return data
+
+
+class RowSizes(ScanModel):
+    """Sizes asked for: ``rows`` in all, ``edge`` first and ``edge`` last rows,
+    and ``middle`` = ``rows`` - 2 * ``edge`` rows of the interior."""
+
+    rows: int
+    edge: int
+    middle: int
+
+
+class RowPopulation(ScanModel):
+    """The records read (``records``) and the ones the middle is drawn from:
+    positions ``edge`` + 1 to ``records`` - ``edge``, ``interior`` of them
+    (``scope`` names it, ROW-07)."""
+
+    records: int
+    interior: int
+    scope: Literal["interior_rows"]
+
+
+class RowSample(ScanModel):
+    """Common row sample of a dataset: first rows, a bottom-k of the interior
+    and last rows, the same cells for every projected field (design 18.11).
+
+    ``middle_k`` is the size of the middle in force, below ``requested.middle``
+    when the byte budget cut it (``reason`` is then ``memory_budget``, which
+    also covers start or end rows left out). ``complete`` says that every record
+    read is a row. ``threshold`` (16 hexadecimal digits) is the largest priority
+    kept in the middle, written once a middle row was dropped. ``fields`` are
+    the projected field ids; ``fields_limited`` says that untracked paths are not
+    projected. ``bytes`` is the modelled size of the rows kept, ``max_bytes`` the
+    budget of the scan. ``kept`` rows are listed out of the ``of`` sampled: a
+    Report keeps the header and no row (``kept`` 0).
+    """
+
+    selection: Literal["start_middle_end"]
+    hash: SampleHash
+    requested: RowSizes
+    middle_k: int
+    reason: str | None = None
+    population: RowPopulation
+    complete: bool
+    threshold: str | None = None
+    fields: list[str]
+    fields_limited: bool
+    cell_chars: int
+    truncated_cells: int
+    bytes: int
+    max_bytes: int
+    kept: int
+    of: int
+    rows: list[SampleRow]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("reason", "threshold"))
+
+    def interior(self) -> list[SampleRow]:
+        """The rows drawn from the interior, with the scope they speak for: the
+        only rows an exploration may treat as a sample (ROW-07)."""
+        return [row for row in self.rows if row.origins == ["middle"]]
+
+    def covers(self, field_ids: list[str]) -> bool:
+        """Whether every named field is projected and none of its cells was cut
+        or withheld: the rows can serve a relation between them (ROW-11). A
+        sample that lists no row, or fewer than it sampled (a Report), serves
+        none."""
+        if not self.rows or self.kept != self.of:
+            return False
+        if not set(field_ids) <= set(self.fields):
+            return False
+        return not any(
+            field in row.truncated or (field in row.values and row.values[field] is None)
+            for row in self.rows
+            for field in field_ids
+        )
 
 
 class Records(ScanModel):
     with_missing: RecordList
     empty: RecordList
     duplicates: DuplicateRecords
-    preview: list[PreviewRecord]
+    # Absent when ``records.sample.rows`` is 0.
+    sample: RowSample | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_sample(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("sample",))
 
 
 class DatasetResult(ScanModel):
@@ -490,6 +891,8 @@ class Diagnostic(ScanModel):
     dataset: str | None
     field: str | None
     detector: str | None
+    # Facts of the event, by code (for example the limited measures of a field).
+    details: dict[str, Any]
     locations: list[dict[str, int]]
 
 
@@ -501,7 +904,12 @@ class EngineInfo(ScanModel):
 
 class CsvSourceInfo(ScanModel):
     delimiter: str
+    quote: str
     header: list[str]
+    # Whether the file starts with a UTF-8 byte order mark.
+    bom: bool
+    # "lf", "crlf", "cr", "mixed", or null when the file has no line break.
+    line_ending: Literal["lf", "crlf", "cr", "mixed"] | None
 
 
 class ExcelSourceInfo(ScanModel):
@@ -516,6 +924,31 @@ class ExcelSourceInfo(ScanModel):
     header: list[str]
 
 
+class SourceShape(ScanModel):
+    """Global size of the source, whatever the dataset."""
+
+    # Physical lines of a CSV file (header and multi-line cells included);
+    # null for the other formats.
+    lines: int | None
+    # Analyzed records, all datasets together.
+    records: int
+    # Columns of a tabular source (CSV or Excel); null for JSON and JSONL.
+    columns: int | None
+    # Fields discovered, all datasets together.
+    fields: int
+    datasets: int
+    # Analyzed records times columns; null when the source is not tabular.
+    cells: int | None
+    # Cells with a missing value, all fields together (see ``values.missing``).
+    missing_cells: int
+    # Records with at least one missing value, empty records and records
+    # equal to an earlier one (null when the count is limited or disabled),
+    # all datasets together.
+    records_with_missing: int
+    empty_records: int
+    duplicate_records: int | None
+
+
 class SourceInfo(ScanModel):
     format: Literal["csv", "json", "jsonl", "excel"]
     name: str
@@ -523,6 +956,7 @@ class SourceInfo(ScanModel):
     modified_at: datetime
     sha256: str
     encoding: str | None
+    shape: SourceShape
     csv: CsvSourceInfo | None
     excel: ExcelSourceInfo | None = None
 
@@ -548,17 +982,412 @@ class Scope(ScanModel):
     exclusions: dict[str, int]
 
 
+class Timings(ScanModel):
+    """Where ``RunInfo.duration_seconds`` went; the five parts add up to it."""
+
+    # Reading and parsing the source, hashing included.
+    reading: float
+    # Analysis of the values, record callbacks included. With several workers,
+    # the time the main process spends on it, waiting for workers included.
+    analysis: float
+    # Final computation of the datasets.
+    finalize: float
+    # Analyses derived from the samples and the observations (design 18.12, 18.13).
+    derived: float
+    # Setup (workers, detectors) and the assembly of the result.
+    other: float
+
+
+class SamplingCounters(ScanModel):
+    """Work of the bottom-k samplers over all fields (design 18.4). Counters
+    that the scan could not measure are not written; a count of 0 is a
+    measured zero."""
+
+    # Priorities computed, keys that entered a sample, occurrences of keys it
+    # already held, keys computed and rejected, and keys that left it.
+    hashed_keys: int
+    hit_keys: int
+    admitted_keys: int
+    rejected_keys: int
+    evicted_keys: int
+    # Long texts hashed in full, and their size in UTF-8 bytes.
+    long_texts_hashed: int
+    long_bytes_hashed: int
+    bottom_k_fields: int
+    # Fields whose sample was smaller than asked for (memory budget).
+    reduced_fields: int
+    # Fields that have samples by length, and those among them with values
+    # in no stratum.
+    strata_fields: int
+    strata_limited_fields: int
+    # Sizes K of the bottom-k samples, among the fields that have one.
+    k_effective_min: int | None = None
+    k_effective_max: int | None = None
+    # Bytes of the cost model reserved for the samples, the long texts and the
+    # samples by length.
+    sample_model_bytes: int
+    long_model_bytes: int
+    length_model_bytes: int
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("k_effective_min", "k_effective_max"))
+
+
+class RunCounters(ScanModel):
+    """Optional diagnostic counters of a run (``scan(counters=True)``)."""
+
+    sampling: SamplingCounters
+
+
+class RunInfo(ScanModel):
+    """What varies from one run to the next on the same source: it is not part
+    of the description of the data."""
+
+    started_at: datetime
+    duration_seconds: float
+    timings: Timings
+    # Processes that analyzed values: 1 when the scan ran in the main process.
+    workers: int
+    # Peak memory of the main process (workers excluded) when the scan ended,
+    # in bytes; null when the platform does not report it. It covers the whole
+    # process, so it includes earlier work in the same process.
+    peak_memory_bytes: int | None
+    # Diagnostic counters, written only when asked for.
+    counters: RunCounters | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_counters(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("counters",))
+
+
+# Derived analyses -------------------------------------------------------------
+# Computed after the scan from its samples, never from the source (design 18.12).
+
+PatternTokenKind = Literal[
+    "digit_ascii",
+    "upper_ascii",
+    "lower_ascii",
+    "letter_unicode",
+    "alphanumeric",
+    "literal",
+]
+
+
+class PatternToken(ScanModel):
+    """One token of a pattern signature (design 18.12): a class of characters
+    repeated ``min`` to ``max`` times (characters), or a ``literal`` text
+    repeated ``min`` to ``max`` times."""
+
+    kind: PatternTokenKind
+    text: str | None = None
+    min: int
+    max: int
+
+    @model_serializer(mode="wrap")
+    def _omit_text(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("text",))
+
+
+class PatternLengths(ScanModel):
+    min: int
+    max: int
+
+
+class PatternCoverage(ScanModel):
+    """Distinct values of the inference population that the candidate takes.
+    ``basis`` is ``all_distinct`` when the population is every distinct stored
+    value of the field, ``sample`` when it is a sample: a discovery indicator,
+    never a frequency of the file (specification 10.1)."""
+
+    distinct: int
+    share: float
+    basis: Literal["all_distinct", "sample"]
+
+
+class PatternConfidence(ScanModel):
+    """Heuristic confidence, not a calibrated probability: the share of the
+    candidate damped by its support, ``share * n / (n + 1)``."""
+
+    method: Literal["laplace_share"]
+    value: float
+
+
+class PatternCandidate(ScanModel):
+    """A structural pattern found in the samples of a field (PAT-06).
+
+    ``examples`` are ids of entries of the field's samples. ``generalization``
+    is 0 for the structures as read, 1 when adjacent letters were merged and 2
+    when letters and digits were; ``merged_structures`` counts the structures
+    the candidate stands for."""
+
+    id: str
+    role: Literal["principal", "secondary"]
+    signature: list[PatternToken]
+    render: str
+    lengths: PatternLengths
+    generalization: int
+    merged_structures: int
+    coverage: PatternCoverage
+    confidence: PatternConfidence
+    examples: list[int]
+
+
+class PatternOther(ScanModel):
+    """The values no candidate takes, with the number of structures they have."""
+
+    distinct: int
+    share: float
+    structures: int
+
+
+class PatternOverlap(ScanModel):
+    """Distinct values that match every pattern of ``patterns`` (PAT-08)."""
+
+    patterns: list[str]
+    values: int
+
+
+class PatternExcluded(ScanModel):
+    """What did not take part in the inference. ``long_text_occurrences`` counts
+    occurrences of values too long to be stored (their previews never serve:
+    LONG-05); the others count distinct sampled values."""
+
+    long_text_occurrences: int
+    non_string_values: int
+    empty_values: int
+    too_long_values: int
+    too_complex_values: int
+
+
+class PatternPopulation(ScanModel):
+    """The values the inference read. ``distinct`` took part out of
+    ``available`` usable values (a cap on the population may leave some out)."""
+
+    source: Literal["samples"]
+    selection: Literal["all", "bottom_k"]
+    complete: bool
+    available: int
+    distinct: int
+    excluded: PatternExcluded
+
+
+class FieldPatternsComplete(ScanModel):
+    dataset: str
+    field: str
+    status: Literal["complete"] = "complete"
+    population: PatternPopulation
+    candidates: list[PatternCandidate]
+    other: PatternOther
+    overlaps: list[PatternOverlap]
+    limits: list[Literal["max_patterns", "max_values"]]
+
+
+class FieldPatternsNotApplicable(ScanModel):
+    dataset: str
+    field: str
+    status: Literal["not_applicable"] = "not_applicable"
+    reason: str
+
+
+class FieldPatternsFailed(ScanModel):
+    """The inference raised on this field: the other fields and analyses are
+    unaffected and ``diagnostic`` points to the ``pattern_inference_failed``
+    error (the exception type only: its message could quote a value)."""
+
+    dataset: str
+    field: str
+    status: Literal["failed"] = "failed"
+    reason: Literal["inference_error"] = "inference_error"
+    diagnostic: int
+
+
+FieldPatterns = Annotated[
+    FieldPatternsComplete | FieldPatternsNotApplicable | FieldPatternsFailed,
+    Field(discriminator="status"),
+]
+
+
+class PatternGrammar(ScanModel):
+    """The versioned grammar and generalization rules (PAT-04)."""
+
+    name: str
+    version: int
+
+
+class DerivedPatterns(ScanModel):
+    """Structural patterns inferred from the samples, one entry per field
+    (design 18.12). They are distinct from the configured ``pattern:<id>``
+    detectors."""
+
+    grammar: PatternGrammar
+    domain: Literal["original"]
+    fields: list[FieldPatterns]
+
+
+class Derived(ScanModel):
+    """Analyses computed after the scan from its samples (specification 5.2)."""
+
+    patterns: DerivedPatterns | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_absent(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("patterns",))
+
+
+# Observations, quality issues and limits -------------------------------------
+
+ObservationStatus = Literal["informational", "candidate_anomaly", "confirmed_issue"]
+ObservationCategory = Literal[
+    "presence", "records", "types", "dates", "normalization", "names", "values", "patterns"
+]
+# What ``count`` counts, out of ``of`` when the population has a known size.
+ObservationPopulation = Literal[
+    "value_slots",
+    "content_strings",
+    "occurrences",
+    "records",
+    "distinct_values",
+    "groups",
+    "columns",
+]
+ObservationAccuracy = Literal["exact", "lower_bound", "sample"]
+
+
+def _omit_empty(data: dict[str, Any], names: tuple[str, ...]) -> dict[str, Any]:
+    """Drop the optional members that are ``None`` or an empty list."""
+    for name in names:
+        if name in data and data[name] in (None, []):
+            del data[name]
+    return data
+
+
+class Observation(ScanModel):
+    """A finding about the data (QUAL-02), computed from the facts of the scan
+    by the versioned ``rule`` and never from values.
+
+    ``status`` says how much to trust it: ``informational`` is a remark that
+    may be perfectly valid, ``candidate_anomaly`` a signal that a rule cannot
+    confirm, ``confirmed_issue`` a defect by the structure of the source.
+    ``dataset`` and ``field`` locate it (both absent for the whole scan);
+    ``records`` lists the first record indices, ``patterns`` the inferred
+    patterns, ``diagnostics`` the diagnostics and ``limited_by`` the limits
+    that stop its count from being exact.
+    """
+
+    id: str
+    rule: str
+    category: ObservationCategory
+    status: ObservationStatus
+    dataset: str | None = None
+    field: str | None = None
+    population: ObservationPopulation
+    count: int
+    of: int | None = None
+    accuracy: ObservationAccuracy
+    records: list[int] = Field(default_factory=list)
+    patterns: list[str] = Field(default_factory=list)
+    diagnostics: list[int] = Field(default_factory=list)
+    limited_by: list[str] = Field(default_factory=list)
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_empty(
+            handler(self),
+            (
+                "dataset",
+                "field",
+                "of",
+                "records",
+                "patterns",
+                "diagnostics",
+                "limited_by",
+            ),
+        )
+
+
+class Limit(ScanModel):
+    """What the scan could not establish (QUAL-04): a measure stopped by a
+    limit, a sample that was cut or withheld, a structure that was truncated.
+    A limit is never a defect of the data. ``measure`` is the location in the
+    dataset or field; ``diagnostic`` points to the error of a failed analysis.
+    """
+
+    id: str
+    dataset: str | None = None
+    field: str | None = None
+    measure: str
+    reason: str
+    limit: int | None = None
+    lower_bound: int | None = None
+    diagnostic: int | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_empty(
+            handler(self),
+            ("dataset", "field", "limit", "lower_bound", "diagnostic"),
+        )
+
+
+class QualitySummary(ScanModel):
+    """What was found, whole scan (``dataset`` absent) or one dataset, counted
+    before ``scan.observations.max_items`` cuts the lists. ``has_observations``
+    is any observation, ``has_quality_issues`` a candidate anomaly or a
+    confirmed issue, ``has_limits`` any limit; they stand for the counts."""
+
+    dataset: str | None = None
+    informational: int
+    candidate_anomalies: int
+    confirmed_issues: int
+    limits: int
+    has_observations: bool
+    has_quality_issues: bool
+    has_limits: bool
+
+    @model_serializer(mode="wrap")
+    def _omit_dataset(self, handler) -> dict[str, Any]:
+        return _omit_empty(handler(self), ("dataset",))
+
+
+class Observations(ScanModel):
+    """Findings of the scan on the data and on itself (design 18.13), derived
+    from the facts and from ``derived``, without reading the source.
+
+    ``items`` hold the confirmed issues first, then the candidate anomalies,
+    then the informational remarks; ``limits`` are apart. At most
+    ``scan.observations.max_items`` of each are listed and ``truncated`` says
+    that the summaries count more.
+    """
+
+    version: int
+    truncated: bool
+    summary: QualitySummary
+    datasets: list[QualitySummary]
+    items: list[Observation]
+    limits: list[Limit]
+
+
 class ScanResult(ScanModel):
     format: Literal["tabalyst.scan"] = FORMAT
     format_version: Literal["0.2.0"] = FORMAT_VERSION
     format_revision: int = FORMAT_REVISION
     engine: EngineInfo
     status: Literal["complete", "partial"]
-    started_at: datetime
-    duration_seconds: float
+    run: RunInfo
     source: SourceInfo
     config: ScanConfig
     config_sha256: str
     scope: Scope
     datasets: list[DatasetResult]
     diagnostics: list[Diagnostic]
+    # Analyses computed from the samples; absent when none was (design 18.12).
+    derived: Derived | None = None
+    # Findings, quality issues and limits; absent when
+    # ``scan.observations.enabled`` is false, or when their computation failed
+    # (the ``observations_failed`` diagnostic, design 18.13).
+    observations: Observations | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_derived(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("derived", "observations"))

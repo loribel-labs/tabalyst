@@ -225,12 +225,25 @@ tabalyst sample customers.csv --sample-method first --rows 100 -o test.csv
 tabalyst sample *.csv --sample-method random --percent 5 -d samples/
 ```
 
-Available methods are `first`, `last`, `random` and `stratified`. Stratified
-sampling approximately preserves the distribution of a selected field:
+Available methods are `first`, `last`, `random`, `stratified` and `smart`.
+Stratified sampling approximately preserves the distribution of a selected field:
 
 ```console
 tabalyst sample customers.csv --sample-method stratified --field province --rows 1000 --seed 42
 ```
+
+A smart sample is built to keep the diversity of the file instead of its
+proportions: every value of a column that has few values, the extremes, each
+pattern and format of date, and the cases the scan found odd. It writes the
+sample, a JSON report and a web page that say what the sample covers and what it
+does not:
+
+```console
+tabalyst sample customers.csv --sample-method smart --rows 1000
+```
+
+Its proportions are not those of the file, so never estimate the population from
+it. See [Tabalyst Sample](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/sample/index.md).
 
 Sampling reads CSV records as a stream. Random and stratified sampling keep
 only the requested sample, plus stratum counts, in memory. Existing outputs
@@ -238,25 +251,31 @@ require `--force`, and an input file is never overwritten.
 
 ## Tabalyst Generate
 
-Generate synthetic CSV data from a versioned YAML definition. The packaged
-`crm` example writes one contacts file; `insurance`
-writes three branch files and a combined file:
+Tabalyst 0.7.0 generates synthetic CSV data from a Generate package or a
+packaged example. The packaged `crm` example writes one contacts file;
+`insurance` writes three branch files and a combined file; `computer` writes
+English and French files of the same computer offers:
 
 ```console
 tabalyst generate --example crm -o crm-contacts.csv
 tabalyst generate --example insurance --rows 3000 -d insurance-output/
 tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d insurance-dirty/
+tabalyst generate --example computer --rows 10000 -d computer-output/
 ```
 
-You can pass `examples/generate/input/crm.yaml` or
-`examples/generate/input/insurance.yaml` instead of `--example`. A selected anomaly
-profile writes an altered CSV, a cell change log and a summary beside the
-untouched clean CSV. Insurance's profile changes only the combined file.
-`--rows 3000` apportions 2,182, 273 and 545 rows to the three branches.
-Existing outputs require `--force`.
+The package format replaces the `definition_version: 1` YAML files of 0.6.2,
+which are no longer read. A selected anomaly profile writes an altered CSV, a
+cell change log and a summary beside the untouched clean CSV. Insurance's
+profile changes only the combined file. `--rows 3000` apportions 2,182, 273 and
+545 rows to the three branches. Existing outputs require `--force`.
 
-Run `python examples/generate/generate_examples.py` to generate every YAML
-from `examples/generate/input/` into ignored local output folders.
+Run `python examples/generate/generate_examples.py` in the development checkout
+to generate the four column packages into ignored local output folders. The
+Computer package has 40, 70 and 111-column profiles and synchronized EN/FR
+CSVs. See [`examples/generate/README.md`](examples/generate/README.md) for
+commands and
+[`docs/dev/generate/computer.md`](docs/dev/generate/computer.md) for the
+package contract.
 
 Insurance preserves the 33 source columns and the combined `filiale` column of
 the existing public demo, but its generated rows are different. The branch date
@@ -336,6 +355,27 @@ addresses, are masked by default. Results are written atomically: an
 interrupted scan never leaves a partial file. Files of 16 MiB or more are
 analyzed by several worker processes, with the same result; `--workers`
 chooses their number, `--workers 1` keeps one process.
+
+An explicit `tabalyst scan` also writes `customers.scan.html`, a page that shows
+the scan (`--no-html` skips it). A scan reads the file once, so a column with
+many distinct values can end up limited or estimated. Ask what a second reading
+would add, and what it would cost, without running it, then run it for exact
+distinct counts, frequencies, histograms, medians, patterns, dates, correlations
+and tables of a category against a feature:
+
+```console
+tabalyst scan customers.csv --plan
+tabalyst scan customers.csv --deep
+```
+
+`tabalyst report` decides by itself whether that second reading is worth its
+cost, and says what it added. A forced second reading whose estimate is large
+asks for confirmation first (`--yes` skips the question; outside a terminal it
+is required). `--plan --stratify` adds advice on stratified sampling, and
+`--plan --smart` the plan of a smart sample. See
+[Simple, Clear and Smart](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/get-started/simple-clear-smart.md)
+and how to
+[read exact, estimated and limited results](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/reading-results.md).
 
 `tabalyst report customers.csv` reuses the verified stored scan when the
 source content and requested scan settings are current, and so does a report on

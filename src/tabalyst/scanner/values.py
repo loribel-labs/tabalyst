@@ -21,13 +21,16 @@ so a detector that adaptive detection skips costs nothing per value.
 from __future__ import annotations
 
 import heapq
-import random
 import zlib
 from collections import Counter
+from collections.abc import Sequence
 from decimal import Decimal
 from functools import reduce
 from itertools import islice
 from operator import or_
+from typing import Any
+
+from pydantic import BaseModel
 
 from tabalyst.scanner.config import ScanConfig, exact_share
 from tabalyst.scanner.detectors.registry import (
@@ -37,8 +40,12 @@ from tabalyst.scanner.detectors.registry import (
 )
 from tabalyst.scanner.exposure import SHOW, ExposureGate
 from tabalyst.scanner.measures import ValueMeasures, canonical_text
+from tabalyst.scanner.memory import SampleBudget, SamplingTotals
 from tabalyst.scanner.models import (
     BooleanCounts,
+    CardinalityComplete,
+    CardinalityEstimate,
+    CardinalityLimited,
     Complete,
     Disabled,
     Frequencies,
@@ -47,6 +54,7 @@ from tabalyst.scanner.models import (
     NormalizationStage,
     NotApplicable,
     Samples,
+    StageName,
     ValueAt,
     ValueCount,
     Variant,
@@ -55,10 +63,19 @@ from tabalyst.scanner.models import (
 )
 from tabalyst.scanner.normalization import KEY_STAGE, STAGES, VERSION, Normalizer
 from tabalyst.scanner.technical import technical_type
+from tabalyst.scanner.valuesample import ValueSample
 
 # Distinct values a streamed field gathers before processing them: the batch
 # is also its memoization, so memory stays bounded.
 BATCH_SIZE = 4_096
+# Characters of the streamed values a field gathers before processing them: a
+# batch of long texts is bounded by size as well as by count (design 13, 18.10).
+PENDING_CHARS = 8_388_608
+# Values shorter than this never weigh on the pending batch (nor are long).
+HEAVY_LENGTH = 256
+# Domain of the distinct counts of the table: raw values, decoded and before any
+# normalization stage (design 21).
+ORIGINAL_DOMAIN = "original"
 _TYPE_ORDER = {"string": 0, "integer": 1, "number": 2, "boolean": 3}
 _NO_VALUES = NotApplicable(reason="no_values")
 _WITHHELD = Disabled()
@@ -83,8 +100,11 @@ class ValueContext:
         "budget",
         "detectors",
         "discovered",
+        "length_k",
         "max_distinct",
+        "max_length_strata",
         "max_listed",
+        "max_long_samples",
         "max_samples",
         "max_stored_length",
         "max_variant_groups",
@@ -92,6 +112,9 @@ class ValueContext:
         "minimum_confidence",
         "normalizer",
         "pool",
+        "preview_chars",
+        "samples",
+        "sampling",
         "seed",
     )
 
@@ -104,6 +127,18 @@ class ValueContext:
         self.max_stored_length = limits.max_stored_value_length
         self.max_listed = limits.max_listed_frequencies
         self.max_samples = limits.max_samples
+        self.max_long_samples = limits.max_long_samples
+        # Samples by length (design 18.7): values per length, lengths per field.
+        self.length_k = limits.max_samples_per_length
+        self.max_length_strata = limits.max_length_strata
+        # A preview never needs to be longer than a stored value.
+        self.preview_chars = min(
+            limits.long_preview_chars, limits.max_stored_value_length
+        )
+        # Memory budget of the samples, spent in the scan process only.
+        self.samples = SampleBudget(limits.max_sample_memory)
+        # What the samplers did, summed over the fields (``scan(counters=)``).
+        self.sampling = SamplingTotals()
         self.max_variant_groups = limits.max_variant_groups
         self.max_variants = limits.max_variants_per_group
         self.seed = config.random_seed
@@ -159,9 +194,15 @@ class ValueTracker:
         "last_record",
         "last_type",
         "last_value",
+        "long_granted",
+        "long_seen",
+        "overflow",
         "pending",
+        "pending_chars",
         "processor",
+        "reached",
         "remote",
+        "sample_grant",
         "scalars",
         "sequence",
         "table",
@@ -173,6 +214,14 @@ class ValueTracker:
         self.table: Counter[Key] | None = Counter()
         # Distinct values of a streamed field waiting to be processed.
         self.pending: Counter[Key] = Counter()
+        # Characters of the heavy values among them, and whether a long value
+        # (above ``max_stored_value_length``) was met and its sample granted.
+        self.pending_chars = 0
+        self.long_seen = False
+        self.long_granted = False
+        # Sizes granted for a complete table (``reserve``): its sample and the
+        # lengths its samples by length may track.
+        self.sample_grant: tuple[int, int] | None = None
         # Distinct values stored in the table, which enter the budget.
         self.distinct = 0
         self.first: tuple[str, object, int] | None = None
@@ -182,6 +231,10 @@ class ValueTracker:
         self.true = 0
         self.false = 0
         self.sequence = sequence
+        # Records where the table reached ``max_distinct_per_field`` distinct
+        # values, and where one more was proven (design 9.1).
+        self.reached: int | None = None
+        self.overflow: int | None = None
         # Whether a value other than a string was seen.
         self.scalars = False
         # Strings of columns that are not values (``add_column``), by category.
@@ -229,8 +282,12 @@ class ValueTracker:
         budget = context.budget
         budget.tracked += 1
         if self.distinct > context.max_distinct:
-            self.release("distinct_limit", context.max_distinct, self.distinct)
+            self.release(
+                "distinct_limit", context.max_distinct, self.distinct, record
+            )
         else:
+            if self.distinct == context.max_distinct:
+                self.reached = record
             budget.enforce()
 
     def add_column(self, values, start: int, strings) -> tuple[int, int, int]:
@@ -269,7 +326,9 @@ class ValueTracker:
                         found[_CATEGORIES.index(category)] += target.pop(key)
                 fresh = content
             if table is not None and fresh:
-                self._admit(fresh)
+                self._admit(fresh, values, start)
+            elif fresh:
+                self._weigh(fresh)
         category = strings.category
         if self.first is None:
             for offset, value in enumerate(values):
@@ -283,22 +342,29 @@ class ValueTracker:
                 self.last_value = value
                 self.last_record = start + offset
                 break
-        if self.table is None and len(self.pending) >= BATCH_SIZE:
+        if self.table is None and (
+            len(self.pending) >= BATCH_SIZE or self.pending_chars >= PENDING_CHARS
+        ):
             self.flush()
         return found[0], found[1], found[2]
 
-    def _admit(self, fresh: list[str]) -> None:
+    def _admit(self, fresh: list[str], values: Sequence[str], start: int) -> None:
         """New distinct strings counted into the complete table, in first-seen
         order: the first one too long or beyond ``max_distinct_per_field``
-        releases the table, as if the strings had been added one by one."""
+        releases the table, as if the strings had been added one by one.
+
+        ``values`` are the strings of the records from ``start``; the record of
+        a string is only looked up when the table reaches its limit or
+        overflows, once per field."""
         context = self.context
         longest = context.max_stored_length
-        if (
-            max(map(len, fresh)) <= longest
-            and self.distinct + len(fresh) <= context.max_distinct
-        ):
+        limit = context.max_distinct
+        if max(map(len, fresh)) <= longest and self.distinct + len(fresh) <= limit:
+            before = self.distinct
             self.distinct += len(fresh)
             context.budget.tracked += len(fresh)
+            if before < limit == self.distinct:
+                self.reached = start + values.index(fresh[limit - before - 1])
             return
         for key in fresh:
             if len(key) > longest:
@@ -306,12 +372,20 @@ class ValueTracker:
                 return
             self.distinct += 1
             context.budget.tracked += 1
-            if self.distinct > context.max_distinct:
-                self.release("distinct_limit", context.max_distinct, self.distinct)
+            if self.distinct == limit:
+                self.reached = start + values.index(key)
+            elif self.distinct > limit:
+                self.release(
+                    "distinct_limit", limit, self.distinct, start + values.index(key)
+                )
                 return
 
-    def release(self, reason: str, limit: int, lower_bound: int) -> None:
+    def release(
+        self, reason: str, limit: int, lower_bound: int, record: int | None = None
+    ) -> None:
         """Process the stored values with their counts, then stream.
+
+        ``record`` is where the limit was proven, for ``distinct_limit``.
 
         The table may already hold values counted after the one that released
         it (``add_column``): processing them now, with their counts, gives the
@@ -319,16 +393,105 @@ class ValueTracker:
         """
         table = self.table
         budget = self.context.budget
+        if reason == "distinct_limit":
+            self.overflow = record
         budget.tracked -= self.distinct
         del budget.live[self.sequence]
         self.table = None
         limited = Limited(reason=reason, limit=limit, lower_bound=lower_bound)
         keys, counts = list(table), list(table.values())
+        grants = self._grants(keys)
         pool = self.context.pool
         if pool is not None:
-            self.remote = pool.release(self.sequence, keys, counts, limited, self.scalars)
+            self.remote = pool.release(
+                self.sequence, keys, counts, limited, self.scalars, grants
+            )
         else:
-            self._local().release(keys, counts, limited, self.scalars)
+            self._local().release(keys, counts, limited, self.scalars, grants)
+
+    def _lengths(self, keys: list[Key]) -> list[int]:
+        """Characters of the canonical text of each key."""
+        if not self.scalars:
+            return list(map(len, keys))
+        return [_stored_length(key) for key in keys]
+
+    def _mean_stored(self, lengths: list[int]) -> float:
+        """Mean characters of the values a sample stores (the long ones are
+        not stored)."""
+        longest = self.context.max_stored_length
+        stored = [length for length in lengths if length <= longest]
+        return sum(stored) / len(stored) if stored else 0.0
+
+    def _grants(self, keys: list[Key]) -> tuple[int, int, int]:
+        """The sizes the memory budget grants to the sample of a released table,
+        when a long value is in it to its long texts, and the lengths its
+        samples by length may track (design 18.10).
+
+        The scan process spends the budget in the order the source is read, so
+        the sizes do not depend on the workers.
+        """
+        context = self.context
+        lengths = self._lengths(keys)
+        mean = self._mean_stored(lengths)
+        sample_k = context.samples.grant_sample(
+            context.max_samples, None, mean, context.discovered
+        )
+        strata = self._strata_grant(None, mean)
+        if max(lengths, default=0) > context.max_stored_length:
+            self.long_seen = True
+        return sample_k, self._long_grant(), strata
+
+    def _strata_grant(self, entries: int | None, mean_chars: float) -> int:
+        """The lengths the samples by length of the field may track."""
+        context = self.context
+        if not context.length_k or not context.max_length_strata:
+            return 0
+        return context.samples.grant_strata(
+            context.max_length_strata,
+            context.length_k,
+            entries,
+            mean_chars,
+            context.discovered,
+        )
+
+    def _long_grant(self) -> int:
+        """The size granted to the long texts of the field, once, when the first
+        long value is met; 0 before and after."""
+        if not self.long_seen or self.long_granted:
+            return 0
+        self.long_granted = True
+        context = self.context
+        return context.samples.grant_long(
+            context.max_long_samples, context.preview_chars
+        )
+
+    def reserve(self) -> None:
+        """Spend the sample budget on a complete table before its
+        finalization, so the sizes follow the field order whichever process
+        builds the samples."""
+        table = self.table
+        if table is None or self.sample_grant is not None:
+            return
+        context = self.context
+        mean = self._mean_stored(self._lengths(list(table)))
+        sample_k = context.samples.grant_sample(
+            context.max_samples, len(table), mean, context.discovered
+        )
+        # The samples by length start with a bottom-k: a table that fits its
+        # sample lists every value and reserves nothing for them.
+        strata = (
+            self._strata_grant(len(table), mean) if 0 < sample_k < len(table) else 0
+        )
+        self.sample_grant = (sample_k, strata)
+
+    def _weigh(self, fresh: list[str]) -> None:
+        """Account for new strings of a streamed field: heavy ones bound the
+        batch by size and may be long texts."""
+        longest = max(map(len, fresh))
+        if longest > HEAVY_LENGTH:
+            self.pending_chars += sum(map(len, fresh))
+            if longest > self.context.max_stored_length:
+                self.long_seen = True
 
     def _local(self) -> ValueProcessor:
         processor = self.processor
@@ -343,6 +506,14 @@ class ValueTracker:
             pending[key] = count + 1
             return
         pending[key] = 1
+        size = len(key) if type(key) is str else _stored_length(key)
+        if size > HEAVY_LENGTH:
+            self.pending_chars += size
+            if size > self.context.max_stored_length:
+                self.long_seen = True
+            if self.pending_chars >= PENDING_CHARS:
+                self.flush()
+                return
         if len(pending) >= BATCH_SIZE:
             self.flush()
 
@@ -352,13 +523,66 @@ class ValueTracker:
         if not pending:
             return
         self.pending = Counter()
+        self.pending_chars = 0
         keys, counts = list(pending), list(pending.values())
+        long_k = self._long_grant()
         if self.remote is not None:
             self.context.pool.process(
-                self.remote, self.sequence, keys, counts, self.scalars
+                self.remote, self.sequence, keys, counts, self.scalars, long_k
             )
         else:
-            self._local().process(keys, counts, scalars=self.scalars)
+            processor = self._local()
+            if long_k:
+                processor.grant_long(long_k)
+            processor.process(keys, counts, scalars=self.scalars)
+
+    def cardinality(
+        self,
+        block: BaseModel | dict[str, Any],
+        value_count: int,
+        estimate: dict[str, Any] | None = None,
+    ) -> BaseModel | dict[str, Any]:
+        """The cardinality block of the field, qualified: its domain (original
+        values), its identity accuracy and, once limited, the certain maximum
+        (``value_count``), where tracking stopped (design 9.1) and the KMV
+        ``estimate`` of the sample, held within the certain bounds.
+
+        ``block`` is a model, or plain data when a worker process computed it.
+        """
+        data = block if isinstance(block, dict) else block.model_dump()
+        status = data["status"]
+        if status == "complete":
+            return CardinalityComplete(
+                value=data["value"],
+                accuracy="exact",
+                domain=ORIGINAL_DOMAIN,
+                identity_accuracy="exact",
+            )
+        if status != "limited":
+            return block
+        distinct_limit = data["reason"] == "distinct_limit"
+        lower_bound = data.get("lower_bound")
+        if estimate is not None:
+            raw = estimate["value"]
+            value = min(max(raw, lower_bound or 0), value_count)
+            estimate = CardinalityEstimate(
+                **{
+                    **estimate,
+                    "value": value,
+                    "unclamped_value": None if value == raw else raw,
+                }
+            )
+        return CardinalityLimited(
+            reason=data["reason"],
+            limit=data["limit"],
+            lower_bound=lower_bound,
+            domain=ORIGINAL_DOMAIN,
+            identity_accuracy="exact",
+            upper_bound=value_count,
+            threshold_reached_at_record=self.reached if distinct_limit else None,
+            overflow_detected_at_record=self.overflow if distinct_limit else None,
+            estimate=estimate,
+        )
 
     def _ends(self) -> tuple:
         """First and last values, and native boolean counts."""
@@ -378,21 +602,34 @@ class ValueTracker:
             pool.finish(self.remote, self.sequence, self._ends())
         elif self.table is not None:
             table = self.table
+            self.reserve()
             self.remote = pool.table(
                 self.sequence, list(table), list(table.values()), self._ends(),
-                self.scalars,
+                self.scalars, self.sample_grant,
             )
 
     def finalize(
         self, report_failure: FailureReporter, report_probe: ProbeReporter | None = None
     ) -> dict:
         if self.remote is not None:
-            return self.context.pool.result(self.sequence, report_failure, report_probe)
-        if self.table is None:
-            self.flush()
-        return self._local().finalize(
-            self.table, self._ends(), report_failure, report_probe, self.scalars
-        )
+            blocks = self.context.pool.result(
+                self.sequence, report_failure, report_probe
+            )
+        else:
+            if self.table is None:
+                self.flush()
+            else:
+                self.reserve()
+            blocks = self._local().finalize(
+                self.table,
+                self._ends(),
+                report_failure,
+                report_probe,
+                self.scalars,
+                self.sample_grant,
+            )
+        self.context.sampling.merge(blocks.pop("counters"))
+        return blocks
 
 
 class ValueProcessor:
@@ -411,7 +648,7 @@ class ValueProcessor:
         "decided",
         "limited",
         "measures",
-        "samples",
+        "sample",
         "scalars",
         "seen",
         "skipping",
@@ -421,8 +658,9 @@ class ValueProcessor:
     def __init__(self, context: ValueContext) -> None:
         self.context = context
         self.measures = ValueMeasures(context.detectors.tallies())
-        # First distinct analytical values with their counts, once released.
-        self.samples: dict[tuple[str, str], int] | None = None
+        # The sample of original values, once released (a complete table
+        # makes it at finalization).
+        self.sample: ValueSample | None = None
         # The limit that released the table, if any.
         self.limited: Limited | None = None
         # Whether a value other than a string was seen.
@@ -436,13 +674,30 @@ class ValueProcessor:
         self.warm: set[Key] | None = None
 
     def release(
-        self, keys: list[Key], counts: list[int], limited: Limited, scalars: bool
+        self,
+        keys: list[Key],
+        counts: list[int],
+        limited: Limited,
+        scalars: bool,
+        grants: tuple[int, int, int] | None = None,
     ) -> None:
         """Process the values of a released table, then expect streamed
-        values."""
+        values. ``grants`` are the sizes the memory budget granted to the
+        sample, to its long texts and to its samples by length (the configured
+        ones without it)."""
         self.limited = limited
-        self.measures.numeric.median_values = None
-        self.samples = {}
+        measures = self.measures
+        measures.numeric.median_values = None
+        for readings in (measures.ambiguous_numbers, measures.dotted_numbers):
+            if readings is not None:
+                readings.release()
+        if grants is None:
+            sample_grant, long_k = None, self.context.max_long_samples
+        else:
+            sample_grant, long_k = (grants[0], grants[2]), grants[1]
+        self.sample = self._new_sample(sample_grant)
+        if long_k:
+            self.sample.grant_long(long_k)
         self.process(keys, counts, scalars=scalars)
         self.warm = set(keys[: self.context.detectors.warmup_values])
 
@@ -460,6 +715,8 @@ class ValueProcessor:
         """
         if scalars:
             self.scalars = True
+        if self.sample is not None:
+            self.sample.add(keys, counts, self.scalars)
         if not self.decided:
             end, warmup = self._warmup(keys)
             if end:
@@ -553,20 +810,30 @@ class ValueProcessor:
             for position, (text, count) in enumerate(zip(texts, counts, strict=True)):
                 value = ("string" if typed is None else typed[position], text)
                 analytical[value] = analytical.get(value, 0) + count
-        elif self.samples is not None:
-            # Samples keep the first distinct analytical values with their
-            # complete counts (design 9.1).
-            samples = self.samples
-            room = self.context.max_samples - len(samples)
-            longest = self.context.max_stored_length
-            for position, (text, count) in enumerate(zip(texts, counts, strict=True)):
-                value = ("string" if typed is None else typed[position], text)
-                known = samples.get(value)
-                if known is not None:
-                    samples[value] = known + count
-                elif room > 0 and len(text) <= longest:
-                    samples[value] = count
-                    room -= 1
+
+    def grant_long(self, k: int) -> None:
+        """The memory budget granted a sample of ``k`` long texts, which come
+        with the next batch."""
+        assert self.sample is not None
+        self.sample.grant_long(k)
+
+    def _new_sample(self, grant: tuple[int, int] | None = None) -> ValueSample:
+        """The sample of the field, of the granted sizes ``(k, lengths)`` (the
+        configured ones when the table needed no grant)."""
+        context = self.context
+        requested = context.max_samples
+        k, strata = (requested, context.max_length_strata) if grant is None else grant
+        return ValueSample(
+            k,
+            context.seed,
+            context.max_stored_length,
+            requested=requested,
+            preview_chars=context.preview_chars,
+            long_requested=context.max_long_samples,
+            length_k=context.length_k,
+            strata_k=strata,
+            strata_requested=context.max_length_strata,
+        )
 
     def _strings(
         self,
@@ -733,11 +1000,14 @@ class ValueProcessor:
         report_failure: FailureReporter,
         report_probe: ProbeReporter | None = None,
         scalars: bool = False,
+        sample_grant: tuple[int, int] | None = None,
     ) -> dict:
         """The value blocks of the field; ``table`` is its complete frequency
         table, ``None`` once released, ``ends`` its first and last values and
-        native boolean counts (``ValueTracker._ends``), and ``scalars`` says
-        whether it holds values other than strings."""
+        native boolean counts (``ValueTracker._ends``), ``scalars`` says
+        whether it holds values other than strings and ``sample_grant`` the
+        sizes the memory budget granted to its sample and to the lengths of its
+        samples by length."""
         context = self.context
         measures = self.measures
         if scalars:
@@ -780,19 +1050,32 @@ class ValueProcessor:
                     truncated=distinct > len(ranked),
                 )
             )
-            samples = _samples(analytical, exposed, context.max_samples, context.seed)
+            sample = self._new_sample(sample_grant)
+            sample.add(list(table), list(table.values()), self.scalars)
+            samples = sample.samples(gate)
+            estimate = None
         else:
             limited = self.limited
             cardinality = limited
             # Raw distinct values do not prove normalized ones: no bound.
             unproven = Limited(reason=limited.reason, limit=limited.limit)
             frequencies = unproven
-            samples = Samples(
-                selection="first_seen",
-                listed=_listing(gate.typed_counts(self.samples.items()).items()),
-            )
+            sample = self.sample
+            samples = sample.samples(gate)
+            estimate = sample.estimate(gate)
             stage_cardinality = dict.fromkeys(range(len(STAGES)), unproven)
-            variant_groups = unproven if measures.lengths else _NO_VALUES
+            if not measures.lengths:
+                variant_groups = _NO_VALUES
+            elif reduce(or_, measures.changes, 0):
+                variant_groups = unproven
+            else:
+                # No stage modified a string: every comparison key is its own
+                # raw string, so no key has two variants (exact, D13).
+                variant_groups = Complete[VariantGroups](
+                    value=VariantGroups(groups=0, listed=[], truncated=False)
+                )
+        # Decided before the results: the number detector names the decision.
+        measures.read_thousands(detectors.number_convention(measures))
         results = detectors.results(measures.tallies, report_failure, gate, report_probe)
         # Statistics such as a minimum or a date range are values themselves:
         # a masked or hidden field withholds them (design 12.8).
@@ -801,12 +1084,16 @@ class ValueProcessor:
             "cardinality": cardinality,
             "frequencies": frequencies,
             "samples": samples,
+            "estimate": estimate,
+            "counters": sample.counters(),
             "first": self._value_at(*first, gate),
             "last": self._value_at(*last, gate),
             "string_characteristics": measures.string_characteristics(),
             "string_lengths": measures.string_lengths(),
             "numeric": (
-                _WITHHELD if withheld else measures.numeric.finalize(self.limited)
+                _WITHHELD
+                if withheld
+                else _numeric_block(measures, self.limited, results)
             ),
             "booleans": (
                 Complete[BooleanCounts](value=BooleanCounts(true=true, false=false))
@@ -831,6 +1118,34 @@ class ValueProcessor:
             "sensitive": exposure is not None,
             "exposure": None if exposure is None else exposure.mode,
         }
+
+
+# Detectors of identifiers that digits can spell: statistics on the numbers of
+# such a field (the median of the postal codes) mean nothing.
+CODE_DETECTORS = frozenset({"postal_code", "phone", "uuid", "ip_address"})
+CODE_MIN_SHARE = 0.5
+
+
+def _numeric_block(
+    measures: ValueMeasures, limited: Limited | None, results: list
+) -> Any:
+    """The ``numeric`` block, withheld (``code_interpretation``) when a code
+    detector reads at least ``CODE_MIN_SHARE`` of the eligible values and at
+    least as many values as the block holds: its numbers are then codes."""
+    block = measures.numeric.finalize(limited, sum(measures.families.values()))
+    if not isinstance(block, Complete):
+        return block
+    for result in results:
+        if result.id not in CODE_DETECTORS or result.status != "complete":
+            continue
+        coverage = result.coverage
+        if (
+            coverage.eligible
+            and coverage.matched / coverage.eligible >= CODE_MIN_SHARE
+            and coverage.matched >= block.value.count
+        ):
+            return NotApplicable(reason="code_interpretation")
+    return block
 
 
 def _offsets(group, positions) -> set[int]:
@@ -860,15 +1175,33 @@ def _normalization(
             stage="raw", enabled=True, changed=None, cardinality=raw_cardinality
         )
     ]
+    previous = raw_cardinality
+    before: StageName = "raw"
     for i, (stage, enabled) in enumerate(zip(STAGES, normalizer.enabled)):
+        if not enabled:
+            stages.append(
+                NormalizationStage(
+                    stage=stage, enabled=False, changed=None, cardinality=None
+                )
+            )
+            continue
+        # ``changed`` is an exact counter of the whole scan, so a stage that
+        # modified nothing is the identity on the distinct values, whether the
+        # table was released or not: it takes the count of its input, with no
+        # table of its own. A stage that modified something once the table was
+        # released has no count to take (NORM-05, D13).
+        same = changed[i] == 0 and previous.status in ("complete", "limited")
+        current = previous if same else cardinality[i]
         stages.append(
             NormalizationStage(
                 stage=stage,
-                enabled=enabled,
-                changed=changed[i] if enabled else None,
-                cardinality=cardinality[i] if enabled else None,
+                enabled=True,
+                changed=changed[i],
+                cardinality=current,
+                equals=before if same else None,
             )
         )
+        previous, before = current, stage
     return Normalization(version=VERSION, stages=stages, variant_groups=variant_groups)
 
 
@@ -972,26 +1305,6 @@ def _listing(items) -> list[ValueCount]:
     ]
 
 
-def _samples(
-    analytical: dict[tuple[str, str], int],
-    exposed: dict[tuple[str, str], int],
-    size: int,
-    seed: int,
-) -> Samples:
-    """Every distinct exposed value, or a seeded uniform sample, in first-seen
-    order. Hidden values keep the selection of the analytical values."""
-    if analytical and not exposed:
-        selection = "all" if len(analytical) <= size else "uniform_distinct"
-        return Samples(selection=selection, listed=[])
-    items = list(exposed.items())
-    if len(items) <= size:
-        return Samples(selection="all", listed=_listing(items))
-    chosen = sorted(random.Random(seed).sample(range(len(items)), size))
-    return Samples(
-        selection="uniform_distinct", listed=_listing(items[i] for i in chosen)
-    )
-
-
 def no_values(context: ValueContext) -> dict:
     """Value blocks of a field without analyzable values (design 9.9)."""
     detectors = context.detectors
@@ -999,7 +1312,8 @@ def no_values(context: ValueContext) -> dict:
     return {
         "cardinality": _NO_VALUES,
         "frequencies": _NO_VALUES,
-        "samples": Samples(selection="all", listed=[]),
+        "samples": Samples(selection="all", kept=0, of=0, listed=[]),
+        "estimate": None,
         "first": None,
         "last": None,
         "string_characteristics": ValueMeasures().string_characteristics(),

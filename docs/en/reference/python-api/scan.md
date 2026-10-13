@@ -5,7 +5,13 @@ description: The Python functions that scan a CSV, JSON, JSONL or Excel source -
 
 `tabalyst.scan()` scans one source in memory and writes nothing.
 `tabalyst.generate_scans()` scans several sources and writes their scan
-documents. The command is [`tabalyst scan`](../cli/scan.md); the result is
+documents. `tabalyst.plan_analyses()`, `tabalyst.plan_document()` and
+`tabalyst.plan_second_pass()` plan the analyses a scan could still receive, with
+their estimated time and whether running them would require a confirmation (see
+[Plan the analyses](../../scan/plan.md)). `tabalyst.generate_deep()`,
+`tabalyst.prepare_deep()`, `tabalyst.execute_deep()` and
+`tabalyst.run_second_pass()` run the second pass of a scan and never prompt (see
+[Add histograms and exact medians](../../scan/deep.md#python-api)). The command is [`tabalyst scan`](../cli/scan.md); the result is
 described in the [scan format](../../scan/format.md).
 
 ```python
@@ -33,6 +39,7 @@ tabalyst.scan(
     on_progress=None,
     on_record=None,
     workers=None,
+    counters=False,
 )
 ```
 
@@ -48,6 +55,8 @@ Returns a `tabalyst.ScanResult`.
 - `workers`: number of processes that analyze values; `1` scans in this process.
   By default, large sources use one per spare processor. The result does not
   depend on it.
+- `counters`: `True` adds `run.counters`, the work of the samplers (see
+  [Scan format](../../scan/format.md#counters-of-a-run)).
 - `on_progress`: see the [conventions](index.md#conventions).
 - `registry`, `on_record`: advanced. `registry` replaces the detectors (and scans
   in this process); `on_record` receives each analyzed record, in reading order,
@@ -71,7 +80,10 @@ tabalyst.generate_scans(
     force=False,
     on_progress=None,
     workers=None,
+    counters=False,
     project_storage=False,
+    refresh=True,
+    html=False,
 )
 ```
 
@@ -87,8 +99,15 @@ Returns a [batch result](index.md#batch-functions) whose successes hold the
 - `project_storage`: `True` stores the scans in the reusable storage of the
   command, as `tabalyst scan` does without `-o` or `-d`, instead of writing
   standalone documents.
+- `html`: also write the [web page of each scan](../../scan/files.md#the-web-page-of-a-scan)
+  beside its document, or beside the source for a scan in the storage. A page that
+  cannot be written is a warning in `warnings`. Off by default: only the command
+  asks for it.
+- `refresh`: with `project_storage`, `False` reuses the stored scan when it is
+  current for the source, the settings and the version, instead of scanning
+  again. A successful job then has `reused`.
 - `config_path`, `force`, `on_progress`: see the [conventions](index.md#conventions).
-- `workers`: as for `scan()`.
+- `workers`, `counters`: as for `scan()`.
 
 A source whose collection or table cannot be decided fails alone with a
 `ConfigurationError`; an option that a source cannot use is listed in

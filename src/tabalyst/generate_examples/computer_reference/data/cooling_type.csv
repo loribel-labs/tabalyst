@@ -1,0 +1,8 @@
+id,en,fr
+passive,Passive cooling,Refroidissement passif
+air,Air cooling,Refroidissement par air
+dual_fan,Dual-fan cooling,Refroidissement à deux ventilateurs
+triple_fan,Triple-fan cooling,Refroidissement à trois ventilateurs
+vapor_chamber,Vapor chamber cooling,Refroidissement par chambre à vapeur
+liquid,Liquid cooling,Refroidissement liquide
+hybrid,Hybrid cooling,Refroidissement hybride

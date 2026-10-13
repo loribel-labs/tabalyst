@@ -15,8 +15,24 @@ tabalyst report customers.csv
 A dataset is the rows of a CSV file, one selected JSON collection, the object
 lines of a JSONL file, or one selected Excel sheet or named table. In JSON, a
 column is usually a scalar field path such as `address.city`. Section counts
-refer to this dataset. The optional numeric, date, string, detector and limits
-sections appear only when they have results to show.
+refer to this dataset. The optional numeric, date, string, detector, pattern and
+limits sections appear only when they have results to show.
+
+## How counts are qualified
+
+Every figure that could be misread says what it counts. Each label is a word
+with a shape in front of it, never only a color:
+
+| Label | Meaning |
+| --- | --- |
+| exact | Counted on every value of the file. |
+| `≥` or at least | A scan limit stopped the count: the real figure is at least this. |
+| `≈` or estimated | Estimated from a sample of the values, shown with its error. |
+| sample | Counted on a sample of the distinct values, not on the whole file. |
+| not computed | The scan did not compute it, for example when `scan.observations.enabled` is `false`, or the second pass did not run the analysis. |
+
+A figure without a label is exact. An integer is always written with all its
+digits, however large.
 
 ## Dataset overview
 
@@ -30,27 +46,50 @@ investigating individual fields.
 | Missing cells | Missing positions divided by all analyzed cell positions, with the count below. Empty or whitespace-only values, configured markers and absent JSON members can count as missing. | Check the affected columns and the effective missing-value rules. |
 | Duplicate rows | Records equal to an earlier record by exact raw values across columns, excluding the first occurrence. | `≥` is a lower bound after the tracking limit; `–` means the check was disabled. |
 
-The **Quality observations** card lists issues with warning or information
-severity; a signal such as a constant column can be intentional. **Column
-types** counts columns by inferred type and semantic type, not individual
-cells. The date card sums ambiguous values across date columns, so one record
-can contribute more than once. See the [issue codes](json-profile.md#issues).
+The **Quality observations** card groups the findings of the scan by rule, each
+with its status: a *confirmed issue* is a defect of the source by its structure,
+a *candidate anomaly* is worth a look and never proof of an error, and a
+*remark* may be perfectly valid, such as a constant column. **Column types**
+counts columns by inferred type and semantic type, not individual cells. The
+date card sums ambiguous values across date columns, so one record can
+contribute more than once. See [Findings](json-profile.md#findings).
+
+## Observations
+
+**Purpose:** list what the scan found, rule by rule, with its status, the
+column concerned, the count and what it is out of. A count is exact unless its
+accuracy says otherwise: *at least* when a limit stopped it, *sample* when it
+was made on a sample of the distinct values.
+
+| Report column | Meaning | What to check |
+| --- | --- | --- |
+| Status | Confirmed issue, candidate anomaly or remark. | Missing values and constant columns are remarks, not issues. |
+| Finding, Column | The rule and the column it concerns; a finding about the dataset has no column. | Filter by status to start with the issues. |
+| Count, Out of | What was found, out of what: values, records, distinct values or columns. | Do not compare counts of different populations. |
+| Accuracy | exact, at least or sample. | An *at least* count is a proven minimum, not an estimate. |
+| Detail | The first record numbers, the patterns and the limits behind the finding. | Use the record numbers to find the rows in the source. |
+
+The table shows 25 findings at a time and up to 500; the JSON profile lists
+them all. Without observations (`scan.observations.enabled` is `false`) the
+section says that they are not computed.
 
 ## Columns
 
 **Purpose:** locate fields that need investigation and compare their value
-shape, detected meaning and completeness. Each row is one field. **With
-issues** filters to fields with missing values, a `mixed` inferred type or
-ambiguous dates.
+shape, detected meaning and completeness. Each row is one field. **Quality
+issues** filters to fields with a confirmed issue or a candidate anomaly, such
+as a `mixed` inferred type or ambiguous dates; **With observations** adds the
+fields that only have remarks, such as missing values.
 
 | Report column | Meaning | What to check |
 | --- | --- | --- |
 | Column | Name and source position. JSON paths identify nested fields; names in a table may be blank or repeated. | Use position or the JSON profile's stable `id` when a name is ambiguous. |
 | Missing | Missing positions as a count and percentage of this field's positions. Absent JSON members count in the denominator. | Check whether the missing markers in **Analysis settings** match your data. |
-| Distinct | Different present values after analytical normalization (Unicode composition, trim and whitespace collapse when enabled). | `limited` means counting stopped; it is not an estimate. |
+| Distinct | Different present values after analytical normalization (Unicode composition, trim and whitespace collapse when enabled). | Exact unless marked. `≥ 51` is a proven minimum after a scan limit, with its estimate below it when the scan made one (`≈ 2,031 est.`); `limited` means counting stopped and proved nothing. |
 | Inferred type | Value family inferred from present values, such as `number`, `date` or `mixed`. | A `mixed` field did not meet the configured confidence threshold. See [all inferred types](../reference/types-and-patterns/types.md#inferred-types). |
 | Semantic type | One primary detected meaning, such as `email` or `postal_code`. | A dash means there is no unique qualifying interpretation. Other detectors may still have matched. See [semantic types](../reference/types-and-patterns/types.md#semantic-types). |
 | Error | Count and percentage of present values outside the inferred type. | This is type disagreement, not malformed records or detector failures. It is unavailable for `mixed`. |
+| Issues | Confirmed issues and candidate anomalies about this field, with the number of remarks below. | Open the column page or **Observations** for the detail. |
 | Examples | A few retained values; the tooltip gives more values and counts. | A distribution can be complete or a bounded sample. Sensitive values can be masked or hidden. |
 
 Missing values do not lower type confidence. For example, `not available` can
@@ -110,7 +149,7 @@ record their statuses.
 | --- | --- | --- |
 | Range | Maximum minus minimum. | A large span may suggest an outlier or mixed units. |
 | Minimum, Maximum | Smallest and largest accepted numbers. | Compare with expected bounds. |
-| Mean, Median | Arithmetic mean and middle value of accepted numbers. | A blank median means its measure reached a scan limit. |
+| Mean, Median | Arithmetic mean and middle value of accepted numbers. | A blank median means its measure reached a scan limit. When the second pass computed it, it is shown with `exact` (counted per integer) or `est.` (estimated from bins, with its bounds in the tooltip). |
 | Distinct, Examples | Normalized value count and retained value examples. | These describe value representation, not the calculation of numeric statistics. |
 
 Configured number conventions can accept comma decimals such as `12,5`. Check
@@ -135,6 +174,12 @@ invalid date-shaped values and other present values.
 Only an explicit `scan.detectors.date.ambiguous_order` setting resolves an
 ambiguous order. The report shows unambiguous DMY/MDY evidence but does not
 apply it to ambiguous values.
+
+Below the table, **Distribution over time** counts the valid dates of a column per
+day, month or year, exactly, when the second pass computed them. A date is placed
+by the date it is written with; ambiguous dates are counted apart and never
+placed, unless the unambiguous dates of the column prove one day-month order: the
+second pass then reads them with it and the row says so. Open a column to see its periods; the table is the alternative to a chart.
 
 ## String analysis
 
@@ -168,6 +213,107 @@ can skip values after a warm-up; inspect tested and not-tested counts in the
 [JSON profile](json-profile.md#detectors) or a standalone column page before
 treating a low match rate as full-field coverage.
 
+## Patterns
+
+**Purpose:** show the structural patterns of text columns, inferred from the
+distinct values the scan sampled. A pattern writes `9` for a digit, `X` for a
+capital, `x` for a lowercase letter, `@` for any letter and `#` for a letter or a
+digit; other characters are written as they are, and a letter or digit that is
+fixed in every value is quoted, such as `'ONT'9{6,7}`.
+
+| Report column | Meaning | What to check |
+| --- | --- | --- |
+| Column, Pattern | Field and pattern, with its role: `principal` for the most common. | A secondary pattern can be a second format in use, or a rare mistake. |
+| Distinct values, Share | Distinct values the pattern takes, and their share of the distinct values read. | A share counts distinct values, never occurrences in the file. |
+| Basis | exact when the scan held every distinct value of the field, sample when it held a sample of them. | The share is of distinct values, not of the file. |
+| Validated on every value | When the second pass ran: how many values of the whole file the pattern reads, and their share of the values of the column. | Exact. A value is counted for the most specific pattern that reads it. |
+| Lengths, Examples | Observed lengths, and examples among the values the report keeps. | An example the report does not keep is not shown. |
+
+A value counts for one pattern, the most specific that reads it. The row
+*unmatched* counts the values no pattern takes; with the second pass, its
+validated figure is the number of values of the whole file that no pattern reads.
+That is an observation about structure, not an error. A column with no pattern,
+such as a number or a masked column, says why on its own page.
+
+## Relationships
+
+**Purpose:** show how one column goes with another, from the second pass. The section
+appears when the second pass computed a table of a category against a feature, or a
+correlation of two numeric columns, and sits before the Insights section.
+
+| Report part | Meaning | What to check |
+| --- | --- | --- |
+| Heading | The category and the column it is read against, with the number of features computed. | The same two columns are one block, whatever the number of features: the pattern, the length and the prefix of an identifier often say the same thing. The best one comes first and the others are folded. When two columns are listed in both directions (region by city, then city by region), the weaker direction follows the stronger one, folded under "The same pair the other way round". |
+| Metrics | Classified rows (and the rows left out), purity, association and exceptions. | Purity is the share of each category's rows in its dominant class; compare it with what the most frequent class would give. |
+| Table of counts | For each category, the exact count of its rows in each class and its share, with its total, coverage and purity. | The percentages come first: read them before the score. The dominant class of each category is underlined. A class that is empty for every category is `other`, hidden when it is empty. |
+| Exceptions | The rows outside the dominant class of their category, with exact counts and the first rows in file order. | They are the rows to look at to decide whether a pattern is a rule of the data. |
+| Candidate rules | Relations learned from the data, such as "when region is QC, client_id reads XX9999". | They are candidates, learned and not validated. |
+| Correlations | The coefficient of pairs of numeric columns, over the rows where both have a number. | A correlation is a linear association, not a cause. |
+
+The association is Cramér's V, corrected for the number of rows and classes, with a
+word: negligible, weak, moderate or strong. When the counts are too low to trust it,
+it says *Unstable: low counts* instead of a word. A category or class of fewer than
+5 rows does not cause it by itself. A table with only one category or one class has no score and says why. Every
+count is exact. A note under the tables says what the planner explored on the rows the
+scan sampled: a relation that sample does not show can still exist in the file.
+
+## Insights
+
+**Purpose:** show what the later analyses of the second pass found, one card per
+analysis and column, with the accuracy of each figure. The section appears when the
+second pass computed at least one of them, and sits before the Second pass section.
+The page of each column (`--details`) shows the cards that concern it, and what the
+report reads from the Scan for that column.
+
+| Family | What a card tells | What to check |
+| --- | --- | --- |
+| Values with a unit | The numbers read from amounts, percentages and quantities: how many, how many were ambiguous, invalid or not read, the numbers of each unit (minimum, median, mean, maximum) and their distribution. | Units are never converted. When a column mixes units, the overall figures are not shown and each unit is read alone. A percentage above 100 is counted, not corrected. |
+| Shape of the numbers | Skewness, excess kurtosis, quartiles, the outliers of Tukey (mild beyond 1.5 and far beyond 3 interquartile ranges), the decimals the numbers are written with, and two views of their spread: bins of equal ratio and bins of about equal counts. | The outliers are a rule of thumb, not errors. With many distinct numbers the quartiles are estimates and the outliers are given as a range. |
+| Parts of the dates | The day of the week, the hour, the month or year, the dates after a cut-off when one is configured, the invalid dates by reason and, for ambiguous dates, what each reading would change. | Dates are counted as written; an offset is never converted. The simulation changes nothing. |
+| Values left out | The values no pattern reads and the values a detector finds invalid or does not match, with their exact counts and first record, and every pattern over every occurrence. | A list is bounded when it says so; the counts of the values it holds stay exact. |
+| Repeated values | The values found more than once, their occurrences and first record, and the combinations of two columns when asked for. | Without the source, the first record is absent. |
+| Numbers by category | For each value of a category, its rows, how many have a number, and the minimum, median, mean and maximum, with the share of the variance the categories explain. | It shows an association between two columns, not a cause. |
+| Drift along the file | The records, values and missing values of each tenth of the file, how strongly the position tells them apart (Cramér's V), and for a column of few values their share in each tenth and the tenth where each first appears. | A change along the file shows that the column was filled or exported differently, not why. The tenths hold the same number of records, so a longer bar is a part of the file that misses more. |
+| Missing together | For the dataset, the pairs of columns that lack a value in the same records; on a column page, the other columns that lack a value where it does, with their counts and the share where both do. | Every count is exact. It shows that values go missing together, not why. A pair of columns that miss often can overlap by chance: compare *Both* with what the two counts would give if independent. |
+| Structure of the JSON | The lengths of the arrays of a field (every length, the quantiles) and the sets of keys the objects have, with the keys each set lacks; the sets of keys of the records themselves sit in the dataset panel only. | Counts are exact. A list of sets that says it is not complete counts at least that many sets. It shows that objects differ, not why. |
+| Long texts | The words, lines and digits of the texts by powers of two and by tenth of the characters, and the distinct texts told apart by a 128-bit fingerprint with the ones found most often, by digest. | The fingerprint count carries its own label: two different texts are taken for one only if their digests collide. The texts themselves are never kept. |
+| Sensitive columns without a value | The masks of a masked column and their exact counts, and for addresses and phone numbers the count by class. | No value is listed, and no count below the floor of `deep.sensitive.min_count`: masks and classes with fewer values are summed up. The card is not printed for a column that hides its values, and the analysis is off until `deep.sensitive.enabled` is set. |
+| Read from the Scan | On a column page only: the quartiles of the lengths, the values outside the listed frequencies, the dominant unit, the dates by decade and the empty periods. | Computed from the document, without reading the source. |
+
+Every figure carries its own label (see [How counts are
+qualified](#how-counts-are-qualified)), because one card can hold exact counts beside
+an estimated median: when the distinct numbers pass `deep.measures.max_values`, counts,
+sums and extremes stay exact and the quantiles are estimates between certain bounds.
+A card from a report built from a scan document says which figures come from the values
+the Scan kept.
+
+When the unambiguous values of a column prove how its ambiguous ones are written, the
+card says it: *150 read as DMY, proved by 150 unambiguous dates* for dates, or *75 with
+the decimal comma convention, proved by 150 unambiguous values* for numbers. The
+ambiguous values are then counted with the others. Values of a column with an exposure
+of `mask` or `hide` are never listed.
+
+## Second pass
+
+**Purpose:** say what the second pass added to the report and what it left out. The
+report runs it by itself for the analyses that are useful and cheap; `tabalyst
+report --deep` forces it. The section is absent from a report made before the
+second pass existed.
+
+| Report part | Meaning | What to check |
+| --- | --- | --- |
+| Introduction | Who decided (automatic, forced or off) and how the second pass ended. | A report built from a scan document reads no source and says so. |
+| Computed, Not computed | Analyses with a result, and those skipped or failed. | A skipped analysis says why in its row. |
+| Already answered, Not selected | Analyses the scan already answers, and those the planner left out. | The reasons are listed under the table: too little benefit, a mixed type, a value too long for an exact set. |
+| Table | Each analysis with its status, what it found and its accuracy. | Exact counts are marked exact; a stopped distinct count is a lower bound. |
+| Footnote | Whether the source was read again and checked against the digest of the scan. | The source is checked, so no result mixes two versions of the file. |
+
+The results of the later analyses are laid out in [Insights](#insights). The second
+pass also completes figures elsewhere: the exact distinct count of a
+column the scan stopped counting (marked *2nd pass*), the median of a numeric
+column, the validated occurrences of each pattern and the distribution of dates
+over time.
+
 ## Limits and diagnostics
 
 **Purpose:** make incomplete measures and technical scan events visible.
@@ -184,20 +330,23 @@ locations), **Untracked observations** beyond the field limit, and
 
 ## Data sample
 
-**Purpose:** inspect the first records in source order. The default is 10,
-controlled by `scan.records.preview`. This preview does not limit the full
-analysis. Sorting and filtering its HTML table only change the display.
+**Purpose:** inspect rows of the dataset in three labelled parts: the first
+records (**Start**), records drawn at random from the interior (**Sampled**) and
+the last records (**End**). The report shows 10 of each by default
+(`report.row_sample`). The sampled rows are not uniform over the whole file: the
+first and last records are kept separately. The sample does not limit the full
+analysis, and sorting and filtering the table only change the display.
 
 | Report column | Meaning | What to check |
 | --- | --- | --- |
-| Row | Record number in the dataset, starting at 1. | A CSV or Excel header is excluded. |
-| Each field | Raw source value under its column name and inferred type. | Sensitive values can be masked or hidden; `absent` in JSON differs from explicit `null`. |
+| Row, Part | Record number in the dataset, starting at 1, and the part the row comes from. | A CSV or Excel header is excluded. |
+| Each field | Raw source value under its column name and inferred type. | Sensitive values can be masked or hidden; `absent` in JSON differs from explicit `null`; `… cut` marks a cell the scan cut at `scan.records.sample.cell_chars` characters. |
 
 ## Analysis settings
 
 **Purpose:** reproduce and interpret the report. This final section gives the
 effective scope, missing markers, normalization, type and date rules, detector
-thresholds, exposure policy, value representation, preview size and source
+thresholds, exposure policy, value representation, row sample and source
 SHA-256. Consult it whenever a count or match differs from your expectation;
 the [configuration reference](../reference/configuration.md) explains how to
 change the settings.

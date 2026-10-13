@@ -1,0 +1,21 @@
+id,en,fr
+intel_core_i3,Core i3,Core i3
+intel_core_i5,Core i5,Core i5
+intel_core_i7,Core i7,Core i7
+intel_core_i9,Core i9,Core i9
+intel_core_ultra_5,Core Ultra 5,Core Ultra 5
+intel_core_ultra_7,Core Ultra 7,Core Ultra 7
+intel_core_ultra_9,Core Ultra 9,Core Ultra 9
+intel_xeon,Xeon,Xeon
+amd_ryzen_3,Ryzen 3,Ryzen 3
+amd_ryzen_5,Ryzen 5,Ryzen 5
+amd_ryzen_7,Ryzen 7,Ryzen 7
+amd_ryzen_9,Ryzen 9,Ryzen 9
+amd_ryzen_ai_5,Ryzen AI 5,Ryzen AI 5
+amd_ryzen_ai_7,Ryzen AI 7,Ryzen AI 7
+amd_ryzen_ai_9,Ryzen AI 9,Ryzen AI 9
+amd_ryzen_threadripper,Ryzen Threadripper,Ryzen Threadripper
+amd_epyc,EPYC,EPYC
+apple_m,Apple M,Apple M
+qualcomm_snapdragon_x,Snapdragon X,Snapdragon X
+mediatek_kompanio,Kompanio,Kompanio

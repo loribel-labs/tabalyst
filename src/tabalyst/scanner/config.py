@@ -48,14 +48,18 @@ HARD_CAPS: dict[str, int] = {
     "max_tracked_values": 500_000_000,
     "max_stored_value_length": 1_000_000,
     "max_listed_frequencies": 100_000,
-    "max_samples": 10_000,
+    "max_samples": 100_000,
+    "max_long_samples": 10_000,
+    "max_samples_per_length": 10_000,
+    "max_length_strata": 10_000,
+    "long_preview_chars": 1_000_000,
+    "max_sample_memory": 1 << 40,
     "max_variant_groups": 100_000,
     "max_variants_per_group": 10_000,
     "max_evidence_examples": 1_000,
     "max_tracked_records": 500_000_000,
     "max_listed_records": 10_000,
 }
-MAX_PREVIEW_RECORDS = 1_000
 MAX_PATTERNS = 200
 MAX_PATTERN_LENGTH = 1_000
 MAX_PATTERN_INPUT_LENGTH = 10_000
@@ -261,6 +265,17 @@ def _limit(default: int, name: str, minimum: int = 1):
     return Field(default=default, ge=minimum, le=HARD_CAPS[name])
 
 
+DEFAULT_MAX_SAMPLES = 10_000
+# Long texts (design 18.6): at most 100 per field, previewed on 200 characters.
+DEFAULT_MAX_LONG_SAMPLES = 100
+DEFAULT_LONG_PREVIEW_CHARS = 200
+# Samples by length (design 18.7): up to 64 lengths of 100 values each.
+DEFAULT_MAX_SAMPLES_PER_LENGTH = 100
+DEFAULT_MAX_LENGTH_STRATA = 64
+# The model of the bytes the samples of the whole scan may take (design 18.10).
+DEFAULT_MAX_SAMPLE_MEMORY = 512 << 20
+
+
 class LimitSettings(_Settings):
     max_fields: int = _limit(10_000, "max_fields")
     max_depth: int = _limit(64, "max_depth")
@@ -271,7 +286,30 @@ class LimitSettings(_Settings):
     max_tracked_values: int = _limit(2_000_000, "max_tracked_values")
     max_stored_value_length: int = _limit(1_000, "max_stored_value_length")
     max_listed_frequencies: int = _limit(100, "max_listed_frequencies", 0)
-    max_samples: int = _limit(100, "max_samples", 0)
+    # K, the size of the sample kept per field. Left unset it follows T when T
+    # is lower than the default (design 18.2).
+    max_samples: int = _limit(DEFAULT_MAX_SAMPLES, "max_samples", 0)
+    # Long texts (values above max_stored_value_length) keep a small sample of
+    # previews and digests (design 18.6).
+    max_long_samples: int = _limit(
+        DEFAULT_MAX_LONG_SAMPLES, "max_long_samples", 0
+    )
+    long_preview_chars: int = _limit(
+        DEFAULT_LONG_PREVIEW_CHARS, "long_preview_chars"
+    )
+    # Samples by length (design 18.7): the values kept for each tracked length
+    # (0 turns the samples by length off) and the lengths tracked per field.
+    max_samples_per_length: int = _limit(
+        DEFAULT_MAX_SAMPLES_PER_LENGTH, "max_samples_per_length", 0
+    )
+    max_length_strata: int = _limit(
+        DEFAULT_MAX_LENGTH_STRATA, "max_length_strata", 0
+    )
+    # Bytes, by the model of design 18.10, that the samples of the whole scan
+    # may reserve; the long texts share a part of it.
+    max_sample_memory: int = _limit(
+        DEFAULT_MAX_SAMPLE_MEMORY, "max_sample_memory"
+    )
     max_variant_groups: int = _limit(100, "max_variant_groups", 0)
     max_variants_per_group: int = _limit(20, "max_variants_per_group", 0)
     max_evidence_examples: int = _limit(10, "max_evidence_examples", 0)
@@ -282,12 +320,84 @@ class LimitSettings(_Settings):
     def distinct_within_global_budget(self):
         if self.max_distinct_per_field > self.max_tracked_values:
             raise ValueError("max_distinct_per_field cannot exceed max_tracked_values")
+        if self.max_samples > self.max_distinct_per_field:
+            if "max_samples" in self.model_fields_set:
+                raise ValueError("max_samples cannot exceed max_distinct_per_field")
+            # The sample is drawn from the exact table: a lower tracking limit
+            # lowers the default sample size with it.
+            self.max_samples = self.max_distinct_per_field
+        return self
+
+
+MAX_ROW_SAMPLE_ROWS = 100_000
+MAX_ROW_SAMPLE_CELL_CHARS = 100_000
+
+
+class RowSampleSettings(_Settings):
+    """Row sample of a dataset (design 18.11): ``edge`` first rows, ``edge`` last
+    rows and a bottom-k of the interior, ``rows`` in all; 0 rows turns it off.
+
+    ``max_bytes`` is the budget, in bytes of a cost model, of the cells kept by
+    the whole scan.
+    """
+
+    rows: int = Field(default=1_000, ge=0, le=MAX_ROW_SAMPLE_ROWS)
+    edge: int = Field(default=50, ge=0, le=MAX_ROW_SAMPLE_ROWS // 2)
+    cell_chars: int = Field(default=200, ge=1, le=MAX_ROW_SAMPLE_CELL_CHARS)
+    max_bytes: int = Field(default=16 << 20, ge=1 << 20, le=1 << 40)
+
+    @model_validator(mode="after")
+    def edges_fit_in_the_sample(self):
+        if self.rows and 2 * self.edge > self.rows:
+            raise ValueError("2 * edge cannot exceed rows")
         return self
 
 
 class RecordSettings(_Settings):
-    preview: int = Field(default=10, ge=0, le=MAX_PREVIEW_RECORDS)
     duplicates: bool = True
+    sample: RowSampleSettings = Field(default_factory=RowSampleSettings)
+
+    @model_validator(mode="before")
+    @classmethod
+    def preview_moved_to_the_row_sample(cls, data):
+        # The first records are the start of the row sample since lot 5.
+        if isinstance(data, dict) and "preview" in data:
+            raise ValueError(
+                "preview moved to scan.records.sample.edge (rows kept by the "
+                "scan) and report.row_sample (rows the report shows)"
+            )
+        return data
+
+
+MAX_INFERRED_PATTERNS = 64
+MAX_PATTERN_VALUE_LENGTH = 1_000
+
+
+class PatternInferenceSettings(_Settings):
+    """Inference of structural patterns from the samples (design 18.12).
+
+    The inference reads the samples of the finished scan, never the source.
+    ``max_patterns`` bounds the candidates of a field, ``max_value_length`` the
+    stored values that take part (longer ones are counted as excluded) and
+    ``min_distinct`` the distinct values a candidate needs.
+    """
+
+    enabled: bool = True
+    max_patterns: int = Field(default=8, ge=1, le=MAX_INFERRED_PATTERNS)
+    max_value_length: int = Field(default=64, ge=1, le=MAX_PATTERN_VALUE_LENGTH)
+    min_distinct: int = Field(default=2, ge=1, le=1_000)
+
+
+MAX_OBSERVATION_ITEMS = 100_000
+
+
+class ObservationSettings(_Settings):
+    """Observations, quality issues and limits derived from the finished scan
+    (design 18.13). ``max_items`` bounds the observations and, separately, the
+    limits that are listed; the summaries count them all."""
+
+    enabled: bool = True
+    max_items: int = Field(default=1_000, ge=1, le=MAX_OBSERVATION_ITEMS)
 
 
 class TypeSettings(_Settings):
@@ -310,13 +420,24 @@ MonthLanguage = Literal["en", "fr"]
 
 class NumberSettings(_Settings):
     """``dot``: decimal point, thousands grouped by ``,`` or a space; ``comma``:
-    decimal comma, thousands grouped by ``.`` or a space (design 12.10)."""
+    decimal comma, thousands grouped by ``.`` or a space (design 12.10).
+
+    ``infer_convention`` (on by default) reads the ambiguous numbers, such as
+    ``1,234``, in the convention the unambiguous numbers of the column prove, at
+    least ``min_evidence`` of them and none proving the other (design 20.27);
+    ``ambiguous_convention`` always wins. ``detectors.number`` applies them in the
+    Scan; the amount detectors (``currency``, ``percentage``, ``quantity``)
+    inherit them, but the Scan counts no number of an amount, so they change
+    nothing there: the second pass applies them to the numbers of the values
+    with a unit (design 20.28)."""
 
     enabled: bool = True
     conventions: list[NumberConvention] = Field(
         default_factory=lambda: ["dot", "comma"], min_length=1
     )
     ambiguous_convention: NumberConvention | None = None
+    infer_convention: bool = True
+    min_evidence: int = Field(default=3, ge=1)
 
     @field_validator("conventions")
     @classmethod
@@ -572,7 +693,12 @@ class ScanConfig(_Settings):
         default_factory=list, max_length=MAX_PATTERNS
     )
     exposure: ExposureSettings = Field(default_factory=ExposureSettings)
-    random_seed: int = 42
+    pattern_inference: PatternInferenceSettings = Field(
+        default_factory=PatternInferenceSettings
+    )
+    observations: ObservationSettings = Field(default_factory=ObservationSettings)
+    # The seed of the bottom-k hash (design 18.3) is an unsigned 64-bit integer.
+    random_seed: int = Field(default=42, ge=0, lt=2**64)
 
     model_config = ConfigDict(extra="forbid", serialize_by_alias=True)
 

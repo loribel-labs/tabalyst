@@ -114,17 +114,30 @@
     ['equal', '=', 'Equal to'], ['greater', '>', 'Greater than'], ['greaterOrEqual', '≥', 'Greater than or equal'],
     ['less', '<', 'Less than'], ['lessOrEqual', '≤', 'Less than or equal'], ['between', '[··]', 'Between (inclusive)'],
   ];
+  /* Numbers are compared as the text the report wrote: an integer beyond 2^53
+     is compared as a BigInt, so a large counter is never rounded silently. */
+  const INTEGER = /^[+-]?\d+$/;
+  const toNum = (t) => { const n = Number(t); return Number.isNaN(n) ? parseFloat(t) : n; };
+  const numCmp = (x, y) => {
+    x = String(x).trim(); y = String(y).trim();
+    if ((x.length > 15 || y.length > 15) && INTEGER.test(x) && INTEGER.test(y)) {
+      const a = BigInt(x), b = BigInt(y);
+      return a < b ? -1 : a > b ? 1 : 0;
+    }
+    const a = toNum(x), b = toNum(y);
+    return a < b ? -1 : a > b ? 1 : 0;
+  };
   const numTest = (f) => (raw) => {
-    if (String(raw).trim() === '') return false;
-    const x = Number(raw);
-    if (!Number.isFinite(x)) return false;
+    const t = String(raw).trim();
+    if (t === '' || !Number.isFinite(Number(t))) return false;
+    const c = numCmp(t, f.as);
     switch (f.op) {
-      case 'equal': return x === f.a;
-      case 'greater': return x > f.a;
-      case 'greaterOrEqual': return x >= f.a;
-      case 'less': return x < f.a;
-      case 'lessOrEqual': return x <= f.a;
-      default: return x >= f.a && x <= f.b;
+      case 'equal': return c === 0;
+      case 'greater': return c > 0;
+      case 'greaterOrEqual': return c >= 0;
+      case 'less': return c < 0;
+      case 'lessOrEqual': return c <= 0;
+      default: return c >= 0 && numCmp(t, f.bs) <= 0;
     }
   };
 
@@ -186,6 +199,10 @@
     const filters = new Map();
     let sort = null;
     const cellVal = (r, idx) => { const c = r.cells[idx]; return c.dataset.v !== undefined ? c.dataset.v : c.textContent.trim(); };
+    /* paged tables show pageSize rows at a time; filters and sorting see every row */
+    const pageSize = Number(table.dataset.pageSize) || 0;
+    const more = document.querySelector('[data-more="' + table.id + '"]');
+    let limit = pageSize;
 
     const ctrl = {
       extraActive: () => (extra ? extra.active() : false),
@@ -195,23 +212,31 @@
         rows.forEach((r) => {
           let ok = extra ? extra.test(r) : true;
           if (ok) for (const [idx, f] of filters) { if (!f.test(cellVal(r, idx))) { ok = false; break; } }
+          r.dataset.f = ok ? '' : '1';
           r.hidden = !ok;
           if (ok) visible++;
         });
         let order = rows.slice();
         if (sort) {
           const num = heads[sort.idx].dataset.kind === 'num';
-          const key = (r) => { const v = cellVal(r, sort.idx); return num ? (v === '' ? null : parseFloat(v)) : v.toLowerCase(); };
+          const key = (r) => { const v = cellVal(r, sort.idx); return num ? (v === '' ? null : v) : v.toLowerCase(); };
           order.sort((a, b) => {
             const x = key(a), y = key(b);
             if (x === null && y === null) return a.dataset.i - b.dataset.i;
             if (x === null) return 1;            // empty values always last
             if (y === null) return -1;
-            const c = num ? x - y : x.localeCompare(y, undefined, { numeric: true });
+            const c = num ? numCmp(x, y) : x.localeCompare(y, undefined, { numeric: true });
             return (sort.dir === 'asc' ? c : -c) || a.dataset.i - b.dataset.i;
           });
         }
         order.forEach((r) => tbody.appendChild(r));
+        let shown = visible;
+        if (pageSize) {
+          shown = Math.min(limit, visible);
+          let n = 0;
+          order.forEach((r) => { if (r.dataset.f !== '1') r.hidden = n++ >= limit; });
+          if (more) more.hidden = visible <= limit;
+        }
         heads.forEach((th, idx) => {
           const s = $('.hb-s', th), f = $('.hb-f', th);
           if (!s) return;
@@ -224,12 +249,12 @@
           th.classList.toggle('filtered', filters.has(idx));
           f.setAttribute('aria-label', 'Filter ' + th.dataset.label + (filters.has(idx) ? ' (active)' : ''));
         });
-        if (live) live.textContent = visible + ' of ' + rows.length + ' ' + noun;
+        if (live) live.textContent = (shown < visible ? shown + ' shown, ' : '') + visible + ' of ' + rows.length + ' ' + noun;
         resetBtns.forEach((b) => { b.hidden = !ctrl.isActive(); });
         refreshGlobal();
       },
       reset() {
-        filters.clear(); sort = null;
+        filters.clear(); sort = null; limit = pageSize;
         if (extra) extra.reset();
         if (openMenu && table.contains(openMenu.btn)) closeMenu();
         ctrl.apply();
@@ -277,8 +302,8 @@
         '</div><div class="fm-fields"><input type="number" step="any" autocomplete="off" class="fm-a"><input type="number" step="any" autocomplete="off" class="fm-b" placeholder="Maximum" aria-label="Maximum (inclusive)"></div>' +
         '<div class="fm-err" aria-live="polite" hidden></div>';
       const a = $('.fm-a', body), b = $('.fm-b', body), err = $('.fm-err', body);
-      if (Number.isFinite(cur.a)) a.value = cur.a;
-      if (Number.isFinite(cur.b)) b.value = cur.b;
+      if (cur.as !== undefined) a.value = cur.as;
+      if (cur.bs !== undefined) b.value = cur.bs;
       const update = () => {
         const between = op === 'between';
         b.hidden = !between;
@@ -291,7 +316,7 @@
         err.textContent = reversed ? 'Minimum must not exceed maximum.' : '';
         a.setAttribute('aria-invalid', String(reversed)); b.setAttribute('aria-invalid', String(reversed));
         const active = Number.isFinite(lo) && (!between || Number.isFinite(hi)) && !reversed;
-        if (active) { const f = { op, a: lo, b: hi }; f.test = numTest(f); filters.set(idx, f); } else filters.delete(idx);
+        if (active) { const f = { op, a: lo, b: hi, as: a.value, bs: b.value }; f.test = numTest(f); filters.set(idx, f); } else filters.delete(idx);
         setTitleClear(filters.has(idx));
         ctrl.apply();
       };
@@ -361,7 +386,14 @@
     });
 
     resetBtns.forEach((b) => b.addEventListener('click', () => ctrl.reset()));
+    if (more) more.addEventListener('click', () => {
+      limit += pageSize;
+      ctrl.apply();
+      // the button hides itself once everything is shown: keep the keyboard in the table
+      if (more.hidden) { const box = table.closest('.tscroll'); if (box) box.focus({ preventScroll: true }); }
+    });
     controllers.push(ctrl);
+    if (pageSize) ctrl.apply();
     return ctrl;
   };
 

@@ -25,6 +25,8 @@ def test_defaults_serialize_with_the_documented_section_names():
         "detectors",
         "patterns",
         "exposure",
+        "pattern_inference",
+        "observations",
         "random_seed",
     ]
     assert document["json"] == {
@@ -93,3 +95,43 @@ def test_valid_collections_and_patterns_are_kept():
 
     assert config.json_.collections == ["$.customers[].orders[]", '$["a.b"][]']
     assert config.patterns[0].accepts == ["string"]
+
+
+def test_the_sample_size_defaults_to_ten_thousand_beside_the_tracking_limit():
+    limits = ScanConfig().limits
+
+    assert limits.max_distinct_per_field == 100_000
+    assert limits.max_samples == 10_000
+
+
+def test_the_sample_size_is_capped():
+    ScanConfig.model_validate({"limits": {"max_samples": HARD_CAPS["max_samples"]}})
+
+    with pytest.raises(ValueError, match="max_samples"):
+        ScanConfig.model_validate(
+            {"limits": {"max_samples": HARD_CAPS["max_samples"] + 1}}
+        )
+
+
+def test_an_explicit_sample_size_above_the_tracking_limit_is_refused():
+    with pytest.raises(ValueError, match="max_samples cannot exceed"):
+        ScanConfig.model_validate(
+            {"limits": {"max_distinct_per_field": 500, "max_samples": 501}}
+        )
+
+
+def test_a_sample_size_left_unset_follows_a_lower_tracking_limit():
+    lowered = ScanConfig.model_validate({"limits": {"max_distinct_per_field": 500}})
+    raised = ScanConfig.model_validate({"limits": {"max_distinct_per_field": 200_000}})
+    explicit = ScanConfig.model_validate(
+        {"limits": {"max_distinct_per_field": 500, "max_samples": 20}}
+    )
+
+    assert lowered.limits.max_samples == 500
+    assert raised.limits.max_samples == 10_000
+    assert explicit.limits.max_samples == 20
+    # The document records the effective size, and so does its fingerprint.
+    spelled = ScanConfig.model_validate(
+        {"limits": {"max_distinct_per_field": 500, "max_samples": 500}}
+    )
+    assert config_sha256(lowered) == config_sha256(spelled)

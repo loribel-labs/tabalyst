@@ -1,0 +1,7 @@
+id,en,fr
+hdd,HDD,Disque dur
+sata_ssd,SATA SSD,SSD SATA
+nvme_ssd,NVMe SSD,SSD NVMe
+pcie_ssd,PCIe SSD,SSD PCIe
+emmc,eMMC,eMMC
+ufs,UFS,UFS

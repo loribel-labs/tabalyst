@@ -1,0 +1,25 @@
+id,en,fr
+power_adapter,Power adapter,Adaptateur secteur
+power_cable,Power cable,Câble d’alimentation
+usb_c_cable,USB-C cable,Câble USB-C
+usb_a_cable,USB-A cable,Câble USB-A
+hdmi_cable,HDMI cable,Câble HDMI
+displayport_cable,DisplayPort cable,Câble DisplayPort
+ethernet_cable,Ethernet cable,Câble Ethernet
+keyboard,Keyboard,Clavier
+mouse,Mouse,Souris
+wireless_keyboard,Wireless keyboard,Clavier sans fil
+wireless_mouse,Wireless mouse,Souris sans fil
+stylus,Stylus,Stylet
+active_pen,Active pen,Stylet actif
+dock,Docking station,Station d’accueil
+usb_adapter,USB adapter,Adaptateur USB
+usb_c_adapter,USB-C adapter,Adaptateur USB-C
+ethernet_adapter,Ethernet adapter,Adaptateur Ethernet
+display_adapter,Display adapter,Adaptateur vidéo
+carrying_case,Carrying case,Étui de transport
+sleeve,Sleeve,Housse
+recovery_media,Recovery media,Support de récupération
+documentation,Documentation,Documentation
+quick_start_guide,Quick start guide,Guide de démarrage rapide
+warranty_card,Warranty card,Carte de garantie

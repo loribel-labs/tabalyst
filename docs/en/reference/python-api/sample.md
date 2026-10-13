@@ -1,6 +1,6 @@
 ---
 title: "Python API: sampling"
-description: The Python functions that write a smaller CSV file - sample_csv and generate_samples - with their parameters, return values and examples of first, last, random and stratified samples.
+description: The Python functions that write a smaller CSV file - sample_csv, generate_samples and the two steps of a smart sample - with their parameters, return values and examples.
 ---
 
 `tabalyst.sample_csv()` samples one CSV file and `tabalyst.generate_samples()`
@@ -34,19 +34,26 @@ tabalyst.sample_csv(
     delimiter=",",
     encoding="utf-8-sig",
     force=False,
+    max_strata=100_000,
 )
 ```
 
 Returns a `tabalyst.SampleResult` with `source`, `output`, `method`,
 `source_rows`, `sample_rows`, `sample_rate`, `field`, `seed`, `encoding` and
-`delimiter`.
+`delimiter`. A stratified sample also gives `fields` (the columns, as a tuple)
+and the balance of its strata: `strata_known`, `strata_selected` and
+`strata_uncovered` (the strata that got no row). They are `None` for the other
+methods.
 
 - `source`: the CSV file.
 - `method`: `"first"`, `"last"`, `"random"` or `"stratified"`, or a
   `tabalyst.SampleMethod`.
 - `rows`, `percent`: the size of the sample, as a number of data rows or a
   percentage rounded up to a whole row. Give exactly one.
-- `field`: the field that defines the strata; required by `"stratified"`.
+- `field`: the field that defines the strata, or a list of fields whose
+  combinations define them; required by `"stratified"`.
+- `max_strata`: the most strata a stratified sample may hold, 100,000 by
+  default. More raise `tabalyst.InputError`.
 - `seed`: makes a random or stratified selection reproducible.
 - `output`: the output filename; by default `<stem>.sample.csv` beside the source.
 - `delimiter`, `encoding`: how the CSV file is read and written.
@@ -69,6 +76,9 @@ tabalyst.generate_samples(
     encoding=None,
     config_path=None,
     force=False,
+    max_strata=None,
+    confirmed=False,
+    on_progress=None,
 )
 ```
 
@@ -78,3 +88,42 @@ Returns a [batch result](index.md#batch-functions) whose successes hold a
 samples, named `<stem>.sample.csv`. `delimiter` and `encoding` default to the
 configuration files in `config_path`, then to the built-in defaults. The other
 parameters are those of `sample_csv()`.
+
+`max_strata=None` is the default limit of 100,000; give a number to change it and
+to allow a stratified sample that a stored scan shows may make too many strata.
+
+## Smart samples
+
+`method="smart"` in `generate_samples()` writes a smart sample and its
+[report](../../sample/format.md), and the web page of the report unless
+`html=False`. `field` is not used. The sample needs the scan of
+the file: the stored one is reused, and otherwise the file is scanned first.
+The function never asks anything. When the selection is costly it raises
+`tabalyst.SelectionConfirmationRequired` before reading any source again, with the
+estimate in `.confirmation`; call it again with `confirmed=True` to run it.
+
+```python
+import tabalyst
+
+try:
+    batch = tabalyst.generate_samples(
+        ["customers.csv"], method="smart", rows=1000
+    )
+except tabalyst.SelectionConfirmationRequired as asked:
+    print(asked.confirmation.estimate)
+    batch = tabalyst.generate_samples(
+        ["customers.csv"], method="smart", rows=1000, confirmed=True
+    )
+result = batch.successes[0].result
+print(result.report, result.smart.covered, result.smart.evaluable)
+```
+
+A `SampleResult` of a smart sample also has `report` (the path of the report),
+`page` (the path of its web page, `None` with `html=False`) and
+`smart`, a summary with `targets`, `evaluable`, `covered`, `weighted_share`,
+`mandatory`, `mandatory_covered`, `reserve_rows`, `passes`, `scan_ran` and
+`duration_seconds`. `tabalyst.prepare_smart_samples()` does the first half (scan,
+plan, estimate; it returns a preparation whose `requires_confirmation` and
+`confirmation` you can read) and `tabalyst.execute_smart_samples(preparation,
+confirmed=False)` the second. `tabalyst.plan_sampling()` gives the
+[plan](../../scan/plan.md#smart-sample-plan) alone.

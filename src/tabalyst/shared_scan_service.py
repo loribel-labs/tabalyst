@@ -47,6 +47,8 @@ def current_scan(
     *,
     location: StorageLocation | None = None,
     workers: int | None = None,
+    counters: bool = False,
+    json_indent: bool = False,
     on_progress=None,
     refresh: bool = False,
     scan_layer: dict | None = None,
@@ -72,15 +74,19 @@ def current_scan(
             try:
                 stored = load_scan(path)
             except UnsupportedScanDocument:
-                # Written by a release with another scan format: out of date,
-                # so scanned again like any stale cache.
+                # Another scan format, or a document that no longer satisfies
+                # the model: out of date, so scanned again like any stale
+                # cache.
                 stored = None
+        if stored is not None and config_sha256(stored.config) != stored.config_sha256:
+            # A document written before a setting existed (its default now
+            # fills the configuration, so the fingerprint moves) or edited by
+            # hand: out of date, scanned again like any stale cache.
+            stored = None
         if stored is not None:
             result = stored
             if result.source.name != source.name:
                 raise InputError("Stored scan source binding differs from the requested file")
-            if config_sha256(result.config) != result.config_sha256:
-                raise InputError("Stored scan configuration fingerprint is invalid")
             fresh = compare_source(source, result.source, sha256=source_sha256)
             if scan_layer is not None:
                 recorded = result.config.model_dump(mode="json", by_alias=True)
@@ -99,10 +105,46 @@ def current_scan(
                     notices = () if check is None else check(result)
                     return SharedScan(result, path, True, notices)
 
-        result = scan(source, config=effective, workers=workers, on_progress=on_progress)
+        result = scan(
+            source,
+            config=effective,
+            workers=workers,
+            counters=counters,
+            on_progress=on_progress,
+        )
         notices = () if check is None else check(result)
         try:
-            write_text_atomic(path, scan_document(result))
+            write_text_atomic(path, scan_document(result, indent=json_indent))
         except OSError as exc:
             raise ReportError(f"Cannot write scan file {path}: {exc}") from exc
         return SharedScan(result, path, False, notices)
+
+
+def stored_scan(
+    source: Path, config: ScanConfig, *, location: StorageLocation | None = None
+) -> ScanResult | None:
+    """The current stored Scan of ``source`` for ``config``, or ``None``.
+
+    It never scans and never writes: a command that only wants to use a Scan when
+    one is there (design 20.16, D23) asks this. A document of another format, of
+    another source content, configuration or engine is not current.
+    """
+    source = source.resolve()
+    location = location or StorageLocation.local()
+    path = location.shared_scan_path(source)
+    if not path.exists():
+        return None
+    try:
+        result = load_scan(path)
+    except (UnsupportedScanDocument, OSError):
+        return None
+    if result.source.name != source.name:
+        return None
+    try:
+        fresh = compare_source(source, result.source)
+    except OSError:
+        return None
+    if fresh.state is not SourceState.FRESH or fresh.sha256 is None:
+        return None
+    wanted = expected_identity(fresh.sha256, config, source_format=source_format_of(source))
+    return result if wanted == scan_identity(result) else None

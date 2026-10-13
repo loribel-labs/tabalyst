@@ -13,6 +13,7 @@ import os
 import random
 import tempfile
 from collections import Counter, defaultdict, deque
+from collections.abc import Hashable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
@@ -21,6 +22,11 @@ from typing import TextIO
 from tabalyst.batch import apply_default_file_mode
 from tabalyst.config import CsvConfig
 from tabalyst.errors import InputError, ReportError
+from tabalyst.scanner.stratify import allocate_strata
+
+# The most strata a stratified sample keeps at once (STRAT-08): one counter and
+# one reservoir per stratum are held in memory while the file streams.
+DEFAULT_MAX_STRATA = 100_000
 
 
 class SampleMethod(StrEnum):
@@ -30,6 +36,25 @@ class SampleMethod(StrEnum):
     LAST = "last"
     RANDOM = "random"
     STRATIFIED = "stratified"
+    SMART = "smart"
+
+
+@dataclass(frozen=True)
+class SmartSummary:
+    """What a smart sample covers of the catalog of targets of its plan (design
+    20.16): not of every phenomenon of the data, and not in the proportions of the
+    population."""
+
+    targets: int
+    evaluable: int
+    covered: int
+    weighted_share: float | None
+    mandatory: int
+    mandatory_covered: int
+    reserve_rows: int
+    passes: int
+    scan_ran: bool
+    duration_seconds: float
 
 
 @dataclass(frozen=True)
@@ -46,14 +71,25 @@ class SampleResult:
     seed: int | None
     encoding: str
     delimiter: str
+    # The columns of a stratified sample (``field`` joins them with a comma) and
+    # its balance: the strata the file has, the ones that got rows, and the
+    # ones whose rounded quota was zero (STRAT-02). ``None`` for the other methods.
+    fields: tuple[str, ...] = ()
+    strata_known: int | None = None
+    strata_selected: int | None = None
+    strata_uncovered: int | None = None
+    # A smart sample writes a report beside its CSV file and sums it up here.
+    report: Path | None = None
+    page: Path | None = None
+    smart: SmartSummary | None = None
 
 
 @dataclass(frozen=True)
 class _ScanResult:
     headers: list[str]
     row_count: int
-    strata: Counter[str]
-    field_index: int | None
+    strata: Counter[Hashable]
+    field_indexes: tuple[int, ...]
 
 
 def _validate_paths(source: Path, output: Path, *, force: bool) -> None:
@@ -93,22 +129,27 @@ def _output_encoding(source: Path, encoding: str) -> str:
     return "utf-8-sig" if has_bom else "utf-8"
 
 
-def _scan(source: Path, config: CsvConfig, field: str | None) -> _ScanResult:
+def _scan(
+    source: Path,
+    config: CsvConfig,
+    fields: Sequence[str],
+    max_strata: int,
+) -> _ScanResult:
     stream, reader = _open_reader(source, config)
-    strata: Counter[str] = Counter()
+    strata: Counter[Hashable] = Counter()
     try:
         try:
             headers = next(reader, None)
             if not headers:
                 raise InputError("CSV is empty or has no header on its first record.")
-            field_index = None
-            if field is not None:
+            field_indexes: list[int] = []
+            for field in fields:
                 matches = [index for index, name in enumerate(headers) if name == field]
                 if not matches:
                     raise InputError(f"Stratification field does not exist: {field}")
                 if len(matches) > 1:
                     raise InputError(f"Stratification field is ambiguous: {field}")
-                field_index = matches[0]
+                field_indexes.append(matches[0])
 
             row_count = 0
             for row_count, row in enumerate(reader, start=1):
@@ -118,8 +159,15 @@ def _scan(source: Path, config: CsvConfig, field: str | None) -> _ScanResult:
                         f"{reader.line_num}): expected {len(headers)} fields, "
                         f"found {len(row)}. Verify the delimiter and quoting."
                     )
-                if field_index is not None:
-                    strata[row[field_index]] += 1
+                if field_indexes:
+                    key = _stratum_key(row, field_indexes)
+                    strata[key] += 1
+                    if len(strata) > max_strata:
+                        raise InputError(
+                            f"Stratification by {', '.join(fields)} found more than "
+                            f"{max_strata:,} strata at data record {row_count}. Use "
+                            "fewer or less detailed fields, or raise --max-strata."
+                        )
         except csv.Error as exc:
             raise InputError(
                 f"Invalid CSV near physical line {reader.line_num}: {exc}"
@@ -132,7 +180,16 @@ def _scan(source: Path, config: CsvConfig, field: str | None) -> _ScanResult:
             raise InputError(f"Cannot read CSV file {source}: {exc}") from exc
     finally:
         stream.close()
-    return _ScanResult(headers, row_count, strata, field_index)
+    return _ScanResult(headers, row_count, strata, tuple(field_indexes))
+
+
+def _stratum_key(row: list[str], indexes: Sequence[int]) -> Hashable:
+    """The stratum of a row: the cell itself for one field, a tuple of cells for
+    several, so that ("a|b", "c") and ("a", "b|c") never collide (STRAT-03). An
+    empty cell is a stratum of its own, as it always was."""
+    if len(indexes) == 1:
+        return row[indexes[0]]
+    return tuple(row[index] for index in indexes)
 
 
 def _validate_size_options(rows: int | None, percent: float | None) -> None:
@@ -161,22 +218,6 @@ def _sample_size(row_count: int, rows: int | None, percent: float | None) -> int
     return size
 
 
-def _allocate_strata(counts: Counter[str], size: int) -> dict[str, int]:
-    total = counts.total()
-    if not total or not size:
-        return {value: 0 for value in counts}
-    exact = {value: count * size / total for value, count in counts.items()}
-    allocated = {value: math.floor(value_size) for value, value_size in exact.items()}
-    remainder = size - sum(allocated.values())
-    order = sorted(
-        counts,
-        key=lambda value: (-(exact[value] - allocated[value]), str(value)),
-    )
-    for value in order[:remainder]:
-        allocated[value] += 1
-    return allocated
-
-
 def _reservoir_add(
     reservoir: list[tuple[int, list[str]]],
     item: tuple[int, list[str]],
@@ -201,6 +242,7 @@ def _select_rows(
     method: SampleMethod,
     size: int,
     seed: int | None,
+    allocations: dict[Hashable, int] | None,
 ) -> list[list[str]]:
     stream, reader = _open_reader(source, config)
     rng = random.Random(seed)
@@ -216,12 +258,11 @@ def _select_rows(
             for seen, row in enumerate(reader, start=1):
                 _reservoir_add(selected, (seen - 1, row), seen, size, rng)
         else:
-            assert scan.field_index is not None
-            allocations = _allocate_strata(scan.strata, size)
-            reservoirs: dict[str, list[tuple[int, list[str]]]] = defaultdict(list)
-            seen_by_stratum: Counter[str] = Counter()
+            assert scan.field_indexes and allocations is not None
+            reservoirs: dict[Hashable, list[tuple[int, list[str]]]] = defaultdict(list)
+            seen_by_stratum: Counter[Hashable] = Counter()
             for index, row in enumerate(reader):
-                value = row[scan.field_index]
+                value = _stratum_key(row, scan.field_indexes)
                 seen_by_stratum[value] += 1
                 _reservoir_add(
                     reservoirs[value],
@@ -247,10 +288,58 @@ def _select_rows(
     return [row for _, row in selected]
 
 
+def write_sample_csv(
+    output: Path,
+    header: Sequence[str],
+    rows: Sequence[Sequence[str]],
+    source: Path,
+    config: CsvConfig,
+) -> None:
+    """Write a sample next to its source's conventions (delimiter, and a byte-order
+    mark only if the source had one), through a temporary file that replaces the
+    output once complete."""
+    writer_encoding = _output_encoding(source, config.encoding)
+    temporary: Path | None = None
+    try:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding=writer_encoding,
+            newline="",
+            dir=output.parent,
+            prefix=f".{output.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as stream:
+            temporary = Path(stream.name)
+            apply_default_file_mode(temporary)
+            writer = csv.writer(stream, delimiter=config.delimiter)
+            writer.writerow(header)
+            writer.writerows(rows)
+        os.replace(temporary, output)
+    except OSError as exc:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+        raise ReportError(f"Cannot write sample to {output}: {exc}") from exc
+
+
 def default_sample_output(source: Path) -> Path:
     """Return the conventional sample filename beside a source file."""
 
     return source.with_name(f"{source.stem}.sample.csv")
+
+
+def stratification_fields(field: str | Sequence[str] | None) -> tuple[str, ...]:
+    """The columns of a stratified sample from the ``field`` option: one name or
+    several (the strata are then the combinations of their values)."""
+    if field is None:
+        return ()
+    names = (field,) if isinstance(field, str) else tuple(field)
+    if any(not name for name in names):
+        raise InputError("A stratification field cannot be empty.")
+    if len(set(names)) != len(names):
+        raise InputError("A stratification field is named twice.")
+    return names
 
 
 def validate_sample_options(
@@ -258,7 +347,8 @@ def validate_sample_options(
     *,
     rows: int | None,
     percent: float | None,
-    field: str | None,
+    field: str | Sequence[str] | None,
+    max_strata: int = DEFAULT_MAX_STRATA,
 ) -> SampleMethod:
     """Validate options shared by single-file and batch adapters."""
 
@@ -267,10 +357,13 @@ def validate_sample_options(
     except ValueError as exc:
         choices = ", ".join(item.value for item in SampleMethod)
         raise InputError(f"Unknown sample method {method!r}; choose from {choices}.") from exc
-    if selected_method is SampleMethod.STRATIFIED and not field:
+    fields = stratification_fields(field)
+    if selected_method is SampleMethod.STRATIFIED and not fields:
         raise InputError("--field is required with stratified sampling.")
-    if selected_method is not SampleMethod.STRATIFIED and field is not None:
+    if selected_method is not SampleMethod.STRATIFIED and fields:
         raise InputError("--field can only be used with stratified sampling.")
+    if max_strata < 1:
+        raise InputError("--max-strata must be at least 1.")
     _validate_size_options(rows, percent)
     return selected_method
 
@@ -281,18 +374,32 @@ def sample_csv(
     method: SampleMethod | str,
     rows: int | None = None,
     percent: float | None = None,
-    field: str | None = None,
+    field: str | Sequence[str] | None = None,
     seed: int | None = None,
     output: str | Path | None = None,
     delimiter: str = ",",
     encoding: str = "utf-8-sig",
     force: bool = False,
+    max_strata: int = DEFAULT_MAX_STRATA,
 ) -> SampleResult:
-    """Create a bounded-memory sample of a CSV file."""
+    """Create a bounded-memory sample of a CSV file.
+
+    A stratified sample allocates its rows to the strata in proportion to their
+    size, with no minimum of one row (a rare stratum can be absent: the result
+    counts them). ``field`` may name several columns; a stratum is then a
+    combination of their values. More than ``max_strata`` strata stop the
+    operation with an ``InputError`` rather than grow without bound.
+    """
 
     selected_method = validate_sample_options(
-        method, rows=rows, percent=percent, field=field
+        method, rows=rows, percent=percent, field=field, max_strata=max_strata
     )
+    if selected_method is SampleMethod.SMART:
+        raise InputError(
+            "A smart sample needs the Scan of the file: use generate_samples, "
+            "or tabalyst sample --sample-method smart."
+        )
+    fields = stratification_fields(field)
 
     try:
         config = CsvConfig(encoding=encoding, delimiter=delimiter)
@@ -303,37 +410,22 @@ def sample_csv(
         Path(output) if output is not None else default_sample_output(source_path)
     )
     _validate_paths(source_path, output_path, force=force)
-    scan = _scan(source_path, config, field)
+    scan = _scan(source_path, config, fields, max_strata)
     size = _sample_size(scan.row_count, rows, percent)
+    stratified = selected_method is SampleMethod.STRATIFIED
+    allocations = allocate_strata(scan.strata, size) if stratified else None
     selected = _select_rows(
-        source_path, config, scan, selected_method, size, seed
+        source_path, config, scan, selected_method, size, seed, allocations
     )
 
-    writer_encoding = _output_encoding(source_path, config.encoding)
-    temporary: Path | None = None
-    try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with tempfile.NamedTemporaryFile(
-            "w",
-            encoding=writer_encoding,
-            newline="",
-            dir=output_path.parent,
-            prefix=f".{output_path.name}.",
-            suffix=".tmp",
-            delete=False,
-        ) as stream:
-            temporary = Path(stream.name)
-            apply_default_file_mode(temporary)
-            writer = csv.writer(stream, delimiter=config.delimiter)
-            writer.writerow(scan.headers)
-            writer.writerows(selected)
-        os.replace(temporary, output_path)
-    except OSError as exc:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
-        raise ReportError(f"Cannot write sample to {output_path}: {exc}") from exc
+    write_sample_csv(output_path, scan.headers, selected, source_path, config)
 
     rate = (size / scan.row_count * 100) if scan.row_count else 0.0
+    known = selected_count = uncovered = None
+    if allocations is not None:
+        known = len(scan.strata)
+        uncovered = sum(1 for quota in allocations.values() if quota == 0)
+        selected_count = known - uncovered
     return SampleResult(
         source=source_path,
         output=output_path,
@@ -341,8 +433,12 @@ def sample_csv(
         source_rows=scan.row_count,
         sample_rows=size,
         sample_rate=rate,
-        field=field,
+        field=", ".join(fields) if fields else None,
         seed=seed,
         encoding=config.encoding,
         delimiter=config.delimiter,
+        fields=fields,
+        strata_known=known,
+        strata_selected=selected_count,
+        strata_uncovered=uncovered,
     )

@@ -1,0 +1,16 @@
+computer_type_id,form_factor_id
+laptop,clamshell
+laptop,convertible_360
+laptop,detachable
+laptop,rugged
+desktop,tower
+desktop,small_form_factor
+desktop,micro
+all_in_one,integrated_display
+mini_pc,mini
+mini_pc,micro
+mini_pc,stick
+single_board_computer,board
+server,tower
+server,rackmount
+server,blade

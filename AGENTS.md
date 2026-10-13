@@ -45,8 +45,74 @@ support is not yet required. Record format changes in the relevant changelogs.
 - `src/tabalyst/report_profile.py`: report profile built from a Scan result,
   without file or presentation concerns.
 - `src/tabalyst/models.py`: Pydantic models serialized to the experimental JSON profile.
+- `src/tabalyst/report_views.py`, `report_sections.py`, `report_labels.py`: what the
+  report pages read from the document (observations, limits, patterns, row sample,
+  qualified counts), computed at render time, and the words they print. See
+  `docs/dev/scan/design.md` 18.14. `report_relations.py` builds the Relationships
+  section (tables of a category against a feature, correlations) from `analyses`.
+- `src/tabalyst/report_insights.py`: the insight cards of the report (values with a unit, shape of
+  the numbers, parts of the dates, values left out, repeated values, numbers by category, and the
+  measures derived from the Scan), each figure with its accuracy, computed at render time from
+  `analyses` alone; `templates/insights.html` is their macro, shared by the report and the column
+  pages.
 - `src/tabalyst/scan_reuse.py`: scan documents reused by the report, with the
   staleness rule.
+- `src/tabalyst/scanner/pearson.py`: the arithmetic of the Pearson correlation
+  (stable co-moments, Chan merge, Fisher interval), shared by the exploration of
+  the row sample and the second pass (`docs/dev/scan/design.md` 20.12).
+- `src/tabalyst/scanner/convention_rule.py`: the rule that reads ambiguous
+  numbers by the evidence of their column, decided once by the first pass and
+  read back by every later reading (`CellReader.for_field`); `order_of` of the
+  dates shares its purity rule (`docs/dev/scan/design.md` 20.27). The values with
+  a unit take their convention from the plan (`MeasureFacts.convention`,
+  parameter `number_convention`; 20.28).
+- `src/tabalyst/scanner/planner/`: registry of analyzers and planner of the
+  second pass (`docs/dev/scan/design.md` 20.5); `src/tabalyst/plan_service.py`
+  is its boundary for the CLI and the API.
+  `costmodel.py` holds the calibrated sizes, budgets and CPU classes (20.2),
+  `secondpass.py` the time estimate and the confirmation (20.3). `relations.py` explores the pairs of numeric columns
+  on the row sample and bounds that work (20.12); `crosstabs.py` does the same for the tables of a
+  category against a feature (20.13). `PairAnalyzer` (`analyzer.py`) is what both pair analyzers
+  implement; `samplerows.py` and `identifiers.py` hold what the two explorations share.
+  `stratification.py` and `stratmodels.py` are the advice on stratified sampling the plan can carry
+  (20.14); it is not an analyzer.
+- `src/tabalyst/scanner/features.py`: the classes of a category and of the features of a column
+  (`pattern`, `length`, `prefix`) and the pattern classifier shared with the validation;
+  `scanner/crosstab.py` the arithmetic of a table of counts (purity, Cramér's V), shared by the
+  exploration and the second pass (20.13).
+- `src/tabalyst/scanner/stratify.py`: the arithmetic of stratification shared by `sampling.py` and the
+  advice (classic allocation, saturating product of cardinalities; 20.14).
+- `src/tabalyst/scanner/smart/`: the targets and the plan of a smart sample (`SamplingPlan`: targets by
+  family, monotone capped weights, sizes, reserve, candidate budget, readings of the source; 20.15). It
+  reads a Scan and a current second-pass document, never the source. The selection of the rows (lot 10b,
+  20.16) is in the same package: `evaluate.py` (tests on a row), `select.py` (bounded pool, greedy cover),
+  `execute.py` (the guarded reading), `estimate.py` (time, confirmation), `result.py` (the report
+  `tabalyst.sample`); `src/tabalyst/smart_service.py` is its boundary for the CLI and the API.
+- `src/tabalyst/sample_page.py`: the web page of a smart sample, rendered from its report `tabalyst.sample`
+  alone (`templates/sample.html`; `--no-html`).
+- `src/tabalyst/scan_page.py`: the web page of an explicit `tabalyst scan` (the report rendered from the Scan
+  alone; 16.8). Scans another command makes by itself write none.
+- `src/tabalyst/source_guard.py`: checks before and after a second reading of
+  a source (plan against Scan, readable source, digest at the end; 20.6).
+- `src/tabalyst/scanner/secondpass/`: executor of the second pass (one reading,
+  replay of the first pass's reading of a cell, exact histograms and
+  quantiles, the exact distinct count of the original values and the exact
+  frequencies, the patterns counted on every occurrence and the dates per
+  period) and its document `<stem>.deep.json` (`docs/dev/scan/design.md`
+  20.4 and 20.7 to 20.10); `src/tabalyst/deep_service.py` is its boundary for the CLI
+  and the API. `secondpass/parallel.py` runs the routes of the fields of a CSV file
+  in worker processes (20.18). `secondpass/drift.py` follows a field by slice of records and
+  `secondpass/matrix.py` counts the records that lack a value in several columns at once (20.30, 20.31).
+  `secondpass/structure.py` counts the lengths of the arrays (`ArrayAccumulator`) and the sets of keys of the
+  objects and of the records (`KeySets`, swept by `StructureAccumulator`, which the `Router` feeds record by record)
+  of a JSON source (20.33); `secondpass/texts.py` the words, lines and digits of long texts and their 128-bit
+  fingerprints (20.34); `secondpass/forms.py` the masks and classes of a masked sensitive field without a value, with
+  a floor (decision O61, 20.35). `planner/facts.root_facts` gives the root of the records, the field `$`, to the
+  analyzers that set `roots`. `exact_distinct` is the one analysis that also reads a masked or hidden field.
+- `src/tabalyst/report_chain.py`: the second pass inside Report (who decides,
+  plan, confirmation, run, the `analyses` member; design 20.11);
+  `src/tabalyst/deep_store.py` writes the second-pass document beside its Scan
+  and holds `ConfirmationRequired`. `report_deep.py` is what the HTML reads of it.
 - `src/tabalyst/config.py`: validated configuration and defaults.
 - `src/tabalyst/service.py`: reusable analysis boundary for the CLI and future API adapters.
 - `src/tabalyst/batch.py`: glob resolution, output planning, collision
@@ -119,6 +185,58 @@ Check the documentation and website changes in `../tabalyst-studio` against
 the public README and released tag. Keep prepared, committed, tagged and
 published states distinct in all three repositories.
 
+## Code documentation
+
+These rules apply to code written or modified from now on. Do not mass-fix
+existing code to comply; fix what a change touches.
+
+**Types**
+
+- Every function, method and class attribute has complete type annotations
+  (parameters and return).
+- No `Any` unless a comment justifies it.
+- The code must pass `mypy` (or `pyright`) with no new error.
+
+**Docstrings**
+
+- Required for modules, classes and public functions (no `_` prefix). Optional
+  for private functions unless their behavior is not obvious.
+- Format: a one-line summary, then only what the signature does not tell:
+  side effects, raised exceptions, assumptions about the data, edge cases.
+- Do not repeat types or describe parameters whose name and type are enough.
+- Every module starts with a docstring of one to three lines describing its
+  responsibility (after the license header).
+
+**Comments**
+
+- A comment explains why, never what: a business constraint, a workaround, a
+  performance decision, a trap not to "fix".
+- No comment that paraphrases the code.
+- Never delete a "why" comment without understanding its reason; when in doubt,
+  ask.
+
+**Synchronization**
+
+- Any change of signature or behavior updates the related docstring and
+  comments in the same change.
+- A docstring or comment that became wrong is fixed or removed, never left in
+  place.
+
+**Tests as documentation**
+
+- Every new public behavior comes with at least one test.
+- Test names describe the expected behavior, in English (for example
+  `test_returns_mixed_when_no_majority_type`).
+- Before considering a task done: run the tests, the lint and the type check.
+
+**Architecture decisions**
+
+- Structuring decisions are recorded in `docs/dev/adr/` (one short file per
+  decision: context, decision, consequences). It is maintainer documentation,
+  never published.
+- Read the existing ADRs before proposing an architecture change; do not
+  reverse a recorded decision without saying so explicitly.
+
 ## Documentation
 
 `docs/` holds the sources of the public documentation site (docs.tabalyst.com,
@@ -177,6 +295,30 @@ Writing rules for `docs/en/`:
 When a user-facing behavior changes, update the matching page in `docs/en/`.
 The contents of `docs/en/` and `docs/fr/` are licensed under CC BY 4.0
 (`docs/LICENSE`); the code stays MPL-2.0.
+
+## Design rules
+
+**Smart by default, explicit when costly.** Applies to every command, API and
+future tool.
+
+- An automatic mode (for example the deep pass chosen by `tabalyst report`)
+  runs an extra operation only when its benefit is established and its cost is
+  low. The decision uses deterministic budgets (memory in bytes, cells to
+  process, number of columns), never measured wall-clock time, so the same file
+  gives the same result on any machine. Estimated time only feeds messages and
+  warnings.
+- Forcing an operation (`--deep`) whose estimated cost passes the thresholds
+  (several minutes, or memory beyond the budget) shows the estimate and asks the
+  user to confirm before starting. A batch asks once, with the total.
+- Outside an interactive terminal (script, pipe, CI) never ask: stop with an exit
+  code and a message unless `--yes` is given. `--force` keeps its meaning
+  (overwrite an existing output).
+- The Python API never prompts: it returns the plan with `requires_confirmation`
+  and the estimate, and executes only with an explicit parameter.
+- Never run a long operation silently. An automatic operation is named in the
+  progress output and in the result, with what it added or skipped and why.
+- `tabalyst scan` is never automatic: it stays the fast first pass. Only
+  `--deep` forces the deeper pass there.
 
 ## Versioning
 

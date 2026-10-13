@@ -1,0 +1,36 @@
+id,en,fr,display_type,touch,size_in,resolution,refresh_rate_hz,brightness_nits,finish,aspect_ratio,hdr,color_gamut
+ips_15_3_2880_1864_60,15.3-inch 2880x1864 IPS display,Écran IPS 15.3 po 2880x1864,ips,false,15.3,2880x1864,60,500,glossy,3:2,none,dci_p3_100
+none,No integrated display,Aucun écran intégré,none,false,,,,,,,,
+ips_11_6_hd_60,11.6-inch HD IPS display,Écran IPS HD 11.6 po,ips,false,11.6,1366x768,60,250,matte,16:9,none,srgb_62
+ips_12_4_fhd_60_touch,12.4-inch Full HD IPS touchscreen,Écran tactile IPS Full HD 12.4 po,ips,true,12.4,1920x1080,60,300,glossy,16:9,none,srgb_100
+ips_13_3_fhd_60,13.3-inch Full HD IPS display,Écran IPS Full HD 13.3 po,ips,false,13.3,1920x1080,60,300,matte,16:9,none,srgb_100
+ips_13_3_fhd_60_touch,13.3-inch Full HD IPS touchscreen,Écran tactile IPS Full HD 13.3 po,ips,true,13.3,1920x1080,60,400,glossy,16:9,none,srgb_100
+ips_13_6_2560_1664_60,13.6-inch 2560x1664 IPS display,Écran IPS 13.6 po 2560x1664,ips,false,13.6,2560x1664,60,500,glossy,16:10,hdr10,dci_p3_100
+ips_14_wuxga_60,14-inch WUXGA IPS display,Écran IPS WUXGA 14 po,ips,false,14.0,1920x1200,60,300,matte,16:10,none,srgb_100
+ips_14_wuxga_60_touch,14-inch WUXGA IPS touchscreen,Écran tactile IPS WUXGA 14 po,ips,true,14.0,1920x1200,60,400,glossy,16:10,none,srgb_100
+ips_14_wuxga_120,14-inch WUXGA 120 Hz IPS display,Écran IPS WUXGA 120 Hz 14 po,ips,false,14.0,1920x1200,120,400,matte,16:10,none,srgb_100
+ips_14_qhdplus_120,14-inch QHD+ 120 Hz IPS display,Écran IPS QHD+ 120 Hz 14 po,ips,false,14.0,2560x1600,120,500,matte,16:10,displayhdr_400,dci_p3_100
+oled_14_2_8k_90,14-inch 2.8K OLED 90 Hz display,Écran OLED 2.8K 90 Hz 14 po,oled,false,14.0,2880x1800,90,400,glossy,16:10,true_black_500,dci_p3_100
+oled_14_2_8k_120,14-inch 2.8K OLED 120 Hz display,Écran OLED 2.8K 120 Hz 14 po,oled,false,14.0,2880x1800,120,500,glossy,16:10,true_black_500,dci_p3_100
+oled_14_2_8k_120_touch,14-inch 2.8K OLED 120 Hz touchscreen,Écran tactile OLED 2.8K 120 Hz 14 po,oled,true,14.0,2880x1800,120,500,glossy,16:10,true_black_500,dci_p3_100
+ips_14_5_qhdplus_120,14.5-inch QHD+ 120 Hz IPS display,Écran IPS QHD+ 120 Hz 14.5 po,ips,false,14.5,2560x1600,120,500,matte,16:10,displayhdr_400,dci_p3_100
+oled_14_5_3k_120_touch,14.5-inch 3K OLED 120 Hz touchscreen,Écran tactile OLED 3K 120 Hz 14.5 po,oled,true,14.5,3072x1920,120,500,glossy,16:10,true_black_500,dci_p3_100
+ips_15_6_fhd_60,15.6-inch Full HD IPS display,Écran IPS Full HD 15.6 po,ips,false,15.6,1920x1080,60,250,matte,16:9,none,srgb_62
+ips_15_6_fhd_144,15.6-inch Full HD 144 Hz IPS display,Écran IPS Full HD 144 Hz 15.6 po,ips,false,15.6,1920x1080,144,300,matte,16:9,none,srgb_100
+ips_15_6_fhd_165,15.6-inch Full HD 165 Hz IPS display,Écran IPS Full HD 165 Hz 15.6 po,ips,false,15.6,1920x1080,165,350,matte,16:9,none,srgb_100
+oled_15_6_2_8k_120,15.6-inch 2.8K OLED 120 Hz display,Écran OLED 2.8K 120 Hz 15.6 po,oled,false,15.6,2880x1800,120,500,glossy,16:10,true_black_500,dci_p3_100
+ips_16_wuxga_60,16-inch WUXGA IPS display,Écran IPS WUXGA 16 po,ips,false,16.0,1920x1200,60,300,matte,16:10,none,srgb_100
+ips_16_wuxga_120,16-inch WUXGA 120 Hz IPS display,Écran IPS WUXGA 120 Hz 16 po,ips,false,16.0,1920x1200,120,400,matte,16:10,none,srgb_100
+ips_16_qhdplus_165,16-inch QHD+ 165 Hz IPS display,Écran IPS QHD+ 165 Hz 16 po,ips,false,16.0,2560x1600,165,500,matte,16:10,displayhdr_400,dci_p3_100
+ips_16_qhdplus_240,16-inch QHD+ 240 Hz IPS display,Écran IPS QHD+ 240 Hz 16 po,ips,false,16.0,2560x1600,240,500,matte,16:10,displayhdr_400,dci_p3_100
+oled_16_3_2k_120,16-inch 3.2K OLED 120 Hz display,Écran OLED 3.2K 120 Hz 16 po,oled,false,16.0,3200x2000,120,500,glossy,16:10,true_black_500,dci_p3_100
+mini_led_16_qhdplus_240,16-inch QHD+ Mini-LED 240 Hz display,Écran Mini-LED QHD+ 240 Hz 16 po,mini_led,false,16.0,2560x1600,240,1000,matte,16:10,displayhdr_1000,dci_p3_100
+ips_17_3_fhd_144,17.3-inch Full HD 144 Hz IPS display,Écran IPS Full HD 144 Hz 17.3 po,ips,false,17.3,1920x1080,144,300,matte,16:9,none,srgb_100
+ips_17_3_qhd_240,17.3-inch QHD 240 Hz IPS display,Écran IPS QHD 240 Hz 17.3 po,ips,false,17.3,2560x1440,240,500,matte,16:9,displayhdr_400,dci_p3_100
+ips_21_5_fhd_60,21.5-inch Full HD IPS display,Écran IPS Full HD 21.5 po,ips,false,21.5,1920x1080,60,250,matte,16:9,none,srgb_100
+ips_23_8_fhd_60,23.8-inch Full HD IPS display,Écran IPS Full HD 23.8 po,ips,false,23.8,1920x1080,60,300,matte,16:9,none,srgb_100
+ips_24_fhd_75,24-inch Full HD IPS display,Écran IPS Full HD 75 Hz 24 po,ips,false,24.0,1920x1080,75,300,matte,16:9,none,srgb_100
+ips_27_qhd_60,27-inch QHD IPS display,Écran IPS QHD 27 po,ips,false,27.0,2560x1440,60,350,matte,16:9,none,srgb_100
+ips_27_4k_60,27-inch 4K UHD IPS display,Écran IPS 4K UHD 27 po,ips,false,27.0,3840x2160,60,500,glossy,16:9,hdr10,dci_p3_95
+ips_27_5k_60,27-inch 5K IPS display,Écran IPS 5K 27 po,ips,false,27.0,5120x2880,60,500,glossy,16:9,hdr10,dci_p3_100
+oled_27_qhd_240,27-inch QHD OLED 240 Hz display,Écran OLED QHD 240 Hz 27 po,oled,false,27.0,2560x1440,240,1000,glossy,16:9,true_black_500,dci_p3_100

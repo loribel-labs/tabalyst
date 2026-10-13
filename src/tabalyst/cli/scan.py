@@ -10,6 +10,11 @@ from typing import Annotated
 
 import typer
 
+from tabalyst.cli.confirm import (
+    EXIT_CONFIRMATION_REQUIRED,
+    Decision,
+    confirm_second_pass,
+)
 from tabalyst.cli.terminal import (
     COLLECTION_HELP,
     ProgressPrinter,
@@ -17,22 +22,31 @@ from tabalyst.cli.terminal import (
     collection_paths,
     error_exit_code,
     error_text,
+    plural,
+)
+from tabalyst.deep_service import (
+    BatchDeepResult,
+    DeepPreparation,
+    execute_deep,
+    prepare_deep,
 )
 from tabalyst.errors import TabalystError
+from tabalyst.plan_service import BatchPlanResult, generate_plans
+from tabalyst.scan_page import write_scan_page
 from tabalyst.scan_service import BatchScanResult, ScanSuccess, generate_scans
-
-
-def _plural(count: int, word: str) -> str:
-    return f"{count:,} {word}{'' if count == 1 else 's'}"
+from tabalyst.scanner.planner import Stratify, plan_text
+from tabalyst.scanner.planner.render import confirmation_lines, estimate_text
+from tabalyst.scanner.smart import Smart, sampling_plan_text
+from tabalyst.service import _config_paths
 
 
 def _counts(success: ScanSuccess) -> tuple[str, str, str]:
     result = success.result
     fields = sum(len(dataset.fields) for dataset in result.datasets)
     return (
-        _plural(result.scope.records_analyzed, "record"),
-        _plural(len(result.datasets), "dataset"),
-        _plural(fields, "field"),
+        plural(result.scope.records_analyzed, "record"),
+        plural(len(result.datasets), "dataset"),
+        plural(fields, "field"),
     )
 
 
@@ -40,6 +54,8 @@ def _print_success(success: ScanSuccess, *, verbose: bool) -> None:
     records, datasets, fields = _counts(success)
     typer.echo(f"Scanned {records}: {datasets}, {fields}.", err=True)
     typer.echo(f"Scan: {success.job.output.resolve()}", err=True)
+    if success.job.page is not None:
+        typer.echo(f"Page: {success.job.page.resolve()}", err=True)
     if verbose:
         result = success.result
         typer.echo(f"Format: {result.source.format}", err=True)
@@ -51,7 +67,7 @@ def _print_success(success: ScanSuccess, *, verbose: bool) -> None:
             typer.echo(f"Delimiter: {result.source.csv.delimiter!r}", err=True)
         typer.echo(f"Status: {result.status}", err=True)
         typer.echo(f"Diagnostics: {len(result.diagnostics)}", err=True)
-        typer.echo(f"Duration: {result.duration_seconds:.2f} s", err=True)
+        typer.echo(f"Duration: {result.run.duration_seconds:.2f} s", err=True)
 
 
 def _print_partial(success: ScanSuccess) -> None:
@@ -61,7 +77,7 @@ def _print_partial(success: ScanSuccess) -> None:
     )
     typer.echo(
         f"Warning [{success.job.source}]: partial scan, "
-        f"{_plural(scope.records_excluded, 'record')} excluded ({reasons}).",
+        f"{plural(scope.records_excluded, 'record')} excluded ({reasons}).",
         err=True,
     )
 
@@ -78,6 +94,8 @@ def _print_batch_result(
                     f"Scan: {success.job.source} -> {success.job.output.resolve()}",
                     err=True,
                 )
+                if success.job.page is not None:
+                    typer.echo(f"Page: {success.job.page.resolve()}", err=True)
                 if verbose:
                     records, datasets, fields = _counts(success)
                     typer.echo(
@@ -105,6 +123,208 @@ def _print_batch_result(
             f"{len(batch.successes)} succeeded, {len(batch.failures)} failed",
             err=True,
         )
+
+
+def _print_plans(batch: BatchPlanResult, *, quiet: bool) -> None:
+    """The plans on standard output, what produced them on standard error."""
+    for warning_source, warning in batch.warnings:
+        typer.echo(f"Warning [{warning_source}]: {warning}", err=True)
+    for index, success in enumerate(batch.successes):
+        if not quiet:
+            how = "reused" if success.reused else "scanned"
+            typer.echo(f"Scan: {success.job.output} ({how})", err=True)
+        for warning in success.warnings:
+            typer.echo(f"Warning [{success.job.source}]: {warning}", err=True)
+        if index:
+            typer.echo("")
+        typer.echo(
+            plan_text(success.plan, success.job.source.name, success.confirmation)
+        )
+        if success.sampling is not None:
+            typer.echo("")
+            typer.echo(sampling_plan_text(success.sampling, success.job.source.name))
+    if len(batch.successes) > 1 and batch.confirmation is not None:
+        typer.echo("")
+        typer.echo("All together:")
+        for line in confirmation_lines(batch.confirmation):
+            typer.echo(f"  {line}")
+    for failure in batch.failures:
+        typer.echo(
+            f"Error [{failure.job.source}]: {error_text(failure.error, 'scan')}",
+            err=True,
+        )
+
+
+def _announce(preparation: DeepPreparation, *, quiet: bool) -> None:
+    """Name the second pass before it starts: it reads each source again."""
+    if quiet:
+        return
+    for job in preparation.jobs:
+        count = job.pending
+        if not count:
+            if job.from_scan:
+                typer.echo(
+                    f"Second pass [{job.source.name}]: "
+                    f"{plural(job.from_scan, 'analysis')} computed from the scan, "
+                    "the source is not read again.",
+                    err=True,
+                )
+            elif job.second.plan.summary.selected:
+                typer.echo(
+                    f"Second pass [{job.source.name}]: every result is already "
+                    "stored, the source is not read again.",
+                    err=True,
+                )
+            continue
+        estimate = job.second.estimate
+        timing = "" if estimate is None else f", estimated {estimate_text(estimate)}"
+        typer.echo(
+            f"Second pass [{job.source.name}]: reading the source again for "
+            f"{plural(count, 'analysis')}{timing}.",
+            err=True,
+        )
+
+
+def _print_deep_result(result: BatchDeepResult, *, quiet: bool, verbose: bool) -> None:
+    for success in result.successes:
+        document = success.outcome.document
+        source = success.job.source
+        for entry in document.analyses:
+            if entry.status in ("failed", "limited"):
+                detail = f" ({entry.detail})" if entry.detail else ""
+                typer.echo(
+                    f"Warning [{source}]: {entry.id} is {entry.status}: "
+                    f"{entry.reason}{detail}.",
+                    err=True,
+                )
+        skipped = [entry.analyzer for entry in document.analyses if entry.status == "skipped"]
+        if skipped:
+            typer.echo(
+                f"Warning [{source}]: {plural(len(skipped), 'analysis')} cannot run "
+                f"in this version and {'was' if len(skipped) == 1 else 'were'} skipped.",
+                err=True,
+            )
+        if quiet:
+            continue
+        if not document.analyses:
+            typer.echo(
+                f"Second pass [{source.name}]: nothing to add, the scan already "
+                "answers what a second pass could.",
+                err=True,
+            )
+            continue
+        run = document.run
+        typer.echo(
+            f"Second pass: {success.job.deep_path.resolve()} "
+            f"({plural(len(document.analyses), 'analysis')}: {run.executed} computed, "
+            f"{run.reused} reused"
+            f"{'' if success.written else ', unchanged'})",
+            err=True,
+        )
+        if verbose:
+            typer.echo(
+                f"  Source read: {'yes' if run.source_read else 'no'}; verified: "
+                f"{'yes' if run.source_verified else 'no'}; "
+                f"{run.cells_read:,} cells in {run.duration_seconds:.2f} s",
+                err=True,
+            )
+    for failure in result.failures:
+        typer.echo(
+            f"Error [{failure.job.source}]: {error_text(failure.error, 'scan')}",
+            err=True,
+        )
+
+
+def _run_deep(
+    inputs: list[str],
+    *,
+    output: Path | None,
+    output_dir: Path | None,
+    config: list[Path] | None,
+    delimiter: str | None,
+    encoding: str | None,
+    collection: list[str] | None,
+    force: bool,
+    quiet: bool,
+    verbose: bool,
+    progress: ProgressPrinter,
+    workers: int | None,
+    counters: bool,
+    yes: bool,
+    html: bool,
+) -> None:
+    """``tabalyst scan --deep``: the first pass unless the stored Scan is
+    current, then the second pass, asking first when the rule R1 says so."""
+    try:
+        preparation = prepare_deep(
+            inputs,
+            output=output,
+            output_dir=output_dir,
+            config_path=config,
+            delimiter=delimiter,
+            encoding=encoding,
+            collections=collection_paths(collection),
+            force=force,
+            on_progress=progress,
+            workers=workers,
+            counters=counters,
+            html=html,
+        )
+    except TabalystError as exc:
+        typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)
+        raise typer.Exit(error_exit_code(exc)) from exc
+    for warning_source, warning in preparation.warnings:
+        typer.echo(f"Warning [{warning_source}]: {warning}", err=True)
+    for job in preparation.jobs:
+        if not quiet:
+            how = "reused" if job.scan.reused else "scanned"
+            typer.echo(f"Scan: {job.scan.job.output} ({how})", err=True)
+        if job.scan.result.status == "partial":
+            _print_partial(job.scan)
+        for warning in job.scan.warnings:
+            typer.echo(f"Warning [{job.source}]: {warning}", err=True)
+    for failure in preparation.failures:
+        typer.echo(
+            f"Error [{failure.job.source}]: {error_text(failure.error, 'scan')}",
+            err=True,
+        )
+    errors = [failure.error for failure in preparation.failures]
+    if preparation.jobs:
+        assert preparation.confirmation is not None
+        decision = confirm_second_pass(preparation.confirmation, assume_yes=yes)
+        if decision is Decision.DECLINED:
+            typer.echo("Nothing was started.", err=True)
+        if decision is not Decision.PROCEED:
+            raise typer.Exit(EXIT_CONFIRMATION_REQUIRED)
+        _announce(preparation, quiet=quiet)
+        try:
+            result = execute_deep(preparation, confirmed=True, on_progress=progress)
+        except TabalystError as exc:
+            typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)
+            raise typer.Exit(error_exit_code(exc)) from exc
+        _print_deep_result(result, quiet=quiet, verbose=verbose)
+        _refresh_pages(result, config, quiet=quiet)
+        errors += [failure.error for failure in result.failures]
+    if errors:
+        raise typer.Exit(batch_exit_code(errors))
+
+
+def _refresh_pages(result: BatchDeepResult, config: list[Path] | None, *, quiet: bool) -> None:
+    """Write the page of each scan again, now that its second pass is stored: the
+    page shows the analyses the document holds."""
+    for success in result.successes:
+        scan = success.job.scan
+        if scan.job.page is None or scan.job.output is None:
+            continue
+        try:
+            write_scan_page(
+                scan.result, scan.job.page, _config_paths(config), scan_path=scan.job.output
+            )
+        except TabalystError as exc:
+            typer.echo(f"Warning [{scan.job.source}]: {exc}", err=True)
+            continue
+        if not quiet:
+            typer.echo(f"Page: {scan.job.page.resolve()}", err=True)
 
 
 def scan_command(
@@ -170,6 +390,17 @@ def scan_command(
         bool,
         typer.Option("--no-progress", help="Disable interactive progress."),
     ] = False,
+    no_html: Annotated[
+        bool,
+        typer.Option(
+            "--no-html",
+            help=(
+                "Do not write the web page of the scan, <name>.scan.html beside the "
+                "scan document, or beside the source when the scan is in the "
+                "shared storage."
+            ),
+        ),
+    ] = False,
     workers: Annotated[
         int | None,
         typer.Option(
@@ -181,14 +412,174 @@ def scan_command(
             ),
         ),
     ] = None,
+    counters: Annotated[
+        bool,
+        typer.Option(
+            "--counters",
+            help="Add the work counters of the samplers to run.counters.",
+        ),
+    ] = False,
+    plan: Annotated[
+        bool,
+        typer.Option(
+            "--plan",
+            help=(
+                "Show the analyses a second pass could add, without running "
+                "them. Uses the current stored scan or makes one."
+            ),
+        ),
+    ] = False,
+    stratify: Annotated[
+        bool,
+        typer.Option(
+            "--stratify",
+            help=(
+                "With --plan, add advice on stratified sampling: which columns "
+                "make good keys and how many strata each makes."
+            ),
+        ),
+    ] = False,
+    stratify_by: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--stratify-by",
+            metavar="FIELDS",
+            help=(
+                "With --plan, assess the strata of several columns together, "
+                "given as a comma-separated list. Repeat it for other "
+                "combinations. Implies --stratify."
+            ),
+        ),
+    ] = None,
+    smart: Annotated[
+        bool,
+        typer.Option(
+            "--smart",
+            help=(
+                "With --plan, add the plan of a smart sample: the targets it "
+                "would aim to cover, their weights and the readings of the "
+                "source it would take. With --deep, the second pass counts "
+                "among them."
+            ),
+        ),
+    ] = False,
+    sample_size: Annotated[
+        int | None,
+        typer.Option(
+            "--sample-size",
+            min=1,
+            help=(
+                "With --stratify, --stratify-by or --smart, the number of rows "
+                "the sample would hold."
+            ),
+        ),
+    ] = None,
+    deep: Annotated[
+        bool,
+        typer.Option(
+            "--deep",
+            help=(
+                "Run the second pass: read each source again and add the "
+                "histograms the scan lacks, in <name>.deep.json. Asks first when "
+                "it is costly. With --plan, show that plan without running it."
+            ),
+        ),
+    ] = False,
+    yes: Annotated[
+        bool,
+        typer.Option(
+            "--yes",
+            "-y",
+            help=(
+                "With --deep, start a costly second pass without asking. "
+                "Outside a terminal, a costly second pass needs it (exit code 3)."
+            ),
+        ),
+    ] = False,
 ) -> None:
     """Scan CSV and JSON files into a complete JSON description of their data."""
     if quiet and verbose:
         raise typer.BadParameter("--quiet and --verbose cannot be used together.")
+    if yes and (not deep or plan):
+        raise typer.BadParameter(
+            "--yes only goes with --deep, to start the second pass without asking."
+        )
+    advise = stratify or bool(stratify_by)
+    if (advise or smart or sample_size is not None) and not plan:
+        raise typer.BadParameter(
+            "--stratify, --smart and --sample-size go with --plan: "
+            "the advice is part of the plan."
+        )
+    if sample_size is not None and not (advise or smart):
+        raise typer.BadParameter(
+            "--sample-size goes with --stratify, --stratify-by or --smart."
+        )
+    if plan:
+        for name, given in (
+            ("--output", output is not None),
+            ("--output-dir", output_dir is not None),
+            ("--force", force),
+            ("--counters", counters),
+            ("--no-html", no_html),
+        ):
+            if given:
+                raise typer.BadParameter(f"{name} cannot be used with --plan: a plan writes nothing.")
 
     progress = ProgressPrinter(
         enabled=not quiet and not no_progress and sys.stderr.isatty()
     )
+    if deep and not plan:
+        _run_deep(
+            inputs,
+            output=output,
+            output_dir=output_dir,
+            config=config,
+            delimiter=delimiter,
+            encoding=encoding,
+            collection=collection,
+            force=force,
+            quiet=quiet,
+            verbose=verbose,
+            progress=progress,
+            workers=workers,
+            counters=counters,
+            yes=yes,
+            html=not no_html,
+        )
+        return
+    if plan:
+        try:
+            plans = generate_plans(
+                inputs,
+                config_path=config,
+                delimiter=delimiter,
+                encoding=encoding,
+                collections=collection_paths(collection),
+                on_progress=progress,
+                workers=workers,
+                forced=deep,
+                stratify=(
+                    Stratify(
+                        combinations=tuple(
+                            tuple(name.strip() for name in item.split(",") if name.strip())
+                            for item in stratify_by or ()
+                        ),
+                        sample_size=sample_size,
+                    )
+                    if advise
+                    else None
+                ),
+                smart=Smart(size=sample_size) if smart else None,
+            )
+        except TabalystError as exc:
+            typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)
+            raise typer.Exit(error_exit_code(exc)) from exc
+        _print_plans(plans, quiet=quiet)
+        if plans.failures:
+            raise typer.Exit(
+                batch_exit_code(failure.error for failure in plans.failures)
+            )
+        return
     try:
         batch = generate_scans(
             inputs,
@@ -201,7 +592,9 @@ def scan_command(
             force=force,
             on_progress=progress,
             workers=workers,
+            counters=counters,
             project_storage=True,
+            html=not no_html,
         )
     except TabalystError as exc:
         typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)

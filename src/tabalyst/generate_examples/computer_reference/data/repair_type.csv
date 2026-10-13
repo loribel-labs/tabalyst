@@ -1,0 +1,7 @@
+id,en,fr
+depot,Depot repair,Réparation en atelier
+carry_in,Carry-in repair,Réparation en dépôt
+mail_in,Mail-in repair,Réparation par envoi postal
+onsite,On-site repair,Réparation sur place
+exchange,Unit exchange,Échange de l’appareil
+advanced_exchange,Advanced exchange,Échange anticipé

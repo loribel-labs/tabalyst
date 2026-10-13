@@ -8,7 +8,8 @@ examples/
 |-- config.json
 |-- generate/
 |   |-- generate_examples.py
-|   |-- input/ (four YAML definitions)
+|   |-- common-references/ (reference provider fixture)
+|   |-- cohorts-anomalies/ (cohort and anomaly fixture)
 |   `-- output/ (generated locally; ignored by Git)
 |-- input/
 |   |-- basic.csv
@@ -17,6 +18,14 @@ examples/
 |   |-- sales.xlsx
 |   `-- web-events.jsonl
 `-- output/
+    |-- insurance-customers-scan/
+    |   |-- insurance-customers.scan.json
+    |   |-- insurance-customers.scan.html
+    |   |-- insurance-customers.deep.json
+    |   |-- smart-plan.txt
+    |   |-- insurance-customers.sample.csv
+    |   |-- insurance-customers.sample.json
+    |   `-- insurance-customers.sample.html
     |-- basic/
     |   |-- report.html
     |   |-- report.json
@@ -69,19 +78,30 @@ tabalyst report examples/input/web-events.jsonl -o examples/output/web-events/re
 tabalyst report examples/input/sales.xlsx -o examples/output/sales/report.html --config examples/config.json --force
 ```
 
-Every output folder is independent and contains its own HTML report, canonical
+The folder `insurance-customers-scan/` shows the three steps of Tabalyst Scan on
+`insurance-customers.csv` (see "Simple, Clear and Smart" in the documentation):
+the scan (Simple, with its web page, Clear), the second pass and the plan of a
+smart sample (Smart), and the smart sample with its report and page. Regenerate it
+with:
+
+```console
+tabalyst scan examples/input/insurance-customers.csv -o examples/output/insurance-customers-scan/insurance-customers.scan.json --config examples/config.json --deep --yes --force
+tabalyst scan examples/input/insurance-customers.csv --plan --smart --sample-size 150 --config examples/config.json > examples/output/insurance-customers-scan/smart-plan.txt
+tabalyst sample examples/input/insurance-customers.csv --sample-method smart --rows 150 --seed 42 -o examples/output/insurance-customers-scan/insurance-customers.sample.csv --config examples/config.json --force
+```
+
+Every output folder of the reports is independent and contains its own HTML report, canonical
 JSON profile and cumulative `executions.json` history. The insurance example
 also has standalone HTML pages under `report/`. Delete an output folder
 before regenerating when a fresh one-entry execution history is required.
 
 The input datasets and generated output are public repository examples. The wheel
-contains the runtime package, report resources, and packaged copies of the
-`examples/generate/input/` YAML definitions. CRM and Insurance are local development
-demos. Generate is under development
-and is not advertised as a released feature. The CRM data is synthetic, with
-reserved `.example` domains and fictional phone numbers. The configured 20,000
-rows, generic account names and CRM audit story were approved for the example
-on 2026-10-05. Generate remains local development work until a release.
+contains the runtime package, report resources, and the CRM, Insurance, and
+Computer packages. Tabalyst 0.7.0 reads Generate packages; the
+`definition_version: 1` files of 0.6.2 are no longer read. The CRM data is
+synthetic, with reserved `.example` domains and fictional phone numbers. The
+configured 20,000 rows, generic account names and CRM audit story were approved
+for the example on 2026-10-05.
 
 To review the CRM export outside the checkout:
 
@@ -96,14 +116,13 @@ variants. The mutation summary counts requested, applied and skipped changes.
 Neither tool currently diagnoses cross-column CRM rules such as stage versus
 probability.
 
-`examples/generate/input/common-references.yaml` is a lot 3R development fixture.
+`examples/generate/common-references/` is a reference provider fixture.
 It generates coherent synthetic Canadian person, address and contact fields
 from packaged references. Its prefixes and area codes are synthetic, email
 domains end in `.example`, and phone line numbers use reserved `555-01xx`.
-The Insurance example is now complete in `examples/generate/input/insurance.yaml`
-and the packaged `--example insurance` copy. Its seven domain tables are in
-`src/tabalyst/generate_resources/insurance/`; their provenance is in
-`insurance/SOURCES.md`. To review 3,000 rows outside the checkout:
+The Insurance example lives only in `src/tabalyst/generate_examples/insurance/`
+and is available as `--example insurance`. Its seven domain tables and
+provenance are in that package's `data/` and `SOURCES.md`. To review 3,000 rows outside the checkout:
 
 ```console
 tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d OUTPUT_DIR
@@ -117,19 +136,56 @@ and has different rows and identifiers. Do not replace
 `examples/input/insurance-customers.csv` or its report without a separate
 decision to change the published demo.
 
-`examples/generate/input/cohorts-anomalies.yaml` is a lot 4 development fixture. It
+`examples/generate/cohorts-anomalies/` is a cohort and anomaly fixture. It
 shows two normal status conventions in the clean CSV and a separate `dirty`
 profile that writes an altered CSV, cell-level change log and summary. Run it
-with `tabalyst generate examples/generate/input/cohorts-anomalies.yaml --anomaly-profile dirty -d OUTPUT_DIR`.
-Keep `OUTPUT_DIR` outside the repository for one-off local trials. The packaged
-Insurance YAML is the same complete example as the visible file.
+with `tabalyst generate examples/generate/cohorts-anomalies/ --anomaly-profile dirty -d OUTPUT_DIR`.
+Keep `OUTPUT_DIR` outside the repository for one-off local trials.
+
+The CRM development package lives only at
+`src/tabalyst/generate_examples/crm/` and is available as `--example crm`. It preserves the 400-account
+pool, 26 columns, cohorts and measured anomalies.
+
+The Computer development package lives only at
+`src/tabalyst/generate_examples/computer/` and is available as
+`--example computer`. From an installed development wheel, run:
+
+```console
+tabalyst generate --example computer --validate-only
+tabalyst generate --example computer -d OUTPUT_DIR/clean --rows 10000 --seed 42 --output-profile extended
+tabalyst generate --example computer -d OUTPUT_DIR/dirty --rows 10000 --seed 42 --output-profile extended --anomaly-profile dirty_realistic
+tabalyst generate --example computer -d OUTPUT_DIR/units --rows 10000 --seed 42 --unit-style localized
+tabalyst generate --example computer -d OUTPUT_DIR/selected-units --rows 10000 --seed 42 --output-profile extended --unit-columns memory_gb,display_size_in,battery_wh,weight_kg
+tabalyst generate --example computer -d OUTPUT_DIR/unit-mix --rows 10000 --seed 42 --anomaly-profile unit_variants
+tabalyst generate --example computer -d OUTPUT_DIR/unit-mix-extended --rows 10000 --seed 42 --output-profile extended --anomaly-profile unit_variants_extended
+```
+
+The command writes aligned `computers-en.csv`, `computers-fr.csv`, and
+`computers.meta.json`. The local Computer package offers the 40-column
+`compact`, 70-column `standard`, and 111-column `extended`
+profiles with paired `en,fr` locales. The extended profile currently adds
+hardware, connectivity, physical specifications, and synthetic commerce,
+distribution and e-commerce measures. Use `--output-profile extended` to
+review these fields.
+A JSON `--request FILE` can select
+`rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`,
+`locales`, `unit_style`, `unit_columns`, and `anomaly_profile`; explicit CLI options override
+the request. `--unit-style localized` formats physical measurements as text
+with localized units (`4 GB` / `4 Go` for memory); the default keeps numeric
+cells. `--unit-columns` selects measured fields and implies localized output;
+the JSON request uses a list of field names. `unit_variants` injects capacity
+suffixes into altered CSVs; `unit_variants_extended` covers all 14 measured
+fields and requires `--output-profile extended`.
+Computer's `dirty_realistic` and `dirty_stress` profiles add altered EN/FR
+CSVs, per-cell change logs, and summaries while preserving clean outputs.
+Keep the output folder outside the checkout when testing a wheel.
 
 ## Regenerate all Generate examples
 
 Run the script from the repository root with an editable installation of
-Tabalyst. It reads every YAML in `examples/generate/input/` and writes into
-`examples/generate/output/<definition>/`. The output folder is ignored by Git.
-By default it uses each YAML's declared row counts and generates every declared
+Tabalyst. It reads the four column packages, then writes into
+`examples/generate/output/<package>/`. The output folder is ignored by Git.
+By default it uses each package's declared row counts and generates every declared
 anomaly profile along with its clean CSV. Insurance therefore writes 275,000
 combined rows; allow enough disk space for the clean and altered copies.
 
@@ -140,5 +196,5 @@ python examples/generate/generate_examples.py
 Existing outputs are protected; pass `--force` to replace generated files.
 For a quick review run, `--rows 30` overrides each definition's row count,
 and `--output-dir PATH` writes outside the checkout. `--clean-only` skips the
-profile passes. A definition with several profiles gets one subfolder per
+profile passes. A package with several profiles gets one subfolder per
 profile so its clean files cannot collide.

@@ -1,0 +1,12 @@
+model_generation_id,memory_type_id,memory_capacity_id,weight
+thinkpad_t14_gen5,ddr5,16gb,0.30
+thinkpad_t14_gen5,ddr5,32gb,0.50
+thinkpad_t14_gen5,ddr5,64gb,0.20
+thinkpad_t14_gen6,lpddr5x,16gb,0.20
+thinkpad_t14_gen6,lpddr5x,32gb,0.55
+thinkpad_t14_gen6,lpddr5x,64gb,0.25
+legion_5_gen9,ddr5,16gb,0.55
+legion_5_gen9,ddr5,32gb,0.45
+legion_5_gen10,ddr5,16gb,0.25
+legion_5_gen10,ddr5,32gb,0.55
+legion_5_gen10,ddr5,64gb,0.20

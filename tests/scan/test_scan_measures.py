@@ -5,7 +5,16 @@
 """Scan contract: values, frequencies, limits and statistics (lot 2a)."""
 
 import pytest
-from scan_helpers import dataset, field, run_scan, write_json, write_text
+from scan_helpers import (
+    complete_cardinality,
+    dataset,
+    field,
+    limited_cardinality,
+    run_scan,
+    without_estimate,
+    write_json,
+    write_text,
+)
 
 pytestmark = pytest.mark.lot("2a")
 
@@ -26,7 +35,7 @@ def test_frequencies_keep_native_types_apart(tmp_path):
 
     code = field(dataset(run_scan(source), "$[]"), "code")
 
-    assert code["values"]["cardinality"] == {"status": "complete", "value": 3}
+    assert code["values"]["cardinality"] == complete_cardinality(3)
     frequencies = code["values"]["frequencies"]
     assert frequencies["status"] == "complete"
     assert frequencies["value"]["distinct"] == 3
@@ -113,17 +122,14 @@ def test_distinct_limit_publishes_only_a_proven_bound(tmp_path):
         dataset(run_scan(source, limits={"max_distinct_per_field": 6}), "rows"), "v"
     )
 
-    assert limited["values"]["cardinality"] == {
-        "status": "limited",
-        "reason": "distinct_limit",
-        "limit": 5,
-        "lower_bound": 6,
-    }
+    assert without_estimate(limited["values"]["cardinality"]) == limited_cardinality(
+        "distinct_limit", 5, 6, 6, reached=5, overflow=6
+    )
     assert limited["values"]["frequencies"]["status"] == "limited"
     assert limited["presence"]["present"] == 6
     assert limited["values"]["count"] == 6
     assert limited["string_lengths"]["status"] == "complete"
-    assert exact["values"]["cardinality"] == {"status": "complete", "value": 6}
+    assert exact["values"]["cardinality"] == complete_cardinality(6)
 
 
 def test_long_values_never_become_false_exact_identities(tmp_path):
@@ -137,14 +143,11 @@ def test_long_values_never_become_false_exact_identities(tmp_path):
     )
     exact = field(dataset(run_scan(source), "rows"), "v")
 
-    assert limited["values"]["cardinality"] == {
-        "status": "limited",
-        "reason": "value_too_long",
-        "limit": 10,
-        "lower_bound": 2,
-    }
+    assert limited["values"]["cardinality"] == limited_cardinality(
+        "value_too_long", 10, 2, 3
+    )
     assert limited["values"]["count"] == 3
-    assert exact["values"]["cardinality"] == {"status": "complete", "value": 3}
+    assert exact["values"]["cardinality"] == complete_cardinality(3)
 
 
 def test_measures_without_values_are_not_applicable(tmp_path):
@@ -171,7 +174,7 @@ def test_listings_use_analytical_values_and_cardinality_stays_raw(tmp_path):
         dataset(run_scan(source, limits={"max_listed_frequencies": 2}), "rows"), "city"
     )
 
-    assert city["values"]["cardinality"] == {"status": "complete", "value": 4}
+    assert city["values"]["cardinality"] == complete_cardinality(4)
     frequencies = city["values"]["frequencies"]["value"]
     assert frequencies["distinct"] == 3
     assert frequencies["truncated"] is True
@@ -182,7 +185,7 @@ def test_listings_use_analytical_values_and_cardinality_stays_raw(tmp_path):
     assert city["values"]["first"] == {"value": "Paris", "type": "string", "record": 1}
 
 
-def test_samples_are_seeded_and_first_seen_when_the_table_is_released(tmp_path):
+def test_the_bottom_k_sample_is_the_same_whether_or_not_the_table_is_released(tmp_path):
     lines = [f"v{index % 7}" for index in range(30)]
     source = write_text(tmp_path, "v.csv", "v\n" + "\n".join(lines) + "\n")
 
@@ -192,24 +195,22 @@ def test_samples_are_seeded_and_first_seen_when_the_table_is_released(tmp_path):
     ]
     released = field(
         dataset(
-            run_scan(source, limits={"max_samples": 3, "max_distinct_per_field": 2}),
+            run_scan(source, limits={"max_samples": 3, "max_distinct_per_field": 3}),
             "rows",
         ),
         "v",
     )
 
     samples = sampled[0]["values"]["samples"]
-    assert samples["selection"] == "uniform_distinct"
-    assert len(samples["listed"]) == 3
+    assert samples["selection"] == "bottom_k"
+    assert (samples["k"], samples["kept"], samples["of"]) == (3, 3, 3)
     assert sampled[1]["values"]["samples"] == samples
-    assert released["values"]["samples"] == {
-        "selection": "first_seen",
-        "listed": [
-            {"value": "v0", "type": "string", "count": 5},
-            {"value": "v1", "type": "string", "count": 5},
-            {"value": "v2", "type": "string", "count": 4},
-        ],
+    # Counts are those of the whole stream, however the table was released.
+    oracle = {f"v{n}": sum(1 for i in range(30) if i % 7 == n) for n in range(7)}
+    assert {item["value"]: item["count"] for item in samples["listed"]} == {
+        item["value"]: oracle[item["value"]] for item in samples["listed"]
     }
+    assert released["values"]["samples"] == samples
 
 
 def test_streaming_after_release_gives_the_same_measures(tmp_path):
@@ -245,17 +246,34 @@ def test_global_budget_releases_the_largest_table(tmp_path):
     # Row 3 stores the 9th value with three tables of 3: the tie releases c.
     # Row 6 stores the 9th value again: a, with 6 values, is the largest.
     a, b, c = (field(rows_result, name) for name in "abc")
-    budget = {"status": "limited", "reason": "global_budget", "limit": 8}
-    assert c["values"]["cardinality"] == dict(budget, lower_bound=3)
-    assert a["values"]["cardinality"] == dict(budget, lower_bound=6)
-    assert b["values"]["cardinality"] == {"status": "complete", "value": 3}
-    assert c["values"]["samples"]["selection"] == "first_seen"
+    # No record is named: the limit that stopped them is not their own.
+    assert without_estimate(c["values"]["cardinality"]) == limited_cardinality(
+        "global_budget", 8, 3, 6
+    )
+    assert without_estimate(a["values"]["cardinality"]) == limited_cardinality(
+        "global_budget", 8, 6, 6
+    )
+    assert b["values"]["cardinality"] == complete_cardinality(3)
+    # Three values are the whole domain, however the table was released.
+    assert c["values"]["samples"]["selection"] == "all"
     assert c["string_lengths"]["value"]["count"] == 6
     codes = {item["code"]: item for item in result["diagnostics"]}
     assert codes["global_budget"]["count"] == 2
-    assert codes["measures_limited"]["count"] == 2
-    assert codes["measures_limited"]["dataset"] == "rows"
-    assert "limited: a, c." in codes["measures_limited"]["message"]
+    limited = [
+        item for item in result["diagnostics"] if item["code"] == "measures_limited"
+    ]
+    # No string changed under any stage, so there is no group of variants, even
+    # without the table (D13): that measure is exact, not limited.
+    assert {item["field"]: item["details"] for item in limited} == {
+        a["id"]: {"measures": {"values.cardinality": "global_budget"}},
+        c["id"]: {"measures": {"values.cardinality": "global_budget"}},
+    }
+    for released in (a, c):
+        assert released["normalization"]["variant_groups"] == {
+            "status": "complete",
+            "value": {"groups": 0, "listed": [], "truncated": False},
+        }
+    assert {item["dataset"] for item in limited} == {"rows"}
 
 
 def test_native_json_numbers_and_booleans(tmp_path):
@@ -301,7 +319,7 @@ def test_numbers_beyond_exact_arithmetic_are_limited(tmp_path, value):
     v = field(dataset(run_scan(source), "$[]"), "v")
 
     assert v["numeric"] == {"status": "limited", "reason": "precision", "limit": 200}
-    assert v["values"]["cardinality"] == {"status": "complete", "value": 2}
+    assert v["values"]["cardinality"] == complete_cardinality(2)
 
 
 def test_string_characteristics_follow_their_definitions(tmp_path):
@@ -380,8 +398,5 @@ def test_global_budget_ties_follow_field_discovery(tmp_path):
 
     # c gets its first value before b, but b is discovered first. Row 3
     # stores the 4th value with two tables of 2: the tie releases c.
-    assert field(rows, "b")["values"]["cardinality"] == {
-        "status": "complete",
-        "value": 2,
-    }
+    assert field(rows, "b")["values"]["cardinality"] == complete_cardinality(2)
     assert field(rows, "c")["values"]["cardinality"]["reason"] == "global_budget"

@@ -44,7 +44,7 @@ from tabalyst.scanner.paths import (
     format_relative,
     path_to_json,
 )
-from tabalyst.scanner.records import RecordContext, RecordFacts
+from tabalyst.scanner.records import CONTAINER_TYPES, RecordContext, RecordFacts
 from tabalyst.scanner.values import ValueContext, no_values
 
 
@@ -262,7 +262,16 @@ class DatasetState:
                 depth_truncated_observations=self.depth_truncated,
                 max_depth_seen=max(max_depth_seen, self.untracked_max_depth),
             ),
-            records=self.records.finalize(ids, exposures),
+            records=self.records.finalize(
+                ids,
+                exposures,
+                [
+                    ids[state.path]
+                    for state in listed
+                    if not CONTAINER_TYPES.issuperset(state.native_types)
+                ],
+                self.paths_limited,
+            ),
             fields=fields,
         )
 
@@ -356,6 +365,11 @@ class DatasetState:
             if state.values is None
             else state.values.finalize(report_failure, report_probe)
         )
+        estimate = blocks.pop("estimate")
+        if state.values is not None:
+            blocks["cardinality"] = state.values.cardinality(
+                blocks["cardinality"], state.value_count, estimate
+            )
         components = MissingComponents(
             absent=presence.absent,
             null=state.count("null"),

@@ -4,9 +4,9 @@
 
 """Public analysis boundary shared by Python callers and the CLI."""
 
-import json
 import re
 from collections.abc import Sequence
+from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 from time import perf_counter
@@ -14,7 +14,9 @@ from typing import Any
 from urllib.parse import quote
 
 from tabalyst.config import (
-    PresentationSettings,
+    DeepSection,
+    SettingsFile,
+    json_indent,
     load_config_layers,
     settings_from_layer,
 )
@@ -29,16 +31,29 @@ from tabalyst.inspector.resolution import (
     inspect_notice,
     resolve_interpretation,
 )
-from tabalyst.models import ReportProfile
+from tabalyst.json_text import dump_json
+from tabalyst.models import AnalysesBlock, ReportProfile
 from tabalyst.progress import (
     ProgressCallback,
     ProgressEvent,
     ProgressPhase,
     emit_progress,
 )
+from tabalyst.report_chain import (
+    ChainPlan,
+    chain_mode,
+    plan_chain,
+    require_confirmation,
+    run_chain,
+)
 from tabalyst.report_config import ReportConfig, resolve_report_config
 from tabalyst.report_profile import build_profile
-from tabalyst.reporting import column_pages, render_column_report, render_report
+from tabalyst.reporting import (
+    column_pages,
+    dataset_views,
+    render_column_report,
+    render_report,
+)
 from tabalyst.scan_reuse import (
     check_config,
     check_source,
@@ -79,32 +94,41 @@ def analyze_csv(
     emit_progress(on_progress, source, ProgressPhase.ANALYZING)
     # The profile records the rules the scan applied, defaults resolved.
     profile = build_profile(result, config.model_copy(update={"scan": result.config}))
-    profile.processing_seconds = round(perf_counter() - started, 4)
+    profile.report.processing_seconds = round(perf_counter() - started, 4)
     return profile
 
 
 def _profile_from_scan(
     scan_path: Path,
     result: ScanResult,
-    settings: PresentationSettings,
+    settings: SettingsFile,
     scan_layer: dict,
     on_progress: ProgressCallback | None,
     *,
     started: float,
 ) -> tuple[ReportProfile, bool]:
     """The profile of a loaded scan document, after the staleness checks, and
-    whether its source was found and checked."""
+    whether its source was found and checked. It reads no source: the second
+    pass contributes what the Scan and the stored results answer (design 18.2)."""
     check_config(scan_path, result, scan_layer)
     checked = check_source(scan_path, result)
     emit_progress(on_progress, scan_path, ProgressPhase.ANALYZING)
-    config = ReportConfig(
-        **settings.model_dump(exclude={"csv"}),
-        scan=result.config,
+    config = ReportConfig.from_settings(settings, result.config)
+    chain = plan_chain(
+        result,
+        scan_path=scan_path,
+        source=None,
+        mode=chain_mode(settings.deep.mode, deep=False),
+        settings=settings.deep.settings(),
+        reads_source=False,
+        shared=False,
+        indent=settings.output.json_indent,
     )
-    profile = build_profile(result, config)
+    analyses = run_chain(chain, result, on_progress=on_progress, progress_source=scan_path)
+    profile = build_profile(result, config, analyses=analyses)
     # The scan and the report: as long as a report of the source itself.
-    profile.processing_seconds = round(
-        result.duration_seconds + perf_counter() - started, 4
+    profile.report.processing_seconds = round(
+        result.run.duration_seconds + perf_counter() - started, 4
     )
     return profile, checked
 
@@ -121,7 +145,9 @@ def analyze_scan(
     ``scan`` settings, when given, must be those of the document; a source
     found beside the document must not have changed since the scan (design
     O12). Both raise an error otherwise; a source that is not beside the
-    document is not checked.
+    document is not checked. The profile holds the analyses of the second pass
+    that the document's stored results (``<stem>.deep.json``) and the Scan
+    alone answer; the others are listed as skipped.
     """
     started = perf_counter()
     scan_path = Path(scan_path)
@@ -219,22 +245,54 @@ def _retire_column_pages(directory: Path) -> None:
         raise ReportError(f"Cannot remove prior column reports in {directory}: {exc}") from exc
 
 
-def _analyze_resolved(
+@dataclass(frozen=True)
+class ScannedReport:
+    """A Report whose Scan is done and whose second pass and files are not.
+
+    ``scan_path`` is the Scan document the second-pass document stands beside;
+    ``spent`` the seconds used so far, so that a batch that waits for a
+    confirmation does not count the wait in ``processing_seconds``.
+    """
+
+    source: Path
+    progress_source: Path
+    scan_path: Path
+    result: ScanResult
+    config: ReportConfig
+    report: Path
+    json_report: Path
+    execution_report: Path
+    indent: bool
+    spent: float
+    # Where the source of a scan document is, if it is there.
+    source_found: Path | None
+    shared: bool
+    warnings: tuple[str, ...] = ()
+    # Reports of scan documents: whether the source was checked for staleness.
+    checked: bool | None = None
+    from_scan: bool = False
+    # The ``workers`` the Scan was asked for; the second pass honors it.
+    workers: int | None = None
+
+
+def _scan_resolved(
     source: Path,
     report: Path,
     config: ReportConfig,
     config_paths: list[Path],
     *,
     force: bool,
-    details: bool,
     on_progress: ProgressCallback | None,
     workers: int | None = None,
     scan_layer: dict | None = None,
     separator: str | None = None,
     encoding: str | None = None,
     collections: Sequence[str] | None = None,
-) -> tuple[dict[str, Any], tuple[str, ...]]:
+) -> ScannedReport:
+    """The first pass of a Report of a source: validate the paths and scan it, or
+    reuse the current Scan of the shared storage."""
     started = perf_counter()
+    indent = json_indent(config_paths)
     json_report, execution_report = _validate_paths(
         source,
         report,
@@ -269,6 +327,7 @@ def _analyze_resolved(
             source,
             scan_config,
             workers=workers,
+            json_indent=indent,
             on_progress=on_progress,
             scan_layer=reused_layer,
             delimiter=separator,
@@ -277,46 +336,44 @@ def _analyze_resolved(
             check=check,
         )
         emit_progress(on_progress, source, ProgressPhase.ANALYZING)
-        effective_config = config.model_copy(update={"scan": shared.result.config})
-        profile = build_profile(shared.result, effective_config)
-        profile.processing_seconds = round(
-            shared.result.duration_seconds + perf_counter() - started, 4
-        )
         warnings += shared.warnings
     except InputError:
         raise
     except OSError as exc:
         raise InputError(f"Cannot read source file {source}: {exc}") from exc
-    written = _write_report(
-        profile,
-        source,
-        source,
-        report,
-        json_report,
-        execution_report,
-        force=force,
-        details=details,
-        started=started,
-        on_progress=on_progress,
+    return ScannedReport(
+        source=source,
+        progress_source=source,
+        scan_path=shared.path,
+        result=shared.result,
+        config=config.model_copy(update={"scan": shared.result.config}),
+        report=report,
+        json_report=json_report,
+        execution_report=execution_report,
+        indent=indent,
+        spent=perf_counter() - started,
+        source_found=source,
+        shared=True,
+        warnings=warnings,
+        workers=workers,
     )
-    return written, warnings
 
 
-def _report_scan_resolved(
+def _scan_document_resolved(
     scan_path: Path,
     report: Path,
-    settings: PresentationSettings,
+    settings: SettingsFile,
     scan_layer: dict,
     config_paths: list[Path],
     *,
     force: bool,
-    details: bool,
     on_progress: ProgressCallback | None,
-) -> tuple[dict[str, Any], bool, tuple[str, ...]]:
-    """Write the report of a scan document; also returns whether the source
-    was found beside it and checked for staleness, and the warnings (a scan
-    document of another engine version is reported, not refused)."""
+) -> ScannedReport:
+    """The Scan of a Report of a scan document: load it and check that it is
+    current. A source beside it that is not the one it read is an error; a
+    source that is not there is not checked."""
     started = perf_counter()
+    indent = json_indent(config_paths)
     emit_progress(on_progress, scan_path, ProgressPhase.READING)
     result = load_scan(scan_path)
     source = source_path(scan_path, result)
@@ -326,33 +383,95 @@ def _report_scan_resolved(
         [*config_paths, source],
         force=force,
     )
-    profile, checked = _profile_from_scan(
-        scan_path,
-        result,
-        settings,
-        scan_layer,
-        on_progress,
-        started=started,
-    )
-    written = _write_report(
-        profile,
-        scan_path,
-        source,
-        report,
-        json_report,
-        execution_report,
-        force=force,
-        details=details,
-        # The total covers the scan too, as ``processing_seconds`` does.
-        started=started - result.duration_seconds,
-        on_progress=on_progress,
-    )
+    check_config(scan_path, result, scan_layer)
+    checked = check_source(scan_path, result)
+    emit_progress(on_progress, scan_path, ProgressPhase.ANALYZING)
     warnings = [
         warning
         for warning in (engine_warning(result), inspect_notice(source, result))
         if warning is not None
     ]
-    return written, checked, tuple(warnings)
+    return ScannedReport(
+        source=source,
+        progress_source=scan_path,
+        scan_path=scan_path,
+        result=result,
+        config=ReportConfig.from_settings(settings, result.config),
+        report=report,
+        json_report=json_report,
+        execution_report=execution_report,
+        indent=indent,
+        spent=perf_counter() - started,
+        source_found=source if checked else None,
+        shared=False,
+        warnings=tuple(warnings),
+        checked=checked,
+        from_scan=True,
+    )
+
+
+def plan_report_chain(
+    scanned: ScannedReport, deep_section: DeepSection, *, deep: bool
+) -> ChainPlan:
+    """The second pass of a scanned Report. A Report of a scan document reads no
+    source unless the second pass is forced (``tabalyst report --scan`` promises
+    not to read the sources again)."""
+    mode = chain_mode(deep_section.mode, deep=deep)
+    return plan_chain(
+        scanned.result,
+        scan_path=scanned.scan_path,
+        source=scanned.source_found,
+        mode=mode,
+        settings=deep_section.settings(),
+        reads_source=not scanned.from_scan or mode == "forced",
+        shared=scanned.shared,
+        indent=scanned.indent,
+        workers=scanned.workers,
+    )
+
+
+def write_scanned_report(
+    scanned: ScannedReport,
+    chain: ChainPlan | None,
+    *,
+    force: bool,
+    details: bool,
+    on_progress: ProgressCallback | None,
+) -> tuple[dict[str, Any], tuple[str, ...]]:
+    """Run the second pass of a scanned Report, then build, render and write it.
+    Returns the profile as a dictionary and the warnings."""
+    started = perf_counter()
+    analyses: AnalysesBlock | None = None
+    if chain is not None:
+        analyses = run_chain(
+            chain,
+            scanned.result,
+            on_progress=on_progress,
+            progress_source=scanned.progress_source,
+        )
+    profile = build_profile(scanned.result, scanned.config, analyses=analyses)
+    scan_seconds = scanned.result.run.duration_seconds
+    profile.report.processing_seconds = round(
+        scan_seconds + scanned.spent + perf_counter() - started, 4
+    )
+    warnings = scanned.warnings
+    if analyses is not None and analyses.outcome == "failed" and analyses.reason:
+        warnings += (f"the second pass was left out: {analyses.reason}",)
+    written = _write_report(
+        profile,
+        scanned.progress_source,
+        scanned.source,
+        scanned.report,
+        scanned.json_report,
+        scanned.execution_report,
+        force=force,
+        details=details,
+        # The history counts the first pass too when it was not made now.
+        started=started - scanned.spent - (scan_seconds if scanned.from_scan else 0.0),
+        on_progress=on_progress,
+        json_indent=scanned.indent,
+    )
+    return written, warnings
 
 
 def _write_report(
@@ -367,14 +486,16 @@ def _write_report(
     details: bool,
     started: float,
     on_progress: ProgressCallback | None,
+    json_indent: bool = False,
 ) -> dict[str, Any]:
     """Render and write the report artifacts of ``profile``; ``source`` names
     the analyzed file in the execution history, ``progress_source`` the input
     in progress events."""
     result = profile.model_dump(mode="json")
-    json_text = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
+    json_text = dump_json(result, indent=json_indent)
     emit_progress(on_progress, progress_source, ProgressPhase.RENDERING)
-    pages = column_pages(profile, report) if details else []
+    views = dataset_views(profile)
+    pages = column_pages(profile, report, views) if details else []
     page_dir = report.with_suffix("")
     if details and (
         page_dir.is_symlink() or (page_dir.exists() and not page_dir.is_dir())
@@ -395,7 +516,7 @@ def _write_report(
             )
             for page, dataset, column in pages
         }
-        html = render_report(profile, column_links=links)
+        html = render_report(profile, column_links=links, views=views)
         column_html = [
             (
                 page,
@@ -441,8 +562,15 @@ def analyze(
     config_path: ConfigPath | None = None,
     force: bool = False,
     details: bool = False,
+    deep: bool = False,
+    confirmed: bool = False,
 ) -> dict[str, Any]:
     """Analyze one CSV, write sibling JSON/HTML reports and return the result.
+
+    The planner decides whether a second pass has a benefit and a low cost and
+    adds it to the report (``analyses``); ``deep=True`` forces it. A forced
+    second pass that is costly raises ``ConfirmationRequired`` before it starts,
+    unless ``confirmed`` is true: this function never prompts (rule R1).
 
     The analysis settings come from the ``scan`` object of the configuration
     files. Explicit ``separator`` and ``encoding`` values override their
@@ -458,17 +586,22 @@ def analyze(
         separator=separator,
         encoding=encoding,
     )
-    _, scan_layer = load_config_layers(config_paths)
-    result, _ = _analyze_resolved(
+    top_level, scan_layer = load_config_layers(config_paths)
+    scanned = _scan_resolved(
         source,
         report,
         config,
         config_paths,
         force=force,
-        details=details,
         on_progress=None,
         scan_layer=scan_layer,
         separator=separator,
         encoding=encoding,
+    )
+    deep_section = settings_from_layer(top_level).deep
+    chain = plan_report_chain(scanned, deep_section, deep=deep)
+    require_confirmation(chain, confirmed=confirmed)
+    result, _ = write_scanned_report(
+        scanned, chain, force=force, details=details, on_progress=None
     )
     return result

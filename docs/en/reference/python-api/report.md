@@ -40,6 +40,9 @@ tabalyst.generate_reports(
     from_scan=False,
     workers=None,
     all_collections=False,
+    deep=False,
+    confirmed=False,
+    confirm=None,
 )
 ```
 
@@ -69,6 +72,17 @@ profile as a dictionary in `result`. A successful job also has `warnings`.
   `encoding`, `collections`, `all_collections` or `workers`.
 - `workers`: number of analysis processes; `1` for one. Files of 16 MiB or more
   use one per spare processor by default.
+- `deep`: `True` forces the [second pass](../../scan/deep.md). Otherwise the
+  planner adds the analyses that are useful and cheap, and `deep.mode` of the
+  configuration can turn it `off` or `force` it. The profile holds what it did
+  under `analyses`. With `from_scan` no source is read unless `deep` is true.
+- `confirmed`, `confirm`: a forced second pass that may take two minutes or that
+  goes beyond what the planner chooses by itself is not started without a
+  confirmation, asked once for the whole batch. `confirmed=True` says it was
+  given; `confirm` is a function that receives the confirmation (`required`,
+  `reasons`, `estimate`) and returns `True` to go on. Without either,
+  `tabalyst.ConfirmationRequired` is raised after the sources are scanned and
+  before any is read again. The function never prompts.
 
 An option that a source cannot use is ignored and listed in `batch.plan.warnings`:
 
@@ -93,6 +107,8 @@ tabalyst.analyze(
     config_path=None,
     force=False,
     details=False,
+    deep=False,
+    confirmed=False,
 )
 ```
 
@@ -102,8 +118,11 @@ tabalyst.analyze(
 - `separator`, `encoding`: override the delimiter and the text encoding.
 - `config_path`, `force`: see the [conventions](index.md#conventions).
 - `details`: also write one HTML page per column.
+- `deep`, `confirmed`: as for `generate_reports()`.
 
-Raises the error of the analysis, such as an existing output without `force`.
+Raises the error of the analysis, such as an existing output without `force`, or
+`tabalyst.ConfirmationRequired` for a costly forced second pass that `confirmed`
+did not allow.
 
 ## tabalyst.analyze_csv()
 
@@ -113,8 +132,14 @@ Scans a file and builds its profile without writing anything.
 tabalyst.analyze_csv(path, config=None, on_progress=None, workers=None)
 ```
 
-Returns a `ReportProfile` model. `config` is a `tabalyst.ReportConfig`; its
-`scan` setting is a `tabalyst.ScanConfig`.
+Returns a `ReportProfile` model: the [JSON profile](../../report/json-profile.md)
+as a Python object. The scan base is at its root (`profile.datasets` are the
+scan datasets, `profile.source` the source) and the report's own data is under
+`profile.report`: `profile.report.datasets` holds the summary and the columns
+of each dataset. `config` is a `tabalyst.ReportConfig`: the presentation settings
+of the [`report` object](../configuration.md#report-settings) (`string_analysis`,
+`value_examples`) and its `scan` setting, a `tabalyst.ScanConfig`, for example
+`ReportConfig(value_examples={"kept_per_column": 50}, scan=...)`.
 
 ## tabalyst.analyze_scan()
 
@@ -128,7 +153,9 @@ tabalyst.analyze_scan(scan_path, config_path=None, on_progress=None)
 Returns a `ReportProfile`. The presentation settings come from `config_path`.
 The `scan` settings given there must be those of the document, and a source found
 beside the document must not have changed since the scan; both raise a
-`ConfigurationError` otherwise.
+`ConfigurationError` otherwise. The profile holds the analyses of the second pass
+that the document's stored results and the scan alone answer (`profile.analyses`);
+the others are listed as skipped. No source is read.
 
 ## tabalyst.render_report()
 

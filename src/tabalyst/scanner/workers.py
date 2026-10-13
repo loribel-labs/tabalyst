@@ -38,7 +38,7 @@ from pydantic import BaseModel
 # Sources smaller than this are scanned in one process: starting workers
 # costs more than it saves.
 MIN_PARALLEL_BYTES = 16 << 20
-MAX_WORKERS = 8
+MAX_WORKERS = 6
 # Messages waiting to be written to one worker; beyond them, the scan waits.
 OUTBOX_SIZE = 8
 # Bytes of a worker's standard error kept for error messages.
@@ -85,6 +85,22 @@ def _read(stream: BinaryIO) -> object | None:
     return pickle.loads(payload)
 
 
+def _bootstrap(entry: tuple[str, str] | None) -> str:
+    """The program of a worker: the value worker of the first pass, or the
+    function ``entry`` = (module, name) that serves another job."""
+    if entry is None:
+        return _BOOTSTRAP
+    module, function = entry
+    program = _BOOTSTRAP.replace(
+        "from tabalyst.scanner.workers import main",
+        f"from {module} import {function} as main",
+    )
+    # A worker that ran the loop of the value worker would wait for messages it
+    # cannot read until the start timeout. (The tests replace the whole program.)
+    assert program != _BOOTSTRAP or "sys.exit" in _BOOTSTRAP, "no entry point"
+    return program
+
+
 class WorkerError(RuntimeError):
     """A worker process failed; the scan cannot complete."""
 
@@ -93,7 +109,13 @@ class _Worker:
     """One worker process, with a thread writing its messages and a thread
     reading its replies into the pool's queue."""
 
-    def __init__(self, index: int, config: str, replies: queue.Queue) -> None:
+    def __init__(
+        self,
+        index: int,
+        config: str,
+        replies: queue.Queue,
+        entry: tuple[str, str] | None = None,
+    ) -> None:
         self.index = index
         self.failure: str | None = None
         self.outbox: queue.Queue[bytes | None] = queue.Queue(OUTBOX_SIZE)
@@ -101,7 +123,7 @@ class _Worker:
         path = json.dumps([str(entry) for entry in sys.path])
         environment = {**os.environ, _PATH_VARIABLE: path}
         self.process = subprocess.Popen(
-            [sys.executable, "-c", _BOOTSTRAP],
+            [sys.executable, "-c", _bootstrap(entry)],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -245,30 +267,55 @@ class WorkerPool:
         return min(range(self._count), key=self._load.__getitem__)
 
     def release(
-        self, field: int, keys: list, counts: list, limited, scalars: bool
+        self,
+        field: int,
+        keys: list,
+        counts: list,
+        limited,
+        scalars: bool,
+        grants: tuple[int, int, int],
     ) -> int:
-        """Start processing a released table; returns the worker of the field."""
+        """Start processing a released table; returns the worker of the field.
+        ``grants`` are the sizes of its sample, of its long texts and of its
+        samples by length."""
         index = self._least_loaded()
         limit = (limited.reason, limited.limit, limited.lower_bound)
-        self._send(index, ("release", field, keys, counts, limit, scalars), len(keys))
+        message = ("release", field, keys, counts, limit, scalars, grants)
+        self._send(index, message, len(keys))
         return index
 
     def process(
-        self, index: int, field: int, keys: list, counts: list, scalars: bool
+        self,
+        index: int,
+        field: int,
+        keys: list,
+        counts: list,
+        scalars: bool,
+        long_k: int = 0,
     ) -> None:
-        """A streaming batch of a released field."""
-        self._send(index, ("batch", field, keys, counts, scalars), len(keys))
+        """A streaming batch of a released field; ``long_k`` is the size
+        granted to its long texts when this batch carries the first one."""
+        self._send(index, ("batch", field, keys, counts, scalars, long_k), len(keys))
 
     def finish(self, index: int, field: int, ends: tuple) -> None:
         """Finalize a released field, after its last batch."""
         self._send(index, ("finish", field, ends), 0)
 
     def table(
-        self, field: int, keys: list, counts: list, ends: tuple, scalars: bool
+        self,
+        field: int,
+        keys: list,
+        counts: list,
+        ends: tuple,
+        scalars: bool,
+        sample_grant: tuple[int, int] | None,
     ) -> int:
-        """Finalize a field from its complete table; returns its worker."""
+        """Finalize a field from its complete table, whose sample and samples
+        by length have the sizes ``sample_grant`` granted by the memory budget;
+        returns its worker."""
         index = self._least_loaded()
-        self._send(index, ("table", field, keys, counts, ends, scalars), len(keys))
+        message = ("table", field, keys, counts, ends, scalars, sample_grant)
+        self._send(index, message, len(keys))
         return index
 
     def result(
@@ -351,7 +398,14 @@ def main() -> None:
     processors: dict[int, ValueProcessor] = {}
     _write(stdout, pickle.dumps(("ready",), pickle.HIGHEST_PROTOCOL))
 
-    def finalize(field: int, processor, table, ends, scalars: bool) -> None:
+    def finalize(
+        field: int,
+        processor,
+        table,
+        ends,
+        scalars: bool,
+        sample_grant: tuple[int, int] | None = None,
+    ) -> None:
         events: list[tuple[str, str, object]] = []
 
         def failure(detector: str, error: str) -> int:
@@ -362,7 +416,7 @@ def main() -> None:
             events.append(("probe", detector, (count, warmup_reactions)))
             return -len(events)
 
-        blocks = processor.finalize(table, ends, failure, probe, scalars)
+        blocks = processor.finalize(table, ends, failure, probe, scalars, sample_grant)
         plain = {key: _plain(value) for key, value in blocks.items()}
         reply = pickle.dumps(("done", field, plain, events), pickle.HIGHEST_PROTOCOL)
         _write(stdout, reply)
@@ -371,20 +425,23 @@ def main() -> None:
         while (message := _read(stdin)) is not None:
             kind, field = message[0], message[1]
             if kind == "batch":
-                _, _, keys, counts, scalars = message
+                _, _, keys, counts, scalars, long_k = message
+                if long_k:
+                    processors[field].grant_long(long_k)
                 processors[field].process(keys, counts, scalars=scalars)
             elif kind == "release":
-                _, _, keys, counts, (reason, limit, bound), scalars = message
+                _, _, keys, counts, (reason, limit, bound), scalars, grants = message
                 processor = processors[field] = ValueProcessor(context)
                 limited = Limited(reason=reason, limit=limit, lower_bound=bound)
-                processor.release(keys, counts, limited, scalars)
+                processor.release(keys, counts, limited, scalars, grants)
             elif kind == "finish":
                 _, _, ends = message
                 finalize(field, processors.pop(field), None, ends, False)
             elif kind == "table":
-                _, _, keys, counts, ends, scalars = message
+                _, _, keys, counts, ends, scalars, sample_grant = message
                 table = dict(zip(keys, counts, strict=True))
-                finalize(field, ValueProcessor(context), table, ends, scalars)
+                processor = ValueProcessor(context)
+                finalize(field, processor, table, ends, scalars, sample_grant)
     except KeyboardInterrupt:
         return
     except BaseException:  # noqa: BLE001 - reported to the scan process

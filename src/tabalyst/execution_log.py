@@ -70,11 +70,11 @@ def build_execution_entry(
         "source_file": source.name,
         "html_file": html_output.name,
         "json_file": json_output.name,
-        "rows": sum(dataset.summary.row_count for dataset in profile.datasets),
+        "rows": sum(dataset.summary.row_count for dataset in profile.report.datasets),
         "columns": sum(
-            dataset.summary.column_count for dataset in profile.datasets
+            dataset.summary.column_count for dataset in profile.report.datasets
         ),
-        "analysis_seconds": profile.processing_seconds,
+        "analysis_seconds": profile.report.processing_seconds,
         "total_seconds": round(total_seconds, 4),
         "git": git_state(git_directory),
     }

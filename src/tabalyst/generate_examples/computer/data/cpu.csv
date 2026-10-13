@@ -1,0 +1,18 @@
+id,en,fr,brand_id,family,model,architecture,cores,threads,max_clock_ghz,npu_tops,npu_brand,npu_family
+apple_m3,Apple M3,Apple M3,apple,apple_m3,M3,arm64,8,8,4.0,18,apple,apple_neural_engine
+apple_m4,Apple M4,Apple M4,apple,apple_m4,M4,arm64,10,10,4.4,38,apple,apple_neural_engine
+apple_m4_pro,Apple M4 Pro,Apple M4 Pro,apple,apple_m4_pro,M4 Pro,arm64,12,12,4.5,38,apple,apple_neural_engine
+apple_m4_max,Apple M4 Max,Apple M4 Max,apple,apple_m4_max,M4 Max,arm64,14,14,4.5,38,apple,apple_neural_engine
+apple_m2_ultra,Apple M2 Ultra,Apple M2 Ultra,apple,apple_m2_ultra,M2 Ultra,arm64,24,24,3.7,31,apple,apple_neural_engine
+intel_xeon_silver_4510,Intel Xeon Silver 4510,Intel Xeon Silver 4510,intel,intel_xeon_silver,4510,x86_64,12,24,3.3,0,,
+broadcom_bcm2712,Broadcom BCM2712,Broadcom BCM2712,broadcom,broadcom_bcm2712,BCM2712,arm64,4,4,2.4,0,,
+intel_core_ultra_5_225u,Intel Core Ultra 5 225U,Intel Core Ultra 5 225U,intel,intel_core_ultra_5,225U,x86_64,12,14,4.8,12,intel,intel_ai_boost
+intel_core_ultra_5_245,Intel Core Ultra 5 245,Intel Core Ultra 5 245,intel,intel_core_ultra_5,245,x86_64,14,14,5.1,13,intel,intel_ai_boost
+intel_core_ultra_7_258v,Intel Core Ultra 7 258V,Intel Core Ultra 7 258V,intel,intel_core_ultra_7,258V,x86_64,8,8,4.8,47,intel,intel_ai_boost
+intel_core_ultra_7_265,Intel Core Ultra 7 265,Intel Core Ultra 7 265,intel,intel_core_ultra_7,265,x86_64,20,20,5.3,13,intel,intel_ai_boost
+intel_core_ultra_9_285,Intel Core Ultra 9 285,Intel Core Ultra 9 285,intel,intel_core_ultra_9,285,x86_64,24,24,5.6,13,intel,intel_ai_boost
+intel_core_ultra_9_285hx,Intel Core Ultra 9 285HX,Intel Core Ultra 9 285HX,intel,intel_core_ultra_9,285HX,x86_64,24,24,5.5,13,intel,intel_ai_boost
+amd_ryzen_7_8840u,AMD Ryzen 7 8840U,AMD Ryzen 7 8840U,amd,amd_ryzen_7,8840U,x86_64,8,16,5.1,16,amd,amd_ryzen_ai
+amd_ryzen_ai_7_350,AMD Ryzen AI 7 350,AMD Ryzen AI 7 350,amd,amd_ryzen_ai_7,350,x86_64,8,16,5.0,50,amd,amd_ryzen_ai
+amd_ryzen_ai_9_hx_370,AMD Ryzen AI 9 HX 370,AMD Ryzen AI 9 HX 370,amd,amd_ryzen_ai_9,HX 370,x86_64,12,24,5.1,50,amd,amd_ryzen_ai
+amd_ryzen_9_9955hx,AMD Ryzen 9 9955HX,AMD Ryzen 9 9955HX,amd,amd_ryzen_9,9955HX,x86_64,16,32,5.4,0,,

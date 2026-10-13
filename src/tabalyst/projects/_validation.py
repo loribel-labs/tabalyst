@@ -47,6 +47,7 @@ from tabalyst.scanner.records import (
     TableLayout,
     record_digest,
 )
+from tabalyst.scanner.validation import check_scan
 
 LISTINGS = ("records.with_missing", "records.empty", "records.duplicates")
 
@@ -85,6 +86,13 @@ def validate_database(
     generation_id: str,
     scan_sha256: str,
 ) -> None:
+    # The common Scan invariants first: the catalog below is checked against
+    # facts that must already be coherent with each other.
+    problems = check_scan(result)
+    _require(
+        not problems,
+        "Scan invariants violated: " + "; ".join(problems[:3]),
+    )
     revision = connection.execute("SELECT format_revision FROM meta.format").fetchall()
     if revision == [(2,)]:
         from tabalyst.projects._bounded_values import validate_bounded_database

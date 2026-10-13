@@ -918,6 +918,771 @@
         "dirty": true,
         "state": "6c22a1c3+working"
       }
+    },
+    {
+      "timestamp": "2026-10-07T05:08:23.315009Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.8918,
+      "total_seconds": 1.9655,
+      "git": {
+        "available": true,
+        "commit": "21643748b45cc411b1621a12fe9b17252395057b",
+        "dirty": true,
+        "state": "21643748+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-07T05:56:01.485608Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.9039,
+      "total_seconds": 1.9889,
+      "git": {
+        "available": true,
+        "commit": "46f7f247ed79098e0b5e2bbdde72a73c12ba2e1d",
+        "dirty": true,
+        "state": "46f7f247+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-07T06:22:13.560040Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.6633,
+      "total_seconds": 1.7577,
+      "git": {
+        "available": true,
+        "commit": "1153f2cca803a728e82978e0414d5041a006f408",
+        "dirty": true,
+        "state": "1153f2cc+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T03:46:16.508498Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.0043,
+      "total_seconds": 2.1635,
+      "git": {
+        "available": true,
+        "commit": "b33f62deee1bbda261a8bffb928308d45aa9dbe3",
+        "dirty": true,
+        "state": "b33f62de+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T12:08:21.339982Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.9543,
+      "total_seconds": 2.0637,
+      "git": {
+        "available": true,
+        "commit": "e16eb515dc5c4c0ef193d908c2da3bb06a4e82c1",
+        "dirty": true,
+        "state": "e16eb515+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T12:27:44.231067Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.7015,
+      "total_seconds": 1.7962,
+      "git": {
+        "available": true,
+        "commit": "e16eb515dc5c4c0ef193d908c2da3bb06a4e82c1",
+        "dirty": true,
+        "state": "e16eb515+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T16:07:20.476890Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.9417,
+      "total_seconds": 2.0194,
+      "git": {
+        "available": true,
+        "commit": "a7ce56fcb13f54d68f8840a763b41123ed841540",
+        "dirty": true,
+        "state": "a7ce56fc+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T17:25:25.262775Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.1245,
+      "total_seconds": 2.1699,
+      "git": {
+        "available": true,
+        "commit": "a7ce56fcb13f54d68f8840a763b41123ed841540",
+        "dirty": true,
+        "state": "a7ce56fc+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T18:46:24.323001Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.2413,
+      "total_seconds": 2.334,
+      "git": {
+        "available": true,
+        "commit": "a1180328c85f9907cb2d57af2d996da3f3d7d31b",
+        "dirty": true,
+        "state": "a1180328+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T18:49:19.753822Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.8135,
+      "total_seconds": 1.9185,
+      "git": {
+        "available": true,
+        "commit": "a1180328c85f9907cb2d57af2d996da3f3d7d31b",
+        "dirty": true,
+        "state": "a1180328+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T19:02:37.146400Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.7918,
+      "total_seconds": 1.8006,
+      "git": {
+        "available": true,
+        "commit": "e9be551cfdea2df398fbde439a0b2ce2550e1170",
+        "dirty": true,
+        "state": "e9be551c+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T20:17:31.640353Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.07,
+      "total_seconds": 2.0819,
+      "git": {
+        "available": true,
+        "commit": "647bac6ea04d8b053426f86ade37a1dd0b9ff50c",
+        "dirty": true,
+        "state": "647bac6e+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T22:20:55.772568Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.7536,
+      "total_seconds": 2.1413,
+      "git": {
+        "available": true,
+        "commit": "38d5353666efe1de7cdd33d164b54c350541d6b0",
+        "dirty": true,
+        "state": "38d53536+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-08T22:25:55.073188Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.7583,
+      "total_seconds": 2.2022,
+      "git": {
+        "available": true,
+        "commit": "38d5353666efe1de7cdd33d164b54c350541d6b0",
+        "dirty": true,
+        "state": "38d53536+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T03:00:32.206869Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.0962,
+      "total_seconds": 2.5717,
+      "git": {
+        "available": true,
+        "commit": "3a7dc4786435347c8db1e9c860854ed2cc52ae67",
+        "dirty": true,
+        "state": "3a7dc478+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T03:47:24.016343Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.1126,
+      "total_seconds": 2.8102,
+      "git": {
+        "available": true,
+        "commit": "d1750c3704e37dc6984f925d80df5424398d28dc",
+        "dirty": true,
+        "state": "d1750c37+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T04:29:57.202297Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.0958,
+      "total_seconds": 2.629,
+      "git": {
+        "available": true,
+        "commit": "d818d555c9bd941651be8130d5caa8b2d5e07df6",
+        "dirty": true,
+        "state": "d818d555+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T11:48:46.890044Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.0793,
+      "total_seconds": 2.5386,
+      "git": {
+        "available": true,
+        "commit": "d818d555c9bd941651be8130d5caa8b2d5e07df6",
+        "dirty": true,
+        "state": "d818d555+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T13:30:36.796630Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.3069,
+      "total_seconds": 3.0323,
+      "git": {
+        "available": true,
+        "commit": "72c24f81ada397422c8b586ccf29927ee46ae9bb",
+        "dirty": true,
+        "state": "72c24f81+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T16:09:53.723026Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.4011,
+      "total_seconds": 3.1814,
+      "git": {
+        "available": true,
+        "commit": "5bedfd1ffadc4372c7ced2aaa94131d798fc4edc",
+        "dirty": true,
+        "state": "5bedfd1f+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T17:31:57.059279Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.361,
+      "total_seconds": 3.2565,
+      "git": {
+        "available": true,
+        "commit": "cd659e84af9f57af5595e7cac64842869cb1add4",
+        "dirty": true,
+        "state": "cd659e84+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T17:49:23.127342Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.3354,
+      "total_seconds": 3.2782,
+      "git": {
+        "available": true,
+        "commit": "cd659e84af9f57af5595e7cac64842869cb1add4",
+        "dirty": true,
+        "state": "cd659e84+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T18:52:56.300972Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.3486,
+      "total_seconds": 3.2804,
+      "git": {
+        "available": true,
+        "commit": "cd659e84af9f57af5595e7cac64842869cb1add4",
+        "dirty": true,
+        "state": "cd659e84+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T19:34:23.870974Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.2859,
+      "total_seconds": 3.1188,
+      "git": {
+        "available": true,
+        "commit": "5e6e8889def3d3cab5f504f0f8c06e40820874db",
+        "dirty": true,
+        "state": "5e6e8889+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T21:21:00.946949Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.3472,
+      "total_seconds": 3.1374,
+      "git": {
+        "available": true,
+        "commit": "acbee9a20e41211904fe68fe0276510a8097eb3d",
+        "dirty": true,
+        "state": "acbee9a2+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T21:36:50.403055Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.7541,
+      "total_seconds": 2.5248,
+      "git": {
+        "available": true,
+        "commit": "acbee9a20e41211904fe68fe0276510a8097eb3d",
+        "dirty": true,
+        "state": "acbee9a2+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T22:47:00.300861Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.2407,
+      "total_seconds": 2.9556,
+      "git": {
+        "available": true,
+        "commit": "5c0884fb5fa7ede5b6042d7ac6c0aee117cd0565",
+        "dirty": true,
+        "state": "5c0884fb+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-10T21:18:53.692633Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.2375,
+      "total_seconds": 2.8291,
+      "git": {
+        "available": true,
+        "commit": "338fd448418fe935fe419e2f29c8c62757440dc7",
+        "dirty": true,
+        "state": "338fd448+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T00:00:21.660899Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.2162,
+      "total_seconds": 2.7505,
+      "git": {
+        "available": true,
+        "commit": "338fd448418fe935fe419e2f29c8c62757440dc7",
+        "dirty": true,
+        "state": "338fd448+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T01:27:50.014660Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.4206,
+      "total_seconds": 3.1134,
+      "git": {
+        "available": true,
+        "commit": "e78a8593ef9b6e2b13f4115e04356180a61341a9",
+        "dirty": true,
+        "state": "e78a8593+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T23:28:15.256181Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.3577,
+      "total_seconds": 3.0055,
+      "git": {
+        "available": true,
+        "commit": "77737d835df851caff568efb66bd67e05fcd3436",
+        "dirty": true,
+        "state": "77737d83+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T23:37:12.640153Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.7201,
+      "total_seconds": 2.3398,
+      "git": {
+        "available": true,
+        "commit": "77737d835df851caff568efb66bd67e05fcd3436",
+        "dirty": true,
+        "state": "77737d83+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T00:21:12.837661Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.8611,
+      "total_seconds": 2.44,
+      "git": {
+        "available": true,
+        "commit": "77737d835df851caff568efb66bd67e05fcd3436",
+        "dirty": true,
+        "state": "77737d83+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T00:29:47.693699Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.7019,
+      "total_seconds": 2.2501,
+      "git": {
+        "available": true,
+        "commit": "77737d835df851caff568efb66bd67e05fcd3436",
+        "dirty": true,
+        "state": "77737d83+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T01:40:56.609613Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.3971,
+      "total_seconds": 3.0397,
+      "git": {
+        "available": true,
+        "commit": "2b7f5e12fd2d1a4ac6d7dca7a0eae6458cad36d1",
+        "dirty": true,
+        "state": "2b7f5e12+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T02:14:16.011495Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.89,
+      "total_seconds": 2.471,
+      "git": {
+        "available": true,
+        "commit": "f227f605f98c47b15c5e37597e6675785e23041f",
+        "dirty": true,
+        "state": "f227f605+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T03:09:59.721227Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.8152,
+      "total_seconds": 2.4045,
+      "git": {
+        "available": true,
+        "commit": "c0b9067e2033217bdc32e533990fd2c81f28d7ec",
+        "dirty": true,
+        "state": "c0b9067e+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T04:06:21.658923Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.7306,
+      "total_seconds": 2.2935,
+      "git": {
+        "available": true,
+        "commit": "f21f62fd4ec17d7e850ae80bfe079688b11768f7",
+        "dirty": true,
+        "state": "f21f62fd+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T10:14:27.604041Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.9175,
+      "total_seconds": 2.7803,
+      "git": {
+        "available": true,
+        "commit": "f21f62fd4ec17d7e850ae80bfe079688b11768f7",
+        "dirty": true,
+        "state": "f21f62fd+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T15:24:31.696851Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.4776,
+      "total_seconds": 3.1247,
+      "git": {
+        "available": true,
+        "commit": "76eb1c68b4a949ac2b46b760d91f055d31a20929",
+        "dirty": true,
+        "state": "76eb1c68+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T17:32:16.698473Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.3468,
+      "total_seconds": 2.9209,
+      "git": {
+        "available": true,
+        "commit": "981aec706f8153c44fd6813be0c89fce9d27d478",
+        "dirty": true,
+        "state": "981aec70+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T21:44:50.099634Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.4322,
+      "total_seconds": 3.2817,
+      "git": {
+        "available": true,
+        "commit": "1072f3d4f5791c683854b829a777e65dcca1174e",
+        "dirty": true,
+        "state": "1072f3d4+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T23:04:08.836329Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.4397,
+      "total_seconds": 3.5939,
+      "git": {
+        "available": true,
+        "commit": "d20c35bebf12419f80bd1a2b3b8bf6ed97747f89",
+        "dirty": true,
+        "state": "d20c35be+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-12T23:20:47.543628Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.7818,
+      "total_seconds": 2.7698,
+      "git": {
+        "available": true,
+        "commit": "d20c35bebf12419f80bd1a2b3b8bf6ed97747f89",
+        "dirty": true,
+        "state": "d20c35be+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-13T01:41:24.740500Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 1.4281,
+      "total_seconds": 3.3733,
+      "git": {
+        "available": true,
+        "commit": "1933fb045ea28055a5129795ff8e0d6bd9d15ea5",
+        "dirty": true,
+        "state": "1933fb04+working"
+      }
     }
   ]
 }

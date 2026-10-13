@@ -1,0 +1,8 @@
+id,en,fr
+none,None,Aucune
+intel_vpro,Intel vPro,Intel vPro
+intel_amt,Intel AMT,Intel AMT
+amd_pro,AMD PRO,AMD PRO
+ipmi,IPMI,IPMI
+redfish,Redfish,Redfish
+bmc,BMC management,Gestion BMC

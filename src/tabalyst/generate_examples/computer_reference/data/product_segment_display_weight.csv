@@ -1,0 +1,16 @@
+product_segment_id,display_type_id,weight
+consumer,ips,7
+consumer,oled,2
+business,ips,8
+business,oled,1
+premium,ips,3
+premium,oled,6
+premium,mini_led,3
+gaming,ips,6
+gaming,oled,4
+gaming,mini_led,2
+creator,ips,3
+creator,oled,5
+creator,mini_led,4
+workstation,ips,6
+workstation,oled,3

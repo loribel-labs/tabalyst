@@ -17,7 +17,7 @@ from typer.testing import CliRunner
 
 from tabalyst.cli import app
 from tabalyst.report_config import ReportConfig
-from tabalyst.reporting import render_report
+from tabalyst.reporting import dataset_views, render_report
 from tabalyst.service import analyze_csv
 
 pytestmark = pytest.mark.lot("5b")
@@ -47,16 +47,17 @@ def _config(**scan) -> ReportConfig:
 
 
 def _datasets(profile) -> dict:
-    return {dataset.id: dataset for dataset in profile.datasets}
+    return {dataset.id: dataset for dataset in profile.report.datasets}
 
 
 def test_json_profile_lists_one_dataset_per_scan_dataset(tmp_path):
     profile = analyze_csv(_orders(tmp_path))
 
     assert profile.format_version == "0.2.0"
-    assert profile.format_revision == 1
+    assert profile.format == "tabalyst.report"
+    assert profile.format_revision == 3
     assert profile.source.format == "json"
-    assert profile.source.delimiter is None
+    assert profile.source.csv is None
     datasets = _datasets(profile)
     assert list(datasets) == ["$", "$.customers[]"]
     assert datasets["$"].kind == "document"
@@ -89,14 +90,26 @@ def test_json_columns_are_scalar_fields_named_by_path(tmp_path):
     assert customers.summary.duplicate_row_count == 1
 
 
-def test_json_preview_shows_absent_joined_and_masked_values(tmp_path):
-    customers = _datasets(analyze_csv(_orders(tmp_path)))["$.customers[]"]
+def test_json_rows_show_absent_joined_and_masked_values(tmp_path):
+    profile = analyze_csv(_orders(tmp_path))
 
-    first, second, _ = customers.preview
-    assert first.values == ["1", "aaa@aaaaaaa.aaa", "a, b", "Paris", "3, null"]
-    assert first.absent == []
-    assert second.values == ["2", "aaa@aaaaaaa.aaa", None, None, None]
-    assert second.absent == [2, 3, 4]
+    rows = {
+        dataset.id: dataset.rows.rows for dataset in dataset_views(profile)
+    }["$.customers[]"]
+    first, second, _ = rows
+    ids = [column.id for column in dataset_views(profile)[1].columns]
+    # A cell is a list of texts: the values of an items path, a JSON null as null.
+    assert [first.values[field] for field in ids] == [
+        ["1"],
+        ["aaa@aaaaaaa.aaa"],
+        ["a", "b"],
+        ["Paris"],
+        ["3", None],
+    ]
+    # An absent member has no cell.
+    assert [field in second.values for field in ids] == [True, True, False, False, False]
+    html = render_report(profile)
+    assert "a, b" in html and "3, null" in html and ">absent<" in html
 
 
 def test_json_records_excluded_by_the_tolerant_policy_are_an_issue(tmp_path):
@@ -104,10 +117,10 @@ def test_json_records_excluded_by_the_tolerant_policy_are_an_issue(tmp_path):
 
     profile = analyze_csv(source, _config(errors={"policy": "tolerant"}))
 
-    (dataset,) = profile.datasets
+    (dataset,) = profile.report.datasets
     assert dataset.summary.row_count == 2
-    issue = {issue.code: issue for issue in dataset.issues}["excluded_records"]
-    assert (issue.count, issue.row_numbers) == (1, [2])
+    finding = {item.rule: item for item in profile.observations.items}["excluded_records"]
+    assert (finding.count, finding.records) == (1, [2])
 
 
 def test_detectors_are_listed_per_column(tmp_path):
@@ -116,7 +129,7 @@ def test_detectors_are_listed_per_column(tmp_path):
 
     profile = analyze_csv(source)
 
-    email, day = profile.datasets[0].columns
+    email, day = profile.report.datasets[0].columns
     (detector,) = email.detectors
     assert (detector.id, detector.status, detector.primary) == ("email", "complete", True)
     assert (detector.eligible_count, detector.matched_count) == (3, 3)
@@ -132,7 +145,7 @@ def test_detectors_are_listed_per_column(tmp_path):
 def test_detectors_without_matches_are_not_listed(tmp_path):
     source = write_text(tmp_path, "names.csv", "name\nAnn\nBob\n")
 
-    column = analyze_csv(source).datasets[0].columns[0]
+    column = analyze_csv(source).report.datasets[0].columns[0]
 
     assert column.detectors == []
     assert 'id="detectors"' not in render_report(analyze_csv(source))
@@ -170,7 +183,7 @@ def test_report_command_names_json_outputs_apart_from_the_source(tmp_path):
     assert json.loads(source.read_text(encoding="utf-8")) == ORDERS
     profile = json.loads((tmp_path / "orders.report.json").read_text(encoding="utf-8"))
     assert profile["source"]["format"] == "json"
-    assert [item["id"] for item in profile["datasets"]] == ["$.customers[]"]
+    assert [item["id"] for item in profile["report"]["datasets"]] == ["$.customers[]"]
     assert (tmp_path / "orders.report.html").exists()
 
 
@@ -180,6 +193,6 @@ def test_json_without_scalar_values_is_reportable(tmp_path, text):
 
     profile = analyze_csv(source)
 
-    (dataset,) = profile.datasets
+    (dataset,) = profile.report.datasets
     assert dataset.columns == []
     assert "<html" in render_report(profile)

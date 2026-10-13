@@ -1,0 +1,48 @@
+id,en,fr,brand_id,family,model,gpu_type,vram_gb
+apple_m3_gpu,Apple M3 GPU,Apple M3 GPU,apple,apple_integrated,M3 GPU,integrated,0
+apple_m4_gpu,Apple M4 GPU,Apple M4 GPU,apple,apple_integrated,M4 GPU,integrated,0
+apple_m4_pro_gpu,Apple M4 Pro GPU,Apple M4 Pro GPU,apple,apple_integrated,M4 Pro GPU,integrated,0
+apple_m4_max_gpu,Apple M4 Max GPU,Apple M4 Max GPU,apple,apple_integrated,M4 Max GPU,integrated,0
+apple_m2_ultra_gpu,Apple M2 Ultra GPU,Apple M2 Ultra GPU,apple,apple_integrated,M2 Ultra GPU,integrated,0
+aspeed_ast2600,ASPEED AST2600,ASPEED AST2600,aspeed,aspeed_ast,AST2600,integrated,0
+videocore_vii,VideoCore VII,VideoCore VII,broadcom,videocore,VideoCore VII,integrated,0
+rtx_5090,NVIDIA GeForce RTX 5090,NVIDIA GeForce RTX 5090,nvidia,nvidia_geforce_rtx_50,RTX 5090,dedicated,32
+rtx_5080,NVIDIA GeForce RTX 5080,NVIDIA GeForce RTX 5080,nvidia,nvidia_geforce_rtx_50,RTX 5080,dedicated,16
+rtx_5070_ti,NVIDIA GeForce RTX 5070 Ti,NVIDIA GeForce RTX 5070 Ti,nvidia,nvidia_geforce_rtx_50,RTX 5070 Ti,dedicated,16
+rtx_5070,NVIDIA GeForce RTX 5070,NVIDIA GeForce RTX 5070,nvidia,nvidia_geforce_rtx_50,RTX 5070,dedicated,12
+rtx_5060_ti_16gb,NVIDIA GeForce RTX 5060 Ti 16 GB,NVIDIA GeForce RTX 5060 Ti 16 Go,nvidia,nvidia_geforce_rtx_50,RTX 5060 Ti,dedicated,16
+rtx_5060_ti_8gb,NVIDIA GeForce RTX 5060 Ti 8 GB,NVIDIA GeForce RTX 5060 Ti 8 Go,nvidia,nvidia_geforce_rtx_50,RTX 5060 Ti,dedicated,8
+rtx_5060,NVIDIA GeForce RTX 5060,NVIDIA GeForce RTX 5060,nvidia,nvidia_geforce_rtx_50,RTX 5060,dedicated,8
+rtx_5050,NVIDIA GeForce RTX 5050,NVIDIA GeForce RTX 5050,nvidia,nvidia_geforce_rtx_50,RTX 5050,dedicated,8
+rtx_5090_laptop,NVIDIA GeForce RTX 5090 Laptop GPU,NVIDIA GeForce RTX 5090 pour portable,nvidia,nvidia_geforce_rtx_50,RTX 5090 Laptop GPU,dedicated,24
+rtx_5080_laptop,NVIDIA GeForce RTX 5080 Laptop GPU,NVIDIA GeForce RTX 5080 pour portable,nvidia,nvidia_geforce_rtx_50,RTX 5080 Laptop GPU,dedicated,16
+rtx_5070_ti_laptop,NVIDIA GeForce RTX 5070 Ti Laptop GPU,NVIDIA GeForce RTX 5070 Ti pour portable,nvidia,nvidia_geforce_rtx_50,RTX 5070 Ti Laptop GPU,dedicated,12
+rtx_5070_laptop,NVIDIA GeForce RTX 5070 Laptop GPU,NVIDIA GeForce RTX 5070 pour portable,nvidia,nvidia_geforce_rtx_50,RTX 5070 Laptop GPU,dedicated,8
+rtx_5060_laptop,NVIDIA GeForce RTX 5060 Laptop GPU,NVIDIA GeForce RTX 5060 pour portable,nvidia,nvidia_geforce_rtx_50,RTX 5060 Laptop GPU,dedicated,8
+rtx_5050_laptop,NVIDIA GeForce RTX 5050 Laptop GPU,NVIDIA GeForce RTX 5050 pour portable,nvidia,nvidia_geforce_rtx_50,RTX 5050 Laptop GPU,dedicated,8
+rtx_4090,NVIDIA GeForce RTX 4090,NVIDIA GeForce RTX 4090,nvidia,nvidia_geforce_rtx_40,RTX 4090,dedicated,24
+rtx_4080,NVIDIA GeForce RTX 4080,NVIDIA GeForce RTX 4080,nvidia,nvidia_geforce_rtx_40,RTX 4080,dedicated,16
+rtx_4070_ti,NVIDIA GeForce RTX 4070 Ti,NVIDIA GeForce RTX 4070 Ti,nvidia,nvidia_geforce_rtx_40,RTX 4070 Ti,dedicated,12
+rtx_4070,NVIDIA GeForce RTX 4070,NVIDIA GeForce RTX 4070,nvidia,nvidia_geforce_rtx_40,RTX 4070,dedicated,12
+rtx_4060_ti,NVIDIA GeForce RTX 4060 Ti,NVIDIA GeForce RTX 4060 Ti,nvidia,nvidia_geforce_rtx_40,RTX 4060 Ti,dedicated,8
+rtx_4060,NVIDIA GeForce RTX 4060,NVIDIA GeForce RTX 4060,nvidia,nvidia_geforce_rtx_40,RTX 4060,dedicated,8
+rtx_3060,NVIDIA GeForce RTX 3060,NVIDIA GeForce RTX 3060,nvidia,nvidia_geforce_rtx_30,RTX 3060,dedicated,12
+rx_9070_xt,AMD Radeon RX 9070 XT,AMD Radeon RX 9070 XT,amd,amd_radeon_rx_9000,RX 9070 XT,dedicated,16
+rx_9070,AMD Radeon RX 9070,AMD Radeon RX 9070,amd,amd_radeon_rx_9000,RX 9070,dedicated,16
+rx_7900_xtx,AMD Radeon RX 7900 XTX,AMD Radeon RX 7900 XTX,amd,amd_radeon_rx_7000,RX 7900 XTX,dedicated,24
+rx_7800_xt,AMD Radeon RX 7800 XT,AMD Radeon RX 7800 XT,amd,amd_radeon_rx_7000,RX 7800 XT,dedicated,16
+rx_7700_xt,AMD Radeon RX 7700 XT,AMD Radeon RX 7700 XT,amd,amd_radeon_rx_7000,RX 7700 XT,dedicated,12
+rx_7600,AMD Radeon RX 7600,AMD Radeon RX 7600,amd,amd_radeon_rx_7000,RX 7600,dedicated,8
+radeon_890m,AMD Radeon 890M,AMD Radeon 890M,amd,amd_radeon_800m,Radeon 890M,integrated,0
+radeon_880m,AMD Radeon 880M,AMD Radeon 880M,amd,amd_radeon_800m,Radeon 880M,integrated,0
+radeon_780m,AMD Radeon 780M,AMD Radeon 780M,amd,amd_radeon_700m,Radeon 780M,integrated,0
+radeon_760m,AMD Radeon 760M,AMD Radeon 760M,amd,amd_radeon_700m,Radeon 760M,integrated,0
+arc_b580,Intel Arc B580,Intel Arc B580,intel,intel_arc_b,Arc B580,dedicated,12
+arc_b570,Intel Arc B570,Intel Arc B570,intel,intel_arc_b,Arc B570,dedicated,10
+arc_a770,Intel Arc A770,Intel Arc A770,intel,intel_arc_a,Arc A770,dedicated,16
+arc_a750,Intel Arc A750,Intel Arc A750,intel,intel_arc_a,Arc A750,dedicated,8
+arc_a380,Intel Arc A380,Intel Arc A380,intel,intel_arc_a,Arc A380,dedicated,6
+arc_140v,Intel Arc 140V,Intel Arc 140V,intel,intel_arc_integrated,Arc 140V,integrated,0
+arc_130v,Intel Arc 130V,Intel Arc 130V,intel,intel_arc_integrated,Arc 130V,integrated,0
+intel_integrated_graphics,Intel Integrated Graphics,Graphismes intégrés Intel,intel,intel_arc_integrated,Integrated Graphics,integrated,0
+uhd_770,Intel UHD Graphics 770,Intel UHD Graphics 770,intel,intel_uhd,UHD Graphics 770,integrated,0

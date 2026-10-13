@@ -17,7 +17,7 @@ from scan_helpers import write_text
 
 from tabalyst import ConfigurationError
 from tabalyst.report_config import ReportConfig, resolve_report_config
-from tabalyst.reporting import render_report
+from tabalyst.reporting import dataset_views, render_report
 from tabalyst.scanner.readers import csv_reader
 from tabalyst.service import analyze_csv
 
@@ -38,7 +38,6 @@ DEMO_FACTS = {
         "empty_row_count": 0,
         "empty_column_count": 0,
         "constant_column_count": 0,
-        "with_issues_column_count": 2,
     },
     "insurance-customers": {
         "row_count": 3000,
@@ -51,7 +50,6 @@ DEMO_FACTS = {
         "empty_row_count": 0,
         "empty_column_count": 0,
         "constant_column_count": 0,
-        "with_issues_column_count": 15,
     },
 }
 DUPLICATE_ROWS = {
@@ -67,29 +65,36 @@ def _config(**scan) -> ReportConfig:
 def _dataset(source, config=None):
     """The report of a CSV source and its only dataset."""
     report = analyze_csv(source, config)
-    (dataset,) = report.datasets
+    (dataset,) = report.report.datasets
     return report, dataset
 
 
-def _issues(profile) -> dict:
-    return {issue.code: issue for issue in profile.issues}
+def _findings(report) -> dict:
+    """The observations of the report by rule (whole scan and dataset)."""
+    return {item.rule: item for item in report.observations.items}
+
+
+def _rows(report):
+    """The rows of the row sample the report keeps, in the order it prints."""
+    return dataset_views(report)[0].rows.rows
 
 
 @pytest.mark.parametrize("demo", ["basic", "insurance-customers"])
 def test_demo_facts_are_those_of_the_former_engine(demo):
     source = EXAMPLES / "input" / f"{demo}.csv"
 
-    _report, current = _dataset(source, resolve_report_config([DEMO_CONFIG]))
+    report, current = _dataset(source, resolve_report_config([DEMO_CONFIG]))
 
     summary = current.summary.model_dump()
     assert {name: summary[name] for name in DEMO_FACTS[demo]} == DEMO_FACTS[demo]
     assert current.summary.duplicate_row_status == "complete"
-    issue = _issues(current)["duplicate_rows"]
-    assert (issue.count, issue.row_numbers) == (
+    finding = _findings(report)["duplicate_rows"]
+    assert (finding.count, finding.records) == (
         DEMO_FACTS[demo]["duplicate_row_count"],
         DUPLICATE_ROWS[demo],
     )
-    assert len(current.preview) == min(20, DEMO_FACTS[demo]["row_count"])
+    # The report keeps 10 rows of each part, or every row of a small dataset.
+    assert len(_rows(report)) == min(30, DEMO_FACTS[demo]["row_count"])
 
 
 # Decisions of lot 5a -----------------------------------------------------------
@@ -102,14 +107,14 @@ def test_ambiguous_dates_are_never_resolved_from_column_evidence(tmp_path):
 
     profile_report, profile = _dataset(source)
 
-    dates = profile.columns[0].date_profile
+    dates = dataset_views(profile_report)[0].columns[0].date_profile
     assert dates.ambiguous_count == 1
     assert dates.resolved_ambiguous_order is None
     assert dates.ambiguous_order_source is None
     assert dates.ambiguity_evidence == {"DMY": 2, "MDY": 0}
     assert profile.columns[0].inferred_type == "date"
-    assert profile.columns[0].with_issues is True
-    assert _issues(profile)["ambiguous_dates"].count == 1
+    assert dataset_views(profile_report)[0].columns[0].has_quality_issues is True
+    assert _findings(profile_report)["ambiguous_dates"].count == 1
     html = render_report(profile_report)
     assert "Only DMY is attested" in html
     assert "scan.detectors.date.ambiguous_order" in html
@@ -118,18 +123,18 @@ def test_ambiguous_dates_are_never_resolved_from_column_evidence(tmp_path):
 def test_configured_order_resolves_ambiguous_dates(tmp_path):
     source = write_text(tmp_path, "dates.csv", "day\n01/02/2026\n13/02/2026\n")
 
-    _profile_report, profile = _dataset(
+    profile_report, _profile = _dataset(
         source, _config(detectors={"date": {"ambiguous_order": "DMY"}})
     )
 
-    dates = profile.columns[0].date_profile
+    dates = dataset_views(profile_report)[0].columns[0].date_profile
     assert (dates.valid_count, dates.ambiguous_count) == (2, 0)
     assert (dates.resolved_ambiguous_order, dates.ambiguous_order_source) == (
         "DMY",
         "config",
     )
     assert [item.format for item in dates.formats] == ["DD/MM/YYYY"]
-    assert "ambiguous_dates" not in _issues(profile)
+    assert "ambiguous_dates" not in _findings(profile_report)
 
 
 def _contacts(tmp_path) -> Path:
@@ -145,9 +150,10 @@ def test_sensitive_values_are_masked_by_default(tmp_path):
     assert email.exposure == "mask"
     assert email.distinct_count == 3
     assert all("@" in value and "user" not in value for value in email.examples)
-    assert profile.preview[0].values == ["aaaa9@aaaaaaa.aaa", "0"]
+    rows = _rows(profile_report)
+    assert rows[0].values == {"column_1": ["aaaa9@aaaaaaa.aaa"], "column_2": ["0"]}
     # Missing cells are not values: they stay as read.
-    assert profile.preview[3].values == ["", "3"]
+    assert rows[3].values == {"column_1": [""], "column_2": ["3"]}
     assert "Masked values" in render_report(profile_report)
 
 
@@ -155,13 +161,13 @@ def test_sensitive_values_can_be_hidden_or_shown(tmp_path):
     source = _contacts(tmp_path)
 
     hidden_report, hidden = _dataset(source, _config(exposure={"sensitive_values": "hide"}))
-    _shown_report, shown = _dataset(source, _config(exposure={"sensitive_values": "show"}))
+    shown_report, shown = _dataset(source, _config(exposure={"sensitive_values": "show"}))
 
     assert hidden.columns[0].examples == []
-    assert hidden.preview[0].values == [None, "0"]
+    assert _rows(hidden_report)[0].values == {"column_1": None, "column_2": ["0"]}
     assert ">hidden<" in render_report(hidden_report)
     assert shown.columns[0].exposure == "show"
-    assert shown.preview[0].values == ["user0@example.com", "0"]
+    assert _rows(shown_report)[0].values["column_1"] == ["user0@example.com"]
     assert "user0@example.com" in shown.columns[0].examples
 
 
@@ -173,21 +179,27 @@ def test_limited_measures_are_reported_not_invented(tmp_path):
 
     for column in profile.columns:
         assert column.distinct_count is None
-    assert profile.columns[0].numeric.minimum == 0
-    assert profile.columns[0].numeric.median is None
-    assert _issues(profile)["limited_measures"].column_ids == ["column_1", "column_2"]
+    numeric = dataset_views(profile_report)[0].columns[0].numeric
+    assert numeric.minimum == 0
+    assert numeric.median is None
+    limited = dataset_views(profile_report)[0].limits.items
+    assert {item.column_id for item in limited} >= {"column_1", "column_2"}
     assert "limited" in render_report(profile_report)
 
 
 def test_records_excluded_by_the_tolerant_policy_are_an_issue(tmp_path):
     source = write_text(tmp_path, "rows.csv", "a,b\n1,2\n3\n4,5\n6,7,8\n")
 
-    _profile_report, profile = _dataset(source, _config(errors={"policy": "tolerant"}))
+    report, profile = _dataset(source, _config(errors={"policy": "tolerant"}))
 
     assert profile.summary.row_count == 2
-    issue = _issues(profile)["excluded_records"]
-    assert (issue.severity, issue.count, issue.row_numbers) == ("warning", 2, [2, 4])
-    assert [row.row_number for row in profile.preview] == [1, 3]
+    finding = _findings(report)["excluded_records"]
+    assert (finding.status, finding.count, finding.records) == (
+        "confirmed_issue",
+        2,
+        [2, 4],
+    )
+    assert [row.record for row in _rows(report)] == [1, 3]
 
 
 def test_report_reads_the_csv_once(tmp_path, monkeypatch):

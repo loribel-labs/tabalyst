@@ -1,0 +1,19 @@
+id,en,fr
+consumer_laptop,Consumer Laptop,Ordinateur portable grand public
+business_laptop,Business Laptop,Ordinateur portable professionnel
+gaming_laptop,Gaming Laptop,Ordinateur portable de jeu
+creator_laptop,Creator Laptop,Ordinateur portable pour créateurs
+mobile_workstation,Mobile Workstation,Station de travail mobile
+convertible_laptop,Convertible Laptop,Ordinateur portable convertible
+detachable_laptop,Detachable Laptop,Ordinateur portable détachable
+consumer_desktop,Consumer Desktop,Ordinateur de bureau grand public
+business_desktop,Business Desktop,Ordinateur de bureau professionnel
+gaming_desktop,Gaming Desktop,Ordinateur de bureau de jeu
+desktop_workstation,Desktop Workstation,Station de travail de bureau
+small_form_factor_pc,Small Form Factor PC,PC petit format
+micro_pc,Micro PC,Micro PC
+mini_pc,Mini PC,Mini PC
+all_in_one_pc,All-in-One PC,PC tout-en-un
+rack_server,Rack Server,Serveur en rack
+tower_server,Tower Server,Serveur tour
+blade_server,Blade Server,Serveur lame
