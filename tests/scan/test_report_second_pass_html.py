@@ -152,3 +152,16 @@ def test_a_report_of_a_scan_document_says_the_source_was_not_read(tmp_path):
 
     assert "was not read for this report" in html
     assert "built from a scan document" in html
+
+
+def test_the_validated_counts_join_the_nodes_by_id(tmp_path):
+    _, profile = _report(tmp_path)
+
+    view = next(
+        c for c in dataset_views(profile)[0].columns if c.name == "code"
+    ).patterns
+
+    assert view.has_validation
+    assert all(
+        pattern.validated is not None for family in view.families for pattern in family.patterns
+    )

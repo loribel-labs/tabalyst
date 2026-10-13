@@ -216,24 +216,43 @@ treating a low match rate as full-field coverage.
 ## Patterns
 
 **Purpose:** show the structural patterns of text columns, inferred from the
-distinct values the scan sampled. A pattern writes `9` for a digit, `X` for a
-capital, `x` for a lowercase letter, `@` for any letter and `#` for a letter or a
-digit; other characters are written as they are, and a letter or digit that is
-fixed in every value is quoted, such as `'ONT'9{6,7}`.
+distinct values the scan sampled, grouped by family. A family gathers the values
+of one structure (capitals, a hyphen, digits); it is presented as its patterns,
+each of a fixed length. A pattern writes `9` for a digit, `A` for a capital, `a`
+for a lowercase letter, `@` for a letter of any case or script, `X` for a capital
+or a digit, `x` for a lowercase letter or a digit and `#` for an ASCII letter or a
+digit. Text between quotes is a constant that every value of the pattern shares:
+`'AK-'9999`.
+
+The table of the dataset has one row per pattern. Each column page has the whole
+hierarchy, readable without JavaScript:
+
+- a **family** block with its structure (`UP-D`), its distinct values and
+  occurrences, and, when the second pass ran, how many values of the whole file it
+  reads;
+- its **patterns** (`'INV-'999`, `'INV-'9999`), with the commonest format, their
+  token lengths, examples and counts;
+- indented **nodes** under a pattern: a node fixes the start or the end of a
+  token, or a short token (`'AK-'9999` under `AA-9999`), and its line shows the
+  bits the choice saves. A node with children can be folded;
+- **tables** of a family, for a facet that no node reads: its cells and an
+  *others* row add up to the family.
 
 | Report column | Meaning | What to check |
 | --- | --- | --- |
-| Column, Pattern | Field and pattern, with its role: `principal` for the most common. | A secondary pattern can be a second format in use, or a rare mistake. |
+| Column, Family, Pattern | Field, family (structure and id) and pattern, with its role: `principal` for the most common. | A secondary pattern can be a second format in use, or a rare mistake. |
 | Distinct values, Share | Distinct values the pattern takes, and their share of the distinct values read. | A share counts distinct values, never occurrences in the file. |
 | Basis | exact when the scan held every distinct value of the field, sample when it held a sample of them. | The share is of distinct values, not of the file. |
-| Validated on every value | When the second pass ran: how many values of the whole file the pattern reads, and their share of the values of the column. | Exact. A value is counted for the most specific pattern that reads it. |
-| Lengths, Examples | Observed lengths, and examples among the values the report keeps. | An example the report does not keep is not shown. |
+| Validated on every value | When the second pass ran: how many values of the whole file the pattern reads, and their share of the values of the column. | Exact. A value is counted for one pattern, the one of its family that has its lengths. |
+| Length, Examples | Length of the pattern in characters, and examples among the values the report keeps. | An example the report does not keep is not shown. |
 
-A value counts for one pattern, the most specific that reads it. The row
-*unmatched* counts the values no pattern takes; with the second pass, its
+A value counts for one pattern, the one of its family that has its lengths. The
+row *unmatched* counts the values no pattern takes; with the second pass, its
 validated figure is the number of values of the whole file that no pattern reads.
-That is an observation about structure, not an error. A column with no pattern,
-such as a number or a masked column, says why on its own page.
+A column page also lists the *new variants* the second pass found in a known
+family: a value whose lengths, or whose segment, the sample never showed. These
+are observations about structure, not errors. A column with no pattern, such as a
+number or a masked column, says why on its own page.
 
 ## Relationships
 

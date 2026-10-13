@@ -277,3 +277,74 @@ def test_a_limit_that_is_not_a_setting_does_not_point_to_one():
     # The budgets of the discovery of patterns are settings.
     for budget in ("max_values", "max_families", "max_patterns_per_family", "max_patterns"):
         assert REASON_SETTINGS[budget] == f"scan.pattern_inference.{budget}"
+
+
+# Hierarchy of the patterns (Patterns lot P8) -----------------------------------
+
+
+def _family_source(tmp_path):
+    rows = (
+        [f"INV-{n:03d}" for n in range(100, 160)]
+        + [f"INV-{n:04d}" for n in range(1000, 1090)]
+        + [f"AK-{n:04d}" for n in range(30)]
+        + [f"ZZ-{n:04d}" for n in range(30)]
+    )
+    return _csv(tmp_path, "code", rows)
+
+
+def test_the_column_view_is_the_hierarchy_of_the_scan_with_shares(tmp_path):
+    profile = analyze_csv(_family_source(tmp_path))
+
+    view = dataset_views(profile)[0].columns[0].patterns
+
+    family = view.families[0]
+    assert [pattern.id for pattern in family.patterns] == [
+        pattern.id for pattern in view.entry.families[0].patterns
+    ]
+    assert family.d == sum(pattern.d for pattern in family.patterns)
+    assert view.node_count == sum(pattern.node_count for pattern in family.patterns)
+    assert view.node_count > 0
+    assert 0 < family.share_d <= 1
+    assert not view.has_validation and family.validated is None
+
+
+def test_the_column_page_shows_families_patterns_nodes_without_script(tmp_path):
+    profile = analyze_csv(_family_source(tmp_path))
+    dataset = dataset_views(profile)[0]
+
+    page = render_column_report(profile, dataset, dataset.columns[0], "report.html")
+
+    assert 'class="pfam rcard"' in page and "<details" in page
+    assert 'class="ptree"' in page
+    assert "Family <code>" in page
+    assert "Not validated against the whole file." in page
+    assert "Quoted text is a constant" in page
+
+
+def test_the_global_table_names_the_family_of_each_pattern(tmp_path):
+    profile = analyze_csv(_family_source(tmp_path))
+
+    html = render_report(profile)
+    view = dataset_views(profile)[0].columns[0].patterns
+
+    assert "Family" in html
+    assert view.rows[0].family_key == view.families[0].key
+
+
+def test_a_table_of_a_family_renders_its_cells_and_an_others_row_on_one_base():
+    from pathlib import Path
+
+    source = Path(__file__).resolve().parents[2] / "examples" / "input" / "insurance-customers.csv"
+    profile = analyze_csv(source)
+    dataset = dataset_views(profile)[0]
+    column = next(c for c in dataset.columns if any(f.tables for f in c.patterns.families))
+
+    page = render_column_report(profile, dataset, column, "report.html")
+
+    family = next(f for f in column.patterns.families if f.tables)
+    table = family.tables[0]
+    assert 'class="ptable"' in page and 'class="pothers"' in page
+    # Cells and rest add up to the family, in distinct values.
+    assert sum(c.d for c in table.cells) + table.others_d == family.d
+    # A folded family keeps its marker: the flex layout is in an inner span.
+    assert '<summary class="rcard-title"><span class="sl">' in page

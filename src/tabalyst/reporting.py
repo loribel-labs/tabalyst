@@ -182,7 +182,10 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
                     quality=findings.get(column.id, []),
                     limits=bounded.get(column.id, []),
                     patterns=pattern_view(
-                        field, entries.get((projection.id, column.id)), profile.derived
+                        field,
+                        entries.get((projection.id, column.id)),
+                        profile.derived,
+                        results.patterns,
                     ),
                 )
             )
@@ -238,16 +241,16 @@ def column_pages(
 
 
 @cache
-def _insights_template() -> str:
-    """The macro of the insight cards, read once for every page of a run."""
-    return files("tabalyst").joinpath("templates/insights.html").read_text(encoding="utf-8")
+def _macro_template(name: str) -> str:
+    """A shared macro file (the insight cards, the tree of patterns), read once for every page of a run."""
+    return files("tabalyst").joinpath(f"templates/{name}").read_text(encoding="utf-8")
 
 
 def _environment() -> Environment:
     environment = Environment(
         autoescape=True,
         undefined=StrictUndefined,
-        loader=DictLoader({"insights.html": _insights_template()}),
+        loader=DictLoader({name: _macro_template(name) for name in ("insights.html", "patterns.html")}),
     )
     environment.filters["count"] = lambda number: f"{number:,}"
     environment.filters["number"] = format_number

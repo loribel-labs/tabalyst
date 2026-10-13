@@ -253,11 +253,104 @@ class PatternRow(ResultModel):
 
     id: str
     family: str
+    family_key: str = ""
     render: str
     role: Literal["principal", "secondary"]
     distinct: int
     share: float
     length: int
+
+
+class PatternCellView(ResultModel):
+    """A cell of a table of a family: the text of a head, a tail, a token or a
+    combination of lengths, with its distinct values and occurrences and, when the
+    second pass counted it, its occurrences over every value of the file."""
+
+    value: str
+    d: int
+    o: int
+    share_d: float
+    share_o: float
+    validated: int | None = None
+
+
+class PatternTableView(ResultModel):
+    """A table of a family (design 18.12): the values of one facet with their
+    counts, not nested in the tree. ``others`` is what the cells leave out."""
+
+    facet: str
+    facet_text: str
+    cells: list[PatternCellView]
+    others_distinct: int
+    others_d: int
+    others_o: int
+    bits: float | None = None
+    saturated: bool = False
+
+
+class PatternNodeView(ResultModel):
+    """A node of the tree of a pattern: what it fixes at one facet (``fixes``,
+    with what a merged single child fixed too) and its counts. ``validated`` and
+    ``validated_distinct`` are those of the second pass, when it ran."""
+
+    id: str
+    level: int
+    facet_text: str
+    value: str
+    also: list[str] = Field(default_factory=list)
+    render: str
+    role: Literal["principal", "secondary"]
+    d: int
+    o: int
+    share_d: float
+    share_o: float
+    bits_d: float | None = None
+    bits_o: float | None = None
+    validated: int | None = None
+    validated_distinct: int | None = None
+    validated_exact: bool = True
+    nodes: list["PatternNodeView"] = Field(default_factory=list)
+
+
+PatternNodeView.model_rebuild()
+
+
+class PatternPatternView(ResultModel):
+    """A pattern of fixed length of a family, with its nodes and examples."""
+
+    id: str
+    render: str
+    format: str
+    lengths: list[int]
+    d: int
+    o: int
+    share_d: float
+    share_o: float
+    examples: list[str] = Field(default_factory=list)
+    unresolved: int = 0
+    validated: int | None = None
+    validated_distinct: int | None = None
+    validated_exact: bool = True
+    nodes: list[PatternNodeView] = Field(default_factory=list)
+    node_count: int = 0
+
+
+class PatternFamilyView(ResultModel):
+    """A family: the values of one structure (or of structures merged at the edge of
+    a block) as the list of its patterns, with its tables."""
+
+    id: str
+    key: str
+    composition: list[str] = Field(default_factory=list)
+    d: int
+    o: int
+    share_d: float
+    share_o: float
+    patterns: list[PatternPatternView]
+    tables: list[PatternTableView] = Field(default_factory=list)
+    validated: int | None = None
+    new_variant_length: int = 0
+    new_variant_segment: int = 0
 
 
 class PatternView(ResultModel):
@@ -270,6 +363,11 @@ class PatternView(ResultModel):
     entry: FieldPatternsComplete | None = None
     # The patterns of the hierarchy, the largest first.
     rows: list[PatternRow] = Field(default_factory=list)
+    # The hierarchy: the families in the order of the document, each with its
+    # patterns, nodes and tables.
+    families: list[PatternFamilyView] = Field(default_factory=list)
+    node_count: int = 0
+    has_validation: bool = False
     # The distinct values no pattern holds, their share of the population and the
     # structures left out of the families.
     outside_distinct: int = 0

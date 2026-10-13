@@ -1489,3 +1489,16 @@ A field without nodes costs the same, one with a few costs 1.4 to 1.6 times as m
 it did (the replay is the larger part). A first version that also read the facets of each string cost 1.6 to 2.0 times the base
 on `column_7` and `column_10`; `facets=False` brought it back. The tiers of `NS_PER_CELL["residual_pattern*"]` are the
 old ones by 1.5 (450, 1,100 and 3,000), `COST_MODEL_VERSION` 15.
+
+## Final guards of the Patterns plan (Patterns lot P8, AC-026)
+
+The whole plan (eligibility, character profile, hierarchical discovery, validation, consumers and Report) against the code
+before it, `006edf4`, which is the Insight milestone (worktree). Task `scan`, default workers, alternated three times in one
+session (`benchmarks/interleave.py`, outputs under `D:/GIT.test/tabalyst/artifacts/patterns-p8/`):
+
+| File | Base (s) | Head (s) | Paired ratio | Guard | Peak base / head (MB) | Guard |
+| --- | --- | --- | ---: | ---: | --- | ---: |
+| insurance-combined.csv (1 M x 34, realistic) | 13.24, 12.44, 12.35 | 13.91, 13.68, 13.65 | **+9.9%** | 20% | 783 / 792 (+1.1%) | 10% |
+| worst-width-1m.csv (1 M x 30, 5 unique identifiers) | 16.31, 16.25, 16.41 | 17.25, 17.13, 17.27 | **+5.4%** | 35% | 930 / 982 (+5.6%) | 10% |
+
+Both guards hold. The Report of the lot P8 adds no work to the Scan or the second pass: it reads the document at render time.

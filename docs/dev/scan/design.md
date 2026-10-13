@@ -2840,6 +2840,15 @@ and a node accepts exactly its `d` among the values of its parent. This is the c
 node (ASCII values go through a compiled expression). It tokenizes the population again: on `synthetic-1m.csv` (five fields, 20,000
 samples each) `check_scan` takes 0.35 s instead of 0.06 s, about 60 ms a field.
 
+**The Report (lot P8, FR-021, OPEN-013, TR-016).** The Report reads the hierarchy from the document alone and never recomputes it
+(AC-021). `report_sections.pattern_view` builds `PatternView.families` (`PatternFamilyView` > `PatternPatternView` >
+`PatternNodeView`, and `PatternTableView`): every count has its shares of `d` and `o` of the population, computed at render time,
+and, when the second pass ran, the occurrences and distinct values of `pattern_counts` joined by id (`validated`, `validated_exact`),
+the new variants of each family and the cells of its tables. The page of a column (`templates/patterns.html`, macro `family_tree`) shows each
+family as a `<details>` block, its patterns, the nodes as nested lists (a node with children is folded below level 2) and the tables,
+all readable without JavaScript. The gain of a node (`bits_d`, `bits_o`) is a secondary line, and a table's `others` row completes the
+family. The table of the dataset stays flat, one row per pattern with its family. Nothing of the JSON changes.
+
 **Tests of the contract.** `tests/patterns/` holds the reference corpus RC-01 to RC-20 and the expected trees, each
 test marked with the lot that provides its behavior (`P3`, `P4`, `P5`, `P6`) and skipped until the lot enables it in
 `conftest.py`. The tests without a mark check the corpus and the hand calculations and always run.

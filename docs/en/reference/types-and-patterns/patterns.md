@@ -1,6 +1,6 @@
 ---
 title: Recognized patterns
-description: Catalog every built-in Tabalyst detector, its accepted forms, configured patterns and evidence states.
+description: Catalog every built-in Tabalyst detector and configured pattern, and define the patterns, families and nodes discovered in text values.
 ---
 
 **Tabalyst Scan** applies detectors to eligible field values and records
@@ -37,6 +37,30 @@ from several detectors at once.
 field, its examples, value profile and rows of the data sample are masked by default. A
 configured pattern can also be sensitive. `postal_code` is not sensitive by
 default. See [exposure settings](../configuration.md#sensitive-values-and-sampling).
+
+## Patterns discovered in the values
+
+Besides detectors, **Tabalyst Scan** discovers the structure of text columns
+from the distinct values it sampled. **Tabalyst Report** shows it in
+**Patterns**. The vocabulary is small:
+
+| Term | Meaning |
+| --- | --- |
+| Format | The exact form of one value, one symbol per character: `AK-1234` is `AA-9999`. |
+| Pattern | The values of one structure and one set of lengths, with their constants: `'AK-'9999`. A discovered pattern has a fixed length at every position and never a range. |
+| Family | The patterns of one structure that differ only by their lengths or constants: `'INV-'999`, `'INV-'9999` and `'INV-'99999`. It is not a pattern; it presents itself as the list of its patterns with their counts. |
+| Facet | A dimension along which a family is specialized: its composition, its lengths, or the content of a token (its first characters, last characters or whole value). |
+| Node | A pattern plus a constraint on a facet, with its counts: the part of `AA-9999` that starts with `AK`. |
+| Table | The values of a facet with their counts, when no node reads it. Its cells and its *others* add up to the family. |
+
+Every count comes in two measures: distinct values and occurrences. The notation
+is the one the page of a column explains: `9` digit, `A` capital, `a` lowercase
+letter, `@` any letter, `X` capital or digit, `x` lowercase letter or digit, `#`
+ASCII letter or digit, text between quotes a constant. The discovery reads only
+the samples of the Scan; the second pass counts the same hierarchy on every value
+of the file. A value that no family reads is an observation, never an error. See
+the [Scan format](../../scan/format.md#inferred-patterns) for the JSON and
+[Reading a Report](../../report/read-report.md#patterns) for the page.
 
 ## Configured patterns
 

@@ -33,7 +33,12 @@ from tabalyst.report_views import (
     DiagnosticProfile,
     LimitsView,
     LimitView,
+    PatternCellView,
+    PatternFamilyView,
+    PatternNodeView,
+    PatternPatternView,
     PatternRow,
+    PatternTableView,
     PatternView,
     QualityGroup,
     QualityItem,
@@ -55,8 +60,15 @@ from tabalyst.scanner.models import (
     NotApplicable,
     Observation,
     Observations,
+    PatternNode,
+    PatternTable,
 )
 from tabalyst.scanner.quality import ANALYTICAL_STAGES
+from tabalyst.scanner.secondpass.models import (
+    PatternCounts,
+    PatternNodeCount,
+    PatternTableCount,
+)
 
 # Worst accuracy first: a group is as sure as its least sure item.
 _KIND_RANK = {AT_LEAST: 0, SAMPLE: 1, EXACT: 2}
@@ -268,12 +280,98 @@ def _sample_values(field: FieldResult) -> dict[int, str]:
     return values
 
 
+FACET_WORDS = {
+    "composition": "structure",
+    "lengths": "lengths",
+}
+
+
+def facet_text(facet: str) -> str:
+    """A facet in words: ``head:2`` is the start of the second token."""
+    kind, _, number = facet.partition(":")
+    if not number:
+        return FACET_WORDS.get(kind, kind)
+    return {"head": "start", "tail": "end", "token": "whole"}.get(kind, kind) + f" of token {number}"
+
+
+def _share(count: int, total: int) -> float:
+    return round(count / total, 4) if total else 0.0
+
+
+def _node_view(
+    node: PatternNode,
+    total: tuple[int, int],
+    counted: dict[str, PatternNodeCount],
+) -> tuple[PatternNodeView, int]:
+    """A node with its descendants, and the number of nodes in its subtree."""
+    children = [_node_view(child, total, counted) for child in node.nodes]
+    tally = counted.get(node.id)
+    return (
+        PatternNodeView(
+            id=node.id,
+            level=node.level,
+            facet_text=facet_text(node.facet),
+            value=node.value,
+            also=[f"{facet_text(item.facet)} {item.value}" for item in node.also],
+            render=node.render,
+            role=node.role,
+            d=node.d,
+            o=node.o,
+            share_d=_share(node.d, total[0]),
+            share_o=_share(node.o, total[1]),
+            bits_d=node.gain.bits_d if node.gain else None,
+            bits_o=node.gain.bits_o if node.gain else None,
+            validated=tally.occurrences if tally else None,
+            validated_distinct=tally.distinct.count if tally else None,
+            validated_exact=tally.distinct.accuracy == "exact" if tally else True,
+            nodes=[view for view, _ in children],
+        ),
+        1 + sum(size for _, size in children),
+    )
+
+
+def _counted(nodes: list[PatternNodeCount], into: dict[str, PatternNodeCount]) -> None:
+    for node in nodes:
+        into[node.id] = node
+        _counted(node.nodes, into)
+
+
+def _table_view(
+    table: PatternTable, total: tuple[int, int], counted: PatternTableCount | None
+) -> PatternTableView:
+    held = {cell.value: cell.occurrences for cell in counted.cells} if counted else {}
+    return PatternTableView(
+        facet=table.facet,
+        facet_text=facet_text(table.facet),
+        cells=[
+            PatternCellView(
+                value=cell.value,
+                d=cell.d,
+                o=cell.o,
+                share_d=_share(cell.d, total[0]),
+                share_o=_share(cell.o, total[1]),
+                validated=held.get(cell.value) if counted else None,
+            )
+            for cell in table.cells
+        ],
+        others_distinct=table.others.distinct,
+        others_d=table.others.d,
+        others_o=table.others.o,
+        bits=table.gain.sigma if table.gain else None,
+        saturated=counted.saturated if counted else False,
+    )
+
+
 def pattern_view(
-    field: FieldResult, entry: FieldPatterns | None, derived: Derived | None
+    field: FieldResult,
+    entry: FieldPatterns | None,
+    derived: Derived | None,
+    counts: PatternCounts | None = None,
 ) -> PatternView:
     """The patterns of a column with their examples that resolve here. A
     Report keeps the smallest priorities of the sample, so an example of the
-    Scan may not be among them; the view counts those it cannot show."""
+    Scan may not be among them; the view counts those it cannot show. ``counts``
+    are the occurrences the second pass counted on the whole file, when it ran."""
     if derived is None or derived.patterns is None or entry is None:
         return PatternView(status="missing")
     if isinstance(entry, FieldPatternsNotApplicable):
@@ -293,7 +391,12 @@ def pattern_view(
     examples: dict[str, list[str]] = {}
     unresolved: dict[str, int] = {}
     total = entry.population.distinct
-    families = {pattern.id: family.id for family in entry.families for pattern in family.patterns}
+    sizes = (total, entry.population.occurrences)
+    families = {pattern.id: family for family in entry.families for pattern in family.patterns}
+    family_counts = {item.id: item for item in counts.families} if counts else {}
+    pattern_counts: dict[str, PatternNodeCount] = {}
+    for item in family_counts.values():
+        _counted(item.patterns, pattern_counts)
     rows: list[PatternRow] = []
     for number, pattern in enumerate(sorted(entry.all_patterns(), key=lambda item: -item.d)):
         shown = [values[item] for item in pattern.examples if item in values]
@@ -302,15 +405,65 @@ def pattern_view(
         rows.append(
             PatternRow(
                 id=pattern.id,
-                family=families[pattern.id],
+                family=families[pattern.id].id,
+                family_key=families[pattern.id].key,
                 render=pattern.render,
                 role="principal" if number == 0 else "secondary",
                 distinct=pattern.d,
-                share=round(pattern.d / total, 4) if total else 0.0,
+                share=_share(pattern.d, total),
                 length=sum(
                     token.min * (len(token.text) if token.text is not None else 1)
                     for token in pattern.signature
                 ),
+            )
+        )
+    family_views: list[PatternFamilyView] = []
+    node_count = 0
+    for family in entry.families:
+        counted_family = family_counts.get(family.id)
+        table_counts = {t.facet: t for t in counted_family.tables} if counted_family else {}
+        pattern_views: list[PatternPatternView] = []
+        for pattern in family.patterns:
+            nodes = [_node_view(node, sizes, pattern_counts) for node in pattern.nodes]
+            tally = pattern_counts.get(pattern.id)
+            size = sum(count for _, count in nodes)
+            node_count += size
+            pattern_views.append(
+                PatternPatternView(
+                    id=pattern.id,
+                    render=pattern.render,
+                    format=pattern.format,
+                    lengths=pattern.lengths,
+                    d=pattern.d,
+                    o=pattern.o,
+                    share_d=_share(pattern.d, sizes[0]),
+                    share_o=_share(pattern.o, sizes[1]),
+                    examples=examples[pattern.id],
+                    unresolved=unresolved[pattern.id],
+                    validated=tally.occurrences if tally else None,
+                    validated_distinct=tally.distinct.count if tally else None,
+                    validated_exact=tally.distinct.accuracy == "exact" if tally else True,
+                    nodes=[view for view, _ in nodes],
+                    node_count=size,
+                )
+            )
+        family_views.append(
+            PatternFamilyView(
+                id=family.id,
+                key=family.key,
+                composition=family.composition,
+                d=family.d,
+                o=family.o,
+                share_d=_share(family.d, sizes[0]),
+                share_o=_share(family.o, sizes[1]),
+                patterns=pattern_views,
+                tables=[
+                    _table_view(table, sizes, table_counts.get(table.facet))
+                    for table in family.tables
+                ],
+                validated=counted_family.occurrences if counted_family else None,
+                new_variant_length=counted_family.new_variants.length if counted_family else 0,
+                new_variant_segment=counted_family.new_variants.segment if counted_family else 0,
             )
         )
     outside = entry.outside_patterns()[0]
@@ -318,8 +471,11 @@ def pattern_view(
         status="complete",
         entry=entry,
         rows=rows,
+        families=family_views,
+        node_count=node_count,
+        has_validation=counts is not None,
         outside_distinct=outside,
-        outside_share=round(outside / total, 4) if total else 0.0,
+        outside_share=_share(outside, total),
         outside_structures=entry.other.structures,
         examples=examples,
         unresolved=unresolved,

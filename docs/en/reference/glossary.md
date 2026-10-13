@@ -74,6 +74,11 @@ Keep these exactly as written in every language:
 | confirmation | confirmation | The question a costly run asks before it starts; a plan says whether it would, and why |
 | second pass | second passage | The reading of a source after its scan, to add analyses such as histograms, patterns counted on every value and dates per period (`tabalyst scan --deep`, and by itself in `tabalyst report`); its result is the second pass document |
 | validated pattern | pattern validé | An inferred pattern whose occurrences were counted on every value of the file by the second pass, not only on a sample of the distinct values |
+| format | format | The exact form of one value, a symbol per character (`AA-9999`) |
+| pattern | pattern | The values of one structure and one set of lengths, with their constants (`'AK-'9999`); a discovered pattern never has a range |
+| family | famille | The patterns of one structure that differ only by lengths or constants; shown as the list of its patterns with their counts |
+| facet | facette | A dimension along which a family is specialized: composition, lengths, or the content of a token (head, tail, whole) |
+| node | nœud | A pattern plus a constraint on a facet, with its counts in distinct values and occurrences |
 | `deep.mode` | mode du second passage | The setting that tells `tabalyst report` whether to plan a second pass by itself (`auto`), never (`off`) or always, as `--deep` does (`force`) |
 | second pass document | document de second passage | The `deep.json` or `<stem>.deep.json` written by `tabalyst scan --deep`, beside the scan, which it never changes |
 | pair of columns | paire de colonnes | Two numeric columns of one dataset analyzed together. The planner scores the pairs on the row sample, lists the best and the second pass computes their correlation over every row |

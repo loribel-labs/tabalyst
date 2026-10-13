@@ -623,9 +623,28 @@ td.ex .tip.show{display:block}
 .ins td code{white-space:pre-wrap;overflow-wrap:anywhere}
 .ins-fam{margin:26px 0 0}
 @media (max-width:650px){.ins{padding:2px 12px 12px}.ins-facts>div{flex-direction:column;gap:2px}.ins-facts dt{max-width:none}.ins-facts dd{text-align:left;flex:none}.ins-bar{grid-template-columns:minmax(56px,34%) 1fr auto}}
+.pfams{display:grid;gap:var(--joint);margin-top:var(--joint)}
+.pfam>summary{cursor:pointer;margin-bottom:10px}
+.sl{display:inline-flex;flex-wrap:wrap;gap:2px 16px;justify-content:space-between;align-items:baseline;width:calc(100% - 22px);vertical-align:top}
+.pfam-c,.pn-f,.pn-v,.pn-b{font-size:12px;color:var(--text-3);font-weight:400}
+.ppat{border-top:1px solid var(--line);padding:12px 0 4px}
+.ppat-h{margin:0 0 8px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.ppat-ex{margin:8px 0;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.ptree{list-style:none;margin:8px 0 0;padding:0 0 0 18px;border-left:1px solid var(--line)}
+.ptree .ptree{margin-top:2px}
+.ptree li{margin:2px 0}
+.pnode>summary{cursor:pointer}
+.pleaf{display:flex;flex-wrap:wrap;gap:2px 16px;justify-content:space-between;align-items:baseline;padding:3px 0}
+.pn-c{font-size:13px}
+.pn-c small{display:inline;margin-left:6px}
+.ptable{margin-top:12px}
+.ptable .num{text-align:right}
+.pothers td{color:var(--text-3)}
+@media (max-width:640px){.pn-c small{display:block;margin-left:0}.ptree{padding-left:10px}}
 </style>
 </head>
 <body>
+
 
 
 
@@ -670,7 +689,7 @@ td.ex .tip.show{display:block}
 
 
 <section class="panel" id="strings" aria-labelledby="strings-h"><div class="phead"><div><p class="eyebrow">06 / Text</p><h2 id="strings-h">String analysis</h2><p>Lengths and representative values.</p></div></div><div class="pbody"><dl class="metrics"><div class="metric"><dt>Shortest</dt><dd><span class="v">5</span></dd></div><div class="metric"><dt>Longest</dt><dd><span class="v">8</span></dd></div><div class="metric"><dt>Mean length</dt><dd><span class="v">6.08</span></dd></div><div class="metric"><dt>Median length</dt><dd><span class="v">6</span><span class="s">short</span></dd></div></dl><div class="column-grid"><div class="rcard"><p class="rcard-title">Length distribution · 3</p><div class="column-line"><span>5 characters<small class="sub-n">fermé</small></span><b>218 · 49.55%</b></div><div class="column-line"><span>6 characters<small class="sub-n">ouvert / rejeté</small></span><b>95 · 21.59%</b></div><div class="column-line"><span>8 characters<small class="sub-n">en_cours</small></span><b>127 · 28.86%</b></div></div><div class="rcard"><p class="rcard-title">Representative values</p><div class="column-line"><code>fermé</code></div><div class="column-line"><code>en_cours</code></div><div class="column-line"><code>ouvert</code></div></div></div></div></section>
-<section class="panel" id="patterns" aria-labelledby="patterns-h"><div class="phead"><div><p class="eyebrow">07 / Shapes</p><h2 id="patterns-h">Patterns</h2><p>Structural patterns inferred from the distinct values the scan sampled: <code>9</code> a digit, <code>A</code> a capital, <code>a</code> a lowercase letter, <code>@</code> any letter, <code>X</code> a capital or a digit, <code>x</code> a lowercase letter or a digit, <code>#</code> a letter or a digit. Shares count distinct values, not occurrences in the file.</p></div></div><div class="pbody"><p class="muted"><span class="acc acc-not_computed" title="Not computed by this scan">not computed</span> Plain words without digits or separators.</p></div></section>
+<section class="panel" id="patterns" aria-labelledby="patterns-h"><div class="phead"><div><p class="eyebrow">07 / Shapes</p><h2 id="patterns-h">Patterns</h2><p>Structural patterns inferred from the distinct values the scan sampled: <code>9</code> a digit, <code>A</code> a capital, <code>a</code> a lowercase letter, <code>@</code> any letter, <code>X</code> a capital or a digit, <code>x</code> a lowercase letter or a digit, <code>#</code> a letter or a digit. Quoted text is a constant. Each family gathers the values of one structure as patterns of fixed length; indented lines fix more of the start or the end of a token. Shares count distinct values and sampled occurrences unless marked as on every value.</p></div></div><div class="pbody"><p class="muted"><span class="acc acc-not_computed" title="Not computed by this scan">not computed</span> Plain words without digits or separators.</p></div></section>
 <section class="panel" id="transformations" aria-labelledby="transformations-h"><div class="phead"><div><p class="eyebrow">08 / Cleaning</p><h2 id="transformations-h">Transformations</h2><p>Normalization preserves the raw values in the data sample.</p></div></div><div class="pbody"><div class="column-grid"><div class="rcard"><p class="rcard-title">Stages</p><div class="column-line"><span>raw<small class="sub-n">– changed · –</small></span><b>4</b></div><div class="column-line"><span>nfc<small class="sub-n">0 changed · 0.0%</small></span><b>4</b></div><div class="column-line"><span>trim<small class="sub-n">0 changed · 0.0%</small></span><b>4</b></div><div class="column-line"><span>collapse whitespace<small class="sub-n">0 changed · 0.0%</small></span><b>4</b></div><div class="column-line"><span>casefold<small class="sub-n">0 changed · 0.0%</small></span><b>4</b></div><div class="column-line"><span>strip accents<small class="sub-n">247 changed · 8.23%</small></span><b>4</b></div></div><div class="rcard"><p class="rcard-title">Variant groups · 0</p><p class="muted">No stored variant groups.</p></div></div></div></section>
 <section class="panel" id="scan-evidence" aria-labelledby="scan-evidence-h"><div class="phead"><div><p class="eyebrow">09 / Scan</p><h2 id="scan-evidence-h">Scan evidence</h2><p>Field facts retained from the Scan document.</p></div></div><div class="pbody column-grid">
 <div class="rcard"><p class="rcard-title">Presence and missing</p><dl class="schema"><dt>First record</dt><dd>1</dd><dt>Occurrences</dt><dd>3,000</dd><dt>Parent</dt><dd>object</dd><dt>Parents</dt><dd>3,000</dd><dt>Present</dt><dd>3,000</dd><dt>Absent</dt><dd>0</dd></dl><div class="column-line"><span>absent</span><b>0</b></div><div class="column-line"><span>null</span><b>0</b></div><div class="column-line"><span>empty</span><b>2,560</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><p class="muted">Missing definition: absent, null, empty, blank, marker</p></div>
