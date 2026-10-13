@@ -19,6 +19,7 @@ from typing import Annotated, Any, Literal
 from pydantic import Field, model_serializer
 
 from tabalyst.config import DeepSettings
+from tabalyst.scanner.config import ScalarType
 from tabalyst.scanner.models import (
     LengthCount,
     Number,
@@ -1257,6 +1258,275 @@ class StatsResult(ScanModel):
     association: StatsAssociation
 
 
+class DriftSlice(ScanModel):
+    """One tenth of the records, in file order. ``records`` of them start at
+    ``first_record``; ``values`` have a value for the field and ``missing`` do not
+    (they add up). ``new_values`` counts the distinct values that appear for the
+    first time in the slice, when the values are followed."""
+
+    first_record: int
+    records: int
+    values: int
+    missing: int
+    new_values: int | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("new_values",))
+
+
+class DriftCategory(ScanModel):
+    """A value followed by slice: its exact ``count`` in each of the ten slices
+    (``counts``) and the first slice, numbered from 0, where it appears."""
+
+    value: str
+    type: ScalarType
+    count: int
+    counts: list[int]
+    first_slice: int
+
+
+class DriftValues(ScanModel):
+    """The ``distinct`` values of the field followed by slice: the most frequent
+    ones are ``listed`` with their counts per slice and the others are summed up
+    in ``other``. ``association`` is Cramér's V of the slice against the value
+    over every value, not only the listed ones."""
+
+    distinct: int
+    listed: list[DriftCategory]
+    other: list[int]
+    association: TableAssociation
+
+
+class PositionDriftResult(ScanModel):
+    """A field followed by position in the file (design 20.30): the records cut in
+    ten slices of the same size, in file order, and for each the records, the
+    values and the missing ones, exactly. ``missing_association`` is Cramér's V of
+    the slice against the presence of a value: it is what tells a column that is
+    missing more in one part of the file from a constant share. ``followed`` holds
+    the values themselves when the field has few enough distinct ones; without it
+    only the presence is followed. It shows that a column changes along the file,
+    not why."""
+
+    kind: Literal["position_drift"] = "position_drift"
+    accuracy: Literal["exact"] = "exact"
+    records: int
+    values: int
+    missing: int
+    slices: list[DriftSlice]
+    missing_association: TableAssociation
+    followed: DriftValues | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("followed",))
+
+
+class MissingPartner(ScanModel):
+    """A column that lacks a value in some of the records where another one does:
+    the records where it lacks one (``missing``, as the Scan counts them for a
+    column that does not repeat) and the records where both do (``both``)."""
+
+    field: str
+    display: str
+    missing: int
+    both: int
+
+
+class MissingMatrixResult(ScanModel):
+    """The columns that lack a value together with one column (design 20.31).
+
+    ``records`` of the dataset have no value for the column in ``missing`` cases;
+    among the ``columns`` of the dataset that miss a value, ``partners`` lack one in
+    at least one of the same records. They are listed by the share of the records
+    that lack a value in either where both do (Jaccard, the most together first),
+    ``max_listed`` at most; ``truncated`` says that more exist. The counts are
+    exact for every pair, listed or not. It shows that values go missing together,
+    not why."""
+
+    kind: Literal["missing_matrix"] = "missing_matrix"
+    accuracy: Literal["exact"] = "exact"
+    records: int
+    missing: int
+    columns: int
+    partners: int
+    truncated: bool
+    listed: list[MissingPartner]
+
+
+class ArrayProfileResult(ScanModel):
+    """The lengths of the arrays of a field, exactly (design 20.33).
+
+    ``arrays`` occurrences of the field are arrays, ``empty`` of them have no item
+    and ``items`` is the sum of their lengths. ``length_histogram`` counts every
+    length that occurs; the quantiles follow from it, so they are exact."""
+
+    kind: Literal["array_profile"] = "array_profile"
+    accuracy: Literal["exact"] = "exact"
+    arrays: int
+    empty: int
+    items: int
+    min_length: int
+    max_length: int
+    mean_length: Number
+    quantiles: list[Quantile]
+    length_histogram: list[LengthCount]
+
+
+class StructureVariant(ScanModel):
+    """A set of keys that ``count`` objects have: ``keys`` of them are present
+    and ``absent`` names the keys of the object field that this set lacks (the
+    first ones, in order of first appearance); ``absent_total`` counts them all."""
+
+    count: int
+    keys: int
+    absent: list[str]
+    absent_total: int
+
+
+class StructureResult(ScanModel):
+    """The sets of keys of the objects of a field (design 20.33).
+
+    Of the ``objects`` the field holds, ``distinct`` sets of keys were tracked,
+    each counted exactly from its first occurrence. ``complete`` says that no
+    object had a set beyond ``max_variants``: otherwise ``untracked`` objects have
+    a set that is not counted, and ``distinct`` is a lower bound. The ``listed``
+    sets are the most frequent ones and ``other_objects`` the objects of the
+    tracked sets that are not listed. ``key_names`` lists the keys in order of first
+    appearance, ``keys`` counts them all, and ``always`` counts those present in
+    every object. It shows that objects differ in their keys, not why."""
+
+    kind: Literal["structure_variants"] = "structure_variants"
+    accuracy: Literal["exact"] = "exact"
+    objects: int
+    keys: int
+    always: int
+    key_names: list[str]
+    key_names_truncated: bool
+    distinct: int
+    complete: bool
+    untracked: int
+    listed: list[StructureVariant]
+    other_objects: int
+
+
+class TextBucket(ScanModel):
+    """The texts whose measure is from ``low`` to ``high``, both included."""
+
+    low: int
+    high: int
+    count: int
+
+
+class TextProfileResult(ScanModel):
+    """The words, the lines and the digits of the texts of a field, exactly (design
+    20.34).
+
+    A word is a run of characters that are not white space (``str.split``) and a
+    line is one that ``str.splitlines`` cuts; a digit is a decimal digit of Unicode
+    (category ``Nd``). ``word_buckets`` and ``line_buckets`` count the texts by
+    powers of two (0, 1, 2 to 3, 4 to 7, and so on) and ``digit_buckets`` by tenth
+    of the characters that are digits: the first count is the texts without any, the
+    next ten the shares up to a tenth, two tenths, and so on up to all. The text
+    itself is never kept."""
+
+    kind: Literal["text_profile"] = "text_profile"
+    accuracy: Literal["exact"] = "exact"
+    texts: int
+    characters: int
+    words: int
+    min_words: int
+    max_words: int
+    mean_words: Number
+    lines: int
+    max_lines: int
+    multi_line: int
+    digits: int
+    digit_share: Number
+    word_buckets: list[TextBucket]
+    line_buckets: list[TextBucket]
+    digit_buckets: list[int]
+
+
+class RepeatedText(ScanModel):
+    """A text found ``count`` times, known by its digest alone."""
+
+    digest: str
+    count: int
+
+
+class FingerprintResult(ScanModel):
+    """The distinct values of a field counted by a 128-bit fingerprint, for
+    values too long for an exact set (design 20.34).
+
+    Two values are one when their digests are, which an accident is as unlikely
+    as 2**-128 per pair, so the count is ``fingerprint_based`` and not exact. The
+    digest is the one the Scan gives its long texts (BLAKE2b, 128 bits, native type
+    then text), so a listed digest names an entry of the Scan's sample. ``repeated``
+    counts the distinct values found more than once, ``repeated_occurrences`` their
+    occurrences, and ``listed`` the most repeated ones, never the text."""
+
+    kind: Literal["fingerprint_distinct"] = "fingerprint_distinct"
+    accuracy: Literal["fingerprint_based"] = "fingerprint_based"
+    algorithm: str
+    bits: int
+    values: int
+    distinct: int
+    redundant: int
+    unique: bool
+    repeated: int
+    repeated_occurrences: int
+    listed: list[RepeatedText]
+    truncated: bool
+
+
+class FormCount(ScanModel):
+    """A form (a mask, or a class) and the values that take it."""
+
+    form: str
+    count: int
+
+
+class FormClasses(ScanModel):
+    """The values of a sensitive field by class of what the detector reads:
+    ``ip_address`` or ``phone``. A class that fewer than ``min_count`` values take
+    is part of ``other``. ``unclassified`` counts the values the detector did not
+    read."""
+
+    detector: Literal["ip_address", "phone"]
+    listed: list[FormCount]
+    other: int
+    unclassified: int
+
+
+class FormsResult(ScanModel):
+    """What the second pass counts of a sensitive field whose values the exposure
+    keeps out of the document (design 20.35, decision O61): the masks the values
+    take, with their exact counts, and their class for an address or a phone
+    number. Never a value, and no figure about fewer than ``min_count`` of them: a
+    mask or a class below it is summed up in ``other_forms``, ``other_values`` and
+    ``other``. ``forms`` counts the distinct masks when ``complete``; with more
+    than ``max_tracked`` of them the count of the masks tracked is a lower bound
+    and ``untracked`` values take another one."""
+
+    kind: Literal["sensitive_forms"] = "sensitive_forms"
+    accuracy: Literal["exact"] = "exact"
+    exposure: Literal["mask"] = "mask"
+    values: int
+    forms: int
+    complete: bool
+    untracked: int
+    min_count: int
+    listed: list[FormCount]
+    other_forms: int
+    other_values: int
+    classes: FormClasses | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("classes",))
+
+
 AnalysisOutput = Annotated[
     DenseHistogram
     | BinnedHistogram
@@ -1274,7 +1544,14 @@ AnalysisOutput = Annotated[
     | DuplicatesLimited
     | PearsonResult
     | CrosstabResult
-    | StatsResult,
+    | StatsResult
+    | PositionDriftResult
+    | MissingMatrixResult
+    | ArrayProfileResult
+    | StructureResult
+    | TextProfileResult
+    | FingerprintResult
+    | FormsResult,
     Field(discriminator="kind"),
 ]
 

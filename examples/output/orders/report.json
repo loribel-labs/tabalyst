@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-12T21:44:50.850200Z",
-    "duration_seconds": 0.020354,
+    "started_at": "2026-10-13T01:41:25.550230Z",
+    "duration_seconds": 0.021897,
     "timings": {
-      "reading": 0.00311,
-      "analysis": 0.00374,
-      "finalize": 0.0108,
-      "derived": 0.002265,
-      "other": 0.00044
+      "reading": 0.002996,
+      "analysis": 0.003194,
+      "finalize": 0.011284,
+      "derived": 0.002353,
+      "other": 0.00207
     },
     "workers": 1,
-    "peak_memory_bytes": 64040960
+    "peak_memory_bytes": 66129920
   },
   "source": {
     "format": "json",
@@ -16453,15 +16453,41 @@
           "max_listed": 20,
           "max_tracked": 10000,
           "records": false
+        },
+        "drift": {
+          "max_tracked": 1000,
+          "max_listed": 12
+        },
+        "missing": {
+          "max_columns": 100,
+          "max_listed": 10
+        },
+        "arrays": {
+          "max_lengths": 10000
+        },
+        "structure": {
+          "max_variants": 1000,
+          "max_listed": 10,
+          "max_keys": 30
+        },
+        "texts": {
+          "min_length": 80,
+          "max_listed": 10
+        },
+        "sensitive": {
+          "enabled": false,
+          "min_count": 5,
+          "max_listed": 20,
+          "max_tracked": 10000
         }
       },
-      "settings_sha256": "410de20049b279604f68ad6d74abdeced127d0072119f21ff4fa9b3413db418f",
+      "settings_sha256": "5795cd17e0b5ddf43a09d343a9c253911a674d9f27ef65a391c10c8809319e49",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 11,
-        "plan_id": "e7fd7d7690d1eff29e1887948f8c476bee777fdcf8666f15c3dccb9153f913fc",
+        "cost_model_version": 13,
+        "plan_id": "bd7c22311427efced01a02802c5d56700b8d6a4381cab2e0b96f89092db233f2",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -16491,10 +16517,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 103,
+          "candidates": 135,
           "selected": 19,
-          "already_satisfied": 39,
-          "rejected": 45,
+          "already_satisfied": 40,
+          "rejected": 76,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -22788,19 +22814,1375 @@
               "reusable": true,
               "on_limit": "limited"
             }
+          },
+          {
+            "id": "position_drift:$.customers[]:f1",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f1",
+            "display": "id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f2",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f2",
+            "display": "name",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f3",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f3",
+            "display": "email",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f4",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f4",
+            "display": "phone",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f5",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f5",
+            "display": "address",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f6",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f6",
+            "display": "address.city",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f7",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f7",
+            "display": "address.postal_code",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f8",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f8",
+            "display": "signup_date",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f9",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f9",
+            "display": "newsletter",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f10",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f10",
+            "display": "tags",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f11",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f11",
+            "display": "tags[]",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "repeated_field"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f12",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f12",
+            "display": "orders",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f13",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f13",
+            "display": "orders[]",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f14",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f14",
+            "display": "orders[].order_id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "repeated_field"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f15",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f15",
+            "display": "orders[].ordered_at",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "repeated_field"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f16",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f16",
+            "display": "orders[].status",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "repeated_field"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f17",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f17",
+            "display": "orders[].items",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f18",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f18",
+            "display": "orders[].items[]",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f19",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f19",
+            "display": "orders[].items[].product",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "repeated_field"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f20",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f20",
+            "display": "orders[].items[].quantity",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "repeated_field"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f21",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f21",
+            "display": "orders[].items[].unit_price",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "repeated_field"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f22",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f22",
+            "display": "orders[].total",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "repeated_field"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$.customers[]:f23",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f23",
+            "display": "orders[].currency",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "repeated_field"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "missing_matrix:$.customers[]:f7",
+            "analyzer": "missing_matrix",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f7",
+            "display": "address.postal_code",
+            "method": "bit_sets",
+            "parameters": {
+              "columns": 2,
+              "max_listed": 10
+            },
+            "outputs": [
+              "missing_together"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "missing_together"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 70656,
+                "expected": 70696,
+                "max": 70816
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "matrix:$.customers[]",
+                  "memory": {
+                    "min": 69632,
+                    "expected": 69672,
+                    "max": 69792
+                  }
+                },
+                {
+                  "key": "result:missing_matrix:datasets/$.customers[]/fields/f7",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "missing_matrix:$.customers[]:f9",
+            "analyzer": "missing_matrix",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f9",
+            "display": "newsletter",
+            "method": "bit_sets",
+            "parameters": {
+              "columns": 2,
+              "max_listed": 10
+            },
+            "outputs": [
+              "missing_together"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "missing_together"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 70656,
+                "expected": 70696,
+                "max": 70816
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "matrix:$.customers[]",
+                  "memory": {
+                    "min": 69632,
+                    "expected": 69672,
+                    "max": 69792
+                  }
+                },
+                {
+                  "key": "result:missing_matrix:datasets/$.customers[]/fields/f9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "array_profile:$.customers[]:f10",
+            "analyzer": "array_profile",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f10",
+            "display": "tags",
+            "method": "length_counts",
+            "parameters": {
+              "max_lengths": 10000
+            },
+            "outputs": [
+              "array_lengths"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "array_lengths"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 9456,
+                "expected": 9456,
+                "max": 9576
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "arrays:datasets/$.customers[]/fields/f10",
+                  "memory": {
+                    "min": 8432,
+                    "expected": 8432,
+                    "max": 8552
+                  }
+                },
+                {
+                  "key": "result:array_profile:datasets/$.customers[]/fields/f10",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "array_profile:$.customers[]:f12",
+            "analyzer": "array_profile",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f12",
+            "display": "orders",
+            "method": "length_counts",
+            "parameters": {
+              "max_lengths": 10000
+            },
+            "outputs": [
+              "array_lengths"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "array_lengths"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 9456,
+                "expected": 9456,
+                "max": 9816
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "arrays:datasets/$.customers[]/fields/f12",
+                  "memory": {
+                    "min": 8432,
+                    "expected": 8432,
+                    "max": 8792
+                  }
+                },
+                {
+                  "key": "result:array_profile:datasets/$.customers[]/fields/f12",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "array_profile:$.customers[]:f17",
+            "analyzer": "array_profile",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f17",
+            "display": "orders[].items",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "array_lengths"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_constant",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f17/arrays"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "structure_variants:$.customers[]:f5",
+            "analyzer": "structure_variants",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f5",
+            "display": "address",
+            "method": "key_sets",
+            "parameters": {
+              "max_variants": 1000,
+              "max_listed": 10,
+              "max_keys": 30
+            },
+            "outputs": [
+              "key_sets"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "key_sets"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17988,
+                "expected": 18528,
+                "max": 18528
+              },
+              "cpu": "moderate",
+              "cell_ns": 2400,
+              "states": [
+                {
+                  "key": "structure:datasets/$.customers[]/fields/f5",
+                  "memory": {
+                    "min": 16964,
+                    "expected": 17504,
+                    "max": 17504
+                  }
+                },
+                {
+                  "key": "result:structure_variants:datasets/$.customers[]/fields/f5",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "structure_variants:$.customers[]:f13",
+            "analyzer": "structure_variants",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f13",
+            "display": "orders[]",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "key_sets"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "uniform_keys"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "structure_variants:$.customers[]:f18",
+            "analyzer": "structure_variants",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f18",
+            "display": "orders[].items[]",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "key_sets"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "uniform_keys"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "structure_variants:$.customers[]:$",
+            "analyzer": "structure_variants",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "$",
+            "display": "$",
+            "method": "key_sets",
+            "parameters": {
+              "max_variants": 1000,
+              "max_listed": 10,
+              "max_keys": 30
+            },
+            "outputs": [
+              "key_sets"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "key_sets"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 19389,
+                "expected": 22828,
+                "max": 30068
+              },
+              "cpu": "moderate",
+              "cell_ns": 2400,
+              "states": [
+                {
+                  "key": "structure:datasets/$.customers[]/fields/$",
+                  "memory": {
+                    "min": 18365,
+                    "expected": 21804,
+                    "max": 29044
+                  }
+                },
+                {
+                  "key": "result:structure_variants:datasets/$.customers[]/fields/$",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-12T21:44:50.909584Z",
-        "duration_seconds": 0.012932,
+        "started_at": "2026-10-13T01:41:25.612493Z",
+        "duration_seconds": 0.013316,
         "timings": {
-          "reading": 0.003134,
-          "analysis": 0.003808,
-          "other": 0.005991
+          "reading": 0.003264,
+          "analysis": 0.004083,
+          "other": 0.00597
         },
         "workers": 1,
-        "peak_memory_bytes": 69640192,
+        "peak_memory_bytes": 71323648,
         "source_read": true,
         "source_verified": true,
         "records_read": 60,
@@ -25862,12 +27244,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-12T21:44:51.003937Z",
+    "generated_at": "2026-10-13T01:41:25.708256Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1787,
+    "processing_seconds": 0.1826,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

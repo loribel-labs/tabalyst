@@ -559,6 +559,8 @@ td.ex .tip.show{display:block}
 .acc-sample::before{content:"\223C"}
 .acc-at_least{border-color:rgba(249,133,16,.6);color:var(--attn-text)}
 .acc-at_least::before{content:"\2265"}
+.acc-fingerprint{border-style:dashed}
+.acc-fingerprint::before{content:"#"}
 .acc-not_computed{border-style:dashed;color:var(--text-3)}
 .acc-not_computed::before{content:"\2205"}
 .lb{color:var(--attn-text)}
@@ -617,7 +619,7 @@ td.ex .tip.show{display:block}
 .ins-bar b{font-weight:500;color:var(--text);text-align:right;white-space:nowrap}
 .ins-bar b small{margin-left:8px;color:var(--text-3);font-weight:400}
 .ins-cap{margin:16px 0 6px}
-.ins td.ins-v{text-align:left}
+.ins td.ins-v{text-align:left;min-width:14ch}
 .ins td code{white-space:pre-wrap;overflow-wrap:anywhere}
 .ins-fam{margin:26px 0 0}
 @media (max-width:650px){.ins{padding:2px 12px 12px}.ins-facts>div{flex-direction:column;gap:2px}.ins-facts dt{max-width:none}.ins-facts dd{text-align:left;flex:none}.ins-bar{grid-template-columns:minmax(56px,34%) 1fr auto}}

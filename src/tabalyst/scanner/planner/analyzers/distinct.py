@@ -17,7 +17,6 @@ from tabalyst.scanner.planner.analyzer import (
     text_length,
 )
 from tabalyst.scanner.planner.analyzers.common import (
-    blocked,
     name_suggests_identifier,
     result_state,
     uniqueness,
@@ -51,9 +50,13 @@ class ExactDistinct(Analyzer):
         return True
 
     def assess(self, facts: FieldFacts) -> Assessment:
-        stop = blocked(facts)
-        if stop is not None:
-            return stop
+        # Decision O61: a count says nothing of a value, so a masked or hidden field
+        # may be counted, whose result is two numbers; it is off until
+        # ``deep.sensitive.enabled`` is set.
+        if facts.values == 0:
+            return Assessment("not_applicable", ("no_values",))
+        if facts.withheld and not self.settings.sensitive.enabled:
+            return Assessment("not_applicable", ("sensitive_exposure",))
         if facts.cardinality == "complete":
             return Assessment(
                 "satisfied",
@@ -65,7 +68,11 @@ class ExactDistinct(Analyzer):
         if facts.max_length is not None and facts.max_length > COMPACT_MAX_LENGTH:
             return Assessment("not_applicable", ("not_compactable",))
         key = "integer" if facts.technical_type == "integer" else "text"
-        return Assessment("applicable", method="compact_set", parameters={"key": key})
+        parameters: dict[str, int | str] = {"key": key}
+        if facts.withheld:
+            # Part of the key of the result, and of the plan that tells it.
+            parameters["exposure"] = str(facts.exposure)
+        return Assessment("applicable", method="compact_set", parameters=parameters)
 
     def estimate(self, facts: FieldFacts, assessment: Assessment) -> Costs:
         lower = facts.distinct_lower_bound or 0
@@ -89,6 +96,9 @@ class ExactDistinct(Analyzer):
         )
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
+        if facts.withheld:
+            # Below the automatic threshold: a sensitive field is counted when asked for.
+            return Utility(score=40, reasons=["exposure_counts"])
         score = 20
         reasons: list[str] = []
         share = uniqueness(facts)

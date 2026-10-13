@@ -366,11 +366,112 @@ class DuplicateSettings(BaseModel):
     records: bool = False
 
 
+class DriftSettings(BaseModel):
+    """How a column is followed by position in the file (design 20.30).
+
+    The records are cut in ten slices of the same size, in file order.
+    ``max_tracked`` is the most distinct values a column may have for its values
+    to be followed (their shares and the slice where each first appears); beyond,
+    only the missing values are. ``max_listed`` values are listed with their
+    counts per slice, the most frequent first, and the others are summed up. Both
+    are part of the key of a result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_tracked: int = Field(default=1_000, ge=2, le=10_000)
+    max_listed: int = Field(default=12, ge=1, le=100)
+
+
+class MissingSettings(BaseModel):
+    """How the values missing together are counted (design 20.31).
+
+    A dataset of more than ``max_columns`` columns is left out (the pairs grow with
+    the square of the columns); ``max_listed`` partners at most are listed for a
+    column, the ones missing most often with it. Both are part of the key of a
+    result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_columns: int = Field(default=100, ge=2, le=1_000)
+    max_listed: int = Field(default=10, ge=1, le=1_000)
+
+
+class ArraySettings(BaseModel):
+    """How the lengths of the arrays of a field are counted (design 20.33).
+
+    Every length is counted exactly while the Scan's range of lengths holds at
+    most ``max_lengths`` of them; an array field spread over a wider range is left
+    out. Part of the key of a result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_lengths: int = Field(default=10_000, ge=2, le=100_000)
+
+
+class StructureSettings(BaseModel):
+    """How the sets of keys of an object are counted (design 20.33).
+
+    ``max_variants`` distinct sets of keys are tracked, each counted exactly from
+    its first occurrence; the objects with another set are summed up. At most
+    ``max_listed`` are listed, the most frequent first, and a list of keys is cut
+    at ``max_keys``. All three are part of the key of a result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_variants: int = Field(default=1_000, ge=2, le=10_000)
+    max_listed: int = Field(default=10, ge=1, le=100)
+    max_keys: int = Field(default=30, ge=1, le=200)
+
+
+class TextSettings(BaseModel):
+    """How the long texts of a field are profiled and told apart (design 20.34).
+
+    A field whose longest value has at least ``min_length`` characters is a
+    field of texts. ``max_listed`` repeated texts are listed with their digest and
+    count, the most repeated first. Both are part of the key of a result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    min_length: int = Field(default=80, ge=1, le=100_000)
+    max_listed: int = Field(default=10, ge=1, le=100)
+
+
+class SensitiveSettings(BaseModel):
+    """What the second pass counts of a sensitive field without listing a value
+    (design 20.35, decision O61).
+
+    ``enabled`` (``false`` by default) lets the second pass count a field whose
+    exposure is ``mask`` or ``hide``: its distinct values, and for ``mask`` its masks
+    and classes. Off, such a field is left out of every analysis, as before.
+
+    A form (a mask) or a class that fewer than ``min_count`` values take is summed
+    up with the others, so no figure singles a few values out; at most
+    ``max_listed`` forms are listed, and ``max_tracked`` distinct forms are
+    tracked, each counted exactly from its first occurrence. These three are part
+    of the key of a result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    enabled: bool = False
+
+    min_count: int = Field(default=5, ge=2, le=1_000)
+    max_listed: int = Field(default=20, ge=1, le=1_000)
+    max_tracked: int = Field(default=10_000, ge=10, le=100_000)
+
+
 class DeepSettings(BaseModel):
     """What the second pass computes beyond the plan: the number of bins of a
     histogram and where their bounds come from, how pairs of numeric columns,
     tables of categories and numbers by category are chosen, how values with a
-    unit are extracted, and how residual and repeated values are kept.
+    unit are extracted, how residual and repeated values are kept, how a column
+    is followed by position and by the values missing together, and how the
+    arrays, objects, long texts and sensitive fields are counted.
 
     ``linear`` splits the exact range of the Scan into bins of equal width;
     ``sample_quantile`` places the inner bounds at quantiles of the row sample
@@ -392,6 +493,12 @@ class DeepSettings(BaseModel):
     datetime: DatetimeSettings = Field(default_factory=DatetimeSettings)
     residuals: ResidualSettings = Field(default_factory=ResidualSettings)
     duplicates: DuplicateSettings = Field(default_factory=DuplicateSettings)
+    drift: DriftSettings = Field(default_factory=DriftSettings)
+    missing: MissingSettings = Field(default_factory=MissingSettings)
+    arrays: ArraySettings = Field(default_factory=ArraySettings)
+    structure: StructureSettings = Field(default_factory=StructureSettings)
+    texts: TextSettings = Field(default_factory=TextSettings)
+    sensitive: SensitiveSettings = Field(default_factory=SensitiveSettings)
 
     def sha256(self) -> str:
         """Digest of the settings, for the document that used them."""

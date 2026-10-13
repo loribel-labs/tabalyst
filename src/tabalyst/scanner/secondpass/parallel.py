@@ -26,7 +26,9 @@ from tabalyst.scanner.secondpass.accumulators import (
     DenseAccumulator,
     LengthAccumulator,
 )
+from tabalyst.scanner.secondpass.drift import DriftAccumulator
 from tabalyst.scanner.secondpass.duplicates import DuplicateAccumulator
+from tabalyst.scanner.secondpass.forms import FormsAccumulator
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
 from tabalyst.scanner.secondpass.measures import MeasureAccumulator
 from tabalyst.scanner.secondpass.parts import PartsAccumulator
@@ -36,6 +38,7 @@ from tabalyst.scanner.secondpass.replay import CellReader
 from tabalyst.scanner.secondpass.residuals import ResidualAccumulator
 from tabalyst.scanner.secondpass.routing import FieldRoute
 from tabalyst.scanner.secondpass.shape import ShapeAccumulator
+from tabalyst.scanner.secondpass.texts import TextAccumulator
 from tabalyst.scanner.workers import (
     START_TIMEOUT,
     WorkerError,
@@ -56,6 +59,9 @@ PARTS = (
     "shape",
     "residuals",
     "duplicates",
+    "drift",
+    "texts",
+    "forms",
 )
 # The module and function a worker of the second pass runs.
 ENTRY = ("tabalyst.scanner.secondpass.parallel", "serve")
@@ -87,6 +93,12 @@ def part_name(accumulator: object) -> str:
         return "residuals"
     if isinstance(accumulator, DuplicateAccumulator):
         return "duplicates"
+    if isinstance(accumulator, DriftAccumulator):
+        return "drift"
+    if isinstance(accumulator, TextAccumulator):
+        return "texts"
+    if isinstance(accumulator, FormsAccumulator):
+        return "forms"
     assert isinstance(accumulator, DenseAccumulator | BinAccumulator)
     return "numeric"
 
@@ -113,6 +125,12 @@ def route_weight(route: FieldRoute) -> int:
         weight += route.shape.cell_ns
     if route.residuals is not None:
         weight += route.residuals.cell_ns
+    if route.drift is not None:
+        weight += route.drift.cell_ns
+    if route.texts is not None:
+        weight += route.texts.cell_ns
+    if route.forms is not None:
+        weight += route.forms.cell_ns
     return weight
 
 
@@ -274,6 +292,9 @@ def serve() -> None:
                 route.shape = parts.get("shape")
                 route.residuals = parts.get("residuals")
                 route.duplicates = parts.get("duplicates")
+                route.drift = parts.get("drift")
+                route.texts = parts.get("texts")
+                route.forms = parts.get("forms")
                 route.memo_entries = memo_entries
                 routes[rid] = route
             elif kind == "batch":

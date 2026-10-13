@@ -138,6 +138,9 @@ class Analyzer(ABC):
     available: ClassVar[bool] = False
     deterministic: ClassVar[bool] = True
     reusable: ClassVar[bool] = True
+    # Whether the analyzer also concerns the root of the records of a JSON
+    # source, which the Scan holds as no field (``facts.root_facts``).
+    roots: ClassVar[bool] = False
 
     def __init__(self, settings: DeepSettings | None = None) -> None:
         self.settings = DeepSettings() if settings is None else settings

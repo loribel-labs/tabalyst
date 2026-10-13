@@ -704,13 +704,230 @@ column that looks like an identifier, or in a combination of two columns.
   with at least `distinct` distinct values and `repeated` repeated ones. It is a
   lower bound, never a count.
 
+**`position_drift`**: a field followed by position in the file.
+
+```json
+{
+  "kind": "position_drift",
+  "accuracy": "exact",
+  "records": 1003, "values": 869, "missing": 134,
+  "slices": [
+    {"first_record": 1, "records": 101, "values": 97, "missing": 4},
+    {"first_record": 102, "records": 100, "values": 0, "missing": 100}
+  ],
+  "missing_association": {
+    "defined": true, "n": 1003,
+    "effective_categories": 2, "effective_classes": 10,
+    "chi_square": 747.43, "degrees": 9, "cramers_v": 0.863,
+    "corrected": 0.858, "low_share": 0.0, "stable": true, "sparse": 0
+  },
+  "followed": {
+    "distinct": 4,
+    "listed": [
+      {"value": "QC", "type": "string", "count": 429,
+       "counts": [101, 100, 99, 24, 22, 32, 29, 22, 0, 0],
+       "first_slice": 0}
+    ],
+    "other": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    "association": {"defined": true, "corrected": 0.704, "...": "..."}
+  }
+}
+```
+
+- `slices` always holds ten entries. Their `records` add up to the `record_count` of the
+  dataset, `values + missing = records` in each, and the sum of `values` equals the
+  `values.count` of the scan, or the result is `scan_mismatch`.
+  `new_values`, the distinct values seen for the first time in the slice, is present
+  only with `followed`.
+- `missing_association` and `followed.association` have the members of the
+  `association` of a `crosstab` result: `defined` is false, with a `reason`
+  (`single_category` when nothing is missing), when there is no score. The first is the
+  table of presence (two rows) by slice, the second the table of every distinct
+  value by slice.
+- `followed` is present when the plan asked for the values (`values` 1) and lists the
+  `max_listed` most frequent by count, then text, then type, with `counts`, its exact
+  count in each of the ten slices, and `first_slice` (0 to 9). `other`
+  sums the counts of the values not listed in each slice. The counts of every value are
+  checked against the frequencies the scan lists, entry by entry.
+- It is exact for every count. The values of a field whose exposure is `mask` or
+  `hide` are never read: the planner leaves the field out.
+
+**`missing_matrix`**: the columns that lack a value together with one column.
+
+```json
+{
+  "kind": "missing_matrix",
+  "accuracy": "exact",
+  "records": 1003, "missing": 134, "columns": 4, "partners": 3,
+  "truncated": false,
+  "listed": [
+    {"field": "column_4", "display": "ref", "missing": 144, "both": 120}
+  ]
+}
+```
+
+- `missing` is the number of records of the dataset without a value for the column,
+  `records - values.count` of the scan, which is checked. `columns` is the number of
+  columns of the dataset in the matrix, this one included, and `partners` how many of
+  the others lack a value in at least one of the same records.
+- `listed` holds at most `max_listed` partners, by decreasing share of the records that
+  lack a value in either column where both do (`both / (missing + partner.missing -
+  both)`), then by `both`, then in document order. A partner is named by its field id
+  and display path; `missing` is its own count and `both` the records where both
+  lack a value. `truncated` is true when `partners` exceeds the list.
+- The matrix of a dataset is computed once for all its columns whichever of them the plan
+  selects, and a plan whose `columns` parameter is not the number the scan gives fails
+  with `scan_mismatch`.
+
+**`array_profile`**: the lengths of the arrays of a field.
+
+```json
+{
+  "kind": "array_profile",
+  "accuracy": "exact",
+  "arrays": 414, "empty": 61, "items": 998,
+  "min_length": 0, "max_length": 5, "mean_length": 2.41,
+  "quantiles": [
+    {"level": 0.5, "value": 2, "accuracy": "exact"}
+  ],
+  "length_histogram": [
+    {"length": 0, "count": 61},
+    {"length": 1, "count": 86}
+  ]
+}
+```
+
+- `arrays`, `empty`, `items`, `min_length` and `max_length` are checked against the `arrays`
+  block of the scan, which counted the same occurrences. `length_histogram` holds every length
+  that occurs, ascending, and the `quantiles` (levels 0.05, 0.25, 0.5, 0.75 and 0.95) are exact
+  and computed from it, as for a histogram of integers. A source with more distinct lengths than
+  the plan allowed (`max_lengths`) fails with `scan_mismatch`.
+
+**`structure_variants`**: the sets of keys of the objects of a field, or of the records.
+
+```json
+{
+  "kind": "structure_variants",
+  "accuracy": "exact",
+  "objects": 500, "keys": 4, "always": 2,
+  "key_names": ["id", "tags", "orders", "addr"],
+  "key_names_truncated": false,
+  "distinct": 4, "complete": true, "untracked": 0,
+  "listed": [
+    {"count": 268, "keys": 4, "absent": [], "absent_total": 0},
+    {"count": 146, "keys": 3, "absent": ["addr"], "absent_total": 1}
+  ],
+  "other_objects": 0
+}
+```
+
+- The records of a JSON source are the field `$` of the plan, which the scan holds as no
+  field: `candidate.field` is `"$"`, its display `$`. `objects` is checked against the
+  occurrences of the object in the scan (`native_types.object`, or `record_count` for `$`), and
+  the objects that hold each key against the `presence.present` of the field below it.
+- A set is the keys the scan named below the object (`keys` of them in all, the first
+  `max_keys` named in `key_names` in order of the scan, with `key_names_truncated`). `listed`
+  holds at most `max_listed` sets, the most frequent first (ties in order of first appearance).
+  `keys` is the number of keys the set has, `absent` the keys of `key_names` it lacks and
+  `absent_total` how many keys it lacks in all. `always` counts the keys every object has.
+- At most `max_variants` sets are tracked, each counted exactly from its first object.
+  `complete` is false when an object had another set: `distinct` is then a lower bound,
+  `untracked` counts those objects, and `other_objects` the objects of the tracked sets that
+  are not listed.
+
+**`text_profile`**: the words, lines and digits of the texts of a field.
+
+```json
+{
+  "kind": "text_profile",
+  "accuracy": "exact",
+  "texts": 3000, "characters": 610108, "words": 117718,
+  "min_words": 15, "max_words": 63, "mean_words": 39.24,
+  "lines": 4023, "max_lines": 2, "multi_line": 1023,
+  "digits": 117285, "digit_share": 0.192,
+  "word_buckets": [{"low": 8, "high": 15, "count": 35}],
+  "line_buckets": [{"low": 1, "high": 1, "count": 1977}],
+  "digit_buckets": [0, 87, 1640, 1209, 64, 0, 0, 0, 0, 0, 0]
+}
+```
+
+- `texts` is the content strings of the field and is checked against the scan. The texts are
+  the original ones (design 21): a word is what `str.split` cuts, a line what `str.splitlines`
+  cuts, a digit a decimal digit of Unicode (category `Nd`). A bucket counts the texts whose
+  number is from `low` to `high` (0; 1; 2 to 3; 4 to 7; and so on), from the first that holds
+  a text to the last. `digit_buckets` has 11 counts: the texts without a digit, then those
+  whose digits are up to a tenth of their characters, up to two tenths, and so on up to all.
+
+**`fingerprint_distinct`**: the distinct values of a field told apart by a fingerprint.
+
+```json
+{
+  "kind": "fingerprint_distinct",
+  "accuracy": "fingerprint_based",
+  "algorithm": "blake2b", "bits": 128,
+  "values": 3000, "distinct": 300, "redundant": 2700, "unique": false,
+  "repeated": 299, "repeated_occurrences": 2999,
+  "listed": [{"digest": "992bd5b9...", "count": 21}],
+  "truncated": true
+}
+```
+
+- A value is known by the digest the scan gives its long texts: BLAKE2b over the native type,
+  a NUL byte and the text in UTF-8, 128 bits, in hexadecimal. `values` is checked against the
+  scan, and `distinct` against its cardinality when it counted it, or its proven lower bound.
+  `repeated` counts the distinct values found more than once, `repeated_occurrences` their
+  occurrences, and `listed` the `max_listed` found most often (then by digest), `truncated`
+  telling that more exist. When the memory of the plan is not enough the result is
+  `distinct_limited` (status `limited`, reason `memory_budget`).
+
+**`sensitive_forms`**: the masks and classes of a masked field, without a value.
+
+```json
+{
+  "kind": "sensitive_forms",
+  "accuracy": "exact",
+  "exposure": "mask",
+  "values": 4000, "forms": 10, "complete": true, "untracked": 0,
+  "min_count": 5,
+  "listed": [{"form": "999.999.9.999", "count": 690}],
+  "other_forms": 0, "other_values": 0,
+  "classes": {
+    "detector": "ip_address",
+    "listed": [{"form": "ipv4_private", "count": 2700}],
+    "other": 8, "unclassified": 0
+  }
+}
+```
+
+- A `form` is the mask the exposure gate gives the analytical text of a value (design
+  12.8), and a class one of a closed list: for `ip_address` the version and the range
+  (`ipv4_public`, `ipv4_private`, `ipv4_loopback`, `ipv4_link_local`, `ipv4_shared`,
+  `ipv4_multicast`, `ipv4_unspecified`, `ipv4_reserved` and the same for `ipv6`), for `phone`
+  `fr_01` to `fr_09`, `nanp_geographic`, `nanp_toll_free` and `nanp_premium`. `classes` is
+  absent for a field no such detector reads, and `unclassified` counts the values the detector
+  did not read, native numbers included.
+- No count below `min_count` is written: the masks and classes with fewer values are summed up
+  in `other_forms`, `other_values` and `other`, and so is the least frequent one listed when
+  the sum would otherwise be below `min_count`. `listed` holds at most `max_listed` masks, the
+  most frequent first (ties by text). `forms` counts the distinct masks, a lower bound when
+  `complete` is false: at most `max_tracked` masks are tracked, each counted exactly from its
+  first occurrence, and `untracked` values have another one (they are part of `other_values`).
+- `values` is checked against the scan, and every mask the scan lists against its count, so a
+  masked field whose frequencies differ fails with `scan_mismatch`. A field whose exposure is
+  `hide` has no such result, and the document never holds a value of the field.
+
+The result `distinct` of the analyzer `exact_distinct` may also be that of a field whose
+exposure is `mask` or `hide`, when `deep.sensitive.enabled` is true (the default is false); the
+parameter `exposure` of the analysis then names it. It holds
+the same two numbers.
+
 ## Key and reuse
 
 The `key` of an analysis is a digest of the scan it stands on, the analyzer and
 its version, the field (and its partner, for a pair or a table), the method with its effective parameters (the number of
 bins and the strategy are among them, for a table the feature, its classes and the thresholds of its
 rules, and for an extraction the detector, `max_groups`, `max_values` and the bins, for the residual values the sources and
-the settings of `deep.residuals`, for the repeated values those of `deep.duplicates`, for the numbers by category the categories kept, the bins and their strategy) and the domain of the values. It does not
+the settings of `deep.residuals`, for the repeated values those of `deep.duplicates`, for the numbers by category the categories kept, the bins and their strategy, for a column followed by position whether its values are followed and how many are listed, for the missing values together the number of columns and the partners listed, for the lengths of the arrays the most lengths counted, for the sets of keys the most sets tracked, listed and named, for the texts the texts listed, for the sensitive columns the floor, the masks listed and tracked and the class detector, and for a count of a masked or hidden field its exposure) and the domain of the values. It does not
 hold budgets, estimates or presentation. A run keeps the complete analyses of the
 stored document whose key it would give again, and computes the others. A document
 whose `base` is not the current scan's matches none of its keys, and is made
@@ -739,6 +956,19 @@ decimals, logarithmic and equal-count histograms) and `datetime_parts` of the an
 `datetime_parts` (year-month, weekday and hour, dates after a bound, ambiguous
 dates under each reading, invalid dates by reason). `strategy` of a `bins` result may be `log`. The
 settings have the members `deep.shape` and `deep.datetime`.
+
+The results `position_drift` of the analyzer `position_drift` (the records, values and missing values of
+each tenth of the file, the values followed by slice) and `missing_matrix` of the analyzer `missing_matrix`
+(the records where a column lacks a value together with each other column). The settings have the members
+`deep.drift` and `deep.missing`.
+
+The results `array_profile` of the analyzer `array_profile` (the lengths of the arrays of a JSON field),
+`structure_variants` of `structure_variants` (the sets of keys of the objects, and of the records under the
+field `$`), `text_profile` of `text_profile` (the words, lines and digits of long texts), `fingerprint_distinct`
+of `fingerprint_distinct` (the distinct values by 128-bit fingerprint, with the `fingerprint_based` accuracy)
+and `sensitive_forms` of `sensitive_forms` (the masks and classes of a masked field, with a floor). The
+analyzer `exact_distinct` also runs on a masked or hidden field (decision O61), with the plan parameter
+`exposure`. The settings have the members `deep.arrays`, `deep.structure`, `deep.texts` and `deep.sensitive`.
 
 The result `category_stats` of the analyzer `category_stats`: the count, extremes, sum, mean, spread,
 signs and histogram of a number for each value of a category, with estimated quantiles and the share

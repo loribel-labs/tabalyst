@@ -12,6 +12,7 @@ so the detector is sensitive: its fields are masked by default (design 12.8).
 
 from __future__ import annotations
 
+import ipaddress
 import re
 from collections.abc import Mapping, Sequence
 
@@ -89,6 +90,95 @@ def _ipv6(value: str) -> Classification | None:
     if embedded is not None:
         return _ipv4_error(embedded) or _IPV6_IPV4
     return _IPV6_COMPRESSED if compressed else _IPV6_MATCHED
+
+
+# The ranges that give an address its class (design 20.35), written out so the
+# class does not follow the version of the library. The first range an address is
+# in decides; the others are public.
+_CLASS_RANGES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("unspecified", ("0.0.0.0/32", "::/128")),
+    ("loopback", ("127.0.0.0/8", "::1/128")),
+    ("private", ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "fc00::/7")),
+    ("shared", ("100.64.0.0/10",)),
+    ("link_local", ("169.254.0.0/16", "fe80::/10")),
+    ("multicast", ("224.0.0.0/4", "ff00::/8")),
+    (
+        "reserved",
+        (
+            "0.0.0.0/8",
+            "192.0.0.0/24",
+            "192.0.2.0/24",
+            "192.88.99.0/24",
+            "198.18.0.0/15",
+            "198.51.100.0/24",
+            "203.0.113.0/24",
+            "240.0.0.0/4",
+            "2001:db8::/32",
+        ),
+    ),
+)
+_CLASS_NETWORKS = tuple(
+    (name, tuple(ipaddress.ip_network(network) for network in networks))
+    for name, networks in _CLASS_RANGES
+)
+_GLOBAL_V6 = ipaddress.ip_network("2000::/3")
+IP_CLASSES = tuple(
+    f"{version}_{name}"
+    for version in ("ipv4", "ipv6")
+    for name in ("public", *(name for name, _ in _CLASS_RANGES))
+)
+
+
+def _ipv4_class(value: str) -> str | None:
+    """The class of a dotted address by its first octets, the same ranges as
+    ``_CLASS_RANGES`` without building an address object (the common case)."""
+    try:
+        first, second, third, fourth = map(int, value.split("."))
+    except ValueError:
+        return None
+    if not (0 <= first <= 255 and 0 <= second <= 255 and 0 <= third <= 255 and 0 <= fourth <= 255):
+        return None
+    if first == 0:
+        return "ipv4_unspecified" if second == third == fourth == 0 else "ipv4_reserved"
+    if first == 127:
+        return "ipv4_loopback"
+    if first == 10 or (first == 172 and 16 <= second <= 31) or (first == 192 and second == 168):
+        return "ipv4_private"
+    if first == 100 and 64 <= second <= 127:
+        return "ipv4_shared"
+    if first == 169 and second == 254:
+        return "ipv4_link_local"
+    if 224 <= first <= 239:
+        return "ipv4_multicast"
+    if (
+        first >= 240
+        or (first == 192 and (second, third) in ((0, 0), (0, 2), (88, 99)))
+        or (first == 198 and (second in (18, 19) or (second, third) == (51, 100)))
+        or (first, second, third) == (203, 0, 113)
+    ):
+        return "ipv4_reserved"
+    return "ipv4_public"
+
+
+def ip_class(value: str) -> str | None:
+    """The class of an address the detector matched: its version and what it is
+    for (``ipv4_private``, ``ipv6_public``, and so on; one of ``IP_CLASSES``), or
+    ``None`` for a text that is no address. An IPv6 address that embeds an IPv4 one
+    is told by the IPv6 range it is in."""
+    if ":" not in value:
+        return _ipv4_class(value)
+    try:
+        address = ipaddress.ip_address(value)
+    except ValueError:
+        return None
+    for name, networks in _CLASS_NETWORKS:
+        for network in networks:
+            if address.version == network.version and address in network:
+                return f"ipv{address.version}_{name}"
+    # An IPv6 address outside the global unicast block 2000::/3 is not routable.
+    if address.version == 6 and address not in _GLOBAL_V6:
+        return "ipv6_reserved"
+    return f"ipv{address.version}_public"
 
 
 class IpAddressDetector(Detector):

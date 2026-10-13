@@ -21,7 +21,7 @@ from tabalyst.scanner.planner.costmodel import (
     READING_CELLS_PER_SECOND,
     READING_LOW_SHARE,
 )
-from tabalyst.scanner.planner.facts import scan_facts
+from tabalyst.scanner.planner.facts import root_facts, scan_facts
 from tabalyst.scanner.planner.models import AnalysisPlan, Budgets
 from tabalyst.scanner.planner.planner import AnalysisRequest, plan_analyses
 from tabalyst.scanner.planner.registry import AnalyzerRegistry
@@ -91,7 +91,12 @@ def estimate_time(plan: AnalysisPlan, scan: ScanResult) -> TimeEstimate | None:
     speed = (
         1.0 if reading <= 0 or modeled <= 0 else min(high_factor, max(low_factor, reading / modeled))
     )
-    values = {(facts.dataset, facts.field): facts.values for facts in scan_facts(scan)}
+    # An array or an object field holds no value of its own: it is read once per
+    # occurrence, and the root of the records once per record.
+    values = {
+        (facts.dataset, facts.field): facts.cells
+        for facts in (*scan_facts(scan), *root_facts(scan))
+    }
     nanoseconds = sum(
         (
             values.get((candidate.dataset, candidate.field), 0)

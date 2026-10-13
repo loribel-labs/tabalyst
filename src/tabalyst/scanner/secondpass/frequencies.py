@@ -23,6 +23,14 @@ from tabalyst.scanner.secondpass.models import MAX_MODES, FrequencyTable
 TYPE_ORDER = {"string": 0, "integer": 1, "number": 2, "boolean": 3}
 
 
+def native_key(native_type: str, value: object) -> tuple[str, str]:
+    """The ``(native type, analytical text)`` a JSON integer, number or boolean
+    is counted under."""
+    if native_type == "number":
+        return (native_type, str(Decimal(str(value))))
+    return (native_type, canonical_text(native_type, value))
+
+
 class FrequencyAccumulator:
     """A count per ``(native type, analytical text)``. A source that has more
     distinct values than the Scan found cannot be the one it read: new values
@@ -41,11 +49,7 @@ class FrequencyAccumulator:
 
     def add_native(self, native_type: str, value: object) -> None:
         """A JSON integer, number or boolean."""
-        if native_type == "number":
-            text = str(Decimal(str(value)))
-        else:
-            text = canonical_text(native_type, value)
-        self._add((native_type, text), 1)
+        self._add(native_key(native_type, value), 1)
 
     def _add(self, key: tuple[str, str], count: int) -> None:
         counts = self.counts

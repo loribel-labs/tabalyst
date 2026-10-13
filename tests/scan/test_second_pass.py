@@ -295,8 +295,8 @@ def test_a_document_of_another_source_is_not_reused(tmp_path):
     stored = run_second_pass(first, tmp_path / "data.csv", forced_plan(first)).document
     plan = forced_plan(second)
 
-    # The histogram and the shape of the numbers.
-    assert len(pending_candidates(plan, stored)) == 2
+    # The histogram, the shape of the numbers and the column followed by position.
+    assert len(pending_candidates(plan, stored)) == 3
     outcome = run_second_pass(second, tmp_path / "other" / "data.csv", plan, previous=stored)
     assert outcome.reused == () and outcome.read_source
 

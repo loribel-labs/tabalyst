@@ -271,6 +271,7 @@
             {
               "discriminator": {
                 "mapping": {
+                  "array_profile": "#/$defs/ArrayProfileResult",
                   "bins": "#/$defs/BinnedHistogram",
                   "category_stats": "#/$defs/StatsResult",
                   "crosstab": "#/$defs/CrosstabResult",
@@ -280,14 +281,20 @@
                   "distinct_limited": "#/$defs/DistinctLimited",
                   "duplicates": "#/$defs/DuplicateResult",
                   "duplicates_limited": "#/$defs/DuplicatesLimited",
+                  "fingerprint_distinct": "#/$defs/FingerprintResult",
                   "frequencies": "#/$defs/FrequencyTable",
                   "lengths": "#/$defs/LengthDistribution",
                   "measures": "#/$defs/MeasureResult",
+                  "missing_matrix": "#/$defs/MissingMatrixResult",
                   "numeric_shape": "#/$defs/ShapeResult",
                   "pattern_counts": "#/$defs/PatternCounts",
                   "pearson": "#/$defs/PearsonResult",
                   "periods": "#/$defs/PeriodCounts",
-                  "residual_values": "#/$defs/ResidualResult"
+                  "position_drift": "#/$defs/PositionDriftResult",
+                  "residual_values": "#/$defs/ResidualResult",
+                  "sensitive_forms": "#/$defs/FormsResult",
+                  "structure_variants": "#/$defs/StructureResult",
+                  "text_profile": "#/$defs/TextProfileResult"
                 },
                 "propertyName": "kind"
               },
@@ -342,6 +349,27 @@
                 },
                 {
                   "$ref": "#/$defs/StatsResult"
+                },
+                {
+                  "$ref": "#/$defs/PositionDriftResult"
+                },
+                {
+                  "$ref": "#/$defs/MissingMatrixResult"
+                },
+                {
+                  "$ref": "#/$defs/ArrayProfileResult"
+                },
+                {
+                  "$ref": "#/$defs/StructureResult"
+                },
+                {
+                  "$ref": "#/$defs/TextProfileResult"
+                },
+                {
+                  "$ref": "#/$defs/FingerprintResult"
+                },
+                {
+                  "$ref": "#/$defs/FormsResult"
                 }
               ]
             },
@@ -393,6 +421,96 @@
         "reasons"
       ],
       "title": "Applicability",
+      "type": "object"
+    },
+    "ArrayProfileResult": {
+      "additionalProperties": false,
+      "description": "The lengths of the arrays of a field, exactly (design 20.33).\n\n``arrays`` occurrences of the field are arrays, ``empty`` of them have no item\nand ``items`` is the sum of their lengths. ``length_histogram`` counts every\nlength that occurs; the quantiles follow from it, so they are exact.",
+      "properties": {
+        "kind": {
+          "const": "array_profile",
+          "default": "array_profile",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "arrays": {
+          "title": "Arrays",
+          "type": "integer"
+        },
+        "empty": {
+          "title": "Empty",
+          "type": "integer"
+        },
+        "items": {
+          "title": "Items",
+          "type": "integer"
+        },
+        "min_length": {
+          "title": "Min Length",
+          "type": "integer"
+        },
+        "max_length": {
+          "title": "Max Length",
+          "type": "integer"
+        },
+        "mean_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Mean Length"
+        },
+        "quantiles": {
+          "items": {
+            "$ref": "#/$defs/Quantile"
+          },
+          "title": "Quantiles",
+          "type": "array"
+        },
+        "length_histogram": {
+          "items": {
+            "$ref": "#/$defs/LengthCount"
+          },
+          "title": "Length Histogram",
+          "type": "array"
+        }
+      },
+      "required": [
+        "arrays",
+        "empty",
+        "items",
+        "min_length",
+        "max_length",
+        "mean_length",
+        "quantiles",
+        "length_histogram"
+      ],
+      "title": "ArrayProfileResult",
+      "type": "object"
+    },
+    "ArraySettings": {
+      "additionalProperties": false,
+      "description": "How the lengths of the arrays of a field are counted (design 20.33).\n\nEvery length is counted exactly while the Scan's range of lengths holds at\nmost ``max_lengths`` of them; an array field spread over a wider range is left\nout. Part of the key of a result.",
+      "properties": {
+        "max_lengths": {
+          "default": 10000,
+          "maximum": 100000,
+          "minimum": 2,
+          "title": "Max Lengths",
+          "type": "integer"
+        }
+      },
+      "title": "ArraySettings",
       "type": "object"
     },
     "BinnedHistogram": {
@@ -1671,7 +1789,7 @@
     },
     "DeepSettings": {
       "additionalProperties": false,
-      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, how pairs of numeric columns,\ntables of categories and numbers by category are chosen, how values with a\nunit are extracted, and how residual and repeated values are kept.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
+      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, how pairs of numeric columns,\ntables of categories and numbers by category are chosen, how values with a\nunit are extracted, how residual and repeated values are kept, how a column\nis followed by position and by the values missing together, and how the\narrays, objects, long texts and sensitive fields are counted.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
       "properties": {
         "bins": {
           "default": 100,
@@ -1712,6 +1830,24 @@
         },
         "duplicates": {
           "$ref": "#/$defs/DuplicateSettings"
+        },
+        "drift": {
+          "$ref": "#/$defs/DriftSettings"
+        },
+        "missing": {
+          "$ref": "#/$defs/MissingSettings"
+        },
+        "arrays": {
+          "$ref": "#/$defs/ArraySettings"
+        },
+        "structure": {
+          "$ref": "#/$defs/StructureSettings"
+        },
+        "texts": {
+          "$ref": "#/$defs/TextSettings"
+        },
+        "sensitive": {
+          "$ref": "#/$defs/SensitiveSettings"
         }
       },
       "title": "DeepSettings",
@@ -1899,6 +2035,149 @@
         "lower_bound"
       ],
       "title": "DistinctLimited",
+      "type": "object"
+    },
+    "DriftCategory": {
+      "additionalProperties": false,
+      "description": "A value followed by slice: its exact ``count`` in each of the ten slices\n(``counts``) and the first slice, numbered from 0, where it appears.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "counts": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Counts",
+          "type": "array"
+        },
+        "first_slice": {
+          "title": "First Slice",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "type",
+        "count",
+        "counts",
+        "first_slice"
+      ],
+      "title": "DriftCategory",
+      "type": "object"
+    },
+    "DriftSettings": {
+      "additionalProperties": false,
+      "description": "How a column is followed by position in the file (design 20.30).\n\nThe records are cut in ten slices of the same size, in file order.\n``max_tracked`` is the most distinct values a column may have for its values\nto be followed (their shares and the slice where each first appears); beyond,\nonly the missing values are. ``max_listed`` values are listed with their\ncounts per slice, the most frequent first, and the others are summed up. Both\nare part of the key of a result.",
+      "properties": {
+        "max_tracked": {
+          "default": 1000,
+          "maximum": 10000,
+          "minimum": 2,
+          "title": "Max Tracked",
+          "type": "integer"
+        },
+        "max_listed": {
+          "default": 12,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Max Listed",
+          "type": "integer"
+        }
+      },
+      "title": "DriftSettings",
+      "type": "object"
+    },
+    "DriftSlice": {
+      "additionalProperties": false,
+      "description": "One tenth of the records, in file order. ``records`` of them start at\n``first_record``; ``values`` have a value for the field and ``missing`` do not\n(they add up). ``new_values`` counts the distinct values that appear for the\nfirst time in the slice, when the values are followed.",
+      "properties": {
+        "first_record": {
+          "title": "First Record",
+          "type": "integer"
+        },
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "missing": {
+          "title": "Missing",
+          "type": "integer"
+        },
+        "new_values": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "New Values"
+        }
+      },
+      "required": [
+        "first_record",
+        "records",
+        "values",
+        "missing"
+      ],
+      "title": "DriftSlice",
+      "type": "object"
+    },
+    "DriftValues": {
+      "additionalProperties": false,
+      "description": "The ``distinct`` values of the field followed by slice: the most frequent\nones are ``listed`` with their counts per slice and the others are summed up\nin ``other``. ``association`` is Cramér's V of the slice against the value\nover every value, not only the listed ones.",
+      "properties": {
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/DriftCategory"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "other": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Other",
+          "type": "array"
+        },
+        "association": {
+          "$ref": "#/$defs/TableAssociation"
+        }
+      },
+      "required": [
+        "distinct",
+        "listed",
+        "other",
+        "association"
+      ],
+      "title": "DriftValues",
       "type": "object"
     },
     "DuplicateResult": {
@@ -2654,6 +2933,220 @@
       "title": "Failed",
       "type": "object"
     },
+    "FingerprintResult": {
+      "additionalProperties": false,
+      "description": "The distinct values of a field counted by a 128-bit fingerprint, for\nvalues too long for an exact set (design 20.34).\n\nTwo values are one when their digests are, which an accident is as unlikely\nas 2**-128 per pair, so the count is ``fingerprint_based`` and not exact. The\ndigest is the one the Scan gives its long texts (BLAKE2b, 128 bits, native type\nthen text), so a listed digest names an entry of the Scan's sample. ``repeated``\ncounts the distinct values found more than once, ``repeated_occurrences`` their\noccurrences, and ``listed`` the most repeated ones, never the text.",
+      "properties": {
+        "kind": {
+          "const": "fingerprint_distinct",
+          "default": "fingerprint_distinct",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "fingerprint_based",
+          "default": "fingerprint_based",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "algorithm": {
+          "title": "Algorithm",
+          "type": "string"
+        },
+        "bits": {
+          "title": "Bits",
+          "type": "integer"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "redundant": {
+          "title": "Redundant",
+          "type": "integer"
+        },
+        "unique": {
+          "title": "Unique",
+          "type": "boolean"
+        },
+        "repeated": {
+          "title": "Repeated",
+          "type": "integer"
+        },
+        "repeated_occurrences": {
+          "title": "Repeated Occurrences",
+          "type": "integer"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/RepeatedText"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "algorithm",
+        "bits",
+        "values",
+        "distinct",
+        "redundant",
+        "unique",
+        "repeated",
+        "repeated_occurrences",
+        "listed",
+        "truncated"
+      ],
+      "title": "FingerprintResult",
+      "type": "object"
+    },
+    "FormClasses": {
+      "additionalProperties": false,
+      "description": "The values of a sensitive field by class of what the detector reads:\n``ip_address`` or ``phone``. A class that fewer than ``min_count`` values take\nis part of ``other``. ``unclassified`` counts the values the detector did not\nread.",
+      "properties": {
+        "detector": {
+          "enum": [
+            "ip_address",
+            "phone"
+          ],
+          "title": "Detector",
+          "type": "string"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/FormCount"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "other": {
+          "title": "Other",
+          "type": "integer"
+        },
+        "unclassified": {
+          "title": "Unclassified",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "detector",
+        "listed",
+        "other",
+        "unclassified"
+      ],
+      "title": "FormClasses",
+      "type": "object"
+    },
+    "FormCount": {
+      "additionalProperties": false,
+      "description": "A form (a mask, or a class) and the values that take it.",
+      "properties": {
+        "form": {
+          "title": "Form",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "form",
+        "count"
+      ],
+      "title": "FormCount",
+      "type": "object"
+    },
+    "FormsResult": {
+      "additionalProperties": false,
+      "description": "What the second pass counts of a sensitive field whose values the exposure\nkeeps out of the document (design 20.35, decision O61): the masks the values\ntake, with their exact counts, and their class for an address or a phone\nnumber. Never a value, and no figure about fewer than ``min_count`` of them: a\nmask or a class below it is summed up in ``other_forms``, ``other_values`` and\n``other``. ``forms`` counts the distinct masks when ``complete``; with more\nthan ``max_tracked`` of them the count of the masks tracked is a lower bound\nand ``untracked`` values take another one.",
+      "properties": {
+        "kind": {
+          "const": "sensitive_forms",
+          "default": "sensitive_forms",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "exposure": {
+          "const": "mask",
+          "default": "mask",
+          "title": "Exposure",
+          "type": "string"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "forms": {
+          "title": "Forms",
+          "type": "integer"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "untracked": {
+          "title": "Untracked",
+          "type": "integer"
+        },
+        "min_count": {
+          "title": "Min Count",
+          "type": "integer"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/FormCount"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "other_forms": {
+          "title": "Other Forms",
+          "type": "integer"
+        },
+        "other_values": {
+          "title": "Other Values",
+          "type": "integer"
+        },
+        "classes": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FormClasses"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "values",
+        "forms",
+        "complete",
+        "untracked",
+        "min_count",
+        "listed",
+        "other_forms",
+        "other_values"
+      ],
+      "title": "FormsResult",
+      "type": "object"
+    },
     "FrequencyTable": {
       "additionalProperties": false,
       "description": "Exact count of every distinct analytical value of a field, each with its\nnative type, from the most to the least frequent (ties by text, then by\ntype), as the Scan orders its listing. ``modes`` are the values tied for the\nmost frequent, ten at most.",
@@ -3394,6 +3887,113 @@
         "max"
       ],
       "title": "Memory",
+      "type": "object"
+    },
+    "MissingMatrixResult": {
+      "additionalProperties": false,
+      "description": "The columns that lack a value together with one column (design 20.31).\n\n``records`` of the dataset have no value for the column in ``missing`` cases;\namong the ``columns`` of the dataset that miss a value, ``partners`` lack one in\nat least one of the same records. They are listed by the share of the records\nthat lack a value in either where both do (Jaccard, the most together first),\n``max_listed`` at most; ``truncated`` says that more exist. The counts are\nexact for every pair, listed or not. It shows that values go missing together,\nnot why.",
+      "properties": {
+        "kind": {
+          "const": "missing_matrix",
+          "default": "missing_matrix",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "missing": {
+          "title": "Missing",
+          "type": "integer"
+        },
+        "columns": {
+          "title": "Columns",
+          "type": "integer"
+        },
+        "partners": {
+          "title": "Partners",
+          "type": "integer"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/MissingPartner"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "records",
+        "missing",
+        "columns",
+        "partners",
+        "truncated",
+        "listed"
+      ],
+      "title": "MissingMatrixResult",
+      "type": "object"
+    },
+    "MissingPartner": {
+      "additionalProperties": false,
+      "description": "A column that lacks a value in some of the records where another one does:\nthe records where it lacks one (``missing``, as the Scan counts them for a\ncolumn that does not repeat) and the records where both do (``both``).",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "display": {
+          "title": "Display",
+          "type": "string"
+        },
+        "missing": {
+          "title": "Missing",
+          "type": "integer"
+        },
+        "both": {
+          "title": "Both",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "field",
+        "display",
+        "missing",
+        "both"
+      ],
+      "title": "MissingPartner",
+      "type": "object"
+    },
+    "MissingSettings": {
+      "additionalProperties": false,
+      "description": "How the values missing together are counted (design 20.31).\n\nA dataset of more than ``max_columns`` columns is left out (the pairs grow with\nthe square of the columns); ``max_listed`` partners at most are listed for a\ncolumn, the ones missing most often with it. Both are part of the key of a\nresult.",
+      "properties": {
+        "max_columns": {
+          "default": 100,
+          "maximum": 1000,
+          "minimum": 2,
+          "title": "Max Columns",
+          "type": "integer"
+        },
+        "max_listed": {
+          "default": 10,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Listed",
+          "type": "integer"
+        }
+      },
+      "title": "MissingSettings",
       "type": "object"
     },
     "NotApplicable": {
@@ -4548,6 +5148,66 @@
       "title": "PlanBase",
       "type": "object"
     },
+    "PositionDriftResult": {
+      "additionalProperties": false,
+      "description": "A field followed by position in the file (design 20.30): the records cut in\nten slices of the same size, in file order, and for each the records, the\nvalues and the missing ones, exactly. ``missing_association`` is Cramér's V of\nthe slice against the presence of a value: it is what tells a column that is\nmissing more in one part of the file from a constant share. ``followed`` holds\nthe values themselves when the field has few enough distinct ones; without it\nonly the presence is followed. It shows that a column changes along the file,\nnot why.",
+      "properties": {
+        "kind": {
+          "const": "position_drift",
+          "default": "position_drift",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "missing": {
+          "title": "Missing",
+          "type": "integer"
+        },
+        "slices": {
+          "items": {
+            "$ref": "#/$defs/DriftSlice"
+          },
+          "title": "Slices",
+          "type": "array"
+        },
+        "missing_association": {
+          "$ref": "#/$defs/TableAssociation"
+        },
+        "followed": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DriftValues"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "records",
+        "values",
+        "missing",
+        "slices",
+        "missing_association"
+      ],
+      "title": "PositionDriftResult",
+      "type": "object"
+    },
     "ProvidedRule": {
       "additionalProperties": false,
       "description": "A rule a user gave, checked against the table (design 20.22): the rows of\nthe category named ``category_label`` take the class named ``class_label``.\nUnlike a candidate rule it is not learned and needs no support: ``support``\nis the classified rows of the category, ``confidence`` the share of them in\nthe class, ``exceptions`` the others, and ``counter_examples`` the cells\nthat break it with their first rows. ``status`` is ``holds`` when no row\nbreaks it, ``violated`` otherwise, ``no_rows`` when the category has no\nclassified row and ``unknown_category`` or ``unknown_class`` when a label is\nnot on the axis of the table (``category`` and ``column`` are then absent).",
@@ -4919,6 +5579,26 @@
         }
       },
       "title": "Relations",
+      "type": "object"
+    },
+    "RepeatedText": {
+      "additionalProperties": false,
+      "description": "A text found ``count`` times, known by its digest alone.",
+      "properties": {
+        "digest": {
+          "title": "Digest",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "digest",
+        "count"
+      ],
+      "title": "RepeatedText",
       "type": "object"
     },
     "RepeatedValues": {
@@ -5392,6 +6072,40 @@
         "requested"
       ],
       "title": "Selection",
+      "type": "object"
+    },
+    "SensitiveSettings": {
+      "additionalProperties": false,
+      "description": "What the second pass counts of a sensitive field without listing a value\n(design 20.35, decision O61).\n\n``enabled`` (``false`` by default) lets the second pass count a field whose\nexposure is ``mask`` or ``hide``: its distinct values, and for ``mask`` its masks\nand classes. Off, such a field is left out of every analysis, as before.\n\nA form (a mask) or a class that fewer than ``min_count`` values take is summed\nup with the others, so no figure singles a few values out; at most\n``max_listed`` forms are listed, and ``max_tracked`` distinct forms are\ntracked, each counted exactly from its first occurrence. These three are part\nof the key of a result.",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "min_count": {
+          "default": 5,
+          "maximum": 1000,
+          "minimum": 2,
+          "title": "Min Count",
+          "type": "integer"
+        },
+        "max_listed": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Listed",
+          "type": "integer"
+        },
+        "max_tracked": {
+          "default": 10000,
+          "maximum": 100000,
+          "minimum": 10,
+          "title": "Max Tracked",
+          "type": "integer"
+        }
+      },
+      "title": "SensitiveSettings",
       "type": "object"
     },
     "ShapeMoments": {
@@ -6292,6 +7006,146 @@
       "title": "StratificationLimits",
       "type": "object"
     },
+    "StructureResult": {
+      "additionalProperties": false,
+      "description": "The sets of keys of the objects of a field (design 20.33).\n\nOf the ``objects`` the field holds, ``distinct`` sets of keys were tracked,\neach counted exactly from its first occurrence. ``complete`` says that no\nobject had a set beyond ``max_variants``: otherwise ``untracked`` objects have\na set that is not counted, and ``distinct`` is a lower bound. The ``listed``\nsets are the most frequent ones and ``other_objects`` the objects of the\ntracked sets that are not listed. ``key_names`` lists the keys in order of first\nappearance, ``keys`` counts them all, and ``always`` counts those present in\nevery object. It shows that objects differ in their keys, not why.",
+      "properties": {
+        "kind": {
+          "const": "structure_variants",
+          "default": "structure_variants",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "objects": {
+          "title": "Objects",
+          "type": "integer"
+        },
+        "keys": {
+          "title": "Keys",
+          "type": "integer"
+        },
+        "always": {
+          "title": "Always",
+          "type": "integer"
+        },
+        "key_names": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Key Names",
+          "type": "array"
+        },
+        "key_names_truncated": {
+          "title": "Key Names Truncated",
+          "type": "boolean"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "untracked": {
+          "title": "Untracked",
+          "type": "integer"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/StructureVariant"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "other_objects": {
+          "title": "Other Objects",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "objects",
+        "keys",
+        "always",
+        "key_names",
+        "key_names_truncated",
+        "distinct",
+        "complete",
+        "untracked",
+        "listed",
+        "other_objects"
+      ],
+      "title": "StructureResult",
+      "type": "object"
+    },
+    "StructureSettings": {
+      "additionalProperties": false,
+      "description": "How the sets of keys of an object are counted (design 20.33).\n\n``max_variants`` distinct sets of keys are tracked, each counted exactly from\nits first occurrence; the objects with another set are summed up. At most\n``max_listed`` are listed, the most frequent first, and a list of keys is cut\nat ``max_keys``. All three are part of the key of a result.",
+      "properties": {
+        "max_variants": {
+          "default": 1000,
+          "maximum": 10000,
+          "minimum": 2,
+          "title": "Max Variants",
+          "type": "integer"
+        },
+        "max_listed": {
+          "default": 10,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Max Listed",
+          "type": "integer"
+        },
+        "max_keys": {
+          "default": 30,
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Max Keys",
+          "type": "integer"
+        }
+      },
+      "title": "StructureSettings",
+      "type": "object"
+    },
+    "StructureVariant": {
+      "additionalProperties": false,
+      "description": "A set of keys that ``count`` objects have: ``keys`` of them are present\nand ``absent`` names the keys of the object field that this set lacks (the\nfirst ones, in order of first appearance); ``absent_total`` counts them all.",
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "keys": {
+          "title": "Keys",
+          "type": "integer"
+        },
+        "absent": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Absent",
+          "type": "array"
+        },
+        "absent_total": {
+          "title": "Absent Total",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "count",
+        "keys",
+        "absent",
+        "absent_total"
+      ],
+      "title": "StructureVariant",
+      "type": "object"
+    },
     "Summary": {
       "additionalProperties": false,
       "description": "Counts of the candidates by decision, and what the selection needs.",
@@ -6764,6 +7618,168 @@
         "reverse"
       ],
       "title": "TablePurity",
+      "type": "object"
+    },
+    "TextBucket": {
+      "additionalProperties": false,
+      "description": "The texts whose measure is from ``low`` to ``high``, both included.",
+      "properties": {
+        "low": {
+          "title": "Low",
+          "type": "integer"
+        },
+        "high": {
+          "title": "High",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "low",
+        "high",
+        "count"
+      ],
+      "title": "TextBucket",
+      "type": "object"
+    },
+    "TextProfileResult": {
+      "additionalProperties": false,
+      "description": "The words, the lines and the digits of the texts of a field, exactly (design\n20.34).\n\nA word is a run of characters that are not white space (``str.split``) and a\nline is one that ``str.splitlines`` cuts; a digit is a decimal digit of Unicode\n(category ``Nd``). ``word_buckets`` and ``line_buckets`` count the texts by\npowers of two (0, 1, 2 to 3, 4 to 7, and so on) and ``digit_buckets`` by tenth\nof the characters that are digits: the first count is the texts without any, the\nnext ten the shares up to a tenth, two tenths, and so on up to all. The text\nitself is never kept.",
+      "properties": {
+        "kind": {
+          "const": "text_profile",
+          "default": "text_profile",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "texts": {
+          "title": "Texts",
+          "type": "integer"
+        },
+        "characters": {
+          "title": "Characters",
+          "type": "integer"
+        },
+        "words": {
+          "title": "Words",
+          "type": "integer"
+        },
+        "min_words": {
+          "title": "Min Words",
+          "type": "integer"
+        },
+        "max_words": {
+          "title": "Max Words",
+          "type": "integer"
+        },
+        "mean_words": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Mean Words"
+        },
+        "lines": {
+          "title": "Lines",
+          "type": "integer"
+        },
+        "max_lines": {
+          "title": "Max Lines",
+          "type": "integer"
+        },
+        "multi_line": {
+          "title": "Multi Line",
+          "type": "integer"
+        },
+        "digits": {
+          "title": "Digits",
+          "type": "integer"
+        },
+        "digit_share": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Digit Share"
+        },
+        "word_buckets": {
+          "items": {
+            "$ref": "#/$defs/TextBucket"
+          },
+          "title": "Word Buckets",
+          "type": "array"
+        },
+        "line_buckets": {
+          "items": {
+            "$ref": "#/$defs/TextBucket"
+          },
+          "title": "Line Buckets",
+          "type": "array"
+        },
+        "digit_buckets": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Digit Buckets",
+          "type": "array"
+        }
+      },
+      "required": [
+        "texts",
+        "characters",
+        "words",
+        "min_words",
+        "max_words",
+        "mean_words",
+        "lines",
+        "max_lines",
+        "multi_line",
+        "digits",
+        "digit_share",
+        "word_buckets",
+        "line_buckets",
+        "digit_buckets"
+      ],
+      "title": "TextProfileResult",
+      "type": "object"
+    },
+    "TextSettings": {
+      "additionalProperties": false,
+      "description": "How the long texts of a field are profiled and told apart (design 20.34).\n\nA field whose longest value has at least ``min_length`` characters is a\nfield of texts. ``max_listed`` repeated texts are listed with their digest and\ncount, the most repeated first. Both are part of the key of a result.",
+      "properties": {
+        "min_length": {
+          "default": 80,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Min Length",
+          "type": "integer"
+        },
+        "max_listed": {
+          "default": 10,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Max Listed",
+          "type": "integer"
+        }
+      },
+      "title": "TextSettings",
       "type": "object"
     },
     "Tukey": {

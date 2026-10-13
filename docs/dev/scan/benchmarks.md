@@ -1242,3 +1242,104 @@ Every task of every case against lot 12 (medians, seconds; the Scan column is th
 After the change of `automatic_stats` the two heaviest cases again, same session, two repeats: insurance-combined Report 23.01 s
 (second pass 8.86 s, peak 1,127 MB), worst-width-1m Report 31.26 s (second pass 13.37 s, peak 1,209 MB). `COST_MODEL_VERSION`
 stays 11 (no cost changes, a budget of the plan changes).
+
+## Position drift and missing matrix (Insight lot 19)
+
+Lot 19 adds two analyzers of the second pass (design 20.30, 20.31); the first pass is not touched (`scanner/` but `secondpass/` and the planner is unchanged),
+so its guardrails stand as measured in lot 20. Outputs under `D:/GIT.test/tabalyst/artifacts/lot19/`, on `95f3fa9` (the base of the lot) and the head, branch `scan-json/e`.
+
+### Cost of a cell (the cost model)
+
+Measured on the executor as in lot 17 (`measure_costs.py`: one process, the best of three runs, the reading of the cell included).
+
+| Analysis | File | Cells | ns per cell | Declared (`NS_PER_CELL`) |
+| --- | --- | ---: | ---: | ---: |
+| `position_drift`, values followed | 1 M rows, 10 values, 5% missing | 1,000,000 | 106 | `drift_values` 200 |
+| `position_drift`, values followed | 1 M rows, 30 values, 10% missing | 1,000,000 | 101 | 200 |
+| `position_drift`, presence | 1 M rows, 5,000 distinct strings | 1,000,000 | 121 to 182 | `drift_presence` 300 |
+| `position_drift`, presence | 1 M rows, integers 0 to 999 | 1,000,000 | 136 | 300 |
+| `position_drift`, presence | 1 M rows, one million distinct identifiers | 1,000,000 | 200 | 300 |
+| `position_drift`, four columns together | the same file | 4,000,000 | 129 | |
+| `missing_matrix`, 4 columns | 300,000 rows | 1,200,000 | 82 | `matrix` 200 |
+| `missing_matrix`, 20 columns | 300,000 rows | 6,000,000 | 83 | 200 |
+| `missing_matrix`, 100 columns | 300,000 rows, 4,950 pairs | 30,000,000 | 105 (3.2 s) | 200 |
+
+Both stay in the class `low` (up to 600 ns), well below the cost of the detectors that dominate the other analyses of the second pass. A column of 900 distinct values is
+not followed by value with the default `scan.limits.max_listed_frequencies` (100): the Scan does not list it whole, and only its presence is followed (121 ns). The firm bound of the memory of the pairs is 160
+bytes a pair (measured 114 for 4,950). `COST_MODEL_VERSION` is 12.
+
+### The automatic Report, against the base in the same session (PERF-06)
+
+`benchmarks/interleave.py`, task `report` (the automatic second pass included), three alternated series, the realistic file (1 M rows, 34 columns):
+
+| Variant | Three runs (s) | Median (s) | Paired change | Peak (MB) |
+| --- | --- | ---: | ---: | ---: |
+| base `95f3fa9` | 24.96, 24.60, 24.07 | 24.60 | | 1,130 |
+| head | 24.31, 24.31, 24.25 | 24.31 | -1.2% | 1,129 |
+
+Both analyses have utility 40: they are never chosen by a Report by itself, so what it computes is unchanged (66 analyses of the demo `insurance-customers`, before and after), and the cost of the lines
+added to the route (`FieldRoute._counted`, `strings`, `native`) is within the noise.
+
+### A forced second pass
+
+What they add when asked for (`--deep`), the realistic file, the plan of a forced pass with and without the 25 candidates of the two analyzers (19 columns followed, 6 members of the matrix),
+`forced.py`, three alternated runs of the executor with its workers:
+
+| Plan | Analyses | Second pass, median of three (s) | Peak (MB) |
+| --- | ---: | ---: | ---: |
+| Without `position_drift` and `missing_matrix` | 89 | 24.53 | 451 |
+| With | 114 | 26.53 | 451 |
+
+Two seconds for 25 analyses (+8.2%), the memory unchanged. The most the matrix can cost is its cap of 100 columns, 3.2 s for 30 million cells (above).
+
+## JSON, long texts and sensitive columns (Insight lot 18)
+
+### Cost of a cell (the cost model)
+
+Measured on the executor (`lot18/measure_costs.py` and `measure_more.py` in the external artifacts, one process, the reading of the cell
+included, best of two or three runs); JSON files of 300,000 records of 4, 16 and 44 fields, CSV files of 150,000 rows of texts and 500,000 rows
+of sensitive columns.
+
+| Analysis | Source | Cells | ns a cell | `NS_PER_CELL` |
+| --- | --- | ---: | ---: | ---: |
+| `array_profile`, 4, 16 and 44 fields | 300,000 arrays | 300,000 | 4,028; 5,590; 10,349 | 300 |
+| `numeric_histogram` of an integer (reference), the same files | 300,000 numbers | 300,000 | 4,814; 4,872; 8,731 | |
+| `structure_variants`, the root, 4, 16 and 44 fields | 300,000 records | 3.9 M; 7.1 M; 14.7 M observations | 365; 296; 362 an observation | 400 + 350 a field |
+| `structure_variants`, an object of a few keys | 300,000 records | the same | 323; 180; 195 an observation | |
+| `text_profile`, texts of 230, 260 and 1,000 characters | 150,000 rows | 150,000 | 2,266; 3,136; 7,055 | 400 + 7.0 a character |
+| `fingerprint_distinct`, the same texts | 150,000 rows | 150,000 | 801; 1,035; 2,241 | 550 + 1.7 a character |
+| `sensitive_forms`, email | 500,000 rows | 500,000 | 693 to 957 | 1,000 |
+| `sensitive_forms`, IP address (class read) | 500,000 rows | 500,000 | 6,591, then 2,493 with the path of the dotted addresses | 1,000 + 2,800 |
+| `sensitive_forms`, phone number (class read) | 500,000 rows | 500,000 | 3,737 | 1,000 + 2,800 |
+| `exact_distinct` of a masked column | 500,000 rows | 500,000 | 386 to 654 | 400 |
+
+The arrays cost what any route on JSON costs: the router meets every observation of the record (a histogram of an integer measures the same), so the count adds next to nothing and 300 stands for it.
+The sets of keys are one sweep of the observations of each dataset; a path is hashed once for each observation. The texts, the fingerprints and the forms are declared at the top of the class `moderate`
+(2,400) at most, so a forced pass does not have to ask for a confirmation on any file with a text column; the estimate of the time is therefore low for texts above 300 characters and for a phone number. An entry of
+the table of the fingerprints measured 101 bytes for a count of 1 to 3 and 133 above 256 (declared 100, 130, 180) and an entry of the masks 202 bytes for a mask of 25 characters. `COST_MODEL_VERSION` is 13.
+
+### The automatic Report, against the base in the same session (PERF-06)
+
+`benchmarks/interleave.py`, task `report` (the automatic second pass included), three alternated series, the realistic file (1 M rows, 34 columns):
+
+| Variant | Three runs (s) | Median (s) | Paired change | Peak (MB) |
+| --- | --- | ---: | ---: | ---: |
+| base `95f3fa9` | 29.86, 30.31, 29.51 | 29.86 | | 1,131 |
+| head | 32.48, 29.26, 30.03 | 30.03 | +1.7% | 1,130 |
+
+The five analyses have utility 40 (and the counts of the sensitive columns are off): they are never chosen by a Report by itself, so what it computes is unchanged, and the lines added to the route
+(`FieldRoute._counted`, `native`) are within the noise (one head run at 32.5 s, the two others under the base). The first pass is not touched (the only files of the Scan that change are the two detectors of
+addresses and phone numbers, which gain a function of class), so the guard rails of the first pass (20%, 35%, 10% of memory) are not at stake.
+
+### A forced second pass
+
+The realistic file, the plan of a forced pass without the analyzers of lot 18, with them, and with them and `deep.sensitive.enabled` (two `sensitive_forms` more, for the email and the phone number),
+`forced.py`, three alternated runs of the executor with its workers:
+
+| Plan | Analyses | Second pass, median of three (s) | Peak (MB) |
+| --- | ---: | ---: | ---: |
+| Without the analyzers of lot 18 | 114 | 36.07 | 435 |
+| With, the counts of the sensitive columns off | 114 | 32.25 | 439 |
+| With, the counts on | 116 | 32.20 | 443 |
+
+No candidate of lot 18 is selected on this file but the two forms (it has no JSON and no text of more than 64 characters): the differences are the noise of the session (36.07 s for the same plan as 31.82 s). The memory is unchanged.
