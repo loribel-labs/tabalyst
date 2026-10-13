@@ -92,3 +92,19 @@ def limited_cardinality(
         block["threshold_reached_at_record"] = reached
         block["overflow_detected_at_record"] = overflow
     return block
+
+
+def without_value_counts(block: dict) -> dict:
+    """A ``string_characteristics`` block without the counts of distinct values
+    of its special characters: a streamed field counts a value again in each
+    batch (``value_count_accuracy`` ``upper_bound``, design 9.2)."""
+    if block.get("special_characters", {}).get("status") != "complete":
+        return block
+    special = block["special_characters"]["value"]
+    listed = [
+        {name: value for name, value in item.items() if name != "value_count"}
+        for item in special["listed"]
+    ]
+    value = {**special, "listed": listed}
+    value.pop("value_count_accuracy")
+    return {**block, "special_characters": {**block["special_characters"], "value": value}}

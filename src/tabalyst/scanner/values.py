@@ -102,10 +102,12 @@ class ValueContext:
         "discovered",
         "length_k",
         "max_distinct",
+        "max_distinct_characters",
         "max_length_strata",
         "max_listed",
         "max_long_samples",
         "max_samples",
+        "max_special_characters",
         "max_stored_length",
         "max_variant_groups",
         "max_variants",
@@ -126,6 +128,8 @@ class ValueContext:
         self.max_distinct = limits.max_distinct_per_field
         self.max_stored_length = limits.max_stored_value_length
         self.max_listed = limits.max_listed_frequencies
+        self.max_special_characters = limits.max_special_characters
+        self.max_distinct_characters = limits.max_distinct_characters
         self.max_samples = limits.max_samples
         self.max_long_samples = limits.max_long_samples
         # Samples by length (design 18.7): values per length, lengths per field.
@@ -657,7 +661,11 @@ class ValueProcessor:
 
     def __init__(self, context: ValueContext) -> None:
         self.context = context
-        self.measures = ValueMeasures(context.detectors.tallies())
+        self.measures = ValueMeasures(
+            context.detectors.tallies(),
+            context.max_special_characters,
+            context.max_distinct_characters,
+        )
         # The sample of original values, once released (a complete table
         # makes it at finalization).
         self.sample: ValueSample | None = None
@@ -699,6 +707,7 @@ class ValueProcessor:
         if long_k:
             self.sample.grant_long(long_k)
         self.process(keys, counts, scalars=scalars)
+        self.measures.characters.streamed = True
         self.warm = set(keys[: self.context.detectors.warmup_values])
 
     def process(
@@ -1088,7 +1097,7 @@ class ValueProcessor:
             "counters": sample.counters(),
             "first": self._value_at(*first, gate),
             "last": self._value_at(*last, gate),
-            "string_characteristics": measures.string_characteristics(),
+            "string_characteristics": measures.string_characteristics(withheld),
             "string_lengths": measures.string_lengths(),
             "numeric": (
                 _WITHHELD
@@ -1316,7 +1325,9 @@ def no_values(context: ValueContext) -> dict:
         "estimate": None,
         "first": None,
         "last": None,
-        "string_characteristics": ValueMeasures().string_characteristics(),
+        "string_characteristics": ValueMeasures(
+            (), context.max_special_characters, context.max_distinct_characters
+        ).string_characteristics(),
         "string_lengths": _NO_VALUES,
         "numeric": _NO_VALUES,
         "booleans": _NO_VALUES,

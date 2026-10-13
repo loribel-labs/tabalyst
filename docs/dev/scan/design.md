@@ -83,6 +83,7 @@ lot, with the reason recorded in section 17.
 | O63 | Insight lot 18: long texts | `text_profile` counts the words (`str.split`), the lines (`str.splitlines`) and the decimal digits of the original texts with constant counters (powers of two for words and lines, tenths for the digits), for a field whose longest value has `deep.texts.min_length` (80) characters or whose values the Scan sampled as long texts. `fingerprint_distinct` counts the distinct values of a field too long for the exact set by the 128-bit BLAKE2b digest the Scan gives its long texts (`fingerprint_based`, never `exact`), lists the `deep.texts.max_listed` (10) most repeated by digest, within the pool of the exact sets (`distinct_limited` with `memory_budget` beyond it), and is answered by the Scan when every value is distinct. Both stay blocked for a sensitive field. Utility 40, never automatic. | Accepted 2026-10-12 (maintainer: lot 18, B8) | 20.34 |
 | O64 | Insight lot 18: the Report prints the new cards | The families `structure`, `texts` and `forms`, the accuracy `fingerprint`, the card of the records in the dataset panel only. A card of masks is printed only when each mask is a fixed point of the mask (`mask(form) == form`) and each class belongs to the closed list, whatever the exposure says, and never for `hide`; the digests of a hidden column are not listed. No format changes (second pass revision 2, Report 3). | Accepted 2026-10-12 (maintainer: lot 18) | 20.36 |
 | O65 | Patterns lot P1: hierarchical discovery and validation of patterns | The discovery stays in the `derived` post-pass behind an eligibility (score, reasons, four states); `derived.patterns` moves to grammar 2: families (structure keys, merged at the edge of a block) that list patterns of fixed length (DEC-034), nodes by content facets scored in bits on `d` and `o`, tables of facets, budgets `max_values`, `max_families`, `max_patterns_per_family`, `max_patterns`, `max_depth`; the notation of DEC-032; no compatibility with the flat list. The validation recognizes each value once in its family, counts its ancestors by sums, bounds the tables by bytes, counts new variants of length and of segment (PAT-11 kept for structures), writes five outcomes with `invalid` reserved and never written, and keys its cache on the versions of the grammar and of the algorithm and on the settings. Positional structure of characters is not in the V1. Scan format revision 4 for the whole plan. | Accepted 2026-10-13 (maintainer: Porte 0, "tout par defaut") | 18.12, 20.9 |
+| O66 | Patterns lot C1: character profile of the strings | `string_characteristics` keeps its nine counters and adds, in the first pass and on raw values, counters of presence by class (ASCII lower and upper case letters, other Latin letters, other letters, ASCII digits, other digits), of the start (upper or lower case), of tabulations, non-breaking spaces, invisible characters and the replacement character, of composition (ASCII only, letters only, digits only, alphanumeric only, letters and digits), the total of characters, the exact count of distinct characters (`distinct_characters`, bound `limits.max_distinct_characters`, 1,024) and the inventory of special characters (`special_characters`, bound `limits.max_special_characters`, 256, 0 turns it off). A bounded table that overflows is `limited` with the reason `character_limit` and no list. A masked or hidden field keeps the counters and the total and has both distributions `disabled`. Format revision 4. | Accepted 2026-10-13 (maintainer: "tout par defaut") | 9.2, 12.8 |
 | O58 | Insight lot 20: the Report reads the later analyses with the accuracy of each figure | The Report prints, from the document alone, one insight card for each result of the values with a unit, the shape of the numbers, the parts of the dates, the values left out, the repeated values and the numbers by category, and the measures derived from the Scan, each fact, distribution and table with its own kind (exact, estimated, sample, at least). A section Insights (before the Second pass) and a section of the column page hold them; the Dates section says how many ambiguous dates the evidence read. No format changes. The cost model is reviewed with the matrix: the ceiling of the tiers of 17a and 17b, `pearson` and the utility 40 stay; `automatic_stats` goes from 8 to 2 (the second pass of the realistic file: 15.4 s to 11.8 s). Lots 18 and 19 are reported after the milestone. | Accepted 2026-10-12 (maintainer, lot 20; Porte E pending) | 20.29, 20.17, 18.14 |
 | O57 | Insight lot 17d.2b: values with a unit read by the evidence of the column | The second pass reads the ambiguous numbers of the values with a unit (`1,250 Kg`, `$4,825`, `12,5 %`) in the convention that the unambiguous values of the same detector (`currency`, `percentage` or `quantity`) prove, by the rule of O56 (`min_evidence`, none proving the other, `ambiguous_convention` wins, `infer_convention`), and under `comma` reads `1.250 Kg` as 1250. The plan decides it from `details.ambiguity.evidence` of the detector in the Scan (`MeasureFacts.convention`) and writes the parameter `number_convention` (part of the key) and the reason `ambiguous_numbers_read_by_evidence`; the reader of the extraction applies it (`CellReader.cells(measure=, convention=)`), the check against the Scan becomes read plus resolved ambiguous equal the coverage, and the result names it (`resolved`, `resolution`). The Scan and the settings are those of 17d.2a; no analyzer other than `measure_extraction` changes. | Accepted 2026-10-12 (maintainer, plan of the session) | 20.28, 20.27, 20.19 |
 | O56 | Insight lot 17d.2a: ambiguous numbers read by the evidence of the column | The Scan reads the ambiguous numbers (`1,234`) in the convention that the unambiguous numbers of the column prove, at least `detectors.number.min_evidence` (3) of them and none proving the other, and counts them in `numeric`; under a `comma` proof the strict decimals `d.ddd` (`1.250`) are thousands. The proof comes from the values only: `ambiguous_convention` wins and regroups nothing; spaces prove nothing alone. Decided at the finalization of the field from integers N kept during the Scan (scenario B5 of 17d.1), named in `details.ambiguity.resolution` (`source: evidence`, `resolved`); `coverage` and `formats` still describe the writing. Every later reading (second pass, smart sample, explorations) reads the field in the convention the Scan wrote and never decides again. One rule module, `scanner/convention_rule.py`, shared with the dates. Numbers with a unit: lot 17d.2b. | Accepted 2026-10-12 (maintainer, gate N) | 20.27, 12.6, 9.4 |
@@ -561,14 +562,21 @@ envelope. The JSON layout is summarized in section 16.
 - Shares and confidences are rounded to four decimals; counts are never
   rounded.
 
-### 9.2 String characteristics (lot 2a)
+### 9.2 String characteristics (lot 2a, extended in lot C1)
 
-Over `content` strings, on raw values. Plain counters, always present:
+Over `content` strings, on raw values, before normalization. Every counter is a
+number of occurrences of values, computed once per distinct value and weighted by
+its count; a value with no character (an empty string) has none of them. Shares
+are not stored.
+
+Lot 2a counters, always present:
 
 | Counter | Rule |
 | --- | --- |
 | `non_ascii` | A character above U+007F. |
-| `with_line_breaks` | A line boundary of `str.splitlines` (`\n`, `\r`, `\v`, `\f`, U+001C to U+001E, U+0085, U+2028, U+2029). |
+| `with_line_breaks` | A line boundary of `str.splitlines` (`
+`, `
+`, ``, ``, U+001C to U+001E, U+0085, U+2028, U+2029). |
 | `with_control_characters` | A character of category `Cc` other than the tabulation and line breaks. |
 | `with_surrounding_whitespace` | `value != value.strip()`. |
 | `with_repeated_whitespace` | Two consecutive whitespace characters in `value.strip()`. |
@@ -578,6 +586,59 @@ Over `content` strings, on raw values. Plain counters, always present:
 
 Case counters are exclusive; letters without case (such as CJK) count in none
 of them.
+
+Lot C1 counters. Each character has one class symbol: an ASCII lower or upper case
+letter; a letter of the Latin script outside ASCII (its Unicode name starts with
+`LATIN` or `FULLWIDTH LATIN`); another letter (`str.isalpha`); an ASCII digit; another
+digit (`str.isdigit`); another alphanumeric character (`str.isalnum`, such as `½`); a
+tabulation; a non-breaking space (U+00A0, U+2007, U+202F); another whitespace
+character; a control or format character (category `Cc` or `Cf`); an invisible
+character (U+200B to U+200D, U+FEFF, U+2060); the replacement character U+FFFD;
+or a special character (any other).
+
+| Counter | Rule |
+| --- | --- |
+| `with_ascii_lowercase`, `with_ascii_uppercase` | At least one such letter. |
+| `with_other_latin_letters`, `with_non_latin_letters` | At least one letter of that class. |
+| `with_ascii_digits`, `with_other_digits` | At least one such digit. |
+| `starts_uppercase`, `starts_lowercase` | `value[0].isupper()`, `value[0].islower()` on the raw value (a leading space is not a letter). |
+| `with_tabs`, `with_non_breaking_spaces` | At least one tabulation, one non-breaking space. |
+| `with_invisible_characters`, `with_replacement_character` | At least one invisible character, one U+FFFD. |
+| `ascii_only` | `value.isascii()`. |
+| `letters_only`, `digits_only`, `alphanumeric_only` | Every character is a letter, a digit, a letter or digit or `isalnum`. |
+| `letters_and_digits` | `alphanumeric_only`, with at least one letter and one digit. |
+
+The block also holds:
+
+- `characters`: the characters of the raw values, each value weighted by its count.
+- `distinct_characters`: a `measure(int)`, the exact number of distinct characters
+  of the field. It is `limited` (reason `character_limit`, `limit`, `lower_bound`
+  `limit + 1`) when the field has more than `limits.max_distinct_characters` (1,024)
+  of them.
+- `special_characters`: a `measure` of `{distinct, value_count_accuracy, listed}`, the inventory of the
+  special characters, which are neither alphanumeric, nor whitespace, nor
+  control or format characters (so punctuation, symbols, combining marks and U+FFFD).
+  Each listed entry has `char`, `codepoint`, `value_count` (distinct values with the
+  character) and `occurrence_count` (occurrences of values with it), by
+  descending `occurrence_count` then code point. `value_count` is `exact` while the
+  table of distinct values is complete; once the field is streamed a value that
+  returns in a later batch is counted again, and `value_count_accuracy` is
+  `upper_bound` (the one measure of 9.2 that cannot be identical in both modes of 13,
+  as it counts distinct values; the contract tests ignore it).
+  Characters of category `Cc`, `Cf` and `Cs` (a lone surrogate) are never special. It is `limited` with the same
+  reason, and no list, above `limits.max_special_characters` (256) distinct special
+  characters, and `disabled` when that limit is 0. A bound never depends on the
+  order of the values, so the complete table and the streamed field agree (13).
+
+A field with no string has `characters` 0 and `not_applicable` (`no_values`)
+distributions. Under `mask` and `hide` (12.8) the counters and `characters` stay and
+both distributions are `disabled`.
+
+Calculation: a bytes translation of the ASCII values (a cached translation of the
+others) gives the set of class symbols of a value, from which every presence and
+composition counter follows by a cached table; a second translation, only for a
+value with a special character, extracts them. The distinct characters are
+collected per batch.
 
 ### 9.3 String lengths (lot 2a)
 
@@ -1141,7 +1202,9 @@ describes the writing, the `numeric` block the numbers.
 - Statistics that are values themselves, such as a minimum or a date range,
   cannot be masked: under `mask` and `hide`, the `numeric` and `temporal`
   blocks of a sensitive field are `disabled`. Counts, lengths,
-  characteristics and coverage stay.
+  characteristics and coverage stay, except the distributions of characters of
+  `string_characteristics` (`distinct_characters`, `special_characters`), which are
+  `disabled` (9.2).
 - The effective configuration is not a value-bearing block.
 - The field records `sensitive` and `exposure`, the mode applied (`null` when
   the field is not sensitive).
@@ -1823,6 +1886,7 @@ makes by itself writes none.
 | 2026-10-12 | IN-24 | New decisions O59 and O60, new sections 20.30 to 20.32, two rows in 20.5 and a note in 20.17 and 20.29: `position_drift` (`planner/analyzers/drift.py`, `secondpass/drift.py`) and `missing_matrix` (`planner/analyzers/matrix.py`, `secondpass/matrix.py`), `PositionDriftResult`, `MissingMatrixResult`, `DriftSettings` and `MissingSettings` (`deep.drift`, `deep.missing`), `FieldFacts.records`, `matrix_member`, `matrix_size`, `records_excluded`, `matrix_members`, `FieldRoute.drift`, `Router(matrices=)`, `native_key`, `InsightCard.scope`, the families `drift` and `missing`, `COST_MODEL_VERSION` 12, `tests/scan/test_insight_lot19.py`, `tests/scan/test_report_drift_html.py`. | Lot 19 of the Insight milestone: leads B9 and B11 of 10.30 of the technical documentation. |
 | 2026-10-12 | IN-25 | New decisions O61 to O64, new sections 20.33 to 20.36, rows in 20.5, notes in 12.8, 20.17 and 20.29: `array_profile`, `structure_variants` (`planner/analyzers/structure.py`, `secondpass/structure.py`), `text_profile`, `fingerprint_distinct` (`planner/analyzers/texts.py`, `secondpass/texts.py`), `sensitive_forms` (`planner/analyzers/forms.py`, `secondpass/forms.py`), `ip_class` and `phone_class`, `ArrayProfileResult`, `StructureResult`, `TextProfileResult`, `FingerprintResult`, `FormsResult`, `ArraySettings`, `StructureSettings`, `TextSettings`, `SensitiveSettings` (`deep.arrays`, `deep.structure`, `deep.texts`, `deep.sensitive`), `FieldFacts.arrays`, `objects`, `object_keys`, `object_varies`, `untracked_paths`, `dataset_fields`, `strings_content`, `classified`, `cells`, `ROOT_FIELD`, `root_facts`, `Analyzer.roots`, `FieldRoute.arrays`, `texts`, `fingerprints`, `forms`, `Router(structures=)`, `PARTS` `texts` and `forms`, the family accuracy `fingerprint`, `COST_MODEL_VERSION` 13, `tests/scan/test_insight_lot18.py`. | Lot 18 of the Insight milestone: leads B7, B8 and B10 of 10.30 of the technical documentation. |
 | 2026-10-13 | PT-P1 | New decision O65, sections 18.12 and 20.9 rewritten: the contract of the hierarchical discovery and validation of patterns (eligibility, weighted population, families, patterns of fixed length, facets and score, tree, budgets, determinism, exposure, declared keys, target format of `derived.patterns` grammar 2 and of `pattern_counts` revision 2, PAT-12 to PAT-27), ADR `2026-10-13-hierarchical-patterns-fixed-lengths`, the tests of `tests/patterns/` marked by lot. No code of the engine changes. | Lot P1 of the Patterns plan. Maintainer decisions of 2026-10-13 (Porte 0, Q1 to Q9, "tout par defaut"). |
+| 2026-10-13 | PT-C1 | New decision O66, section 9.2 rewritten, a note in 12.8: the character profile of `string_characteristics` (`scanner/characters.py`, `CharacterProfile`), `limits.max_special_characters` and `max_distinct_characters`, the column page of the Report, `tests/scan/test_character_profile.py`. Format revision 4 (in preparation). | Lot C1 of the Patterns plan: the first pass counts the classes and the characters of the strings. |
 | 2026-10-12 | IN-23 |
 
 ## 18. Bottom-k samplers (O26, O28)

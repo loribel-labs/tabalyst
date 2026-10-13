@@ -12,6 +12,7 @@ from scan_helpers import (
     limited_cardinality,
     run_scan,
     without_estimate,
+    without_value_counts,
     write_json,
     write_text,
 )
@@ -224,7 +225,9 @@ def test_streaming_after_release_gives_the_same_measures(tmp_path):
     )
 
     for block in ("string_characteristics", "string_lengths", "booleans"):
-        assert streaming[block] == default[block], block
+        assert without_value_counts(streaming[block]) == without_value_counts(
+            default[block]
+        ), block
     numeric, reference = streaming["numeric"]["value"], default["numeric"]["value"]
     assert numeric.pop("median")["status"] == "limited"
     assert reference.pop("median")["status"] == "complete"
@@ -345,7 +348,21 @@ def test_string_characteristics_follow_their_definitions(tmp_path):
 
     v = field(dataset(run_scan(source), "$[]"), "v")
 
-    assert v["string_characteristics"] == {
+    # The character profile of lot C1 is tested in test_character_profile.py.
+    assert {
+        name: v["string_characteristics"][name]
+        for name in (
+            "non_ascii",
+            "with_line_breaks",
+            "with_control_characters",
+            "with_surrounding_whitespace",
+            "with_repeated_whitespace",
+            "uppercase",
+            "lowercase",
+            "mixed_case",
+            "no_letters",
+        )
+    } == {
         "non_ascii": 2,
         "with_line_breaks": 1,
         "with_control_characters": 1,

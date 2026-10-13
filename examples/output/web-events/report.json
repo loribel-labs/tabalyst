@@ -23,17 +23,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-13T06:54:22.132008Z",
-    "duration_seconds": 0.031648,
+    "started_at": "2026-10-13T11:56:22.555641Z",
+    "duration_seconds": 0.032913,
     "timings": {
-      "reading": 0.006187,
-      "analysis": 0.008639,
-      "finalize": 0.013141,
-      "derived": 0.003177,
-      "other": 0.000504
+      "reading": 0.005995,
+      "analysis": 0.007972,
+      "finalize": 0.015107,
+      "derived": 0.003345,
+      "other": 0.000493
     },
     "workers": 1,
-    "peak_memory_bytes": 64471040
+    "peak_memory_bytes": 68759552
   },
   "source": {
     "format": "jsonl",
@@ -118,6 +118,8 @@
       "max_samples_per_length": 100,
       "max_length_strata": 64,
       "max_sample_memory": 536870912,
+      "max_special_characters": 256,
+      "max_distinct_characters": 1024,
       "max_variant_groups": 100,
       "max_variants_per_group": 20,
       "max_evidence_examples": 10,
@@ -291,7 +293,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "2839e1f3827ee890345408f5c6a052210aecc95c48cde1f9606948dfa3fdd354",
+  "config_sha256": "9510da6fc881564401e6d1f5e5929e6a94d5f2af61798ae8288c4bab8721a926",
   "scope": {
     "collections": null,
     "records_read": 303,
@@ -1150,7 +1152,44 @@
             "uppercase": 0,
             "lowercase": 300,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 300,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 300,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 300,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 300,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 2700,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 14
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 300,
+                    "occurrence_count": 300
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -2562,7 +2601,50 @@
             "uppercase": 300,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 300,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 300,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 300,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 6000,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 14
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 300,
+                    "occurrence_count": 300
+                  },
+                  {
+                    "char": ":",
+                    "codepoint": 58,
+                    "value_count": 300,
+                    "occurrence_count": 300
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -3402,7 +3484,44 @@
             "uppercase": 0,
             "lowercase": 300,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 300,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 300,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 300,
+            "letters_only": 148,
+            "digits_only": 0,
+            "alphanumeric_only": 148,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 2192,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 17
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "_",
+                    "codepoint": 95,
+                    "value_count": 1,
+                    "occurrence_count": 152
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -4113,7 +4232,33 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 0,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 0,
+            "distinct_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            },
+            "special_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            }
           },
           "string_lengths": {
             "status": "not_applicable",
@@ -4743,7 +4888,33 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 0,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 0,
+            "distinct_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            },
+            "special_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            }
           },
           "string_lengths": {
             "status": "not_applicable",
@@ -5072,7 +5243,37 @@
             "uppercase": 253,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 253,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 253,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 253,
+            "letters_only": 253,
+            "digits_only": 0,
+            "alphanumeric_only": 253,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 506,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 9
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -5808,7 +6009,37 @@
             "uppercase": 0,
             "lowercase": 300,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 300,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 300,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 300,
+            "letters_only": 300,
+            "digits_only": 0,
+            "alphanumeric_only": 300,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 1089,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 8
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -6485,7 +6716,33 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 0,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 0,
+            "distinct_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            },
+            "special_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            }
           },
           "string_lengths": {
             "status": "not_applicable",
@@ -6784,7 +7041,37 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 300,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 300,
+            "with_ascii_uppercase": 300,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 182,
+            "starts_lowercase": 118,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 300,
+            "letters_only": 300,
+            "digits_only": 0,
+            "alphanumeric_only": 300,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 1634,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 17
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -7522,7 +7809,33 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 0,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 0,
+            "distinct_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            },
+            "special_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            }
           },
           "string_lengths": {
             "status": "not_applicable",
@@ -7846,7 +8159,44 @@
             "uppercase": 0,
             "lowercase": 269,
             "mixed_case": 0,
-            "no_letters": 31
+            "no_letters": 31,
+            "with_ascii_lowercase": 269,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 300,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 1998,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 18
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "/",
+                    "codepoint": 47,
+                    "value_count": 8,
+                    "occurrence_count": 300
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -8614,7 +8964,33 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 0,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 0,
+            "distinct_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            },
+            "special_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            }
           },
           "string_lengths": {
             "status": "not_applicable",
@@ -8913,7 +9289,37 @@
             "uppercase": 0,
             "lowercase": 450,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 450,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 450,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 450,
+            "letters_only": 450,
+            "digits_only": 0,
+            "alphanumeric_only": 450,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 3081,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 15
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -9771,7 +10177,33 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 0,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 0,
+            "distinct_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            },
+            "special_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            }
           },
           "string_lengths": {
             "status": "not_applicable",
@@ -10072,7 +10504,37 @@
             "uppercase": 21,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 21,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 21,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 21,
+            "letters_only": 21,
+            "digits_only": 0,
+            "alphanumeric_only": 21,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 63,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 3
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -10753,7 +11215,33 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 0,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 0,
+            "distinct_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            },
+            "special_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            }
           },
           "string_lengths": {
             "status": "not_applicable",
@@ -11060,7 +11548,37 @@
             "uppercase": 30,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 30,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 30,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 30,
+            "letters_only": 30,
+            "digits_only": 0,
+            "alphanumeric_only": 30,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 30,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 2
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -12409,8 +12927,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-        "config_sha256": "2839e1f3827ee890345408f5c6a052210aecc95c48cde1f9606948dfa3fdd354",
-        "facts_sha256": "43d1a7f7ef45df97ca7b18e6cd75bfb1afc7f9797d8747873f3af06e3e00766d"
+        "config_sha256": "9510da6fc881564401e6d1f5e5929e6a94d5f2af61798ae8288c4bab8721a926",
+        "facts_sha256": "1588f2072e9b0f7407bc39158c3512f3d18708b48eece473e6a6bcc76ac49702"
       },
       "settings": {
         "bins": 100,
@@ -12506,13 +13024,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 13,
-        "plan_id": "a1d46374ee672a83784a4a14a6c06c70d13956840a8456071aa210bcc916d591",
+        "plan_id": "6f41baf13cbeb1f8ecff2028e2fc075e3589df8dd2e35f5356d77d3b72585618",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-          "config_sha256": "2839e1f3827ee890345408f5c6a052210aecc95c48cde1f9606948dfa3fdd354",
-          "facts_sha256": "43d1a7f7ef45df97ca7b18e6cd75bfb1afc7f9797d8747873f3af06e3e00766d"
+          "config_sha256": "9510da6fc881564401e6d1f5e5929e6a94d5f2af61798ae8288c4bab8721a926",
+          "facts_sha256": "1588f2072e9b0f7407bc39158c3512f3d18708b48eece473e6a6bcc76ac49702"
         },
         "objective": {
           "automatic": true,
@@ -20088,15 +20606,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T06:54:22.215141Z",
-        "duration_seconds": 0.016516,
+        "started_at": "2026-10-13T11:56:22.641770Z",
+        "duration_seconds": 0.016046,
         "timings": {
-          "reading": 0.005334,
-          "analysis": 0.006146,
-          "other": 0.005036
+          "reading": 0.005111,
+          "analysis": 0.005862,
+          "other": 0.005073
         },
         "workers": 1,
-        "peak_memory_bytes": 69902336,
+        "peak_memory_bytes": 73187328,
         "source_read": true,
         "source_verified": true,
         "records_read": 300,
@@ -20118,7 +20636,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "888e3b1101024b968a034e85e5c772c610048523f654fc15bc102d593d6cc81e",
+          "key": "a1186b3264878c2f61dda078551c5525f1b01ab4d36a0a8554a55b6c9e9c6ca0",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -21693,7 +22211,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "5a7224084ec8315591cc56f8c4ac5d4ab9e9ffd61b5414ad942be1d7c164d4d2",
+          "key": "2be3baf80969da848b109e8bdb7c79cc1cea1da386a493c1e3dafe53627ed808",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -23268,7 +23786,7 @@
             "domain": 60
           },
           "domain": "analytical",
-          "key": "adfa12e7729cdc01506b004d0ac8c843dfd9d2fae7da82b106d13d5137917679",
+          "key": "f07f522a6aeb51a12dccfd3a63c0f0cac85f1ba2895258f562060e109fcc8e19",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -23569,7 +24087,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "61a750407e3e16b99684ba642d8fe29c8f22f47a1861296123f25f419ee15949",
+          "key": "8792abc15cec20117a4df705298185480af7b431dc4f8bbfaa3d218d755ba51b",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -23846,7 +24364,7 @@
             "domain": 100
           },
           "domain": "analytical",
-          "key": "63a7f57cd87a117be1c7f9e209abbdf946ced100cbe6130ec00579b7d15dd0f0",
+          "key": "5dfaaf45dd6e89e37bcefe4aab909d5753a0779398be05e88fbcbecb067b8acd",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -23918,7 +24436,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "0384a5f2dfcdab37503bb0ad2733c244a11c01e05faa78e6dddc6a3483e6bd87",
+          "key": "a2fa4d88a52a72b5e2422628045585dc41ce7d2736e6b34a6cff36348f1dbec6",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -23955,7 +24473,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "cd51c16aa9a61ee11b2baa84b299e282010945f723c2dd7fd8a01bd5b736f977",
+          "key": "98622d920366bb9defed07985335654e8a60757baaf2a32fc24d6075f105d4bc",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -23992,7 +24510,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "a17f0c06665991d31dc6ee871cf433c590a6146b4f37cfb3523760393b02cc29",
+          "key": "c61143b99c3a3b302567be460d7f46f126535dde904f4da28f2f41a2f4390eeb",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -24029,7 +24547,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "7c183bbdb3961f927d8354a057332e75c0226002c32e90b553310233e6e3bb92",
+          "key": "9359f32865bb0acd7e8e513aa662671e3098364721f1016163bc1940eb07bbc1",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -24070,7 +24588,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "9747b4e06b2b3ecbfa5d8e0e543232c3a9d4a03a5420ad6f7eb9ab1000419b0d",
+          "key": "65ff1ce44d417ad338d340b7018a09af552b00439aec3642a44a79ca6de6e3c7",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -24114,7 +24632,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "9bd6486293ec04221c3684ed4cbe990754d77aca61ff90a2328d930dbc3f626d",
+          "key": "0a51772526cb9e4c746ba6c0bc7acd0a77266eb822eaa9f74a79f58d9d16ca49",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -24158,7 +24676,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "1262a0cce92f1cb9c397568e675ae97d8e6d76aa6a31f436dc5c8f0173f3aae7",
+          "key": "ca44dce5137da3e07fb8e000f3346062af1d2bbf0f3689e75d65030e586562a2",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -24218,7 +24736,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "cd0b9a4c39cbcf51c5664bcb7f046db3e726883341a3de767b6aab6df3c44593",
+          "key": "ec0b2a94bad8e3eddb67a6ec763c5d63b998fed5e5d405c73660d5dcb1d19999",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -24270,12 +24788,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T06:54:22.519292Z",
+    "generated_at": "2026-10-13T11:56:22.946715Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.4075,
+    "processing_seconds": 0.4373,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -24308,8 +24826,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-      "config_sha256": "2839e1f3827ee890345408f5c6a052210aecc95c48cde1f9606948dfa3fdd354",
-      "facts_sha256": "43d1a7f7ef45df97ca7b18e6cd75bfb1afc7f9797d8747873f3af06e3e00766d"
+      "config_sha256": "9510da6fc881564401e6d1f5e5929e6a94d5f2af61798ae8288c4bab8721a926",
+      "facts_sha256": "1588f2072e9b0f7407bc39158c3512f3d18708b48eece473e6a6bcc76ac49702"
     },
     "datasets": [
       {

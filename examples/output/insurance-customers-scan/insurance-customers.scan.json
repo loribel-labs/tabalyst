@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T06:54:24.327274Z",
-    "duration_seconds": 0.309181,
+    "started_at": "2026-10-13T11:56:24.861363Z",
+    "duration_seconds": 0.31434,
     "timings": {
-      "reading": 0.010915,
-      "analysis": 0.02467,
-      "finalize": 0.259851,
-      "derived": 0.01326,
-      "other": 0.000485
+      "reading": 0.010503,
+      "analysis": 0.023826,
+      "finalize": 0.267357,
+      "derived": 0.012218,
+      "other": 0.000436
     },
     "workers": 1,
-    "peak_memory_bytes": 82837504
+    "peak_memory_bytes": 83386368
   },
   "source": {
     "format": "csv",
@@ -159,6 +159,8 @@
       "max_samples_per_length": 100,
       "max_length_strata": 64,
       "max_sample_memory": 536870912,
+      "max_special_characters": 256,
+      "max_distinct_characters": 1024,
       "max_variant_groups": 100,
       "max_variants_per_group": 20,
       "max_evidence_examples": 10,
@@ -332,7 +334,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "0eddf0b717be66d82ec3ccfda9761f3ad915edc095efd4f09464923ab5d8b631",
+  "config_sha256": "1008b288d844b8628f9439581c3b52323cc72f75b7365235dc203990a01d0723",
   "scope": {
     "collections": null,
     "records_read": 3000,
@@ -1573,7 +1575,37 @@
             "uppercase": 0,
             "lowercase": 3000,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 3000,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 3000,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 3000,
+            "digits_only": 0,
+            "alphanumeric_only": 3000,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 24802,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 13
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -3081,7 +3113,44 @@
             "uppercase": 3000,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 3000,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 3000,
+            "with_other_digits": 0,
+            "starts_uppercase": 3000,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 247,
+            "letters_and_digits": 247,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 35503,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 18
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 2746,
+                    "occurrence_count": 2753
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -3891,7 +3960,44 @@
             "uppercase": 1517,
             "lowercase": 0,
             "mixed_case": 1483,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 1483,
+            "with_ascii_uppercase": 3000,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 3000,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 1483,
+            "digits_only": 0,
+            "alphanumeric_only": 1483,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 7483,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 4
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": ".",
+                    "codepoint": 46,
+                    "value_count": 1,
+                    "occurrence_count": 1517
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -5432,7 +5538,44 @@
             "uppercase": 0,
             "lowercase": 10,
             "mixed_case": 2983,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 2993,
+            "with_ascii_uppercase": 2887,
+            "with_other_latin_letters": 536,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 2981,
+            "starts_lowercase": 12,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2457,
+            "letters_only": 2852,
+            "digits_only": 0,
+            "alphanumeric_only": 2852,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 18831,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 55
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 12,
+                    "occurrence_count": 133
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -7284,7 +7427,50 @@
             "uppercase": 0,
             "lowercase": 16,
             "mixed_case": 2980,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 2996,
+            "with_ascii_uppercase": 2980,
+            "with_other_latin_letters": 260,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 2958,
+            "starts_lowercase": 37,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2736,
+            "letters_only": 2949,
+            "digits_only": 0,
+            "alphanumeric_only": 2949,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 18639,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 53
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 3,
+                    "occurrence_count": 25
+                  },
+                  {
+                    "char": "'",
+                    "codepoint": 39,
+                    "value_count": 4,
+                    "occurrence_count": 12
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -8918,7 +9104,50 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 2994
+            "no_letters": 2994,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 2994,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2994,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 29940,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 12
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 2880,
+                    "occurrence_count": 2985
+                  },
+                  {
+                    "char": "/",
+                    "codepoint": 47,
+                    "value_count": 9,
+                    "occurrence_count": 9
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -10065,7 +10294,37 @@
             "uppercase": 3000,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 3000,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 3000,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 3000,
+            "digits_only": 0,
+            "alphanumeric_only": 3000,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 3000,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 2
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -10759,7 +11018,37 @@
             "uppercase": 0,
             "lowercase": 3000,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 3000,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 3000,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 3000,
+            "digits_only": 0,
+            "alphanumeric_only": 3000,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 6000,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 4
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -12213,7 +12502,37 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 3000
+            "no_letters": 3000,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 3000,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 0,
+            "digits_only": 3000,
+            "alphanumeric_only": 3000,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 11673,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 10
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -13223,7 +13542,37 @@
             "uppercase": 0,
             "lowercase": 2101,
             "mixed_case": 899,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 3000,
+            "with_ascii_uppercase": 899,
+            "with_other_latin_letters": 185,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 899,
+            "starts_lowercase": 2101,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2815,
+            "letters_only": 3000,
+            "digits_only": 0,
+            "alphanumeric_only": 3000,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 17424,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 34
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -14928,7 +15277,50 @@
             "uppercase": 0,
             "lowercase": 13,
             "mixed_case": 2987,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 3000,
+            "with_ascii_uppercase": 2867,
+            "with_other_latin_letters": 611,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 896,
+            "starts_lowercase": 2104,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2389,
+            "letters_only": 898,
+            "digits_only": 0,
+            "alphanumeric_only": 898,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 29480,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 53
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 12,
+                    "occurrence_count": 117
+                  },
+                  {
+                    "char": "'",
+                    "codepoint": 39,
+                    "value_count": 8,
+                    "occurrence_count": 99
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -16149,7 +16541,37 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 720,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 720,
+            "with_ascii_uppercase": 720,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 720,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 720,
+            "letters_only": 720,
+            "digits_only": 0,
+            "alphanumeric_only": 720,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 2885,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 14
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -17629,7 +18051,37 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 1072
+            "no_letters": 1072,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 1072,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 1072,
+            "letters_only": 0,
+            "digits_only": 1072,
+            "alphanumeric_only": 1072,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 3113,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 10
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -19254,7 +19706,56 @@
             "uppercase": 0,
             "lowercase": 14,
             "mixed_case": 2986,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 3000,
+            "with_ascii_uppercase": 2986,
+            "with_other_latin_letters": 812,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 2982,
+            "starts_lowercase": 18,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2188,
+            "letters_only": 2495,
+            "digits_only": 0,
+            "alphanumeric_only": 2495,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 26994,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 57
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 3,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 21,
+                    "occurrence_count": 413
+                  },
+                  {
+                    "char": "'",
+                    "codepoint": 39,
+                    "value_count": 4,
+                    "occurrence_count": 33
+                  },
+                  {
+                    "char": ".",
+                    "codepoint": 46,
+                    "value_count": 1,
+                    "occurrence_count": 12
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -20407,7 +20908,37 @@
             "uppercase": 2974,
             "lowercase": 23,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 23,
+            "with_ascii_uppercase": 2974,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 2974,
+            "starts_lowercase": 23,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2997,
+            "letters_only": 2997,
+            "digits_only": 0,
+            "alphanumeric_only": 2997,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 5994,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 21
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -21350,7 +21881,44 @@
             "uppercase": 0,
             "lowercase": 12,
             "mixed_case": 2988,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 3000,
+            "with_ascii_uppercase": 2988,
+            "with_other_latin_letters": 2254,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 2988,
+            "starts_lowercase": 12,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 746,
+            "letters_only": 2813,
+            "digits_only": 0,
+            "alphanumeric_only": 2813,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 21089,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 37
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 8,
+                    "occurrence_count": 187
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -22967,7 +23535,37 @@
             "uppercase": 3000,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 3000,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 3000,
+            "with_other_digits": 0,
+            "starts_uppercase": 2991,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 21033,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 31
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -23835,7 +24433,37 @@
             "uppercase": 2978,
             "lowercase": 22,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 22,
+            "with_ascii_uppercase": 2978,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 2978,
+            "starts_lowercase": 22,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 3000,
+            "digits_only": 0,
+            "alphanumeric_only": 3000,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 6000,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 4
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -25338,7 +25966,31 @@
             "uppercase": 0,
             "lowercase": 3000,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 3000,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 1368,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 3000,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 76023,
+            "distinct_characters": {
+              "status": "disabled"
+            },
+            "special_characters": {
+              "status": "disabled"
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -26275,7 +26927,31 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 3000
+            "no_letters": 3000,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 3000,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 45042,
+            "distinct_characters": {
+              "status": "disabled"
+            },
+            "special_characters": {
+              "status": "disabled"
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -27637,7 +28313,44 @@
             "uppercase": 2991,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 2991,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 2991,
+            "with_other_digits": 0,
+            "starts_uppercase": 2991,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2991,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 41866,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 14
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 2983,
+                    "occurrence_count": 2991
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -28463,7 +29176,44 @@
             "uppercase": 0,
             "lowercase": 2992,
             "mixed_case": 6,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 2998,
+            "with_ascii_uppercase": 6,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 2998,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2998,
+            "letters_only": 2992,
+            "digits_only": 0,
+            "alphanumeric_only": 2992,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 18157,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 14
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "_",
+                    "codepoint": 95,
+                    "value_count": 2,
+                    "occurrence_count": 6
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -29846,7 +30596,50 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 3000
+            "no_letters": 3000,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 3000,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 30000,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 12
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 2401,
+                    "occurrence_count": 2992
+                  },
+                  {
+                    "char": "/",
+                    "codepoint": 47,
+                    "value_count": 8,
+                    "occurrence_count": 8
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -31363,7 +32156,50 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 2498
+            "no_letters": 2498,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 2498,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2498,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 24980,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 12
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 1169,
+                    "occurrence_count": 2490
+                  },
+                  {
+                    "char": "/",
+                    "codepoint": 47,
+                    "value_count": 8,
+                    "occurrence_count": 8
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -32294,7 +33130,44 @@
             "uppercase": 0,
             "lowercase": 2995,
             "mixed_case": 5,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 3000,
+            "with_ascii_uppercase": 5,
+            "with_other_latin_letters": 527,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 3000,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 2473,
+            "letters_only": 2995,
+            "digits_only": 0,
+            "alphanumeric_only": 2995,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 16260,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 17
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "_",
+                    "codepoint": 95,
+                    "value_count": 2,
+                    "occurrence_count": 5
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -33827,7 +34700,50 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 3000
+            "no_letters": 3000,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 3000,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 19676,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 12
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": ".",
+                    "codepoint": 46,
+                    "value_count": 2975,
+                    "occurrence_count": 3000
+                  },
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 25,
+                    "occurrence_count": 25
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -34691,7 +35607,44 @@
             "uppercase": 0,
             "lowercase": 2997,
             "mixed_case": 3,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 3000,
+            "with_ascii_uppercase": 3,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 3000,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 2997,
+            "digits_only": 0,
+            "alphanumeric_only": 2997,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 27976,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 12
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "_",
+                    "codepoint": 95,
+                    "value_count": 2,
+                    "occurrence_count": 3
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -35499,7 +36452,44 @@
             "uppercase": 0,
             "lowercase": 2992,
             "mixed_case": 8,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 3000,
+            "with_ascii_uppercase": 8,
+            "with_other_latin_letters": 1792,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 3000,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 1208,
+            "letters_only": 2992,
+            "digits_only": 0,
+            "alphanumeric_only": 2992,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 26426,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 18
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "_",
+                    "codepoint": 95,
+                    "value_count": 3,
+                    "occurrence_count": 8
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -36490,7 +37480,44 @@
             "uppercase": 3000,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 3000,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 3000,
+            "with_other_digits": 0,
+            "starts_uppercase": 3000,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 27016,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 18
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 27,
+                    "occurrence_count": 3000
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -37909,7 +38936,50 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 3000
+            "no_letters": 3000,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 3000,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 30000,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 12
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 2352,
+                    "occurrence_count": 2991
+                  },
+                  {
+                    "char": "/",
+                    "codepoint": 47,
+                    "value_count": 9,
+                    "occurrence_count": 9
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -39426,7 +40496,50 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 3000
+            "no_letters": 3000,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 3000,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 3000,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 30000,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 12
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 2028,
+                    "occurrence_count": 2993
+                  },
+                  {
+                    "char": "/",
+                    "codepoint": 47,
+                    "value_count": 7,
+                    "occurrence_count": 7
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -40946,7 +42059,44 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 420
+            "no_letters": 420,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 420,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 420,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 4200,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 11
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 406,
+                    "occurrence_count": 420
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -42562,7 +43712,50 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 349
+            "no_letters": 349,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 349,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 349,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 2729,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 12
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": ".",
+                    "codepoint": 46,
+                    "value_count": 344,
+                    "occurrence_count": 349
+                  },
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 1,
+                    "occurrence_count": 1
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -43418,7 +44611,44 @@
             "uppercase": 0,
             "lowercase": 440,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 440,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 247,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 440,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 193,
+            "letters_only": 313,
+            "digits_only": 0,
+            "alphanumeric_only": 313,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 2676,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 14
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "_",
+                    "codepoint": 95,
+                    "value_count": 1,
+                    "occurrence_count": 127
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",

@@ -77,7 +77,7 @@ def cell_text(values: list[str | None]) -> str:
 
 # Most rows a section prints, whatever the report keeps: the document holds
 # them all, the page stays light (HTML-07). A paged table shows 25 at a time.
-DISPLAY_LIMITS = {"findings": 500, "patterns": 400, "limits": 500, "rows": 300, "relations": 20, "insights": 25}
+DISPLAY_LIMITS = {"findings": 500, "patterns": 400, "limits": 500, "rows": 300, "relations": 20, "insights": 25, "special_characters": 20}
 
 
 def format_seconds(seconds: float) -> str:

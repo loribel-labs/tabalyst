@@ -5,7 +5,15 @@
 """Scan contract: detector framework, coverage and ambiguity (lot 3a)."""
 
 import pytest
-from scan_helpers import dataset, detector, field, run_scan, write_json, write_text
+from scan_helpers import (
+    dataset,
+    detector,
+    field,
+    run_scan,
+    without_value_counts,
+    write_json,
+    write_text,
+)
 
 pytestmark = pytest.mark.lot("3a")
 
@@ -159,7 +167,9 @@ def test_execution_modes_give_identical_results(tmp_path):
         "technical_type",
         "interpretations",
     ):
-        assert streaming[block] == default[block], block
+        assert without_value_counts(streaming[block]) == without_value_counts(
+            default[block]
+        ), block
     assert [(item["stage"], item["changed"]) for item in streaming["normalization"]["stages"]] == [
         (item["stage"], item["changed"]) for item in default["normalization"]["stages"]
     ]
