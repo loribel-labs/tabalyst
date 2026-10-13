@@ -82,6 +82,7 @@ lot, with the reason recorded in section 17.
 | O62 | Insight lot 18: the lengths of the arrays and the sets of keys of JSON | `array_profile` counts every length of the arrays of a field exactly (a dictionary length to count, at most `deep.arrays.max_lengths` (10,000) different lengths: the Scan's range decides, a wider one is `array_lengths_too_wide`, equal minimum and maximum is already answered, `lengths_constant`), with the exact quantiles of the histogram. `structure_variants` counts the sets of keys of the objects at a path, as integers with a bit per key the Scan named below it, in one sweep of the observations of each record for the dataset (`StructureAccumulator`, `Router(structures=)`); the sets are tracked up to `deep.structure.max_variants` (1,000) each exactly from its first object, the others summed up and `complete` false. The records themselves are the field `$` of the plan, which the Scan holds as no field (`root_facts`, `Analyzer.roots`, `_root_field`). Checked against the Scan: the arrays, empty arrays, items, shortest and longest; the objects and, for each key, the parents that hold it (`presence.present`). Left out: a dataset whose paths the Scan stopped naming (`untracked_paths`), one object, no key, every key in every object (`uniform_keys`), a table. Utility 40, never automatic. | Accepted 2026-10-12 (maintainer: lot 18, B7) | 20.33 |
 | O63 | Insight lot 18: long texts | `text_profile` counts the words (`str.split`), the lines (`str.splitlines`) and the decimal digits of the original texts with constant counters (powers of two for words and lines, tenths for the digits), for a field whose longest value has `deep.texts.min_length` (80) characters or whose values the Scan sampled as long texts. `fingerprint_distinct` counts the distinct values of a field too long for the exact set by the 128-bit BLAKE2b digest the Scan gives its long texts (`fingerprint_based`, never `exact`), lists the `deep.texts.max_listed` (10) most repeated by digest, within the pool of the exact sets (`distinct_limited` with `memory_budget` beyond it), and is answered by the Scan when every value is distinct. Both stay blocked for a sensitive field. Utility 40, never automatic. | Accepted 2026-10-12 (maintainer: lot 18, B8) | 20.34 |
 | O64 | Insight lot 18: the Report prints the new cards | The families `structure`, `texts` and `forms`, the accuracy `fingerprint`, the card of the records in the dataset panel only. A card of masks is printed only when each mask is a fixed point of the mask (`mask(form) == form`) and each class belongs to the closed list, whatever the exposure says, and never for `hide`; the digests of a hidden column are not listed. No format changes (second pass revision 2, Report 3). | Accepted 2026-10-12 (maintainer: lot 18) | 20.36 |
+| O65 | Patterns lot P1: hierarchical discovery and validation of patterns | The discovery stays in the `derived` post-pass behind an eligibility (score, reasons, four states); `derived.patterns` moves to grammar 2: families (structure keys, merged at the edge of a block) that list patterns of fixed length (DEC-034), nodes by content facets scored in bits on `d` and `o`, tables of facets, budgets `max_values`, `max_families`, `max_patterns_per_family`, `max_patterns`, `max_depth`; the notation of DEC-032; no compatibility with the flat list. The validation recognizes each value once in its family, counts its ancestors by sums, bounds the tables by bytes, counts new variants of length and of segment (PAT-11 kept for structures), writes five outcomes with `invalid` reserved and never written, and keys its cache on the versions of the grammar and of the algorithm and on the settings. Positional structure of characters is not in the V1. Scan format revision 4 for the whole plan. | Accepted 2026-10-13 (maintainer: Porte 0, "tout par defaut") | 18.12, 20.9 |
 | O58 | Insight lot 20: the Report reads the later analyses with the accuracy of each figure | The Report prints, from the document alone, one insight card for each result of the values with a unit, the shape of the numbers, the parts of the dates, the values left out, the repeated values and the numbers by category, and the measures derived from the Scan, each fact, distribution and table with its own kind (exact, estimated, sample, at least). A section Insights (before the Second pass) and a section of the column page hold them; the Dates section says how many ambiguous dates the evidence read. No format changes. The cost model is reviewed with the matrix: the ceiling of the tiers of 17a and 17b, `pearson` and the utility 40 stay; `automatic_stats` goes from 8 to 2 (the second pass of the realistic file: 15.4 s to 11.8 s). Lots 18 and 19 are reported after the milestone. | Accepted 2026-10-12 (maintainer, lot 20; Porte E pending) | 20.29, 20.17, 18.14 |
 | O57 | Insight lot 17d.2b: values with a unit read by the evidence of the column | The second pass reads the ambiguous numbers of the values with a unit (`1,250 Kg`, `$4,825`, `12,5 %`) in the convention that the unambiguous values of the same detector (`currency`, `percentage` or `quantity`) prove, by the rule of O56 (`min_evidence`, none proving the other, `ambiguous_convention` wins, `infer_convention`), and under `comma` reads `1.250 Kg` as 1250. The plan decides it from `details.ambiguity.evidence` of the detector in the Scan (`MeasureFacts.convention`) and writes the parameter `number_convention` (part of the key) and the reason `ambiguous_numbers_read_by_evidence`; the reader of the extraction applies it (`CellReader.cells(measure=, convention=)`), the check against the Scan becomes read plus resolved ambiguous equal the coverage, and the result names it (`resolved`, `resolution`). The Scan and the settings are those of 17d.2a; no analyzer other than `measure_extraction` changes. | Accepted 2026-10-12 (maintainer, plan of the session) | 20.28, 20.27, 20.19 |
 | O56 | Insight lot 17d.2a: ambiguous numbers read by the evidence of the column | The Scan reads the ambiguous numbers (`1,234`) in the convention that the unambiguous numbers of the column prove, at least `detectors.number.min_evidence` (3) of them and none proving the other, and counts them in `numeric`; under a `comma` proof the strict decimals `d.ddd` (`1.250`) are thousands. The proof comes from the values only: `ambiguous_convention` wins and regroups nothing; spaces prove nothing alone. Decided at the finalization of the field from integers N kept during the Scan (scenario B5 of 17d.1), named in `details.ambiguity.resolution` (`source: evidence`, `resolved`); `coverage` and `formats` still describe the writing. Every later reading (second pass, smart sample, explorations) reads the field in the convention the Scan wrote and never decides again. One rule module, `scanner/convention_rule.py`, shared with the dates. Numbers with a unit: lot 17d.2b. | Accepted 2026-10-12 (maintainer, gate N) | 20.27, 12.6, 9.4 |
@@ -1821,6 +1822,7 @@ makes by itself writes none.
 | 2026-10-12 | IN-23 | New decision O58, new section 20.29, a row in 20.17: `report_insights.py`, `InsightCard`, `templates/insights.html`, the Insights sections of the Report and of the column page, the resolution of the dates in the Dates section, `tests/scan/test_report_insights_html.py`, `test_explore_06`, `automatic_stats` 2. | Lot 20 of the Insight milestone: the Report reads what lots 13 to 17d add, the cost model is reviewed with the replayed matrix. |
 | 2026-10-12 | IN-24 | New decisions O59 and O60, new sections 20.30 to 20.32, two rows in 20.5 and a note in 20.17 and 20.29: `position_drift` (`planner/analyzers/drift.py`, `secondpass/drift.py`) and `missing_matrix` (`planner/analyzers/matrix.py`, `secondpass/matrix.py`), `PositionDriftResult`, `MissingMatrixResult`, `DriftSettings` and `MissingSettings` (`deep.drift`, `deep.missing`), `FieldFacts.records`, `matrix_member`, `matrix_size`, `records_excluded`, `matrix_members`, `FieldRoute.drift`, `Router(matrices=)`, `native_key`, `InsightCard.scope`, the families `drift` and `missing`, `COST_MODEL_VERSION` 12, `tests/scan/test_insight_lot19.py`, `tests/scan/test_report_drift_html.py`. | Lot 19 of the Insight milestone: leads B9 and B11 of 10.30 of the technical documentation. |
 | 2026-10-12 | IN-25 | New decisions O61 to O64, new sections 20.33 to 20.36, rows in 20.5, notes in 12.8, 20.17 and 20.29: `array_profile`, `structure_variants` (`planner/analyzers/structure.py`, `secondpass/structure.py`), `text_profile`, `fingerprint_distinct` (`planner/analyzers/texts.py`, `secondpass/texts.py`), `sensitive_forms` (`planner/analyzers/forms.py`, `secondpass/forms.py`), `ip_class` and `phone_class`, `ArrayProfileResult`, `StructureResult`, `TextProfileResult`, `FingerprintResult`, `FormsResult`, `ArraySettings`, `StructureSettings`, `TextSettings`, `SensitiveSettings` (`deep.arrays`, `deep.structure`, `deep.texts`, `deep.sensitive`), `FieldFacts.arrays`, `objects`, `object_keys`, `object_varies`, `untracked_paths`, `dataset_fields`, `strings_content`, `classified`, `cells`, `ROOT_FIELD`, `root_facts`, `Analyzer.roots`, `FieldRoute.arrays`, `texts`, `fingerprints`, `forms`, `Router(structures=)`, `PARTS` `texts` and `forms`, the family accuracy `fingerprint`, `COST_MODEL_VERSION` 13, `tests/scan/test_insight_lot18.py`. | Lot 18 of the Insight milestone: leads B7, B8 and B10 of 10.30 of the technical documentation. |
+| 2026-10-13 | PT-P1 | New decision O65, sections 18.12 and 20.9 rewritten: the contract of the hierarchical discovery and validation of patterns (eligibility, weighted population, families, patterns of fixed length, facets and score, tree, budgets, determinism, exposure, declared keys, target format of `derived.patterns` grammar 2 and of `pattern_counts` revision 2, PAT-12 to PAT-27), ADR `2026-10-13-hierarchical-patterns-fixed-lengths`, the tests of `tests/patterns/` marked by lot. No code of the engine changes. | Lot P1 of the Patterns plan. Maintainer decisions of 2026-10-13 (Porte 0, Q1 to Q9, "tout par defaut"). |
 | 2026-10-12 | IN-23 |
 
 ## 18. Bottom-k samplers (O26, O28)
@@ -2405,107 +2407,232 @@ Both give the same rows (a test compares them, and random batch sizes); only
   groups and their order, the fields of the cells, the counts and the threshold
   (the largest priority of the middle rows, recomputed).
 
-### 18.12 Pattern inference (lot 4a, D08, PAT-01 to PAT-06, C07 to C10)
+### 18.12 Pattern discovery (lot 4a, D08, PAT-01 to PAT-06, C07 to C10; rewritten by the Patterns lot P1, PAT-12 to PAT-20, O65)
 
-After the scan, `tabalyst.scanner.patterninfer.infer_patterns(datasets, settings)`
-infers the structural patterns of each text field from its samples. It reads
-the finished datasets, never the source (PAT-01), and `scan()` calls it once
-after `finalize`; the result is `ScanResult.derived.patterns` and its time is
-`run.timings.derived`. The inferred patterns are not the configured ones
-(12.7): those stay detectors (`pattern:<id>`) in `field.detectors`.
-`scan.pattern_inference.enabled` set to false leaves `derived` out.
+This section is the contract of the hierarchical discovery. It replaces the flat list of candidates of the lot 4a
+(a list of structures with generalization levels and `overlaps`). Its sources are the specification (`DEC-001` to
+`DEC-034`, `FR-001` to `FR-024`, `TR-001` to `TR-011`), the algorithm (version 1.1) and the notation; this section states what the code must do and does not depend on reading them. The decision
+record is the ADR `2026-10-13-hierarchical-patterns-fixed-lengths`. The lots P2 to P8 of the Patterns plan implement
+it; until a lot delivers, the code keeps the behavior of the lot 4a and the tests of `tests/patterns/` for that lot
+stay skipped ("to enable").
 
-**Population.** The stored distinct original values of the field: the `listed`
-of `values.samples` and the pool of `by_length.listed` (once each, by `id`),
-in id order, at most `MAX_VALUES` (20,000; `limits` then says `max_values`).
-The two selection laws are not added (LEN-06): the population is a set of
-distinct values, and its figures are counts of distinct values. Excluded, and
-counted in `population.excluded`: the long texts (`long_text_occurrences`: the
-preview of a long text never certifies the pattern of the whole text, LONG-05,
-C10), values that are not strings, empty values, values longer than
-`max_value_length` (64) and values of more than 32 tokens. A field is
-`not_applicable` when its technical type is not `text` or `mixed`
-(`technical_type`), when exposure masks or hides it (`exposure`: the Scan does
-not give the originals back, 21), when its sample is withheld
-(`samples_withheld`, `kept < of`), when it has only long texts
-(`long_texts_only`), no usable value (`no_values`) or fewer than
-`min_distinct` of them (`too_few_distinct`). Every field has an entry.
+After the scan, `tabalyst.scanner.patterninfer.infer_patterns(datasets, settings)` discovers the structural patterns
+of the fields from their samples. It reads the finished datasets, never the source (PAT-01), and `scan()` calls it once
+after `finalize`; the result is `ScanResult.derived.patterns` and its time is `run.timings.derived`. The discovered
+patterns are not the configured ones (12.7): those stay detectors (`pattern:<id>`) in `field.detectors`.
+`scan.pattern_inference.enabled` set to false leaves `derived` out. The discovery stays in this post-pass and not in a
+second-pass analyzer (O65), so a Scan alone, and a Report made from it, show patterns without any second reading.
 
-**Failure.** The inference of each field is isolated, as a detector is
-(CA19): an exception on one field gives it a `failed` entry (`reason`
-`inference_error`, `diagnostic` the index of a `pattern_inference_failed`
-error naming the dataset and the field, with the exception type and never
-its message, which could quote a value). The other fields, the other
-analyses and the scan `status` are unaffected, and the scan that read the
-whole source is not lost for a bug of this post-pass.
+**Vocabulary.** A *format* is the exact form of one value, a symbol per character (`AA-9999`). A *pattern* describes
+values of one structure and one set of lengths, with its constants (`'AK'-9999`); a discovered pattern has a fixed
+length for each position and never a range. A *family* gathers the patterns of one structure that differ only by
+their lengths or their constants; it is not a pattern, has no rendering as a range and presents itself as the list of
+its patterns with their counts. A *facet* is a dimension along which a family can be specialized (composition,
+lengths, content). A *node* is a family plus constraints on facets, with its counts. A *table* is the list of the
+values of a facet with their counts, not nested in the tree. Every figure is given in two measures: `d`, distinct
+values, and `o`, occurrences.
 
-**Grammar, version 1 (PAT-03, PAT-04).** A value is cut into tokens: a run of
-ASCII digits (`digit_ascii`), a run of ASCII capitals (`upper_ascii`), a run of
-ASCII lowercase letters (`lower_ascii`), a run of letters that has a non-ASCII
-letter (`letter_unicode`), and every other character, a `literal` (a run of the
-same character is one token with a count). Spaces, signs and separators are
-always literals; non-ASCII digits are literals. Two generalizations exist,
-`letter_unicode` for any run of letters (level 1) and `alphanumeric` for a run
-of letters and digits (level 2). Adjacent class tokens never share a
-character, so a signature has one reading of a value and matching it is one
-pass (`matches`): no regular expression is generated and nothing backtracks.
-A change of a class, a rule or the rendering raises `GRAMMAR_VERSION`, in
-`derived.patterns.grammar`.
+**Order of the work, for one field (PAT-12 to PAT-18).** Eligibility (the field is a candidate or not), population,
+families, facets, score, tree, budgets, publication. A field that is not eligible costs only its eligibility.
 
-**Candidates (PAT-02, PAT-05).** Values are grouped by structure (the tokens
-without their lengths). A group is one candidate; each token carries the
-`min` and `max` of its length (characters, or repetitions of a literal), and a
-letter or digit token that is the same text in every value of a group of at
-least `LITERAL_MIN_SUPPORT` (5) values becomes a `literal`: `XX9999'A'` is a
-fixed final `A`, `XX9999X` any capital (C08). With more groups than
-`max_patterns` (8), the groups beyond the first `max_patterns - 1` are
-generalized, level 1 then level 2, until the groups of at least `min_distinct`
-(2) values fit; a generalized group whose structure equals a kept one joins it.
-`merged_structures` counts the structures a candidate stands for and
-`generalization` its level; the candidates are ranked by values, then
-signature, the first is `principal`. Groups below `min_distinct` and the groups
-beyond `max_patterns` are `other` (distinct values and number of structures),
-and `limits` says `max_patterns` when the bound or the ladder acted.
+**Eligibility (PAT-12, FR-001, DEC-004, DEC-022, REC-001).** Every field has an `eligibility` object: `state` (one of
+`eligible`, `low_relevance`, `excluded`, `not_assessable`), `score` (a number from 0 to 1, rounded to four decimals)
+and `reasons` (a list of codes). It is computed from the statistics and the samples of the Scan, without building a
+tree, in two phases: a preselection on the facts (technical type, presence, cardinality, lengths, detectors,
+availability of the values) and a light structural check on the sampled values (character classes, shared prefixes
+and suffixes, separators, positional constants). Only an `eligible` field is discovered. The rest of the contract:
 
-**Exclusive classification (PAT-08, C09).** A value counts for one candidate:
-the most specific one that reads it, by literal letters and digits (more), the
-generalization level (lower), the width of the repeats (narrower), then the
-rank. Candidates with a `letter_unicode` or `alphanumeric` token may read
-values of other structures; `overlaps` lists the sets of candidates that read
-the same distinct values, with their number, and the counts of the candidates
-and of `other` add up to `population.distinct`. This is the discovery
-classification on the population: the validation on every occurrence of the
-file is the second pass (20.9) and is not here.
+- The state `excluded` has few causes, each a reason code: no usable value (`no_values`), values that are only
+  structures or booleans, exposure (`exposure`, below), only long texts (`long_texts_only`). The state
+  `not_assessable` says that information is missing, with a reason (`samples_withheld`, `too_few_distinct`), and is
+  never a silent exclusion. The state `low_relevance` is a field that can be assessed and that a pattern would
+  describe poorly (a free description, a handful of statuses).
+- Cardinality is never a cause of exclusion by itself: it is combined with structural regularity (a column of unique
+  identifiers is the best candidate). A column of digits typed as integers is admitted (RC-10, RC-11): the technical
+  type `integer` no longer excludes, and the discovery reads such a value as its decimal text. A field recognized by
+  a semantic detector (a date) lowers its score and is not excluded (AC-002).
+- The fixed-length criterion (DEC-034): a field is relevant only if at most `N` formats of fixed length cover at
+  least `P` percent of its values; the ISBN with hyphens of RC-12 (more than six combinations of lengths), names and
+  free text fail it, `A9A 9A9` and `'AK'-9999` pass it. `N`, `P` and the weights of the score are calibrated at the
+  lot P2 on the corpus and recorded in this section then; they are not decided here (OPEN-009). Until then only the
+  relative order is a contract: an identifier scores strictly more than a free description and more than a column of
+  five statuses (AC-001).
+- The state and the reasons are published for every field, so a reader can tell "no pattern" from "not looked at".
+  A field in a state other than `eligible` has the status `not_applicable` and no `families` (the entry below).
 
-**Output.** `derived.patterns`: `{grammar: {name: "tabalyst.pattern", version},
-domain: "original", fields: [...]}`, one entry per field in the order of the
-datasets and fields. A `complete` entry has `dataset`, `field`, `population`
-(`source`, `selection`, `complete`, `available`, `distinct`, `excluded`),
-`candidates`, `other`, `overlaps` and `limits`. A candidate has `id` (`p1`,
-`p2`, ...), `role`, `signature` (tokens `{kind, text?, min, max}`), `render`,
-`lengths` (observed, characters), `generalization`, `merged_structures`,
-`coverage` (`distinct`, `share` to four decimals, `basis`), `confidence`
-(`laplace_share`: `share * n / (n + 1)`, a heuristic and not a probability) and
-`examples` (up to three ids of entries of the field's samples, the smallest).
-The `render` writes `9` a digit, `X` a capital, `x` a lowercase letter, `@` any
-letter, `#` a letter or a digit, with `{n}` or `{min,max}` for repeats of more
-than six characters or of variable length, and quotes the literal letters,
-digits, spaces and the characters `'{}@#` (`XX9999'A'`), so that a literal
-letter is never read as a class (PAT-03); the signature is the reference.
-`coverage.basis` is `all_distinct` when the population is every distinct value
-of the field (`population.complete`: the sample is `all` and nothing was
-excluded or cut) and `sample` otherwise: a discovery indicator on
-distinct values, never a frequency of the file. The validated coverage, on
-every occurrence of the file, is written by the second pass (20.9). Lot 8b does not
-add an estimate over the row sample: the exploration of 20.13 holds the counts of the
-sample per class instead, in the scores of the tables it lists.
+**Population (PAT-13, FR-002, FR-003, DEC-010, DEC-018).** The stored distinct original values of the field, each with
+its count: the `listed` of `values.samples` and the pool of `by_length.listed` (once each, by `id`), in id order, at
+most `max_values` (10,000; the technical ceiling is 20,000; `limits` says `max_values` when the cut acts). The two
+selection laws are not added (LEN-06). The counts are used: every score, order and coverage is computed on the pairs
+(value, count), in the two measures `d` and `o`. The counts are exact when the sample is `all` (`population.complete`)
+and the basis of the occurrences is `sample` otherwise; a coverage in occurrences is then a discovery indicator and
+not a frequency of the file, which only the validation (20.9) gives. Excluded, and counted in `population.excluded`:
+the long texts (PAT-05 of the lot 4a, C10), values that are not strings, empty values, values longer than
+`max_value_length` (64) and values of more than 32 tokens. The discovery never reads the source (TR-001).
 
-`derived` is part of the base model (a Scan with it reads back) and not of
-its facts: `facts_sha256` leaves it out, a Report carries it as it is (19.3)
-because its base keeps fewer values and cannot compute it, and `check_scan`
-checks it: one entry per field, the render of each signature, the sums, the
-shares, the overlaps and, when the samples are complete, that every example
-exists and matches its signature.
+**Grammar, version 2 (PAT-03, PAT-04, DEC-032).** A value is cut into tokens as in version 1: a run of ASCII digits, a run of ASCII capitals, a run of
+ASCII lowercase letters, a run of letters that has a non-ASCII letter, and every other character, a literal (a run of
+the same character is one token with a count). The notation changes (DEC-032): `9` a digit, `A` a capital, `a` a
+lowercase letter, `@` a letter of either case (non-ASCII too), `X` a capital or a digit, `x` a lowercase letter or a
+digit, `#` an ASCII letter of either case or a digit; `?` (any character) is never produced by the discovery and
+belongs to written patterns; literals are quoted (`'AK'`), with `''` for an apostrophe; repeats are `{n}`, and only a
+written pattern uses `{m,n}` and `{a|b}`. A position that mixes a non-ASCII letter and a digit has no class: the
+formats stay apart. The match of a signature is still one pass without backtracking (PAT-04). A change of a class, a
+rule or the rendering raises `GRAMMAR_VERSION`, here to 2 (the notation of version 1, where `X` was a capital and `#`
+a letter or a digit, no longer exists). The signature, a list of typed tokens, is the reference; the `render` is its
+text in the notation above.
+
+**Families (PAT-14, FR-005, FR-009, E2).** The values are grouped by structure (the tokens without their lengths): the
+structure key. A family is a group of one key, or of keys merged at the edge of a block, only when all hold: same
+skeleton of separators and same block lengths; the classes differ only on a prefix or a suffix of one or two
+positions; the stable part of the block is not empty and at least as long as the mixed part; every structure is
+material (`d` at least 2, or a share of at least 5% in `d` or `o`). `DDDDU` and `DDDDD` merge into `DDDDZ` (a position
+that is a capital or a digit, `X` in the notation); `UDD` with `UUD` (the mixed position is in the middle) and `AK`
+with `ak` (the stable part is empty) do not. The families are disjoint by construction, since a value has one
+structure key; the five raw variants of `AK-1234` (RC-15) are five families. They are ranked by the larger of their
+shares in `d` and `o`, then by key text; those beyond `max_families` (16) go to `other.structures`. The generalization
+ladder of the lot 4a (levels 1 and 2) and `overlaps` disappear.
+
+**Patterns of fixed length (PAT-15, FR-008, DEC-034).** In a family, each combination of the lengths of the variable
+tokens that the population shows is one pattern, with no test of gain, within `max_patterns_per_family` (32): `'INV'-999`,
+`'INV'-9999` and `'INV'-99999` are three patterns of one family. A constant carried by all the members of a pattern,
+in `d` and in `o`, creates no child: it is folded into the rendering (`'AK'-9999`), while the parent stays general so
+that a later value is a new variant, not an unknown structure (DEC-026). A family whose patterns would need more
+combinations than the budget keeps the largest and counts the rest in the table of its lengths, with `limits`.
+
+**Facets and score (PAT-16, FR-006, FR-007, FR-010, DEC-023, DEC-029 to DEC-031).** A family can be specialized by,
+in this order: its composition (the merged structures become nodes without a test of gain); its lengths (above); its
+content, which is a chain of heads (1 to 3 first characters of a token), of tails (1 to 3 last characters) and the
+whole token. A token that is almost unique (distinct contents at least 50% of `d`) is ignored, and no specialization
+may fix every free position of the family. For a value `v` of a facet in a node of weight `X` (in `d` or in `o`),
+reading `k` positions with `b` bits a position (letter 4.70, digit 3.32, alphanumeric 5.17):
+
+```text
+gain(v) = x_v * (k*b + log2(x_v / X)) - (k*b + kappa)      the whole prefix, DEC-029
+b_f     = k*b of the longest prefix kept                   positions read, DEC-030
+sigma   = sum of gain(v) over the leaves / (X * b_f)
+```
+
+A head of `k` characters is a candidate only if the characters that follow its parent differ from chance (a G test
+against the uniform law on the alphabet of the class, `p < 10^-6`, on the measure tested) and the parent has at least
+4 distinct values (DEC-031). A branch is kept if it is a candidate and `gain_d(v) > 0`, or if `gain_o(v) > 0` and no
+single value carries more than 90% of the occurrences of the branch. A character shared by all the members of a head is
+folded into it and counts in its `k` positions. A facet is published if `max(sigma_d, sigma_o)` is at least 0.10. The
+starting values are `kappa = 2`, `alpha = 10^-6`, 0.10, 90%, 95% and 4; they belong to the version of the algorithm
+(below), not to the settings, and a change of one raises it.
+
+**Tree and compressions (PAT-17, FR-005, FR-012, DEC-024, DEC-025).** The tree is built best first. Level 1 under the
+family is the composition or the lengths (the patterns); level 2 is content, the facet of the largest absolute gain
+being the primary one; level 3 is a content facet that depends on the primary one. The default depth below the family
+is 3 and the ceiling 4 (`max_depth`). A node receives only facets that read positions disjoint from those of its
+ancestors. Another facet is nested under a node only if it depends on it, measured against the marginal table of the
+family (`log2(p_node(v) / p_family(v))`, normalized by the marginal entropy); otherwise it stays a table of the family.
+A node of one child that covers at least 95% of itself merges with that child, and an intermediate whose kept children
+cover at least 95% of its `d` and of its `o` is removed and its children move up. The rest of a facet (`others`) is
+never developed. A node has fewer than 4 distinct values: it is not developed. Each value counts for one node, the
+deepest, so a node's counts equal the sum of its children and the rest, and the patterns of a family sum to the family.
+
+**Budgets and limits (PAT-18, FR-011, DEC-006).** The settings of `scan.pattern_inference` are `enabled`,
+`max_values` (10,000, at most 20,000), `max_families` (16), `max_patterns_per_family` (32), `max_patterns` (128: the
+patterns and the nodes published for a field, which changes the meaning of the setting of the lot 4a, whose default
+was 8 and whose upper bound of 64 rises to 1,024), `max_depth` (3, at most 4), `max_value_length` (64) and `min_distinct` (2). When a budget acts, the branches of the lowest gain are folded into the `others` of their
+parent and `limits` names the budget (`max_values`, `max_families`, `max_patterns_per_family`, `max_patterns`,
+`max_depth`). The names and defaults are the ones the maintainer accepted on 2026-10-13; the values are not
+final and a change of any setting makes the Scan stale like any other (21).
+
+**Determinism (FR-018, AC-019).** Same values, counts and settings give the same result, byte for byte, whatever the
+number of workers. Every score is rounded to nine decimals before it is compared; ties are broken by the text of the
+key or of the signature, then by the first id.
+
+**Exposure (PAT-19, PAT-20, FR-022, DEC-027).** A field whose exposure masks or hides it is `excluded` with the
+reason `exposure`: the generic discovery is off, and no node, table, constant or example of such a field is published.
+The one exception is the *declared keys*, below. A new block of the discovery goes through the same gate as the
+samples, and a field the exposure does not mask but that no detector names is discovered (there is no card or
+social-insurance detector, so those columns are read; no complete number is published, constants having at most
+three characters). A test makes sure of both.
+
+**Declared keys (PAT-19, DEC-027, DEC-028; lot P5).** The detectors `email`, `phone` and `postal_code` declare keys
+that have an established meaning, counted exactly on the whole file during the first pass (the accumulators of the
+detectors, like `NameCounts` for the domains): the extension and the domain of an e-mail (read from the right, so
+`co.uk` emerges without a list of public suffixes), the region (`nanp`, `fr`) and the area code or zone of a
+telephone number, the first letter or digit and the FSA or the ZIP3 of a postal code. For one level: sort the values
+by decreasing share, then by text; keep one while its share reaches the floor of the level (0.5% at level 1, 2% of the
+parent at level 2), it has at least 5 occurrences, its rank is in the budget (32 at level 1, 16 by parent) and the
+cumulated coverage has not reached 95%; the rest is `others` (number of keys, occurrences). The levels nest. No test
+against chance applies, the detector having established the meaning. These aggregates are exposed even on a masked
+field, with a floor of 5 occurrences that is also a privacy floor; examples, the profile and the rows of the sample
+stay masked. A setting of the exposure (name decided at the lot P5) brings the masking back. The block is a part of the
+detector's entry in the field (`keys`: levels of `{key, occurrences, children}`, and `others`), whose names the lot P5
+fixes.
+
+**Failure.** The discovery of each field is isolated, as a detector is (CA19): an exception on one field gives it a
+`failed` entry (`reason` `inference_error`, `diagnostic` the index of a `pattern_inference_failed` error naming the
+dataset and the field, with the exception type and never its message). The other fields, the other analyses and the
+scan `status` are unaffected.
+
+**Output (target format, grammar 2; PAT-13 to PAT-18).** `derived.patterns` is `{grammar: {name: "tabalyst.pattern",
+version: 2}, algorithm: {version}, domain: "original", fields: [...]}`, one entry per field in the order of the
+datasets and fields, each with `dataset`, `field`, `status` (`complete`, `not_applicable` or `failed`) and
+`eligibility`. A `complete` entry also has:
+
+- `population`: `source`, `selection`, `complete`, `available`, `distinct`, `occurrences`, `occurrences_basis`
+  (`exact` or `sample`), `excluded`;
+- `families`: each with `id` (`f1`, ...), `key`, `d`, `o`, optional `composition` (the merged keys), `patterns`
+  (each with `id` `f1.p1`, `signature`, `render`, `format` of the commonest value, `lengths`, `d`, `o`, `nodes`),
+  `tables` (each with `facet`, `extractor`, `cells` of `{value, d, o}`, `others` `{distinct, d, o}`, `gain`), and
+  `examples` (up to three ids of entries of the samples, the smallest);
+- a node: `id` (`f1.p1.n1`), `parent`, `level`, `facet`, `signature`, `render`, `d`, `o`, `gain` (`bits_d`,
+  `bits_o`, `sigma`), `role` (`principal` for the largest of its siblings, `secondary`), `nodes`;
+- `other`: the structures and values read by no family (`structures`, `d`, `o`);
+- `limits`: the budgets that acted.
+
+Percentages are not stored (they are computed from `d` and `o`). `coverage.basis` of the lot 4a is now `occurrences_basis`
+and `population.complete`. `merged_structures`, `generalization`, `confidence` and `overlaps` are gone and the
+candidates are not kept: no compatibility with the flat list is promised (beta). An example, indicative:
+
+```json
+{
+  "dataset": "orders", "field": "code", "status": "complete",
+  "eligibility": {"state": "eligible", "score": 0.91, "reasons": ["regular_structure"]},
+  "population": {"source": "samples", "selection": "all", "complete": true,
+                 "available": 500, "distinct": 500, "occurrences": 500,
+                 "occurrences_basis": "exact", "excluded": {}},
+  "families": [{
+    "id": "f1", "key": "UP-D", "d": 500, "o": 500,
+    "patterns": [{
+      "id": "f1.p1", "render": "AA-9999", "d": 500, "o": 500,
+      "signature": [{"kind": "upper_ascii", "min": 2, "max": 2},
+                    {"kind": "literal", "text": "-", "min": 1, "max": 1},
+                    {"kind": "digit_ascii", "min": 4, "max": 4}],
+      "nodes": [
+        {"id": "f1.p1.n1", "parent": "f1.p1", "level": 2, "facet": "head:1",
+         "render": "'AK'-9999", "d": 50, "o": 50}
+      ]
+    }],
+    "tables": [], "examples": [12, 40, 41]
+  }],
+  "other": {"structures": 0, "d": 0, "o": 0},
+  "limits": []
+}
+```
+
+The revision of the Scan format is 4 for the whole Patterns plan (3 today), and that of the second-pass document
+moves once (20.9); the changelogs are kept in the lot that changes the format (P3 for the discovery). `derived` is part
+of the base model (a Scan with it reads back) and not of its facts: `facts_sha256` leaves it out, a Report carries it
+as it is (19.3) because its base keeps fewer values and cannot compute it, and `check_scan` checks it (PAT-22 of the
+tests, below): one entry per field, the eligibility of every entry, the render of each signature, and the sums:
+the patterns of a family add up to the family, the children of a node to the node and its rest, the tables to their
+family, the families and `other` to the population.
+
+**Algorithm version and cache (FR-020).** `derived.patterns.algorithm.version` is the version of the discovery
+(scores, constants, order of the steps); a change of the algorithm or of a constant of it raises it, as a change of
+the notation raises the grammar. The Scan carries the settings it used, so a changed setting makes it stale and the
+discovery is rebuilt, and the validation that depends on it with it (20.9). Rendering the Report again never reruns
+either.
+
+**Tests of the contract.** `tests/patterns/` holds the reference corpus RC-01 to RC-20 and the expected trees, each
+test marked with the lot that provides its behavior (`P3`, `P4`, `P5`, `P6`) and skipped until the lot enables it in
+`conftest.py`. The tests without a mark check the corpus and the hand calculations and always run.
 
 ### 18.13 Observations, quality issues and limits (lot 4b, D18, QUAL-01 to QUAL-05, O34)
 
@@ -3521,49 +3648,87 @@ the claim amount (115,667 against 115,800); the plan asks first, as the sets go 
 the 128 MiB of an automatic choice (`memory_over_automatic`), and the process peak is 438
 MB for a firm bound of 443 MB. Run again, nothing is read: 0.9 s.
 
-### 20.9 Validation of patterns (lot 7c, PAT-07 to PAT-11, C11, O39)
+### 20.9 Validation of patterns (lot 7c, PAT-07 to PAT-11, C11, O39; rewritten by the Patterns lot P1, PAT-21 to PAT-27, O65)
 
-`secondpass/patterns.py` counts the occurrences of the whole field against the
-candidates the inference of 18.12 found in a sample of its distinct values. It
-works in the original domain (21): the raw string of a content cell, blanks and
-case kept.
+`secondpass/patterns.py` counts the occurrences of the whole field against the families that the discovery of 18.12
+found in a sample of its distinct values. It works in the original domain (21): the raw string of a content cell,
+blanks and case kept. It is the lot P6 of the Patterns plan that implements this section; the code of the lot 7c (a
+flat list of compiled candidates) stays until then.
 
-**Population.** The content values of the field, `values`, which the Scan counted
-(`values.count`; empty cells and null markers are its `missing`). A value longer
-than `scan.pattern_inference.max_value_length` is excluded as `too_long`, a value of
-more than 32 tokens as `too_complex` (only a value of 33 characters or more is
-tokenized to find out), a JSON number or boolean as `non_string`: the exclusions of
-the inference, counted. Every other value is tested.
+**Population.** The content values of the field, `values`, which the Scan counted (`values.count`; empty cells and null
+markers are its `missing`). A value longer than `scan.pattern_inference.max_value_length` is excluded as `too_long`,
+a value of more than 32 tokens as `too_complex` (only a value of 33 characters or more is tokenized to find out), a
+JSON number or boolean as `non_string`: the exclusions of the discovery, counted. A field that is not `eligible` in
+the discovery (18.12) has nothing to validate. Every other value is tested.
 
-**Classification (PAT-07, PAT-08).** The candidates are compiled once, before the
-reading, and tried most specific first (`candidate_order`: more literal letters and
-digits, then lower generalization, then narrower repeats, then the rank). A value
-counts for the first that reads it; `overlaps` lists the sets of candidates that
-read the same occurrences, with their number, so the ambiguity of a broad pattern is
-visible. An ASCII value is read by a compiled regular expression whose every repeat is
-possessive (`{low,high}+`: it takes what it can and never gives it back, which is what
-the token matcher of the grammar does, so nothing backtracks whatever the value); a
-value with a non-ASCII character goes through the token matcher itself. A test
-compares the two on random signatures and values. The cost is 800 ns a cell and 100
-more per other candidate (20.2).
+**Recognition, once per value (PAT-21, PAT-07, PAT-08, FR-013, TR-002, TR-007).** The families are compiled once,
+before the reading, into one recognizer per family: the structure key of a value (the tokens without their lengths) is
+read in one pass and finds the family; the pattern is found by the lengths read, the nodes by the content extractors the
+family publishes (head, tail or token of a given position). A value counts for one family and for the deepest pattern
+and node that read it, and the counters of its ancestors are those of the sums of their descendants, so the work per
+cell is that of the reading of its structure and a few table lookups: it does not grow with the number of published
+variants (AC-027). An ASCII value is read by a compiled recognizer whose repeats are possessive (nothing backtracks);
+a value with a non-ASCII character goes through the token matcher itself, and a test compares the two on random
+signatures and values. The cost model of 20.2 gets a per-cell cost for the family recognizer and a per-field cost that
+is flat in the number of variants; both are measured with 10, 64 and 256 variants (AC-027) and calibrated, not guessed.
 
-**Result (PAT-09, PAT-10).** `pattern_counts`: `values`, `matched` (the sum of the
-candidates), `candidates` (id, render, occurrences), `other` (read by none),
-`excluded`, `overlaps`, `grammar_version` and `computed_from`. They add up:
-`matched + other + excluded = values`, which the executor checks, and the number of
-values is the Scan's, so a source that is not the one the Scan read fails the analysis
-with `scan_mismatch` and no result. A value that no candidate reads is an observation
-of structure and never an error (PAT-10); the dominant pattern is not a constraint.
-The validation does not look for new patterns in `other` (PAT-11): a bounded discovery
-of unseen forms would be a separate result.
+**Tables, bounded by bytes (PAT-22, FR-007, TR-003, DEC-007).** The values of a facet are counted in a table whose
+capacity is a deterministic budget in bytes (never a measured time, 20.2). A value the discovery knew is counted in its
+cell; a value of a facet that the discovery did not see is counted in the same table (an eighth to a twelfth prefix,
+RC-14). When the table is full, the most frequent values are kept (a bounded counter with a stable order for ties),
+the rest are counted in `others` and the result says `saturated` and the capacity; a limited table is never presented as
+complete. The tables of a field are independent of the other fields, serializable and merged by key, so the routes in
+worker processes (20.18) give the same result as one process (TR-005).
 
-**Without the source.** When the inference read every distinct value of the field
-(`basis` `all_distinct`: nothing excluded, nothing cut), the Scan lists each with its
-exact count and `requires_source` is false: the same classification runs over those
-entries (`derive_from_samples`), `computed_from` is `samples`, and the second pass
-reads nothing for it. A test makes both paths agree on the same data, and the distinct
-values the validation reads once each are the shares of the discovery. The executor checks
-again that the samples are `all`, complete and exact, and fails with `scan_mismatch` otherwise.
+**New variants (PAT-23, FR-013, FR-015, C-02, OPEN-012).** The validation never looks for new *structures* in the
+values that no family reads (PAT-11 stays: a bounded discovery of unseen forms would be a separate result). It does count
+new *variants of a known family*:
+
+- a **new variant of length**: the structure key is a known family's and the set of lengths of its variable tokens was
+  never seen in its patterns (`INV-10000` among `INV-999`, `INV-9999`, `INV-99999`, DEC-034);
+- a **new variant of segment**: the family and the lengths are known and the value of a segment, a head, a tail or a
+  token, that a facet reads is not among the values the discovery listed (the ninth to twelfth prefixes of RC-14).
+
+A new combination of segments each known (a known prefix with a known suffix that no sample showed together) is counted
+as `known` in the V1; whether it is a new variant is OPEN-012 and decided on real cases. A value of a new variant of length belongs to its family and to no pattern (the family counts it apart); a value of a new
+variant of segment belongs to the pattern whose lengths it has, in the `rest` of that pattern, and to the cell of its table.
+Neither is ever counted in `other`.
+
+**Outcomes (PAT-24, FR-015, DEC-015, REC-006).** Each occurrence has one of these outcomes, written as counts in the
+result: `known` (a family and a pattern or node of the discovery read it), `new_variant` (above, with its two kinds),
+`unknown_structure` (no family reads it: it is an observation of structure and never an error, PAT-10). The fourth
+outcome of the plan, `atypical` (rare or far from the dominant structure), is not counted at the validation: it is the
+observation `minority_pattern`, read from the hierarchy (18.13). The fifth, `invalid`, is reserved for the violation
+of an explicit rule; no rule exists in the V1, so it is never written and a test makes sure a result has no such key.
+The dominant pattern is not a constraint. A result adds up: the occurrences of the patterns of a family and its new variants
+of length are the family's, those of the children of a node and of its rest are the node's, the families plus `unknown_structure` plus `excluded` are
+`values`, and every ancestor is the sum of its descendants; the executor checks it, and `check_scan` checks it in a
+stored result.
+
+**Result (PAT-09, PAT-10, FR-014, FR-020).** `pattern_counts`, revision 2 of the second-pass document:
+`computed_from` (`samples` or `source`), `grammar_version`, `algorithm_version`, `values`, `matched`, `families`
+(each family, its patterns and nodes with `occurrences` and `distinct`, its `tables` with their `cells` and `others`,
+`saturated`, its `new_variants` as `{length, segment}` counts), `unknown_structure`, `excluded`. The number of values is the Scan's, so a source that
+is not the one the Scan read fails the analysis with `scan_mismatch` and no result. The distinct values of a node are
+`{count, accuracy}` with `accuracy` `exact` when the Scan holds the whole distribution or the exact set fits the
+budget (20.8), and `at_least` otherwise: a bound is never presented as exact (OPEN-011); no estimate is made in the V1.
+The `residual_values` of 20.20 keep the values that no family reads, per node where the exposure allows.
+
+**Without the source (PAT-25).** When the discovery read every distinct value of the field (`population.complete`: nothing
+excluded, nothing cut), the Scan lists each with its exact count and `requires_source` is false: the same recognition
+runs over those entries (`derive_from_samples`), `computed_from` is `samples`, and the second pass reads nothing for it.
+The result has the same JSON structure by either path (TR-009), and a test makes both paths agree on the same data. The
+executor checks again that the samples are `all`, complete and exact, and fails with `scan_mismatch` otherwise.
+
+**Provenance and cache (PAT-26, FR-020).** The key of the analysis in the second-pass document (20.4) includes the grammar
+version, the algorithm version and the digest of the settings of the discovery (`scan.pattern_inference`) and of the
+validation (the capacity of the tables). A changed setting makes the Scan stale (21) and, with it, the document of the
+analysis; a Report rendered again from the same Scan and document reruns neither (AC-021).
+
+**Consistency (PAT-27).** `check_scan` validates a result of the hierarchy of 18.12 and the second-pass check validates
+`pattern_counts`: the sums above, the parents and children (every `parent` exists, a node's level is its parent's plus
+one), the number of entries (one per field, the eligibility of each) and, when the samples are complete, that every
+example exists and matches its signature.
 
 ### 20.10 Distribution of dates (lot 7c, TIME-01 to TIME-03, D12, O39)
 
