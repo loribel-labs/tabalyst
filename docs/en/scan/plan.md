@@ -53,6 +53,13 @@ the analyses that concern it:
 | `temporal_distribution` | The dates counted by day, month or year, as written (runs with `--deep`). Also for a column of datetimes |
 | `datetime_parts` | The dates by year-month, day of the week and hour, with the ambiguous dates read under each order, the invalid ones by reason and the dates after a bound you give. Asked for, or run with `--deep`, never by itself |
 | `numeric_shape` | The asymmetry, kurtosis, outliers of Tukey and decimals of a numeric field, with a logarithmic and an equal-count histogram. Asked for, or run with `--deep`, never by itself |
+| `position_drift` | The records, values and missing values of each tenth of the file for a field, and its values by tenth when it has few different ones. Asked for, or run with `--deep`, never by itself |
+| `missing_matrix` | For a column that lacks a value, the records where it lacks one together with each other column. One candidate per column, one counting for the dataset. Asked for, or run with `--deep`, never by itself |
+| `array_profile` | The number of arrays of every length for a JSON field that holds arrays. Asked for, or run with `--deep`, never by itself |
+| `structure_variants` | The sets of keys the objects of a JSON field have, and the records themselves under the field `$`. Asked for, or run with `--deep`, never by itself |
+| `text_profile` | The words, lines and digits of the texts of a field whose values reach 80 characters. Asked for, or run with `--deep`, never by itself |
+| `fingerprint_distinct` | The distinct values of a field whose values are too long for the exact set, told apart by a 128-bit fingerprint, and the texts found more than once. Asked for, or run with `--deep`, never by itself |
+| `sensitive_forms` | The masks of the values of a masked field and their classes, without a value or a count below a floor. Asked for, or run with `--deep`, never by itself. `exact_distinct` also applies to a masked or hidden field, as two numbers. Both are off until `deep.sensitive.enabled` is set |
 | `residual_values` | The values that patterns and detectors leave out, with their exact counts, and each pattern's example and distinct values (runs with `--deep`). Needs no reading when the scan holds every distinct value with its exact count, and then gives no record |
 | `duplicates_report` | The values found more than once in a column of almost all different values, with their counts (runs with `--deep`). Also the repeated combinations of two columns, when you ask for them |
 
@@ -64,7 +71,8 @@ Each candidate gets one decision:
   enumeration of 17 values whose counts are all listed. It is never run again,
   and the plan says where the answer is.
 - **rejected**: not applicable to the field (no values, a mixed type, a sensitive
-  field whose values are withheld), of too little benefit, or beyond the memory
+  field whose values are withheld, except for the counts that carry no value,
+  `exact_distinct` and `sensitive_forms`, when `deep.sensitive.enabled` is set), of too little benefit, or beyond the memory
   budget. A rejection never says the analysis is impossible.
 
 A plan contains no value from your data, and no date: the same scan gives the

@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-12T21:44:45.817235Z",
-    "duration_seconds": 0.004847,
+    "started_at": "2026-10-13T01:41:20.354751Z",
+    "duration_seconds": 0.006024,
     "timings": {
-      "reading": 0.000443,
-      "analysis": 0.000148,
-      "finalize": 0.003139,
-      "derived": 0.000699,
-      "other": 0.000418
+      "reading": 0.000415,
+      "analysis": 0.000139,
+      "finalize": 0.002728,
+      "derived": 0.000741,
+      "other": 0.002001
     },
     "workers": 1,
-    "peak_memory_bytes": 61407232
+    "peak_memory_bytes": 64049152
   },
   "source": {
     "format": "csv",
@@ -5225,15 +5225,41 @@
           "max_listed": 20,
           "max_tracked": 10000,
           "records": false
+        },
+        "drift": {
+          "max_tracked": 1000,
+          "max_listed": 12
+        },
+        "missing": {
+          "max_columns": 100,
+          "max_listed": 10
+        },
+        "arrays": {
+          "max_lengths": 10000
+        },
+        "structure": {
+          "max_variants": 1000,
+          "max_listed": 10,
+          "max_keys": 30
+        },
+        "texts": {
+          "min_length": 80,
+          "max_listed": 10
+        },
+        "sensitive": {
+          "enabled": false,
+          "min_count": 5,
+          "max_listed": 20,
+          "max_tracked": 10000
         }
       },
-      "settings_sha256": "410de20049b279604f68ad6d74abdeced127d0072119f21ff4fa9b3413db418f",
+      "settings_sha256": "5795cd17e0b5ddf43a09d343a9c253911a674d9f27ef65a391c10c8809319e49",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 11,
-        "plan_id": "f20241acb5badbd46057424eba96803fc98d75f51d35eea4dafde76818dcb809",
+        "cost_model_version": 13,
+        "plan_id": "8317fc5418451234af1724ff000d5e7c9a372a07ace550a3d8d3347822619c9f",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -5263,10 +5289,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 27,
+          "candidates": 35,
           "selected": 8,
           "already_satisfied": 16,
-          "rejected": 3,
+          "rejected": 11,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -6579,19 +6605,375 @@
               "reusable": true,
               "on_limit": "limited"
             }
+          },
+          {
+            "id": "position_drift:rows:column_1",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_2",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "name",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_3",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "amount",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_4",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "joined",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_5",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "active",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_6",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "notes",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_records"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "missing_matrix:rows:column_3",
+            "analyzer": "missing_matrix",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "amount",
+            "method": "bit_sets",
+            "parameters": {
+              "columns": 2,
+              "max_listed": 10
+            },
+            "outputs": [
+              "missing_together"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "missing_together"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 70656,
+                "expected": 70696,
+                "max": 70816
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "matrix:rows",
+                  "memory": {
+                    "min": 69632,
+                    "expected": 69672,
+                    "max": 69792
+                  }
+                },
+                {
+                  "key": "result:missing_matrix:datasets/rows/fields/column_3",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "missing_matrix:rows:column_6",
+            "analyzer": "missing_matrix",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "notes",
+            "method": "bit_sets",
+            "parameters": {
+              "columns": 2,
+              "max_listed": 10
+            },
+            "outputs": [
+              "missing_together"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "missing_together"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 70656,
+                "expected": 70696,
+                "max": 70816
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "matrix:rows",
+                  "memory": {
+                    "min": 69632,
+                    "expected": 69672,
+                    "max": 69792
+                  }
+                },
+                {
+                  "key": "result:missing_matrix:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-12T21:44:45.836006Z",
-        "duration_seconds": 0.00244,
+        "started_at": "2026-10-13T01:41:20.373848Z",
+        "duration_seconds": 0.002442,
         "timings": {
-          "reading": 0.000385,
-          "analysis": 5.8e-05,
-          "other": 0.001997
+          "reading": 0.000373,
+          "analysis": 5.7e-05,
+          "other": 0.002011
         },
         "workers": 1,
-        "peak_memory_bytes": 64053248,
+        "peak_memory_bytes": 66056192,
         "source_read": true,
         "source_verified": true,
         "records_read": 5,
@@ -6990,12 +7372,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-12T21:44:45.844061Z",
+    "generated_at": "2026-10-13T01:41:20.381891Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0333,
+    "processing_seconds": 0.0343,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

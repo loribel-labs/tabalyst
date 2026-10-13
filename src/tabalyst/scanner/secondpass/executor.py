@@ -36,7 +36,7 @@ from tabalyst.scanner.models import (
     ScanResult,
 )
 from tabalyst.scanner.observations import StreamItem
-from tabalyst.scanner.paths import FieldPath
+from tabalyst.scanner.paths import FieldPath, Key
 from tabalyst.scanner.planner.analyzers.measures import measure_memo
 from tabalyst.scanner.planner.costmodel import (
     DEFAULT_MEMORY_BUDGET_BYTES,
@@ -44,7 +44,7 @@ from tabalyst.scanner.planner.costmodel import (
     PERIOD_MEMO_ENTRIES,
 )
 from tabalyst.scanner.planner.crosstabs import code_rows
-from tabalyst.scanner.planner.facts import date_evidence
+from tabalyst.scanner.planner.facts import ROOT_FIELD, date_evidence, matrix_members
 from tabalyst.scanner.planner.models import AnalysisPlan, Candidate
 from tabalyst.scanner.planner.registry import default_registry
 from tabalyst.scanner.planner.relations import column_floats
@@ -64,6 +64,7 @@ from tabalyst.scanner.secondpass.crosstab import (
     CrosstabAccumulator,
 )
 from tabalyst.scanner.secondpass.document import analysis_domain, analysis_key
+from tabalyst.scanner.secondpass.drift import DriftAccumulator
 from tabalyst.scanner.secondpass.duplicates import (
     DuplicateAccumulator,
     KeyAccumulator,
@@ -73,7 +74,9 @@ from tabalyst.scanner.secondpass.duplicates import (
     derive_from_samples as duplicates_from_samples,
 )
 from tabalyst.scanner.secondpass.exactset import MEMORY_BUDGET, ExactPool, ExactSet
+from tabalyst.scanner.secondpass.forms import FormsAccumulator
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
+from tabalyst.scanner.secondpass.matrix import MatrixAccumulator
 from tabalyst.scanner.secondpass.measures import MeasureAccumulator
 from tabalyst.scanner.secondpass.measures import (
     derive_from_samples as measures_from_samples,
@@ -113,6 +116,12 @@ from tabalyst.scanner.secondpass.residuals import (
 from tabalyst.scanner.secondpass.routing import FieldRoute, Router, field_path
 from tabalyst.scanner.secondpass.shape import ShapeAccumulator, make_views
 from tabalyst.scanner.secondpass.stats import StatsAccumulator, StatsEdges, stats_edges
+from tabalyst.scanner.secondpass.structure import (
+    ArrayAccumulator,
+    KeySets,
+    StructureAccumulator,
+)
+from tabalyst.scanner.secondpass.texts import FingerprintAccumulator, TextAccumulator
 from tabalyst.scanner.workers import worker_count
 from tabalyst.source_guard import SourceGuard, check_plan_base, prepare_second_pass
 
@@ -136,6 +145,13 @@ Accumulator = (
     | PairAccumulator
     | CrosstabAccumulator
     | StatsAccumulator
+    | DriftAccumulator
+    | MatrixAccumulator
+    | ArrayAccumulator
+    | KeySets
+    | TextAccumulator
+    | FingerprintAccumulator
+    | FormsAccumulator
 )
 
 
@@ -172,6 +188,12 @@ class _Job:
     # The second column of a pair, which reads through feeds and no route.
     partner: FieldResult | None = None
     reads_pair: bool = False
+    # The place of the field among the columns of a matrix of missing values.
+    column: int = -1
+    # The sweep that counts the sets of keys of an object, and the fields the Scan
+    # named below it.
+    structure: StructureAccumulator | None = None
+    children: list[FieldResult] | None = None
     # Why the job could not be set up: it fails without reading.
     failure: tuple[str, str] | None = None
 
@@ -452,9 +474,106 @@ def _setup_table(job: _Job, cells: CellReader, feeds: Feeds, scan: ScanResult) -
     job.reads_pair = True
 
 
+def _setup_matrix(
+    job: _Job, cells: CellReader, matrices: dict[str, MatrixAccumulator]
+) -> None:
+    """The accumulator of the missing values of a dataset, shared by every column
+    of the plan: the columns come from the Scan alone, as they did when the plan
+    was made, so the result does not depend on which of them the plan selected."""
+    candidate, dataset = job.candidate, job.dataset
+    matrix = matrices.get(dataset.id)
+    if matrix is None:
+        matrix = matrices[dataset.id] = MatrixAccumulator(cells, matrix_members(dataset))
+    if len(matrix.members) != int(candidate.parameters["columns"]):
+        raise ScanMismatch("the columns that miss a value are not those the plan counted")
+    ids = [member.id for member in matrix.members]
+    if job.field.id not in ids:
+        raise ScanMismatch("the scan no longer counts the field among the columns that miss a value")
+    job.column = ids.index(job.field.id)
+    job.accumulator = matrix
+    job.reads_pair = True
+
+
+def _root_field(dataset: DatasetResult) -> FieldResult:
+    """The stand-in for the root of the records of a JSON dataset, which the Scan
+    holds as no field. Only what the sets of keys read is set (design 20.33)."""
+    return FieldResult.model_construct(
+        id=ROOT_FIELD,
+        path=[],
+        display=ROOT_FIELD,
+        name=ROOT_FIELD,
+        parent=None,
+        native_types={"object": dataset.record_count},
+        exposure=None,
+    )
+
+
+def _setup_structure(job: _Job, structures: dict[str, StructureAccumulator]) -> None:
+    """The counter of the sets of keys of an object, added to the sweep of its
+    dataset: the keys are the fields the Scan named below it, as they were when the
+    plan was made."""
+    candidate, dataset, field = job.candidate, job.dataset, job.field
+    root = field.id == ROOT_FIELD
+    children = [item for item in dataset.fields if item.parent == (None if root else field.id)]
+    paths = [field_path(item.path) for item in children]
+    if not children or not all(path and isinstance(path[-1], Key) for path in paths):
+        raise ScanMismatch("the scan no longer names the keys of the object")
+    sets = KeySets(
+        [path[-1].name for path in paths],  # type: ignore[union-attr]
+        paths,
+        int(candidate.parameters["max_variants"]),
+        0 if candidate.costs is None else candidate.costs.cell_ns,
+    )
+    structure = structures.setdefault(dataset.id, StructureAccumulator())
+    structure.track(None if root else field_path(field.path), sets)
+    job.accumulator = sets
+    job.structure = structure
+    job.children = children
+    job.reads_pair = True
+
+
 def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> None:
     """The accumulator of an analysis, with the route of its field."""
     candidate, field, dataset = job.candidate, job.field, job.dataset
+    if candidate.analyzer == "sensitive_forms":
+        parameters = candidate.parameters
+        job.accumulator = FormsAccumulator(
+            min_count=int(parameters["min_count"]),
+            max_listed=int(parameters["max_listed"]),
+            max_tracked=int(parameters["max_tracked"]),
+            detector=str(parameters["classes"]) or None,
+            cell_ns=0 if candidate.costs is None else candidate.costs.cell_ns,
+        )
+        return
+    if candidate.analyzer == "text_profile":
+        job.accumulator = TextAccumulator(
+            0 if candidate.costs is None else candidate.costs.cell_ns
+        )
+        return
+    if candidate.analyzer == "fingerprint_distinct":
+        job.accumulator = FingerprintAccumulator(pool, int(candidate.parameters["max_listed"]))
+        return
+    if candidate.analyzer == "array_profile":
+        job.accumulator = ArrayAccumulator(
+            int(candidate.parameters["max_lengths"]),
+            0 if candidate.costs is None else candidate.costs.cell_ns,
+        )
+        return
+    if candidate.analyzer == "position_drift":
+        parameters = candidate.parameters
+        track = bool(int(parameters["values"]))
+        frequencies = field.values.frequencies
+        if track and frequencies.status != "complete":
+            job.failure = ("scan_mismatch", "the frequencies of the scan are not complete")
+            return
+        job.accumulator = DriftAccumulator(
+            dataset.record_count,
+            track=track,
+            limit=frequencies.value.distinct if track and frequencies.status == "complete" else 0,
+            max_listed=int(parameters.get("max_listed", 0)),
+            cell_ns=0 if candidate.costs is None else candidate.costs.cell_ns,
+        )
+        return
     if candidate.analyzer == "pattern_validation":
         entry = (
             pattern_entry(scan.derived.patterns.fields, dataset.id, field.id)
@@ -670,6 +789,53 @@ def _finish(job: _Job) -> _Finished:
     if isinstance(accumulator, MeasureAccumulator):
         source = "source" if job.candidate.execution.requires_source else "samples"
         return _Finished("complete", accumulator.result(field, source))
+    if isinstance(accumulator, DriftAccumulator):
+        return _Finished("complete", accumulator.result(field, job.dataset.record_count))
+    if isinstance(accumulator, ArrayAccumulator):
+        return _Finished("complete", accumulator.result(field))
+    if isinstance(accumulator, TextAccumulator):
+        return _Finished("complete", accumulator.result(field.strings.content))
+    if isinstance(accumulator, FormsAccumulator):
+        return _Finished("complete", accumulator.result(field))
+    if isinstance(accumulator, FingerprintAccumulator):
+        cardinality = field.values.cardinality
+        exact = cardinality.value if isinstance(cardinality, CardinalityComplete) else None
+        bound = cardinality.lower_bound if isinstance(cardinality, CardinalityLimited) else None
+        prints = accumulator.result(field.values.count, exact, bound)
+        if isinstance(prints, DistinctLimited):
+            return _Finished(
+                "limited",
+                prints,
+                reason=MEMORY_BUDGET,
+                detail=(
+                    f"stopped after {prints.values_read} values, "
+                    f"at least {prints.lower_bound} distinct"
+                ),
+            )
+        return _Finished("complete", prints)
+    if isinstance(accumulator, KeySets):
+        assert job.children is not None
+        parameters = job.candidate.parameters
+        expected = (
+            job.dataset.record_count
+            if field.id == ROOT_FIELD
+            else field.native_types.get("object", 0)
+        )
+        return _Finished(
+            "complete",
+            accumulator.result(
+                expected,
+                job.children,
+                int(parameters["max_listed"]),
+                int(parameters["max_keys"]),
+            ),
+        )
+    if isinstance(accumulator, MatrixAccumulator):
+        accumulator.check(job.dataset)
+        return _Finished(
+            "complete",
+            accumulator.result(job.column, int(job.candidate.parameters["max_listed"])),
+        )
     if isinstance(accumulator, PartsAccumulator):
         as_of = str(job.candidate.parameters["as_of"])
         return _Finished("complete", accumulator.result(field, as_of or None))
@@ -738,6 +904,10 @@ def _conclude(job: _Job) -> AnalysisResult:
     if job.route is not None and job.route.failure is not None:
         return _entry(candidate, key, "failed", reason="analysis_error", detail=job.route.failure)
     pair = job.accumulator
+    if isinstance(pair, MatrixAccumulator) and pair.failure is not None:
+        return _entry(candidate, key, "failed", reason="analysis_error", detail=pair.failure)
+    if isinstance(pair, KeySets) and job.structure is not None and job.structure.failure is not None:
+        return _entry(candidate, key, "failed", reason="analysis_error", detail=job.structure.failure)
     if isinstance(
         pair, PairAccumulator | CrosstabAccumulator | KeyAccumulator | StatsAccumulator
     ):
@@ -781,7 +951,7 @@ def _share_out(
         (job.dataset.id, field_path(job.field.path))
         for job in jobs
         if (
-            isinstance(job.accumulator, ExactSet)
+            isinstance(job.accumulator, ExactSet | FingerprintAccumulator)
             or (
                 isinstance(job.accumulator, ResidualAccumulator | DuplicateAccumulator)
                 and job.accumulator.uses_pool
@@ -901,6 +1071,8 @@ def run_second_pass(
     reused: list[str] = []
     skipped: list[str] = []
     fields = {(d.id, f.id): (d, f) for d in scan.datasets for f in d.fields}
+    for dataset in scan.datasets:
+        fields[(dataset.id, ROOT_FIELD)] = (dataset, _root_field(dataset))
     for candidate in selected:
         key = analysis_key(plan.base, candidate)
         if not candidate.execution.available or candidate.analyzer not in EXECUTABLE:
@@ -935,13 +1107,20 @@ def run_second_pass(
                 _grant(job.candidate)
                 for job in jobs
                 if job.candidate.analyzer
-                in ("exact_distinct", "residual_values", "duplicates_report")
+                in (
+                    "exact_distinct",
+                    "residual_values",
+                    "duplicates_report",
+                    "fingerprint_distinct",
+                )
             )
         )
         routes: dict[tuple[str, FieldPath], FieldRoute] = {}
         feeds: Feeds = {}
         edge_cache: dict[tuple[str, str, int], RankEdges] = {}
         stats_cache: dict[tuple[str, str, int, str], StatsEdges] = {}
+        matrices: dict[str, MatrixAccumulator] = {}
+        structures: dict[str, StructureAccumulator] = {}
         # An analysis the Scan can answer alone (the patterns of a field whose
         # every distinct value it holds) does not read the source.
         for job in jobs:
@@ -954,6 +1133,12 @@ def run_second_pass(
                     continue
                 if job.candidate.analyzer == "category_stats":
                     _setup_stats(job, cells, feeds, stats_cache)
+                    continue
+                if job.candidate.analyzer == "missing_matrix":
+                    _setup_matrix(job, cells, matrices)
+                    continue
+                if job.candidate.analyzer == "structure_variants":
+                    _setup_structure(job, structures)
                     continue
                 if job.candidate.analyzer == "duplicates_report" and job.partner is not None:
                     _setup_keys(job, cells, feeds, pool)
@@ -995,6 +1180,16 @@ def run_second_pass(
             elif isinstance(accumulator, PartsAccumulator):
                 route.parts = accumulator
                 route.memo_entries = max(route.memo_entries, PERIOD_MEMO_ENTRIES)
+            elif isinstance(accumulator, DriftAccumulator):
+                route.drift = accumulator
+            elif isinstance(accumulator, ArrayAccumulator):
+                route.arrays = accumulator
+            elif isinstance(accumulator, TextAccumulator):
+                route.texts = accumulator
+            elif isinstance(accumulator, FingerprintAccumulator):
+                route.fingerprints = accumulator
+            elif isinstance(accumulator, FormsAccumulator):
+                route.forms = accumulator
             else:
                 route.numeric = accumulator
             job.route = route
@@ -1029,6 +1224,8 @@ def run_second_pass(
                     feeds,
                     pairs,
                     after_batch=None if pool is None else pool.flush,
+                    matrices=[(dataset, matrix) for dataset, matrix in matrices.items()],
+                    structures=[(dataset, found) for dataset, found in structures.items()],
                 )
                 consume_started = perf_counter()
                 router.consume(_timed(reader, reading))

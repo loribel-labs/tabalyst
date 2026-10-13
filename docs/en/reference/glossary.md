@@ -94,6 +94,13 @@ Keep these exactly as written in every language:
 | Cramér's V | V de Cramér | The strength of the association of two columns in a table, from 0 to 1, computed from the counts; the corrected form does not grow with the number of classes and is what Tabalyst ranks by. It is not defined, never 0, when a single category or class has rows |
 | exact distinct count | nombre exact de valeurs distinctes | The number of different original values of a field, counted exactly by the second pass when the scan only estimated it; `redundant` is the occurrences beyond the first of each value |
 | insight card | carte d'analyse | What a Report prints for one analysis of the second pass and one column: figures, distributions and tables, each with its own accuracy label (`exact`, `estimated`, `sample`, `at least`). It is derived from the document when the page is rendered, never stored |
+| slice | tranche | One tenth of the records of a dataset, in file order, with the same number of records (one more or fewer): the unit in which the second pass follows a column along the file |
+| drift along the file | dérive selon la position | A change of the missing values or of the values of a column from one slice of the file to the next, counted exactly; it shows that the column was filled or exported differently, not why |
+| set of keys | ensemble de clés | The keys an object of a JSON file has; objects with the same keys are one set, counted exactly by the second pass |
+| fingerprint | empreinte | A 128-bit digest that tells two long values apart; two values are taken for one only if their digests collide, which is about as unlikely as 2^-128 |
+| mask | masque | A value with each letter shown as `a` or `A` and each digit as `9`; the form of a sensitive value that the document may hold |
+| floor (forms) | seuil | The number of values (`deep.sensitive.min_count`) under which a mask or a class is summed up, so no figure is given about so few values |
+| missing together | manquants simultanés | Columns that lack a value in the same records, counted exactly by the second pass; the share where both do among the records where either does ranks the pairs |
 | histogram | histogramme | The count of the values of a numeric field per integer or per bin, exact, with a median and quantiles that are exact or estimated |
 | already satisfied | déjà satisfaite | An analysis whose answer the scan already holds, so the plan does not select it |
 | duplicate record | enregistrement en double | A record equal to an earlier record of its dataset |

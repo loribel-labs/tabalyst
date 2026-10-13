@@ -104,6 +104,13 @@ def test_the_default_registry_lists_the_built_in_analyzers_in_plan_order():
         "category_stats",
         "numeric_shape",
         "datetime_parts",
+        "position_drift",
+        "missing_matrix",
+        "array_profile",
+        "structure_variants",
+        "text_profile",
+        "fingerprint_distinct",
+        "sensitive_forms",
     ]
 
 
@@ -148,6 +155,13 @@ def test_only_the_analyzers_with_an_executor_are_runnable():
         "category_stats",
         "numeric_shape",
         "datetime_parts",
+        "position_drift",
+        "missing_matrix",
+        "array_profile",
+        "structure_variants",
+        "text_profile",
+        "fingerprint_distinct",
+        "sensitive_forms",
     }
     assert [a.id for a in registry if a.available] == [a.id for a in runnable]
 

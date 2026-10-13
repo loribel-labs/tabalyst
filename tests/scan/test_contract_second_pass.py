@@ -127,7 +127,9 @@ def test_A15_a_complete_cache_reads_nothing_and_a_partial_one_computes_only_the_
     changed = generate_deep([source], config_path=config).successes[0]
 
     ids = {
-        e.display: e.id for e in first.outcome.document.analyses if e.analyzer != "numeric_shape"
+        e.display: e.id
+        for e in first.outcome.document.analyses
+        if e.analyzer not in ("numeric_shape", "position_drift")
     }
     # Two histograms, the patterns of the names (which the Scan answers alone) and
     # the tables of the names against the first characters and the values of the ages,
@@ -137,7 +139,10 @@ def test_A15_a_complete_cache_reads_nothing_and_a_partial_one_computes_only_the_
     # The shape of the numbers (lot 17) of the two numeric columns.
     shapes = {e.id: e for e in first.outcome.document.analyses if e.analyzer == "numeric_shape"}
     assert len(shapes) == 2
-    assert len(first.outcome.executed) == 5 + len(stats) + len(shapes)
+    # The columns that miss a value, followed along the file (lot 19).
+    drifts = {e.id: e for e in first.outcome.document.analyses if e.analyzer == "position_drift"}
+    assert len(drifts) == 2
+    assert len(first.outcome.executed) == 5 + len(stats) + len(shapes) + len(drifts)
     assert first.outcome.read_source
     # Complete: every result is valid, so the source is not read and the file is not rewritten.
     assert again.outcome.read_source is False and again.written is False
@@ -151,6 +156,7 @@ def test_A15_a_complete_cache_reads_nothing_and_a_partial_one_computes_only_the_
         ids["name and age (prefix)"],
         ids["name and age (value)"],
         *stats,
+        *drifts,
     }
 
     # A partial cache: a missing entry and a failed one are computed again.
@@ -172,6 +178,7 @@ def test_A15_a_complete_cache_reads_nothing_and_a_partial_one_computes_only_the_
         ids["age"],
         ids["price"],
         *(i for i, e in shapes.items() if e.display in ("age", "price")),
+        *(i for i, e in drifts.items() if e.display in ("age", "price")),
     }
     assert all(a.status == "complete" for a in repaired.outcome.document.analyses)
 
@@ -218,11 +225,12 @@ def test_D03_a_plan_of_several_analyses_reads_the_source_once(tmp_path, monkeypa
     assert {a.analyzer for a in outcome.document.analyses} == {
         "numeric_histogram",
         "numeric_shape",
+        "position_drift",
         "length_distribution",
         "pattern_validation",
     }
     # The patterns of `note` come from the exact counts of the Scan: no reading.
-    assert len(outcome.executed) == 6 and len(opened) == 1
+    assert len(outcome.executed) == 7 and len(opened) == 1
     assert outcome.document.run.records_read == 500
 
 

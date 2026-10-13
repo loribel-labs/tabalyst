@@ -23,6 +23,8 @@ ESTIMATED = "estimated"
 SAMPLE = "sample"
 AT_LEAST = "at_least"
 NOT_COMPUTED = "not_computed"
+# A count of the distinct values told apart by a 128-bit fingerprint.
+FINGERPRINT = "fingerprint"
 
 ACCURACY_WORDS = {
     EXACT: "exact",
@@ -30,6 +32,7 @@ ACCURACY_WORDS = {
     SAMPLE: "sample",
     AT_LEAST: "at least",
     NOT_COMPUTED: "not computed",
+    FINGERPRINT: "fingerprint",
 }
 ACCURACY_TITLES = {
     EXACT: "Counted on every value of the file",
@@ -37,6 +40,7 @@ ACCURACY_TITLES = {
     SAMPLE: "Counted on a sample of the distinct values, not on the whole file",
     AT_LEAST: "A scan limit stopped the count: the real figure is at least this",
     NOT_COMPUTED: "Not computed by this scan",
+    FINGERPRINT: "Counted on every value of the file; two different values are taken for one only if their 128-bit fingerprints collide, which is as unlikely as 2^-128 for a pair",
 }
 # Accuracy of an observation (``Observation.accuracy``) as a report kind.
 OBSERVATION_ACCURACY = {"exact": EXACT, "lower_bound": AT_LEAST, "sample": SAMPLE}
@@ -210,6 +214,13 @@ ANALYSIS_LABELS = {
     "category_stats": "Numbers of a column by category",
     "numeric_shape": "Shape of the numbers",
     "datetime_parts": "Parts of the dates",
+    "position_drift": "A column along the file",
+    "missing_matrix": "Columns missing together",
+    "array_profile": "Lengths of the arrays",
+    "structure_variants": "Sets of keys of the objects",
+    "text_profile": "Words, lines and digits of the texts",
+    "fingerprint_distinct": "Distinct long texts by fingerprint",
+    "sensitive_forms": "Masks and classes of a sensitive column",
 }
 # The names of the days of the week, by the value of a part.
 WEEKDAYS = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")

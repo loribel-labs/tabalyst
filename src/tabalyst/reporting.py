@@ -147,6 +147,8 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
         # Indexed once: a dataset can have thousands of fields and cards.
         by_field: dict[str, list[InsightCard]] = {}
         for card in insights:
+            if card.scope == "dataset":
+                continue
             for field_id in card.fields:
                 by_field.setdefault(field_id, []).append(card)
         columns = []
@@ -194,7 +196,7 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
                 observation_column_count=sum(c.has_observations for c in columns),
                 second_pass=second_pass_view(profile.analyses, projection.id),
                 relations=relations_view(profile.analyses, projection.id),
-                insights=insights,
+                insights=[card for card in insights if card.scope != "column"],
             )
         )
     return views

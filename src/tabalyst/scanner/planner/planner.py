@@ -36,7 +36,12 @@ from tabalyst.scanner.planner.costmodel import (
     PARSER_RESERVE_BYTES,
     cell_class,
 )
-from tabalyst.scanner.planner.facts import FieldFacts, scan_facts
+from tabalyst.scanner.planner.facts import (
+    ROOT_FIELD,
+    FieldFacts,
+    root_facts,
+    scan_facts,
+)
 from tabalyst.scanner.planner.models import (
     CPU_ORDER,
     AnalysisPlan,
@@ -220,7 +225,7 @@ def _check_requests(
             scope = (
                 [datasets[request.dataset]] if request.dataset is not None else datasets.values()
             )
-            if not any(
+            if request.field != ROOT_FIELD and not any(
                 request.field in (field.id, field.display)
                 for dataset in scope
                 for field in dataset.fields
@@ -518,6 +523,7 @@ def plan_analyses(
     _check_requests(requests, registry, scan)
     analyzers = [analyzer(deep) for analyzer in registry]
     facts_list = scan_facts(scan)
+    roots = root_facts(scan)
 
     entries: list[_Entry] = []
     matched = [0] * len(requests)
@@ -538,7 +544,7 @@ def plan_analyses(
             explored.setdefault(analyzer.relations, []).extend(blocks)
             if not analyzer.per_field:
                 continue
-        for facts in facts_list:
+        for facts in (*facts_list, *roots) if analyzer.roots else facts_list:
             if not analyzer.relevant(facts):
                 continue
             assessment = analyzer.assess(facts)

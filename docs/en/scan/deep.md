@@ -10,7 +10,9 @@ field, the exact counts of a field whose scan lists only some of them, the
 length distribution of a text field when the scan lacks it, the inferred patterns
 counted on every value, the values that patterns and detectors leave out, the
 repeated values of identifiers, the dates counted per period, the shape of the numbers
-(asymmetry, outliers, decimals), the parts of the dates (year-month, weekday, hour), the numbers of amounts,
+(asymmetry, outliers, decimals), the parts of the dates (year-month, weekday, hour), the missing
+values and the values of a column along the file, the columns that miss a value together, the lengths of the arrays and the
+sets of keys of the objects of a JSON file, the words and lines of long texts, the masks of sensitive columns, the numbers of amounts,
 percentages and quantities with a unit, the correlation of
 pairs of numeric columns, tables of a category against the pattern, length,
 prefix or value of another column and the numbers of a column by category. It writes them to a
@@ -53,6 +55,13 @@ stored.
 | `temporal_distribution` | Date fields, and columns of datetimes | The dates counted per day, month or year |
 | `datetime_parts` | Date fields, columns of datetimes and of times | The dates counted by year-month, day of the week and hour, counted after a bound you give, with the ambiguous dates read under each order and the invalid ones counted by reason |
 | `numeric_shape` | Numeric fields | The asymmetry and kurtosis, the outliers of Tukey, the decimals the numbers are written with, and a logarithmic and an equal-count histogram |
+| `position_drift` | Fields of a dataset of at least 100 records that miss a value, or have few enough different values | The records, values and missing values of each tenth of the file, the slice where each value first appears, and whether the position tells the missing values or the values apart |
+| `missing_matrix` | Columns of a dataset that lack a value in some records | For each column, the records where it lacks a value together with each other column |
+| `array_profile` | JSON fields that hold arrays of different lengths | The number of arrays of every length, the quantiles of the lengths, the empty arrays and the items |
+| `structure_variants` | JSON objects whose keys are not all in every object, and the records themselves (`$`) | The sets of keys the objects have, each with its exact count and the keys it lacks |
+| `text_profile` | Fields of long texts (80 characters or more) | The words, lines and digits of the texts, by powers of two and by tenth of the characters |
+| `fingerprint_distinct` | Fields whose values are too long for the exact set | The distinct values told apart by a 128-bit fingerprint, and the texts found more than once, by digest |
+| `sensitive_forms` | Masked sensitive fields | The masks of the values and, for addresses and phone numbers, their classes, without a value or a count below a floor |
 | `measure_extraction` | Fields of amounts with a currency, percentages or quantities with a unit | The numbers of the values, with the metrics of a numeric field for the whole field and for each currency or unit, and the units counted as values |
 | `pearson_correlation` | Pairs of numeric columns of one dataset | The Pearson correlation over every row where both columns have a number, with the number of those rows and of the rows left out |
 | `category_crosstab` | A column of a few values and another text or integer column | The count of the rows of each category in each pattern, length or prefix of the other column, with the purity of each category, the exceptions, Cramér's V and candidate rules |
@@ -705,6 +714,254 @@ dates are day-month and none is month-day. The scan itself is not changed: its `
 block still leaves those dates out, which is why the years it counts no longer
 answer for such a column and the second pass reads the source.
 
+## A column along the file
+
+A column can change along a file without any value being wrong: the last tenth is
+exported by another system, a field stops being filled from a given date, a new code
+appears halfway. The totals of the scan hide it. The second pass cuts the records in
+ten slices of the same size, in file order, and counts the values and the missing
+ones of each.
+
+```json
+{"kind": "position_drift", "accuracy": "exact",
+ "records": 1003, "values": 869, "missing": 134,
+ "slices": [
+   {"first_record": 1, "records": 101, "values": 97, "missing": 4},
+   {"first_record": 102, "records": 100, "values": 0, "missing": 100},
+   "... 8 others"],
+ "missing_association": {"defined": true, "n": 1003,
+                         "corrected": 0.8585, "stable": true, "...": "..."}}
+```
+
+- **Slices.** A record has a value for the field or it has none. The slice `k` (0 to
+  9) holds the records `p` such that `p * 10 // records = k`, with `p` the position
+  of the record from 0, so the slices differ by one record at most. `missing` is
+  `records - values` and `first_record` is numbered from 1. A cell is a value when
+  the scan counts it as content: an empty cell, a blank one, a null marker, a JSON
+  `null` and an absent key are records without a value. The totals are checked
+  against the scan, which counted the same cells.
+- **Is the column drifting?** `missing_association` is Cramér's V (corrected, as for
+  [a category against a feature](#a-category-against-a-feature-of-another-column)) of the
+  slice against the presence of a value: it is near 0 when the missing values are
+  spread evenly and approaches 1 when they sit in some slices. It has no score,
+  and says why, when nothing is missing.
+- **The values themselves.** When the scan holds every distinct value of the field
+  with its exact count and there are at most `deep.drift.max_tracked` of them (1,000
+  by default), `followed` counts each value in each slice. The scan lists 100
+  values by default (`scan.limits.max_listed_frequencies`), so a column of up to 100
+  different values is followed unless the scan was asked to list more: `distinct` values, the
+  `max_listed` most frequent in `listed` (`counts` has ten numbers, `first_slice`
+  tells where the value first appears) and the others summed up in `other`.
+  `new_values` of a slice counts the values seen there for the first time, and
+  `followed.association` is Cramér's V of the slice against the value, over every
+  value. A field with more values is followed by its missing values only.
+
+A change along the file shows that the column was filled or exported differently, not
+why. The analysis needs at least 100 records, leaves out a field that repeats inside a
+record (the items of an array), a field whose values exposure withholds, and every
+field when the scan left records out (the tolerant error policy), because the number of
+a record then no longer gives its place. A column that misses nothing and has too
+many different values to follow has nothing to show and is not proposed.
+
+It is not chosen by `tabalyst report` by itself: ask for it with `--deep` or
+`tabalyst.AnalysisRequest("position_drift", field="region")`.
+
+## Columns that miss a value together
+
+When two columns lack a value in the same records, they probably come from the same
+place: a form that was left half filled, a system that does not know a customer, a
+join that found nothing. The scan counts the missing values of each column and says
+nothing of their overlap. The second pass counts, for every pair of columns that miss
+a value somewhere, the records where both do.
+
+```json
+{"kind": "missing_matrix", "accuracy": "exact",
+ "records": 1003, "missing": 134, "columns": 4, "partners": 3,
+ "truncated": false,
+ "listed": [
+   {"field": "column_4", "display": "ref", "missing": 144, "both": 120},
+   {"field": "column_6", "display": "note", "missing": 247, "both": 31}]}
+```
+
+- **A result for each column.** The result of a column says how many records lack a
+  value for it (`missing`) among the `columns` of the dataset that miss one, how
+  many of them (`partners`) lack one in at least one of the same records, and lists
+  the strongest: for each, `missing` is its own count and `both` the records where
+  both columns lack a value. Every count is exact, listed or not.
+- **The strongest first.** Partners are ordered by the share of the records that
+  lack a value in either column where both do (120 of the 158 records that lack a
+  phone or a reference), then by `both`. `max_listed` of them are listed (10 by
+  default), `truncated` says that more exist. A column that is always missing with
+  another has a share of 1.
+- **Which columns.** The columns that have a value somewhere and miss one somewhere,
+  not repeated inside a record and whose values exposure does not withhold. A dataset
+  where more than `deep.missing.max_columns` (100) of them qualify is left out, because
+  the pairs grow with the square of the columns, and so is a dataset where fewer than
+  two do. The matrix counts the same columns whichever of them a plan selects.
+
+The records are counted once for all the columns, in bit sets of a batch, so a
+wide file costs little more than its cells. The totals are checked against the scan.
+It shows that values go missing together, not why.
+
+It is not chosen by `tabalyst report` by itself: ask for it with `--deep` or
+`tabalyst.AnalysisRequest("missing_matrix")`.
+
+## Arrays and sets of keys in JSON
+
+A JSON file is not a table: a field can hold an array of any length, and an object can
+have any of its keys. The scan counts the arrays of a field and gives the shortest, the
+longest and the total of their items. It counts how many objects hold each key. It does not
+tell how long the arrays usually are, nor which keys the objects have **together**. The
+second pass does.
+
+```json
+{"kind": "array_profile", "accuracy": "exact",
+ "arrays": 414, "empty": 61, "items": 998,
+ "min_length": 0, "max_length": 5, "mean_length": 2.41,
+ "quantiles": [
+   {"level": 0.5, "value": 2, "accuracy": "exact"}, "... 4 others"],
+ "length_histogram": [
+   {"length": 0, "count": 61},
+   {"length": 1, "count": 86}, "... 4 others"]}
+```
+
+- **Arrays.** The result counts every length that occurs, in an array at any depth: the
+  items of an array of objects, an array in an array. The quantiles follow from the counts
+  of every length, so they are exact. The totals are checked against the scan, which
+  counted the same arrays. An array field whose arrays all have the same length is already
+  answered by the scan (`lengths_constant`), and one whose lengths spread over more than
+  `deep.arrays.max_lengths` (10,000) values is left out.
+
+```json
+{"kind": "structure_variants", "accuracy": "exact",
+ "objects": 500, "keys": 4, "always": 2,
+ "key_names": ["id", "tags", "orders", "addr"],
+ "distinct": 4, "complete": true, "untracked": 0,
+ "listed": [
+   {"count": 268, "keys": 4, "absent": [], "absent_total": 0},
+   {"count": 146, "keys": 3, "absent": ["addr"], "absent_total": 1}],
+ "other_objects": 0}
+```
+
+- **Sets of keys.** Objects that have the same keys are one set. The result counts the
+  objects of each set exactly, for the objects of a field (`addr`, `orders[]`) and for the
+  records of the source, which the scan holds as no field and the plan names `$`. Each set
+  lists the keys of the object that it lacks (`absent`, the first `deep.structure.max_keys`
+  of them, 30 by default, and `absent_total` counts them all); `always` counts the keys that
+  every object has.
+- **Bounded.** `deep.structure.max_variants` sets (1,000 by default) are tracked, each
+  counted exactly from its first object. If objects have more, `complete` is `false`,
+  `distinct` is a lower bound and `untracked` counts the objects whose set was not
+  followed. `max_listed` sets are listed, the most frequent first (10 by default); the
+  others are summed up in `other_objects`.
+- **Which objects.** The keys are the fields the scan named below the object, so a dataset
+  whose paths the scan stopped naming (`untracked_paths`) is left out, and so is an object
+  field that is alone, has no key, or whose keys are all in every object (`uniform_keys`):
+  there is one set, and the scan already says so. A CSV or Excel file has no object.
+
+Both show that arrays and objects differ, not why. They are not chosen by `tabalyst report`
+by itself: ask for them with `--deep` or
+`tabalyst.AnalysisRequest("structure_variants", field="$")`.
+
+## Long texts
+
+A column of comments, descriptions or messages is not a column of values: no two are alike,
+so the scan samples them and counts none. The second pass reads every text once and keeps
+what it is made of, never the text.
+
+```json
+{"kind": "text_profile", "accuracy": "exact",
+ "texts": 3000, "characters": 610108, "words": 117718,
+ "min_words": 15, "max_words": 63, "mean_words": 39.24,
+ "lines": 4023, "max_lines": 2, "multi_line": 1023,
+ "digits": 117285, "digit_share": 0.192,
+ "word_buckets": [
+   {"low": 8, "high": 15, "count": 35}, "... 2 others"],
+ "line_buckets": [
+   {"low": 1, "high": 1, "count": 1977}, "... 1 other"],
+ "digit_buckets": [0, 87, 1640, 1209, 64, 0, 0, 0, 0, 0, 0]}
+```
+
+- **What is counted.** A word is a run of characters that are not white space
+  (`str.split`), a line is one that `str.splitlines` cuts, and a digit is a decimal digit of
+  Unicode. The texts are the original ones, before any cleaning. The buckets count the texts
+  by powers of two (0, 1, 2 to 3, 4 to 7, and so on) of words and of lines; `digit_buckets`
+  counts them by tenth of the characters that are digits: the first count is the texts with
+  none, the next ten the texts whose share is up to a tenth, two tenths, and so on.
+- **Memory.** The state is a few counters, whatever the texts. The analysis applies to a
+  field whose longest value has at least `deep.texts.min_length` characters (80) or whose
+  values the scan sampled as long texts.
+
+```json
+{"kind": "fingerprint_distinct", "accuracy": "fingerprint_based",
+ "algorithm": "blake2b", "bits": 128,
+ "values": 3000, "distinct": 300, "redundant": 2700, "unique": false,
+ "repeated": 299, "repeated_occurrences": 2999,
+ "listed": [
+   {"digest": "992bd5b9...", "count": 21}, "... 9 others"],
+ "truncated": true}
+```
+
+- **Distinct long texts.** A text too long for the exact set of the distinct count is told
+  apart by a 128-bit fingerprint (BLAKE2b). Two different texts are taken for one only if
+  their digests collide, which is about as unlikely as 2^-128 for a pair, so the count is
+  `fingerprint_based` and not `exact`. The digest is the one the scan gives its long texts, so a
+  listed digest can be found in its sample. `listed` shows the `deep.texts.max_listed`
+  texts found most often (10 by default) by digest and count, never the text. A column of
+  texts that are all different is answered by the scan.
+- **Memory.** The table holds 16 bytes and a count for each distinct text, within the memory
+  that the plan gave the exact sets of the run. If a column needs more, its result is
+  `limited` with the reason `memory_budget`, as for the exact distinct count.
+
+Neither is chosen by `tabalyst report` by itself. A field whose values exposure masks or
+hides has neither.
+
+## Sensitive columns without a value
+
+The scan masks the values of a sensitive column (an email address, an IP address, a phone
+number) and keeps their counts. The second pass may count more about it, with one rule: the
+document never holds a value, nor a figure about so few values that it singles them out.
+
+**This is off by default.** Until you set `deep.sensitive.enabled` to `true`, the second pass leaves
+every masked or hidden column out, as it always did, and the plan holds no `sensitive_forms`
+candidate. Turn it on in the configuration file, `{"deep": {"sensitive": {"enabled": true}}}`,
+or in Python with `DeepSettings.model_validate({"sensitive": {"enabled": True}})`.
+
+```json
+{"kind": "sensitive_forms", "accuracy": "exact", "exposure": "mask",
+ "values": 4000, "forms": 10, "complete": true,
+ "untracked": 0, "min_count": 5,
+ "listed": [{"form": "999.999.9.999", "count": 690}, "... 6 others"],
+ "other_forms": 0, "other_values": 0,
+ "classes": {"detector": "ip_address",
+             "listed": [{"form": "ipv4_private", "count": 2700},
+                        {"form": "ipv4_public", "count": 1292}],
+             "other": 8, "unclassified": 0}}
+```
+
+- **Masks.** Every mask the values take, with its exact count: `192.168.1.20` is
+  `999.999.9.99`. The scan lists the most frequent ones; this is all of them. A mask taken
+  by fewer than `deep.sensitive.min_count` values (5 by default) is not listed but summed up in
+  `other_forms` and `other_values`, and so is the least frequent listed mask when what is
+  summed up would hold fewer values than that, so the sum is not a figure about a few
+  values either.
+- **Classes.** For a column an IP address or a phone number detector reads, the count of the
+  values by class of a closed list: `ipv4_public`, `ipv4_private`, `ipv6_loopback`... for an
+  address, `fr_01` to `fr_09` (the zone of a French number: a region, a mobile, a special
+  line) and `nanp_geographic`, `nanp_toll_free` and `nanp_premium` for a North American
+  number. The area code of a North American number is never a class. The same floor applies.
+- **The exact distinct count.** `exact_distinct` also runs on a masked or hidden column,
+  when the scan stopped counting its distinct values: its result is two numbers.
+- **A hidden column** (`scan.exposure.sensitive_values` set to `hide`) gets the exact
+  distinct count and nothing else: not even its masks.
+- **No link between records.** These counts have no position, no row and no other column:
+  the drift along the file, the missing values together, the pairs, the tables, the repeated
+  values and the long texts stay out of a sensitive column.
+
+These analyses are not chosen by `tabalyst report` by itself, even once enabled, and
+`deep.sensitive` is part of the key of a result. Ask for them with `--deep` or
+`tabalyst.AnalysisRequest("sensitive_forms", field="telephone")`.
+
 ## Exact distinct count
 
 A scan stops counting the distinct values of a field after 100,000 of them (the
@@ -712,7 +969,9 @@ limit `max_distinct_per_field`) and keeps an estimate. The second pass counts
 them all, exactly, on the original values of the file: before any cleaning, so
 `00123`, `123` and `123 ` are three values, and `Ab` and `AB` two. A JSON string
 `"123"` and the JSON integer `123` are two values too. Empty cells, blank cells,
-null markers and JSON nulls are not values.
+null markers and JSON nulls are not values. A field whose values exposure masks or hides
+is counted too once `deep.sensitive.enabled` is set (it is off by default): its result is these
+numbers and no value (see [Sensitive columns without a value](#sensitive-columns-without-a-value)).
 
 ```json
 {"kind": "distinct", "accuracy": "exact", "values": 1000000,
@@ -769,7 +1028,11 @@ of a prefix) and the thresholds of the candidate rules. The `deep.stats` object 
 it for the numbers by category, and sets the categories kept and the bins. The `deep.measures` object
 sets how many currencies or units get metrics of their own and how many numbers
 are counted exactly. The `deep.residuals` and `deep.duplicates` objects set how many
-values are listed and tracked, and whether to read the source for the records. See [Deep
+values are listed and tracked, and whether to read the source for the records. The `deep.drift` object
+sets how many different values a column may have to be followed along the file and how many are listed,
+and `deep.missing` how many columns a matrix of missing values may hold and how many partners are listed. The `deep.arrays`,
+`deep.structure`, `deep.texts` and `deep.sensitive` objects set the lengths counted, the sets of keys tracked and listed, the length of a text and the
+texts listed, and the floor under which a mask or a class is summed up. See [Deep
 settings](../reference/configuration.md#deep-settings).
 
 `bin_strategy: "sample_quantile"` places the inner edges where the sample of

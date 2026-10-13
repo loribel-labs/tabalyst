@@ -19,6 +19,7 @@ from tabalyst.report_labels import (
     DEEP_REASONS,
     EXACT,
     FEATURE_WORDS,
+    FINGERPRINT,
     PEARSON_REASONS,
     SHAPE_REASONS,
     STATS_REASONS,
@@ -35,6 +36,7 @@ from tabalyst.scanner.planner.reasons import reason_text
 from tabalyst.scanner.secondpass.models import (
     AnalysisOutput,
     AnalysisResult,
+    ArrayProfileResult,
     BinnedHistogram,
     CrosstabResult,
     DateResolution,
@@ -43,17 +45,23 @@ from tabalyst.scanner.secondpass.models import (
     DistinctLimited,
     DuplicateResult,
     DuplicatesLimited,
+    FingerprintResult,
+    FormsResult,
     FrequencyTable,
     LengthDistribution,
     MeasureResult,
+    MissingMatrixResult,
     NumberResolution,
     PartsResult,
     PatternCounts,
     PearsonResult,
     PeriodCounts,
+    PositionDriftResult,
     ResidualResult,
     ShapeResult,
     StatsResult,
+    StructureResult,
+    TextProfileResult,
 )
 
 _NOT_COMPUTED = "not_computed"
@@ -194,6 +202,20 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         return _shape_summary(result), EXACT
     if isinstance(result, PartsResult):
         return _parts_summary(result), EXACT
+    if isinstance(result, PositionDriftResult):
+        return _drift_summary(result), EXACT
+    if isinstance(result, MissingMatrixResult):
+        return _matrix_summary(result), EXACT
+    if isinstance(result, ArrayProfileResult):
+        return _arrays_summary(result), EXACT
+    if isinstance(result, StructureResult):
+        return _structure_summary(result), _exact_unless_partial(result.complete)
+    if isinstance(result, TextProfileResult):
+        return _texts_summary(result), EXACT
+    if isinstance(result, FingerprintResult):
+        return _fingerprint_summary(result), FINGERPRINT
+    if isinstance(result, FormsResult):
+        return _forms_summary(result), _exact_unless_partial(result.complete)
     if isinstance(result, ResidualResult):
         return _residuals_summary(result), EXACT
     if isinstance(result, DuplicateResult):
@@ -313,6 +335,83 @@ def _parts_summary(result: PartsResult) -> str:
     if result.simulation is not None:
         text += f"; {result.ambiguous:,} ambiguous read under {len(result.simulation.readings)} orders"
     return text + _resolution_text(result.resolution, result.resolved)
+
+
+def _drift_summary(result: PositionDriftResult) -> str:
+    shares = [s.missing / s.records for s in result.slices if s.records]
+    text = f"{result.values:,} values in {result.records:,} records"
+    if result.missing:
+        text += f"; missing {min(shares):.1%} to {max(shares):.1%} by tenth of the file"
+        found = result.missing_association
+        if found.corrected is not None:
+            text += f" (V {found.corrected:.2f})"
+    if result.followed is not None:
+        late = sum(s.new_values or 0 for s in result.slices[1:])
+        text += f"; {_plural(result.followed.distinct, 'value')} followed"
+        if late:
+            text += f", {late:,} first seen after the first tenth"
+        found = result.followed.association
+        if found.corrected is not None:
+            text += f" (V {found.corrected:.2f})"
+    return text
+
+
+def _matrix_summary(result: MissingMatrixResult) -> str:
+    others = result.columns - 1
+    text = f"{result.missing:,} records without a value; {result.partners:,} of {others:,} other columns lack one in the same records"
+    if result.listed:
+        top = result.listed[0]
+        text += f", most with {top.display} ({top.both:,})"
+    return text
+
+
+def _exact_unless_partial(complete: bool) -> str:
+    """The accuracy of a result whose lists stopped growing when ``complete`` is false."""
+    return EXACT if complete else _AT_LEAST
+
+
+def _arrays_summary(result: ArrayProfileResult) -> str:
+    text = (
+        f"{result.arrays:,} arrays of {result.min_length:,} to {result.max_length:,} items, "
+        f"median {shown(result.quantiles[2].value)}, mean {shown(round(result.mean_length, 2))}"
+    )
+    if result.empty:
+        text += f"; {result.empty:,} empty"
+    return text
+
+
+def _structure_summary(result: StructureResult) -> str:
+    sets = "at least " if not result.complete else ""
+    return (
+        f"{result.objects:,} objects with {sets}{_plural(result.distinct, 'set')} of keys; "
+        f"{result.always:,} of {result.keys:,} keys are in every one"
+    )
+
+
+def _texts_summary(result: TextProfileResult) -> str:
+    text = (
+        f"{result.texts:,} texts of {shown(round(result.mean_words, 1))} words on average "
+        f"(up to {result.max_words:,}); {result.digit_share:.1%} of the characters are digits"
+    )
+    if result.multi_line:
+        text += f"; {result.multi_line:,} on several lines"
+    return text
+
+
+def _fingerprint_summary(result: FingerprintResult) -> str:
+    text = f"{result.distinct:,} distinct values among {result.values:,}"
+    if result.unique:
+        return text + ", all different"
+    return text + f"; {_plural(result.repeated, 'text')} found more than once"
+
+
+def _forms_summary(result: FormsResult) -> str:
+    text = f"{result.forms:,} masks over {result.values:,} values"
+    if not result.complete:
+        text = f"at least {text}"
+    if result.classes is not None:
+        text += f"; {_plural(len(result.classes.listed), 'class')} of {result.classes.detector}"
+    return text
 
 
 def _resolution_text(resolution: DateResolution | None, resolved: int) -> str:

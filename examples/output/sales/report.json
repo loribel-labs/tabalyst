@@ -23,23 +23,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-12T21:44:53.255134Z",
-    "duration_seconds": 0.013895,
+    "started_at": "2026-10-13T01:41:27.945777Z",
+    "duration_seconds": 0.016698,
     "timings": {
-      "reading": 0.002161,
-      "analysis": 0.002042,
-      "finalize": 0.008127,
-      "derived": 0.001154,
-      "other": 0.000412
+      "reading": 0.002399,
+      "analysis": 0.001991,
+      "finalize": 0.008368,
+      "derived": 0.001298,
+      "other": 0.002643
     },
     "workers": 1,
-    "peak_memory_bytes": 64397312
+    "peak_memory_bytes": 65921024
   },
   "source": {
     "format": "excel",
     "name": "sales.xlsx",
     "size_bytes": 17717,
-    "modified_at": "2026-10-05T03:51:14.776330Z",
+    "modified_at": "2026-10-12T23:30:31.435534Z",
     "sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
     "encoding": null,
     "shape": {
@@ -8653,7 +8653,7 @@
         "engine_version": "0.7.0",
         "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
         "config_sha256": "1f14b5914b97bc31ac8114900e12abb9451db9acccd828b4529c677f22787fa5",
-        "facts_sha256": "ecf64e8a4d27f81743e52ca6167546883bc7a3169369b3bd02f56dfc2f497f37"
+        "facts_sha256": "3bbbda936728ccccae89c4fca674ffac09c39b61a91a80fb1ff61402b4db5e7a"
       },
       "settings": {
         "bins": 100,
@@ -8715,21 +8715,47 @@
           "max_listed": 20,
           "max_tracked": 10000,
           "records": false
+        },
+        "drift": {
+          "max_tracked": 1000,
+          "max_listed": 12
+        },
+        "missing": {
+          "max_columns": 100,
+          "max_listed": 10
+        },
+        "arrays": {
+          "max_lengths": 10000
+        },
+        "structure": {
+          "max_variants": 1000,
+          "max_listed": 10,
+          "max_keys": 30
+        },
+        "texts": {
+          "min_length": 80,
+          "max_listed": 10
+        },
+        "sensitive": {
+          "enabled": false,
+          "min_count": 5,
+          "max_listed": 20,
+          "max_tracked": 10000
         }
       },
-      "settings_sha256": "410de20049b279604f68ad6d74abdeced127d0072119f21ff4fa9b3413db418f",
+      "settings_sha256": "5795cd17e0b5ddf43a09d343a9c253911a674d9f27ef65a391c10c8809319e49",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 11,
-        "plan_id": "d478cd6217b73b8f6173d919b97f58c59174687dc005057ba57c0caf89572d0f",
+        "cost_model_version": 13,
+        "plan_id": "edf46cf9516da09c6253ebe4a6da2cb3e184ce4d96dba9e01fb2c7270af79aec",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
           "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
           "config_sha256": "1f14b5914b97bc31ac8114900e12abb9451db9acccd828b4529c677f22787fa5",
-          "facts_sha256": "ecf64e8a4d27f81743e52ca6167546883bc7a3169369b3bd02f56dfc2f497f37"
+          "facts_sha256": "3bbbda936728ccccae89c4fca674ffac09c39b61a91a80fb1ff61402b4db5e7a"
         },
         "objective": {
           "automatic": true,
@@ -8753,10 +8779,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 54,
+          "candidates": 63,
           "selected": 10,
           "already_satisfied": 19,
-          "rejected": 25,
+          "rejected": 34,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -12948,19 +12974,598 @@
               "reusable": true,
               "on_limit": "limited"
             }
+          },
+          {
+            "id": "position_drift:rows:column_1",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "order_id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "nothing_to_follow"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_2",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "order_date",
+            "method": "slices",
+            "parameters": {
+              "slices": 10,
+              "values": 1,
+              "max_listed": 12
+            },
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "drift_by_position"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 62916,
+                "expected": 126916,
+                "max": 318916
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "drift:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 61892,
+                    "expected": 61892,
+                    "max": 61892
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:position_drift:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_3",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "customer",
+            "method": "slices",
+            "parameters": {
+              "slices": 10,
+              "values": 1,
+              "max_listed": 12
+            },
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "drift_by_position"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 43680,
+                "expected": 107680,
+                "max": 299776
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "drift:datasets/rows/fields/column_3",
+                  "memory": {
+                    "min": 42656,
+                    "expected": 42656,
+                    "max": 42752
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_3",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:position_drift:datasets/rows/fields/column_3",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_4",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "email",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_5",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "region",
+            "method": "slices",
+            "parameters": {
+              "slices": 10,
+              "values": 1,
+              "max_listed": 12
+            },
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "drift_by_position"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 12771,
+                "expected": 76771,
+                "max": 268776
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "drift:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 11747,
+                    "expected": 11747,
+                    "max": 11752
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:position_drift:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_6",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "channel",
+            "method": "slices",
+            "parameters": {
+              "slices": 10,
+              "values": 1,
+              "max_listed": 12
+            },
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "drift_by_position"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 11346,
+                "expected": 75346,
+                "max": 267349
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "drift:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 10322,
+                    "expected": 10322,
+                    "max": 10325
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:position_drift:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_7",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_7",
+            "display": "quantity",
+            "method": "slices",
+            "parameters": {
+              "slices": 10,
+              "values": 1,
+              "max_listed": 12
+            },
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "drift_by_position"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 18072,
+                "expected": 82072,
+                "max": 274456
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "drift:datasets/rows/fields/column_7",
+                  "memory": {
+                    "min": 17048,
+                    "expected": 17048,
+                    "max": 17432
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_7",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:position_drift:datasets/rows/fields/column_7",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_8",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "unit_price",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "nothing_to_follow"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:rows:column_9",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_9",
+            "display": "paid",
+            "method": "slices",
+            "parameters": {
+              "slices": 10,
+              "values": 1,
+              "max_listed": 12
+            },
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "drift_by_position"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 10692,
+                "expected": 74692,
+                "max": 266756
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "drift:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 9668,
+                    "expected": 9668,
+                    "max": 9732
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:position_drift:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-12T21:44:53.314174Z",
-        "duration_seconds": 0.007721,
+        "started_at": "2026-10-13T01:41:27.991560Z",
+        "duration_seconds": 0.007974,
         "timings": {
-          "reading": 0.00235,
-          "analysis": 0.002222,
-          "other": 0.003149
+          "reading": 0.002259,
+          "analysis": 0.002334,
+          "other": 0.003382
         },
         "workers": 1,
-        "peak_memory_bytes": 68767744,
+        "peak_memory_bytes": 70316032,
         "source_read": true,
         "source_verified": true,
         "records_read": 120,
@@ -12982,7 +13587,7 @@
             "distinct": 120
           },
           "domain": "analytical",
-          "key": "65e7b66985de70c06a96d6a72eb750330f73cf59c4ae58e1f5a240700c5c74da",
+          "key": "8c26f7d1859bc4455eda660700a16e072935e419052fe6c526353e4305de4934",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -13657,7 +14262,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "c92c287ebdb60fe86b1dca7fff25d10818f2b3c2e3801dffff7a454a624d35eb",
+          "key": "40f05716b9bdf4b9ae3c54575d8d3caa09b69eedafe031e0e2cd2f66a6ff2673",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -14282,7 +14887,7 @@
             "domain": 12
           },
           "domain": "analytical",
-          "key": "ea5c217e15a2be6d3fb66b262f7dcfe1c5c1c8d4a79b56b796809c4e4119bd17",
+          "key": "f4fec36ed5d5c19b10d97881da095dbe321778f40f26e60f76c56986210f5ded",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -14391,7 +14996,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "2ccdaef1d561e60401c00fb1baa6278fa40bf84a23e7fbc9183822d09cde7fac",
+          "key": "88db723efa252aa47dc464370c3a7984b8e04cca651d194fe2107b500ea207ff",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -14668,7 +15273,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "c2c5f28d7a3f93503c5b01a94a46d48a0612844b3b37e03886792b2320bcf907",
+          "key": "5dfa56979f870915b2496d04f47307e78db7ee646703f750ed8c97ccb090889a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -14705,7 +15310,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "0bb9efaca5fe8004bcd68886ea764335965e41951b7a5d536a11cfdcac2e2f6a",
+          "key": "c44dcd41cc88d18468dd2cc15d6f90abcc3c061b99c27d0e3f6c21b3073f77b4",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -14742,7 +15347,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "3bad392f384a4bc55e078e2c1d5318d670fc611d9af16db01f403a57a5edf989",
+          "key": "f54f4860cdf0926f2720d66249f2f7f4873b1d72c6731bd21af7f5cdb05155d9",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -14779,7 +15384,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "faf8dbcc5db0ea343f36e595d32542874f22bcf43e9ac582f7720af04d309b15",
+          "key": "30c7612ed80b8fca86fd21e74aeb43266e9a7644cf99f89a189286bcc5623039",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -14818,7 +15423,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "d4f80fbda6d0a7bcc5702ec20fd1148883947fb57e7e3182dca03a2df64a95c9",
+          "key": "43065634aa0be1c0a048c50e020d62f91a1c1a89e32d52e4bd32a995e971d102",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -15153,7 +15758,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "87d96488da44c0ec89afbaf55f20ef929f798a32dd355ec7a9aec70272e1ff77",
+          "key": "eb843a916c99ce7c322c80e73376f0eda66f0986c1ec2e0e96880a0696a69ef7",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -15185,12 +15790,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-12T21:44:53.366205Z",
+    "generated_at": "2026-10-13T01:41:28.043703Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1334,
+    "processing_seconds": 0.1214,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -15224,7 +15829,7 @@
       "engine_version": "0.7.0",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
       "config_sha256": "1f14b5914b97bc31ac8114900e12abb9451db9acccd828b4529c677f22787fa5",
-      "facts_sha256": "ecf64e8a4d27f81743e52ca6167546883bc7a3169369b3bd02f56dfc2f497f37"
+      "facts_sha256": "3bbbda936728ccccae89c4fca674ffac09c39b61a91a80fb1ff61402b4db5e7a"
     },
     "datasets": [
       {

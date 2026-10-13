@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 11
+COST_MODEL_VERSION = 13
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -284,7 +284,82 @@ NS_PER_CELL = {
     "parts_few": 600,
     "parts": 2_400,
     "parts_wide": 2_400,
+    # A column followed by position (lot 19), measured on the executor
+    # (`lot19/measure_costs.py`, 1 million rows, one process, the reading of the cell
+    # included): whether a record has a value, and so only the content test and the
+    # count of a slice, 121 ns for 5,000 distinct strings, 136 for numbers and 200 for
+    # one million distinct identifiers; and the value itself for a column the scan
+    # lists whole, 101 to 106 ns for 10 to 30 values. Rounded up to one figure.
+    "drift_presence": 300,
+    "drift_values": 200,
+    # The columns that miss a value together (lot 19): the nanoseconds a cell of a
+    # column of the matrix adds, the test of the cell and its share of the counting
+    # of the pairs included, measured the same way on 300,000 rows: 82 ns for 4 and
+    # 20 columns, 105 for 100 (4,950 pairs). Rounded up to one figure.
+    "matrix": 200,
+    # What JSON adds (lot 18), measured on the executor (`lot18/measure_costs.py`, 300,000
+    # records of 4, 16 and 44 fields, one process, the sweep of the source included).
+    # The lengths of the arrays: 4,028 ns an array on 4 fields and 10,349 on 44, the
+    # cost of any route on JSON (a histogram of a number: 4,814 and 8,731) since the
+    # router meets every observation of the record, so the count itself adds
+    # next to nothing and 300 stands for it. The sets of keys of the objects: one sweep of
+    # the observations of each record for the dataset, 296 to 365 ns an observation
+    # for the root (every key is marked) and 180 to 323 for an object of a few keys, so
+    # an object costs 400 plus 350 for each field of the dataset, declared at the top
+    # of ``moderate`` at most (as the shape): the estimate is low for a dataset of
+    # more than six fields, and a sweep is shared by the objects of a dataset.
+    "array_profile": 300,
+    "structure": 400,
+    "structure_field": 350,
+    # The long texts (lot 18), 150,000 rows, one process: the profile costs 2,266 ns
+    # for texts of 230 characters, 3,136 for 260 and 7,055 for 1,000, so about 400
+    # plus 7 ns a character; the fingerprints 801, 1,035 and 2,241 for the same texts
+    # (550 plus 1.7 ns a character, the digest dominating). Both are declared at the top
+    # of ``moderate`` at most, so the estimate is low for texts above 300 characters.
+    "text_base": 400,
+    "fingerprint": 550,
+    # The masks of a sensitive column (lot 18), 500,000 rows: 693 to 957 ns for an
+    # email (the analytical text and the mask), 2,493 for an address and 3,737 for a
+    # phone number once the detector classifies them and the class is read (the dotted
+    # addresses took 6,591 before their own path). Declared at the top of ``moderate``
+    # at most, so the estimate is low for a phone number.
+    "forms": 1_000,
+    "forms_class": 2_800,
 }
+# The counters of the lengths of the arrays of a field: a dictionary entry per
+# length (a key, a count and the slot).
+ARRAY_BYTES = 8 * 1024
+ARRAY_ENTRY_BYTES = 120
+# The sets of keys of an object: the names of the keys it can have and a set (an
+# integer with a bit per key, its count and the slot of the dictionary).
+STRUCTURE_BYTES = 16 * 1024
+STRUCTURE_KEY_BYTES = 200
+STRUCTURE_VARIANT_BYTES = 180
+# What a character of a text adds to the cost of reading it (nanoseconds), for the
+# profile and for the fingerprint.
+TEXT_NS_PER_CHAR = 7.0
+FINGERPRINT_NS_PER_CHAR = 1.7
+# The counters of the words, lines and digits of the texts of a field.
+TEXT_BYTES = 4 * 1024
+# A distinct value held as a fingerprint by the table of the texts (lot 18): a
+# 16-byte key, its count and the slot of the dictionary, in the three scenarios
+# (minimum, expected, firm bound); provisional until measured.
+FINGERPRINT_ENTRY_BYTES = (100, 130, 180)
+# The masks of a sensitive field: the counters, and what an entry adds to the text
+# of its mask (a tuple of the native type and the mask, and the count).
+FORMS_BYTES = 16 * 1024
+FORMS_ENTRY_BYTES = 120
+# The counters of a column followed by position: ten slices, and what a tracked
+# value adds (a dictionary entry keyed by a tuple, a list of ten counters).
+DRIFT_BYTES = 8 * 1024
+DRIFT_VALUE_BYTES = 560
+# The columns that miss a value together: the flags of a column of a batch
+# (``PAIR_FEED_ROWS`` rows, a list of booleans) and its bit set, and a counter for
+# each pair of columns (a dictionary entry keyed by a tuple of two numbers, and the
+# count; measured 114 bytes for 4,950 pairs).
+MATRIX_BYTES = 64 * 1024
+MATRIX_COLUMN_BYTES = 2_048
+MATRIX_PAIR_BYTES = 160
 # The counters of the parts of the dates: weekdays, hours and the readings of
 # the ambiguous dates, and what a month of dates adds (a dictionary entry).
 PARTS_BYTES = 32 * 1024

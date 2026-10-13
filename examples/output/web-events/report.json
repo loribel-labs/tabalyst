@@ -23,17 +23,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-12T21:44:51.958049Z",
-    "duration_seconds": 0.029321,
+    "started_at": "2026-10-13T01:41:26.628840Z",
+    "duration_seconds": 0.028856,
     "timings": {
-      "reading": 0.005797,
-      "analysis": 0.008315,
-      "finalize": 0.012457,
-      "derived": 0.00224,
-      "other": 0.000512
+      "reading": 0.005712,
+      "analysis": 0.007724,
+      "finalize": 0.010925,
+      "derived": 0.002483,
+      "other": 0.002012
     },
     "workers": 1,
-    "peak_memory_bytes": 64225280
+    "peak_memory_bytes": 66248704
   },
   "source": {
     "format": "jsonl",
@@ -12648,15 +12648,41 @@
           "max_listed": 20,
           "max_tracked": 10000,
           "records": false
+        },
+        "drift": {
+          "max_tracked": 1000,
+          "max_listed": 12
+        },
+        "missing": {
+          "max_columns": 100,
+          "max_listed": 10
+        },
+        "arrays": {
+          "max_lengths": 10000
+        },
+        "structure": {
+          "max_variants": 1000,
+          "max_listed": 10,
+          "max_keys": 30
+        },
+        "texts": {
+          "min_length": 80,
+          "max_listed": 10
+        },
+        "sensitive": {
+          "enabled": false,
+          "min_count": 5,
+          "max_listed": 20,
+          "max_tracked": 10000
         }
       },
-      "settings_sha256": "410de20049b279604f68ad6d74abdeced127d0072119f21ff4fa9b3413db418f",
+      "settings_sha256": "5795cd17e0b5ddf43a09d343a9c253911a674d9f27ef65a391c10c8809319e49",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 11,
-        "plan_id": "41e2d0a3d482ed7cae863426078e89b53ef1d4d4f8d7362fe19430bdd2aa4ca5",
+        "cost_model_version": 13,
+        "plan_id": "77711361bebf4c05dff30a357705089a8231284037f37d42a31b28e90c2be762",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -12686,10 +12712,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 91,
+          "candidates": 118,
           "selected": 18,
           "already_satisfied": 39,
-          "rejected": 34,
+          "rejected": 61,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -19113,19 +19139,1254 @@
               "reusable": true,
               "on_limit": "limited"
             }
+          },
+          {
+            "id": "position_drift:$[]:f1",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f1",
+            "display": "event_id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f2",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f2",
+            "display": "timestamp",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f3",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f3",
+            "display": "type",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f4",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f4",
+            "display": "user",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f5",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f5",
+            "display": "user.id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f6",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f6",
+            "display": "user.country",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f7",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f7",
+            "display": "user.plan",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f8",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f8",
+            "display": "device",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f9",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f9",
+            "display": "device.os",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f10",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f10",
+            "display": "device.mobile",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f11",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f11",
+            "display": "page",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f12",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f12",
+            "display": "tags",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f13",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f13",
+            "display": "tags[]",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "repeated_field"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f14",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f14",
+            "display": "amount",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f15",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f15",
+            "display": "currency",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f16",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f16",
+            "display": "error_code",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "position_drift:$[]:f17",
+            "analyzer": "position_drift",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f17",
+            "display": "experiment",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "missing_by_position",
+              "values_by_position",
+              "new_values"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "records_excluded"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "missing_matrix:$[]:f5",
+            "analyzer": "missing_matrix",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f5",
+            "display": "user.id",
+            "method": "bit_sets",
+            "parameters": {
+              "columns": 6,
+              "max_listed": 10
+            },
+            "outputs": [
+              "missing_together"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "missing_together"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 78848,
+                "expected": 79448,
+                "max": 81248
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "matrix:$[]",
+                  "memory": {
+                    "min": 77824,
+                    "expected": 78424,
+                    "max": 80224
+                  }
+                },
+                {
+                  "key": "result:missing_matrix:datasets/$[]/fields/f5",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "missing_matrix:$[]:f6",
+            "analyzer": "missing_matrix",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f6",
+            "display": "user.country",
+            "method": "bit_sets",
+            "parameters": {
+              "columns": 6,
+              "max_listed": 10
+            },
+            "outputs": [
+              "missing_together"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "missing_together"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 78848,
+                "expected": 79448,
+                "max": 81248
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "matrix:$[]",
+                  "memory": {
+                    "min": 77824,
+                    "expected": 78424,
+                    "max": 80224
+                  }
+                },
+                {
+                  "key": "result:missing_matrix:datasets/$[]/fields/f6",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "missing_matrix:$[]:f14",
+            "analyzer": "missing_matrix",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f14",
+            "display": "amount",
+            "method": "bit_sets",
+            "parameters": {
+              "columns": 6,
+              "max_listed": 10
+            },
+            "outputs": [
+              "missing_together"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "missing_together"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 78848,
+                "expected": 79448,
+                "max": 81248
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "matrix:$[]",
+                  "memory": {
+                    "min": 77824,
+                    "expected": 78424,
+                    "max": 80224
+                  }
+                },
+                {
+                  "key": "result:missing_matrix:datasets/$[]/fields/f14",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "missing_matrix:$[]:f15",
+            "analyzer": "missing_matrix",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f15",
+            "display": "currency",
+            "method": "bit_sets",
+            "parameters": {
+              "columns": 6,
+              "max_listed": 10
+            },
+            "outputs": [
+              "missing_together"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "missing_together"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 78848,
+                "expected": 79448,
+                "max": 81248
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "matrix:$[]",
+                  "memory": {
+                    "min": 77824,
+                    "expected": 78424,
+                    "max": 80224
+                  }
+                },
+                {
+                  "key": "result:missing_matrix:datasets/$[]/fields/f15",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "missing_matrix:$[]:f16",
+            "analyzer": "missing_matrix",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f16",
+            "display": "error_code",
+            "method": "bit_sets",
+            "parameters": {
+              "columns": 6,
+              "max_listed": 10
+            },
+            "outputs": [
+              "missing_together"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "missing_together"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 78848,
+                "expected": 79448,
+                "max": 81248
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "matrix:$[]",
+                  "memory": {
+                    "min": 77824,
+                    "expected": 78424,
+                    "max": 80224
+                  }
+                },
+                {
+                  "key": "result:missing_matrix:datasets/$[]/fields/f16",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "missing_matrix:$[]:f17",
+            "analyzer": "missing_matrix",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f17",
+            "display": "experiment",
+            "method": "bit_sets",
+            "parameters": {
+              "columns": 6,
+              "max_listed": 10
+            },
+            "outputs": [
+              "missing_together"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "missing_together"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 78848,
+                "expected": 79448,
+                "max": 81248
+              },
+              "cpu": "low",
+              "cell_ns": 200,
+              "states": [
+                {
+                  "key": "matrix:$[]",
+                  "memory": {
+                    "min": 77824,
+                    "expected": 78424,
+                    "max": 80224
+                  }
+                },
+                {
+                  "key": "result:missing_matrix:datasets/$[]/fields/f17",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "array_profile:$[]:f12",
+            "analyzer": "array_profile",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f12",
+            "display": "tags",
+            "method": "length_counts",
+            "parameters": {
+              "max_lengths": 10000
+            },
+            "outputs": [
+              "array_lengths"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "array_lengths"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 9456,
+                "expected": 9456,
+                "max": 9696
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "arrays:datasets/$[]/fields/f12",
+                  "memory": {
+                    "min": 8432,
+                    "expected": 8432,
+                    "max": 8672
+                  }
+                },
+                {
+                  "key": "result:array_profile:datasets/$[]/fields/f12",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "structure_variants:$[]:f4",
+            "analyzer": "structure_variants",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f4",
+            "display": "user",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "key_sets"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "uniform_keys"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "structure_variants:$[]:f8",
+            "analyzer": "structure_variants",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f8",
+            "display": "device",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "key_sets"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "uniform_keys"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "structure_variants:$[]:$",
+            "analyzer": "structure_variants",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "$",
+            "display": "$",
+            "method": "key_sets",
+            "parameters": {
+              "max_variants": 1000,
+              "max_listed": 10,
+              "max_keys": 30
+            },
+            "outputs": [
+              "key_sets"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "key_sets"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 19789,
+                "expected": 23228,
+                "max": 73908
+              },
+              "cpu": "moderate",
+              "cell_ns": 2400,
+              "states": [
+                {
+                  "key": "structure:datasets/$[]/fields/$",
+                  "memory": {
+                    "min": 18765,
+                    "expected": 22204,
+                    "max": 72884
+                  }
+                },
+                {
+                  "key": "result:structure_variants:datasets/$[]/fields/$",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-12T21:44:52.032874Z",
-        "duration_seconds": 0.01634,
+        "started_at": "2026-10-13T01:41:26.703793Z",
+        "duration_seconds": 0.015773,
         "timings": {
-          "reading": 0.005174,
-          "analysis": 0.005827,
-          "other": 0.00534
+          "reading": 0.004847,
+          "analysis": 0.005828,
+          "other": 0.005098
         },
         "workers": 1,
-        "peak_memory_bytes": 69799936,
+        "peak_memory_bytes": 71409664,
         "source_read": true,
         "source_verified": true,
         "records_read": 300,
@@ -23489,12 +24750,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-12T21:44:52.314716Z",
+    "generated_at": "2026-10-13T01:41:26.993994Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.3742,
+    "processing_seconds": 0.3984,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

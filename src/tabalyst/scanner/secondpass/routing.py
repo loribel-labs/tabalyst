@@ -15,6 +15,8 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Callable, Iterable, Sequence
+from functools import partial
+from typing import TYPE_CHECKING
 
 from tabalyst.scanner.models import (
     ColumnSegment,
@@ -36,12 +38,14 @@ from tabalyst.scanner.secondpass.accumulators import (
     LengthAccumulator,
 )
 from tabalyst.scanner.secondpass.crosstab import CodeFeed, CrosstabAccumulator
+from tabalyst.scanner.secondpass.drift import DriftAccumulator
 from tabalyst.scanner.secondpass.duplicates import (
     DuplicateAccumulator,
     KeyAccumulator,
     RawFeed,
 )
 from tabalyst.scanner.secondpass.exactset import ExactSet
+from tabalyst.scanner.secondpass.forms import FormsAccumulator
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
 from tabalyst.scanner.secondpass.measures import MeasureAccumulator
 from tabalyst.scanner.secondpass.parts import PartsAccumulator
@@ -52,6 +56,13 @@ from tabalyst.scanner.secondpass.replay import Cell, CellReader, native_number
 from tabalyst.scanner.secondpass.residuals import ResidualAccumulator
 from tabalyst.scanner.secondpass.shape import ShapeAccumulator
 from tabalyst.scanner.secondpass.stats import StatsAccumulator
+from tabalyst.scanner.secondpass.structure import ArrayAccumulator
+from tabalyst.scanner.secondpass.texts import FingerprintAccumulator, TextAccumulator
+
+if TYPE_CHECKING:
+    # The matrix and the sets of keys read the field paths this module defines.
+    from tabalyst.scanner.secondpass.matrix import MatrixAccumulator
+    from tabalyst.scanner.secondpass.structure import StructureAccumulator
 
 # The columns of the pairs and tables, converted once whatever the number of
 # analyses that read them, and the analyses that read two of them.
@@ -102,9 +113,13 @@ class FieldRoute:
     of each raw string, shared by all of them."""
 
     __slots__ = (
+        "arrays",
         "distinct",
+        "drift",
         "duplicates",
         "failure",
+        "fingerprints",
+        "forms",
         "frequencies",
         "lengths",
         "measures",
@@ -117,6 +132,7 @@ class FieldRoute:
         "reader",
         "residuals",
         "shape",
+        "texts",
         "values",
     )
 
@@ -148,6 +164,16 @@ class FieldRoute:
         self.residuals: ResidualAccumulator | None = None
         # The repeated values of an identifier (original values).
         self.duplicates: DuplicateAccumulator | None = None
+        # The values and the missing ones by slice of records (analytical text).
+        self.drift: DriftAccumulator | None = None
+        # The lengths of the arrays of a field (JSON).
+        self.arrays: ArrayAccumulator | None = None
+        # The words, lines and digits of the original texts, and the fingerprints
+        # of the original values.
+        self.texts: TextAccumulator | None = None
+        self.fingerprints: FingerprintAccumulator | None = None
+        # The masks of the analytical values of a sensitive field, without a value.
+        self.forms: FormsAccumulator | None = None
         self.memo: dict[str, Cell] = {}
         # Raw strings remembered per field across batches. A column of few distinct
         # values (the case where remembering pays) fits; one of identifiers does
@@ -163,11 +189,26 @@ class FieldRoute:
         """Account for the raw strings of consecutive records of the field,
         numbered from ``start``."""
         self.values += len(column)
-        self._counted(Counter(column), column, start)
+        drift = self.drift
+        if drift is None:
+            self._counted(Counter(column), column, start)
+            return
+        # The records of a slice are counted together, so a batch that crosses
+        # the end of a slice is cut there.
+        for low, high in drift.segments(start, len(column)):
+            part = column[low:high]
+            self._counted(Counter(part), part, start + low)
 
     def string(self, value: str, record: int = 1) -> None:
         self.values += 1
         self._counted({value: 1}, [value], record)
+
+    def array(self, length: int) -> None:
+        """An array of ``length`` items (JSON)."""
+        arrays = self.arrays
+        if arrays is not None:
+            self.values += 1
+            arrays.add(length)
 
     def _counted(self, counts: dict[str, int], column: list[str], start: int) -> None:
         lengths = self.lengths
@@ -181,7 +222,13 @@ class FieldRoute:
         shape = self.shape
         residuals = self.residuals
         duplicates = self.duplicates
-        text_wanted = residuals is not None and residuals.needs_text
+        drift = self.drift
+        texts = self.texts
+        fingerprints = self.fingerprints
+        forms = self.forms
+        text_wanted = (residuals is not None and residuals.needs_text) or (
+            drift is not None and drift.needs_text
+        )
         first = (
             _first_record(column, start)
             if residuals is not None or duplicates is not None
@@ -203,10 +250,16 @@ class FieldRoute:
                 or patterns is not None
                 or residuals is not None
                 or duplicates is not None
+                or drift is not None
+                or texts is not None
+                or fingerprints is not None
+                or forms is not None
             ):
                 raws = list(counts)
                 wanted = [raw for raw, ok in zip(raws, self.reader.content(raws), strict=True) if ok]
                 weights = [counts[raw] for raw in wanted]
+                if drift is not None:
+                    drift.add_presence(start, sum(weights))
                 if distinct is not None:
                     distinct.add_strings(wanted, weights)
                 if patterns is not None:
@@ -215,6 +268,12 @@ class FieldRoute:
                     residuals.add(self.reader, wanted, weights, None, first)
                 if duplicates is not None:
                     duplicates.add_strings(wanted, weights, first)
+                if texts is not None:
+                    texts.add_strings(wanted, weights)
+                if fingerprints is not None:
+                    fingerprints.add_strings(wanted, weights)
+                if forms is not None:
+                    forms.add_strings(self.reader, wanted, weights)
             return
         memo = self.memo
         cells: dict[str, Cell] = {}
@@ -275,9 +334,19 @@ class FieldRoute:
             or patterns is not None
             or residuals is not None
             or duplicates is not None
+            or drift is not None
+            or texts is not None
+            or fingerprints is not None
+            or forms is not None
         ):
             wanted = [raw for raw in counts if cells[raw].length >= 0]
             weights = [counts[raw] for raw in wanted]
+            if drift is not None:
+                if drift.track:
+                    for raw, weight in zip(wanted, weights, strict=True):
+                        drift.add_text(start, cells[raw].text, weight)
+                else:
+                    drift.add_presence(start, sum(weights))
             if distinct is not None:
                 distinct.add_strings(wanted, weights)
             if patterns is not None:
@@ -292,6 +361,12 @@ class FieldRoute:
                 )
             if duplicates is not None:
                 duplicates.add_strings(wanted, weights, first)
+            if texts is not None:
+                texts.add_strings(wanted, weights)
+            if fingerprints is not None:
+                fingerprints.add_strings(wanted, weights)
+            if forms is not None:
+                forms.add_strings(self.reader, wanted, weights)
 
     def native(self, native_type: str, value: object, record: int = 1) -> None:
         """A JSON integer, number or boolean: a numeric value (but for a
@@ -305,6 +380,9 @@ class FieldRoute:
             and self.measures is None
             and self.residuals is None
             and self.duplicates is None
+            and self.drift is None
+            and self.fingerprints is None
+            and self.forms is None
         ):
             return
         self.values += 1
@@ -326,6 +404,15 @@ class FieldRoute:
             self.residuals.add_native()
         if self.duplicates is not None:
             self.duplicates.add_native(native_type, value, record)
+        if self.fingerprints is not None:
+            self.fingerprints.add_native(native_type, value)
+        if self.forms is not None:
+            self.forms.add_native(native_type, value)
+        if self.drift is not None:
+            if self.drift.track:
+                self.drift.add_native(record, native_type, value)
+            else:
+                self.drift.add_presence(record, 1)
 
 
 class Router:
@@ -344,6 +431,8 @@ class Router:
         feeds: dict[tuple[str, FieldPath, str], Feed] | None = None,
         pairs: Sequence[tuple[str, PairLike]] = (),
         after_batch: Callable[[], None] | None = None,
+        matrices: Sequence[tuple[str, MatrixAccumulator]] = (),
+        structures: Sequence[tuple[str, StructureAccumulator]] = (),
     ) -> None:
         # Called when every route has had the column of a batch: the routes of
         # worker processes send what they were given.
@@ -357,6 +446,19 @@ class Router:
         self.pairs: dict[str, list[PairLike]] = {}
         for dataset, pair in pairs:
             self.pairs.setdefault(dataset, []).append(pair)
+        # The records that lack a value in several columns are counted from the
+        # rows of each batch, whatever the routes do with them.
+        self.matrices: dict[str, list[MatrixAccumulator]] = {}
+        for dataset, matrix in matrices:
+            self.matrices.setdefault(dataset, []).append(matrix)
+        # The sets of keys of the objects are counted from the observations of each
+        # record, which only a source that hands records has.
+        self.structures: dict[str, list[StructureAccumulator]] = {}
+        for dataset, structure in structures:
+            self.structures.setdefault(dataset, []).append(structure)
+        # Where each member of a matrix is in a row, per dataset; ``None`` for a
+        # source that hands records and not rows.
+        self._matrix_indexes: dict[str, list[tuple[MatrixAccumulator, list[int] | None]]] = {}
         self.records_read = 0
         self._columns: dict[str, list[tuple[int, FieldRoute]]] = {}
         self._feed_columns: dict[str, list[tuple[int, Feed]]] = {}
@@ -370,8 +472,13 @@ class Router:
             for feeds in paths.values()
             for feed in feeds
         )
-        return fed + sum(
-            route.values for fields in self.routes.values() for route in fields.values()
+        return (
+            fed
+            + sum(route.values for fields in self.routes.values() for route in fields.values())
+            + sum(matrix.values for group in self.matrices.values() for matrix in group)
+            + sum(
+                structure.values for group in self.structures.values() for structure in group
+            )
         )
 
     def consume(self, items: Iterable[StreamItem]) -> None:
@@ -385,6 +492,22 @@ class Router:
                 self._open(item)
         for dataset in self.pairs:
             self._flush(dataset)
+        for group in self.matrices.values():
+            for matrix in group:
+                self._guarded(matrix, matrix.flush)
+
+    @staticmethod
+    def _guarded(
+        matrix: MatrixAccumulator | StructureAccumulator, action: Callable[[], None]
+    ) -> None:
+        """Run a step of a matrix or of the sets of keys: one that raises stops
+        counting and fails alone."""
+        if matrix.failure is not None:
+            return
+        try:
+            action()
+        except Exception as exc:  # noqa: BLE001 - one matrix fails alone
+            matrix.failure = type(exc).__name__
 
     def _open(self, item: DatasetOpened) -> None:
         wanted = self.routes.get(item.dataset, {})
@@ -393,6 +516,13 @@ class Router:
             for index, declared in enumerate(item.fields)
             if declared.path in wanted
         ]
+        declared_at = {declared.path: index for index, declared in enumerate(item.fields)}
+        located = []
+        for matrix in self.matrices.get(item.dataset, ()):
+            # A source that declares its fields hands rows; the others, records.
+            found = [declared_at.get(path, -1) for path in matrix.by_path]
+            located.append((matrix, found if found and -1 not in found else None))
+        self._matrix_indexes[item.dataset] = located
         feeds = self.feeds.get(item.dataset, {})
         self._feed_columns[item.dataset] = [
             (index, feed)
@@ -402,6 +532,9 @@ class Router:
 
     def _batch(self, batch: RecordBatch) -> None:
         self.records_read += len(batch.rows)
+        for matrix, indexes in self._matrix_indexes.get(batch.dataset, ()):
+            if indexes is not None:
+                self._guarded(matrix, partial(matrix.add_rows, batch.rows, indexes))
         for index, route in self._columns.get(batch.dataset, ()):
             if route.failure is not None:
                 continue
@@ -445,6 +578,10 @@ class Router:
 
     def _record(self, record: Record) -> None:
         self.records_read += 1
+        for matrix in self.matrices.get(record.dataset, ()):
+            self._guarded(matrix, partial(matrix.add_record, record))
+        for structure in self.structures.get(record.dataset, ()):
+            self._guarded(structure, partial(structure.add_record, record))
         fields = self.routes.get(record.dataset)
         feeds = self.feeds.get(record.dataset)
         if not fields and not feeds:
@@ -458,6 +595,8 @@ class Router:
                         route.string(observation.value, record.index)  # type: ignore[arg-type]
                     elif native_type in ("integer", "number", "boolean"):
                         route.native(native_type, observation.value, record.index)
+                    elif native_type == "array":
+                        route.array(observation.value)  # type: ignore[arg-type]
                 except Exception as exc:  # noqa: BLE001 - one field fails alone
                     route.failure = type(exc).__name__
             for feed in feeds.get(observation.path, ()) if feeds else ():

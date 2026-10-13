@@ -88,6 +88,36 @@ def _fr(value: str) -> Classification | None:
 _REGIONS = {"nanp": _nanp, "fr": _fr}
 
 
+# The classes of a phone number (design 20.35): the zone of a French number, which
+# tells a region (1 to 5) or a mobile (6, 7) or a special line (8, 9), and for a
+# North American number whether it is toll free, premium or geographic. The
+# area code of a North American number is never part of a class.
+_NANP_TOLL_FREE = frozenset({"800", "833", "844", "855", "866", "877", "888"})
+PHONE_CLASSES = (
+    *(f"fr_0{zone}" for zone in range(1, 10)),
+    "nanp_geographic",
+    "nanp_toll_free",
+    "nanp_premium",
+)
+
+
+def phone_class(value: str, region: str) -> str | None:
+    """The class of a number the detector matched in ``region`` (``fr`` or
+    ``nanp``), one of ``PHONE_CLASSES``, or ``None`` for a text it does not read."""
+    if region == "fr":
+        found = _FR_NATIONAL.fullmatch(value) or _FR_INTERNATIONAL.fullmatch(value)
+        return None if found is None else f"fr_0{found['zone']}"
+    if region == "nanp":
+        found = _NANP.fullmatch(value)
+        if found is None:
+            return None
+        area = found["area"] or found["parenthesized"]
+        if area in _NANP_TOLL_FREE:
+            return "nanp_toll_free"
+        return "nanp_premium" if area == "900" else "nanp_geographic"
+    return None
+
+
 class PhoneDetector(Detector):
     id = "phone"
     family = "contact"

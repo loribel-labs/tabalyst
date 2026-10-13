@@ -101,7 +101,14 @@ support is not yet required. Record format changes in the relevant changelogs.
   period) and its document `<stem>.deep.json` (`docs/dev/scan/design.md`
   20.4 and 20.7 to 20.10); `src/tabalyst/deep_service.py` is its boundary for the CLI
   and the API. `secondpass/parallel.py` runs the routes of the fields of a CSV file
-  in worker processes (20.18).
+  in worker processes (20.18). `secondpass/drift.py` follows a field by slice of records and
+  `secondpass/matrix.py` counts the records that lack a value in several columns at once (20.30, 20.31).
+  `secondpass/structure.py` counts the lengths of the arrays (`ArrayAccumulator`) and the sets of keys of the
+  objects and of the records (`KeySets`, swept by `StructureAccumulator`, which the `Router` feeds record by record)
+  of a JSON source (20.33); `secondpass/texts.py` the words, lines and digits of long texts and their 128-bit
+  fingerprints (20.34); `secondpass/forms.py` the masks and classes of a masked sensitive field without a value, with
+  a floor (decision O61, 20.35). `planner/facts.root_facts` gives the root of the records, the field `$`, to the
+  analyzers that set `roots`. `exact_distinct` is the one analysis that also reads a masked or hidden field.
 - `src/tabalyst/report_chain.py`: the second pass inside Report (who decides,
   plan, confirmation, run, the `analyses` member; design 20.11);
   `src/tabalyst/deep_store.py` writes the second-pass document beside its Scan

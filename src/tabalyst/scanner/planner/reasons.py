@@ -42,6 +42,16 @@ NOT_APPLICABLE = {
     "not_a_category": "the column cannot be a category",
     "low_coverage": "fewer than half of the values carry a currency marker, a percent sign or a unit",
     "repeated_field": "a column inside the items of an array has several values in one record",
+    "records_excluded": "the scan left records out, so the number of a record no longer gives its place in the file",
+    "too_few_records": "the dataset has too few records to be cut in ten slices",
+    "nothing_to_follow": "the field misses no value and has too many distinct values to follow by position",
+    "too_many_columns": "too many columns miss a value for their pairs to be counted",
+    "untracked_paths": "the scan stopped naming the paths of the dataset, so the keys of an object are not all known",
+    "single_object": "the field holds a single object",
+    "no_keys": "the scan names no key below the object",
+    "uniform_keys": "every key is in every object, so there is one set of keys",
+    "array_lengths_too_wide": "the lengths of the arrays are spread over too wide a range to be counted one by one",
+    "hidden_exposure": "exposure hides the values of this field, so even their masks are kept out of the document",
     "nothing_left_out": "no pattern leaves values out and no detector that reads most of the column finds invalid or unmatched ones",
 }
 
@@ -53,6 +63,7 @@ SATISFIED = {
     "lengths_complete": "the exact length histogram is already in the scan",
     "distinct_exact": "the distinct values are already counted exactly",
     "years_counted": "the scan already counts the values by year",
+    "lengths_constant": "every array has the same length, already in the scan",
 }
 
 # The decision on a candidate that is not satisfied.
@@ -96,6 +107,14 @@ UTILITY = {
     "ambiguous_dates_read_by_evidence": "the unambiguous dates of the column read in one order only, so the ambiguous ones are read that way and counted with the others",
     "ambiguous_numbers_read_by_evidence": "the unambiguous values of the column prove one number convention, so the values written ambiguously are read that way and counted with the others",
     "calendar_parts": "shows the years, months, weekdays and hours of the dates and what their ambiguity changes",
+    "drift_by_position": "shows whether the missing values and the values of the column change along the file",
+    "missing_together": "shows which columns lack a value in the same records",
+    "array_lengths": "shows how long the arrays of the field are",
+    "key_sets": "shows which keys the objects have together",
+    "text_shape": "shows the words, lines and digits of the texts",
+    "long_values_distinct": "counts the distinct values that are too long for an exact set, and the texts found more than once",
+    "forms_without_values": "counts the masks and classes of the values without listing one",
+    "exposure_counts": "counts the distinct values of a sensitive column, which exposure keeps out of the document, as two numbers",
     "values_with_unit": "the scan counts the values with a unit but has no number for them",
     "requested_only": "a combination of columns is only searched when it is asked for",
     "repeated_identifier": "the values are almost all different, so those found more than once are worth a mention",

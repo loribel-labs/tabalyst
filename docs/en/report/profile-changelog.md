@@ -97,4 +97,9 @@ of another column with the rules you gave (`provided_rules`), and the numbers of
 described by category (`category_stats`: count, extremes, mean, spread and histogram of each
 category, and the share of the variance the categories explain), the shape of the numbers
 (`numeric_shape`: asymmetry, kurtosis, outliers of Tukey, decimals) and the parts of the dates
-(`datetime_parts`: year-month, weekday, hour, ambiguous dates under each reading).
+(`datetime_parts`: year-month, weekday, hour, ambiguous dates under each reading), the drift of a column along the
+file (`position_drift`: the records, values and missing values of each tenth of the file) and the columns that
+miss a value together (`missing_matrix`), the lengths of the arrays and the sets of keys of a JSON file
+(`array_profile`, `structure_variants`), the words, lines and digits of long texts and their 128-bit
+fingerprints (`text_profile`, `fingerprint_distinct`) and the masks and classes of a masked column
+(`sensitive_forms`), which holds no value of it, and the distinct count of a masked or hidden column.

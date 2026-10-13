@@ -1,6 +1,5 @@
-Scan: D:\GIT.test\tabalyst\artifacts\lot20\home-demos\workspaces\local\scans\a1f69c6521b37d26018f49b765cadde6f13f12c40882401f306296172212d9ef\scan.json (reused)
-Plan for insurance-customers.csv (plan 6adec39e0d86, planner 1).
-199 candidates: 66 selected, 70 already answered by the scan, 63 left out.
+Plan for insurance-customers.csv (plan 124a621d1759, planner 1).
+245 candidates: 66 selected, 70 already answered by the scan, 109 left out.
 
 Selected:
   1. category_crosstab [contingency_table]: rows / filiale and id_client (pattern) (up to 979.1 KiB, CPU low, automatic)
@@ -112,11 +111,47 @@ Left out:
   datetime_parts [calendar_parts]: rows / date_creation: too little expected benefit for an automatic choice
   datetime_parts [calendar_parts]: rows / date_modification: too little expected benefit for an automatic choice
   datetime_parts [calendar_parts]: rows / date_reclamation: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / filiale: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / civilite: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / prenom: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / nom: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / date_naissance: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / sexe: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / langue_preferee: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / type_voie: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / orientation: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / appartement: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / province_code: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / province_nom: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / pays_code: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / id_contrat: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / type_contrat: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / date_fin: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / statut_contrat: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / frequence_paiement: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / mode_paiement: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / agence_code: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / date_reclamation: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / montant_reclamation: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / reclamation_status: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / prenom: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / nom: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / date_naissance: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / orientation: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / appartement: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / province_code: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / id_contrat: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / type_contrat: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / date_fin: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / date_reclamation: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / montant_reclamation: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / reclamation_status: too little expected benefit for an automatic choice
 
 Not applicable:
   10 x too many distinct values for a table of frequencies
   2 x no pattern candidate was found
-  10 x exposure keeps the values of this field out of the document
+  9 x the field misses no value and has too many distinct values to follow by position
+  12 x exposure keeps the values of this field out of the document
 
 A second reading of the source is needed (102,000 cells, CPU very_low). Memory: 31.7 MiB to 52.8 MiB, about 36.3 MiB.
 Estimated time: under a second (a guide from the first pass, not a promise).

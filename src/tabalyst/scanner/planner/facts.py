@@ -152,6 +152,52 @@ class DetectorFacts:
 
 
 @dataclass(frozen=True, slots=True)
+class ArrayFacts:
+    """What the Scan counted of the arrays of a field (design 20.33): the arrays,
+    those without an item, the shortest and the longest, and all the items."""
+
+    count: int
+    empty: int
+    min_length: int
+    max_length: int
+    total_items: int
+
+
+# The detectors whose sensitive values the second pass tells the class of
+# (design 20.35).
+CLASSIFIED_DETECTORS = ("ip_address", "phone")
+
+
+def lacks_values(dataset: DatasetResult, field: FieldResult) -> bool:
+    """Whether some records of the dataset have no value for the field, which a
+    field that is not repeated in a record makes a plain subtraction: the records
+    minus the values the Scan counted (design 20.30)."""
+    return field.values.count < dataset.record_count
+
+
+def repeats(field: FieldResult) -> bool:
+    """Whether the path of the field repeats in a record (items of an array),
+    which the analyses by record cannot count."""
+    return any(isinstance(segment, ItemsSegment) for segment in field.path)
+
+
+def matrix_members(dataset: DatasetResult) -> list[FieldResult]:
+    """The fields that take part in the missing values counted together (design
+    20.31), in document order: those that have a value and lack one in some
+    records, not repeated in a record, with their values in the document (exposure
+    ``mask`` or ``hide`` leaves a field out, as it does every second-pass
+    analysis)."""
+    return [
+        field
+        for field in dataset.fields
+        if field.values.count > 0
+        and lacks_values(dataset, field)
+        and not repeats(field)
+        and field.exposure not in ("mask", "hide")
+    ]
+
+
+@dataclass(frozen=True, slots=True)
 class FieldFacts:
     """Everything the planner knows about a field. ``where`` is the location of
     the field in the Scan (``datasets/<id>/fields/<id>``)."""
@@ -194,11 +240,40 @@ class FieldFacts:
     measures: tuple[MeasureFacts, ...] = ()
     # The replayable detectors that read at least one value.
     detectors: tuple[DetectorFacts, ...] = ()
+    # Records of the dataset, and the fields of it that miss a value together
+    # with others (``matrix_members``): whether this one is among them and how many.
+    records: int = 0
+    matrix_member: bool = False
+    matrix_size: int = 0
+    # Records the scan left out (a tolerant policy): the numbers of the source
+    # then have gaps and no longer give the place of a record among the analyzed.
+    records_excluded: int = 0
+    # The arrays of the field, and for an object field the occurrences, the keys
+    # the Scan found below it and whether they are not all present in every
+    # object; the format of the source and whether the Scan stopped tracking
+    # paths of the dataset (a set of keys could then hold keys it never named).
+    arrays: ArrayFacts | None = None
+    objects: int = 0
+    object_keys: int = 0
+    object_varies: bool = False
+    source_format: str = ""
+    untracked_paths: bool = False
+    # Fields of the dataset: the observations of a record the sets of keys sweep.
+    dataset_fields: int = 0
+    # Content strings of the field, and the sensitive detectors that read some.
+    strings_content: int = 0
+    classified: tuple[str, ...] = ()
 
     @property
     def withheld(self) -> bool:
         """Whether exposure keeps the values of the field out of the document."""
         return self.exposure in ("mask", "hide")
+
+    @property
+    def cells(self) -> int:
+        """The occurrences an analysis of the field reads: its values, or its
+        arrays or objects, which hold none of their own."""
+        return max(self.values, 0 if self.arrays is None else self.arrays.count, self.objects)
 
     @property
     def long_texts_only(self) -> bool:
@@ -339,11 +414,40 @@ def _patterns(
     return PatternFacts(entry.status, entry.reason, 0, None, 0)
 
 
+def _arrays(field: FieldResult) -> ArrayFacts | None:
+    stats = field.arrays
+    if stats is None:
+        return None
+    return ArrayFacts(
+        count=stats.count,
+        empty=stats.empty,
+        min_length=stats.min_length,
+        max_length=stats.max_length,
+        total_items=stats.total_items,
+    )
+
+
+def _classified(field: FieldResult) -> tuple[str, ...]:
+    """The detectors of ``CLASSIFIED_DETECTORS`` that matched a value of the
+    field."""
+    return tuple(
+        result.id
+        for result in field.detectors
+        if result.id in CLASSIFIED_DETECTORS
+        and isinstance(result, DetectorComplete)
+        and result.coverage.matched
+    )
+
+
 def _facts(
     dataset: DatasetResult,
     field: FieldResult,
     index: dict[tuple[str, str], FieldPatterns],
     rules: dict[str, NumberRule],
+    members: frozenset[str],
+    excluded: int,
+    children: dict[str, list[FieldResult]],
+    source_format: str,
 ) -> FieldFacts:
     cardinality = field.values.cardinality
     distinct: int | None = None
@@ -384,7 +488,7 @@ def _facts(
         numeric_min=numeric.value.min if numeric.status == "complete" else None,
         numeric_max=numeric.value.max if numeric.status == "complete" else None,
         numeric_count=numeric.value.count if numeric.status == "complete" else 0,
-        repeated=any(isinstance(segment, ItemsSegment) for segment in field.path),
+        repeated=repeats(field),
         lengths=lengths.status,
         min_length=lengths.value.min_length if lengths.status == "complete" else None,
         mean_length=float(lengths.value.mean_length) if lengths.status == "complete" else None,
@@ -403,7 +507,83 @@ def _facts(
         patterns=_patterns(index, dataset.id, field.id),
         measures=_measures(field, rules),
         detectors=_detectors(field),
+        records=dataset.record_count,
+        matrix_member=field.id in members,
+        matrix_size=len(members),
+        records_excluded=excluded,
+        arrays=_arrays(field),
+        objects=field.native_types.get("object", 0),
+        object_keys=len(children.get(field.id, ())),
+        object_varies=any(
+            child.presence.absent != 0 for child in children.get(field.id, ())
+        ),
+        source_format=source_format,
+        untracked_paths=dataset.structure.untracked_observations > 0,
+        dataset_fields=len(dataset.fields),
+        strings_content=field.strings.content,
+        classified=_classified(field),
     )
+
+
+# The root of the records of a JSON source is no field of the Scan, yet the sets
+# of keys of a record are the first thing to know of it: the plan names it ``$``,
+# the way the root is displayed (design 20.33).
+ROOT_FIELD = "$"
+
+
+def root_facts(scan: ScanResult) -> list[FieldFacts]:
+    """The facts of the root of the records of each dataset whose records are all
+    objects (JSON and JSONL), one per dataset; none for a table."""
+    if scan.source.format not in ("json", "jsonl"):
+        return []
+    roots: list[FieldFacts] = []
+    for dataset in scan.datasets:
+        if not dataset.record_count or dataset.record_types.get("object", 0) != dataset.record_count:
+            continue
+        top = [field for field in dataset.fields if field.parent is None]
+        roots.append(
+            FieldFacts(
+                dataset=dataset.id,
+                field=ROOT_FIELD,
+                display=ROOT_FIELD,
+                name=ROOT_FIELD,
+                where=f"datasets/{dataset.id}/fields/{ROOT_FIELD}",
+                values=0,
+                technical_type="object",
+                exposure=None,
+                cardinality="not_applicable",
+                distinct=None,
+                distinct_lower_bound=None,
+                distinct_estimate=None,
+                frequencies="not_applicable",
+                frequencies_distinct=None,
+                frequencies_truncated=False,
+                numeric="not_applicable",
+                numeric_min=None,
+                numeric_max=None,
+                numeric_count=0,
+                repeated=False,
+                lengths="not_applicable",
+                min_length=None,
+                mean_length=None,
+                max_length=None,
+                long_text_occurrences=0,
+                samples_listed=0,
+                samples_all=False,
+                temporal=None,
+                temporal_status="not_applicable",
+                patterns=None,
+                records=dataset.record_count,
+                records_excluded=scan.scope.records_excluded,
+                objects=dataset.record_count,
+                object_keys=len(top),
+                object_varies=any(child.presence.absent != 0 for child in top),
+                source_format=scan.source.format,
+                untracked_paths=dataset.structure.untracked_observations > 0,
+                dataset_fields=len(dataset.fields),
+            )
+        )
+    return roots
 
 
 def scan_facts(scan: ScanResult) -> list[FieldFacts]:
@@ -416,8 +596,24 @@ def scan_facts(scan: ScanResult) -> list[FieldFacts]:
         }
     )
     rules = _measure_rules(scan.config.detectors)
-    return [
-        _facts(dataset, field, index, rules)
-        for dataset in scan.datasets
-        for field in dataset.fields
-    ]
+    facts: list[FieldFacts] = []
+    for dataset in scan.datasets:
+        members = frozenset(field.id for field in matrix_members(dataset))
+        children: dict[str, list[FieldResult]] = {}
+        for field in dataset.fields:
+            if field.parent is not None:
+                children.setdefault(field.parent, []).append(field)
+        facts.extend(
+            _facts(
+                dataset,
+                field,
+                index,
+                rules,
+                members,
+                scan.scope.records_excluded,
+                children,
+                scan.source.format,
+            )
+            for field in dataset.fields
+        )
+    return facts

@@ -291,7 +291,7 @@ class ColumnAnalyses(ResultModel):
     frequencies: FrequencyTable | None = None
 
 
-InsightKind = Literal["exact", "estimated", "sample", "at_least"]
+InsightKind = Literal["exact", "estimated", "sample", "at_least", "fingerprint"]
 
 
 class InsightFact(ResultModel):
@@ -340,7 +340,8 @@ class InsightCard(ResultModel):
     figures, distributions and tables, each qualified by its accuracy. It is
     derived when a page is rendered, from the document alone, and never
     serialized. ``fields`` are the ids of the columns it concerns; ``source``
-    says where its figures come from: the second pass, or the Scan."""
+    says where its figures come from: the second pass, or the Scan; ``scope``
+    where it is printed."""
 
     id: str
     family: str
@@ -348,6 +349,9 @@ class InsightCard(ResultModel):
     column: str
     fields: list[str]
     source: Literal["second_pass", "scan"] = "second_pass"
+    # Where the card is printed: the dataset panel, the pages of its columns, or
+    # both. A card that sums up the columns of a dataset has no column page.
+    scope: Literal["dataset", "column", "both"] = "both"
     summary: str = ""
     facts: list[InsightFact] = Field(default_factory=list)
     bars: list[InsightBars] = Field(default_factory=list)
@@ -360,7 +364,7 @@ class InsightCard(ResultModel):
         found = {fact.kind for fact in self.facts}
         found.update(bars.kind for bars in self.bars)
         found.update(table.kind for table in self.tables)
-        order = ("exact", "estimated", "sample", "at_least")
+        order = ("exact", "estimated", "sample", "at_least", "fingerprint")
         return [kind for kind in order if kind in found]
 
 
@@ -372,7 +376,7 @@ class SecondPassRow(ResultModel):
     column: str
     analysis: str
     status: Literal["complete", "limited", "failed", "skipped"]
-    kind: Literal["exact", "at_least", "not_computed"]
+    kind: Literal["exact", "at_least", "not_computed", "fingerprint"]
     summary: str
 
 

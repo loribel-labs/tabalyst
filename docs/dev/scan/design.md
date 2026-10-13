@@ -76,6 +76,12 @@ lot, with the reason recorded in section 17.
 | O47 | Insight lot 13: gaps closed without reading the source | `numeric.coverage` (`of`, `share`) says which part of `values.count` the numeric block describes; a field that a code detector (`postal_code`, `phone`, `uuid`, `ip_address`) reads for at least half of its eligible values and for at least as many values as the numeric block holds gets `numeric` `not_applicable` with the reason `code_interpretation` (constants `CODE_DETECTORS`, `CODE_MIN_SHARE` in `values.py`). The observation `minority_length` (rules version 2) reads the exact length histogram. The report derives lengths quartiles, frequency tail, dominant unit or marker and decades from existing blocks at render time (`report_measures.py`), without a new member. Scan and Report move to format revision 3 (rule P3: one revision per release). | Accepted 2026-10-11 | 18.13, 18.14, 9.4 |
 | O49 | Insight lot 15: the values that patterns and detectors leave out | The analyzer `residual_values` keeps, per field, the values no candidate pattern reads and the values of up to three replayable detectors (`replayable()`: value scope, strings only) that are `invalid` or `not_matched`, with exact counts (a value is tracked from its first appearance, up to `deep.residuals.max_tracked`), the reasons of the invalid ones and, when the source is read, the record of the first occurrence. Each candidate pattern gets an example, its first record and its distinct values over every occurrence (an `ExactSet` of the run's pool). When the Scan holds every distinct value with its exact count the result follows from them, without records (D1); `deep.residuals.records` reads the source anyway. The detector counts are checked against the coverage of the Scan. The record number is handed to the routes (`strings(column, start)`, `string(value, record)`). Second-pass document revision 2 (same release). | Accepted 2026-10-11 (maintainer, lot 15: D1 to D4) | 20.20, 20.5, 20.7 |
 | O50 | Insight lot 15: the repeated values of identifiers and keys | The analyzer `duplicates_report` lists the values found more than once in a column of almost all different values (a proven unique column is `already_satisfied`), with exact counts and, when the source is read, the first record. Values are 128-bit BLAKE2b digests with the record of their first occurrence, charged to the pool of the exact sets; a search the pool stops is `duplicates_limited`. A combination of two columns is searched on request only (`AnalysisRequest(partner=)`): `DuplicatesReport` is also a `PairAnalyzer` with `per_field`. `deep.duplicates` holds `max_listed`, `max_tracked`, `records`. | Accepted 2026-10-11 (maintainer, lot 15: D1 to D4) | 20.21, 20.5 |
+| O59 | Insight lot 19: a column followed by position in the file | The analyzer `position_drift` cuts the records of a dataset in ten slices of the same size, in file order (`p * 10 // records`), and counts for each the records, the values and the missing ones (`records - values`: a cell the Scan counts as content is a value, so an empty, blank or marker cell, a null and an absent key are records without a value), exactly. `missing_association` is Cramér's V (corrected) of the slice against the presence of a value. When the Scan lists every distinct value with its exact count and there are 2 to `deep.drift.max_tracked` (1,000) of them, `followed` counts each value in each slice, lists the `max_listed` (12) most frequent with their counts per slice and the first slice where they appear, sums up the others and gives Cramér's V of the slice against the value; the table is checked entry by entry against the frequencies of the Scan. It needs 100 records, leaves out a field repeated in a record and, when the Scan left records out (the numbers of the source then have gaps), every field. A column that misses nothing and cannot be followed is `nothing_to_follow`. Utility 40, never automatic. `DriftSettings`, `PositionDriftResult`, `COST_MODEL_VERSION` 12. | Accepted 2026-10-12 (maintainer: "Porte E validée, lot 19") | 20.30 |
+| O60 | Insight lot 19: the columns that miss a value together | The analyzer `missing_matrix` counts, for every pair of columns of a dataset that have a value somewhere and lack one somewhere (`matrix_members`: not repeated in a record, values not withheld by exposure), the records where both lack a value, from one bit set a column and a batch (`(a & b).bit_count()`), in the second pass and not in the first. A candidate for each column, a single counting for the dataset (the state `matrix:<dataset>` is shared, so the plan counts it once); the result of a column lists the `max_listed` (10) partners that lack a value most with it, by the share of the records that lack one in either column where both do (Jaccard), exact for every pair. A dataset where more than `deep.missing.max_columns` (100) columns qualify is `too_many_columns`, one with fewer than two has no candidate. Checked against the Scan: the records, and the records without a value of each column. Utility 40, never automatic. `MissingSettings`, `MissingMatrixResult`. | Accepted 2026-10-12 (maintainer: "Porte E validée, lot 19") | 20.31 |
+| O61 | Insight lot 18, Q9: counts of a sensitive field without a value (`deep.sensitive`, off by default) | The second pass may count a field whose exposure is `mask` or `hide`, under four rules: **(1)** a closed vocabulary: numbers, masks that the exposure gate already produces and classes of a fixed list (`ip_address`: version and range, `phone`: the zone `fr_01` to `fr_09`, `nanp_geographic`, `nanp_toll_free`, `nanp_premium`, never an area code), never a string derived from a raw value, and no digest or fingerprint for a sensitive field (a hash of a phone number is found by brute force); **(2)** a floor `deep.sensitive.min_count` (5): a mask or a class that fewer values take is summed up (`other_forms`, `other_values`, `other`), and so is the least frequent one listed when what is summed up would hold fewer values than the floor (complementary suppression), so no published figure is about fewer than 5 values; **(3)** nothing per record: no position, no row, no other column, so the drift, the matrix, the pairs, the tables, the repeated values and the texts stay out of a sensitive field; **(4)** never automatic (utility 40), and `hide` gets `exact_distinct` only. `exact_distinct` is the one existing analysis that stops being blocked (its result is two numbers; the plan parameter `exposure` is part of the key). Risks weighed: the exact distinct count and the masks with their counts are already in the Scan (`values.cardinality` is raw and exact, `frequencies` lists masks), so they add an exact count where the Scan has a bound, and the tail of the masks; a differencing attack on a count is the same as on the Scan's; the zone of a French number is a region, which the floor protects. **The setting is off by default** (maintainer, 2026-10-12: "mettre à off la règle des données sensibles"): off, `blocked()` and the plans are what they were, and `sensitive_forms` is relevant to no field. `SensitiveSettings`, `FormsResult`, `COST_MODEL_VERSION` 13. | Accepted 2026-10-12 (maintainer, Q9: "Accepter avec garde-fous", then "off par défaut") | 20.35 |
+| O62 | Insight lot 18: the lengths of the arrays and the sets of keys of JSON | `array_profile` counts every length of the arrays of a field exactly (a dictionary length to count, at most `deep.arrays.max_lengths` (10,000) different lengths: the Scan's range decides, a wider one is `array_lengths_too_wide`, equal minimum and maximum is already answered, `lengths_constant`), with the exact quantiles of the histogram. `structure_variants` counts the sets of keys of the objects at a path, as integers with a bit per key the Scan named below it, in one sweep of the observations of each record for the dataset (`StructureAccumulator`, `Router(structures=)`); the sets are tracked up to `deep.structure.max_variants` (1,000) each exactly from its first object, the others summed up and `complete` false. The records themselves are the field `$` of the plan, which the Scan holds as no field (`root_facts`, `Analyzer.roots`, `_root_field`). Checked against the Scan: the arrays, empty arrays, items, shortest and longest; the objects and, for each key, the parents that hold it (`presence.present`). Left out: a dataset whose paths the Scan stopped naming (`untracked_paths`), one object, no key, every key in every object (`uniform_keys`), a table. Utility 40, never automatic. | Accepted 2026-10-12 (maintainer: lot 18, B7) | 20.33 |
+| O63 | Insight lot 18: long texts | `text_profile` counts the words (`str.split`), the lines (`str.splitlines`) and the decimal digits of the original texts with constant counters (powers of two for words and lines, tenths for the digits), for a field whose longest value has `deep.texts.min_length` (80) characters or whose values the Scan sampled as long texts. `fingerprint_distinct` counts the distinct values of a field too long for the exact set by the 128-bit BLAKE2b digest the Scan gives its long texts (`fingerprint_based`, never `exact`), lists the `deep.texts.max_listed` (10) most repeated by digest, within the pool of the exact sets (`distinct_limited` with `memory_budget` beyond it), and is answered by the Scan when every value is distinct. Both stay blocked for a sensitive field. Utility 40, never automatic. | Accepted 2026-10-12 (maintainer: lot 18, B8) | 20.34 |
+| O64 | Insight lot 18: the Report prints the new cards | The families `structure`, `texts` and `forms`, the accuracy `fingerprint`, the card of the records in the dataset panel only. A card of masks is printed only when each mask is a fixed point of the mask (`mask(form) == form`) and each class belongs to the closed list, whatever the exposure says, and never for `hide`; the digests of a hidden column are not listed. No format changes (second pass revision 2, Report 3). | Accepted 2026-10-12 (maintainer: lot 18) | 20.36 |
 | O58 | Insight lot 20: the Report reads the later analyses with the accuracy of each figure | The Report prints, from the document alone, one insight card for each result of the values with a unit, the shape of the numbers, the parts of the dates, the values left out, the repeated values and the numbers by category, and the measures derived from the Scan, each fact, distribution and table with its own kind (exact, estimated, sample, at least). A section Insights (before the Second pass) and a section of the column page hold them; the Dates section says how many ambiguous dates the evidence read. No format changes. The cost model is reviewed with the matrix: the ceiling of the tiers of 17a and 17b, `pearson` and the utility 40 stay; `automatic_stats` goes from 8 to 2 (the second pass of the realistic file: 15.4 s to 11.8 s). Lots 18 and 19 are reported after the milestone. | Accepted 2026-10-12 (maintainer, lot 20; Porte E pending) | 20.29, 20.17, 18.14 |
 | O57 | Insight lot 17d.2b: values with a unit read by the evidence of the column | The second pass reads the ambiguous numbers of the values with a unit (`1,250 Kg`, `$4,825`, `12,5 %`) in the convention that the unambiguous values of the same detector (`currency`, `percentage` or `quantity`) prove, by the rule of O56 (`min_evidence`, none proving the other, `ambiguous_convention` wins, `infer_convention`), and under `comma` reads `1.250 Kg` as 1250. The plan decides it from `details.ambiguity.evidence` of the detector in the Scan (`MeasureFacts.convention`) and writes the parameter `number_convention` (part of the key) and the reason `ambiguous_numbers_read_by_evidence`; the reader of the extraction applies it (`CellReader.cells(measure=, convention=)`), the check against the Scan becomes read plus resolved ambiguous equal the coverage, and the result names it (`resolved`, `resolution`). The Scan and the settings are those of 17d.2a; no analyzer other than `measure_extraction` changes. | Accepted 2026-10-12 (maintainer, plan of the session) | 20.28, 20.27, 20.19 |
 | O56 | Insight lot 17d.2a: ambiguous numbers read by the evidence of the column | The Scan reads the ambiguous numbers (`1,234`) in the convention that the unambiguous numbers of the column prove, at least `detectors.number.min_evidence` (3) of them and none proving the other, and counts them in `numeric`; under a `comma` proof the strict decimals `d.ddd` (`1.250`) are thousands. The proof comes from the values only: `ambiguous_convention` wins and regroups nothing; spaces prove nothing alone. Decided at the finalization of the field from integers N kept during the Scan (scenario B5 of 17d.1), named in `details.ambiguity.resolution` (`source: evidence`, `resolved`); `coverage` and `formats` still describe the writing. Every later reading (second pass, smart sample, explorations) reads the field in the convention the Scan wrote and never decides again. One rule module, `scanner/convention_rule.py`, shared with the dates. Numbers with a unit: lot 17d.2b. | Accepted 2026-10-12 (maintainer, gate N) | 20.27, 12.6, 9.4 |
@@ -1138,6 +1144,9 @@ describes the writing, the `numeric` block the numbers.
 - The effective configuration is not a value-bearing block.
 - The field records `sensitive` and `exposure`, the mode applied (`null` when
   the field is not sensitive).
+- The second pass leaves such a field out of every analysis, except, when
+  `deep.sensitive.enabled` is set (off by default, decision O61, 20.35), the exact distinct
+  count and the masks and classes without a value or a figure under a floor.
 
 ### 12.9 Catalogue
 
@@ -1810,6 +1819,9 @@ makes by itself writes none.
 | 2026-10-12 | IN-22 | New decision O57, new section 20.28: `MeasureFacts.convention` and `readable`, the plan parameter `number_convention`, the reason `ambiguous_numbers_read_by_evidence`, `CellReader.cells(convention=)` and `measure_detector(detector, convention)`, `Measure.resolved`, `MeasureAccumulator.convention` and `resolved`, `NumberResolution`, `MeasureResult.resolved` and `resolution`, `dotted_thousands` for a format with affixes. | Insight lot 17d.2b: values with a unit follow the rule of the numbers. |
 | 2026-10-12 | IN-21 | New decision O56, new section 20.27, notes in 9.4 and 12.6: `scanner/convention_rule.py` (`single_reading`, `NumberRule`, `scan_convention`), `ThousandsReadings` and `NumericAccumulator.absorb`, `DetectorSet.number_convention`, `CellReader.for_field`, `detectors.number.infer_convention` and `min_evidence`, `resolution` with `source: evidence`. | Insight lot 17d.2a: the maintainer's rule for ambiguous numbers (gate N). |
 | 2026-10-12 | IN-23 | New decision O58, new section 20.29, a row in 20.17: `report_insights.py`, `InsightCard`, `templates/insights.html`, the Insights sections of the Report and of the column page, the resolution of the dates in the Dates section, `tests/scan/test_report_insights_html.py`, `test_explore_06`, `automatic_stats` 2. | Lot 20 of the Insight milestone: the Report reads what lots 13 to 17d add, the cost model is reviewed with the replayed matrix. |
+| 2026-10-12 | IN-24 | New decisions O59 and O60, new sections 20.30 to 20.32, two rows in 20.5 and a note in 20.17 and 20.29: `position_drift` (`planner/analyzers/drift.py`, `secondpass/drift.py`) and `missing_matrix` (`planner/analyzers/matrix.py`, `secondpass/matrix.py`), `PositionDriftResult`, `MissingMatrixResult`, `DriftSettings` and `MissingSettings` (`deep.drift`, `deep.missing`), `FieldFacts.records`, `matrix_member`, `matrix_size`, `records_excluded`, `matrix_members`, `FieldRoute.drift`, `Router(matrices=)`, `native_key`, `InsightCard.scope`, the families `drift` and `missing`, `COST_MODEL_VERSION` 12, `tests/scan/test_insight_lot19.py`, `tests/scan/test_report_drift_html.py`. | Lot 19 of the Insight milestone: leads B9 and B11 of 10.30 of the technical documentation. |
+| 2026-10-12 | IN-25 | New decisions O61 to O64, new sections 20.33 to 20.36, rows in 20.5, notes in 12.8, 20.17 and 20.29: `array_profile`, `structure_variants` (`planner/analyzers/structure.py`, `secondpass/structure.py`), `text_profile`, `fingerprint_distinct` (`planner/analyzers/texts.py`, `secondpass/texts.py`), `sensitive_forms` (`planner/analyzers/forms.py`, `secondpass/forms.py`), `ip_class` and `phone_class`, `ArrayProfileResult`, `StructureResult`, `TextProfileResult`, `FingerprintResult`, `FormsResult`, `ArraySettings`, `StructureSettings`, `TextSettings`, `SensitiveSettings` (`deep.arrays`, `deep.structure`, `deep.texts`, `deep.sensitive`), `FieldFacts.arrays`, `objects`, `object_keys`, `object_varies`, `untracked_paths`, `dataset_fields`, `strings_content`, `classified`, `cells`, `ROOT_FIELD`, `root_facts`, `Analyzer.roots`, `FieldRoute.arrays`, `texts`, `fingerprints`, `forms`, `Router(structures=)`, `PARTS` `texts` and `forms`, the family accuracy `fingerprint`, `COST_MODEL_VERSION` 13, `tests/scan/test_insight_lot18.py`. | Lot 18 of the Insight milestone: leads B7, B8 and B10 of 10.30 of the technical documentation. |
+| 2026-10-12 | IN-23 |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -3173,13 +3185,20 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `exact_frequencies` | any field | `frequencies` complete and not truncated (`counts_complete`), or every distinct original value is listed with its exact count in the samples (`counts_in_samples`) | no values, exposure, more than 1,000 distinct values or a released table (`high_cardinality`), a frequency measure that is off or failed (`measure_unavailable`) | `hash_table`: a table keyed by native type and analytical text (lot 7b) |
 | `numeric_histogram` | integer, number, and mixed with a numeric measure | constant (`constant_value`: no spread, no division by zero) | no values, exposure, measure not complete, mixed type (`unreliable_type`) | `dense_counts` (an integer field whose minimum and maximum are integers, at most 65,536 integers apart: exact median, mode, quantiles from one state) or `bins` (`deep.bins`, 100 by default, with the `strategy` of `deep.bin_strategy`) |
 | `length_distribution` | text, mixed | the length histogram is complete (`lengths_complete`, always today) | no values, exposure | `dense_counts` |
-| `exact_distinct` | any field | the cardinality is complete (`distinct_exact`) | no values, exposure, long texts only, values longer than 64 characters (`not_compactable`) | `compact_set`, key `integer` (digit strings, JSON integers) or `text`: the key the expected values take, the firm bound always charges a text (20.8) |
+| `exact_distinct` | any field | the cardinality is complete (`distinct_exact`) | no values, exposure (unless `deep.sensitive.enabled`, O61: then a masked or hidden field is counted, parameter `exposure`, utility 40), long texts only, values longer than 64 characters (`not_compactable`) | `compact_set`, key `integer` (digit strings, JSON integers) or `text`: the key the expected values take, the firm bound always charges a text (20.8) |
 | `pattern_validation` | fields with an inferred pattern entry | never (the Scan counts distinct values, not occurrences) | failed or absent inference, exposure, no candidate | `compiled_matcher` (20.9); reads no source when the inference read every distinct value (`all_distinct`): the occurrences follow from the exact counts of the samples |
 | `pearson_correlation` | pairs of numeric columns of one dataset (lot 8a, 20.12) | never | a column that is not numeric, hidden by exposure or repeated inside a record (explicit pairs only; the exploration counts the columns it leaves out) | `pairwise_complete`, parameter `min_pairs` |
 | `category_crosstab` | a category column and a column of text, mixed or integer values of one dataset, by feature (lot 8b, 20.13) | never | a category that is not one (no exact frequencies, one value, too many, near unique, an identifier, exposed, repeated), a column without the classes of the feature (no pattern, one length, no listed value), a column that is its own feature | `contingency_table`, parameters `feature`, `max_categories`, `examples`, `rule_purity`, `rule_support` (and `max_classes`, `prefix_length`) |
 | `category_stats` | a category column and a numeric column of one dataset (lot 16c, 20.23) | never | a category that is not one (as for `category_crosstab`), a number that is not numeric, hidden, repeated, constant, an identifier or without a complete measure, a column that is its own category | `group_moments`, parameters `max_categories`, `bins`, `strategy` |
 | `numeric_shape` | integer, number, and mixed with a numeric measure (lot 17a, 20.24) | constant (`constant_value`) | no values, exposure, measure not complete, mixed type | `value_table`, parameters `max_values`, `bins`; utility 40, never automatic |
 | `datetime_parts` | the fields of `temporal_distribution` and a column of times (lot 17b, 20.25) | never | no values, exposure, mixed type, several kinds, no span | `calendar_parts`, parameters `bins`, `as_of`; utility 40, never automatic |
+| `position_drift` | any field of a dataset of at least 100 records (lot 19, 20.30) | never | no values, exposure, repeated in a record, records left out by the Scan, a column that misses nothing and has no value to follow | `slices`, parameters `slices`, `values`, `max_listed`; utility 40, never automatic |
+| `missing_matrix` | the columns of a dataset that have a value and lack one somewhere, from two to `deep.missing.max_columns` (lot 19, 20.31) | never | more than `max_columns` columns (`too_many_columns`); no candidate for a column that is not a member | `bit_sets`, parameters `columns`, `max_listed`; utility 40, never automatic |
+| `array_profile` | a field that holds arrays (lot 18, 20.33) | every array has the same length (`lengths_constant`) | the lengths spread over more than `deep.arrays.max_lengths` (`array_lengths_too_wide`) | `length_counts`, parameter `max_lengths`; utility 40, never automatic |
+| `structure_variants` | a field that holds objects and the root of the records `$` of a JSON source (lot 18, 20.33) | never | paths the Scan stopped naming (`untracked_paths`), one object, no key, every key in every object (`uniform_keys`) | `key_sets`, parameters `max_variants`, `max_listed`, `max_keys`; utility 40, never automatic |
+| `text_profile` | a field with content strings whose longest value reaches `deep.texts.min_length` or that has long texts (lot 18, 20.34) | never | no values, exposure | `text_counters`; utility 40, never automatic |
+| `fingerprint_distinct` | a field with a value above 64 characters or long texts (lot 18, 20.34) | every value is distinct (`distinct_exact`) | no values, exposure | `fingerprints`, parameter `max_listed`; the table is a state of the pool of the exact sets; utility 40, never automatic |
+| `sensitive_forms` | a field whose exposure is `mask`, when `deep.sensitive.enabled` (lot 18, O61, 20.35) | never | no values, exposure `hide` (`hidden_exposure`); relevant to no field while the setting is off | `masks`, parameters `min_count`, `max_listed`, `max_tracked`, `classes`; utility 40, never automatic |
 | `temporal_distribution` | date, a column of datetimes (the technical type of the Scan is `text` for them: at least 80% of the values are of one datetime kind), mixed with a temporal measure | single date, or granularity `year` and years already counted (`years_counted`) | no values, exposure, mixed type, several kinds, times only | `period_counts` by `day` (span up to 2 years), `month` (60 years) or `year` (20.10) |
 | `measure_extraction` | a field where the `currency`, `percentage` or `quantity` detector matched a value (lot 14, 20.19) | never | no values, exposure, the detector that matched the most values matched fewer than half of the values (`low_coverage`) | `value_table`, parameters `detector`, `max_groups`, `max_values`, `bins`; reads no source when every distinct value is in the samples with its exact count |
 | `residual_values` | a field whose patterns leave values out or may (found in a sample), or that a replayable detector reads for at least half of its values while finding some `invalid` or `not_matched` (lot 15, 20.20) | never | no values, exposure, nothing left out (`nothing_left_out`) | `residual_table`, parameters `sources`, `max_listed`, `max_tracked`, `max_value_length`, `records`; reads no source when every distinct value is in the samples with its exact count and `records` is 0 |
@@ -3187,7 +3206,8 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 
 A mixed type never gets a typed analysis automatically (specification 11.2):
 the rejection is explained, not silent (PLAN-01). Exposure `mask` or `hide`
-withholds the values: no analysis is proposed for such a field.
+withholds the values: no analysis is proposed for such a field, but the counts of
+decision O61 (`exact_distinct` and `sensitive_forms`) when `deep.sensitive.enabled` is set (20.35).
 
 **Candidate and decision.** One candidate per (analyzer, dataset, field) the
 analyzer is relevant to, with `id` `analyzer:dataset:field`, its method and
@@ -4119,7 +4139,7 @@ what a Scan, a Report and a second pass give it, so that it can be built without
 | Global profile against filtered result (EXPLORE-03) | Every count names its population and domain (`domain`, `scope`, `population`); nothing in the profile is the count of a selection | A filtered count comes from a query or an analysis whose scope names the filter; the counts of the Scan are never shown as counts of the selection |
 | Reuse of a second pass (EXPLORE-04) | `<stem>.deep.json` and the `analyses` member of a Report, keyed by the source, the settings and the engine (`PlanBase`); a result that matches the source and the scope is reused (`run.reused`) | A different scope (a filter) is a different analysis. A facet of patterns uses the feature and the version of its validation; a column of high cardinality is better served by a search or a range than by a list of values |
 | Initial profile (EXPLORE-05) | A Report is autonomous: it carries the Scan base and the analyses, and its HTML is rendered from the JSON alone | Reading the rows still needs the source or a valid cache |
-| Later analyses (lot 20) | The results `measures`, `numeric_shape`, `datetime_parts`, `residual_values`, `duplicates`, `category_stats` of a forced second pass: each has a `kind` to dispatch on and an `accuracy` (`exact`, or `exact_counts` when the quantiles of a grid are estimates with certain bounds); a facet shows the distribution of the shape of the numbers, the weekday, the hour or the unit without the source | The Report prints them as insight cards (20.29); a card is derived at render time and is not part of any format. `tests/scan/test_explore_contract.py` keeps it true |
+| Later analyses (lot 20) | The results `measures`, `numeric_shape`, `datetime_parts`, `residual_values`, `duplicates`, `category_stats`, `position_drift` and `missing_matrix` (lot 19), `array_profile`, `structure_variants`, `text_profile`, `fingerprint_distinct` and `sensitive_forms` (lot 18) of a forced second pass: each has a `kind` to dispatch on and an `accuracy` (`exact`, or `exact_counts` when the quantiles of a grid are estimates with certain bounds); a facet shows the distribution of the shape of the numbers, the weekday, the hour or the unit without the source | The Report prints them as insight cards (20.29); a card is derived at render time and is not part of any format. `tests/scan/test_explore_contract.py` keeps it true |
 
 Decisions. Explore never edits a Scan, a Report or a second-pass document; it reads them, and writes its own
 documents. The backend that serves the rows is its own choice and is outside this work.
@@ -4712,11 +4732,189 @@ The key of a result does not depend on the budget, so nothing is computed again.
 is the lever that would give the others back, and is left to a later lot.
 
 **Lots 18 and 19** (JSON, long texts and sensitive fields; drift by position and missing matrix) are not part of this milestone:
-they are reported after the Porte E, without any regression (nothing of lots 13 to 17d depends on them).
+they are reported after the Porte E, without any regression (nothing of lots 13 to 17d depends on them). Lot 19 was done after the Porte E was
+validated (20.30 to 20.32); lot 18 is still reported (Q9, the exposure policy, is to be decided).
 
 **Limits.** The cards are derived, so a Report written by an earlier build shows them for the results it holds, and a result that
 a later build adds (a new kind) is ignored until the renderer learns it, never rebuilt from less. The Second pass table keeps its
 sentences, which `result_summary` still produces for every kind.
+
+### 20.30 A column followed by position in the file (Insight lot 19, B9, O59)
+
+`position_drift` (`planner/analyzers/drift.py`, `secondpass/drift.py`) follows a column along the file: the totals of the Scan hide a
+column that is exported differently in the last tenth, a field that stops being filled from a record on, a code that appears
+late. Its utility is 40 (asked for or forced), the method `slices`, the parameters `slices` (10), `values` (0 or 1) and, with the
+values, `max_listed` (`deep.drift.max_listed`), all part of the key.
+
+**Slices.** The records are numbered in file order (a CSV row, a JSON record, an Excel row); the position of a record is its number minus one
+and its slice is `p * 10 // records` (`slice_bounds`: the first position of each slice, `ceil(k * records / 10)`), so the slices
+differ by one record at most and do not depend on the machine or on how the reader cuts its batches. `FieldRoute.strings` cuts a
+batch of a CSV file at the end of a slice (`DriftAccumulator.segments`), so the records it counts together are of one slice, and the
+counting of the other analyses of the route does not change. A JSON record carries its own number.
+
+**Presence.** The route hands the accumulator the content values only (`CellReader.content`, the first pass's decision), and a
+record has a value for the field or has none: `missing = records - values` per slice. This holds for an empty cell, a blank one, a
+null marker, a JSON `null` and an absent key alike, and does not depend on `values.missing` (the definition of the Scan decides what
+`missing.count` adds up, not what a value is). The sum of `values` is checked against `values.count` of the Scan, and a slice that
+holds more values than records fails the result (`scan_mismatch`): a field repeated in a record (the items of an array) is left out by
+the planner (`repeated_field`). The native booleans of a JSON field are values, as in the Scan (`FieldRoute.native` no longer leaves
+them out when the field is followed).
+
+**Records the Scan left out.** With a tolerant error policy a record can be excluded; the numbers of the source then have gaps and no
+longer give the place of a record among the analyzed ones. The planner leaves every field out then (`records_excluded`, from
+`scan.scope.records_excluded`): a wrong slice would be a wrong count. A file with fewer than 100 records is `too_few_records`.
+
+**The values.** `followed` exists when `facts.frequencies` is complete and not truncated (the Scan lists every distinct value with its exact
+count) and there are 2 to `deep.drift.max_tracked` of them. With the default `scan.limits.max_listed_frequencies` (100) that
+means a column of at most 100 distinct values; a Scan that lists more lets a column of up to 1,000 be followed. The key of a value is the
+one of `exact_frequencies` (native type and analytical text, `native_key`), so `007`, `7` and the integer 7 are three values. The
+accumulator keeps a list of ten counters per value, up to the number of distinct values of the Scan (more fails the result), and the
+table is compared with the listing of the Scan entry by entry (`scan_mismatch`). `first_slice` is the first slice with a count
+and `new_values` of a slice counts the values whose first slice it is. The result lists the `max_listed` most frequent (by count, then
+text, then type), `other` sums the rest by slice.
+
+**Association.** `missing_association` is the table of presence (a row of values, a row of missing) by slice and `followed.association`
+the table of every distinct value by slice, both through `scanner/crosstab.association` (20.13): Cramér's V, bias-corrected
+(Bergsma), `stable` or not, with its reason when it is not defined (`single_category` for a column that misses nothing). A column is not
+said to drift on a number: the card prints V and says whether the counts were low.
+
+**Exposure.** A field whose exposure is `mask` or `hide` is left out (`sensitive_exposure`), and the card checks it again at render time.
+
+**Cost.** Measured on the executor (1 million rows, one process, the reading of the cell included, `lot19/measure_costs.py`): 106 ns
+for a column of 10 values followed, 101 for 30, 121 for 5,000 distinct strings whose presence only is followed, 136 for numbers and 200
+for one million distinct identifiers. `NS_PER_CELL` has `drift_presence` 300 and `drift_values` 200, class `low`; the memory is `DRIFT_BYTES` and
+`DRIFT_VALUE_BYTES` a value, and the replay of the cells when the values are followed. The routes run in the workers of 20.18
+(`PARTS` has `drift`, `route_weight` adds `cell_ns`), so the document does not depend on their number (`test_results_are_the_same_in_workers_and_in_the_process`).
+`COST_MODEL_VERSION` is 12.
+
+**Left out.** A statistic of the numbers by slice (the mean, the median), the patterns or the lengths by slice, a cut by value (a date) instead of by position, and
+a number of slices other than ten: a file sorted by a date is followed by position, which then stands for time.
+
+### 20.31 The columns that miss a value together (Insight lot 19, B11, O60)
+
+`missing_matrix` (`planner/analyzers/matrix.py`, `secondpass/matrix.py`) counts, for each pair of the columns of a dataset that lack a value, the records
+where both do. The method is `bit_sets`, the parameters `columns` (the members of the matrix) and `max_listed`; utility 40, never automatic.
+
+**Members.** `matrix_members(dataset)` (`planner/facts.py`) gives, in document order, the fields that have a value, lack one in some records
+(`values.count < record_count`), are not repeated in a record and whose values exposure does not withhold. The planner and the executor
+call the same function, so the matrix does not depend on which columns the plan selects, and a plan whose `columns` differs from what the Scan
+gives fails (`scan_mismatch`). There is a candidate for each member when there are at least two and at most `deep.missing.max_columns` (100):
+the pairs grow with the square of the members, the cap is declared (`too_many_columns`) and the columns that miss nothing do not count, so a
+file of 1,000 columns with 8 that miss a value is counted.
+
+**One counting.** The route of a field is not used: the matrix is an accumulator of the dataset that the router feeds
+(`Router(matrices=)`) with the rows of a CSV batch or the records of a JSON or Excel source, so the columns are aligned. For each member and
+batch `CellReader.content` gives the flags, turned into one integer with a bit per record (`bytes.translate` and `int(..., 2)`, all in C), and
+the missing set is its complement in the batch; the records without a value of a column are the `bit_count` of its set and the records
+without a value in two columns that of the AND of their sets, for the pairs of the columns that have a missing value in the batch. A source read
+one record at a time (JSON, Excel) buffers `PAIR_FEED_ROWS` records. The matrix stays in the process that reads: it holds no route. The state is the
+bit sets of one batch and a counter for each pair that overlaps (114 bytes for 4,950 pairs, declared 160).
+
+**Result.** Each candidate gets the `MissingMatrixResult` of its column: `missing` (checked against `records - values.count`), `columns`, `partners` (the members
+that lack a value in at least one of the same records), and `listed`, at most `max_listed`, in order of the share of the records that lack a value in either
+column where both do (`both / (missing + partner.missing - both)`, compared as a fraction so the order is exact), then `both`, then document order. That
+share is the Jaccard index of the two sets of records: it favors columns that are missing together over a column that is merely often missing. Two rare columns that overlap
+once can rank high, which is why the counts are always shown beside it. The counts are exact for every pair, listed or not; a
+withheld partner never appears (the Report checks it again).
+
+**Cost.** Measured on the executor (300,000 rows, one process, `lot19/measure_costs.py`): 82 ns for a cell of 4 and of 20 columns (1.2 and 6 million cells) and 105 ns
+for 100 columns (30 million cells, 4,950 pairs, 3.2 s). `NS_PER_CELL` has `matrix` 200, class `low`; the state is `matrix:<dataset>`, shared by every candidate of the dataset.
+
+**Report.** One card for the dataset (`scope` `dataset`: the pairs, each once, from the partners every column lists) and one for each column (`scope` `column`: its
+partners with their counts), see 20.32. It shows that values go missing together, not why.
+
+**Left out.** Triples and larger groups of columns, the records with a missing value in every column of a group, a correlation of the presence of a value with the
+values of another column.
+
+### 20.32 The Report prints the drift and the columns missing together (Insight lot 19)
+
+`report_insights.py` adds two families after `categories`: `drift` (`_drift_card`: the counts of the slices, V of the presence, the share of the missing records by slice
+as bars, and for the values followed a table of their share in each slice with the others and the first appearances) and `missing` (`_matrix_card` for a column,
+`_dataset_matrix_card` for the dataset). `InsightCard.scope` (`dataset`, `column`, `both`) says where a card is printed: the dataset panel (`DatasetView.insights`) or the pages of
+its columns (`ColumnView.insights`); the card of the pairs has no column page and a card of one column has no place in the dataset panel, so a dataset of 100 columns does not push 100 cards of
+one family in a panel limited to 25. A table whose column of codes is not the first gets a left-aligned header and a minimum width (`.ins td.ins-v`), so that it does not break a name letter by letter on a phone. A withheld column
+(an edited document) has no card of the matrix and names no partner, and its values are not listed. The cards are derived at render time and no format changes.
+
+### 20.33 The arrays and the sets of keys of JSON (Insight lot 18, B7, O62)
+
+`array_profile` and `structure_variants` (`planner/analyzers/structure.py`, `secondpass/structure.py`) count what JSON adds to a table. The Scan has the
+shortest, the longest and the total of the items of an array field (`arrays`), and for each key below an object the parents that hold it
+(`presence.present`); it has no distribution of the lengths and no idea of the keys that go together.
+
+**Arrays.** The reader gives an array an observation of type `array` whose value is its length, so `FieldRoute.array` hands the lengths to
+`ArrayAccumulator`: a dictionary length to count, bounded by the Scan's range (`max_length - min_length + 1 <= deep.arrays.max_lengths`, 10,000; wider is
+`array_lengths_too_wide`) and by the number of arrays. Every occurrence counts, at any depth (the items of an array of objects, an array in an array), since an
+occurrence is an observation and needs no record. The result has the totals, `exact_quantiles` of the histogram (levels 5, 25, 50, 75, 95, exact) and every length. Checked
+against the Scan: arrays, empty arrays, items, shortest and longest (`scan_mismatch`). Equal minimum and maximum: `already_satisfied`, `lengths_constant`.
+
+**The root of the records.** A JSON record has no root field in the Scan, yet the keys that records have together are the first thing to know of a JSONL file. The plan names the root `$`
+(`ROOT_FIELD`, `root_facts(scan)` one `FieldFacts` for each dataset whose records are all objects, `Analyzer.roots`: only an analyzer that sets it is offered the root, so no other
+plan changes) and the executor stands in a `FieldResult` for it (`_root_field`, `model_construct`, id, path, display and native types only). The candidate id is
+`structure_variants:<dataset>:$`, the display `$`, a request may name it (`field="$"`) and the Report puts its card in the dataset panel (`scope` `dataset`).
+
+**Sets of keys.** `KeySets` holds, for the objects at one path, the keys the Scan named below it (the fields whose `parent` is the object field, or `None` for the root), in the order of the Scan; a set is
+an integer with a bit per key, a dictionary set to count (`max_variants`, 1,000, each counted exactly from its first object: a set met when the table is full is not tracked and counts as
+`untracked`, `complete` false, `distinct` a lower bound). `StructureAccumulator` is the sweep of a dataset (`Router(structures=)`, fed like the matrix, one record at a time): a dictionary from a
+path to what the observation at that path does, since the observations of a record come in document order, an object starts at its own observation (`type` `object`), the observations of its keys
+follow it and the next observation of the same path starts the next object (the items of an array of objects), and the sweep closes the open objects at the end of the record. One lookup of the path for each observation
+serves every object of the dataset. A key the Scan never named (a source that is not the one it read) is not marked, and the counts per key fail the check. Checked against the Scan: the objects (`native_types.object`,
+`record_count` for the root) and, for each key, the objects that hold it (`presence.present`).
+
+**Left out.** `untracked_paths` (the Scan stopped naming the paths: a set could hold a key it never named), one object, no key, and `uniform_keys` (every child has `presence.absent` 0: one set, which the Scan
+already says; an absent value of `absent` counts as varying). A table has no object field and no root: `root_facts` gives nothing for CSV and Excel.
+
+**Result.** `StructureResult`: `objects`, `keys`, `always` (the keys every object has, from the counts per key, so exact even when the sets are not complete), `key_names` (cut at `max_keys`, 30), `distinct`, `complete`,
+`untracked`, `listed` (at most `max_listed`, 10, by decreasing count then first appearance: each has `count`, `keys`, `absent` (the keys of `key_names` it lacks) and `absent_total`) and `other_objects`.
+
+**Cost.** Measured on the executor (`lot18/measure_costs.py`, 300,000 records of 4, 16 and 44 fields, one process): the arrays cost what any route on JSON costs, 4,028 ns an array on 4 fields to 10,349 on 44 (a histogram of an integer: 4,814 to
+8,731), because the router meets every observation of the record; `NS_PER_CELL` has `array_profile` 300. The sets of keys cost 296 to 365 ns an observation for the root and 180 to 323 for an object of a few keys, so
+`structure` 400 plus `structure_field` 350 a field of the dataset, declared at the top of the class `moderate` at most (the estimate is low for a dataset of more than six fields, and the sweep is shared). The memory is
+`STRUCTURE_BYTES`, the names of the keys and a set (`STRUCTURE_VARIANT_BYTES` plus a bit a key) for each tracked one. The route is in the process that reads (a JSON source is not shared out, 20.18). `COST_MODEL_VERSION` is 13.
+
+### 20.34 Long texts (Insight lot 18, B8, O63)
+
+`text_profile` and `fingerprint_distinct` (`planner/analyzers/texts.py`, `secondpass/texts.py`).
+
+**Profile.** `TextAccumulator` reads the original strings of a field (`FieldRoute` takes the early branch of `_counted`: no analytical text, no memory of cells, nothing kept of a text) and adds, for each distinct string of a batch with its count, the
+words (`len(str.split())`), the lines (`len(str.splitlines()) or 1`), the characters and the decimal digits (`str.translate` for ASCII, a regular expression `\d+` otherwise: Unicode category `Nd`, the set `str.isdecimal` tests). The counters are constant:
+power-of-two buckets for the words and lines, tenths of the characters for the digits (11 counts), the extremes and the sums. A text field is one whose longest value reaches `deep.texts.min_length` (80) characters or whose values the Scan sampled as long
+texts (`long_text_occurrences`). `texts` is checked against `strings.content`. The state is in `PARTS` (`texts`), so the routes of a CSV file run in the workers.
+
+**Fingerprints.** `FingerprintAccumulator` counts the distinct values by the digest of `scanner/longtext.digest_of` (BLAKE2b, 128 bits, `<native type>\0` then the text in UTF-8 with surrogates kept), a dictionary of 16-byte keys to counts, in the `ExactPool` of the run (the state
+of the plan is named like those of the exact sets, so the plan grants the pool its firm bound, and the route stays in the process, like an exact set). When the pool cannot hold the table the field stops: `distinct_limited` (`limited`, `memory_budget`), a lower bound. A JSON integer, number or
+boolean is a value too (`native_key`), so `values` is checked against `values.count`, `distinct` against the cardinality the Scan counted or its lower bound. The accuracy is `fingerprint_based` (design 18.6): two values are one when their digests are, probability about 2^-128 for a pair.
+`repeated`, `repeated_occurrences` and the `max_listed` (10) most repeated by digest and count (ties by digest), never the text. The analysis applies when a value is above 64 characters (the exact set refuses it, `not_compactable`) or the Scan sampled long texts, and is answered by the Scan when every value is distinct (`distinct` equals `values`).
+
+**Exposure.** Both are blocked for a sensitive field, whatever `deep.sensitive`: a digest of a phone number or an address is found by brute force, and the profile would add nothing the masks do not say.
+
+**Cost.** Measured (150,000 rows, one process): the profile 2,266 ns for texts of 230 characters, 3,136 for 260 and 7,055 for 1,000, `text_base` 400 plus `TEXT_NS_PER_CHAR` 7.0; the fingerprints 801, 1,035 and 2,241 for the same texts (550 plus 1.7 ns a character, the hash dominating, and the table growing for 150,000 distinct texts). Both are declared at the top of `moderate`
+at most, so the estimate is low for texts above 300 characters. An entry of the table measured 101 bytes for a count of 1 to 3 and 133 above 256 (`FINGERPRINT_ENTRY_BYTES` 100, 130, 180). The memory of the profile is `TEXT_BYTES`, whatever the texts
+(`test_text_profile_memory_does_not_grow_with_the_texts`: 1,200 texts of 55 kilobytes, a peak under 4 MB); the batch that the reader holds is the reader's, as for every analysis.
+
+### 20.35 Sensitive columns without a value (Insight lot 18, B10, Q9, O61)
+
+`sensitive_forms` (`planner/analyzers/forms.py`, `secondpass/forms.py`) and the opening of `exact_distinct` to a masked or hidden field. The decision and its risks are in O61; the maintainer set the whole to **off by default**: `deep.sensitive.enabled` is `false`, and then `ExactDistinct.assess` keeps `sensitive_exposure`, `SensitiveForms.relevant` is false (so no candidate appears) and the plans are what they were.
+
+**What the Scan already holds.** For a masked field `values.cardinality` is a raw, exact count while it is complete, `frequencies` lists masks with exact counts (up to `max_listed_frequencies`), and the detectors keep `versions` of the addresses and `regions` of the numbers. The second pass adds an exact distinct count where the Scan stopped at a bound, the tail of the masks, and the classes.
+
+**Masks.** `FormsAccumulator` counts the mask (`exposure.mask`) of the analytical text of each content string (the domain of the Scan's `frequencies`), keyed by native type and mask, tracked from the first occurrence up to `deep.sensitive.max_tracked` (10,000; the values with another mask are `untracked`, `complete` false). Checked against the Scan: `values.count`, every mask the Scan lists with its count and, when it lists them all and none is untracked, their number. The result merges the types of one mask.
+
+**Classes.** For a field that `ip_address` or `phone` read (`FieldFacts.classified`, the first detector with matches, part of the parameters), the detector of the configuration the Scan recorded (`CellReader.replay_detector`) classifies the analytical texts, and `class_of` gives the class of a matched value from a closed list: `ip_class` (`detectors/ip.py`: version and range, the ranges written out so that the class does not follow the version of the library, a fast path for dotted addresses), `phone_class` (`detectors/phone.py`: the zone of a French number, `fr_01` to `fr_09`, and for a North American number only `nanp_geographic`, `nanp_toll_free` and `nanp_premium`). The values the detector does not read, and the native numbers, are `unclassified`, which is not suppressed (it is the Scan's `not_matched`).
+
+**The floor.** `floored(items, min_count, max_listed)`: an item is listed when at least `min_count` (5) values take it and it is among the `max_listed` first; the others are summed up, and while that sum is above 0 and below `min_count` the least frequent listed item joins it (complementary suppression: a lone small bucket would be a figure about a few values). It applies to the masks and to the classes. The count of distinct masks and the value totals are not suppressed (the Scan says them).
+
+**Exposure.** `hide` gets `exact_distinct` only (`hidden_exposure` for the masks). The document never holds a value: `test_no_value_of_a_sensitive_column_is_in_the_document`, with 2 workers, searches the serialized document for the values and for fragments. No count is about a position, a row or another column: every analysis that has one keeps `sensitive_exposure` (`blocked()`, `matrix_members`).
+
+**Cost.** Measured (500,000 rows, one process): 693 to 957 ns for an email (analytical text and mask), 2,493 for an address and 3,737 for a phone number with the class (the dotted addresses took 6,591 through `ipaddress` before their own path). `forms` 1,000 and `forms_class` 2,800 declared at the top of `moderate` at most. An entry of the table measured 202 bytes for a mask of 25 characters (`FORMS_ENTRY_BYTES` 120 on top of the text). The route runs in the workers (`PARTS` `forms`). `exact_distinct` of a masked column measured 386 to 654 ns, as for any column.
+
+**Left out.** A class for a detector other than `ip_address` and `phone`, the area code of a North American number, the region of an address, a mask of a hidden field.
+
+### 20.36 The Report prints the lot 18 cards (Insight lot 18, O64)
+
+`report_insights.py` adds the families `structure` (`_arrays_card`: the totals, the median and the span of the lengths and the bars of the lengths; `_structure_card`: the counts, the table of the most frequent sets with the keys each lacks), `texts` (`_texts_card`: words, lines, digits and the three bar charts; `_fingerprint_card`: the distinct count with the accuracy `fingerprint` and the table of the digests) and `forms` (`_forms_card`: the masks and the classes). `InsightKind` has `fingerprint` (`report_labels.FINGERPRINT`, `.acc-fingerprint`, `SecondPassRow.kind`), and `result_summary` has a sentence for each result. The card of the sets of keys of the records has `scope` `dataset` and no field (the root `$` has no column page);
+the cards of an array or object field are printed in the dataset panel, since the columns of the report are the leaves.
+
+**Exposure again, at render time.** A document can be edited, so `_forms_card` prints a mask only when masking it changes nothing (`mask(form) == form`: a value does not pass), a class only when it belongs to `IP_CLASSES` or `PHONE_CLASSES`, and nothing for a field whose exposure is `hide`; `_fingerprint_card` lists no digest for a hidden field. `test_a_document_edited_to_hold_a_value_is_not_printed` edits the JSON of a Report and checks it. No format changes.
 
 ## 21. Original value domain (O32)
 

@@ -472,6 +472,24 @@ chosen by `planner/crosstabs.py` on the row sample, as the pairs are by `planner
 explorations are proposed by a `PairAnalyzer`, which is how the planner asks any analysis of two
 columns for its candidates. `report_relations.py` prints the result in the Relationships section.
 
+`secondpass/drift.py` (lot 19, design 20.30) follows a field by position: `DriftAccumulator` counts, for each of ten
+slices of records in file order, the values (so the missing ones: the records minus the values) and, for a field the Scan lists whole,
+each value, and checks them against the Scan; `FieldRoute.strings` cuts a CSV batch at the end of a slice. `secondpass/matrix.py`
+(design 20.31) counts the records that lack a value in two columns at once: `MatrixAccumulator` is an accumulator of the dataset that
+the `Router` feeds with the rows of a batch or the records of a source (`Router(matrices=)`), in bit sets of a batch, for the
+members `planner/facts.matrix_members` gives, which the planner and the executor share.
+
+`secondpass/structure.py` (lot 18, design 20.33) counts what JSON adds to a table: `ArrayAccumulator` is the route's counter of the
+lengths of the arrays of a field (`FieldRoute.array`, fed by the observation `array` whose value is the length), and `KeySets` the
+sets of keys of the objects at a path, as integers with a bit per key the Scan named; `StructureAccumulator` is the sweep of the
+dataset (`Router(structures=)`): an object starts at its own observation and the observations of its keys follow it in document
+order. The root of the records is no field of the Scan, so the plan names it `$` (`facts.ROOT_FIELD`, `root_facts`, `Analyzer.roots`)
+and the executor stands one in (`_root_field`). `secondpass/texts.py` (design 20.34) holds `TextAccumulator` (constant counters,
+the route of a CSV field can run in a worker: `PARTS` has `texts`) and `FingerprintAccumulator` (BLAKE2b 128 bits, a table of
+digests in the pool of the exact sets, so it stays in the process). `secondpass/forms.py` (design 20.35, decision O61) counts masks
+and the classes of `detectors/ip.py` and `detectors/phone.py` for a masked field, with the floor `floored`; `PARTS` has `forms`.
+`planner/analyzers/distinct.py` no longer blocks a masked or hidden field: its result is two numbers.
+
 `planner/stratification.py` (lot 9, design 20.14) is the advice on stratified sampling a plan can carry
 (`plan.stratification`). It is not an analyzer: it has no executor and does not take part in the
 selection. It reads the facts and the row sample of the Scan, and the arithmetic it shares with
@@ -512,7 +530,12 @@ builds the views of the `analyses` member (the Second pass section, the exact di
 median, the validated patterns, the periods) and reads no source.
 `report_insights.py` (lot 20, design 20.29) builds from the same member the insight cards of the Report
 (`InsightCard`: facts, bars and tables, each with its own accuracy) and the figures derived from the Scan
-(`report_measures.py`); `templates/insights.html` is the macro the report and the column pages share.
+(`report_measures.py`); `templates/insights.html` is the macro the report and the column pages share. A card has a
+`scope` (the dataset panel, the pages of its columns or both): the drift and the columns missing together (lot 19, design 20.32)
+print one card for the dataset and one for each column. The lot 18 cards (design 20.36) add the families `structure`, `texts`
+and `forms`; the card of the sets of keys of the records has the scope `dataset` and no column, a card of masks is printed only
+when its masks are masks (`mask(form) == form`) and its classes belong to the closed lists, whatever the exposure the document says,
+and the digests of a hidden column are not listed. The accuracy `fingerprint` joins `exact`, `estimated`, `sample` and `at_least`.
 
 `scanner/lengthsample.py` (lot 3a) is the bottom-k per length, a stratum for each
 of a bounded number of lengths (design 18.7). `ValueSample` starts it when the

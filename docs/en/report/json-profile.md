@@ -142,7 +142,15 @@ numbers of a column by category (`category_stats`, see [The numbers of a column 
 category](../scan/deep.md#the-numbers-of-a-column-by-category)), with `partner` the numeric column and
 `relations.stats` in the plan. The shape of the numbers (`numeric_shape`, see [The shape of the
 numbers](../scan/deep.md#the-shape-of-the-numbers)) and the parts of the dates (`datetime_parts`, see [The
-parts of the dates](../scan/deep.md#the-parts-of-the-dates)) are entries of `analyses` too.
+parts of the dates](../scan/deep.md#the-parts-of-the-dates)) are entries of `analyses` too, and so are the
+drift of a column along the file (`position_drift`, see [A column along the file](../scan/deep.md#a-column-along-the-file))
+and the columns that miss a value together (`missing_matrix`, see [Columns that miss a value
+together](../scan/deep.md#columns-that-miss-a-value-together)), as are the lengths of the arrays and the sets of
+keys of the objects of a JSON file (`array_profile` and `structure_variants`, see [Arrays and sets of keys in
+JSON](../scan/deep.md#arrays-and-sets-of-keys-in-json)), the words and lines of long texts and their fingerprints
+(`text_profile` and `fingerprint_distinct`, see [Long texts](../scan/deep.md#long-texts)) and the masks and classes of
+a masked column (`sensitive_forms`, see [Sensitive columns without a
+value](../scan/deep.md#sensitive-columns-without-a-value)), which never holds a value of that column.
 
 A report built with `--scan` reads no source: the analyses that need it are
 `skipped` with the reason `source_not_read`. A report written before the second
