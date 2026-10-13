@@ -377,7 +377,7 @@ EXPECTED: tuple[Expected, ...] = (
                 nodes=tuple(head(p, 50) for p in ("AK", "BC", "CD", "DE", "EF", "FG", "GH", "HJ")),
             ),
         ),
-        note="The second pass counts the 4 new prefixes in the same table (B5).",
+        note="The second pass counts the 4 new prefixes in the same table (lot P6).",
     ),
     Expected(
         "RC-15/raw_variants",

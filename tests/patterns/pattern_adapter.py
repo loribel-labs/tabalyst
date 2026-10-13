@@ -2,17 +2,20 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Where the reference tests meet the engine: the one place to bind when the
-hierarchical discovery (lot B4) and its validation (lot B5) exist.
+"""Where the reference and contract tests meet the engine: the one place to bind
+as the lots of the Patterns plan deliver (P2 eligibility, P3 and P4 discovery, P5
+declared keys, P6 validation, P7 consumers).
 
-Each function turns a field of the corpus into the forms of ``pattern_tree``.
+The first functions turn a field of the corpus into the forms of ``pattern_tree``;
+the contract functions at the end return the documents the Scan and the second pass
+write.
 Until it is bound it raises ``NotImplementedError``; the tests that call it are
 skipped by the gate of ``conftest.py`` meanwhile.
 """
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Literal
 
@@ -32,29 +35,163 @@ class Validation:
     outcomes: Mapping[str, Outcome]
 
 
-def discover(field: Field) -> SeenField | None:
+def discover(
+    field: Field, settings: Mapping[str, int] | None = None, workers: int = 1
+) -> SeenField | None:
     """The tree the discovery publishes for ``field``, reduced to sets of values;
     ``None`` when the generic discovery does not apply (a masked field, FR-022).
 
-    Binding (lot B4): build a scan of the field's pairs, run the discovery and
-    map each family, node and table to the values its signature accepts.
+    ``settings`` overrides ``scan.pattern_inference`` (``max_values``,
+    ``max_families``, ``max_patterns_per_family``, ``max_patterns``,
+    ``max_depth``); ``workers`` is the number of first-pass workers.
+
+    Binding (lots P3 and P4): build a scan of the field's pairs, run the
+    discovery and map each family, node and table to the values its signature
+    accepts.
     """
-    raise NotImplementedError("bind the hierarchical discovery (lot B4)")
+    raise NotImplementedError("bind the hierarchical discovery (lots P3, P4)")
 
 
 def declared_keys(field: Field) -> Declared:
     """The keys the detector of ``field`` declares (algorithm, section 4), as the
     Scan publishes them, masked field or not (DEC-027)."""
-    raise NotImplementedError("bind the declared keys of the detectors (lot B4)")
+    raise NotImplementedError("bind the declared keys of the detectors (lot P5)")
 
 
 def validate(variants: Variants) -> Validation:
     """The outcome of every value of ``variants.file`` once the discovery has
     read ``variants.sample`` (FR-013, FR-015)."""
-    raise NotImplementedError("bind the hierarchical validation (lot B5)")
+    raise NotImplementedError("bind the hierarchical validation (lot P6)")
 
 
 def validate_file(field: Field) -> Validation:
     """The outcome of every value of ``field.file`` once the discovery has read
     ``field.pairs`` (RC-14)."""
-    raise NotImplementedError("bind the hierarchical validation (lot B5)")
+    raise NotImplementedError("bind the hierarchical validation (lot P6)")
+
+
+# Contract of the Patterns plan (design 18.12 and 20.9) ---------------------------------
+
+EligibilityState = Literal["eligible", "low_relevance", "excluded", "not_assessable"]
+
+
+@dataclass(frozen=True)
+class Eligibility:
+    """The eligibility of a field as the Scan publishes it (FR-001): a state, a
+    score from 0 to 1 and reason codes."""
+
+    state: EligibilityState
+    score: float
+    reasons: tuple[str, ...]
+
+
+def eligibility(field: Field) -> Eligibility:
+    """The eligibility object of ``field`` in a Scan (lot P2). A column made of
+    digits only is typed as an integer by the Scan (RC-10, RC-11); ``field.detector``
+    names the semantic detector that recognizes the column (``date``), ``masked``
+    its exposure."""
+    raise NotImplementedError("bind the eligibility of the columns (lot P2)")
+
+
+@dataclass(frozen=True)
+class CountedTable:
+    """A facet table of the validation: counted cells, the rest, and whether the
+    capacity cut it."""
+
+    label: str
+    cells: Mapping[str, int]
+    others: int
+    saturated: bool
+
+
+@dataclass(frozen=True)
+class CountedNode:
+    """A pattern or node of ``pattern_counts`` with its exact occurrences, its
+    distinct values and their accuracy (``exact`` or ``at_least``)."""
+
+    label: str
+    occurrences: int
+    distinct: int
+    distinct_accuracy: Literal["exact", "at_least"]
+    children: tuple[CountedNode, ...] = ()
+    rest: int = 0
+
+
+@dataclass(frozen=True)
+class CountedFamily:
+    label: str
+    occurrences: int
+    patterns: tuple[CountedNode, ...]
+    tables: tuple[CountedTable, ...]
+    new_length_variants: int
+    new_segment_variants: int
+
+
+@dataclass(frozen=True)
+class Counted:
+    """The ``pattern_counts`` of a field (design 20.9): the sums that add up and
+    the keys that were written."""
+
+    values: int
+    matched: int
+    unknown_structure: int
+    excluded: int
+    families: tuple[CountedFamily, ...]
+    computed_from: Literal["samples", "source"]
+    keys: frozenset[str]
+
+
+def count(
+    variants: Variants | Field,
+    exact_budget: int | None = None,
+    table_capacity: int | None = None,
+) -> Counted:
+    """Validate the whole file of ``variants`` against the discovery of its sample, or,
+    for a ``Field``, its ``file`` when it has one (RC-14) and its ``pairs`` otherwise,
+    against the discovery of ``pairs``; return the counts (lot P6). ``exact_budget``
+    limits the distinct values held exactly, ``table_capacity`` the cells of a
+    facet table."""
+    raise NotImplementedError("bind the hierarchical counts (lot P6)")
+
+
+def source_reads(fields: Sequence[Field]) -> int:
+    """How many times the second pass reads the source to validate ``fields``
+    together (lot P6)."""
+    raise NotImplementedError("bind the second pass (lot P6)")
+
+
+Tamper = Literal["family_sum", "missing_parent", "entry_count", "unknown_signature"]
+
+
+def check_scan_problems(field: Field, tamper: Tamper | None = None) -> list[str]:
+    """The problems ``check_scan`` reports for the Scan of ``field`` after ``tamper``
+    altered its ``derived.patterns`` (lot P7); empty when none."""
+    raise NotImplementedError("bind check_scan on the hierarchy (lot P7)")
+
+
+Change = Literal["render_only", "setting", "algorithm_version"]
+
+
+@dataclass(frozen=True)
+class CacheRun:
+    """What a second run recomputed after a change (FR-020)."""
+
+    discovery: bool
+    validation: bool
+    scan_stale: bool
+
+
+def rerun_after(field: Field, change: Change) -> CacheRun:
+    """Run, change ``change``, run again and say what was recomputed (lot P7)."""
+    raise NotImplementedError("bind the cache and the provenance (lot P7)")
+
+
+def published_text(field: Field) -> str:
+    """Everything the Scan, the second pass and the Report publish for ``field``,
+    as one text to search for values (exposure, FR-022). Lots P3 and P5."""
+    raise NotImplementedError("bind the published documents (lots P3, P5)")
+
+
+def published_renders(field: Field) -> list[str]:
+    """The rendering of every pattern and node published for ``field`` (lot P4)."""
+    raise NotImplementedError("bind the renderings (lot P4)")
