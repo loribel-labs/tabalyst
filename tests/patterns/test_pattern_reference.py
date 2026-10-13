@@ -9,7 +9,7 @@ import pytest
 from pattern_adapter import declared_keys, discover, validate, validate_file
 from pattern_corpus import RC14_NEW, corpus, field, with_variants
 from pattern_expected import DECLARED, EXPECTED, declared
-from pattern_tree import compare, tree_to_lines
+from pattern_tree import compare, lengths, structure, tree_to_lines
 
 INFORMATIVE = [item for item in corpus() if item.mode == "informative" and not item.toy]
 
@@ -76,8 +76,14 @@ def test_variants_of_the_file_get_an_outcome_and_none_is_invalid(source):
     for value, _ in source.pairs:
         assert outcomes[value] == "known", value
     assert outcomes[variants.unexpected] == "unknown_structure"
-    # A length outside the observed range stays in its family (algorithm 9.7);
-    # whether a new combination is a new variant waits for OPEN-012.
-    assert outcomes[variants.wrong_length] in ("known", "new_variant")
+    # A set of lengths the discovery never saw, in a known structure, is a new
+    # variant of length, not an unknown structure (DEC-034); whether a new
+    # combination of known segments is a new variant waits for OPEN-012.
+    seen = {(structure(v), lengths(v)) for v, _ in source.pairs}
+    wrong = variants.wrong_length
+    if (structure(wrong), lengths(wrong)) in seen:
+        assert outcomes[wrong] == "known"
+    else:
+        assert outcomes[wrong] == "new_variant"
     if variants.new_combination is not None:
         assert outcomes[variants.new_combination] in ("known", "new_variant")

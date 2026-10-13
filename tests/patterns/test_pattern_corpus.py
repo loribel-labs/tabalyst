@@ -25,7 +25,7 @@ from pattern_corpus import (
     luhn_valid,
     with_variants,
 )
-from pattern_tree import shape, structure, token
+from pattern_tree import lengths, structure, token
 
 from tabalyst.scanner.detectors.email import EmailDetector
 from tabalyst.scanner.detectors.phone import PhoneDetector
@@ -149,13 +149,14 @@ def test_rc11_cards_have_the_lengths_and_heads_of_the_case():
         assert len(found) == count, head
 
 
-def test_rc12_isbn_group_depends_on_the_prefix_and_shapes_stay_many():
+def test_rc12_isbn_group_depends_on_the_prefix_and_lengths_vary_a_lot():
     values = field("RC-12/isbn").values()
     groups = Counter((token(value, 1), token(value, 3)) for value in values)
     assert groups == {(prefix, group): count for prefix, group, count in RC12_GROUPS}
-    shapes = Counter(shape(value) for value in values)
-    # More than six shapes: the shape facet stays a range (E3).
-    assert len(shapes) > 6
+    sizes = Counter(lengths(value) for value in values)
+    # More than six sets of lengths, one pattern each (DEC-034): a poor
+    # candidate the eligibility (B2) should set aside.
+    assert len(sizes) > 6
 
 
 def test_rc13_has_one_dominant_prefix_and_ten_isolated_ones():

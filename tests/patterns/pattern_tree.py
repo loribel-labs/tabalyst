@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""The shape of a discovery result as the reference tests read it, and the
+"""The form of a discovery result as the reference tests read it, and the
 comparison of an expected tree with an observed one.
 
 A node is known by the set of values it holds, not by its name: the notation
 (OPEN-003) and the JSON (OPEN-002) are still open, so an expectation says which
 values a node or a table cell must gather, and its label only helps the reader.
-Labels follow ``kind:token:text``: ``shape:2,4`` (lengths of the variable
-tokens), ``composition:DDDDU`` (classes of a merged block), ``head:1:AK`` and
+Labels follow ``kind:token:text``: ``length:2,4`` (lengths of the variable
+tokens, one pattern each, DEC-034), ``composition:DDDDU`` (classes of a merged block), ``head:1:AK`` and
 ``tail:5:00`` (content of the 1-based token of the family's structure).
 """
 
@@ -38,8 +38,9 @@ def token(value: str, index: int) -> str:
     return tokenize(value)[index - 1][3]
 
 
-def shape(value: str) -> tuple[int, ...]:
-    """The lengths of the class tokens of ``value`` (the shape facet)."""
+def lengths(value: str) -> tuple[int, ...]:
+    """The lengths of the class tokens of ``value``: a discovered pattern has
+    one set of lengths (DEC-034)."""
     return tuple(count for code, _, count, _ in tokenize(value) if code != "P")
 
 

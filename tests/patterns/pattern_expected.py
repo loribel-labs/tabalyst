@@ -6,9 +6,9 @@
 corpus: families, nodes, facet tables and exact counts (algorithm, sections 7
 and 8, as checked by ``test_pattern_score.py``).
 
-Family labels use the notation of the algorithm (``X`` letter, ``9`` digit,
-``Z`` letter or digit, folded constants quoted); OPEN-003 will fix the published
-one. The score reads whole prefixes (DEC-029 to DEC-031, 12 October 2026).
+Family labels use the decided notation (OPEN-003: ``A`` capital, ``X`` capital
+or digit, quoted constants); a family has no range of lengths, it lists its
+patterns, one per set of lengths (DEC-034). The score reads whole prefixes (DEC-029 to DEC-031, 12 October 2026).
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ from pattern_tree import (
     Node,
     Rule,
     Table,
-    shape,
+    lengths,
     token,
 )
 
@@ -46,11 +46,12 @@ def whole(text: str, distinct: int, index: int, children: tuple[Node, ...] = ())
     )
 
 
-def form(lengths: tuple[int, ...], distinct: int, occurrences: int | None = None, children: tuple[Node, ...] = ()) -> Node:
-    """A node of the shape ``lengths`` (lengths of the class tokens)."""
+def length(sizes: tuple[int, ...], distinct: int, occurrences: int | None = None, children: tuple[Node, ...] = ()) -> Node:
+    """The pattern of the values whose class tokens have the lengths ``sizes``:
+    every set of lengths is a pattern of its family (DEC-034)."""
     return Node(
-        "shape:" + ",".join(map(str, lengths)),
-        lambda v: shape(v) == lengths,
+        "length:" + ",".join(map(str, sizes)),
+        lambda v: lengths(v) == sizes,
         distinct,
         distinct if occurrences is None else occurrences,
         children,
@@ -81,21 +82,21 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-01/toy",
         (
             Family(
-                "'AK'-9{3,4}",
+                "'AK'-999 / 'AK'-9999",
                 frozenset({"UP-D"}),
                 6,
                 6,
                 constants=("head:1:AK",),
-                nodes=(form((2, 3), 3), form((2, 4), 3)),
+                nodes=(length((2, 3), 3), length((2, 4), 3)),
             ),
         ),
-        note="Shapes and folded constants are rules, not scores: the toy concludes.",
+        note="Lengths and folded constants are rules, not scores: the toy concludes.",
     ),
     Expected(
         "RC-02/scaled",
         (
             Family(
-                "'A'X-9999Z",
+                "'A'A-9999X",
                 frozenset({"UP-D", "UP-DU"}),
                 200,
                 200,
@@ -112,7 +113,7 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-02/toy",
         (
             Family(
-                "'A'X-9999Z",
+                "'A'A-9999X",
                 frozenset({"UP-D", "UP-DU"}),
                 4,
                 4,
@@ -125,12 +126,12 @@ EXPECTED: tuple[Expected, ...] = (
     ),
     Expected(
         "RC-03/scaled",
-        (Family("XX-9999", frozenset({"UP-D"}), 500, 500, nodes=RC03_NODES),),
+        (Family("AA-9999", frozenset({"UP-D"}), 500, 500, nodes=RC03_NODES),),
         note="The A? prefixes cover their intermediate A: it is flattened.",
     ),
     Expected(
         "RC-03/toy",
-        (Family("XX-9999", frozenset({"UP-D"}), 5, 5),),
+        (Family("AA-9999", frozenset({"UP-D"}), 5, 5),),
         conclusive=False,
         note="Too few values to conclude (algorithm 9.1).",
     ),
@@ -138,7 +139,7 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-04/weighted",
         (
             Family(
-                "'A'X-9999",
+                "'A'A-9999",
                 frozenset({"UP-D"}),
                 4,
                 20_600,
@@ -152,7 +153,7 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-05/invoices",
         (
             Family(
-                "XXX-'202'9-999999",
+                "AAA-'202'9-999999",
                 frozenset({"UP-DP-D"}),
                 400,
                 400,
@@ -166,7 +167,7 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-05/invoices_dependent",
         (
             Family(
-                "XXX-'202'9-999999",
+                "AAA-'202'9-999999",
                 frozenset({"UP-DP-D"}),
                 400,
                 400,
@@ -182,14 +183,14 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-05/references",
         (
             Family(
-                "XXX-999999",
+                "AAA-999999",
                 frozenset({"UP-D"}),
                 250,
                 250,
                 nodes=(head("CUS", 150), head("SUP", 100)),
             ),
             Family(
-                "'PRD'-XX-999999",
+                "'PRD'-AA-999999",
                 frozenset({"UP-UP-D"}),
                 150,
                 150,
@@ -203,12 +204,12 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-06/invoices",
         (
             Family(
-                "'INV'-9{3,5}",
+                "'INV'-999 / 'INV'-9999 / 'INV'-99999",
                 frozenset({"UP-D"}),
                 300,
                 300,
                 constants=("head:1:INV",),
-                nodes=(form((3, 3), 100), form((3, 4), 100), form((3, 5), 100)),
+                nodes=(length((3, 3), 100), length((3, 4), 100), length((3, 5), 100)),
             ),
             Family(
                 "'INV'-'2026'-99999",
@@ -223,37 +224,37 @@ EXPECTED: tuple[Expected, ...] = (
     Expected(
         "RC-07/plates",
         (
-            Family("999 XXX", frozenset({"DP U"}), 200, 200),
+            Family("999 AAA", frozenset({"DP U"}), 200, 200),
             Family(
-                "X{2,3} 9{3,4}",
+                "AAA 999 / 'C'A 9999",
                 frozenset({"UP D"}),
                 300,
                 300,
                 nodes=(
-                    form((3, 3), 200),
-                    form((2, 4), 100, children=(head("CC", 60), head("CD", 40))),
+                    length((3, 3), 200),
+                    length((2, 4), 100, children=(head("CC", 60), head("CD", 40))),
                 ),
             ),
             Family(
-                "X{1,2}9{1,2} XXX",
+                "A99 AAA / 'V'A9 AAA",
                 frozenset({"UDP U"}),
                 300,
                 300,
                 nodes=(
-                    form((1, 2, 3), 150),
-                    form((2, 1, 3), 150, children=(head("VA", 90), head("VE", 60))),
+                    length((1, 2, 3), 150),
+                    length((2, 1, 3), 150, children=(head("VA", 90), head("VE", 60))),
                 ),
             ),
             Family("999'H'999", frozenset({"DUD"}), 50, 50, constants=("token:2:H",)),
         ),
-        note="CX 9999 is the rendering of the shape with C folded, not a node.",
+        note="'C'A 9999 is the pattern of the lengths 2,4 with C folded, not a node.",
     ),
     Expected(
         "RC-08/plates",
         (
-            Family("XX-999-XX", frozenset({"UP-DP-U"}), 600, 600),
+            Family("AA-999-AA", frozenset({"UP-DP-U"}), 600, 600),
             Family(
-                "XX99 XXX",
+                "AA99 AAA",
                 frozenset({"UDP U"}),
                 400,
                 400,
@@ -265,7 +266,7 @@ EXPECTED: tuple[Expected, ...] = (
     ),
     Expected(
         "RC-09/permits",
-        (Family("X9{12}", frozenset({"UD"}), 10_000, 10_000),),
+        (Family("A9{12}", frozenset({"UD"}), 10_000, 10_000),),
         note="The initial letter and the digits are uniform: no facet.",
     ),
     Expected(
@@ -285,18 +286,18 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-11/cards",
         (
             Family(
-                "9{14,16}",
+                "9{16} / '3'9{14} / '36'9{12}",
                 frozenset({"D"}),
                 1_000,
                 1_000,
                 nodes=(
-                    form(
+                    length(
                         (16,),
                         800,
                         children=(head("4", 400),) + tuple(head(f"5{d}", 64) for d in range(1, 6)),
                     ),
-                    form((15,), 150, children=(head("34", 75), head("37", 75))),
-                    form((14,), 50),
+                    length((15,), 150, children=(head("34", 75), head("37", 75))),
+                    length((14,), 50),
                 ),
                 forbidden=(WHOLE_VALUE, LONG_HEAD),
             ),
@@ -310,7 +311,7 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-12/isbn",
         (
             Family(
-                "'97'9-9{1,2}-9{2,7}-9{1,6}-9",
+                "'97'9-…-9 (many lengths)",
                 frozenset({"DP-DP-DP-DP-D"}),
                 1_000,
                 1_000,
@@ -330,17 +331,22 @@ EXPECTED: tuple[Expected, ...] = (
                 ),
             ),
         ),
-        note="The registration group depends on the prefix: nested.",
+        conclusive=False,
+        note=(
+            "A poor candidate: more than six sets of lengths, one pattern each "
+            "(DEC-034); the eligibility (B2) should set it aside. If it is kept, "
+            "978 and 979 and their dependent groups sit under each length."
+        ),
     ),
     Expected(
         "RC-12/codes",
         (
             Family(
-                "X{2,3}",
+                "AA / AAA",
                 frozenset({"U"}),
                 55,
                 1_000,
-                nodes=(form((2,), 40, 600), form((3,), 15, 400)),
+                nodes=(length((2,), 40, 600), length((3,), 15, 400)),
                 allowed=(Rule("head:1", lambda v: v[0]),),
                 forbidden=(WHOLE_VALUE,),
             ),
@@ -351,7 +357,7 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-13/identifiers",
         (
             Family(
-                "XX-999999",
+                "AA-999999",
                 frozenset({"UP-D"}),
                 10_000,
                 10_000,
@@ -364,7 +370,7 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-14/prefixes",
         (
             Family(
-                "XX-9999",
+                "AA-9999",
                 frozenset({"UP-D"}),
                 400,
                 400,
@@ -391,7 +397,7 @@ EXPECTED: tuple[Expected, ...] = (
         "RC-16/lots",
         (
             Family(
-                "XXX-99-999999-XX",
+                "AAA-99-999999-AA",
                 frozenset({"UP-DP-DP-U"}),
                 1_000,
                 1_000,
@@ -419,14 +425,14 @@ EXPECTED: tuple[Expected, ...] = (
     ),
     Expected(
         "RC-17/noise",
-        (Family("XX-9999", frozenset({"UP-D"}), 1_000, 1_000),),
+        (Family("AA-9999", frozenset({"UP-D"}), 1_000, 1_000),),
         note="Uniform noise: one family, zero variants (AC-030).",
     ),
     Expected(
         "RC-20/postal_codes",
         (
             Family(
-                "X9X 9X9",
+                "A9A 9A9",
                 frozenset({"UDUP DUD"}),
                 9_933,
                 10_000,

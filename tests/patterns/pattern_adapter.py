@@ -5,7 +5,7 @@
 """Where the reference tests meet the engine: the one place to bind when the
 hierarchical discovery (lot B4) and its validation (lot B5) exist.
 
-Each function turns a field of the corpus into the shapes of ``pattern_tree``.
+Each function turns a field of the corpus into the forms of ``pattern_tree``.
 Until it is bound it raises ``NotImplementedError``; the tests that call it are
 skipped by the gate of ``conftest.py`` meanwhile.
 """
@@ -20,7 +20,8 @@ from pattern_corpus import Field, Variants
 from pattern_tree import Declared, SeenField
 
 # The outcomes of a value at validation (REC-006); ``invalid`` is reserved and
-# never given by the inference.
+# never given by the inference. A set of lengths never seen in a known structure
+# is a ``new_variant`` (DEC-034).
 Outcome = Literal["known", "new_variant", "unknown_structure", "atypical", "invalid"]
 
 
