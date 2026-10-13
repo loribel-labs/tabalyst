@@ -700,6 +700,11 @@ written in `observations` (see
   addresses, phone numbers, IP addresses and sensitive patterns) appear in the
   result. `mask` (default) replaces letters with `A` or `a` and digits with
   `9`; `hide` removes the values and keeps the counts; `show` keeps them.
+- `exposure.detector_keys`: `aggregate` (default) publishes the keys that the
+  `email`, `phone` and `postal_code` detectors declare (extension and domain,
+  region and area code, postal area) even on a masked or hidden field, as counts of
+  at least 5 occurrences with no example or row of the sample; `mask` withholds them
+  on such a field.
 - `random_seed`: seed of the hash that orders the value samples, an integer from
   0 to 2^64 - 1, so that two scans of the same file with the same settings are
   identical.

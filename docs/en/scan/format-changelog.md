@@ -202,3 +202,13 @@ final until the release that ships it.
   whole token, or the structure of a node of `composition`), and `also` when a node
   whose only child covers 95% of it merged into it (what that node fixed). The
   [second pass](deep-format.md) reads a node by it when it counts every occurrence.
+- The `email`, `phone` and `postal_code` detectors (version 2) add `keys` to their
+  `details`: the keys they declare, counted exactly on the whole file in the first pass
+  and kept by floors (the extension and the domain of an address read from the right,
+  the region and the area code or zone of a number, the first character and the area of
+  a postal code). A level lists its `keys` (`key`, `occurrences`, and the `keys` and
+  `others` below) and its `others` (`keys`, `occurrences`); `status` is `complete`,
+  `limited` (`max_tracked` or `not_tested`), `not_applicable` (no value matched) or
+  `disabled` (`exposure`). The keys are published on a
+  masked field too, with no example or row of the sample. New setting
+  `scan.exposure.detector_keys` (`aggregate`, or `mask` to bring the masking back).

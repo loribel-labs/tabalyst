@@ -20,6 +20,7 @@ from tabalyst.scanner.detectors.base import (
     Detector,
     DetectorAccumulator,
 )
+from tabalyst.scanner.detectors.keys import from_pairs, keys_block
 from tabalyst.scanner.exposure import ExposureGate
 
 DEFAULT_REGIONS = ("ca", "us")
@@ -38,6 +39,10 @@ _FORMAT = str.maketrans(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
     "A" * 26 + "a" * 26 + "9" * 10,
 )
+
+# Meaning of each level of the keys: the first letter (``ca``) or digit (``us``),
+# then the forward sortation area or the first three digits of the ZIP code.
+KEY_LEVELS = ("first_character", "area")
 
 _BAD_FIRST = Classification("invalid", reason="invalid_first_letter")
 _BAD_LETTER = Classification("invalid", reason="invalid_letter")
@@ -64,6 +69,7 @@ def _us(value: str) -> Classification | None:
 
 class PostalCodeDetector(Detector):
     id = "postal_code"
+    version = 2
     family = "address"
 
     def __init__(self, settings: Mapping[str, object]) -> None:
@@ -92,17 +98,28 @@ class PostalCodeDetector(Detector):
 
 
 class PostalCodeAccumulator(DetectorAccumulator):
-    __slots__ = ("regions",)
+    __slots__ = ("areas", "regions")
     ignores_unmatched = True
 
     def __init__(self, regions: tuple[str, ...]) -> None:
         self.regions = dict.fromkeys(sorted(regions), 0)
+        # First character, then forward sortation area or ZIP3: bounded by the
+        # alphabet of the codes, so no limit is needed.
+        self.areas: dict[str, dict[str, int]] = {}
 
     def add(
         self, value: str, classification: Classification | None, count: int
     ) -> None:
         if classification is not None and classification.state == "matched":
             self.regions[classification.value] += count
+            first = self.areas.get(value[0].upper())
+            if first is None:
+                first = self.areas[value[0].upper()] = {}
+            area = value[:3].upper()
+            first[area] = first.get(area, 0) + count
 
     def details(self, gate: ExposureGate) -> dict[str, object]:
-        return {"regions": dict(self.regions)}
+        return {
+            "regions": dict(self.regions),
+            "keys": keys_block(from_pairs(self.areas), KEY_LEVELS, gate),
+        }

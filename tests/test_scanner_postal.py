@@ -187,7 +187,7 @@ def test_postal_code_formats_regions_and_interpretation(tmp_path):
         {"format": "A9A9A9", "count": 1},
         {"format": "a9a 9a9", "count": 1},
     ]
-    assert postal["details"] == {"regions": {"ca": 4, "us": 1}}
+    assert postal["details"]["regions"] == {"ca": 4, "us": 1}
     # The analytical value collapses whitespace; values are not masked.
     assert postal["evidence"]["matched"][2] == "h2x 1y4"
     assert postal["evidence"]["invalid"] == ["D2X 1Y4"]
@@ -201,7 +201,7 @@ def test_postal_code_regions_follow_the_setting(tmp_path):
 
     field = _field(_scan(source, detectors={"postal_code": {"regions": ["us"]}}), "code")
 
-    assert _detector(field, "postal_code")["details"] == {"regions": {"us": 1}}
+    assert _detector(field, "postal_code")["details"]["regions"] == {"us": 1}
 
 
 def test_canadian_codes_are_the_primary_interpretation(tmp_path):
@@ -260,7 +260,7 @@ def test_postal_code_can_be_disabled(tmp_path):
 
     assert _detector(field, "postal_code") == {
         "id": "postal_code",
-        "version": 1,
+        "version": 2,
         "status": "disabled",
     }
     assert "postal_code" not in result["engine"]["detectors"]

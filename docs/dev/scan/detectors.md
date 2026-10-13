@@ -205,6 +205,44 @@ characters, no empty label (so no leading, trailing or doubled dot), and its
 last label is not made of digits only. Punycode labels (`xn--`) are ordinary
 labels; they are not decoded.
 
+### Declared keys (`email`, `phone`, `postal_code`; Patterns lot P5)
+
+These three detectors also declare keys whose meaning they establish, counted
+exactly on the whole file in the first pass (occurrences, so the counts are the
+same with one or several workers and in both execution modes) and published in
+`details.keys`. One level at a time, the keys are sorted by decreasing count then
+text and kept while their share reaches the floor of the level (0.5 % of the
+matched values at level 1, 2 % of the parent below), they have at least 5
+occurrences (also the privacy floor of a rare key), their rank is within the
+budget (32 at level 1, 16 by parent) and the cumulated coverage before them is
+under 95 %. The rest is `others` (`keys`, `occurrences`). There is no test against
+chance. The levels are `email`: the extension, then the domain and longer
+suffixes read from the right (at most four labels, so `co.uk` emerges without a
+list of public suffixes); `phone`: the region, then the area code (`nanp`) or the
+zone (`fr`, `06`), read from the last digits so that `(514) 555-0123` and
+`+1 514 555 0123` count together; `postal_code`: the first character, then the
+forward sortation area (`H2X`) or the first three digits of a ZIP code.
+
+```json
+{"status": "complete", "levels": ["region", "area"],
+ "keys": [{"key": "nanp", "occurrences": 8000,
+           "keys": [{"key": "514", "occurrences": 2800}],
+           "others": {"keys": 16, "occurrences": 400}}],
+ "others": {"keys": 0, "occurrences": 0}}
+```
+
+`keys` and `others` of a key are omitted when empty. `status` is
+`not_applicable` (`reason` `no_values`) when the detector matched nothing, `limited`
+(`reason` `not_tested`) when some values were not tested (adaptive detection, the input
+cap of `email`): the counts are exact for the values tested; `limited` (`reason`
+`max_tracked`) when the domains tracked overflowed: the extensions stay
+exact, the occurrences of the domains listed too, but the number of the keys left
+out is a lower bound; when the extensions themselves overflow there is no listing
+(`limit`). A masked or hidden field publishes its keys (DEC-027), with no example,
+profile or row of the sample; the setting `exposure.detector_keys` set to `mask`
+makes the status `disabled` (`reason` `exposure`) there. The `domains` block of an
+e-mail field stays masked. The version of the three detectors is 2.
+
 ### Counted names (shared by `email` and `url`)
 
 `email` counts domains and `url` counts hosts, lowercased with
@@ -254,7 +292,7 @@ block. Only `matched` values count.
   - `invalid_domain`: not a domain name (above).
 
   No value is ambiguous.
-- Details: `domains`, the counted names block (above).
+- Details: `domains`, the counted names block (above), and `keys` (declared keys, above).
 - Settings: `max_tracked_domains` (10,000, at most 1,000,000),
   `max_listed_domains` (20, at most 10,000).
 - Overlaps: `url` never matches an address: a `www.` URL has no `@` in its
@@ -366,7 +404,8 @@ apart) and of France (region `fr`). Numbers of other countries are
   unassigned area codes and extensions (`x123`) are not checked or accepted
   in version 1. The regions' forms never overlap, so no value is ambiguous.
 - Details: `regions`, the matched count per enabled region, such as
-  `{"fr": 2, "nanp": 10}`, ordered by region. Counts carry no value.
+  `{"fr": 2, "nanp": 10}`, ordered by region, and `keys` (declared keys, above).
+  Counts carry no value.
 - Settings: `regions` (default `["nanp", "fr"]`, unique, at least one).
 - Overlaps: `number` matches bare NANP numbers (`5145550100`,
   `15145550100`, `+15145550100`) as integers, so such columns list both
@@ -419,7 +458,8 @@ regions, not every postal code.
   lost) are `not_matched`. The regions' forms never overlap, so no value is
   ambiguous.
 - Details: `regions`, the matched count per enabled region, such as
-  `{"ca": 10, "us": 2}`, ordered by region. Counts carry no value.
+  `{"ca": 10, "us": 2}`, ordered by region, and `keys` (declared keys, above).
+  Counts carry no value.
 - Settings: `regions` (default `["ca", "us"]`, unique, at least one).
 - Overlaps: `number` matches every ZIP code without a leading zero (`90210`)
   as an integer, so a column of five-digit integers, identifiers included,

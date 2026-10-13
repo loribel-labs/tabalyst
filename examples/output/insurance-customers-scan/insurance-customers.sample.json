@@ -11,10 +11,10 @@
       "date": 1,
       "boolean": 1,
       "enumeration": 1,
-      "email": 1,
+      "email": 2,
       "url": 1,
-      "phone": 1,
-      "postal_code": 1,
+      "phone": 2,
+      "postal_code": 2,
       "currency": 1,
       "percentage": 1,
       "quantity": 1,
@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-13T21:43:25.264870Z",
-    "duration_seconds": 0.223898,
+    "started_at": "2026-10-13T23:01:36.624194Z",
+    "duration_seconds": 0.244471,
     "timings": {
-      "reading": 0.198751,
-      "selection": 0.002833,
-      "other": 0.022314
+      "reading": 0.216545,
+      "selection": 0.003225,
+      "other": 0.024701
     },
-    "peak_memory_bytes": 107503616,
+    "peak_memory_bytes": 107597824,
     "records_read": 3000,
     "cells_read": 96000,
     "source_verified": true,
@@ -120,13 +120,13 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "50941483414dd304bd4747286b7cd2250bc4eb5f662e627e9324992ee107c592",
+    "plan_id": "e577baa453a03862bf08c14b61d8f68b2037fa8bb8ab8e2b4fbc2961f9f8c06e",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-      "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
-      "facts_sha256": "4e39eceda4ebfafb0ee0a3438bdd009b58a36f72390917ab45b2e31ab3f76e2b"
+      "config_sha256": "d76058d2780d9ade91e427422c27e997ae345851025660986a291473bf9db0bb",
+      "facts_sha256": "061467b0e1569674cc880a60479c7a1d6dfa23c6a48ed228d6be5e1a9eb49e12"
     },
     "settings": {
       "max_enum_values": 100,
@@ -183,7 +183,7 @@
     },
     "enrichment": {
       "deep": "current",
-      "used": 157,
+      "used": 142,
       "requested": false,
       "awaiting": []
     },

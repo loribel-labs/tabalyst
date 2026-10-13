@@ -184,7 +184,7 @@ def test_phone_formats_regions_and_interpretation(tmp_path):
         {"format": "+1 999 999 9999", "count": 1},
         {"format": "09 99 99 99 99", "count": 1},
     ]
-    assert phone["details"] == {"regions": {"fr": 1, "nanp": 3}}
+    assert phone["details"]["regions"] == {"fr": 1, "nanp": 3}
     assert phone["evidence"]["invalid"] == ["123-456-7890"]
     assert phone["evidence"]["matched"][2] == "+1 514 555 0100"
     assert field["sensitive"] is True
@@ -196,7 +196,7 @@ def test_phone_regions_follow_the_setting(tmp_path):
 
     field = _field(_scan(source, detectors={"phone": {"regions": ["fr"]}}), "phone")
 
-    assert _detector(field, "phone")["details"] == {"regions": {"fr": 1}}
+    assert _detector(field, "phone")["details"]["regions"] == {"fr": 1}
 
 
 def test_phone_field_is_masked_by_default(tmp_path):
@@ -219,7 +219,7 @@ def test_phone_values_are_hidden_under_hide(tmp_path):
 
     assert phone["evidence"]["matched"] == []
     assert phone["evidence"]["invalid"] == []
-    assert phone["details"] == {"regions": {"fr": 0, "nanp": 1}}
+    assert phone["details"]["regions"] == {"fr": 0, "nanp": 1}
     assert "555" not in json.dumps(field)
 
 
@@ -296,7 +296,7 @@ def test_phone_can_be_disabled(tmp_path):
 
     assert _detector(field, "phone") == {
         "id": "phone",
-        "version": 1,
+        "version": 2,
         "status": "disabled",
     }
     assert "phone" not in result["engine"]["detectors"]

@@ -70,10 +70,19 @@ class ExposureGate:
     """How the values of one field are exposed; ``SHOW`` for fields that are
     not sensitive."""
 
-    __slots__ = ("mode",)
+    __slots__ = ("aggregates", "mode")
 
-    def __init__(self, mode: ExposureMode) -> None:
+    def __init__(self, mode: ExposureMode, aggregates: bool = True) -> None:
         self.mode = mode
+        # The keys a detector declares (domain, area code...) are aggregates that
+        # stay exposed on a masked or hidden field (DEC-027); False brings the
+        # masking back (``exposure.detector_keys``).
+        self.aggregates = aggregates
+
+    @property
+    def exposes_keys(self) -> bool:
+        """Whether the declared keys of a detector are published."""
+        return self.mode == "show" or self.aggregates
 
     @property
     def hides(self) -> bool:

@@ -9,8 +9,10 @@ that a JSON Schema cannot express (design 19.7).
 from __future__ import annotations
 
 import re
+from typing import Any
 
 from tabalyst.scanner.config import PatternInferenceSettings, config_sha256
+from tabalyst.scanner.detectors.keys import MIN_OCCURRENCES as MIN_KEY_OCCURRENCES
 from tabalyst.scanner.features import ascii_regex
 from tabalyst.scanner.models import (
     CardinalityComplete,
@@ -263,6 +265,7 @@ def _check_field(
     for detector in field.detectors:
         if isinstance(detector, DetectorComplete):
             _check_coverage(detector, f"{where}.detectors[{detector.id}]", problems)
+            _check_keys(detector, f"{where}.detectors[{detector.id}]", problems)
 
 
 def _check_cardinality(field: FieldResult, where: str, problems: list[str]) -> None:
@@ -633,6 +636,39 @@ def _check_statistics(field: FieldResult, where: str, problems: list[str]) -> No
             problems.append(
                 f"{where}.booleans: counts must equal the boolean occurrences"
             )
+
+
+def _check_keys(detector: DetectorComplete, where: str, problems: list[str]) -> None:
+    """The declared keys add up: the first level and its others to the matched
+    values, the keys below a key and its others to the key (Patterns P5)."""
+    block = detector.details.get("keys")
+    if not isinstance(block, dict) or "keys" not in block:
+        return
+    where = f"{where}.details.keys"
+
+    def check(entries: list[dict[str, Any]], path: str) -> None:
+        counts = [item["occurrences"] for item in entries]
+        if counts != sorted(counts, reverse=True) or any(
+            count < MIN_KEY_OCCURRENCES for count in counts
+        ):
+            problems.append(f"{path}: keys must be ordered and reach the floor of occurrences")
+        for item in entries:
+            below = item.get("keys", [])
+            left = item.get("others", {"occurrences": 0})["occurrences"]
+            if (below or left) and (
+                sum(child["occurrences"] for child in below) + left != item["occurrences"]
+            ):
+                problems.append(f"{path}.{item['key']}: keys below must add up to the key")
+            check(below, f"{path}.{item['key']}")
+
+    try:
+        total = sum(item["occurrences"] for item in block["keys"])
+        total += block["others"]["occurrences"]
+        if total != detector.coverage.matched:
+            problems.append(f"{where}: keys and others must add up to the matched values")
+        check(block["keys"], where)
+    except (KeyError, TypeError):
+        problems.append(f"{where}: malformed keys block")
 
 
 def _check_coverage(

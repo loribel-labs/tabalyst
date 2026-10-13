@@ -1525,3 +1525,19 @@ The first version ran the emoji expression on every value that was not ASCII; a 
 (`_MAYBE_EMOJI`) before it brought names and texts down by 40%. The cost model is 350 plus 25 a character, declared at the top
 of `moderate` at most (`NS_PER_CELL["characters"]`, `CHARACTER_NS_PER_CHAR`), `COST_MODEL_VERSION` 16. The estimate is low
 for texts of more than 90 characters, like those of the texts and fingerprints.
+
+## Declared keys of the detectors (Patterns lot P5)
+
+The accumulators of `email`, `phone` and `postal_code` count the keys in the first pass: one more `NameCounts` increment per distinct
+address (the extension), and one dictionary increment per distinct number or code (area, zone, FSA); the suffixes of the domains and
+the selection by floors are computed once, at the end of the field. Task `scan`, default workers, base `d5b0da6` (worktree) against the
+working tree, alternated three times in one session (`benchmarks/interleave.py`, outputs under
+`D:/GIT.test/tabalyst/artifacts/patterns-p5/il1`):
+
+| File | Base (s) | Head (s) | Paired ratio | Guard | Peak base / head (MB) | Guard |
+| --- | --- | --- | ---: | ---: | --- | ---: |
+| insurance-combined.csv (1 M x 34, realistic) | 19.89, 19.68, 18.76 | 19.68, 18.85, 18.74 | **-1.1%** | 20% | 798 / 795 | 10% |
+| worst-width-1m.csv (1 M x 30, 5 unique identifiers) | 22.25, 22.59, 22.24 | 21.73, 21.99, 21.70 | **-2.4%** | 35% | 988 / 986 | 10% |
+
+The difference is inside the noise of the machine (the session ran 40% slower than the one of the lot P8, hence the larger absolute
+times): the cost of the keys is not measurable on these files, and the memory does not move.

@@ -117,3 +117,4 @@ first or last characters of a token, a whole token) with their gain, and tables 
 content, as the Scan changelog says. The `pattern_counts` result of the second pass that the report carries
 under `analyses` follows the hierarchy too (revision 3 of the [second pass format](../scan/deep-format.md)):
 families, patterns and nodes with their occurrences, distinct values and tables. The report adds no member of its own, but it carries the character map (`derived.characters`) and the `character_profile` result of the second pass, and the column page draws them. The HTML page of a column presents the hierarchy (families, patterns, indented nodes and tables, readable without JavaScript) and the table of the dataset names the family of each pattern; nothing of the JSON changes.
+The report carries the `keys` of the `email`, `phone` and `postal_code` detectors (see the Scan changelog) inside the detector `details`; the column page does not draw them yet.

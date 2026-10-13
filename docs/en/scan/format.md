@@ -964,7 +964,11 @@ Every detector is listed for every field, with status `complete`,
 - `formats`: the forms matched, such as `YYYY-MM-DD` or `#,##0.0`, by count.
 - `evidence`: the first distinct values in each state.
 - `details`: detector-specific counts, such as email domains or ambiguity
-  evidence.
+  evidence. The `email`, `phone` and `postal_code` detectors add `keys`: the
+  extension and domain of an address, the region and area code of a number, the
+  first character and area of a postal code, counted exactly with their occurrences
+  (`key`, `occurrences`, then the `keys` and `others` below) and published even on a
+  masked field; see `scan.exposure.detector_keys`.
 - `adaptive`: `null` when the detector tested every value of the field.
   When it recognized none of the first `detection.warmup_values` distinct
   values, or at most `detection.rare_share` of them and none in the second

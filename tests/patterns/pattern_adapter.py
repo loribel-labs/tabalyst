@@ -28,6 +28,7 @@ from unittest.mock import patch
 from pattern_corpus import Field, Variants
 from pattern_tree import (
     Declared,
+    Key,
     SeenFamily,
     SeenField,
     SeenNode,
@@ -181,10 +182,40 @@ def _seen_nodes(nodes: Sequence[PatternNode], members: frozenset[str]) -> tuple[
     return tuple(seen)
 
 
-def declared_keys(field: Field) -> Declared:
+def declared_keys(field: Field, exposure: Mapping[str, str] | None = None) -> Declared:
     """The keys the detector of ``field`` declares (algorithm, section 4), as the
-    Scan publishes them, masked field or not (DEC-027)."""
-    raise NotImplementedError("bind the declared keys of the detectors (lot P5)")
+    Scan publishes them, masked field or not (DEC-027). ``exposure`` overrides
+    the ``exposure`` settings (``detector_keys``)."""
+    block = detector_keys_block(field, exposure)
+    assert block["status"] == "complete", block
+    return Declared(
+        field.id,
+        field.detector or "",
+        tuple(_key(item) for item in block["keys"]),
+        other=(block["others"]["keys"], block["others"]["occurrences"]),
+        masked=field.masked,
+    )
+
+
+def detector_keys_block(field: Field, exposure: Mapping[str, str] | None = None) -> dict:
+    """The ``keys`` block in the ``details`` of the detector of ``field``."""
+    config = tuple(sorted((exposure or {}).items()))
+    [found] = [
+        item
+        for item in _scanned(field, exposure=config).datasets[0].fields[0].detectors
+        if item.id == field.detector
+    ]
+    return found.details["keys"]
+
+
+def _key(item: Mapping[str, object]) -> Key:
+    others = item.get("others", {"keys": 0, "occurrences": 0})
+    return Key(
+        item["key"],
+        item["occurrences"],
+        tuple(_key(child) for child in item.get("keys", ())),
+        other=(others["keys"], others["occurrences"]),
+    )
 
 
 def validate(variants: Variants) -> Validation:
@@ -268,7 +299,10 @@ _SEMANTIC = tuple(name for name in DetectorSettings.model_fields if name != "num
 
 @cache
 def _scanned(
-    field: Field, settings: tuple[tuple[str, int], ...] = (), workers: int = 1
+    field: Field,
+    settings: tuple[tuple[str, int], ...] = (),
+    workers: int = 1,
+    exposure: tuple[tuple[str, str], ...] = (),
 ) -> ScanResult:
     """A Scan of ``field``: a CSV file of one column holding each value as many
     times as it occurs, outside the checkout."""
@@ -277,6 +311,8 @@ def _scanned(
         config["detectors"] = {name: {"enabled": False} for name in _SEMANTIC}
     if settings:
         config["pattern_inference"] = dict(settings)
+    if exposure:
+        config["exposure"] = dict(exposure)
     if field.distinct > 10_000:
         # Every distinct value is kept, so the cut of the discovery acts alone.
         config["limits"] = {"max_samples": field.distinct}

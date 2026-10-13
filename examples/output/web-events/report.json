@@ -10,10 +10,10 @@
       "date": 1,
       "boolean": 1,
       "enumeration": 1,
-      "email": 1,
+      "email": 2,
       "url": 1,
-      "phone": 1,
-      "postal_code": 1,
+      "phone": 2,
+      "postal_code": 2,
       "currency": 1,
       "percentage": 1,
       "quantity": 1,
@@ -23,17 +23,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-13T21:43:11.882985Z",
-    "duration_seconds": 0.041863,
+    "started_at": "2026-10-13T22:41:01.871291Z",
+    "duration_seconds": 0.030507,
     "timings": {
-      "reading": 0.005253,
-      "analysis": 0.007344,
-      "finalize": 0.020175,
-      "derived": 0.008596,
-      "other": 0.000494
+      "reading": 0.005637,
+      "analysis": 0.007376,
+      "finalize": 0.01163,
+      "derived": 0.005446,
+      "other": 0.000419
     },
     "workers": 1,
-    "peak_memory_bytes": 71016448
+    "peak_memory_bytes": 71065600
   },
   "source": {
     "format": "jsonl",
@@ -280,7 +280,8 @@
     },
     "patterns": [],
     "exposure": {
-      "sensitive_values": "mask"
+      "sensitive_values": "mask",
+      "detector_keys": "aggregate"
     },
     "pattern_inference": {
       "enabled": true,
@@ -298,7 +299,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "473c623fee4a8a2cccad49ebd7c654a2b411e3c64a0e8d34f8a664ba42f567ef",
+  "config_sha256": "c79bd596c5ed8c6b7af0c636b76290d43a5806cf5c014b1fcb15537dc728ea5a",
   "scope": {
     "collections": null,
     "records_read": 303,
@@ -1481,7 +1482,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -1519,6 +1520,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -1571,7 +1586,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -1606,13 +1621,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -1647,6 +1674,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -2957,7 +2996,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -2995,6 +3034,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -3047,7 +3100,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -3082,13 +3135,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -3123,6 +3188,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -3803,7 +3880,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -3836,6 +3913,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -3883,7 +3974,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -3913,13 +4004,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -3949,6 +4052,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -4377,7 +4492,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -4389,13 +4504,13 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -5062,7 +5177,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -5074,13 +5189,13 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -5542,7 +5657,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 253,
@@ -5575,6 +5690,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -5622,7 +5751,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 253,
@@ -5652,13 +5781,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 253,
@@ -5688,6 +5829,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -6305,7 +6458,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -6336,6 +6489,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -6381,7 +6548,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -6409,13 +6576,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -6443,6 +6622,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -6861,7 +7052,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -6873,13 +7064,13 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -7348,7 +7539,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -7381,6 +7572,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -7428,7 +7633,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -7458,13 +7663,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -7494,6 +7711,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -7964,7 +8193,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -7976,13 +8205,13 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -8502,7 +8731,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -8538,6 +8767,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -8588,7 +8831,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -8621,13 +8864,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 300,
@@ -8660,6 +8915,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -9109,7 +9376,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -9121,13 +9388,13 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -9605,7 +9872,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 450,
@@ -9638,6 +9905,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -9685,7 +9966,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 450,
@@ -9715,13 +9996,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 450,
@@ -9751,6 +10044,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -10351,7 +10656,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -10363,13 +10668,13 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -10787,7 +11092,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 21,
@@ -10816,6 +11121,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -10859,7 +11178,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 21,
@@ -10885,13 +11204,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 21,
@@ -10917,6 +11248,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -11389,7 +11732,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -11401,13 +11744,13 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "not_applicable",
               "reason": "no_values"
             },
@@ -11835,7 +12178,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 30,
@@ -11865,6 +12208,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -11909,7 +12266,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 30,
@@ -11936,13 +12293,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 30,
@@ -11969,6 +12338,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -14825,7 +15206,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -14835,8 +15216,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-        "config_sha256": "473c623fee4a8a2cccad49ebd7c654a2b411e3c64a0e8d34f8a664ba42f567ef",
-        "facts_sha256": "33160374fbf1be581d90ef7c478e22d327f7f3b90e7c62923a6a8704f836f740"
+        "config_sha256": "c79bd596c5ed8c6b7af0c636b76290d43a5806cf5c014b1fcb15537dc728ea5a",
+        "facts_sha256": "5223ba6070312dd19d0cae94b5efdef4210dbfa6dcfca945feb54085f2293f34"
       },
       "settings": {
         "bins": 100,
@@ -14936,13 +15317,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 16,
-        "plan_id": "815179910546ff6a523814703ec27a839927053ef5a02c4bd6f0a7c143c36ea3",
+        "plan_id": "94372800231a85d68af9a095a2dc5b426c03a909058d443689ebd98ccafc326c",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-          "config_sha256": "473c623fee4a8a2cccad49ebd7c654a2b411e3c64a0e8d34f8a664ba42f567ef",
-          "facts_sha256": "33160374fbf1be581d90ef7c478e22d327f7f3b90e7c62923a6a8704f836f740"
+          "config_sha256": "c79bd596c5ed8c6b7af0c636b76290d43a5806cf5c014b1fcb15537dc728ea5a",
+          "facts_sha256": "5223ba6070312dd19d0cae94b5efdef4210dbfa6dcfca945feb54085f2293f34"
         },
         "objective": {
           "automatic": true,
@@ -22784,21 +23165,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T21:43:11.980670Z",
-        "duration_seconds": 0.040635,
+        "started_at": "2026-10-13T22:43:59.878663Z",
+        "duration_seconds": 0.000168,
         "timings": {
-          "reading": 0.005427,
-          "analysis": 0.008743,
-          "other": 0.026464
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000168
         },
         "workers": 1,
-        "peak_memory_bytes": 74604544,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 300,
-        "cells_read": 876,
-        "executed": 11,
-        "reused": 0,
+        "peak_memory_bytes": 72982528,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 11,
         "skipped": 0
       },
       "analyses": [
@@ -22814,7 +23195,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "cee102d83b7ef1e4b375dec9742cd47571817372c4abef62fa1ac33ac8db9267",
+          "key": "019b1bf1bacaa31401b0616c241a6f9a346d047733cb4db2e6ddb86f8c46f09f",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -24389,7 +24770,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "fda4a41b4f2e919a14583aa8e83d321a8d7e3f368704a14a9141dbe8ed80d7a7",
+          "key": "7e65c03f10ce44457949b4df4f61815bf7d3012d00e6b5cd4e0318778f712196",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -25964,7 +26345,7 @@
             "domain": 60
           },
           "domain": "analytical",
-          "key": "ca02d6b1e2157e1e6136f6e3f491b3997d2749cb8759ba0e17ca373c9a925efb",
+          "key": "49b64668a22690350ab8cd3b15e3859416d2c4c71b98e64b64fb1ed61358ee1c",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -26265,7 +26646,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "ea38a69d4874eacae8d582c035eb52bd4bd2a1c25ce163a2796fe5e598b133a8",
+          "key": "4fea29daa319ab636cfdeceecc227af5f26c8755a65915487250ab7ca7851417",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -26542,7 +26923,7 @@
             "domain": 100
           },
           "domain": "analytical",
-          "key": "35406e10a6b09ffd9761aadd70297307f9d6b6298d53bff07ffa0d540b20db9e",
+          "key": "48d82288270595f380efa1064794c7e462bde1d077bb60137c97d9a15f883684",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -26621,7 +27002,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "27611a01c2d70bd617c8e4ab3aa60e71107a9349661fc4c1e60f37bac98241b8",
+          "key": "b0a18196ed53daa01534ea10e9f623a0c6bd174a0ff4c9095d57a79be0dcb96e",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26742,7 +27123,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "812c85f80aea8a0ae52dc7468ac5cedcb0394e20a5ffc3155913d054c7bc4ebf",
+          "key": "58ee53fa1fa74849bc7bc3fbfa5202bc428e2bf253302668d31edfd44c652dee",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26929,7 +27310,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "6f2477227e70350a9f9dbcc01410be3aa4ab67d888e042a9392ff1e269bc373b",
+          "key": "4678712bd10800edf70badbf4c86ad91ac6bb16db08b0c6b91f0ea1506a73bfe",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -27038,7 +27419,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "96bc60764fc1aa3f5471474ce256c168f3593e8162fb25304fef242890ccbf8a",
+          "key": "bfd24c38717c29ab15a484aa69d31e095965f65055fbdf319a098083408b2efa",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -27202,7 +27583,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "db72458666a4a737d02b4e18d190112b35eebe1b7b91dafc907315f18f033f58",
+          "key": "3e3fc53d99d3603b2a1f264e7a244132c72e6f1fec377305e69a405f5fe43285",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -27246,7 +27627,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "424b130dc479d14304aef8471da4c9cb3d62cf02878525a1be7de0b59e84fc5d",
+          "key": "ce710ebed9ee97d878e91e1aa303023eff6cb4006111874d48f591ef95f2805c",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -27278,12 +27659,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T21:43:12.288301Z",
+    "generated_at": "2026-10-13T22:44:00.158761Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.4399,
+    "processing_seconds": 0.3328,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -27316,8 +27697,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-      "config_sha256": "473c623fee4a8a2cccad49ebd7c654a2b411e3c64a0e8d34f8a664ba42f567ef",
-      "facts_sha256": "33160374fbf1be581d90ef7c478e22d327f7f3b90e7c62923a6a8704f836f740"
+      "config_sha256": "c79bd596c5ed8c6b7af0c636b76290d43a5806cf5c014b1fcb15537dc728ea5a",
+      "facts_sha256": "5223ba6070312dd19d0cae94b5efdef4210dbfa6dcfca945feb54085f2293f34"
     },
     "datasets": [
       {

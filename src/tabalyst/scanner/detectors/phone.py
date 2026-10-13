@@ -20,6 +20,7 @@ from tabalyst.scanner.detectors.base import (
     Detector,
     DetectorAccumulator,
 )
+from tabalyst.scanner.detectors.keys import from_pairs, keys_block
 from tabalyst.scanner.exposure import ExposureGate
 
 DEFAULT_REGIONS = ("nanp", "fr")
@@ -46,6 +47,10 @@ _FR_INTERNATIONAL = re.compile(
 )
 # The international prefix followed by a national number with its trunk 0.
 _FR_KEPT_TRUNK = re.compile(rf"(?:\+33|0033)[ .-]?0[0-9]{_FR_PAIRS}")
+
+# Meaning of each level of the keys: the region, then the area code of a North
+# American number or the zone of a French one.
+KEY_LEVELS = ("region", "area")
 
 _BAD_AREA = Classification("invalid", reason="invalid_area_code")
 _BAD_EXCHANGE = Classification("invalid", reason="invalid_exchange_code")
@@ -120,6 +125,7 @@ def phone_class(value: str, region: str) -> str | None:
 
 class PhoneDetector(Detector):
     id = "phone"
+    version = 2
     family = "contact"
     sensitive = True
 
@@ -170,17 +176,31 @@ class PhoneDetector(Detector):
 
 
 class PhoneAccumulator(DetectorAccumulator):
-    __slots__ = ("regions",)
+    __slots__ = ("areas", "regions")
     ignores_unmatched = True
 
     def __init__(self, regions: tuple[str, ...]) -> None:
         self.regions = dict.fromkeys(sorted(regions), 0)
+        # Per region, the area code (``nanp``) or the zone (``fr``) of the
+        # numbers; a few hundred keys at most, so no limit is needed.
+        self.areas: dict[str, dict[str, int]] = {region: {} for region in self.regions}
 
     def add(
         self, value: str, classification: Classification | None, count: int
     ) -> None:
         if classification is not None and classification.state == "matched":
-            self.regions[classification.value] += count
+            region: str = classification.value  # type: ignore[assignment]
+            self.regions[region] += count
+            digits = value.translate(_SYNTAX)
+            # The last digits are the same whatever the prefix and the trunk
+            # zero: ``(514) 555-0123`` and ``+1 514 555 0123`` count together.
+            area = digits[-10:-7] if region == "nanp" else "0" + digits[-9]
+            areas = self.areas[region]
+            areas[area] = areas.get(area, 0) + count
 
     def details(self, gate: ExposureGate) -> dict[str, object]:
-        return {"regions": dict(self.regions)}
+        roots = from_pairs({region: seen for region, seen in self.areas.items() if seen})
+        return {
+            "regions": dict(self.regions),
+            "keys": keys_block(roots, KEY_LEVELS, gate),
+        }

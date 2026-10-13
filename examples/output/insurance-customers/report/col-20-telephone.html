@@ -704,6 +704,73 @@ td.ex .tip.show{display:block}
 </div></section>
 <section class="panel" id="values" aria-labelledby="values-h"><div class="phead"><div><p class="eyebrow">02 / Distribution</p><h2 id="values-h">Values<span class="n">(2)</span></h2><p>Every stored distinct value and its cardinality. Each count is the exact frequency of that value in the analyzed column.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><code>+9-999-999-9999</code><b>2,958</b></div><div class="column-line"><code>+9 999-999-9999</code><b>42</b></div></div></div></section>
 <section class="panel" id="detectors" aria-labelledby="detectors-h"><div class="phead"><div><p class="eyebrow">03 / Detection</p><h2 id="detectors-h">Detectors and formats</h2><p>All detectors that recognized values in this column.</p></div></div><div class="pbody column-grid"><div class="rcard"><p class="rcard-title">Phone <small class="dprim">primary</small></p><dl class="schema"><dt>Status</dt><dd>complete</dd><dt>Eligible</dt><dd>3,000</dd><dt>Matched</dt><dd>3,000 (100.0%)</dd><dt>Ambiguous</dt><dd>0</dd><dt>Invalid</dt><dd>0</dd><dt>Tested</dt><dd>3,000</dd><dt>Not tested</dt><dd>0</dd><dt>Not matched</dt><dd>0</dd></dl><div class="column-line"><code>+1-999-999-9999</code><b>2,958 · 98.6%</b></div><div class="column-line"><code>+1 999-999-9999</code><b>42 · 1.4%</b></div><p class="rcard-title">Examples by outcome</p><div class="column-line"><span>matched<small class="sub-n">+9-999-999-9999</small></span></div><p class="rcard-title">Detector details</p><pre class="column-json">{
+  "keys": {
+    "keys": [
+      {
+        "key": "nanp",
+        "keys": [
+          {
+            "key": "418",
+            "occurrences": 326
+          },
+          {
+            "key": "514",
+            "occurrences": 316
+          },
+          {
+            "key": "450",
+            "occurrences": 312
+          },
+          {
+            "key": "819",
+            "occurrences": 299
+          },
+          {
+            "key": "438",
+            "occurrences": 198
+          },
+          {
+            "key": "581",
+            "occurrences": 194
+          },
+          {
+            "key": "579",
+            "occurrences": 185
+          },
+          {
+            "key": "873",
+            "occurrences": 169
+          },
+          {
+            "key": "263",
+            "occurrences": 87
+          },
+          {
+            "key": "468",
+            "occurrences": 68
+          },
+          {
+            "key": "367",
+            "occurrences": 61
+          }
+        ],
+        "occurrences": 3000,
+        "others": {
+          "keys": 44,
+          "occurrences": 785
+        }
+      }
+    ],
+    "levels": [
+      "region",
+      "area"
+    ],
+    "others": {
+      "keys": 0,
+      "occurrences": 0
+    },
+    "status": "complete"
+  },
   "regions": {
     "fr": 0,
     "nanp": 3000

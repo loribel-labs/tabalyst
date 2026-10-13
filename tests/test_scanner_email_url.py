@@ -420,7 +420,7 @@ def test_email_and_url_can_be_disabled(tmp_path):
 
     assert _detector(field, "email") == {
         "id": "email",
-        "version": 1,
+        "version": 2,
         "status": "disabled",
     }
     assert "email" not in result["engine"]["detectors"]

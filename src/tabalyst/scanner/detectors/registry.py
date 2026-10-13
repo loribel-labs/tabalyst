@@ -355,6 +355,11 @@ class DetectorTally:
         if self.error is None and self.eligible:
             try:
                 details = self.accumulator.details(gate)
+                keys = details.get("keys")
+                if self.not_tested and isinstance(keys, dict) and keys.get("status") == "complete":
+                    # Values the detector did not test (adaptive skipping, input
+                    # cap) are in no key: the counts are exact for the tested ones.
+                    details["keys"] = {**keys, "status": "limited", "reason": "not_tested"}
                 matches = detector.scope != "field" or self.accumulator.field_matches()
             except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
                 self.error = type(exc).__name__
@@ -539,7 +544,10 @@ class DetectorSet:
             i not in (self._number, self._date) for i in range(len(active))
         )
         self._field_scope = tuple(detector.scope == "field" for detector in active)
-        self._exposure = ExposureGate(config.exposure.sensitive_values)
+        self._exposure = ExposureGate(
+            config.exposure.sensitive_values,
+            config.exposure.detector_keys == "aggregate",
+        )
         # Per native type, the detectors that accept it, with their position,
         # input cap and shapes.
         self._plans = {

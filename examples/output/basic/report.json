@@ -10,10 +10,10 @@
       "date": 1,
       "boolean": 1,
       "enumeration": 1,
-      "email": 1,
+      "email": 2,
       "url": 1,
-      "phone": 1,
-      "postal_code": 1,
+      "phone": 2,
+      "postal_code": 2,
       "currency": 1,
       "percentage": 1,
       "quantity": 1,
@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T21:43:05.945413Z",
-    "duration_seconds": 0.005256,
+    "started_at": "2026-10-13T22:40:54.490423Z",
+    "duration_seconds": 0.005781,
     "timings": {
-      "reading": 0.000481,
-      "analysis": 0.000153,
-      "finalize": 0.002682,
-      "derived": 0.001532,
-      "other": 0.000408
+      "reading": 0.000441,
+      "analysis": 0.000154,
+      "finalize": 0.003292,
+      "derived": 0.001512,
+      "other": 0.000382
     },
     "workers": 1,
-    "peak_memory_bytes": 65970176
+    "peak_memory_bytes": 67059712
   },
   "source": {
     "format": "csv",
@@ -293,7 +293,8 @@
     },
     "patterns": [],
     "exposure": {
-      "sensitive_values": "mask"
+      "sensitive_values": "mask",
+      "detector_keys": "aggregate"
     },
     "pattern_inference": {
       "enabled": true,
@@ -311,7 +312,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
+  "config_sha256": "d76058d2780d9ade91e427422c27e997ae345851025660986a291473bf9db0bb",
   "scope": {
     "collections": null,
     "records_read": 5,
@@ -809,7 +810,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -841,6 +842,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -887,7 +902,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -916,13 +931,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -951,6 +978,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -1577,7 +1616,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -1609,6 +1648,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -1655,7 +1708,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -1684,13 +1737,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -1719,6 +1784,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -2364,7 +2441,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 4,
@@ -2395,6 +2472,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -2440,7 +2531,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 4,
@@ -2468,13 +2559,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 4,
@@ -2502,6 +2605,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -3141,7 +3256,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -3173,6 +3288,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -3219,7 +3348,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -3248,13 +3377,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -3283,6 +3424,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -3893,7 +4046,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -3923,6 +4076,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -3967,7 +4134,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -3994,13 +4161,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 5,
@@ -4027,6 +4206,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -4642,7 +4833,7 @@
             },
             {
               "id": "email",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 4,
@@ -4673,6 +4864,20 @@
                     "distinct": 0,
                     "listed": [],
                     "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "extension",
+                    "domain",
+                    "subdomain",
+                    "subdomain"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
                   }
                 }
               },
@@ -4718,7 +4923,7 @@
             },
             {
               "id": "phone",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 4,
@@ -4746,13 +4951,25 @@
                 "regions": {
                   "fr": 0,
                   "nanp": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "region",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
             },
             {
               "id": "postal_code",
-              "version": 1,
+              "version": 2,
               "status": "complete",
               "coverage": {
                 "eligible": 4,
@@ -4780,6 +4997,18 @@
                 "regions": {
                   "ca": 0,
                   "us": 0
+                },
+                "keys": {
+                  "status": "complete",
+                  "levels": [
+                    "first_character",
+                    "area"
+                  ],
+                  "keys": [],
+                  "others": {
+                    "keys": 0,
+                    "occurrences": 0
+                  }
                 }
               },
               "adaptive": null
@@ -6188,7 +6417,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -6198,8 +6427,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-        "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
-        "facts_sha256": "cfac0b37663d7545893c54a35203f9546fd856f2993e41c2612aa2f70c5c964c"
+        "config_sha256": "d76058d2780d9ade91e427422c27e997ae345851025660986a291473bf9db0bb",
+        "facts_sha256": "f36413113cc1fc18bb4b676b69df9c37a6884a1019452b8580a1d27b35631e51"
       },
       "settings": {
         "bins": 100,
@@ -6299,13 +6528,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 16,
-        "plan_id": "f4c704ee045e630294c8ff477e9a3e32bfb29954a7d67d6ce7e5f16077f07532",
+        "plan_id": "a77e041496fab9b7e466f95e1f2064d5ed5d81d3fa81408260f9c0a4b2f793c1",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-          "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
-          "facts_sha256": "cfac0b37663d7545893c54a35203f9546fd856f2993e41c2612aa2f70c5c964c"
+          "config_sha256": "d76058d2780d9ade91e427422c27e997ae345851025660986a291473bf9db0bb",
+          "facts_sha256": "f36413113cc1fc18bb4b676b69df9c37a6884a1019452b8580a1d27b35631e51"
         },
         "objective": {
           "automatic": true,
@@ -8179,21 +8408,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T21:43:05.968320Z",
-        "duration_seconds": 0.00317,
+        "started_at": "2026-10-13T22:43:53.269130Z",
+        "duration_seconds": 0.000111,
         "timings": {
-          "reading": 0.000377,
-          "analysis": 6e-05,
-          "other": 0.002733
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000111
         },
         "workers": 1,
-        "peak_memory_bytes": 67903488,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 5,
-        "cells_read": 5,
-        "executed": 7,
-        "reused": 0,
+        "peak_memory_bytes": 67428352,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 7,
         "skipped": 0
       },
       "analyses": [
@@ -8216,7 +8445,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "6899e624f17e1e4e6180fb1cde12c6dc6510f76f19e7ae6a610a48538fa7cda7",
+          "key": "86ba96e0d0a72c07d72c471d16c54364abec4d64b9848831d195d9df2a785a14",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -8280,7 +8509,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "4006b0679307f26823e0de2a4fb80c673f980d904c206271cb8bfa60ca8be577",
+          "key": "024dba4a462ab33e3ba3148cb22e096f3426ab4e379aeb9d9ba884c2ec7eafaf",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -8369,7 +8598,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "d2674b8384609cf671da5b00d3c427adfeec00423120fc243529a25b3047eb92",
+          "key": "946532ef0beca92061e61c9f47275adfc8d8f2723632a83e2b79ebf1f98c0af8",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -8433,7 +8662,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "573829d0905f5637eb893578ef202d564f9cd52e2ffb02abaa50fb7301055309",
+          "key": "534f948eaa45dc235a61e35a0fdf998ac733eb944107ec4e21e2ed77064bf167",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -8527,7 +8756,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "324c4404dd40804fd40f9227b12aff56a15d20fe64f6d2497a086e3a7ecf8368",
+          "key": "3118f9362bc350d5fd5b86acdd57f4310d04538f1e19a3ffbbc5f85c9fdae977",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -8578,7 +8807,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "343d72c78c3b684af6b473fec4b61f31984fc83ff9547ba267ee4261949db01e",
+          "key": "75dac5fca4a3b31e1d564147c9dd1cb9365cf99c0e8731010c6046abc73546ff",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -8632,7 +8861,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "44ff11cd1ff77ac15e633e72a9be69bcf8fb66ec167cbb45bd4ee31cd92d8024",
+          "key": "444adacdcb1d3ce0fadecc761352443e3b2b393841695ada1252faca2357412e",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -8663,12 +8892,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T21:43:05.979074Z",
+    "generated_at": "2026-10-13T22:43:53.271130Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0436,
+    "processing_seconds": 0.0204,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -8701,8 +8930,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-      "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
-      "facts_sha256": "cfac0b37663d7545893c54a35203f9546fd856f2993e41c2612aa2f70c5c964c"
+      "config_sha256": "d76058d2780d9ade91e427422c27e997ae345851025660986a291473bf9db0bb",
+      "facts_sha256": "f36413113cc1fc18bb4b676b69df9c37a6884a1019452b8580a1d27b35631e51"
     },
     "datasets": [
       {

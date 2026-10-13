@@ -807,7 +807,10 @@ def test_the_report_prints_the_cards_of_the_json_and_no_value_of_a_sensitive_col
     assert root.scope == "dataset" and root.fields == []
     html = path.with_suffix(".report.html").read_text(encoding="utf-8")
     assert "leak.test" not in html
-    assert "leak.test" not in path.with_suffix(".report.json").read_text(encoding="utf-8")
+    # The domain is a declared key of the detector (DEC-027), published with its count;
+    # no address is.
+    text = path.with_suffix(".report.json").read_text(encoding="utf-8")
+    assert "@leak.test" not in text and "zq1" not in text
 
 
 def test_the_report_prints_the_masks_of_a_masked_column_and_never_a_value(tmp_path):

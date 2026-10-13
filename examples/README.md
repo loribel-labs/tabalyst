@@ -86,9 +86,15 @@ with:
 
 ```console
 tabalyst scan examples/input/insurance-customers.csv -o examples/output/insurance-customers-scan/insurance-customers.scan.json --config examples/config.json --deep --yes --force
+tabalyst scan examples/input/insurance-customers.csv --config examples/config.json --deep --yes --force
 tabalyst scan examples/input/insurance-customers.csv --plan --smart --sample-size 150 --config examples/config.json > examples/output/insurance-customers-scan/smart-plan.txt
 tabalyst sample examples/input/insurance-customers.csv --sample-method smart --rows 150 --seed 42 -o examples/output/insurance-customers-scan/insurance-customers.sample.csv --config examples/config.json --force
 ```
+
+The plan and the sample read the second pass stored in the workspace for the file, not
+the one written beside `-o`; the second command stores the full one. Without it, a
+report made just before leaves its smaller automatic second pass there and the plan
+counts fewer targets (391 instead of 469 relations included).
 
 Every output folder of the reports is independent and contains its own HTML report, canonical
 JSON profile and cumulative `executions.json` history. The insurance example

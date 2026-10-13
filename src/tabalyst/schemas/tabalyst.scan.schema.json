@@ -2017,6 +2017,15 @@
           ],
           "title": "Sensitive Values",
           "type": "string"
+        },
+        "detector_keys": {
+          "default": "aggregate",
+          "enum": [
+            "aggregate",
+            "mask"
+          ],
+          "title": "Detector Keys",
+          "type": "string"
         }
       },
       "title": "ExposureSettings",
