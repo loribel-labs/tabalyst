@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Sequence
-from dataclasses import dataclass
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
 from itertools import groupby
 from os.path import commonprefix
 
@@ -32,6 +32,7 @@ from tabalyst.scanner.models import (
     PatternEligibility,
     PatternExcluded,
     PatternFamily,
+    PatternGain,
     PatternGrammar,
     PatternLimit,
     PatternNode,
@@ -43,6 +44,14 @@ from tabalyst.scanner.models import (
     PatternToken,
     PatternTokenKind,
     SampleEntry,
+)
+from tabalyst.scanner.patternfacets import DIGITS, LETTERS, MIN_DEVELOP, Alphabet, Facet
+from tabalyst.scanner.patterntree import (
+    Developed,
+    Position,
+    TreeNode,
+    develop,
+    published_facets,
 )
 
 GRAMMAR_NAME = "tabalyst.pattern"
@@ -60,6 +69,12 @@ EXAMPLES = 3
 # share of the distinct values or of the occurrences.
 MERGE_MAX_WIDTH = 2
 MATERIAL_SHARE = 0.05
+# A constant folded into a pattern is at most this long, unless it is a whole token
+# that every member repeats: a pattern of a few values never publishes the start of
+# a number (exposure of RC-11).
+MAX_FOLD = 3
+# The alphabet of the positions a content facet reads, by token class.
+_ALPHABETS: dict[str, Alphabet] = {"D": DIGITS, "U": LETTERS, "L": LETTERS, "X": LETTERS}
 
 # A token read from a value: (class code, literal character, count, text). The
 # codes are D digits, U ASCII capitals, L ASCII lowercase letters, X letters of
@@ -275,32 +290,68 @@ def candidate_order(
     return (-literal_chars, level, width, order)
 
 
-def _build_signature(rows: Sequence[Sequence[Token]], fold: bool) -> list[PatternToken]:
-    """The signature of rows of tokens that share their classes and lengths.
+def _fold_sizes(rows: Sequence[Sequence[Token]], fold: bool) -> list[int]:
+    """The characters that every row has at the start of each token, to be folded
+    into a literal (DEC-026): all of a token that every row repeats entirely, at
+    most ``MAX_FOLD`` of a token that varies. A position of several classes is
+    never folded."""
+    sizes = []
+    for position, (code, _, count, _) in enumerate(rows[0]):
+        size = 0
+        if fold and len(code) == 1 and code != "P":
+            size = len(commonprefix([row[position][3] for row in rows]))
+            if size < count:
+                size = min(size, MAX_FOLD)
+        sizes.append(size)
+    return sizes
 
-    With ``fold`` the characters that every row has at the start of a class
-    token become a literal, and a token that every row repeats entirely a
-    literal alone (DEC-026): `'AK'-9999`. A position of several classes is never
-    folded.
+
+# What a content node fixes in a token of a signature: the head, the tail or the
+# whole token, as text.
+Overrides = Mapping[int, tuple[str, str]]
+
+
+def _signature_of(
+    template: Sequence[Token], sizes: Sequence[int], overrides: Overrides | None = None
+) -> list[PatternToken]:
+    """The signature of a row of tokens whose first ``sizes`` characters are folded
+    into literals, with ``overrides`` for the tokens a content node fixes.
+
+    A tail is written after the class of the characters between: `9{4}'00'`. When
+    the folded start and the tail meet, the token is written whole.
     """
     signature: list[PatternToken] = []
-    for position, (code, literal, count, _) in enumerate(rows[0]):
+    for position, (code, literal, count, text) in enumerate(template):
         if code == "P":
             signature.append(PatternToken(kind="literal", text=literal, min=count, max=count))
             continue
-        size = 0
-        if fold and len(code) == 1:
-            texts = [row[position][3] for row in rows]
-            size = len(commonprefix(texts))
-            if size:
-                signature.append(
-                    PatternToken(kind="literal", text=texts[0][:size], min=1, max=1)
-                )
-        if count > size:
-            signature.append(
-                PatternToken(kind=_KIND[code], min=count - size, max=count - size)
-            )
+        size = sizes[position]
+        fixed = overrides.get(position) if overrides else None
+        head = text[:size]
+        tail = ""
+        if fixed is not None:
+            edge, value = fixed
+            if edge == "tail":
+                tail = value
+                overlap = len(head) + len(tail) - count
+                if overlap >= 0:
+                    head, tail = head + tail[overlap:], ""
+            else:
+                head = value
+        if head:
+            signature.append(PatternToken(kind="literal", text=head, min=1, max=1))
+        between = count - len(head) - len(tail)
+        if between > 0:
+            signature.append(PatternToken(kind=_KIND[code], min=between, max=between))
+        if tail:
+            signature.append(PatternToken(kind="literal", text=tail, min=1, max=1))
     return signature
+
+
+def _build_signature(rows: Sequence[Sequence[Token]], fold: bool) -> list[PatternToken]:
+    """The signature of rows of tokens that share their classes and lengths, with
+    their constants folded (`'AK'-9999`) when ``fold``."""
+    return _signature_of(rows[0], _fold_sizes(rows, fold))
 
 
 # Population -----------------------------------------------------------------------
@@ -400,6 +451,7 @@ class _Family:
     keys: list[Key]
     members: list[int]
     merge: _Merge | None = None
+    tables: list[PatternTable] = field(default_factory=list)
 
 
 def _material(members: Sequence[int], entries: Sequence[SampleEntry], total_d: int, total_o: int) -> bool:
@@ -575,13 +627,39 @@ def _score(count_d: int, count_o: int, total_d: int, total_o: int) -> float:
 
 
 @dataclass(slots=True)
+class _Layout:
+    """How the rows of a signature hold the skeleton of a family: the rows of a
+    merged structure, and the union rows of a pattern, split the merged block in
+    two tokens, so the tokens after it are one place further."""
+
+    block: int | None
+    shifted: bool
+
+    def row_index(self, position: int) -> int:
+        if self.shifted and self.block is not None and position > self.block:
+            return position + 1
+        return position
+
+
+@dataclass(slots=True)
 class _BuiltNode:
-    """A structure of a merging pattern, before its identifier."""
+    """A node before its identifier: a structure of a merging pattern
+    (``composition``) or a content node, with the nodes below it."""
 
     key: Key
+    facet: str
     signature: list[PatternToken]
     d: int
     o: int
+    gain: PatternGain | None = None
+    children: list[_BuiltNode] = field(default_factory=list)
+    # What the nodes below it need to write their signatures.
+    template: Sequence[Token] = ()
+    sizes: Sequence[int] = ()
+    layout: _Layout = field(default_factory=lambda: _Layout(None, False))
+
+    def size(self) -> int:
+        return 1 + sum(child.size() for child in self.children)
 
 
 @dataclass(slots=True)
@@ -594,6 +672,13 @@ class _Built:
     o: int
     signature: list[PatternToken]
     nodes: list[_BuiltNode]
+    template: Sequence[Token]
+    sizes: Sequence[int]
+    layout: _Layout
+    developed: Developed | None = None
+
+    def size(self) -> int:
+        return 1 + sum(node.size() for node in self.nodes)
 
 
 def _patterns(
@@ -609,6 +694,7 @@ def _patterns(
     position of the union class and a node per structure (composition)."""
     base = family.keys[0]
     merge = family.merge
+    block = merge.token if merge is not None else None
     by_vector: dict[tuple[int, ...], list[int]] = defaultdict(list)
     for member in family.members:
         by_vector[_vector(tokens[member], merge, row_keys[member], base)].append(member)
@@ -617,26 +703,40 @@ def _patterns(
         keys = sorted({row_keys[member] for member in members}, key=_key_text)
         fold = len(members) >= 2
         nodes = []
+        rows: Sequence[Sequence[Token]]
         if merge is not None and len(keys) > 1:
             union = merge.union(keys, base)
             rows = [
                 _union_row(tokens[member], merge, union, row_keys[member] == base)
                 for member in members
             ]
-            signature = _build_signature(rows, fold)
+            sizes = _fold_sizes(rows, fold)
+            template = rows[0]
+            layout = _Layout(block, True)
+            signature = _signature_of(template, sizes)
             for key in keys:
                 part = [member for member in members if row_keys[member] == key]
+                part_rows = [tokens[member] for member in part]
+                part_sizes = _fold_sizes(part_rows, len(part) >= 2)
                 nodes.append(
                     _BuiltNode(
                         key,
-                        _build_signature([tokens[member] for member in part], len(part) >= 2),
+                        "composition",
+                        _signature_of(part_rows[0], part_sizes),
                         len(part),
                         sum(entries[member].count for member in part),
+                        template=part_rows[0],
+                        sizes=part_sizes,
+                        layout=_Layout(block, key != base),
                     )
                 )
             nodes.sort(key=lambda node: (-node.d, -node.o, _key_text(node.key)))
         else:
-            signature = _build_signature([tokens[member] for member in members], fold)
+            rows = [tokens[member] for member in members]
+            sizes = _fold_sizes(rows, fold)
+            template = rows[0]
+            layout = _Layout(block, merge is not None and keys[0] != base)
+            signature = _signature_of(template, sizes)
         built.append(
             _Built(
                 vector,
@@ -645,10 +745,189 @@ def _patterns(
                 sum(entries[member].count for member in members),
                 signature,
                 nodes,
+                template,
+                sizes,
+                layout,
             )
         )
     built.sort(key=lambda item: (-_score(item.d, item.o, total_d, total_o), item.vector))
     return built
+
+
+# Content facets ---------------------------------------------------------------------
+
+
+def _skeleton(
+    family: _Family, tokens: Sequence[Sequence[Token]], row_keys: Sequence[Key]
+) -> dict[int, list[str]]:
+    """The text of each member at each position of the skeleton of its family: the
+    two tokens of a merged structure that make up the block count as one."""
+    base = family.keys[0]
+    merge = family.merge
+    texts: dict[int, list[str]] = {}
+    for member in family.members:
+        row = [token[3] for token in tokens[member]]
+        if merge is not None and row_keys[member] != base:
+            row[merge.token : merge.token + 2] = ["".join(row[merge.token : merge.token + 2])]
+        texts[member] = row
+    return texts
+
+
+def _slots(family: _Family) -> list[tuple[int, Alphabet]]:
+    """The positions of the skeleton that a content facet can read: the tokens of
+    letters and digits, the merged block being the composition."""
+    block = family.merge.token if family.merge is not None else None
+    return [
+        (position, _ALPHABETS[code])
+        for position, (code, _) in enumerate(family.keys[0])
+        if code in _ALPHABETS and position != block
+    ]
+
+
+def _positions(
+    slots: Sequence[tuple[int, Alphabet]],
+    skeleton: dict[int, list[str]],
+    members: Sequence[int],
+) -> list[Position]:
+    return [
+        Position(position, alphabet, [skeleton[member][position] for member in members])
+        for position, alphabet in slots
+    ]
+
+
+def _content_node(tree: TreeNode, owner: _Built | _BuiltNode) -> _BuiltNode:
+    """A node of content below ``owner`` (a pattern or a structure of its
+    composition): its signature is that of the owner with what the node and its
+    ancestors fix."""
+    overrides = {
+        owner.layout.row_index(position): fixed for position, fixed in tree.constraints.items()
+    }
+    return _BuiltNode(
+        (),
+        f"{tree.edge}:{tree.position + 1}",
+        _signature_of(owner.template, owner.sizes, overrides),
+        tree.distinct,
+        tree.occurrences,
+        PatternGain(
+            bits_d=round(tree.gain_d, 1), bits_o=round(tree.gain_o, 1), sigma=round(tree.sigma, 4)
+        ),
+        [_content_node(child, owner) for child in tree.children],
+    )
+
+
+def _grow_pattern(
+    pattern: _Built,
+    slots: Sequence[tuple[int, Alphabet]],
+    skeleton: dict[int, list[str]],
+    entries: Sequence[SampleEntry],
+    row_keys: Sequence[Key],
+    max_depth: int,
+) -> bool:
+    """Build the content nodes of a pattern (E5); whether ``max_depth`` cut some.
+
+    A pattern of several structures keeps its composition nodes as the primary
+    ones and nests below them the facets that depend on a structure. With a
+    ``max_depth`` of 1 the pattern keeps no node at all.
+    """
+    members = pattern.members
+    occurrences = [entries[member].count for member in members]
+    positions = _positions(slots, skeleton, members)
+    if pattern.nodes:
+        if max_depth < 2:
+            pattern.nodes = []
+            return True
+        place = {member: index for index, member in enumerate(members)}
+        groups = [
+            [place[member] for member in members if row_keys[member] == node.key]
+            for node in pattern.nodes
+        ]
+        developed = develop(positions, occurrences, groups=groups, max_level=max_depth)
+        for node, below in zip(pattern.nodes, developed.under, strict=True):
+            node.children = [_content_node(tree, node) for tree in below]
+    else:
+        developed = develop(positions, occurrences, max_level=max_depth)
+        pattern.nodes = [_content_node(tree, pattern) for tree in developed.roots]
+    pattern.developed = developed
+    return developed.cut
+
+
+def _table_of(
+    position: int,
+    facet: Facet,
+    texts: Sequence[str],
+    occurrences: Sequence[int],
+    limit: int,
+) -> tuple[PatternTable, bool]:
+    """The cells of a facet that no node reads, as a table: its leaves, the
+    largest ``limit`` of them (whether some were left out is the second value),
+    and the rest of the family."""
+    leaves = sorted(facet.leaves(), key=lambda leaf: (-leaf.occurrences, -leaf.distinct, leaf.text))
+    kept = leaves[:limit]
+    covered = {index for leaf in kept for index in leaf.group}
+    rest = [index for index in range(len(texts)) if index not in covered]
+    table = PatternTable(
+        facet=f"{facet.edge}:{position + 1}",
+        cells=[PatternTableCell(value=leaf.text, d=leaf.distinct, o=leaf.occurrences) for leaf in kept],
+        others=PatternTableOthers(
+            distinct=len({texts[index] for index in rest}),
+            d=len(rest),
+            o=sum(occurrences[index] for index in rest),
+        ),
+        gain=PatternGain(
+            bits_d=round(facet.gain_d(), 1),
+            bits_o=round(facet.gain_o(), 1),
+            sigma=round(facet.sigma(), 4),
+        ),
+    )
+    return table, len(leaves) > len(kept)
+
+
+def _grow_family(
+    family: _Family,
+    patterns: Sequence[_Built],
+    complete: bool,
+    tokens: Sequence[Sequence[Token]],
+    entries: Sequence[SampleEntry],
+    row_keys: Sequence[Key],
+    settings: PatternInferenceSettings,
+    limits: set[PatternLimit],
+) -> None:
+    """The content nodes of every pattern of a family and its tables of content:
+    the facets that are published and that no node reads, because they do not
+    depend on the nodes (E5). ``complete`` says that the patterns hold the whole
+    family; otherwise the facets are read over all its members."""
+    slots = _slots(family)
+    if not slots:
+        return
+    skeleton = _skeleton(family, tokens, row_keys)
+    cut = False
+    used: set[int] = set()
+    for pattern in patterns:
+        cut = _grow_pattern(pattern, slots, skeleton, entries, row_keys, settings.max_depth) or cut
+        if pattern.developed is not None:
+            used |= pattern.developed.used
+    if cut:
+        limits.add("max_depth")
+    members = family.members
+    if len(members) < MIN_DEVELOP:
+        return
+    occurrences = [entries[member].count for member in members]
+    if len(patterns) == 1 and complete and patterns[0].developed is not None:
+        facets = patterns[0].developed.facets
+    else:
+        # Only the positions no node reads can make a table: the others are not read again.
+        free = [slot for slot in slots if slot[0] not in used]
+        facets = published_facets(_positions(free, skeleton, members), occurrences)
+    for position in sorted(facets, key=lambda index: (-facets[index].absolute_gain(), index)):
+        if position in used:
+            continue
+        texts = [skeleton[member][position] for member in members]
+        table, trimmed = _table_of(
+            position, facets[position], texts, occurrences, settings.max_patterns_per_family
+        )
+        if trimmed:
+            limits.add("max_patterns_per_family")
+        family.tables.append(table)
 
 
 def _lengths(vector: tuple[int, ...], base: Key) -> list[int]:
@@ -794,6 +1073,8 @@ def _infer(
             cut_patterns[number] = patterns[settings.max_patterns_per_family :]
             built[number] = patterns[: settings.max_patterns_per_family]
             limits.add("max_patterns_per_family")
+    for family, patterns, left_out in zip(kept, built, cut_patterns, strict=True):
+        _grow_family(family, patterns, not left_out, tokens, entries, row_keys, settings, limits)
     _fit_budget(kept, dropped, built, cut_patterns, settings.max_patterns, limits)
     families = [
         _publish_family(
@@ -812,6 +1093,7 @@ def _infer(
         "max_families",
         "max_patterns_per_family",
         "max_patterns",
+        "max_depth",
     )
     return FieldPatternsComplete(
         dataset=dataset,
@@ -833,6 +1115,16 @@ def _infer(
     )
 
 
+def _content_nodes(
+    nodes: list[_BuiltNode], found: list[tuple[list[_BuiltNode], _BuiltNode]]
+) -> None:
+    """Every node of content under ``nodes``, with the list that holds it."""
+    for node in nodes:
+        if node.facet != "composition":
+            found.append((nodes, node))
+        _content_nodes(node.children, found)
+
+
 def _fit_budget(
     kept: list[_Family],
     dropped: list[_Family],
@@ -841,38 +1133,86 @@ def _fit_budget(
     budget: int,
     limits: set[PatternLimit],
 ) -> None:
-    """Keep the patterns and nodes of the field within ``max_patterns``: first
-    the nodes of the smallest patterns go (a pattern keeps all its nodes or
+    """Keep the patterns and nodes of the field within ``max_patterns``: first the
+    nodes of content of the lowest gain go, with what is below them, then the
+    nodes of the smallest patterns (a pattern keeps all its nodes of composition or
     none), then the smallest patterns, each family keeping its largest one, which
     go to the table of lengths of their family, then the smallest families, which
     go to ``dropped`` (counted in ``other``) so that a budget below the number of
     families is met too."""
 
     def size() -> int:
-        return sum(1 + len(pattern.nodes) for patterns in built for pattern in patterns)
+        return sum(pattern.size() for patterns in built for pattern in patterns)
 
-    if size() <= budget:
+    total = size()
+    if total <= budget:
         return
     limits.add("max_patterns")
+    found: list[tuple[list[_BuiltNode], _BuiltNode]] = []
+    for patterns in built:
+        for pattern in patterns:
+            _content_nodes(pattern.nodes, found)
+    found.sort(
+        key=lambda item: max(item[1].gain.bits_d, item[1].gain.bits_o) if item[1].gain else 0.0
+    )
+    gone: set[int] = set()
+    for holder, node in found:
+        if total <= budget:
+            return
+        if id(node) in gone:
+            continue
+        holder.remove(node)
+        total -= node.size()
+        stack = [node]
+        while stack:
+            current = stack.pop()
+            gone.add(id(current))
+            stack.extend(current.children)
     everything = sorted(
         ((number, pattern) for number, patterns in enumerate(built) for pattern in patterns),
         key=lambda item: (item[1].d, item[1].o),
     )
     for _, pattern in everything:
-        if size() <= budget:
+        if total <= budget:
             return
+        total -= pattern.size() - 1
         pattern.nodes = []
     for number, pattern in everything:
-        if size() <= budget:
+        if total <= budget:
             return
         patterns = built[number]
         if patterns[0] is not pattern:
             patterns[:] = [item for item in patterns if item is not pattern]
             cut_patterns[number].append(pattern)
+            total -= 1
     while size() > budget and len(kept) > 1:
         dropped.append(kept.pop())
         built.pop()
         cut_patterns.pop()
+
+
+def _publish_nodes(nodes: Sequence[_BuiltNode], parent: str, level: int) -> list[PatternNode]:
+    """The nodes below ``parent`` with their identifiers and roles: the first, the
+    largest, is the principal one."""
+    published = []
+    for position, built in enumerate(nodes, 1):
+        identifier = f"{parent}.n{position}"
+        published.append(
+            PatternNode(
+                id=identifier,
+                parent=parent,
+                level=level,
+                facet=built.facet,
+                signature=built.signature,
+                render=render_signature(built.signature),
+                d=built.d,
+                o=built.o,
+                role="principal" if position == 1 else "secondary",
+                gain=built.gain,
+                nodes=_publish_nodes(built.children, identifier, level + 1),
+            )
+        )
+    return published
 
 
 def _publish_family(
@@ -888,20 +1228,7 @@ def _publish_family(
     published = []
     for number, pattern in enumerate(patterns, 1):
         pattern_id = f"{identifier}.p{number}"
-        nodes = [
-            PatternNode(
-                id=f"{pattern_id}.n{position}",
-                parent=pattern_id,
-                level=2,
-                facet="composition",
-                signature=built.signature,
-                render=render_signature(built.signature),
-                d=built.d,
-                o=built.o,
-                role="principal" if position == 1 else "secondary",
-            )
-            for position, built in enumerate(pattern.nodes, 1)
-        ]
+        nodes = _publish_nodes(pattern.nodes, pattern_id, 2)
         published.append(
             FamilyPattern(
                 id=pattern_id,
@@ -915,7 +1242,7 @@ def _publish_family(
                 nodes=nodes,
             )
         )
-    tables = []
+    tables: list[PatternTable] = []
     if left_out:
         tables.append(
             _lengths_table(
@@ -933,7 +1260,7 @@ def _publish_family(
         d=len(family.members),
         o=sum(entries[member].count for member in family.members),
         patterns=published,
-        tables=tables,
+        tables=tables + family.tables,
         examples=_examples(family.members, entries),
     )
 

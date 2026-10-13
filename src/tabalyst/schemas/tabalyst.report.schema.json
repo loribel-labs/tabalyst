@@ -5607,7 +5607,8 @@
               "max_values",
               "max_families",
               "max_patterns_per_family",
-              "max_patterns"
+              "max_patterns",
+              "max_depth"
             ],
             "type": "string"
           },
@@ -9139,6 +9140,31 @@
       "title": "PatternFamily",
       "type": "object"
     },
+    "PatternGain": {
+      "additionalProperties": false,
+      "description": "What a facet saves in the node it specializes (design 18.12, E4): bits on\nthe distinct values (``bits_d``) and on the occurrences (``bits_o``) for the\nprefix of a node or the cell of a table, and ``sigma`` of the whole facet.",
+      "properties": {
+        "bits_d": {
+          "title": "Bits D",
+          "type": "number"
+        },
+        "bits_o": {
+          "title": "Bits O",
+          "type": "number"
+        },
+        "sigma": {
+          "title": "Sigma",
+          "type": "number"
+        }
+      },
+      "required": [
+        "bits_d",
+        "bits_o",
+        "sigma"
+      ],
+      "title": "PatternGain",
+      "type": "object"
+    },
     "PatternGrammar": {
       "additionalProperties": false,
       "description": "The versioned grammar of the signatures and their rendering (PAT-04).",
@@ -9161,7 +9187,7 @@
     },
     "PatternInferenceSettings": {
       "additionalProperties": false,
-      "description": "Discovery of structural patterns from the samples (design 18.12).\n\nThe discovery reads the samples of the finished scan, never the source.\n``max_values`` bounds the distinct values a field's discovery reads,\n``max_families`` the families it publishes, ``max_patterns_per_family`` the\npatterns of one family and ``max_patterns`` the patterns and nodes of a\nfield. ``max_value_length`` bounds the stored values that take part (longer\nones are counted as excluded) and ``min_distinct`` the distinct values a\nfield needs to be assessed.",
+      "description": "Discovery of structural patterns from the samples (design 18.12).\n\nThe discovery reads the samples of the finished scan, never the source.\n``max_values`` bounds the distinct values a field's discovery reads,\n``max_families`` the families it publishes, ``max_patterns_per_family`` the\npatterns of one family, ``max_patterns`` the patterns and nodes of a field\nand ``max_depth`` the levels of the tree below a family (the pattern is the\nfirst). ``max_value_length`` bounds the stored values that take part (longer\nones are counted as excluded) and ``min_distinct`` the distinct values a\nfield needs to be assessed.",
       "properties": {
         "enabled": {
           "default": true,
@@ -9196,6 +9222,13 @@
           "title": "Max Patterns",
           "type": "integer"
         },
+        "max_depth": {
+          "default": 3,
+          "maximum": 4,
+          "minimum": 1,
+          "title": "Max Depth",
+          "type": "integer"
+        },
         "max_value_length": {
           "default": 64,
           "maximum": 1000,
@@ -9216,7 +9249,7 @@
     },
     "PatternNode": {
       "additionalProperties": false,
-      "description": "A specialization of a pattern (design 18.12): the values of one of the\nstructures a family merged (``facet`` ``composition``), with its counts in\ndistinct values (``d``) and occurrences (``o``). The nodes of a pattern add\nup to it.",
+      "description": "A specialization of a pattern (design 18.12), with its counts in distinct\nvalues (``d``) and occurrences (``o``). ``facet`` is ``composition`` (one of the\nstructures a family merged: the nodes of a pattern add up to it) or a facet of\ncontent, ``head:N``, ``tail:N`` or ``token:N`` (the first or last characters of\nthe Nth token of the structure, or the whole token): its ``gain`` is what the\nprefix saves. The nodes of a content facet are a part of their parent, the\nrest being its ``others``. ``nodes`` are the nodes below: a longer prefix of the\nsame facet or a facet that depends on this node.",
       "properties": {
         "id": {
           "title": "Id",
@@ -9231,7 +9264,6 @@
           "type": "integer"
         },
         "facet": {
-          "const": "composition",
           "title": "Facet",
           "type": "string"
         },
@@ -9261,6 +9293,25 @@
           ],
           "title": "Role",
           "type": "string"
+        },
+        "gain": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PatternGain"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "nodes": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PatternNode"
+          },
+          "title": "Nodes",
+          "type": "array"
         }
       },
       "required": [
@@ -9508,10 +9559,9 @@
     },
     "PatternTable": {
       "additionalProperties": false,
-      "description": "The values of a facet of a family with their counts. The table of the\n``lengths`` lists the combinations of lengths that ``max_patterns_per_family``\nor ``max_patterns`` kept out of the patterns; ``others`` is the rest of the\ntable.",
+      "description": "The values of a facet of a family with their counts, not nested in the tree\n(design 18.12). ``facet`` is ``lengths`` (the combinations of lengths that\n``max_patterns_per_family`` or ``max_patterns`` kept out of the patterns) or a\nfacet of content, ``head:N``, ``tail:N`` or ``token:N``, which no node reads\nbecause it is independent of the nodes: its cells are the prefixes it keeps\n(text, spelled from the left), with the ``gain`` of the facet. ``others`` is the\nrest of the table, so that cells and rest add up to the family.",
       "properties": {
         "facet": {
-          "const": "lengths",
           "title": "Facet",
           "type": "string"
         },
@@ -9524,6 +9574,17 @@
         },
         "others": {
           "$ref": "#/$defs/PatternTableOthers"
+        },
+        "gain": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PatternGain"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [

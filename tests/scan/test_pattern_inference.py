@@ -301,8 +301,8 @@ def test_the_patterns_of_a_family_are_bounded_and_the_rest_is_a_table(tmp_path):
     [family] = entry.families
     assert len(family.patterns) == 3
     assert entry.limits == ["max_patterns_per_family"]
-    [table] = family.tables
-    assert table.facet == "lengths"
+    # The sevens at the start of the numbers are a facet of content, kept apart.
+    [table] = [table for table in family.tables if table.facet == "lengths"]
     assert sum(cell.d for cell in table.cells) + table.others.d == family.d - 30
     assert check_scan(result) == []
 
@@ -334,6 +334,10 @@ def test_the_values_a_budget_keeps_out_of_the_patterns_are_unmatched(tmp_path):
     assert entry.unmatched.share == round(20 / 50, 4)
 
 
+def _lengths_of(family: dict) -> dict:
+    return next(table for table in family["tables"] if table["facet"] == "lengths")
+
+
 def test_the_validator_catches_a_table_or_a_composition_that_does_not_fit(tmp_path):
     (tmp_path / "cut").mkdir()
     (tmp_path / "merged").mkdir()
@@ -350,7 +354,7 @@ def test_the_validator_catches_a_table_or_a_composition_that_does_not_fit(tmp_pa
         return check_scan(ScanResult.model_validate(document))
 
     cells = [{"value": str(n), "d": 0, "o": 0} for n in range(4)]
-    assert any("table has more cells" in p for p in damaged(cut, lambda f: f["tables"][0].update(cells=cells)))
+    assert any("table has more cells" in p for p in damaged(cut, lambda f: _lengths_of(f).update(cells=cells)))
     assert any(
         "composition must start" in p
         for p in damaged(merged, lambda f: f.update(composition=["UP-DU", "UP-D"]))
@@ -509,7 +513,7 @@ def test_families_are_ranked_by_the_larger_of_their_shares_then_by_key(tmp_path)
 
 def test_a_length_the_budget_keeps_out_is_counted_in_the_table_of_lengths(tmp_path):
     result, entry = _lengths_column(tmp_path, max_patterns_per_family=3)
-    [table] = entry.families[0].tables
+    [table] = [table for table in entry.families[0].tables if table.facet == "lengths"]
 
     # The five combinations tie in size: the kept ones are the first by lengths,
     # the others are cells of the table.

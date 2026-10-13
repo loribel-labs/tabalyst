@@ -27,7 +27,9 @@ KEYS = {"email": email_keys, "phone": phone_keys, "postal_code": postal_keys}
 def test_every_field_has_an_expectation():
     informative = {item.id for item in corpus() if item.mode == "informative"}
     declared = {item.id for item in corpus() if item.mode == "declared"}
-    assert {item.field for item in EXPECTED} >= informative
+    # The hyphenated ISBN needs too many formats of fixed length to be discovered
+    # (DEC-034): its eligibility sets it aside and no tree is expected.
+    assert {item.field for item in EXPECTED} >= informative - {"RC-12/isbn"}
     assert {item.field for item in DECLARED} == declared
 
 

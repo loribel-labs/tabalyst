@@ -1888,6 +1888,7 @@ makes by itself writes none.
 | 2026-10-13 | PT-P1 | New decision O65, sections 18.12 and 20.9 rewritten: the contract of the hierarchical discovery and validation of patterns (eligibility, weighted population, families, patterns of fixed length, facets and score, tree, budgets, determinism, exposure, declared keys, target format of `derived.patterns` grammar 2 and of `pattern_counts` revision 2, PAT-12 to PAT-27), ADR `2026-10-13-hierarchical-patterns-fixed-lengths`, the tests of `tests/patterns/` marked by lot. No code of the engine changes. | Lot P1 of the Patterns plan. Maintainer decisions of 2026-10-13 (Porte 0, Q1 to Q9, "tout par defaut"). |
 | 2026-10-13 | PT-C1 | New decision O66, section 9.2 rewritten, a note in 12.8: the character profile of `string_characteristics` (`scanner/characters.py`, `CharacterProfile`), `limits.max_special_characters` and `max_distinct_characters`, the column page of the Report, `tests/scan/test_character_profile.py`. Format revision 4 (in preparation). | Lot C1 of the Patterns plan: the first pass counts the classes and the characters of the strings. |
 | 2026-10-13 | PT-P3 | Section 18.12: the discovery of families and patterns of fixed length (`scanner/patterninfer.py` rewritten: families by structure key, merge of composition at the edge of a block, one pattern per combination of lengths, constants folded, budgets `max_values`, `max_families`, `max_patterns_per_family`, `max_patterns`, table of lengths), grammar 2 and `ALGORITHM_VERSION` 1, the models of the hierarchy (`PatternFamily`, `FamilyPattern`, `PatternNode`, `PatternTable`, `PatternOtherStructures`), the flat view `FieldPatternsComplete.candidates` that the consumers read until P6 and P7, `check_scan` of the sums, `tests/patterns/pattern_adapter.py` (`discover`, `published_text`), lot P3 enabled. Format revision 4 (in preparation). | Lot P3 of the Patterns plan. |
+| 2026-10-13 | PT-P4 | Section 18.12: the content facets, the score and the tree (`scanner/patternfacets.py`: heads, tails and whole tokens read as prefixes, gain and sigma in bits, the G test and `beyond_chance`, `dependence`; `scanner/patterntree.py`: the primary facet, the nested dependent facets, the compressions, the depth cut; `patterninfer.py`: the signature of a node, the tables of content, the cap of three characters on folded constants, `max_patterns` removing the lowest gain first), the setting `max_depth` and its limit, the models (`PatternNode.nodes`, `facet`, `gain`; the tables of content of `PatternTable`), the checks of `check_scan` on nested nodes and tables, `FieldPatternsComplete.unmatched` counting the table of lengths only, lot P4 enabled in `tests/patterns`. Format revision 4 (in preparation). | Lot P4 of the Patterns plan. |
 | 2026-10-12 | IN-23 |
 
 ## 18. Bottom-k samplers (O26, O28)
@@ -2480,7 +2481,8 @@ This section is the contract of the hierarchical discovery. It replaces the flat
 record is the ADR `2026-10-13-hierarchical-patterns-fixed-lengths`. The lots P2 to P8 of the Patterns plan implement
 it; until a lot delivers, the tests of `tests/patterns/` for that lot stay skipped ("to enable"). The lot P3 delivered the
 families, the patterns of fixed length, the folded constants, the merge of composition, the budgets and the target
-format without gains, tables of content or depth (lot P4); the consumers of the flat list of the lot 4a read it
+format; the lot P4 delivered the content facets, the score, the tree, the tables of content and the depth
+(`scanner/patternfacets.py`, `scanner/patterntree.py`); the consumers of the flat list of the lot 4a read it
 through `FieldPatternsComplete.candidates`, a view of the hierarchy, until the lots P6 and P7 make them read the
 hierarchy.
 
@@ -2629,8 +2631,10 @@ family's skeleton, a literal run counting too, and a merged block counts as one 
 constant carried by all the members of a pattern, in `d` and in `o`, creates no child: it is folded into the
 rendering (`'AK-'9999`), while the parent stays general so that a later value is a new variant, not an unknown
 structure (DEC-026). What is folded (lot P3): the characters that every member has at the start of a class token, the
-whole token when it is all constant (`'202'9`, `'INV'`), never the end of a token (a tail is a facet, lot P4) and never
-a position of several classes; a pattern of one distinct value folds nothing, a lone value proving no constant. A
+whole token when it is all constant (`'202'9`, `'INV'`), never the end of a token (a tail is a facet) and never
+a position of several classes; at most three characters (`MAX_FOLD`) of a token that varies, so that a pattern of a
+few numbers never publishes the start of one (RC-11), and a token that every member repeats entirely whatever its
+length; a pattern of one distinct value folds nothing, a lone value proving no constant. A
 pattern that holds several of the merged structures has the union class at the merged positions (`'A'A-9999X`) and a
 node of the facet `composition` for each structure (`'A'A-99999`, `'A'A-9999A`), with no test of gain. A family whose
 patterns would need more combinations than the budget keeps the largest and counts the rest in the `lengths` table of
@@ -2657,6 +2661,21 @@ folded into it and counts in its `k` positions. A facet is published if `max(sig
 starting values are `kappa = 2`, `alpha = 10^-6`, 0.10, 90%, 95% and 4; they belong to the version of the algorithm
 (below), not to the settings, and a change of one raises it.
 
+*How the lot P4 reads it* (`patternfacets.py`; `tests/patterns/pattern_bits.py` is its independent calculator and
+`test_pattern_facets.py` compares them on the corpus). A facet reads one token of the skeleton of the family (the
+merged block is the composition, never a content facet; a literal reads nothing). A token has up to three readings:
+its heads, its tails and its whole value, and the one that saves most bits (`max(gain_d, gain_o)`) is its facet, the
+head winning a tie, if it is published. A tail is read only on a token longer than the chain of three characters:
+a shorter one is read in full by its heads, and reading it from the other end would find chance in the last letter of a
+code (RC-12). The whole value is read for a token of at most four characters (`MAX_WHOLE_TOKEN`: the year of RC-05;
+a longer token is an identifier, and no complete number is published) whose distinct contents are fewer than half of
+the distinct values (an almost unique token is ignored, E3); heads and tails of such a token are still read (the end
+`00` of the numbers of RC-16). A value of a whole token is kept when it is beyond chance among all the tokens of that
+length: the G test over every possible token has too few expected counts when four digits make 10,000 symbols, so
+the value is tested alone with the Chernoff bound of the binomial tail, multiplied by the number of possible values
+(`beyond_chance`, same `alpha`). Heads and tails keep the G test of DEC-031. A token whose members are all equal reads
+nothing, and a pattern of fewer than four distinct values is not developed.
+
 **Tree and compressions (PAT-17, FR-005, FR-012, DEC-024, DEC-025).** The tree is built best first. Level 1 under the
 family is the composition or the lengths (the patterns); level 2 is content, the facet of the largest absolute gain
 being the primary one; level 3 is a content facet that depends on the primary one. The default depth below the family
@@ -2668,16 +2687,42 @@ cover at least 95% of its `d` and of its `o` is removed and its children move up
 never developed. A node has fewer than 4 distinct values: it is not developed. Each value counts for one node, the
 deepest, so a node's counts equal the sum of its children and the rest, and the patterns of a family sum to the family.
 
+*How the lot P4 builds it* (`patterntree.py`). The tree is built for each pattern, over its own members: lengths are
+the first level, so RC-07 sets `CC` and `CD` apart in the pattern of lengths 2 and 4 only. The facet of each token is
+chosen as above. When the pattern holds several merged structures, the composition nodes are the primary ones and a
+content facet is nested under a structure only if it depends on it. Otherwise the primary facet is the published one
+with the largest `max(gain_d, gain_o)`, the lowest position on a tie, and its prefixes are the nodes at level 2 (the
+longer prefixes the facet kept, `0` then `00`, are their children). Below a leaf, another published facet is nested
+when its dependence on the leaf (`dependence`: the divergence of its table in the leaf from its table in the pattern,
+over the entropy of the latter, the larger on `d` and `o`) is at least `NU_MIN`; the facet that saves most bits
+inside the leaf is read there again (same reading, head, tail or whole value), and the positions read by the
+ancestors are not read again. A published facet that no node reads is a table of the family: its cells are its
+leaves and `others` the rest, so cells and rest add up to the family. A family of one pattern that holds all of it
+reuses the facets read for the pattern; otherwise the facets of the positions no node reads are read over the whole
+family. A node whose only child covers 95% of its `d` and of its `o` merges with that child (not a composition node,
+which is a partition of its pattern). Nodes are built one level beyond `max_depth` and then cut, with the limit named,
+so that a cut is told from a tree that simply ends; with a `max_depth` of 1 a pattern has no node, composition
+included.
+
+The signature of a node is that of its pattern (or of its structure, below a composition node) with what the node and
+its ancestors fix: a head as a literal followed by the class of the rest, a tail as the class of the characters between
+the folded start and the tail followed by the literal (`9{4}'00'`), a whole token as a literal. The start that the
+pattern folded is kept, and a node folds nothing more, so that a constant is not read by chance in a small node.
+
 **Budgets and limits (PAT-18, FR-011, DEC-006).** The settings of `scan.pattern_inference` are `enabled`,
 `max_values` (10,000, at most 20,000), `max_families` (16), `max_patterns_per_family` (32), `max_patterns` (128: the
 patterns and the nodes published for a field, which changes the meaning of the setting of the lot 4a, whose default
-was 8 and whose upper bound of 64 rises to 1,024), `max_depth` (3, at most 4; added by the lot P4, which develops the tree), `max_value_length` (64) and `min_distinct`
+was 8 and whose upper bound of 64 rises to 1,024), `max_depth` (3, at most 4: the levels of the tree under a family, the pattern being the first), `max_value_length` (64) and `min_distinct`
 (2, a condition of the eligibility of the field: a structure with one value is a family of its own). When a budget
 acts, the branches of the lowest gain are folded into the `others` of their parent and `limits` names the budget
 (`max_values`, `max_families`, `max_patterns_per_family`, `max_patterns`, `max_depth`). The families beyond
-`max_families` are counted in `other` (`structures`, `d`, `o`). Under `max_patterns` the nodes of the smallest patterns
-go first (a pattern keeps all its nodes or none), then the smallest patterns, each family keeping its largest, into
-the `lengths` table of their family. The names and defaults are the ones the maintainer accepted on 2026-10-13; the values are not
+`max_families` are counted in `other` (`structures`, `d`, `o`). Under `max_patterns` the nodes of content of the lowest
+gain go first (with the nodes below them), then the nodes of the smallest patterns (a pattern keeps all its composition
+nodes or none), then the smallest patterns, each family keeping its largest, into the `lengths` table of their family.
+A table of content with more cells than `max_patterns_per_family` keeps the largest, the rest going to `others`, with
+that limit. `max_depth` is named in `limits` when a node deeper than the setting was left out; in the Report its setting
+is `scan.pattern_inference.max_depth` (`report_labels.MEASURE_REASON_SETTINGS`), since the limit of the JSON structure
+shares the name. The names and defaults are the ones the maintainer accepted on 2026-10-13; the values are not
 final and a change of any setting makes the Scan stale like any other (21).
 
 **Determinism (FR-018, AC-019).** Same values, counts and settings give the same result, byte for byte, whatever the
@@ -2719,11 +2764,16 @@ datasets and fields, each with `dataset`, `field`, `status` (`complete`, `not_ap
   (`exact` or `sample`), `excluded`;
 - `families`: each with `id` (`f1`, ...), `key`, `d`, `o`, optional `composition` (the merged keys), `patterns`
   (each with `id` `f1.p1`, `signature`, `render`, `format` of the commonest value, `lengths`, `d`, `o`, `examples`,
-  `nodes`), `tables` (each with `facet`, `extractor`, `cells` of `{value, d, o}`, `others` `{distinct, d, o}`,
-  `gain`; the lot P3 writes only the `lengths` table, without `extractor` or `gain`), and `examples` (up to three ids
-  of entries of the samples, the smallest);
-- a node: `id` (`f1.p1.n1`), `parent`, `level`, `facet`, `signature`, `render`, `d`, `o`, `gain` (`bits_d`,
-  `bits_o`, `sigma`), `role` (`principal` for the largest of its siblings, `secondary`), `nodes`;
+  `nodes`), `tables` (each with `facet`: `lengths`, or `head:N`, `tail:N`, `token:N` for the Nth token of the key
+  counted from 1, `cells` of `{value, d, o}` (the text of a prefix, spelled from the left), `others` `{distinct, d, o}`
+  and, for a table of content, `gain` `{bits_d, bits_o, sigma}`; the cells and `others` of a table of content add up to
+  the family, a table of `lengths` completes the patterns to the family), and `examples` (up to three ids of entries of
+  the samples, the smallest);
+- a node: `id` (`f1.p1.n1`, then `f1.p1.n1.n1` below it), `parent`, `level` (2 under a pattern), `facet`
+  (`composition`, `head:N`, `tail:N` or `token:N`), `signature`, `render`, `d`, `o`, `role` (`principal` for the first
+  of its siblings, the largest, `secondary`), `gain` (`bits_d`, `bits_o`, `sigma`, for a node of content only) and
+  `nodes` (omitted when empty). The nodes of composition add up to their pattern; those of content are a strict part
+  of their parent;
 - `other`: the structures and values read by no family (`structures`, `d`, `o`); `unmatched`, `candidates` and
   `PatternCandidate` are views of the model for the readers of the flat list, never written;
 - `limits`: the budgets that acted.

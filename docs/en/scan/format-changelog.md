@@ -181,5 +181,15 @@ final until the release that ships it.
   that `max_patterns_per_family` keeps out of a family is counted in a `lengths`
   table of that family.
 - `scan.pattern_inference` has new settings: `max_values` (10,000, at most
-  20,000), `max_families` (16), `max_patterns_per_family` (32); `max_patterns`
-  now counts the patterns and nodes of a field (128, at most 1,024).
+  20,000), `max_families` (16), `max_patterns_per_family` (32), `max_depth` (3, at
+  most 4); `max_patterns` now counts the patterns and nodes of a field (128, at
+  most 1,024).
+- The nodes of a pattern are no longer only the structures of a composition. A node
+  has a `facet` (`composition`, or `head:N`, `tail:N` and `token:N` for the first
+  or last characters of a token and a whole token), a `gain` (`bits_d`, `bits_o`,
+  `sigma`) for a node of content, and its own `nodes` (a longer prefix, or a facet
+  that depends on it). A facet of content that no node reads is a table of the
+  family (`tables`, with the same `facet` names and the `gain` of the facet); the
+  cells and `others` of a table add up to the family. A pattern folds at most three
+  characters of a token as a constant, unless every value repeats the token. The
+  limit `max_depth` names the setting of the same name when the tree was cut.

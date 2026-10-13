@@ -43,3 +43,22 @@ data really use), exact counts of the whole file and a restraint that does not s
   version of the algorithm, which enters the cache key.
 - Reversing the fixed length per pattern (back to ranges) or the post-pass placement would change the format and needs a
   new ADR.
+
+## Refinements of the lot P4 (2026-10-13)
+
+The content facets, the score and the tree (design 18.12) added choices that the corpus decided; none reverses the above.
+
+- **One facet per token.** A token is read through its heads, its tails or its whole value, whichever saves most bits and is
+  published. A tail is read only on a token longer than the three-character chain (a shorter one is read in full by its
+  heads; its last letter would be chance, RC-12). The whole value is read for a token of at most four characters that is not
+  almost unique (the year of RC-05), so no complete number is published.
+- **A whole value is tested alone.** The G test over all the possible tokens has too few expected counts when four digits
+  make 10,000 symbols (it did not see the year of RC-05 at 200 and 200 of 400); a value is kept when its binomial tail,
+  bounded by Chernoff and multiplied by the number of possible values, is under `alpha`.
+- **Composition is the primary facet of a pattern that has it.** A content facet is nested under a structure only if it
+  depends on it, as under any node; otherwise it is a table of the family.
+- **A table of content is a facet no node reads.** Its cells and its rest add up to the family; the table of lengths still
+  completes the patterns to the family.
+- **A folded constant keeps at most three characters** of a token that varies; a node folds nothing its pattern did not.
+- **`max_depth` counts the pattern as the first level**, so the default of 3 allows the pattern, the nodes that read the
+  first or last characters of a token, and the nodes that depend on them.

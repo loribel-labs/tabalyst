@@ -176,6 +176,12 @@ REASON_SETTINGS = {
     "max_length_strata": "scan.limits.max_length_strata",
     "inference_error": "scan.pattern_inference.enabled",
 }
+# The settings of a reason whose name another measure shares: `max_depth` limits the
+# structure of the JSON at `structure.depth_truncated_observations` and the tree of
+# the patterns at `derived.patterns`.
+MEASURE_REASON_SETTINGS = {
+    ("derived.patterns", "max_depth"): "scan.pattern_inference.max_depth",
+}
 # Reasons that are not a setting to raise.
 REASON_NOTES = {
     "exposure": "Values withheld by the exposure setting of a sensitive column",

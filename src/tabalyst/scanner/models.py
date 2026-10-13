@@ -1243,21 +1243,44 @@ class PatternEligibility(ScanModel):
     reasons: list[EligibilityReason]
 
 
+class PatternGain(ScanModel):
+    """What a facet saves in the node it specializes (design 18.12, E4): bits on
+    the distinct values (``bits_d``) and on the occurrences (``bits_o``) for the
+    prefix of a node or the cell of a table, and ``sigma`` of the whole facet."""
+
+    bits_d: float
+    bits_o: float
+    sigma: float
+
+
 class PatternNode(ScanModel):
-    """A specialization of a pattern (design 18.12): the values of one of the
-    structures a family merged (``facet`` ``composition``), with its counts in
-    distinct values (``d``) and occurrences (``o``). The nodes of a pattern add
-    up to it."""
+    """A specialization of a pattern (design 18.12), with its counts in distinct
+    values (``d``) and occurrences (``o``). ``facet`` is ``composition`` (one of the
+    structures a family merged: the nodes of a pattern add up to it) or a facet of
+    content, ``head:N``, ``tail:N`` or ``token:N`` (the first or last characters of
+    the Nth token of the structure, or the whole token): its ``gain`` is what the
+    prefix saves. The nodes of a content facet are a part of their parent, the
+    rest being its ``others``. ``nodes`` are the nodes below: a longer prefix of the
+    same facet or a facet that depends on this node."""
 
     id: str
     parent: str
     level: int
-    facet: Literal["composition"]
+    facet: str
     signature: list[PatternToken]
     render: str
     d: int
     o: int
     role: Literal["principal", "secondary"]
+    gain: PatternGain | None = None
+    nodes: list[PatternNode] = []
+
+    @model_serializer(mode="wrap")
+    def _omit_empty(self, handler) -> dict[str, Any]:
+        data = _omit_none(handler(self), ("gain",))
+        if not data.get("nodes"):
+            data.pop("nodes", None)
+        return data
 
 
 class FamilyPattern(ScanModel):
@@ -1291,14 +1314,22 @@ class PatternTableOthers(ScanModel):
 
 
 class PatternTable(ScanModel):
-    """The values of a facet of a family with their counts. The table of the
-    ``lengths`` lists the combinations of lengths that ``max_patterns_per_family``
-    or ``max_patterns`` kept out of the patterns; ``others`` is the rest of the
-    table."""
+    """The values of a facet of a family with their counts, not nested in the tree
+    (design 18.12). ``facet`` is ``lengths`` (the combinations of lengths that
+    ``max_patterns_per_family`` or ``max_patterns`` kept out of the patterns) or a
+    facet of content, ``head:N``, ``tail:N`` or ``token:N``, which no node reads
+    because it is independent of the nodes: its cells are the prefixes it keeps
+    (text, spelled from the left), with the ``gain`` of the facet. ``others`` is the
+    rest of the table, so that cells and rest add up to the family."""
 
-    facet: Literal["lengths"]
+    facet: str
     cells: list[PatternTableCell]
     others: PatternTableOthers
+    gain: PatternGain | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_gain(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("gain",))
 
 
 class PatternFamily(ScanModel):
@@ -1334,7 +1365,7 @@ class PatternOtherStructures(ScanModel):
 
 
 PatternLimit = Literal[
-    "max_values", "max_families", "max_patterns_per_family", "max_patterns"
+    "max_values", "max_families", "max_patterns_per_family", "max_patterns", "max_depth"
 ]
 
 
@@ -1397,12 +1428,14 @@ class FieldPatternsComplete(ScanModel):
         the families left out and those of the lengths that a budget kept out of
         the patterns of a family."""
         total = self.population.distinct
-        distinct = self.other.d + sum(
-            cell.d for family in self.families for table in family.tables for cell in table.cells
-        )
-        distinct += sum(
-            table.others.d for family in self.families for table in family.tables
-        )
+        lengths = [
+            table
+            for family in self.families
+            for table in family.tables
+            if table.facet == "lengths"
+        ]
+        distinct = self.other.d + sum(cell.d for table in lengths for cell in table.cells)
+        distinct += sum(table.others.d for table in lengths)
         return PatternUnmatched(
             distinct=distinct,
             share=round(distinct / total, 4) if total else 0.0,

@@ -387,8 +387,9 @@ class PatternInferenceSettings(_Settings):
     The discovery reads the samples of the finished scan, never the source.
     ``max_values`` bounds the distinct values a field's discovery reads,
     ``max_families`` the families it publishes, ``max_patterns_per_family`` the
-    patterns of one family and ``max_patterns`` the patterns and nodes of a
-    field. ``max_value_length`` bounds the stored values that take part (longer
+    patterns of one family, ``max_patterns`` the patterns and nodes of a field
+    and ``max_depth`` the levels of the tree below a family (the pattern is the
+    first). ``max_value_length`` bounds the stored values that take part (longer
     ones are counted as excluded) and ``min_distinct`` the distinct values a
     field needs to be assessed.
     """
@@ -398,6 +399,7 @@ class PatternInferenceSettings(_Settings):
     max_families: int = Field(default=16, ge=1, le=MAX_INFERRED_PATTERNS)
     max_patterns_per_family: int = Field(default=32, ge=1, le=MAX_INFERRED_PATTERNS)
     max_patterns: int = Field(default=128, ge=1, le=MAX_INFERRED_PATTERNS)
+    max_depth: int = Field(default=3, ge=1, le=4)
     max_value_length: int = Field(default=64, ge=1, le=MAX_PATTERN_VALUE_LENGTH)
     min_distinct: int = Field(default=2, ge=1, le=1_000)
 

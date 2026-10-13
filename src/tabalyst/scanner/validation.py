@@ -8,6 +8,8 @@ that a JSON Schema cannot express (design 19.7).
 
 from __future__ import annotations
 
+import re
+
 from tabalyst.scanner.config import config_sha256
 from tabalyst.scanner.models import (
     CardinalityComplete,
@@ -16,6 +18,7 @@ from tabalyst.scanner.models import (
     Complete,
     DatasetResult,
     DetectorComplete,
+    FamilyPattern,
     FieldPatterns,
     FieldPatternsComplete,
     FieldPatternsFailed,
@@ -26,6 +29,8 @@ from tabalyst.scanner.models import (
     Observation,
     Observations,
     PatternFamily,
+    PatternNode,
+    PatternTable,
     PatternToken,
     QualitySummary,
     RowSample,
@@ -757,7 +762,11 @@ def _check_field_patterns(
         distinct += family.d
         occurrences += family.o
         published += _check_family(
-            family, label, settings.max_patterns_per_family, values if resolvable else None,
+            family,
+            label,
+            settings.max_patterns_per_family,
+            settings.max_depth,
+            values if resolvable else None,
             problems,
         )
     if published > settings.max_patterns:
@@ -773,6 +782,7 @@ def _check_family(
     family: PatternFamily,
     label: str,
     per_family: int,
+    max_depth: int,
     values: dict[int, str] | None,
     problems: list[str],
 ) -> int:
@@ -784,38 +794,26 @@ def _check_family(
     if family.composition and family.composition[0] != family.key:
         problems.append(f"{label}: composition must start with the key of the family")
     for table in family.tables:
-        if len(table.cells) > per_family:
-            problems.append(f"{label}: a table has more cells than max_patterns_per_family")
+        _check_table(family, table, label, per_family, problems)
     published = len(family.patterns)
-    left_out = sum(cell.d for table in family.tables for cell in table.cells)
-    left_out += sum(table.others.d for table in family.tables)
-    left_out_o = sum(cell.o for table in family.tables for cell in table.cells)
-    left_out_o += sum(table.others.o for table in family.tables)
+    lengths_d = lengths_o = 0
+    for table in family.tables:
+        if table.facet == "lengths":
+            lengths_d += sum(cell.d for cell in table.cells) + table.others.d
+            lengths_o += sum(cell.o for cell in table.cells) + table.others.o
     if (
-        sum(pattern.d for pattern in family.patterns) + left_out,
-        sum(pattern.o for pattern in family.patterns) + left_out_o,
+        sum(pattern.d for pattern in family.patterns) + lengths_d,
+        sum(pattern.o for pattern in family.patterns) + lengths_o,
     ) != (family.d, family.o):
-        problems.append(f"{label}: patterns and tables must add up to the family")
+        problems.append(f"{label}: patterns and the table of lengths must add up to the family")
     for number, pattern in enumerate(family.patterns, 1):
         name = f"{label}.patterns[{pattern.id}]"
-        published += len(pattern.nodes)
         if pattern.id != f"{family.id}.p{number}":
             problems.append(f"{name}: pattern ids must be p1, p2, ... in order")
         _check_signature(pattern.signature, pattern.render, name, problems)
         if len(pattern.examples) > EXAMPLES or pattern.examples != sorted(pattern.examples):
             problems.append(f"{name}: examples are the smallest ids, at most {EXAMPLES}")
-        if pattern.nodes and (
-            sum(node.d for node in pattern.nodes),
-            sum(node.o for node in pattern.nodes),
-        ) != (pattern.d, pattern.o):
-            problems.append(f"{name}: nodes must add up to the pattern")
-        for position, node in enumerate(pattern.nodes, 1):
-            node_name = f"{name}.nodes[{node.id}]"
-            if node.id != f"{pattern.id}.n{position}" or node.parent != pattern.id:
-                problems.append(f"{node_name}: node id or parent is wrong")
-            if node.role != ("principal" if position == 1 else "secondary"):
-                problems.append(f"{node_name}: only the first node is principal")
-            _check_signature(node.signature, node.render, node_name, problems)
+        published += _check_nodes(pattern.nodes, pattern, 2, name, max_depth, problems)
         if values is not None:
             matcher = compile_signature(pattern.signature)
             for example in pattern.examples:
@@ -824,6 +822,77 @@ def _check_family(
                     problems.append(f"{name}: example {example} is not a sampled value")
                 elif not matches(matcher, value):
                     problems.append(f"{name}: example {example} does not match")
+    return published
+
+
+_FACET = re.compile(r"(head|tail|token):[1-9][0-9]*")
+
+
+def _check_table(
+    family: PatternFamily,
+    table: PatternTable,
+    label: str,
+    per_family: int,
+    problems: list[str],
+) -> None:
+    """A table of a family: no more cells than the budget, a facet that names its
+    kind, and for a table of content the cells and the rest add up to the family."""
+    name = f"{label}.tables[{table.facet}]"
+    if len(table.cells) > per_family:
+        problems.append(f"{name}: a table has more cells than max_patterns_per_family")
+    if table.facet == "lengths":
+        if table.gain is not None:
+            problems.append(f"{name}: a table of lengths has no gain")
+        return
+    if not _FACET.fullmatch(table.facet) or table.gain is None:
+        problems.append(f"{name}: a table of content names its facet and has a gain")
+    if (
+        sum(cell.d for cell in table.cells) + table.others.d,
+        sum(cell.o for cell in table.cells) + table.others.o,
+    ) != (family.d, family.o):
+        problems.append(f"{name}: cells and others must add up to the family")
+
+
+def _check_nodes(
+    nodes: list[PatternNode],
+    parent: FamilyPattern | PatternNode,
+    level: int,
+    name: str,
+    max_depth: int,
+    problems: list[str],
+) -> int:
+    """The nodes below a pattern or a node, at ``level``; returns how many are
+    published. The nodes of composition add up to their pattern; those of content
+    are a strict part of their parent, the rest being its ``others``."""
+    if not nodes:
+        return 0
+    if level > max_depth:
+        problems.append(f"{name}: nodes deeper than max_depth")
+    composition = nodes[0].facet == "composition"
+    total_d, total_o = sum(node.d for node in nodes), sum(node.o for node in nodes)
+    if composition and (total_d, total_o) != (parent.d, parent.o):
+        problems.append(f"{name}: nodes of composition must add up to the pattern")
+    if not composition and (total_d > parent.d or total_o > parent.o):
+        problems.append(f"{name}: nodes must be a part of their parent")
+    published = len(nodes)
+    for position, node in enumerate(nodes, 1):
+        node_name = f"{name}.nodes[{node.id}]"
+        if node.id != f"{parent.id}.n{position}" or node.parent != parent.id:
+            problems.append(f"{node_name}: node id or parent is wrong")
+        if node.level != level:
+            problems.append(f"{node_name}: level must be {level}")
+        if node.role != ("principal" if position == 1 else "secondary"):
+            problems.append(f"{node_name}: only the first node is principal")
+        if (node.facet == "composition") != composition or (
+            not composition and not _FACET.fullmatch(node.facet)
+        ):
+            problems.append(f"{node_name}: facet must be composition or head, tail or token")
+        if (node.gain is None) != composition:
+            problems.append(f"{node_name}: only a node of content has a gain")
+        if not composition and node.d >= parent.d:
+            problems.append(f"{node_name}: a node of content is a strict part of its parent")
+        _check_signature(node.signature, node.render, node_name, problems)
+        published += _check_nodes(node.nodes, node, level + 1, node_name, max_depth, problems)
     return published
 
 

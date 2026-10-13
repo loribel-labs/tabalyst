@@ -23,17 +23,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-13T13:31:39.893363Z",
-    "duration_seconds": 0.032772,
+    "started_at": "2026-10-13T14:22:48.709170Z",
+    "duration_seconds": 0.034557,
     "timings": {
-      "reading": 0.006101,
-      "analysis": 0.008066,
-      "finalize": 0.013098,
-      "derived": 0.003449,
-      "other": 0.002057
+      "reading": 0.006737,
+      "analysis": 0.009379,
+      "finalize": 0.012586,
+      "derived": 0.005416,
+      "other": 0.00044
     },
     "workers": 1,
-    "peak_memory_bytes": 65552384
+    "peak_memory_bytes": 69148672
   },
   "source": {
     "format": "jsonl",
@@ -287,6 +287,7 @@
       "max_families": 16,
       "max_patterns_per_family": 32,
       "max_patterns": 128,
+      "max_depth": 3,
       "max_value_length": 64,
       "min_distinct": 2
     },
@@ -296,7 +297,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "3b6f02740ffa2920ee5f6ef2692fa5a201c9bfc688216eaeca534fbfa63ba1a5",
+  "config_sha256": "3e85b36eb8e20bc1fc1609c1cb48cd0a816b86b3055a53b98618c1c8d4532f89",
   "scope": {
     "collections": null,
     "records_read": 303,
@@ -12291,7 +12292,128 @@
                     1,
                     2
                   ],
-                  "nodes": []
+                  "nodes": [
+                    {
+                      "id": "f1.p1.n1",
+                      "parent": "f1.p1",
+                      "level": 2,
+                      "facet": "head:3",
+                      "signature": [
+                        {
+                          "kind": "literal",
+                          "text": "evt",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "002",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        }
+                      ],
+                      "render": "'evt-002'99",
+                      "d": 37,
+                      "o": 37,
+                      "role": "principal",
+                      "gain": {
+                        "bits_d": 303.7,
+                        "bits_o": 303.7,
+                        "sigma": 0.8063
+                      }
+                    },
+                    {
+                      "id": "f1.p1.n2",
+                      "parent": "f1.p1",
+                      "level": 2,
+                      "facet": "head:3",
+                      "signature": [
+                        {
+                          "kind": "literal",
+                          "text": "evt",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "000",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        }
+                      ],
+                      "render": "'evt-000'99",
+                      "d": 36,
+                      "o": 36,
+                      "role": "secondary",
+                      "gain": {
+                        "bits_d": 293.7,
+                        "bits_o": 293.7,
+                        "sigma": 0.8063
+                      }
+                    },
+                    {
+                      "id": "f1.p1.n3",
+                      "parent": "f1.p1",
+                      "level": 2,
+                      "facet": "head:3",
+                      "signature": [
+                        {
+                          "kind": "literal",
+                          "text": "evt",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "001",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        }
+                      ],
+                      "render": "'evt-001'99",
+                      "d": 27,
+                      "o": 27,
+                      "role": "secondary",
+                      "gain": {
+                        "bits_d": 206.1,
+                        "bits_o": 206.1,
+                        "sigma": 0.8063
+                      }
+                    }
+                  ]
                 }
               ],
               "tables": [],
@@ -12436,10 +12558,440 @@
                     1,
                     2
                   ],
-                  "nodes": []
+                  "nodes": [
+                    {
+                      "id": "f1.p1.n1",
+                      "parent": "f1.p1",
+                      "level": 2,
+                      "facet": "head:7",
+                      "signature": [
+                        {
+                          "kind": "literal",
+                          "text": "2026",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "03",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "01",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "T",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "08",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": ":",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        },
+                        {
+                          "kind": "literal",
+                          "text": ":",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "Z",
+                          "min": 1,
+                          "max": 1
+                        }
+                      ],
+                      "render": "'2026-03-01T08:'99:99'Z'",
+                      "d": 29,
+                      "o": 29,
+                      "role": "principal",
+                      "gain": {
+                        "bits_d": 132.2,
+                        "bits_o": 132.2,
+                        "sigma": 0.6507
+                      }
+                    },
+                    {
+                      "id": "f1.p1.n2",
+                      "parent": "f1.p1",
+                      "level": 2,
+                      "facet": "head:7",
+                      "signature": [
+                        {
+                          "kind": "literal",
+                          "text": "2026",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "03",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "01",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "T",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "09",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": ":",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        },
+                        {
+                          "kind": "literal",
+                          "text": ":",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "Z",
+                          "min": 1,
+                          "max": 1
+                        }
+                      ],
+                      "render": "'2026-03-01T09:'99:99'Z'",
+                      "d": 29,
+                      "o": 29,
+                      "role": "secondary",
+                      "gain": {
+                        "bits_d": 132.2,
+                        "bits_o": 132.2,
+                        "sigma": 0.6507
+                      }
+                    },
+                    {
+                      "id": "f1.p1.n3",
+                      "parent": "f1.p1",
+                      "level": 2,
+                      "facet": "head:7",
+                      "signature": [
+                        {
+                          "kind": "literal",
+                          "text": "2026",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "03",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "01",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "T",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "10",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": ":",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        },
+                        {
+                          "kind": "literal",
+                          "text": ":",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "Z",
+                          "min": 1,
+                          "max": 1
+                        }
+                      ],
+                      "render": "'2026-03-01T10:'99:99'Z'",
+                      "d": 24,
+                      "o": 24,
+                      "role": "secondary",
+                      "gain": {
+                        "bits_d": 101.4,
+                        "bits_o": 101.4,
+                        "sigma": 0.6507
+                      }
+                    },
+                    {
+                      "id": "f1.p1.n4",
+                      "parent": "f1.p1",
+                      "level": 2,
+                      "facet": "head:7",
+                      "signature": [
+                        {
+                          "kind": "literal",
+                          "text": "2026",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "03",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "-",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "01",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "T",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "11",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "literal",
+                          "text": ":",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        },
+                        {
+                          "kind": "literal",
+                          "text": ":",
+                          "min": 1,
+                          "max": 1
+                        },
+                        {
+                          "kind": "digit_ascii",
+                          "min": 2,
+                          "max": 2
+                        },
+                        {
+                          "kind": "literal",
+                          "text": "Z",
+                          "min": 1,
+                          "max": 1
+                        }
+                      ],
+                      "render": "'2026-03-01T11:'99:99'Z'",
+                      "d": 18,
+                      "o": 18,
+                      "role": "secondary",
+                      "gain": {
+                        "bits_d": 66.4,
+                        "bits_o": 66.4,
+                        "sigma": 0.6507
+                      }
+                    }
+                  ]
                 }
               ],
-              "tables": [],
+              "tables": [
+                {
+                  "facet": "head:9",
+                  "cells": [
+                    {
+                      "value": "2",
+                      "d": 24,
+                      "o": 24
+                    },
+                    {
+                      "value": "0",
+                      "d": 20,
+                      "o": 20
+                    },
+                    {
+                      "value": "3",
+                      "d": 17,
+                      "o": 17
+                    },
+                    {
+                      "value": "1",
+                      "d": 16,
+                      "o": 16
+                    },
+                    {
+                      "value": "4",
+                      "d": 14,
+                      "o": 14
+                    }
+                  ],
+                  "others": {
+                    "distinct": 6,
+                    "d": 9,
+                    "o": 9
+                  },
+                  "gain": {
+                    "bits_d": 54.4,
+                    "bits_o": 54.4,
+                    "sigma": 0.1636
+                  }
+                },
+                {
+                  "facet": "head:11",
+                  "cells": [
+                    {
+                      "value": "0",
+                      "d": 20,
+                      "o": 20
+                    },
+                    {
+                      "value": "3",
+                      "d": 18,
+                      "o": 18
+                    },
+                    {
+                      "value": "2",
+                      "d": 17,
+                      "o": 17
+                    },
+                    {
+                      "value": "4",
+                      "d": 16,
+                      "o": 16
+                    },
+                    {
+                      "value": "5",
+                      "d": 16,
+                      "o": 16
+                    }
+                  ],
+                  "others": {
+                    "distinct": 9,
+                    "d": 13,
+                    "o": 13
+                  },
+                  "gain": {
+                    "bits_d": 43.4,
+                    "bits_o": 43.4,
+                    "sigma": 0.1305
+                  }
+                }
+              ],
               "examples": [
                 0,
                 1,
@@ -12883,7 +13435,28 @@
                   "nodes": []
                 }
               ],
-              "tables": [],
+              "tables": [
+                {
+                  "facet": "tail:2",
+                  "cells": [
+                    {
+                      "value": "g",
+                      "d": 2,
+                      "o": 77
+                    }
+                  ],
+                  "others": {
+                    "distinct": 4,
+                    "d": 4,
+                    "o": 163
+                  },
+                  "gain": {
+                    "bits_d": 0.0,
+                    "bits_o": 228.9,
+                    "sigma": 0.2029
+                  }
+                }
+              ],
               "examples": [
                 0,
                 1,
@@ -13237,7 +13810,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -13247,8 +13820,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-        "config_sha256": "3b6f02740ffa2920ee5f6ef2692fa5a201c9bfc688216eaeca534fbfa63ba1a5",
-        "facts_sha256": "2f2ddc7d0b609a9a626a8e7af3aab5a927232f5fbd72af058afa189772e607c2"
+        "config_sha256": "3e85b36eb8e20bc1fc1609c1cb48cd0a816b86b3055a53b98618c1c8d4532f89",
+        "facts_sha256": "4091018c0df32ce2619d0eeacf581b8045d33684790e87639e4445ffe83fbbae"
       },
       "settings": {
         "bins": 100,
@@ -13344,13 +13917,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 13,
-        "plan_id": "dea42de93e4d78b5bf2156d33617a838773f71d5ffd6ffd19a42d62e0e833a47",
+        "plan_id": "e1f3f823ce121fd495a58e865c118ed689e1e75e9e8543550ce2bae57307c1a5",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-          "config_sha256": "3b6f02740ffa2920ee5f6ef2692fa5a201c9bfc688216eaeca534fbfa63ba1a5",
-          "facts_sha256": "2f2ddc7d0b609a9a626a8e7af3aab5a927232f5fbd72af058afa189772e607c2"
+          "config_sha256": "3e85b36eb8e20bc1fc1609c1cb48cd0a816b86b3055a53b98618c1c8d4532f89",
+          "facts_sha256": "4091018c0df32ce2619d0eeacf581b8045d33684790e87639e4445ffe83fbbae"
         },
         "objective": {
           "automatic": true,
@@ -20768,21 +21341,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T13:31:39.977182Z",
-        "duration_seconds": 0.015836,
+        "started_at": "2026-10-13T14:26:41.033187Z",
+        "duration_seconds": 0.000184,
         "timings": {
-          "reading": 0.005046,
-          "analysis": 0.005784,
-          "other": 0.005006
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000184
         },
         "workers": 1,
-        "peak_memory_bytes": 71069696,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 300,
-        "cells_read": 876,
-        "executed": 11,
-        "reused": 0,
+        "peak_memory_bytes": 70995968,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 11,
         "skipped": 0
       },
       "analyses": [
@@ -20798,7 +21371,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "264c3c32bfe64424db84577d86ce9d2f63b9e7fd69e79b1d2a3275fd6fe469d7",
+          "key": "8c661d1d4aa8ba23dcc094c8ccfc43db4ebe85f072af14fd0aa439ad47c1956f",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -22373,7 +22946,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "85efeaca78f89d639fd0415d1cdc97473569cbde4dc2d0d22cb1ed6a2c3e47e0",
+          "key": "6931d0b90e4b5e8be01b177de6ed1237771220bcb69b33780b1cff80fc99208c",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -23948,7 +24521,7 @@
             "domain": 60
           },
           "domain": "analytical",
-          "key": "4e72255188bb90be7783955c6232c3e7554702748eb241092c9497482aeb6a6c",
+          "key": "b5e4a075ba929c031acd90a8ef92516e391c72bfbd1bdcf69a1bbd098d97d1c7",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -24249,7 +24822,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "57806bcf1d315fe7363090d5199fa598a10c82ea6728fdc07401b24eadc19438",
+          "key": "a66460cc2519e05e08b8c34e56888522fed81be54897cd210183909fec08a30e",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -24526,7 +25099,7 @@
             "domain": 100
           },
           "domain": "analytical",
-          "key": "44fb1a1b7ed8da56e0dddea4e931f3ba2ec16ff2a10ffbb77526da4a3f468ec8",
+          "key": "e132fe8e1aa6ddb4ccf3fe27bb2faf485cffc74dc6a1f41bcea19572f5135ff2",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -24598,7 +25171,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "77b9317aa150e466f85ca852bfd3be4d1efe3829cd63b4f1ad1e0829e8a36ec7",
+          "key": "258c5cd6c171756037468d86b1d1fb5f5d7a1f74a73e7b47c6cf98961ef7fbec",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -24635,7 +25208,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "abe68b7cfc3f74c5e0c42fb8048ce604ea2d5dc0aafcf4c140fa71f761b065b2",
+          "key": "77dfc6d58221b81e933b0b54eaf281d0f3c58294c80cd75a77f7fdbc83666be8",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -24672,7 +25245,7 @@
             "patterns": 4
           },
           "domain": "original",
-          "key": "063dc7a72c36b5cdd11f19bb9458bacc51ab6eb9222f2ce1d6e9411e86bc13c5",
+          "key": "27258a831118ea3df0320d57fe672f1d61ab4e87509cb3ee4af60437beeb3044",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -24724,7 +25297,7 @@
             "patterns": 7
           },
           "domain": "original",
-          "key": "124046c99fde8e1d317db9e08515fdb053f682717ae55acb5978f900ae7ed285",
+          "key": "a8891b3ba5549c7316d27336f6a4f77dd1f0d504c3b26820257176beb87fc4e8",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -24795,7 +25368,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "f7af684666f1f41fc42530e002f95e026f1ebc98f368bc6c6be58cd9882182f0",
+          "key": "c44b6b489a24895d3e1134ce8bac12b4c4290328df054fb6f11e921eff9754c0",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -24839,7 +25412,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "269b68f623d7983f5112bed1d55d9b3c97938a7b4f816ea598c70a4069c79870",
+          "key": "c2bd8e0c51b164516a0f9f806ee075d46ae329d8324c49882a1afc9a13b43daa",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -24871,12 +25444,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T13:31:40.272603Z",
+    "generated_at": "2026-10-13T14:26:41.285318Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.4162,
+    "processing_seconds": 0.3087,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -24909,8 +25482,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-      "config_sha256": "3b6f02740ffa2920ee5f6ef2692fa5a201c9bfc688216eaeca534fbfa63ba1a5",
-      "facts_sha256": "2f2ddc7d0b609a9a626a8e7af3aab5a927232f5fbd72af058afa189772e607c2"
+      "config_sha256": "3e85b36eb8e20bc1fc1609c1cb48cd0a816b86b3055a53b98618c1c8d4532f89",
+      "facts_sha256": "4091018c0df32ce2619d0eeacf581b8045d33684790e87639e4445ffe83fbbae"
     },
     "datasets": [
       {

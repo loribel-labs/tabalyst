@@ -32,15 +32,17 @@ from pattern_tree import (
     SeenTable,
     lengths,
     structure,
+    token,
 )
 
 from tabalyst.scanner import ScanConfig, scan
 from tabalyst.scanner.config import DetectorSettings
 from tabalyst.scanner.models import (
-    FamilyPattern,
     FieldPatterns,
     FieldPatternsComplete,
     PatternFamily,
+    PatternNode,
+    PatternTable,
     ScanResult,
 )
 from tabalyst.scanner.patterninfer import compile_signature, matches
@@ -108,32 +110,58 @@ def _seen_family(family: PatternFamily, members: frozenset[str]) -> SeenFamily:
     # A family of one pattern that holds all of it is that pattern: the nodes of
     # the pattern are the nodes of the family (a node is a strict part).
     if len(patterns) == 1 and patterns[0][1] == members:
-        nodes = _seen_nodes(patterns[0][0], members)
+        nodes = _seen_nodes(patterns[0][0].nodes, members)
     else:
         nodes = tuple(
-            SeenNode(pattern.render, accepted, _seen_nodes(pattern, accepted))
+            SeenNode(pattern.render, accepted, _seen_nodes(pattern.nodes, accepted))
             for pattern, accepted in patterns
         )
-    tables = []
     taken = frozenset().union(*(accepted for _, accepted in patterns))
-    for table in family.tables:
-        cells = []
-        for cell in table.cells:
-            cells.append(
-                frozenset(
-                    value
-                    for value in members - taken
-                    if ",".join(map(str, lengths(value))) == cell.value
-                )
-            )
-        tables.append(SeenTable(table.facet, tuple(cells)))
-    return SeenFamily(family.patterns[0].render if family.patterns else family.key, members, nodes, tuple(tables))
-
-
-def _seen_nodes(pattern: FamilyPattern, members: frozenset[str]) -> tuple[SeenNode, ...]:
-    return tuple(
-        SeenNode(node.render, _accepted(node.signature, sorted(members))) for node in pattern.nodes
+    tables = [_seen_table(table, members, taken) for table in family.tables]
+    return SeenFamily(
+        family.patterns[0].render if family.patterns else family.key, members, nodes, tuple(tables)
     )
+
+
+def _seen_table(table: PatternTable, members: frozenset[str], taken: frozenset[str]) -> SeenTable:
+    """The values of each cell of a table: the combination of lengths of the
+    lengths table, the head, the tail or the whole token of a content table."""
+    if table.facet == "lengths":
+        left = members - taken
+        return SeenTable(
+            table.facet,
+            tuple(
+                frozenset(
+                    value for value in left if ",".join(map(str, lengths(value))) == cell.value
+                )
+                for cell in table.cells
+            ),
+        )
+    edge, _, position = table.facet.partition(":")
+    reads = {
+        "head": lambda text, cell: text.startswith(cell),
+        "tail": lambda text, cell: text.endswith(cell),
+        "token": lambda text, cell: text == cell,
+    }[edge]
+    return SeenTable(
+        table.facet,
+        tuple(
+            frozenset(
+                value for value in members if reads(token(value, int(position)), cell.value)
+            )
+            for cell in table.cells
+        ),
+    )
+
+
+def _seen_nodes(nodes: Sequence[PatternNode], members: frozenset[str]) -> tuple[SeenNode, ...]:
+    """The nodes below a parent that holds ``members``, each with the values its
+    signature accepts among them and its own nodes."""
+    seen = []
+    for node in nodes:
+        accepted = _accepted(node.signature, sorted(members))
+        seen.append(SeenNode(node.render, accepted, _seen_nodes(node.nodes, accepted)))
+    return tuple(seen)
 
 
 def declared_keys(field: Field) -> Declared:
@@ -323,10 +351,28 @@ def rerun_after(field: Field, change: Change) -> CacheRun:
 
 def published_text(field: Field) -> str:
     """Everything the Scan, the second pass and the Report publish for ``field``,
-    as one text to search for values (exposure, FR-022). Lots P3 and P5."""
-    return _scanned(field).model_dump_json()
+    as one text to search for values (exposure, FR-022). Lots P3 and P5.
+
+    A masked field is searched in the whole Scan: nothing of it may appear. For a
+    field the exposure leaves open the Scan publishes its samples by design, so only
+    what the discovery publishes is searched (the entry of ``derived.patterns``).
+    """
+    if field.masked:
+        return _scanned(field).model_dump_json()
+    return _scanned_entry(field).model_dump_json()
 
 
 def published_renders(field: Field) -> list[str]:
     """The rendering of every pattern and node published for ``field`` (lot P4)."""
-    raise NotImplementedError("bind the renderings (lot P4)")
+    entry = _scanned_entry(field)
+    assert isinstance(entry, FieldPatternsComplete)
+
+    def nodes(items: Sequence[PatternNode]) -> list[str]:
+        return [text for node in items for text in (node.render, *nodes(node.nodes))]
+
+    return [
+        text
+        for family in entry.families
+        for pattern in family.patterns
+        for text in (pattern.render, *nodes(pattern.nodes))
+    ]

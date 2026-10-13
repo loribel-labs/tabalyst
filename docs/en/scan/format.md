@@ -696,8 +696,27 @@ structure, not a rule that the data must follow.
   counts as one).
 - When a pattern holds several merged structures, its last positions are of the
   classes of all of them (`'AK-'9999X`), and `nodes` lists the structures with
-  their own counts (`'AK-'99999`, `'AK-'9999A`). The counts of the nodes add up to
-  the pattern, those of the patterns to the family.
+  their own counts (`'AK-'99999`, `'AK-'9999A`), with `facet` `composition`. The
+  counts of these nodes add up to the pattern, those of the patterns to the family.
+- A pattern also has **nodes of content** when a part of its values is set apart
+  by the first or last characters of a token, or by a short token. `facet` says
+  what the node reads, counting the tokens of the structure `key` from 1 (`UP-D`
+  has three: the capitals, the hyphen and the digits): `head:1` the first
+  characters of the capitals, `tail:3` the last characters of the digits, `token:3`
+  the whole token (at most 4 characters). A node has a `signature` and a `render`
+  like a pattern (`'AK-'9999`; a tail is written after the class: `9{4}'00'`), its
+  counts `d` and `o`, its `level` (2 under a pattern) and a `gain`: `bits_d` and
+  `bits_o`, the bits it saves when the values are described by it rather than by
+  the pattern (a description length, on the distinct values and on the
+  occurrences; one is negative when the node is kept for the other measure only),
+  and `sigma`, the share of the bits of the characters it reads that its facet
+  saves. A facet is published from a `sigma` of 0.10, and only when the
+  characters it reads depart from chance: letters drawn at random make no node.
+  The nodes of a facet are a part of the pattern, the other values being its rest.
+  A longer prefix of the same facet (`'AK'` then `'AK1'`), or a facet that depends
+  on the node (the year, once the prefix is known), is nested in its `nodes`, down
+  to `scan.pattern_inference.max_depth` levels (the pattern is the first). Each
+  value counts for the deepest node that holds it.
 - `d` and `o` count distinct values and occurrences. The distinct values are
   those of the population. `o` is `exact` when the population is every distinct
   value (`occurrences_basis`), and an indicator of discovery on a sample
@@ -706,15 +725,20 @@ structure, not a rule that the data must follow.
 - `examples` are ids of entries of the field's sample (see
   [Distinct values and samples](#distinct-values-and-samples)). A report keeps
   fewer sample values, so some ids may not be found in it.
-- `tables` lists, for a family, the combinations of lengths that
-  `scan.pattern_inference.max_patterns_per_family` kept out of its patterns:
-  `facet` `lengths`, `cells` of `value`, `d` and `o`, and `others`.
+- `tables` of a family are of two kinds. `facet` `lengths` lists the
+  combinations of lengths that `scan.pattern_inference.max_patterns_per_family`
+  kept out of its patterns. A facet of content (`head:N`, `tail:N`, `token:N`) that
+  is published but that no node reads, because the values it splits do not depend on
+  the nodes, is a table of the family: `cells` of `value` (the characters, spelled
+  from the left), `d` and `o`, `others` for the rest, and the `gain` of the facet.
+  The cells and `others` add up to the family.
 - `other` counts the structures that no published family reads, with their
   distinct values (`d`) and occurrences (`o`). `limits` names the budgets that
   acted: `max_values` (the population was cut to
   `scan.pattern_inference.max_values`), `max_families`,
-  `max_patterns_per_family` and `max_patterns` (the patterns and nodes of the
-  field, the smallest going first).
+  `max_patterns_per_family`, `max_patterns` (the patterns and nodes of the
+  field, the nodes of the lowest gain going first) and `max_depth` (a node was
+  below `scan.pattern_inference.max_depth` levels and was left out).
 - `scan.pattern_inference.enabled` set to `false` leaves `derived` out of the
   document. A [report](../report/json-profile.md) carries the block as it is.
 

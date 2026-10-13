@@ -15,6 +15,7 @@ from tabalyst.report_labels import (
     AT_LEAST,
     EXACT,
     MEASURE_LABELS,
+    MEASURE_REASON_SETTINGS,
     PATTERN_REASONS,
     POPULATION_NOUNS,
     REASON_NOTES,
@@ -200,7 +201,9 @@ def limit_views(
             measure=limit.measure,
             label=MEASURE_LABELS.get(limit.measure, limit.measure),
             reason=limit.reason,
-            setting=REASON_SETTINGS.get(limit.reason),
+            setting=MEASURE_REASON_SETTINGS.get(
+                (limit.measure, limit.reason), REASON_SETTINGS.get(limit.reason)
+            ),
             note=REASON_NOTES.get(limit.reason),
             limit=limit.limit,
             lower_bound=limit.lower_bound,

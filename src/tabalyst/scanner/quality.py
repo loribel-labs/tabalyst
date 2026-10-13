@@ -385,6 +385,7 @@ def _field_limits(
         settings = config.pattern_inference
         sizes = {
             "max_patterns": settings.max_patterns,
+            "max_depth": settings.max_depth,
             "max_values": settings.max_values,
             "max_families": settings.max_families,
             "max_patterns_per_family": settings.max_patterns_per_family,

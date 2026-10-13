@@ -308,37 +308,6 @@ EXPECTED: tuple[Expected, ...] = (
         ),
     ),
     Expected(
-        "RC-12/isbn",
-        (
-            Family(
-                "'97'9-…-9 (many lengths)",
-                frozenset({"DP-DP-DP-DP-D"}),
-                1_000,
-                1_000,
-                constants=("head:1:97",),
-                nodes=(
-                    head(
-                        "978",
-                        700,
-                        children=(
-                            whole("0", 200, 3),
-                            whole("1", 150, 3),
-                            whole("2", 250, 3),
-                            whole("3", 100, 3),
-                        ),
-                    ),
-                    head("979", 300, children=(whole("10", 200, 3), whole("8", 100, 3))),
-                ),
-            ),
-        ),
-        conclusive=False,
-        note=(
-            "A poor candidate: more than six sets of lengths, one pattern each "
-            "(DEC-034); the eligibility (B2) should set it aside. If it is kept, "
-            "978 and 979 and their dependent groups sit under each length."
-        ),
-    ),
-    Expected(
         "RC-12/codes",
         (
             Family(

@@ -1406,3 +1406,26 @@ column) was replaced by the calculation on shapes: about 270 to 300 ns per disti
 (identifiers, e-mail addresses, amounts), 110 to 150 ns for postal codes and street numbers. The memory of the worst
 width grows by 69 MB (the tables of the shapes and of the distinct characters of the identifier columns); it stays
 within the guard of 10%.
+
+## Content facets and tree (Patterns lot P4)
+
+The discovery now reads, for every eligible field, the heads, tails and whole tokens of each pattern
+(`scanner/patternfacets.py`, `scanner/patterntree.py`), builds the nodes and the tables and cuts the tree at `max_depth`.
+Scan of the realistic file, the base `9237f93` (worktree) and the working tree alternated three times in one session,
+task `scan`, default workers (`benchmarks/interleave.py`, outputs under
+`D:/GIT.test/tabalyst/artifacts/patterns-p4/il2/`); `derived` is `run.timings.derived` of three further scans of each:
+
+| File | Base (s) | Head (s) | Paired ratio | Guard | Peak base / head (MB) |
+| --- | --- | --- | ---: | ---: | --- |
+| insurance-combined.csv (1 M x 34, realistic) | 17.80, 17.02, 14.83 | 18.07, 17.37, 15.54 | **+2.0%** | 20% | 791 / 791 |
+
+| `derived` (s) | Run 1 | Run 2 | Run 3 |
+| --- | ---: | ---: | ---: |
+| Base | 0.56 | 0.58 | 0.61 |
+| Head | 1.37 | 1.74 | 1.51 |
+
+The post-pass grows by about 0.9 s, 2.5 times its cost, on 11 eligible fields (392 nodes): 1.5 s of a scan of
+17 s. Most of it is the three readings (head, tail, whole token) of the tokens of the date and identifier columns, 10,000
+distinct values each. A first version read the facets of the whole family again for every family of several patterns
+(2.0 s); only the positions no node reads are read again now. Under cProfile, before that change, `published_facets` took
+two thirds of the post-pass (2.05 s of 3.12 s).
