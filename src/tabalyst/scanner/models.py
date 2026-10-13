@@ -1135,49 +1135,6 @@ class PatternToken(ScanModel):
         return _omit_none(handler(self), ("text",))
 
 
-class PatternCoverage(ScanModel):
-    """Distinct values of the discovery population that a pattern takes.
-    ``basis`` is ``all_distinct`` when the population is every distinct stored
-    value of the field, ``sample`` when it is a sample: a discovery indicator,
-    never a frequency of the file (specification 10.1)."""
-
-    distinct: int
-    share: float
-    basis: Literal["all_distinct", "sample"]
-
-
-class PatternLengths(ScanModel):
-    """The shortest and longest value a pattern reads, in characters."""
-
-    min: int
-    max: int
-
-
-class PatternUnmatched(ScanModel):
-    """The values no published family reads, as the consumers of the flat list
-    count them: distinct values, their share of the population and the number
-    of structures left out."""
-
-    distinct: int
-    share: float
-    structures: int
-
-
-class PatternCandidate(ScanModel):
-    """A pattern of a field as the consumers that still read a flat list see it
-    (``FieldPatternsComplete.candidates``). It is a view of the hierarchy and is
-    never written in a document. ``examples`` are ids of entries of the field's
-    samples."""
-
-    id: str
-    role: Literal["principal", "secondary"]
-    signature: list[PatternToken]
-    render: str
-    lengths: PatternLengths
-    coverage: PatternCoverage
-    examples: list[int]
-
-
 class PatternExcluded(ScanModel):
     """What did not take part in the discovery. ``long_text_occurrences`` counts
     occurrences of values too long to be stored (their previews never serve:
@@ -1385,16 +1342,6 @@ PatternLimit = Literal[
 ]
 
 
-def _signature_lengths(signature: list[PatternToken]) -> PatternLengths:
-    """The characters a signature reads, at least and at most."""
-    low = high = 0
-    for token in signature:
-        size = len(token.text) if token.text is not None else 1
-        low += token.min * size
-        high += token.max * size
-    return PatternLengths(min=low, max=high)
-
-
 class FieldPatternsComplete(ScanModel):
     dataset: str
     field: str
@@ -1405,58 +1352,25 @@ class FieldPatternsComplete(ScanModel):
     other: PatternOtherStructures
     limits: list[PatternLimit]
 
-    @property
-    def candidates(self) -> list[PatternCandidate]:
-        """The patterns of the hierarchy as a flat list, the largest first (by
-        distinct values, then in the order of the families): what the consumers
-        written for the flat list of the lot 4a read, until they read the
-        hierarchy (Patterns lots P6 and P7). Ids are those of the patterns."""
-        basis: Literal["all_distinct", "sample"] = (
-            "all_distinct" if self.population.complete else "sample"
-        )
-        total = self.population.distinct
-        flat = [
-            (family, pattern)
-            for family in self.families
-            for pattern in family.patterns
-        ]
-        flat.sort(key=lambda item: -item[1].d)
-        return [
-            PatternCandidate(
-                id=pattern.id,
-                role="principal" if number == 0 else "secondary",
-                signature=pattern.signature,
-                render=pattern.render,
-                lengths=_signature_lengths(pattern.signature),
-                coverage=PatternCoverage(
-                    distinct=pattern.d,
-                    share=round(pattern.d / total, 4) if total else 0.0,
-                    basis=basis,
-                ),
-                examples=pattern.examples,
-            )
-            for number, (family, pattern) in enumerate(flat)
-        ]
+    def all_patterns(self) -> list[FamilyPattern]:
+        """The patterns of the hierarchy in the order of the document: the families
+        in order, each with its patterns. The place of a pattern in this list is its
+        class for the features and the targets that name patterns (Patterns lot P7)."""
+        return [pattern for family in self.families for pattern in family.patterns]
 
-    @property
-    def unmatched(self) -> PatternUnmatched:
-        """The values no pattern reads, for the readers of the flat list: those of
-        the families left out and those of the lengths that a budget kept out of
-        the patterns of a family."""
-        total = self.population.distinct
-        lengths = [
-            table
-            for family in self.families
-            for table in family.tables
-            if table.facet == "lengths"
-        ]
-        distinct = self.other.d + sum(cell.d for table in lengths for cell in table.cells)
-        distinct += sum(table.others.d for table in lengths)
-        return PatternUnmatched(
-            distinct=distinct,
-            share=round(distinct / total, 4) if total else 0.0,
-            structures=self.other.structures,
-        )
+    def outside_patterns(self) -> tuple[int, int]:
+        """The distinct values and the occurrences of the population that no pattern
+        holds: the structures left out of the families (``other``) and the
+        combinations of lengths that a budget kept in the table of lengths of a
+        family. They are the part of the population that a pattern cannot be named
+        for."""
+        distinct, occurrences = self.other.d, self.other.o
+        for family in self.families:
+            for table in family.tables:
+                if table.facet == "lengths":
+                    distinct += sum(cell.d for cell in table.cells) + table.others.d
+                    occurrences += sum(cell.o for cell in table.cells) + table.others.o
+        return distinct, occurrences
 
 
 class FieldPatternsNotApplicable(ScanModel):

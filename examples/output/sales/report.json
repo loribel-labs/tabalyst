@@ -9339,7 +9339,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -9449,8 +9449,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 14,
-        "plan_id": "f37922fd5878432fc67444f55759d4c4c644b08dd0e5f3d25c7ae96b599de73a",
+        "cost_model_version": 15,
+        "plan_id": "147fc72c3d1bc5d91095de18ba682256a2b41cca274e8fb5cddcdd7f9d797b37",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
@@ -10606,7 +10606,10 @@
               "nodes": 5,
               "facets": 1,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -10677,7 +10680,10 @@
               "nodes": 6,
               "facets": 2,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -10991,7 +10997,7 @@
                 "max": 48560
               },
               "cpu": "low",
-              "cell_ns": 300,
+              "cell_ns": 450,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_1",
@@ -14240,21 +14246,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T17:08:46.842624Z",
-        "duration_seconds": 0.00676,
+        "started_at": "2026-10-13T19:12:59.433931Z",
+        "duration_seconds": 0.000117,
         "timings": {
-          "reading": 0.002859,
-          "analysis": 0.000597,
-          "other": 0.003303
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000117
         },
         "workers": 1,
-        "peak_memory_bytes": 70057984,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 120,
-        "cells_read": 120,
-        "executed": 2,
-        "reused": 6,
+        "peak_memory_bytes": 69357568,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 8,
         "skipped": 0
       },
       "analyses": [
@@ -15957,10 +15963,13 @@
             "nodes": 5,
             "facets": 1,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "21bc45c3f60efab2229c7ed372b25961fac9f859daabda44e4388f2976a8256f",
+          "key": "357beef24b902300e6cac45f927a5d78e532bf98965a6e524a6409de0d105668",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -16087,10 +16096,13 @@
             "nodes": 6,
             "facets": 2,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "eb1cca06ada2f19a9dff912f4c752ef0f95673c14ddef10908dc8c48a2878910",
+          "key": "391ebb5ec52b42305a54d8e11cbf897d7ba677cb65e4c186c4c5af06ddf5b2f9",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -16617,12 +16629,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T17:08:46.899005Z",
+    "generated_at": "2026-10-13T19:12:59.472440Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0886,
+    "processing_seconds": 0.0716,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

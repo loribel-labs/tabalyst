@@ -245,6 +245,21 @@ class LimitsView(ResultModel):
         )
 
 
+class PatternRow(ResultModel):
+    """A pattern of a column as the report lists it: its place in the hierarchy
+    (``family``), its distinct values, their share of the population the discovery
+    read, and its length in characters (a discovered pattern has a fixed one).
+    ``role`` is ``principal`` for the pattern with the most distinct values."""
+
+    id: str
+    family: str
+    render: str
+    role: Literal["principal", "secondary"]
+    distinct: int
+    share: float
+    length: int
+
+
 class PatternView(ResultModel):
     """The inferred patterns of one column (design 18.12) with the examples
     they point to. ``missing`` means the document has no ``derived`` block."""
@@ -253,7 +268,14 @@ class PatternView(ResultModel):
     reason: str | None = None
     reason_text: str | None = None
     entry: FieldPatternsComplete | None = None
-    # Values of the examples that this document holds, by candidate: a Report
+    # The patterns of the hierarchy, the largest first.
+    rows: list[PatternRow] = Field(default_factory=list)
+    # The distinct values no pattern holds, their share of the population and the
+    # structures left out of the families.
+    outside_distinct: int = 0
+    outside_share: float = 0.0
+    outside_structures: int = 0
+    # Values of the examples that this document holds, by pattern: a Report
     # keeps fewer sample values than its Scan, so some do not resolve.
     examples: dict[str, list[str]] = Field(default_factory=dict)
     unresolved: dict[str, int] = Field(default_factory=dict)

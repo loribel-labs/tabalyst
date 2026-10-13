@@ -422,7 +422,9 @@ the same with `excel.dataset_path` in place of `json.collections`.
 
 The scan document embeds the effective configuration and its SHA-256
 (`config_sha256`). A stored scan is reused only when the source content, that
-configuration and the version of Tabalyst are all the same. A stored scan whose
+configuration, the version of Tabalyst and the version of the pattern discovery
+that found its `derived.patterns` are all the same. A second-pass result that
+validates patterns is reused only for the same discovery. A stored scan whose
 fingerprint no longer matches its configuration, such as one written before a
 setting existed, is out of date and scanned again.
 

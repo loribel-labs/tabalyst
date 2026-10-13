@@ -44,12 +44,12 @@ PATTERN_SOURCE = "pattern"
 
 def pattern_source(facts: FieldFacts) -> bool:
     """Whether the patterns of a field leave values out, or may: some distinct
-    value no candidate read, or candidates found in a sample."""
+    value no pattern holds, or patterns found in a sample."""
     patterns = facts.patterns
     return (
         patterns is not None
         and patterns.status == "complete"
-        and patterns.candidates > 0
+        and patterns.patterns > 0
         and (patterns.other_distinct > 0 or patterns.basis != "all_distinct")
     )
 

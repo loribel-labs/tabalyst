@@ -160,7 +160,8 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         excluded = sum(result.excluded.model_dump().values())
         return (
             f"{result.matched:,} of {result.values:,} values read by "
-            f"{_plural(len(result.candidates), 'pattern')}, {result.other:,} by none"
+            f"{_plural(len(result.all_patterns()), 'pattern')}, "
+            f"{result.outside_patterns():,} by none"
             + (f", {excluded:,} not tested" if excluded else ""),
             EXACT,
         )

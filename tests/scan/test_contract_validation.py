@@ -238,7 +238,7 @@ def test_C11_an_unmatched_value_is_an_observation_and_never_an_error(tmp_path):
     answer = entry(outcome, "pattern_validation", "code")
 
     assert answer.status == "complete" and answer.reason is None
-    assert answer.result.other == 20
+    assert answer.result.outside_patterns() == 20
     assert outcome.document.status == "complete"
 
 

@@ -27,6 +27,7 @@ from scan_helpers import write_text
 from second_pass_helpers import entry, forced_plan
 
 from tabalyst.config import DeepSettings
+from tabalyst.scanner.config import PatternInferenceSettings
 from tabalyst.scanner.planner import plan_analyses
 from tabalyst.scanner.secondpass import deep_document, run_second_pass
 from tabalyst.scanner.secondpass.schema import deep_schema
@@ -314,7 +315,8 @@ def test_G41_an_accumulator_without_exact_sets_travels_to_a_worker_and_back():
 
     accumulator = ResidualAccumulator(
         entry=None,
-        pattern_max_length=64,
+        field=None,
+        inference=PatternInferenceSettings(),
         detectors=["date"],
         pool=None,  # type: ignore[arg-type]
         max_listed=5,
@@ -460,7 +462,8 @@ def test_G48_the_replay_of_every_detector_agrees_with_the_coverage_of_the_scan(t
             continue
         accumulator = ResidualAccumulator(
             entry=None,
-            pattern_max_length=64,
+            field=None,
+        inference=PatternInferenceSettings(),
             detectors=[detector.id],
             pool=ExactPool(1 << 40),
             max_listed=5,
@@ -789,9 +792,10 @@ def test_G61_the_cost_follows_the_distinct_values_and_a_wide_replay_is_never_aut
     auto = by_analyzer(plan_analyses(wide), "residual_values")["day"]
     # Dates are eligible for patterns (AC-002): the replay of the detector and
     # the pattern share the reading of a cell.
-    assert auto.costs.cell_ns == NS_PER_CELL["residual_wide"] + round(
-        0.3 * NS_PER_CELL["residual_pattern_wide"]
+    larger, smaller = sorted(
+        (NS_PER_CELL["residual_wide"], NS_PER_CELL["residual_pattern_wide"]), reverse=True
     )
+    assert auto.costs.cell_ns == larger + round(0.3 * smaller)
     assert auto.costs.cpu == "high"
     assert (auto.selection.state, auto.selection.reason) == ("rejected", "cpu_class")
     forced = by_analyzer(plan_analyses(wide, forced=True), "residual_values")["day"]

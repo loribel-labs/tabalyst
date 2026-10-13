@@ -28,7 +28,10 @@ from tabalyst.scanner.secondpass.patternreader import (
     NEW_LENGTH,
     UNKNOWN_STRUCTURE,
 )
-from tabalyst.scanner.secondpass.patterns import derive_from_samples
+from tabalyst.scanner.secondpass.patterns import (
+    check_pattern_counts,
+    derive_from_samples,
+)
 
 
 def _codes(rng: random.Random, count: int) -> list[str]:
@@ -104,6 +107,42 @@ def test_the_counts_from_the_samples_are_those_of_a_reading_of_the_source(tmp_pa
     right = read.result(len(rows), "source").model_dump(mode="json")
     assert left.pop("computed_from") == "samples" and right.pop("computed_from") == "source"
     assert left == right
+
+
+def _valid_counts(tmp_path):
+    rows = _codes(random.Random(11), 600)
+    result, patterns = _scanned(tmp_path, rows, limits={"max_samples": 200})
+    accumulator = pattern_accumulator(result, patterns)
+    accumulator.add_strings(rows, [1] * len(rows))
+    return patterns, accumulator.result(len(rows), "source")
+
+
+def test_check_pattern_counts_accepts_what_the_accumulator_produced(tmp_path):
+    patterns, counts = _valid_counts(tmp_path)
+
+    assert check_pattern_counts(patterns, counts) == []
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (lambda c: c.update(matched=c["matched"] + 1), "matched"),
+        (lambda c: c.update(unknown_structure=c["unknown_structure"] + 1), "must add up"),
+        (lambda c: c["families"][0].update(id="f9"), "not the family"),
+        (lambda c: c["families"][0]["patterns"][0].update(rest=-1), "rest and the nodes"),
+        (lambda c: c["families"][0].update(occurrences=c["families"][0]["occurrences"] + 1), "matched"),
+        (lambda c: c["families"][0]["tables"][0].update(others=10**6), "complete it"),
+    ],
+    ids=["matched", "values", "family", "rest", "family-sum", "table"],
+)
+def test_check_pattern_counts_reports_a_result_that_does_not_add_up(tmp_path, mutate, message):
+    patterns, counts = _valid_counts(tmp_path)
+    document = counts.model_dump(mode="json")
+    mutate(document)
+
+    problems = check_pattern_counts(patterns, PatternCounts.model_validate(document))
+
+    assert any(message in problem for problem in problems), problems
 
 
 def test_the_result_adds_up_through_the_hierarchy_and_the_families_and_the_excluded(tmp_path):
@@ -365,10 +404,10 @@ def test_the_flat_view_counts_as_other_every_value_that_no_pattern_reads(tmp_pat
     counts = accumulator.result(8, "source")
 
     assert counts.unknown_structure == 1 and counts.families[0].new_variants.length == 2
-    assert counts.other == 3
+    assert counts.outside_patterns() == 3
     assert (
-        sum(tally.occurrences for tally in counts.candidates)
-        + counts.other
+        sum(tally.occurrences for tally in counts.all_patterns())
+        + counts.outside_patterns()
         + sum(counts.excluded.model_dump().values())
         == counts.values
     )

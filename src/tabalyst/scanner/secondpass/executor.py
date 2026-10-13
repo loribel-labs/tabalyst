@@ -427,7 +427,7 @@ def _setup_table(job: _Job, cells: CellReader, feeds: Feeds, scan: ScanResult) -
         entry,
         max_classes=max_classes or 2,
         prefix_length=prefix_length or 1,
-        max_value_length=scan.config.pattern_inference.max_value_length,
+        inference=scan.config.pattern_inference,
     )
     if coder is None:
         raise ScanMismatch(f"the scan no longer offers the feature: {why}")
@@ -682,7 +682,8 @@ def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> N
                 return
         residuals = ResidualAccumulator(
             entry=entry,
-            pattern_max_length=scan.config.pattern_inference.max_value_length,
+            field=field,
+            inference=scan.config.pattern_inference,
             detectors=[source for source in sources if source != PATTERN_SOURCE],
             pool=pool,
             max_listed=int(parameters["max_listed"]),

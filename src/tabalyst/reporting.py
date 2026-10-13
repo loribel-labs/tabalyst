@@ -50,11 +50,12 @@ from tabalyst.report_views import (
     DatasetView,
     InsightCard,
     LimitView,
+    PatternRow,
     QualityItem,
 )
 from tabalyst.scan_document import load_report
 from tabalyst.scan_reuse import read_json_document
-from tabalyst.scanner.models import FieldResult, PatternCandidate
+from tabalyst.scanner.models import FieldResult
 from tabalyst.scanner.secondpass.models import DistinctCount
 
 
@@ -273,17 +274,17 @@ def _labels() -> dict[str, object]:
 
 def _pattern_rows(
     dataset: DatasetView,
-) -> list[tuple[ColumnView, PatternCandidate | None, str]]:
-    """One row per inferred candidate, then the values no candidate takes, with
+) -> list[tuple[ColumnView, PatternRow | None, str]]:
+    """One row per pattern of the hierarchy, then the values no pattern holds, with
     the accuracy of the shares (every distinct value, or a sample of them)."""
-    rows: list[tuple[ColumnView, PatternCandidate | None, str]] = []
+    rows: list[tuple[ColumnView, PatternRow | None, str]] = []
     for column in dataset.columns:
         entry = column.patterns.entry
         if entry is None:
             continue
         kind = "exact" if entry.population.complete else "sample"
-        rows.extend((column, candidate, kind) for candidate in entry.candidates)
-        if entry.unmatched.distinct:
+        rows.extend((column, row, kind) for row in column.patterns.rows)
+        if column.patterns.outside_distinct:
             rows.append((column, None, kind))
     return rows
 

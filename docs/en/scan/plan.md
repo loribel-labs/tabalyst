@@ -154,7 +154,7 @@ with a column that can be a category: the rows it used, how many categories and
 columns it kept, those it left out by reason (`sensitive_exposure`, `repeated_path`,
 `identifier_like`, `near_unique`, `single_value`, `too_many_categories`,
 `no_frequencies`, `not_in_sample`, and for the features `not_text`, `no_pattern`,
-`few_lengths`, `few_prefixes`, `column_budget`), the tables that were possible, scored
+`unreadable_pattern`, `few_lengths`, `few_prefixes`, `column_budget`), the tables that were possible, scored
 and left undefined (by reason), the tables listed, the `work` spent (tables times rows
 coded) and `cells`, the largest table in rows times classes.
 

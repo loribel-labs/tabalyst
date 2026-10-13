@@ -33,6 +33,7 @@ from tabalyst.report_views import (
     DiagnosticProfile,
     LimitsView,
     LimitView,
+    PatternRow,
     PatternView,
     QualityGroup,
     QualityItem,
@@ -291,12 +292,37 @@ def pattern_view(
     values = _sample_values(field)
     examples: dict[str, list[str]] = {}
     unresolved: dict[str, int] = {}
-    for candidate in entry.candidates:
-        shown = [values[item] for item in candidate.examples if item in values]
-        examples[candidate.id] = shown
-        unresolved[candidate.id] = len(candidate.examples) - len(shown)
+    total = entry.population.distinct
+    families = {pattern.id: family.id for family in entry.families for pattern in family.patterns}
+    rows: list[PatternRow] = []
+    for number, pattern in enumerate(sorted(entry.all_patterns(), key=lambda item: -item.d)):
+        shown = [values[item] for item in pattern.examples if item in values]
+        examples[pattern.id] = shown
+        unresolved[pattern.id] = len(pattern.examples) - len(shown)
+        rows.append(
+            PatternRow(
+                id=pattern.id,
+                family=families[pattern.id],
+                render=pattern.render,
+                role="principal" if number == 0 else "secondary",
+                distinct=pattern.d,
+                share=round(pattern.d / total, 4) if total else 0.0,
+                length=sum(
+                    token.min * (len(token.text) if token.text is not None else 1)
+                    for token in pattern.signature
+                ),
+            )
+        )
+    outside = entry.outside_patterns()[0]
     return PatternView(
-        status="complete", entry=entry, examples=examples, unresolved=unresolved
+        status="complete",
+        entry=entry,
+        rows=rows,
+        outside_distinct=outside,
+        outside_share=round(outside / total, 4) if total else 0.0,
+        outside_structures=entry.other.structures,
+        examples=examples,
+        unresolved=unresolved,
     )
 
 

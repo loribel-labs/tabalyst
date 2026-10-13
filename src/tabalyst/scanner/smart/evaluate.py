@@ -31,10 +31,12 @@ from tabalyst.scanner.measures import UNCONVERTIBLE
 from tabalyst.scanner.models import (
     ColumnSegment,
     DatasetResult,
+    FieldPatternsComplete,
     FieldResult,
     Observation,
     ScanResult,
 )
+from tabalyst.scanner.secondpass.accumulators import ScanMismatch
 from tabalyst.scanner.secondpass.models import AnalysisResult, DeepResult
 from tabalyst.scanner.secondpass.patterns import pattern_entry
 from tabalyst.scanner.secondpass.replay import Cell, CellReader
@@ -411,19 +413,28 @@ class Evaluator:
         )
         if entry is None:
             raise _Unresolved("reference_missing")
-        if tests.coder is None:
-            tests.coder = PatternCoder(
-                self.reader, entry, scan.config.pattern_inference.max_value_length
-            )
-        coder = tests.coder
+        coder = self._pattern_coder(tests, entry)
         if target.predicate.kind == "pattern_other":
             tests.by_code.setdefault(coder.other, []).append(position)
             return
-        ids = [candidate.id for candidate in entry.candidates]
+        ids = [pattern.id for pattern in entry.all_patterns()]
         wanted = target.predicate.params.get("pattern")
         if wanted not in ids:
             raise _Unresolved("reference_missing")
         tests.by_code.setdefault(ids.index(str(wanted)), []).append(position)
+
+    def _pattern_coder(self, tests: _ColumnTests, entry: FieldPatternsComplete) -> PatternCoder:
+        """The coder of the patterns of a column, made once: it reads the hierarchy as
+        the validation does, and refuses an entry the samples of the Scan no longer
+        give."""
+        if tests.coder is None:
+            try:
+                tests.coder = PatternCoder(
+                    self.reader, entry, tests.field, self._scan.config.pattern_inference
+                )
+            except ScanMismatch as exc:
+                raise _Unresolved("scan_mismatch") from exc
+        return tests.coder
 
     def _numeric(self, tests: _ColumnTests, position: int, target: Target) -> None:
         envelope = tests.field.numeric
@@ -492,11 +503,8 @@ class Evaluator:
             )
             if entry is None:
                 raise _Unresolved("reference_missing")
-            if tests.coder is None:
-                tests.coder = PatternCoder(
-                    self.reader, entry, scan.config.pattern_inference.max_value_length
-                )
-            ids = [candidate.id for candidate in entry.candidates]
+            self._pattern_coder(tests, entry)
+            ids = [pattern.id for pattern in entry.all_patterns()]
             for pattern in item.patterns:
                 if pattern not in ids:
                     raise _Unresolved("reference_missing")
@@ -558,7 +566,7 @@ class Evaluator:
             entry,
             max_classes=int(parameters.get("max_classes") or 0) or 2,
             prefix_length=prefix_length or 1,
-            max_value_length=scan.config.pattern_inference.max_value_length,
+            inference=scan.config.pattern_inference,
         )
         if coder is None:
             raise _Unresolved("scan_mismatch")

@@ -10,6 +10,7 @@ from planner_helpers import scan_csv, with_field
 from table_helpers import branch_rows
 
 from tabalyst.scanner import ScanConfig
+from tabalyst.scanner.config import PatternInferenceSettings
 from tabalyst.scanner.features import (
     FEW_LENGTHS,
     FEW_PREFIXES,
@@ -20,7 +21,7 @@ from tabalyst.scanner.features import (
     TOO_MANY_CATEGORIES,
     UNCLASSIFIED,
     UNKNOWN_FEATURE,
-    PatternClassifier,
+    UNREADABLE_PATTERN,
     category_coder,
     feature_coder,
 )
@@ -105,7 +106,7 @@ def test_a_pattern_is_the_class_of_the_values_it_reads(tmp_path):
 
     coder, why = feature_coder(
         reader, "pattern", _field(result, "client"), entry,
-        max_classes=12, prefix_length=2, max_value_length=64,
+        max_classes=12, prefix_length=2, inference=PatternInferenceSettings(),
     )
 
     assert why is None and coder.domain == "original"
@@ -120,13 +121,34 @@ def test_a_pattern_is_the_class_of_the_values_it_reads(tmp_path):
     assert coder.code_native("integer", 12) == UNCLASSIFIED
 
 
-def test_the_classifier_reports_the_overlaps_of_candidates(tmp_path):
-    result, _ = _coders(tmp_path)
+def test_a_value_is_read_by_the_pattern_of_its_family_that_has_its_lengths(tmp_path):
+    result, reader = _coders(tmp_path)
     entry = _entry(result, "client")
+    coder, _ = feature_coder(
+        reader, "pattern", _field(result, "client"), entry,
+        max_classes=12, prefix_length=2, inference=PatternInferenceSettings(),
+    )
 
-    first, overlaps = PatternClassifier(entry, 64).classify("AB1234")
+    # One class for each pattern of the hierarchy, in the order of the document.
+    assert [c.id for c in coder.classes[:-1]] == [p.id for p in entry.all_patterns()]
+    # The structure is known, its lengths are in no pattern: the family does not hold it.
+    known = coder.code_strings(["AB1234"])[0]
+    assert coder.code_strings(["ABCDEF123456"]) == [coder.other] and known != coder.other
 
-    assert first >= 0 and overlaps is None or len(overlaps) >= 2
+
+def test_a_pattern_cannot_be_a_class_when_the_samples_no_longer_give_the_entry(tmp_path):
+    result, reader = _coders(tmp_path)
+    entry = _entry(result, "client")
+    field = _field(result, "client")
+    values = field.values.samples.model_copy(update={"listed": field.values.samples.listed[:3]})
+    reduced = field.model_copy(update={"values": field.values.model_copy(update={"samples": values})})
+
+    coder, why = feature_coder(
+        reader, "pattern", reduced, entry,
+        max_classes=12, prefix_length=2, inference=PatternInferenceSettings(),
+    )
+
+    assert coder is None and why == UNREADABLE_PATTERN
 
 
 def test_a_length_is_the_length_of_the_analytical_text(tmp_path):
@@ -135,7 +157,7 @@ def test_a_length_is_the_length_of_the_analytical_text(tmp_path):
 
     coder, why = feature_coder(
         reader, "length", _field(result, "branch"), None,
-        max_classes=12, prefix_length=2, max_value_length=64,
+        max_classes=12, prefix_length=2, inference=PatternInferenceSettings(),
     )
 
     assert why is None and [c.label for c in coder.classes] == ["1", "2", "3", "4", "other"]
@@ -148,7 +170,7 @@ def test_the_lengths_beyond_the_class_budget_are_other(tmp_path):
 
     coder, _ = feature_coder(
         reader, "length", _field(result, "branch"), None,
-        max_classes=4, prefix_length=2, max_value_length=64,
+        max_classes=4, prefix_length=2, inference=PatternInferenceSettings(),
     )
 
     assert len(coder.classes) == 4 and coder.classes[-1].kind == "other"
@@ -160,7 +182,7 @@ def test_a_prefix_is_read_on_the_original_value(tmp_path):
 
     coder, why = feature_coder(
         reader, "prefix", _field(result, "branch"), None,
-        max_classes=12, prefix_length=2, max_value_length=64,
+        max_classes=12, prefix_length=2, inference=PatternInferenceSettings(),
     )
 
     assert why is None and coder.domain == "original"
@@ -180,7 +202,7 @@ def test_a_feature_a_column_cannot_offer_says_why(tmp_path, feature, reason):
 
     coder, why = feature_coder(
         reader, feature, _field(bare, "client"), None,
-        max_classes=12, prefix_length=4, max_value_length=64,
+        max_classes=12, prefix_length=4, inference=PatternInferenceSettings(),
     )
 
     assert coder is None and why == reason

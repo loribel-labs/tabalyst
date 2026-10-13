@@ -21,11 +21,13 @@ from collections.abc import Sequence
 
 from tabalyst.scanner.config import PatternInferenceSettings
 from tabalyst.scanner.models import (
+    FamilyPattern,
     FieldPatterns,
     FieldPatternsComplete,
     FieldResult,
+    PatternNode,
 )
-from tabalyst.scanner.patterninfer import ALGORITHM_VERSION, GRAMMAR_VERSION
+from tabalyst.scanner.patterninfer import discovery_versions
 from tabalyst.scanner.planner.costmodel import (
     DISTINCT_ENTRY_BYTES,
     NS_PER_CELL,
@@ -55,6 +57,7 @@ from tabalyst.scanner.secondpass.patternreader import (
 
 __all__ = [
     "PatternAccumulator",
+    "check_pattern_counts",
     "derive_from_samples",
     "pattern_entry",
 ]
@@ -96,6 +99,7 @@ class PatternAccumulator:
     __slots__ = (
         "budget",
         "distinct",
+        "entry",
         "exact",
         "excluded",
         "extra",
@@ -122,6 +126,7 @@ class PatternAccumulator:
         unique: bool = False,
         table_cells: int | None = None,
     ) -> None:
+        self.entry = entry
         self.reader = HierarchyReader.build(entry, field, settings)
         slots = self.reader.slots
         self.occurrences = [0] * slots
@@ -249,19 +254,21 @@ class PatternAccumulator:
             )
         families = [self._family(family) for family in self.reader.families]
         matched = sum(family.occurrences for family in families)
-        excluded = sum(self.excluded.values())
-        if matched + self.unknown + excluded != self.values:
-            raise ScanMismatch("the counts of the patterns do not add up to the values read")
-        return PatternCounts(
+        grammar, algorithm = discovery_versions()
+        counts = PatternCounts(
             computed_from=computed_from,  # type: ignore[arg-type]
-            grammar_version=GRAMMAR_VERSION,
-            algorithm_version=ALGORITHM_VERSION,
+            grammar_version=grammar,
+            algorithm_version=algorithm,
             values=self.values,
             matched=matched,
             families=families,
             unknown_structure=self.unknown,
             excluded=PatternExclusions(**self.excluded),
         )
+        problems = check_pattern_counts(self.entry, counts)
+        if problems:
+            raise ScanMismatch(f"the counts of the patterns are not consistent: {problems[0]}")
+        return counts
 
     def _node(self, node: Node) -> PatternNodeCount:
         below = [self._node(child) for child in node.children]
@@ -332,6 +339,69 @@ class PatternAccumulator:
             others=total - kept,
             saturated=total > kept,
         )
+
+
+def check_pattern_counts(entry: FieldPatternsComplete, counts: PatternCounts) -> list[str]:
+    """The problems of a ``pattern_counts`` result against the entry of the Scan it
+    was made for (design 20.9, PAT-27); empty when it is consistent.
+
+    The families, patterns and nodes are those of the entry, in its order, and the
+    counts add up: the families, the values no family reads and the values left out
+    are the values; a family is its patterns, its combinations of lengths left in a
+    table and its new variants of length; a node is its own rest and its nodes; the
+    tables are bounded and complete the family to its occurrences."""
+    problems: list[str] = []
+    if len(counts.families) != len(entry.families):
+        return ["there is not one result for each family of the scan"]
+    excluded = sum(counts.excluded.model_dump().values())
+    if sum(family.occurrences for family in counts.families) != counts.matched:
+        problems.append("matched must add up the families")
+    if counts.matched + counts.unknown_structure + excluded != counts.values:
+        problems.append("matched, unknown_structure and excluded must add up to the values")
+    for family, published in zip(counts.families, entry.families, strict=True):
+        where = f"families[{family.id}]"
+        if family.id != published.id or [p.id for p in family.patterns] != [
+            p.id for p in published.patterns
+        ]:
+            problems.append(f"{where}: not the family and patterns of the scan")
+            continue
+        for pattern, item in zip(family.patterns, published.patterns, strict=True):
+            _check_node_count(pattern, item, f"{where}.patterns[{pattern.id}]", problems)
+        in_patterns = sum(pattern.occurrences for pattern in family.patterns)
+        lengths = family.occurrences - in_patterns - family.new_variants.length
+        if lengths < 0 or family.new_variants.segment > family.occurrences:
+            problems.append(f"{where}: occurrences must hold the patterns and the new variants")
+        for table in family.tables:
+            total = lengths if table.facet == "lengths" else family.occurrences
+            cells = sum(cell.occurrences for cell in table.cells)
+            if (
+                len(table.cells) > table.capacity
+                or cells + table.others != total
+                or table.saturated != (table.others > 0)
+            ):
+                problems.append(f"{where}.tables[{table.facet}]: cells and others must complete it")
+    return problems
+
+
+def _check_node_count(
+    node: PatternNodeCount,
+    published: FamilyPattern | PatternNode,
+    where: str,
+    problems: list[str],
+) -> None:
+    """A counted pattern or node is the one the Scan published, and is its rest and
+    its nodes."""
+    if [child.id for child in node.nodes] != [child.id for child in published.nodes]:
+        problems.append(f"{where}: not the nodes of the scan")
+        return
+    if node.rest < 0 or node.rest + sum(child.occurrences for child in node.nodes) != (
+        node.occurrences
+    ):
+        problems.append(f"{where}: occurrences must be the rest and the nodes")
+    if node.distinct.count > node.occurrences:
+        problems.append(f"{where}: more distinct values than occurrences")
+    for child, item in zip(node.nodes, published.nodes, strict=True):
+        _check_node_count(child, item, f"{where}.nodes[{child.id}]", problems)
 
 
 def _top(items: list[tuple[str, int]], capacity: int) -> list[PatternCountCell]:

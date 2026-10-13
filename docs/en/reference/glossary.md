@@ -56,7 +56,7 @@ Keep these exactly as written in every language:
 | beta | bêta | Pre-1.0 stage where interfaces and formats may still change |
 | scan | analyse | The complete description of a source written by `tabalyst scan` |
 | scan document | document d'analyse | The project's `scan.json` or a standalone `.scan.json` export written by `tabalyst scan` |
-| stale scan | analyse périmée | A scan document whose source or settings changed since it was written |
+| stale scan | analyse périmée | A scan document whose source, settings or pattern discovery changed since it was written |
 | stratum, strata | strate, strates | A group of rows that share the value of the stratification field, or the combination of values of several fields |
 | stratification advice | aide à la stratification | What `tabalyst scan --plan --stratify` adds to a plan: which columns make good strata and how risky a combination of columns is |
 | smart sample | échantillon smart | A sample that aims to cover the diversity and the rare cases of a file; its proportions do not estimate the population |

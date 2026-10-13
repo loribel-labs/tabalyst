@@ -196,7 +196,7 @@ def test_a_complete_cardinality_is_exact(tmp_path):
 # Patterns ---------------------------------------------------------------------
 
 
-def test_patterns_section_lists_the_candidates_and_the_unmatched(tmp_path):
+def test_patterns_section_lists_the_patterns_and_the_unmatched(tmp_path):
     source = _csv(
         tmp_path,
         "code",
@@ -208,7 +208,7 @@ def test_patterns_section_lists_the_candidates_and_the_unmatched(tmp_path):
     view = dataset_views(profile)[0].columns[0].patterns
 
     assert view.status == "complete"
-    assert view.entry.candidates[0].role == "principal"
+    assert view.rows[0].role == "principal"
     assert 'id="patterns"' in html
     assert "AB" in html
     assert 'class="acc acc-exact"' in html
@@ -224,9 +224,9 @@ def test_examples_missing_from_a_reduced_report_are_counted_not_invented(tmp_pat
     view = dataset_views(analyze_csv(source, config))[0].columns[0].patterns
 
     assert view.status == "complete"
-    candidate = view.entry.candidates[0]
-    shown = view.examples[candidate.id]
-    assert len(shown) + view.unresolved[candidate.id] == len(candidate.examples)
+    pattern = view.entry.all_patterns()[0]
+    shown = view.examples[pattern.id]
+    assert len(shown) + view.unresolved[pattern.id] == len(pattern.examples)
     assert len(shown) <= 1
 
 

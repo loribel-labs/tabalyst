@@ -186,8 +186,8 @@ class CategoryCrosstab(PairAnalyzer):
         crosstab = self.settings.crosstab
         rows = min(crosstab.max_categories, category.frequencies_distinct or 0) + 1
         if feature == "pattern":
-            candidates = column.patterns.candidates if column.patterns is not None else 0
-            width = candidates + 1
+            patterns = column.patterns.patterns if column.patterns is not None else 0
+            width = patterns + 1
         else:
             width = crosstab.max_classes
         size = rows * width * (TABLE_CELL_BYTES + crosstab.examples * TABLE_EXAMPLE_BYTES)

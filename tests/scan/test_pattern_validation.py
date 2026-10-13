@@ -33,7 +33,7 @@ def test_a_value_with_a_non_ascii_letter_goes_through_the_token_matcher(tmp_path
     accumulator.add_strings(["é123", "É999", "e123"], [2, 1, 1])
     counts = accumulator.result(4, "source")
 
-    assert counts.matched + counts.other == 4
+    assert counts.matched + counts.outside_patterns() == 4
     assert counts.matched >= 2
 
 

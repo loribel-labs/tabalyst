@@ -995,8 +995,10 @@ its `patterns` and their `nodes`, the `distinct` values of each with their accur
 the `tables` of its facets and its `new_variants`), `unknown_structure` and
 `algorithm_version` replace `candidates`, `other` and `overlaps`. The settings have the
 member `deep.patterns` (`table_bytes`, `distinct_bytes`), and the plan parameters of
-`pattern_validation` the members `nodes`, `facets`, `table_bytes` and `distinct_bytes`. A
-document of revision 2 is made again.
+`pattern_validation` the members `nodes`, `facets`, `table_bytes`, `distinct_bytes`,
+`grammar_version`, `algorithm_version` and `discovery_sha256`: the last three say which
+discovery made the patterns the result counts, so a result is reused only for the same
+one. A document of revision 2 is made again.
 
 ### Version 0.2.0, revision 2
 

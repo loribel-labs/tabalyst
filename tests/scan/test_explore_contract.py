@@ -62,7 +62,7 @@ def test_explore_01_a_pattern_facet_comes_from_the_patterns_of_the_scan(tmp_path
     code = next(item.id for item in result.datasets[0].fields if item.display == "code")
     entry = next(item for item in result.derived.patterns.fields if item.field == code)
 
-    assert entry.status == "complete" and entry.candidates
+    assert entry.status == "complete" and entry.all_patterns()
 
 
 def test_explore_01_the_planner_prices_what_explore_could_ask_for(tmp_path):

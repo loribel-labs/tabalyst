@@ -290,15 +290,6 @@ class FrequencyTable(ScanModel):
     modes_truncated: bool
 
 
-class PatternTally(ScanModel):
-    """Occurrences read by one pattern of the Scan, as the readers of the flat
-    list see them (``PatternCounts.candidates``): a view, never written."""
-
-    id: str
-    render: str
-    occurrences: int
-
-
 class PatternDistinct(ScanModel):
     """Distinct values of a pattern or of a node: ``exact`` when the Scan holds
     the whole distribution or the set of the distinct values fit its budget,
@@ -406,26 +397,17 @@ class PatternCounts(ScanModel):
     unknown_structure: int
     excluded: PatternExclusions
 
-    @property
-    def candidates(self) -> list[PatternTally]:
-        """The patterns as a flat list, for the readers written for the flat
-        list of the lot 7c (until they read the hierarchy): the occurrences of
-        each pattern, nodes included."""
-        return [
-            PatternTally(id=pattern.id, render=pattern.render, occurrences=pattern.occurrences)
-            for family in self.families
-            for pattern in family.patterns
-        ]
+    def all_patterns(self) -> list[PatternNodeCount]:
+        """The patterns counted, in the order of the document of the Scan (the families
+        in order, each with its patterns), nodes included in their pattern."""
+        return [pattern for family in self.families for pattern in family.patterns]
 
-    @property
-    def other(self) -> int:
-        """The occurrences that no pattern reads, for the same readers: those of no
-        family, and those of a family that none of its patterns holds (its table of
-        lengths and its new variants of length). With ``candidates`` and the
-        excluded values they add up to ``values``."""
-        in_patterns = sum(
-            pattern.occurrences for family in self.families for pattern in family.patterns
-        )
+    def outside_patterns(self) -> int:
+        """The occurrences that no pattern holds: those of no family, and those of a
+        family that none of its patterns holds (its table of lengths and its new
+        variants of length). With the occurrences of the patterns and the excluded
+        values they add up to ``values``."""
+        in_patterns = sum(pattern.occurrences for pattern in self.all_patterns())
         return self.values - sum(self.excluded.model_dump().values()) - in_patterns
 
 

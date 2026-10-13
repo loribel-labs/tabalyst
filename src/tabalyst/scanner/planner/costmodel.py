@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 14
+COST_MODEL_VERSION = 15
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -258,9 +258,13 @@ NS_PER_CELL = {
     # The replay of a detector: 357 for 1,500 distinct dates, 831 for 8,000 numbers,
     # 2,051 for 40,000 dates, 1,729 for one million numbers. Rounded up by tier
     # (`residual_tier`); a field with both pays the larger and 30% of the other.
-    "residual_pattern_few": 300,
-    "residual_pattern": 700,
-    "residual_pattern_wide": 2_000,
+    # The patterns are read by the reader of the hierarchy since the Patterns lot P7
+    # (a structure, the lengths, a lookup down the nodes): on the realistic file it
+    # costs 1.0 to 1.6 times the regular expression of each candidate it replaced
+    # (alternated runs, `benchmarks.md`), and the three tiers are the old ones by 1.5.
+    "residual_pattern_few": 450,
+    "residual_pattern": 1_100,
+    "residual_pattern_wide": 3_000,
     "residual_few": 300,
     "residual": 900,
     "residual_wide": 2_500,

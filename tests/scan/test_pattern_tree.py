@@ -183,8 +183,19 @@ def _damaged(tmp_path, mutate) -> list[str]:
             lambda f: f["patterns"][0]["nodes"][1].update(role="principal"),
             "only the first node is principal",
         ),
+        (lambda f: f["patterns"][0]["nodes"][0].update(value=""), "value must be the text"),
+        (
+            lambda f: f["patterns"][0]["nodes"][0].update(also=[{"facet": "nope", "value": "x"}]),
+            "also must list",
+        ),
+        (
+            lambda f: f["patterns"][0]["nodes"][1].update(value=f["patterns"][0]["nodes"][0]["value"]),
+            "a sibling fixes the same text",
+        ),
+        (lambda f: f["patterns"][0]["nodes"][0].update(d=199), "signature does not accept d"),
+        (lambda f: f["patterns"][0].update(d=601), "signature does not accept d"),
     ],
-    ids=["sum", "id", "level", "facet", "gain", "render", "role"],
+    ids=["sum", "id", "level", "facet", "gain", "render", "role", "value", "also", "twin", "node-d", "pattern-d"],
 )
 def test_check_scan_catches_a_hierarchy_that_does_not_reconcile(tmp_path, mutate, message):
     problems = _damaged(tmp_path, mutate)

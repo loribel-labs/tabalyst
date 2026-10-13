@@ -68,18 +68,23 @@ class PatternValidation(Analyzer):
         if patterns.status == "not_applicable":
             reason = _REASONS.get(patterns.reason or "", "not_eligible")
             return Assessment("not_applicable", (reason,))
-        if patterns.candidates == 0:
+        if patterns.patterns == 0:
             return Assessment("not_applicable", ("no_candidates",))
         settings = self.settings.patterns
         return Assessment(
             "applicable",
             method="family_recognizer",
             parameters={
-                "patterns": patterns.candidates,
+                "patterns": patterns.patterns,
                 "nodes": patterns.nodes,
                 "facets": patterns.facets,
                 "table_bytes": settings.table_bytes,
                 "distinct_bytes": settings.distinct_bytes,
+                # What made the tree the validation counts (FR-020): another grammar,
+                # algorithm or discovery setting is another analysis.
+                "grammar_version": patterns.grammar_version,
+                "algorithm_version": patterns.algorithm_version,
+                "discovery_sha256": patterns.settings_sha256,
             },
             # When the inference read every distinct value, each is in the
             # samples with its exact count: the occurrences follow from them.

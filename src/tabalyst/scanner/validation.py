@@ -10,7 +10,8 @@ from __future__ import annotations
 
 import re
 
-from tabalyst.scanner.config import config_sha256
+from tabalyst.scanner.config import PatternInferenceSettings, config_sha256
+from tabalyst.scanner.features import ascii_regex
 from tabalyst.scanner.models import (
     CardinalityComplete,
     CardinalityEstimate,
@@ -44,8 +45,10 @@ from tabalyst.scanner.patterninfer import (
     GRAMMAR_NAME,
     GRAMMAR_VERSION,
     compile_signature,
+    key_text,
     matches,
     render_signature,
+    tokenized_population,
 )
 from tabalyst.scanner.quality import OBSERVATIONS_VERSION, RULES
 from tabalyst.scanner.rowsample import (
@@ -776,6 +779,62 @@ def _check_field_patterns(
         population.occurrences,
     ):
         problems.append(f"{where}: families and other must add up to the population")
+    if resolvable:
+        _check_against_samples(entry, field, settings, where, problems)
+
+
+def _check_against_samples(
+    entry: FieldPatternsComplete,
+    field: FieldResult,
+    settings: PatternInferenceSettings,
+    where: str,
+    problems: list[str],
+) -> None:
+    """The signatures describe the samples: the distinct values of the population
+    that a pattern accepts among those of its family are the ones it counts, and so
+    for each node among the values of its parent (design 18.12, PAT-27). A value is
+    found in a pattern by its lengths, and the constants a pattern folds are carried
+    by all its members, so the signature and the count agree."""
+    entries, rows = tokenized_population(field, settings)
+    by_key: dict[str, list[str]] = {}
+    for sample, row in zip(entries, rows, strict=True):
+        by_key.setdefault(key_text(row), []).append(sample.value)
+    for family in entry.families:
+        members = [
+            value for key in (family.composition or [family.key]) for value in by_key.get(key, ())
+        ]
+        for pattern in family.patterns:
+            name = f"{where}.families[{family.id}].patterns[{pattern.id}]"
+            accepted = _accepting(pattern.signature, members)
+            if len(accepted) != pattern.d:
+                problems.append(f"{name}: the signature does not accept d distinct values")
+            _check_node_members(pattern.nodes, accepted, name, problems)
+
+
+def _check_node_members(
+    nodes: list[PatternNode], members: list[str], name: str, problems: list[str]
+) -> None:
+    for node in nodes:
+        accepted = _accepting(node.signature, members)
+        label = f"{name}.nodes[{node.id}]"
+        if len(accepted) != node.d:
+            problems.append(f"{label}: the signature does not accept d distinct values")
+        _check_node_members(node.nodes, accepted, label, problems)
+
+
+def _accepting(signature: list[PatternToken], values: list[str]) -> list[str]:
+    """The values a signature accepts, ASCII ones by a compiled expression."""
+    try:
+        regex = ascii_regex(signature)
+    except re.error:
+        # An invalid token is reported by the signature check.
+        return []
+    matcher = compile_signature(signature)
+    return [
+        value
+        for value in values
+        if (regex.fullmatch(value) is not None if value.isascii() else matches(matcher, value))
+    ]
 
 
 def _check_family(
@@ -813,7 +872,15 @@ def _check_family(
         _check_signature(pattern.signature, pattern.render, name, problems)
         if len(pattern.examples) > EXAMPLES or pattern.examples != sorted(pattern.examples):
             problems.append(f"{name}: examples are the smallest ids, at most {EXAMPLES}")
-        published += _check_nodes(pattern.nodes, pattern, 2, name, max_depth, problems)
+        published += _check_nodes(
+            pattern.nodes,
+            pattern,
+            2,
+            name,
+            max_depth,
+            frozenset(family.composition or [family.key]),
+            problems,
+        )
         if values is not None:
             matcher = compile_signature(pattern.signature)
             for example in pattern.examples:
@@ -859,13 +926,16 @@ def _check_nodes(
     level: int,
     name: str,
     max_depth: int,
+    structures: frozenset[str],
     problems: list[str],
 ) -> int:
     """The nodes below a pattern or a node, at ``level``; returns how many are
     published. The nodes of composition add up to their pattern; those of content
-    are a strict part of their parent, the rest being its ``others``."""
+    are a strict part of their parent, the rest being its ``others``. ``structures``
+    are the keys of the family, which the nodes of composition name."""
     if not nodes:
         return 0
+    found: set[tuple[str, str, tuple[tuple[str, str], ...]]] = set()
     if level > max_depth:
         problems.append(f"{name}: nodes deeper than max_depth")
     composition = nodes[0].facet == "composition"
@@ -892,8 +962,36 @@ def _check_nodes(
         if not composition and node.d >= parent.d:
             problems.append(f"{node_name}: a node of content is a strict part of its parent")
         _check_signature(node.signature, node.render, node_name, problems)
-        published += _check_nodes(node.nodes, node, level + 1, node_name, max_depth, problems)
+        _check_fixed_text(node, structures, found, node_name, problems)
+        published += _check_nodes(
+            node.nodes, node, level + 1, node_name, max_depth, structures, problems
+        )
     return published
+
+
+def _check_fixed_text(
+    node: PatternNode,
+    structures: frozenset[str],
+    found: set[tuple[str, str, tuple[tuple[str, str], ...]]],
+    name: str,
+    problems: list[str],
+) -> None:
+    """What a node fixes, ``value`` at its facet and ``also``, is what the validation
+    reads it by (design 20.9): a text, a structure of the family for a node of
+    composition, facets that name a kind, and no two siblings that fix the same."""
+    if not node.value:
+        problems.append(f"{name}: value must be the text the node fixes")
+    elif node.facet == "composition" and node.value not in structures:
+        problems.append(f"{name}: value must be a structure of the family")
+    conditions = [(item.facet, item.value) for item in node.also]
+    if any(not _FACET.fullmatch(facet) or not value for facet, value in conditions) or len(
+        set(conditions)
+    ) != len(conditions):
+        problems.append(f"{name}: also must list distinct facets with their text")
+    key = (node.facet, node.value, tuple(sorted(conditions)))
+    if key in found:
+        problems.append(f"{name}: a sibling fixes the same text")
+    found.add(key)
 
 
 def _check_signature(
@@ -1050,12 +1148,12 @@ def _check_observation(
         }
         entry = entries.get((item.dataset, item.field))
         ids = (
-            {candidate.id for candidate in entry.candidates}
+            {pattern.id for pattern in entry.all_patterns()}
             if isinstance(entry, FieldPatternsComplete)
             else set()
         )
         if not ids.issuperset(item.patterns):
-            problems.append(f"observations.{where}: patterns names no candidate")
+            problems.append(f"observations.{where}: patterns names no pattern")
 
 
 def _check_recount(block: Observations, problems: list[str]) -> None:

@@ -182,13 +182,11 @@ def test_a_complete_population_is_reported_as_all_distinct_values(tmp_path):
 
     assert entry.population.complete
     assert entry.population.selection == "all"
-    [candidate] = entry.candidates
-    assert candidate.render == "'ID-0'99"
-    assert candidate.coverage.basis == "all_distinct"
-    assert candidate.coverage.distinct == 50
-    assert candidate.coverage.share == 1.0
-    assert candidate.role == "principal"
-    assert candidate.examples == [0, 1, 2]
+    [pattern] = entry.all_patterns()
+    assert pattern.render == "'ID-0'99"
+    assert entry.population.occurrences_basis == "exact"
+    assert pattern.d == 50 == entry.population.distinct
+    assert pattern.examples == [0, 1, 2]
     assert entry.other.d == 0
     assert entry.limits == []
     [family] = entry.families
@@ -213,7 +211,7 @@ def test_a_column_of_long_integers_is_inferred_from_its_decimal_text(tmp_path):
     assert entry.status == "complete"
     assert entry.eligibility.state == "eligible"
     assert "integer_digits" in entry.eligibility.reasons
-    assert [candidate.render for candidate in entry.candidates] == ["'100'999999"]
+    assert [pattern.render for pattern in entry.all_patterns()] == ["'100'999999"]
 
 
 def test_a_sensitive_field_is_never_inferred(tmp_path):
@@ -237,7 +235,7 @@ def test_a_structure_with_one_value_is_a_family_of_its_own(tmp_path):
     rows = [f"{LETTERS[i]}{LETTERS[i + 1]}{i:03d}" for i in range(20)] + ["zz-zz-zz"]
     entry = _entries(_scan(tmp_path, "code", rows))["column_1"]
 
-    assert [candidate.render for candidate in entry.candidates] == ["AA'0'99", "aa-aa-aa"]
+    assert [pattern.render for pattern in entry.all_patterns()] == ["AA'0'99", "aa-aa-aa"]
     assert [family.d for family in entry.families] == [20, 1]
     assert entry.other.d == 0
     assert entry.other.structures == 0
@@ -256,7 +254,7 @@ def test_values_that_cannot_take_part_are_counted_as_excluded(tmp_path):
     assert entry.population.available == 20
     # Values were left out: the population is not every distinct value.
     assert not entry.population.complete
-    assert entry.candidates[0].coverage.basis == "sample"
+    assert entry.population.occurrences_basis == "sample"
 
 
 def test_a_value_with_too_many_tokens_is_excluded(tmp_path):
@@ -330,8 +328,7 @@ def test_the_values_a_budget_keeps_out_of_the_patterns_are_unmatched(tmp_path):
 
     # Two of the five lengths, ten values each, belong to no pattern.
     assert entry.other.d == 0
-    assert entry.unmatched.distinct == 20
-    assert entry.unmatched.share == round(20 / 50, 4)
+    assert entry.outside_patterns()[0] == 20
 
 
 def _lengths_of(family: dict) -> dict:
@@ -371,7 +368,7 @@ def test_a_population_above_the_cap_is_cut_and_says_so(tmp_path):
     assert entry.population.distinct == 30
     assert not entry.population.complete
     assert "max_values" in entry.limits
-    assert entry.candidates[0].coverage.basis == "sample"
+    assert entry.population.occurrences_basis == "sample"
 
 
 def test_samples_that_exposure_withheld_give_no_patterns(tmp_path):

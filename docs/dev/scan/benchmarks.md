@@ -1469,3 +1469,23 @@ version tokenized every string (3.0 to 3.8 µs a distinct string); the regular e
 of the facets made once and the tuples instead of objects brought it to 1.2 to 1.8 µs. A batch that processes whole columns
 for a facet (`[text[:2] for text in texts]`) would save about a third on fields with many facets; it is left for later,
 with a measure.
+
+## Residual values read the hierarchy (Patterns lot P7)
+
+`residual_values` read a pattern with one regular expression for each candidate of the flat list; since the lot P7 it reads it
+with the reader of the validation (`HierarchyReader.read(raw, facets=False)`: the structure, the lengths and the lookup down the
+nodes, no facet). On `synthetic-1m.csv` (the five fields with patterns, a Scan of 20,000 samples, one process, 1 million cells each, best of
+2), the code of the lot P6 (`2482c5a`, a worktree) and the working tree alternated twice in one session:
+
+| Source of the pattern | Base (ns per cell) | Head (ns per cell) |
+| --- | --- | --- |
+| Five fields together | 2,243, 2,358 | 2,906, 2,685 |
+| `column_1` (no node) | 1,456, 1,468 | 1,521, 1,405 |
+| `column_7` | 1,400, 1,327 | 2,227, 1,878 |
+| `column_10` | 1,062, 1,274 | 1,868, 1,657 |
+| `column_15`, `column_19` (a detector as well) | 4,305 to 5,361 | 4,609 to 4,915 |
+
+A field without nodes costs the same, one with a few costs 1.4 to 1.6 times as much, and a field that a detector replays costs what
+it did (the replay is the larger part). A first version that also read the facets of each string cost 1.6 to 2.0 times the base
+on `column_7` and `column_10`; `facets=False` brought it back. The tiers of `NS_PER_CELL["residual_pattern*"]` are the
+old ones by 1.5 (450, 1,100 and 3,000), `COST_MODEL_VERSION` 15.

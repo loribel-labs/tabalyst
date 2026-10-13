@@ -89,3 +89,26 @@ The validation of the hierarchy (design 20.9) made the following choices; none r
   loop and is read once whatever the nodes; each facet adds a lookup. The model has a cost for the family and one for each facet
   (`NS_PER_CELL`), and the hierarchy costs 1.1 to 2.2 times the flat validation of the lot 7c on the realistic file
   (`benchmarks.md`). Counting the tables by batch would reduce it and is left for later.
+
+## Refinements of the lot P7 (2026-10-13)
+
+The consumers of the flat list now read the hierarchy (design 18.12, 18.13, 20.9, 20.20); none of the above is reversed.
+
+- **The flat views are gone.** `FieldPatternsComplete.candidates` and `.unmatched`, `PatternCounts.candidates` and `.other` and the
+  models behind them no longer exist. A reader walks the families: `all_patterns()` lists the patterns in the order of the
+  document (that order is the class of a pattern in the features and the targets that name patterns) and `outside_patterns()`
+  counts what no pattern holds.
+- **A value is in the pattern of its family that has its lengths.** `PatternCoder` and `residual_values` use the reader of the
+  validation (`HierarchyReader.pattern_class`), not the signatures: the constants a pattern folds do not bind its members
+  (DEC-026), so a value of a known family whose lengths no pattern holds is `other`, and a new variant of segment stays in its
+  pattern. The old classifier (a regular expression for each candidate, the most specific first) is removed.
+- **`minority_pattern` keeps its rule and version.** The patterns it compares are those of the hierarchy, of every family. A
+  rule by family, which the hierarchy makes possible, is left for when real cases ask for it.
+- **`PrefixCoder` is unchanged.** It reads the first characters of the original values from the samples and no view of the
+  patterns; the plan listed it by mistake.
+- **What made the tree is part of the cache.** The identity of a Scan holds the grammar and algorithm versions of its
+  `derived.patterns`, and the key of `pattern_validation` holds them with the digest of the settings of the discovery. A stored
+  Scan or result made by another discovery is rebuilt, never migrated.
+- **`check_scan` reads the samples when it has them.** A pattern accepts exactly its `d` among the distinct values of its family
+  and a node among those of its parent: the signatures are checked against the data they claim to describe, not only against
+  their own sums. `check_pattern_counts` does the same job for the result of the validation, against the entry.

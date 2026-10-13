@@ -297,42 +297,44 @@ class _Builder:
                 if validated is not None and isinstance(validated.result, PatternCounts)
                 else None
             )
-            tallies = {t.id: t.occurrences for t in counts.candidates} if counts else {}
+            tallies = {t.id: t.occurrences for t in counts.all_patterns()} if counts else {}
             evidence: Evidence = "second_pass" if counts else (
                 "exact" if entry.population.complete and not entry.limits else "sample"
             )
             where = f"derived/patterns/{self.dataset.id}/{field.id}"
             made = 0
-            for candidate in entry.candidates:
-                if counts is not None and candidate.id in tallies:
-                    frequency = self.counted(
-                        tallies[candidate.id], method="pattern_validation"
-                    )
+            total = entry.population.distinct
+            for pattern in entry.all_patterns():
+                if counts is not None and pattern.id in tallies:
+                    frequency = self.counted(tallies[pattern.id], method="pattern_validation")
                 else:
                     frequency = Frequency(
                         accuracy="indicator",
-                        share=round(candidate.coverage.share, 12),
+                        share=round(pattern.d / total, 4) if total else 0.0,
                         method="distinct_share",
                     )
                 self.add(
                     "structured_string",
                     [field.id],
                     "pattern_matches",
-                    candidate.id,
+                    pattern.id,
                     base="pattern",
                     frequency=frequency,
                     evidence=evidence,
                     ref=where,
-                    params={"pattern": candidate.id},
+                    params={"pattern": pattern.id},
                 )
                 made += 1
-            if entry.unmatched.distinct > 0:
+            unmatched = entry.outside_patterns()[0]
+            if unmatched > 0:
                 if counts is not None:
-                    frequency = self.counted(counts.other, method="pattern_validation")
+                    frequency = self.counted(
+                        counts.outside_patterns(), method="pattern_validation"
+                    )
                 else:
                     frequency = Frequency(
                         accuracy="indicator",
-                        share=round(entry.unmatched.share, 12),
+                        share=round(unmatched / total, 4) if total else 0.0,
                         method="distinct_share",
                     )
                 self.add(

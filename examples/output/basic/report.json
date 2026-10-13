@@ -5633,7 +5633,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -5743,8 +5743,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 14,
-        "plan_id": "e6db5fddfea6145a9c6d6cd69658986424fa24160cf183d0f65b68e7370166bf",
+        "cost_model_version": 15,
+        "plan_id": "8a67c16206d7cd397c3f4e487211fdac9ad2b18a3f5a5839599fdb94e456d828",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
@@ -6406,7 +6406,10 @@
               "nodes": 1,
               "facets": 0,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -6513,7 +6516,10 @@
               "nodes": 2,
               "facets": 0,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -6584,7 +6590,10 @@
               "nodes": 1,
               "facets": 0,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -6655,7 +6664,10 @@
               "nodes": 3,
               "facets": 0,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -7414,21 +7426,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T17:08:39.932403Z",
-        "duration_seconds": 0.000902,
+        "started_at": "2026-10-13T19:12:56.101010Z",
+        "duration_seconds": 0.0001,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000902
+          "other": 0.0001
         },
         "workers": 1,
-        "peak_memory_bytes": 65863680,
+        "peak_memory_bytes": 66777088,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
         "cells_read": 0,
-        "executed": 4,
-        "reused": 3,
+        "executed": 0,
+        "reused": 7,
         "skipped": 0
       },
       "analyses": [
@@ -7445,10 +7457,13 @@
             "nodes": 1,
             "facets": 0,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "663e3aeea9c8b584d498ea7ee2e72dca67f2faf5ab5002d2dbf10b42a0fd3c24",
+          "key": "61e787b0de1cdc37eefb22d7e1e665f1ebad5f7949be4fd30ca1fde069268e2a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7506,10 +7521,13 @@
             "nodes": 2,
             "facets": 0,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "dde79fb530bd9cd366608b253a5f9db6f2a9ddb4ff3ae1261c637b2c6d94374b",
+          "key": "26b49ddbf79baca698c153bc4b90c43b1e7780be2f31f8ed3f332622864fa56b",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7592,10 +7610,13 @@
             "nodes": 1,
             "facets": 0,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "06efe246e9c98198bd3cd749b9c01523f3e3845f99e48eb47db9eca5948f913b",
+          "key": "750022768bf3e4735cbfefd790e27213fb6bad51ced6921b1de0038f8508c116",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7653,10 +7674,13 @@
             "nodes": 3,
             "facets": 0,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "9c7842b8225646c8e6bbb523eb9da633fd2184d29dc6188c2ee8b89a6b37a870",
+          "key": "f2727a4feeb1bc8a38cc3916e65cd611760ab423ccc5d6b2d224b4b741cbbf6f",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7886,12 +7910,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T17:08:39.944374Z",
+    "generated_at": "2026-10-13T19:12:56.102011Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0301,
+    "processing_seconds": 0.0197,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

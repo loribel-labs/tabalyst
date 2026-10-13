@@ -225,7 +225,16 @@ def _skeleton(
 class HierarchyReader:
     """The compiled hierarchy of a field and what its sample showed."""
 
-    __slots__ = ("ascii", "by_key", "families", "max_length", "slots")
+    __slots__ = (
+        "added",
+        "ascii",
+        "by_key",
+        "current",
+        "families",
+        "max_length",
+        "pattern_of",
+        "slots",
+    )
 
     def __init__(self, max_length: int) -> None:
         self.max_length = max_length
@@ -235,6 +244,13 @@ class HierarchyReader:
         # in the order of the families (the largest first).
         self.ascii: list[tuple[re.Pattern[str], Family, str, int | None]] = []
         self.slots = 0
+        # The pattern, in the order of the document (families, then their patterns),
+        # that each counter belongs to: the pattern or a node below it. -1 for the
+        # counters of no pattern (the lengths a family left in its table, its new
+        # variants of length).
+        self.pattern_of: list[int] = []
+        self.current = -1
+        self.added = 0
 
     # Compilation --------------------------------------------------------------
 
@@ -278,7 +294,18 @@ class HierarchyReader:
 
     def _slot(self) -> int:
         self.slots += 1
+        self.pattern_of.append(self.current)
         return self.slots - 1
+
+    def pattern_class(self, raw: str) -> int | None:
+        """The pattern, as its place in the document, that reads a string: ``None``
+        when the string is left out of the population (too long or too complex), -1
+        when no pattern reads it (no family, or the lengths of its family are in no
+        pattern)."""
+        outcome, family, slot, _, _ = self.read(raw, facets=False)
+        if family is None:
+            return -1 if outcome == UNKNOWN_STRUCTURE else None
+        return self.pattern_of[slot]
 
     def _add_family(
         self, index: int, published: PatternFamily, shapes: dict[str, tuple[str, ...]]
@@ -297,12 +324,16 @@ class HierarchyReader:
                 for key in keys
             },
         )
+        self.current = -1
         family.off_slot = self._slot()
         family.new_slot = self._slot()
         facets: dict[tuple[str, int], Facet] = {}
         for pattern in published.patterns:
+            self.current = self.added
+            self.added += 1
             family.patterns.append(self._node(pattern, facets))
             family.matchers.append(compile_signature(pattern.signature))
+        self.current = -1
         for table in published.tables:
             if table.facet == "lengths":
                 family.lengths_cells = [cell.value for cell in table.cells]
@@ -367,10 +398,12 @@ class HierarchyReader:
 
     # Recognition --------------------------------------------------------------
 
-    def read(self, raw: str) -> Reading:
+    def read(self, raw: str, facets: bool = True) -> Reading:
         """Where a string falls, once: excluded (too long or too complex), read by no
         family, or in a family (see ``Reading``). An ASCII string is read by the
-        regular expression of its structure and never tokenized."""
+        regular expression of its structure and never tokenized. A reader that only
+        wants the pattern passes ``facets=False``: the facets are not read, so the
+        reads are empty and a new variant of segment is not seen."""
         if len(raw) > self.max_length:
             return _TOO_LONG
         if raw.isascii():
@@ -385,24 +418,32 @@ class HierarchyReader:
                         counts = list(vector)
                         counts[block : block + 2] = [counts[block] + counts[block + 1]]
                         texts, vector = merged, tuple(counts)
-                    return self._place(family, texts, vector, key, False)
+                    return self._place(family, texts, vector, key, False, facets)
             if len(raw) > MAX_TOKENS and len(tokenize(raw)) > MAX_TOKENS:
                 return _TOO_COMPLEX
             return _UNKNOWN
         row = tokenize(raw)
         if len(row) > MAX_TOKENS:
             return _TOO_COMPLEX
-        return self._locate(row, key_text(row), learn=False)
+        return self._locate(row, key_text(row), learn=False, facets=facets)
 
-    def _locate(self, row: Sequence[Token], key: str, learn: bool) -> Reading:
+    def _locate(
+        self, row: Sequence[Token], key: str, learn: bool, facets: bool = True
+    ) -> Reading:
         family = self.by_key.get(key)
         if family is None:
             return _UNKNOWN
         texts, vector = _skeleton(family, key, row)
-        return self._place(family, texts, vector, key, learn)
+        return self._place(family, texts, vector, key, learn, facets)
 
     def _place(
-        self, family: Family, texts: Sequence[str], vector: tuple[int, ...], key: str, learn: bool
+        self,
+        family: Family,
+        texts: Sequence[str],
+        vector: tuple[int, ...],
+        key: str,
+        learn: bool,
+        facets: bool = True,
     ) -> Reading:
         """Where a value of ``family`` falls: its pattern by its lengths, the deepest
         node that reads it, and what each facet of the family reads in it. When
@@ -437,6 +478,8 @@ class HierarchyReader:
                     break
                 node = child
             slot = node.slot
+        if not facets:
+            return (outcome, family, slot, [], vector)
         reads: list[tuple[int | None, str]] = []
         unseen = False
         for position, mode, width, cells, seen, simple, facet in family.plan:

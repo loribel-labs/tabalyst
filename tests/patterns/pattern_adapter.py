@@ -18,10 +18,12 @@ from __future__ import annotations
 import csv
 import tempfile
 from collections.abc import Mapping, Sequence
+from contextlib import nullcontext
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 from typing import Literal
+from unittest.mock import patch
 
 from pattern_corpus import Field, Variants
 from pattern_tree import (
@@ -36,7 +38,9 @@ from pattern_tree import (
 )
 
 from tabalyst.config import DeepSettings
-from tabalyst.scanner import ScanConfig, scan
+from tabalyst.projects.location import StorageLocation
+from tabalyst.scanner import ScanConfig, patterninfer, scan
+from tabalyst.scanner import api as scan_api
 from tabalyst.scanner.config import DetectorSettings
 from tabalyst.scanner.models import (
     FieldPatterns,
@@ -46,7 +50,7 @@ from tabalyst.scanner.models import (
     PatternTable,
     ScanResult,
 )
-from tabalyst.scanner.patterninfer import compile_signature, matches
+from tabalyst.scanner.patterninfer import compile_signature, infer_patterns, matches
 from tabalyst.scanner.planner import plan_analyses
 from tabalyst.scanner.planner.analyzers.patterns import PatternValidation
 from tabalyst.scanner.planner.registry import AnalyzerRegistry
@@ -57,6 +61,8 @@ from tabalyst.scanner.secondpass.models import (
     PatternTableCount,
 )
 from tabalyst.scanner.secondpass.patterns import PatternAccumulator, derive_from_samples
+from tabalyst.scanner.validation import check_scan
+from tabalyst.shared_scan_service import current_scan
 
 # The outcomes of a value at validation (REC-006); ``invalid`` is reserved and
 # never given by the inference. A set of lengths never seen in a known structure
@@ -454,7 +460,21 @@ Tamper = Literal["family_sum", "missing_parent", "entry_count", "unknown_signatu
 def check_scan_problems(field: Field, tamper: Tamper | None = None) -> list[str]:
     """The problems ``check_scan`` reports for the Scan of ``field`` after ``tamper``
     altered its ``derived.patterns`` (lot P7); empty when none."""
-    raise NotImplementedError("bind check_scan on the hierarchy (lot P7)")
+    document = _scanned(field).model_dump(mode="json", by_alias=True)
+    patterns = document["derived"]["patterns"]
+    [entry] = patterns["fields"]
+    family = entry["families"][0]
+    pattern = family["patterns"][0]
+    if tamper == "family_sum":
+        family["d"] += 1
+    elif tamper == "missing_parent":
+        node = next(item for fam in entry["families"] for pat in fam["patterns"] for item in pat["nodes"])
+        node["parent"] = "f9.p9"
+    elif tamper == "entry_count":
+        patterns["fields"].clear()
+    elif tamper == "unknown_signature":
+        pattern["signature"][0]["max"] = pattern["signature"][0]["min"] + 5
+    return check_scan(ScanResult.model_validate(document))
 
 
 Change = Literal["render_only", "setting", "algorithm_version"]
@@ -470,8 +490,65 @@ class CacheRun:
 
 
 def rerun_after(field: Field, change: Change) -> CacheRun:
-    """Run, change ``change``, run again and say what was recomputed (lot P7)."""
-    raise NotImplementedError("bind the cache and the provenance (lot P7)")
+    """Scan and validate ``field``, make ``change``, do it again and say what the
+    second run recomputed (lot P7, FR-020): the discovery when it scanned again,
+    the validation when the second pass executed it instead of reusing its result."""
+    with tempfile.TemporaryDirectory(prefix="tabalyst-patterns-") as folder:
+        source = Path(folder) / "field.csv"
+        _write_column(source, field)
+        location = StorageLocation(Path(folder) / "storage")
+        detectors = (
+            {name: {"enabled": False} for name in _SEMANTIC} if field.detector is None else {}
+        )
+
+        def configured(**inference: int) -> ScanConfig:
+            settings: dict[str, object] = {"detectors": detectors}
+            if inference:
+                settings["pattern_inference"] = dict(inference)
+            return ScanConfig.model_validate(settings)
+
+        first = current_scan(source, configured(), location=location)
+        assert not first.reused
+        registry = AnalyzerRegistry([PatternValidation])
+        plan = plan_analyses(first.result, forced=True, registry=registry)
+        before = run_second_pass(first.result, source, plan)
+        assert before.executed and not before.reused
+
+        setting = {"max_patterns": 64} if change == "setting" else {}
+        calls = {"discovery": 0}
+
+        def counted(*args: object, **kwargs: object) -> object:
+            calls["discovery"] += 1
+            return infer_patterns(*args, **kwargs)  # type: ignore[arg-type]
+
+        bump = (
+            patch.object(patterninfer, "ALGORITHM_VERSION", patterninfer.ALGORITHM_VERSION + 1)
+            if change == "algorithm_version"
+            else nullcontext()
+        )
+        with bump, patch.object(scan_api, "infer_patterns", counted):
+            second = current_scan(
+                source,
+                configured(**setting),
+                location=location,
+                json_indent=change == "render_only",
+            )
+            plan = plan_analyses(second.result, forced=True, registry=registry)
+            after = run_second_pass(second.result, source, plan, previous=before.document)
+        return CacheRun(
+            discovery=bool(calls["discovery"]),
+            validation=bool(after.executed),
+            scan_stale=not second.reused,
+        )
+
+
+def _write_column(path: Path, field: Field) -> None:
+    """A CSV file of one column holding each value of ``field`` as often as it occurs."""
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["value"])
+        for value, number in field.pairs:
+            writer.writerows([value] for _ in range(number))
 
 
 def published_text(field: Field) -> str:

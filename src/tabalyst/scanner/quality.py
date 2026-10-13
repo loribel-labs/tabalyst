@@ -578,27 +578,26 @@ def _minority_pattern(
     where: dict[str, str],
     add: Callable[[_Draft], None],
 ) -> None:
-    """Rare structures next to a dominant one, in the distinct values the
-    inference read: an atypical form worth a look, never an error by itself."""
-    candidates = entry.candidates
-    if len(candidates) < 2 or candidates[0].coverage.share < PRINCIPAL_MIN_SHARE:
+    """Rare patterns next to a dominant one, in the distinct values the inference
+    read: an atypical form worth a look, never an error by itself. The patterns are
+    those of the hierarchy, of every family, the largest in distinct values first."""
+    total = entry.population.distinct
+    patterns = sorted(entry.all_patterns(), key=lambda pattern: -pattern.d)
+    if len(patterns) < 2 or round(patterns[0].d / total, 4) < PRINCIPAL_MIN_SHARE:
         return
     minority = [
-        candidate
-        for candidate in candidates[1:]
-        if candidate.coverage.share <= MINORITY_MAX_SHARE
+        pattern for pattern in patterns[1:] if round(pattern.d / total, 4) <= MINORITY_MAX_SHARE
     ]
     if not minority:
         return
-    exact = candidates[0].coverage.basis == "all_distinct"
     add(
         _Draft(
             "minority_pattern",
             "distinct_values",
-            sum(candidate.coverage.distinct for candidate in minority),
-            accuracy="exact" if exact else "sample",
-            of=entry.population.distinct,
-            patterns=[candidate.id for candidate in minority],
+            sum(pattern.d for pattern in minority),
+            accuracy="exact" if entry.population.complete else "sample",
+            of=total,
+            patterns=[pattern.id for pattern in minority],
             limited_by=limits,
             **where,
         )

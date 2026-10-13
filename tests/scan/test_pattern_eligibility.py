@@ -76,7 +76,7 @@ def test_json_integers_are_read_as_their_decimal_text(tmp_path):
     [entry] = result.derived.patterns.fields
     assert entry.eligibility.state == "eligible"
     assert entry.status == "complete"
-    assert [candidate.render for candidate in entry.candidates] == ["'40'9{7}"]
+    assert [pattern.render for pattern in entry.all_patterns()] == ["'40'9{7}"]
 
 
 @pytest.mark.parametrize(("max_samples", "computed_from"), [(10_000, "samples"), (20, "source")])

@@ -39,6 +39,7 @@ from tabalyst.scanner.config import (
     resolve_config_defaults,
     scan_config_from_layer,
 )
+from tabalyst.scanner.identity import scan_identity
 from tabalyst.scanner.models import (
     FORMAT,
     FORMAT_REVISION,
@@ -46,6 +47,7 @@ from tabalyst.scanner.models import (
     ScanResult,
     SourceInfo,
 )
+from tabalyst.scanner.patterninfer import discovery_versions
 
 _HASH_CHUNK = 1 << 20
 
@@ -233,9 +235,19 @@ def check_config(scan_path: Path, result: ScanResult, scan_layer: dict) -> None:
 
 
 def engine_warning(result: ScanResult) -> str | None:
-    """A sentence when the document was written by another engine version."""
+    """A sentence when the document was written by another engine version, or
+    when its patterns were found by another version of the discovery."""
     if result.engine.version == __version__:
-        return None
+        found = scan_identity(result).patterns
+        current = discovery_versions()
+        if found is None or found == current:
+            return None
+        return (
+            "the patterns of the scan document were found by another version of "
+            f"the discovery (grammar {found[0]}, algorithm {found[1]}), this is "
+            f"grammar {current[0]}, algorithm {current[1]}; scan the source "
+            "again for the current patterns."
+        )
     return (
         f"the scan document was written by Tabalyst {result.engine.version}, "
         f"this is {__version__}; scan the source again for the current "

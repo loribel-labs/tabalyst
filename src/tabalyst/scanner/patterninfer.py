@@ -9,6 +9,8 @@ eligible field. It never reads the source.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
@@ -1333,6 +1335,22 @@ def _infer_isolated(
         )
 
 
+def discovery_versions() -> tuple[int, int]:
+    """The grammar and algorithm versions of the discovery as they are now.
+
+    Read through a function, not imported as constants, so that the cache key, the
+    identity of a Scan and the stored results all see one value (FR-020)."""
+    return GRAMMAR_VERSION, ALGORITHM_VERSION
+
+
+def settings_digest(settings: PatternInferenceSettings) -> str:
+    """SHA-256 of the settings that change what the discovery finds. ``enabled`` is
+    left out: turning the discovery off removes the block and changes nothing in it."""
+    material = settings.model_dump(mode="json", exclude={"enabled"})
+    canonical = json.dumps(material, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def infer_patterns(
     datasets: Sequence[DatasetResult],
     settings: PatternInferenceSettings,
@@ -1348,9 +1366,10 @@ def infer_patterns(
     """
     if not settings.enabled:
         return None
+    grammar, algorithm = discovery_versions()
     return DerivedPatterns(
-        grammar=PatternGrammar(name=GRAMMAR_NAME, version=GRAMMAR_VERSION),
-        algorithm=PatternAlgorithm(version=ALGORITHM_VERSION),
+        grammar=PatternGrammar(name=GRAMMAR_NAME, version=grammar),
+        algorithm=PatternAlgorithm(version=algorithm),
         domain="original",
         fields=[
             _infer_isolated(dataset.id, field, settings, diagnostics)

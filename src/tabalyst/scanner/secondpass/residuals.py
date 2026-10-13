@@ -9,22 +9,16 @@ detector finds invalid or does not match, and keeps ten examples. This keeps the
 values themselves with exact counts: each is tracked from its first appearance,
 so what it counts is exact, up to ``max_tracked`` distinct values per source and
 state; the occurrences of values met after that are only counted. A pattern is
-read as the flat list of candidates of the Scan reads it (one matcher, the most
-specific candidate wins), which is not how the validation of the hierarchy reads it
-(design 20.9) until the Patterns lot P7 makes this analysis read the hierarchy;
-a detector is replayed as the first pass decides it.
+read as the validation of the hierarchy reads it (design 20.9): a value is in the
+pattern of its family that has its lengths, and a value that no pattern holds is
+left out; a detector is replayed as the first pass decides it.
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 
-from tabalyst.scanner.features import (
-    NO_CANDIDATE,
-    TOO_COMPLEX,
-    TOO_LONG,
-    PatternClassifier,
-)
+from tabalyst.scanner.config import PatternInferenceSettings
 from tabalyst.scanner.models import DetectorComplete, FieldPatternsComplete, FieldResult
 from tabalyst.scanner.planner.costmodel import MEASURE_MEMO_ENTRIES
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
@@ -37,6 +31,11 @@ from tabalyst.scanner.secondpass.models import (
     ResidualResult,
     ResidualTable,
     ResidualValue,
+)
+from tabalyst.scanner.secondpass.patternreader import (
+    TOO_COMPLEX,
+    TOO_LONG,
+    HierarchyReader,
 )
 from tabalyst.scanner.secondpass.replay import CellReader, Reading
 
@@ -149,7 +148,6 @@ class ResidualAccumulator:
 
     __slots__ = (
         "cell_ns",
-        "classifier",
         "entry",
         "examples",
         "excluded",
@@ -159,6 +157,7 @@ class ResidualAccumulator:
         "occurrences",
         "other",
         "profile",
+        "reader",
         "replays",
         "values",
     )
@@ -167,7 +166,8 @@ class ResidualAccumulator:
         self,
         *,
         entry: FieldPatternsComplete | None,
-        pattern_max_length: int,
+        field: FieldResult | None,
+        inference: PatternInferenceSettings,
         detectors: Sequence[str],
         pool: ExactPool,
         max_listed: int,
@@ -176,9 +176,12 @@ class ResidualAccumulator:
         cell_ns: int = 0,
     ) -> None:
         self.entry = entry
-        self.classifier = (
-            None if entry is None else PatternClassifier(entry, pattern_max_length)
-        )
+        # The Scan must give the samples the entry was made from: a reader that
+        # cannot recognize them again raises ``ScanMismatch``.
+        self.reader: HierarchyReader | None = None
+        if entry is not None:
+            assert field is not None
+            self.reader = HierarchyReader.build(entry, field, inference)
         self.max_listed = max_listed
         self.max_tracked = max_tracked
         self.max_value_length = max_value_length
@@ -186,7 +189,7 @@ class ResidualAccumulator:
         # workers and is no input of the result.
         self.cell_ns = cell_ns
         self.values = 0
-        count = 0 if entry is None else len(entry.candidates)
+        count = 0 if entry is None else len(entry.all_patterns())
         self.occurrences = [0] * count
         self.other = _Table()
         self.excluded = {"non_string": 0, "too_long": 0, "too_complex": 0}
@@ -218,9 +221,9 @@ class ResidualAccumulator:
         and, for the detectors, their analytical texts. ``first`` gives the record
         of the first occurrence of a string in the batch."""
         self.values += sum(counts)
-        classifier = self.classifier
-        if classifier is not None:
-            self._pattern(classifier, raws, counts, first)
+        hierarchy = self.reader
+        if hierarchy is not None:
+            self._pattern(hierarchy, raws, counts, first)
         if self.replays:
             assert texts is not None
             for detector, replay in self.replays.items():
@@ -233,20 +236,25 @@ class ResidualAccumulator:
 
     def _pattern(
         self,
-        classifier: PatternClassifier,
+        hierarchy: HierarchyReader,
         raws: Sequence[str],
         counts: Sequence[int],
         first: FirstRecord | None,
     ) -> None:
-        classify = classifier.classify
+        read = hierarchy.read
+        pattern_of = hierarchy.pattern_of
         groups: dict[int, tuple[list[str], list[int]]] = {}
         for raw, count in zip(raws, counts, strict=True):
-            found, _ = classify(raw)
-            if found == TOO_LONG:
+            outcome, family, slot, _, _ = read(raw, False)
+            if outcome == TOO_LONG:
                 self.excluded["too_long"] += count
-            elif found == TOO_COMPLEX:
+                continue
+            if outcome == TOO_COMPLEX:
                 self.excluded["too_complex"] += count
-            elif found == NO_CANDIDATE:
+                continue
+            # A value of a family whose lengths no pattern holds is left out too.
+            found = -1 if family is None else pattern_of[slot]
+            if found < 0:
                 self.other.add(
                     raw,
                     count,
@@ -254,15 +262,15 @@ class ResidualAccumulator:
                     self.max_tracked,
                     self.max_value_length,
                 )
-            else:
-                self.occurrences[found] += count
-                group = groups.get(found)
-                if group is None:
-                    group = groups[found] = ([], [])
-                    if self.examples[found] is None:
-                        self.examples[found] = (raw, None if first is None else first(raw))
-                group[0].append(raw)
-                group[1].append(count)
+                continue
+            self.occurrences[found] += count
+            group = groups.get(found)
+            if group is None:
+                group = groups[found] = ([], [])
+                if self.examples[found] is None:
+                    self.examples[found] = (raw, None if first is None else first(raw))
+            group[0].append(raw)
+            group[1].append(count)
         for number, (members, weights) in groups.items():
             self.profile[number].add_strings(members, weights)
 
@@ -327,7 +335,7 @@ class ResidualAccumulator:
             if tallied != self.values:
                 raise ScanMismatch("the counts of the patterns do not add up to the values read")
             patterns = []
-            for number, candidate in enumerate(entry.candidates):
+            for number, candidate in enumerate(entry.all_patterns()):
                 held = self.profile[number]
                 if held.pending and not held.limited:
                     held.measure()

@@ -23,20 +23,13 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING, Literal
 
+from tabalyst.scanner.config import PatternInferenceSettings
 from tabalyst.scanner.measures import canonical_text
 from tabalyst.scanner.models import (
     FieldPatternsComplete,
     FieldResult,
     Frequencies,
     PatternToken,
-)
-from tabalyst.scanner.patterninfer import (
-    MAX_TOKENS,
-    Matcher,
-    candidate_order,
-    compile_signature,
-    matches,
-    tokenize,
 )
 
 if TYPE_CHECKING:
@@ -52,11 +45,6 @@ UNCLASSIFIED = -2
 FEATURES = ("pattern", "length", "prefix", "value")
 FEATURE_VERSION = 1
 OTHER_ID = "other"
-
-# Results of ``PatternClassifier.classify`` that are not a candidate.
-NO_CANDIDATE = -1
-TOO_LONG = -2
-TOO_COMPLEX = -3
 
 # The order of ``type`` in a tie, as the frequencies of the Scan list them.
 TYPE_ORDER = {"string": 0, "integer": 1, "number": 2, "boolean": 3}
@@ -91,58 +79,6 @@ def ascii_regex(signature: Sequence[PatternToken]) -> re.Pattern[str]:
         )
         parts.append(f"{unit}{{{token.min},{token.max}}}+")
     return re.compile("".join(parts))
-
-
-class PatternClassifier:
-    """The candidate patterns of a field, tried from the most specific: the first
-    that reads a value is the one it counts for, the others only tell of an
-    overlap (PAT-08)."""
-
-    __slots__ = ("count", "matchers", "max_length", "order", "regexes")
-
-    def __init__(self, entry: FieldPatternsComplete, max_value_length: int) -> None:
-        candidates = entry.candidates
-        self.count = len(candidates)
-        self.max_length = max_value_length
-        self.order = sorted(
-            range(len(candidates)),
-            key=lambda number: candidate_order(candidates[number].signature, 0, number),
-        )
-        self.matchers: list[Matcher] = [
-            compile_signature(candidate.signature) for candidate in candidates
-        ]
-        self.regexes = [ascii_regex(candidate.signature) for candidate in candidates]
-
-    def classify(self, raw: str) -> tuple[int, list[int] | None]:
-        """The candidate a content string counts for (an index into the entry's
-        candidates), ``NO_CANDIDATE`` when none reads it, or ``TOO_LONG`` and
-        ``TOO_COMPLEX`` when the population of the inference leaves it out; and
-        the candidates that read it besides, in the order tried, if any."""
-        size = len(raw)
-        if size > self.max_length:
-            return TOO_LONG, None
-        # A token has at least one character: a short value cannot have too
-        # many, and the others are tokenized only when they are long enough.
-        if size > MAX_TOKENS and len(tokenize(raw)) > MAX_TOKENS:
-            return TOO_COMPLEX, None
-        first = NO_CANDIDATE
-        found: list[int] | None = None
-        regexes = self.regexes
-        matchers = self.matchers
-        ascii_value = raw.isascii()
-        for number in self.order:
-            if (
-                regexes[number].fullmatch(raw) is not None
-                if ascii_value
-                else matches(matchers[number], raw)
-            ):
-                if first < 0:
-                    first = number
-                else:
-                    if found is None:
-                        found = [first]
-                    found.append(number)
-        return first, found
 
 
 @dataclass(frozen=True, slots=True)
@@ -254,32 +190,42 @@ class ValueCoder(CategoryCoder):
 
 
 class PatternCoder(Coder):
-    """The inferred pattern that reads a value, by the exclusive classification
-    of the Scan (PAT-08), over the original values. A value the population of
-    the inference leaves out is unclassified."""
+    """The pattern of the hierarchy that reads a value, over the original values:
+    the families recognize a value by its structure and its pattern by its lengths,
+    as the validation does (design 20.9). A value of no family, or of a family whose
+    lengths no pattern holds, is ``other``; a value the population of the inference
+    leaves out is unclassified. The classes are the patterns in the order of the
+    document."""
 
     kind = "pattern"
     domain = "original"
 
     def __init__(
-        self, reader: CellReader, entry: FieldPatternsComplete, max_value_length: int
+        self,
+        reader: CellReader,
+        entry: FieldPatternsComplete,
+        field: FieldResult,
+        settings: PatternInferenceSettings,
     ) -> None:
+        # The reader of the second pass imports the planner, which imports this
+        # module: it is loaded when a coder is made.
+        from tabalyst.scanner.secondpass.patternreader import HierarchyReader
+
         super().__init__(
-            reader,
-            [FeatureClass(candidate.id, candidate.render) for candidate in entry.candidates],
+            reader, [FeatureClass(pattern.id, pattern.render) for pattern in entry.all_patterns()]
         )
-        self.classifier = PatternClassifier(entry, max_value_length)
+        self.hierarchy = HierarchyReader.build(entry, field, settings)
 
     def code_strings(self, raws: Sequence[str]) -> list[int]:
-        classify = self.classifier.classify
+        classify = self.hierarchy.pattern_class
         other = self.other
         codes: list[int] = []
         for raw, content in zip(raws, self.reader.content(raws), strict=True):
             if not content:
                 codes.append(MISSING)
                 continue
-            found = classify(raw)[0]
-            codes.append(other if found == NO_CANDIDATE else found if found >= 0 else UNCLASSIFIED)
+            found = classify(raw)
+            codes.append(UNCLASSIFIED if found is None else other if found < 0 else found)
         return codes
 
 
@@ -329,6 +275,7 @@ SINGLE_VALUE = "single_value"
 TOO_MANY_CATEGORIES = "too_many_categories"
 NO_FREQUENCIES = "no_frequencies"
 NO_PATTERN = "no_pattern"
+UNREADABLE_PATTERN = "unreadable_pattern"
 NO_LENGTHS = "no_lengths"
 FEW_LENGTHS = "few_lengths"
 NO_VALUES = "no_values_listed"
@@ -366,19 +313,24 @@ def feature_coder(
     *,
     max_classes: int,
     prefix_length: int,
-    max_value_length: int,
+    inference: PatternInferenceSettings,
     max_distinct: int | None = None,
 ) -> tuple[Coder | None, str | None]:
     """The coder of a feature of a column, or why the column does not offer it.
-    The classes come from the Scan only: the candidates of the inference, the
+    The classes come from the Scan only: the patterns of the inference, the
     lengths of the exact histogram, the prefixes and the values it lists.
     ``max_distinct`` caps the distinct values of a column that offers its
     ``value``; the second pass, which stands on a plan that already checked it,
     leaves it out."""
     if feature == "pattern":
-        if patterns is None or not patterns.candidates:
+        if patterns is None or not patterns.all_patterns():
             return None, NO_PATTERN
-        return PatternCoder(reader, patterns, max_value_length), None
+        from tabalyst.scanner.secondpass.accumulators import ScanMismatch
+
+        try:
+            return PatternCoder(reader, patterns, field, inference), None
+        except ScanMismatch:
+            return None, UNREADABLE_PATTERN
     if feature == "length":
         measure = field.string_lengths
         if measure.status != "complete":

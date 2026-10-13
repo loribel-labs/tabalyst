@@ -35,6 +35,7 @@ NOT_APPLICABLE = {
     "not_text": "the feature reads text and integer columns",
     "same_column": "a table needs two different columns",
     "no_pattern": "the scan inferred no pattern for this column",
+    "unreadable_pattern": "the samples of the scan no longer give the patterns of this column",
     "no_lengths": "the scan has no length histogram for this column",
     "few_lengths": "the column has a single length",
     "no_values_listed": "the scan lists no value of this column",

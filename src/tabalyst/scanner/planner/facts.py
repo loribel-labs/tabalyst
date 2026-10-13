@@ -32,6 +32,7 @@ from tabalyst.scanner.models import (
     PatternNode,
     ScanResult,
 )
+from tabalyst.scanner.patterninfer import settings_digest
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,13 +41,21 @@ class PatternFacts:
 
     status: str
     reason: str | None
-    candidates: int
+    # How many patterns the hierarchy publishes (families and their patterns).
+    patterns: int
     basis: str | None
+    # The distinct values no pattern holds.
     other_distinct: int
     # The facets that the validation counts in a table (a facet is counted once
     # in a family) and the patterns and nodes it keeps a counter for.
     facets: int = 0
     nodes: int = 0
+    # What produced the entry: the versions of the grammar and of the algorithm and
+    # the digest of the settings of the discovery. They are part of the key of the
+    # validation, so a result is never reused for a tree another discovery made.
+    grammar_version: int = 0
+    algorithm_version: int = 0
+    settings_sha256: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -408,22 +417,38 @@ def _patterns(
     index: dict[tuple[str, str], FieldPatterns],
     dataset: str,
     field: str,
+    provenance: tuple[int, int, str],
 ) -> PatternFacts | None:
     entry = index.get((dataset, field))
     if entry is None:
         return None
     if isinstance(entry, FieldPatternsComplete):
-        basis = entry.candidates[0].coverage.basis if entry.candidates else None
+        patterns = entry.all_patterns()
+        basis = (
+            None if not patterns else "all_distinct" if entry.population.complete else "sample"
+        )
         return PatternFacts(
             "complete",
             None,
-            len(entry.candidates),
+            len(patterns),
             basis,
-            entry.unmatched.distinct,
+            entry.outside_patterns()[0],
             *_hierarchy_size(entry),
+            grammar_version=provenance[0],
+            algorithm_version=provenance[1],
+            settings_sha256=provenance[2],
         )
     assert isinstance(entry, (FieldPatternsNotApplicable, FieldPatternsFailed))
-    return PatternFacts(entry.status, entry.reason, 0, None, 0)
+    return PatternFacts(
+        entry.status,
+        entry.reason,
+        0,
+        None,
+        0,
+        grammar_version=provenance[0],
+        algorithm_version=provenance[1],
+        settings_sha256=provenance[2],
+    )
 
 
 def _hierarchy_size(entry: FieldPatternsComplete) -> tuple[int, int]:
@@ -482,6 +507,7 @@ def _facts(
     excluded: int,
     children: dict[str, list[FieldResult]],
     source_format: str,
+    provenance: tuple[int, int, str],
 ) -> FieldFacts:
     cardinality = field.values.cardinality
     distinct: int | None = None
@@ -538,7 +564,7 @@ def _facts(
         ),
         temporal=temporal,
         temporal_status=temporal_status,
-        patterns=_patterns(index, dataset.id, field.id),
+        patterns=_patterns(index, dataset.id, field.id, provenance),
         measures=_measures(field, rules),
         detectors=_detectors(field),
         records=dataset.record_count,
@@ -630,6 +656,12 @@ def scan_facts(scan: ScanResult) -> list[FieldFacts]:
         }
     )
     rules = _measure_rules(scan.config.detectors)
+    grammar, algorithm = (
+        (scan.derived.patterns.grammar.version, scan.derived.patterns.algorithm.version)
+        if scan.derived is not None and scan.derived.patterns is not None
+        else (0, 0)
+    )
+    provenance = (grammar, algorithm, settings_digest(scan.config.pattern_inference))
     facts: list[FieldFacts] = []
     for dataset in scan.datasets:
         members = frozenset(field.id for field in matrix_members(dataset))
@@ -647,6 +679,7 @@ def scan_facts(scan: ScanResult) -> list[FieldFacts]:
                 scan.scope.records_excluded,
                 children,
                 scan.source.format,
+                provenance,
             )
             for field in dataset.fields
         )

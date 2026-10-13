@@ -51019,7 +51019,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -51129,8 +51129,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 14,
-        "plan_id": "a7f113a1710355315e91d0c411fbc4715e9c164dbcf5b584c23fcc0a1a253107",
+        "cost_model_version": 15,
+        "plan_id": "ecf320e0c789b07c4d787484707ec3f360abc357d3f5488375c1656a07b51762",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
@@ -55065,7 +55065,10 @@
               "nodes": 17,
               "facets": 3,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -55244,7 +55247,10 @@
               "nodes": 13,
               "facets": 3,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -55567,7 +55573,10 @@
               "nodes": 16,
               "facets": 1,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -55638,7 +55647,10 @@
               "nodes": 11,
               "facets": 1,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -55817,7 +55829,10 @@
               "nodes": 9,
               "facets": 1,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -55924,7 +55939,10 @@
               "nodes": 8,
               "facets": 3,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -55995,7 +56013,10 @@
               "nodes": 19,
               "facets": 3,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -56174,7 +56195,10 @@
               "nodes": 7,
               "facets": 2,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -56245,7 +56269,10 @@
               "nodes": 7,
               "facets": 3,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -56316,7 +56343,10 @@
               "nodes": 11,
               "facets": 3,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -56387,7 +56417,10 @@
               "nodes": 5,
               "facets": 3,
               "table_bytes": 65536,
-              "distinct_bytes": 1048576
+              "distinct_bytes": 1048576,
+              "grammar_version": 2,
+              "algorithm_version": 1,
+              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
             },
             "outputs": [
               "pattern_counts",
@@ -56930,7 +56963,7 @@
                 "max": 1124128
               },
               "cpu": "moderate",
-              "cell_ns": 700,
+              "cell_ns": 1100,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_2",
@@ -57009,7 +57042,7 @@
                 "max": 3259902
               },
               "cpu": "moderate",
-              "cell_ns": 1110,
+              "cell_ns": 1370,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_6",
@@ -57104,7 +57137,7 @@
                 "max": 3303210
               },
               "cpu": "moderate",
-              "cell_ns": 1110,
+              "cell_ns": 1370,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_17",
@@ -57235,7 +57268,7 @@
                 "max": 1132694
               },
               "cpu": "moderate",
-              "cell_ns": 700,
+              "cell_ns": 1100,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_21",
@@ -57314,7 +57347,7 @@
                 "max": 2761662
               },
               "cpu": "moderate",
-              "cell_ns": 1110,
+              "cell_ns": 1370,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_23",
@@ -57409,7 +57442,7 @@
                 "max": 1482846
               },
               "cpu": "moderate",
-              "cell_ns": 1110,
+              "cell_ns": 1370,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_24",
@@ -57504,7 +57537,7 @@
                 "max": 2711838
               },
               "cpu": "moderate",
-              "cell_ns": 1110,
+              "cell_ns": 1370,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_30",
@@ -57599,7 +57632,7 @@
                 "max": 2373450
               },
               "cpu": "moderate",
-              "cell_ns": 1110,
+              "cell_ns": 1370,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_31",
@@ -57694,7 +57727,7 @@
                 "max": 682548
               },
               "cpu": "low",
-              "cell_ns": 390,
+              "cell_ns": 540,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_32",
@@ -67089,21 +67122,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T17:08:40.976332Z",
-        "duration_seconds": 0.096333,
+        "started_at": "2026-10-13T19:13:00.608370Z",
+        "duration_seconds": 0.000492,
         "timings": {
-          "reading": 0.009049,
-          "analysis": 0.035412,
-          "other": 0.051872
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000492
         },
         "workers": 1,
-        "peak_memory_bytes": 98619392,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 3000,
-        "cells_read": 27000,
-        "executed": 11,
-        "reused": 38,
+        "peak_memory_bytes": 96206848,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 49,
         "skipped": 0
       },
       "analyses": [
@@ -91859,10 +91892,13 @@
             "nodes": 17,
             "facets": 3,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "ca3fc3e0e094ec31edc0889d6fb7a89a9ed0c164bff3839fd26db9c2b4bcfaa5",
+          "key": "ff54ce365d6d1b43bf1012a44aa980bacb7f52dc45119940cce28ef7b48b58d7",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -92179,10 +92215,13 @@
             "nodes": 13,
             "facets": 3,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "2b1709dd1a7b776d1459b03fd13d92ddc1efb476e2fc49a2c37b9333594fcf60",
+          "key": "aee6ce6f189fc31e867d45da5c03bd00635b1e9e727aadc6d6e3067fef7f037e",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -92435,10 +92474,13 @@
             "nodes": 16,
             "facets": 1,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "84460429f976c2a7bb07bf4273120f6dc7c0f995c1c7418fc210c681a635dabb",
+          "key": "08679be771661fb21d74e1af9730fb526f3866aa0669575b4dc190198fed3036",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -92783,10 +92825,13 @@
             "nodes": 11,
             "facets": 1,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "16f6e5a2dfe539243830e83dfa28f14abd172ceb9bafeb3e615bdc2e04492859",
+          "key": "04ea003e496eae93c23cd838965ba1757886b6bce8e7de2a22fb205345e7405a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -93014,10 +93059,13 @@
             "nodes": 9,
             "facets": 1,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "befeb33031c81dfe4221871cc7cef5abac3d90f1fd572136b9467b3e3aa47e4f",
+          "key": "bb6ba6349ccd06dea495c67781aa5a1c833094f40116d0feff457f67bb5410df",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -93180,10 +93228,13 @@
             "nodes": 8,
             "facets": 3,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "b825b74c78023da14e9862dd9a0aff47ea7a91b35f11cc2738c68a0ed022c94c",
+          "key": "3fd9a49f56aa8716316bce3528364cd2b557d115235728024238be0c3c470d15",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -93366,10 +93417,13 @@
             "nodes": 19,
             "facets": 3,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "f0daa3067195b3bce56294fd5575c5a2a851e627acdd778b21d67d679b564a02",
+          "key": "07ae1e777d14aa4361de0dbdf65ade18fee9e9613ffb7cb5adabdf32c84b530f",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -93708,10 +93762,13 @@
             "nodes": 7,
             "facets": 2,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "7cd7ad048ac7b42aeaedea7ef809b9ad9526646a9c7738fab01e63a0e3003f29",
+          "key": "5ddcfdacfc69ab007a1a20eb1b2192983689c077bfe9bec38da6c9fe85c399e5",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -93886,10 +93943,13 @@
             "nodes": 7,
             "facets": 3,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "f7adcfa0d60149b6e837003b99660583a4c3ac67f4b3cfa966e31f04e00665f6",
+          "key": "091d4d61cb9aac0a33fd176763b73c0598ff0c85452311141bf90fd753e08b01",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -94075,10 +94135,13 @@
             "nodes": 11,
             "facets": 3,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "8ce83fe148f9625e40e5275f57d3374c39ceaec938ff35e5e6fe30a51ebcbd1f",
+          "key": "74dccfbc024a1cfaab94d03f82481827087d530582a8f6eed3a93c7cdb489cd3",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -94352,10 +94415,13 @@
             "nodes": 5,
             "facets": 3,
             "table_bytes": 65536,
-            "distinct_bytes": 1048576
+            "distinct_bytes": 1048576,
+            "grammar_version": 2,
+            "algorithm_version": 1,
+            "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "b088cd11c90fa7a784ef8ffbe665011d92b6308ed4927fdafd066d86a6deaab4",
+          "key": "81a41cdcf0286ed7c99259737f11e9ffcf6a1789dcac77394e27583c89443e1d",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -103352,12 +103418,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T17:08:41.538238Z",
+    "generated_at": "2026-10-13T19:13:01.066780Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.9476,
+    "processing_seconds": 0.8535,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

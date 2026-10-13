@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from tabalyst.config import CrosstabSettings
+from tabalyst.scanner.config import PatternInferenceSettings
 from tabalyst.scanner.crosstab import Association, association, purity_forward
 from tabalyst.scanner.features import (
     FEATURES,
@@ -182,7 +183,7 @@ def feature_for(
     field_result: FieldResult,
     entry: FieldPatternsComplete | None,
     settings: CrosstabSettings,
-    max_value_length: int,
+    inference: PatternInferenceSettings,
 ) -> tuple[Coder | None, str | None]:
     """The coder of a feature of a column, or why the column does not offer it."""
     return feature_coder(
@@ -192,7 +193,7 @@ def feature_for(
         entry,
         max_classes=settings.max_classes,
         prefix_length=settings.prefix_length,
-        max_value_length=max_value_length,
+        inference=inference,
         max_distinct=settings.max_distinct,
     )
 
@@ -220,7 +221,7 @@ def explore_dataset(
     to list, the best first. ``None`` when no column can be a category."""
     results = {item.id: item for item in dataset.fields}
     patterns = _patterns(scan)
-    max_value_length = scan.config.pattern_inference.max_value_length
+    inference = scan.config.pattern_inference
     placed = {item.field: number for number, item in enumerate(facts)}
 
     excluded_categories: dict[str, int] = {}
@@ -291,7 +292,7 @@ def explore_dataset(
                 column.result,
                 patterns.get((dataset.id, item.field)),
                 settings,
-                max_value_length,
+                inference,
             )
             if coder is None:
                 leave_out(why or feature, excluded_features)
@@ -431,7 +432,7 @@ def explicit_proposals(
     applicable when a column cannot play its part."""
     results = {item.id: item for item in dataset.fields}
     patterns = _patterns(scan)
-    max_value_length = scan.config.pattern_inference.max_value_length
+    inference = scan.config.pattern_inference
     proposals: list[PairProposal] = []
     if category.field == column.field:
         return [PairProposal(category, column, None, (SAME_COLUMN,), feature=f) for f in features]
@@ -454,7 +455,7 @@ def explicit_proposals(
                 results[column.field],
                 patterns.get((dataset.id, column.field)),
                 settings,
-                max_value_length,
+                inference,
             )
         if why is not None or coder is None or feature_side is None:
             proposals.append(PairProposal(category, column, None, (why or "not_a_category",), feature=feature))
