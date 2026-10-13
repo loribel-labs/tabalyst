@@ -48,7 +48,7 @@ def test_comparison_reports_a_missing_node():
     family = seen.families[0]
     damaged = replace(seen, families=(replace(family, nodes=family.nodes[1:]),))
     problems = compare(expected("RC-03/scaled"), damaged, pairs)
-    assert problems == ["XX-9999: node head:1:AB not found"]
+    assert problems == ["AA-9999: node head:1:AB not found"]
 
 
 def test_comparison_reports_a_node_the_case_does_not_allow():
@@ -57,7 +57,7 @@ def test_comparison_reports_a_node_the_case_does_not_allow():
     chance = SeenNode("head:1:A", frozenset(v for v in family.members if v[0] == "A"))
     damaged = replace(seen, families=(replace(family, nodes=(chance,)),))
     problems = compare(expected("RC-17/noise"), damaged, pairs)
-    assert problems == ["family XX-9999: unexpected node head:1:A"]
+    assert problems == ["family AA-9999: unexpected node head:1:A"]
 
 
 def test_comparison_accepts_an_optional_node_and_a_node_its_rules_allow():
@@ -91,7 +91,7 @@ def test_comparison_reports_a_node_that_fixes_a_whole_code():
     nested = replace(two_letters, children=(code,))
     damaged = replace(seen, families=(replace(family, nodes=(nested, family.nodes[1])),))
     problems = compare(expected("RC-12/codes"), damaged, pairs)
-    assert problems == ["family X{2,3}: forbidden node token:1:RZ"]
+    assert problems == ["family AA / AAA: forbidden node token:1:RZ"]
 
 
 def test_comparison_reports_overlapping_siblings_and_a_node_equal_to_its_parent():
@@ -101,8 +101,8 @@ def test_comparison_reports_overlapping_siblings_and_a_node_equal_to_its_parent(
     whole = SeenNode("everything", family.members)
     damaged = replace(seen, families=(replace(family, nodes=family.nodes + (both, whole)),))
     problems = compare(expected("RC-14/prefixes"), damaged, pairs)
-    assert "XX-9999 > head:1:A: overlaps a sibling" in problems
-    assert "XX-9999 > everything: not a strict part of its parent" in problems
+    assert "AA-9999 > head:1:A: overlaps a sibling" in problems
+    assert "AA-9999 > everything: not a strict part of its parent" in problems
 
 
 def test_comparison_reports_a_missing_table_cell_and_a_merged_family():
@@ -112,13 +112,13 @@ def test_comparison_reports_a_missing_table_cell_and_a_merged_family():
     tables = (replace(table, cells=table.cells[:1]),) + family.tables[1:]
     damaged = replace(seen, families=(replace(family, tables=tables),))
     problems = compare(expected("RC-16/lots"), damaged, pairs)
-    assert problems == ["family XXX-99-999999-XX: table token:3 not found"]
+    assert problems == ["family AAA-99-999999-AA: table token:3 not found"]
     seen, pairs = _perfect("RC-06/invoices")
     merged = replace(
         seen.families[0], members=seen.families[0].members | seen.families[1].members
     )
     problems = compare(expected("RC-06/invoices"), replace(seen, families=(merged,)), pairs)
-    assert "family 'INV'-9{3,5}: not found" in problems
+    assert "family 'INV'-999 / 'INV'-9999 / 'INV'-99999: not found" in problems
 
 
 def test_toys_only_check_their_families():

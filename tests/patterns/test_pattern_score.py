@@ -26,7 +26,7 @@ from pattern_bits import (
     token_reading,
 )
 from pattern_corpus import field
-from pattern_tree import shape, structure, token
+from pattern_tree import lengths, structure, token
 
 LETTERS = (LETTER_BITS, 26)
 DIGITS = (DIGIT_BITS, 10)
@@ -165,11 +165,11 @@ def test_rc05_references_make_two_families_not_three():
 
 
 def test_rc07_constant_c_is_folded_and_cc_cd_are_nodes():
-    scored = heads(_token("RC-07/plates", 1, lambda v: shape(v) == (2, 4)), *LETTERS)
+    scored = heads(_token("RC-07/plates", 1, lambda v: lengths(v) == (2, 4)), *LETTERS)
     assert scored.constant == "C"
     assert _nodes(scored) == [("CC", 60), ("CD", 40)]
     scored = heads(
-        _token("RC-07/plates", 1, lambda v: shape(v) == (2, 1, 3)), *LETTERS
+        _token("RC-07/plates", 1, lambda v: lengths(v) == (2, 1, 3)), *LETTERS
     )
     assert _nodes(scored) == [("VA", 90), ("VE", 60)]
 
