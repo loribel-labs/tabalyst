@@ -2443,7 +2443,8 @@ availability of the values) and a light structural check on the sampled values (
 and suffixes, separators, positional constants). Only an `eligible` field is discovered. The rest of the contract:
 
 - The state `excluded` has few causes, each a reason code: no usable value (`no_values`), values that are only
-  structures or booleans, exposure (`exposure`, below), only long texts (`long_texts_only`). The state
+  structures or booleans (`structures_only`, `booleans_only`), exposure (`exposure`, below), only long texts
+  (`long_texts_only`). The state
   `not_assessable` says that information is missing, with a reason (`samples_withheld`, `too_few_distinct`), and is
   never a silent exclusion. The state `low_relevance` is a field that can be assessed and that a pattern would
   describe poorly (a free description, a handful of statuses).
@@ -2453,12 +2454,64 @@ and suffixes, separators, positional constants). Only an `eligible` field is dis
   a semantic detector (a date) lowers its score and is not excluded (AC-002).
 - The fixed-length criterion (DEC-034): a field is relevant only if at most `N` formats of fixed length cover at
   least `P` percent of its values; the ISBN with hyphens of RC-12 (more than six combinations of lengths), names and
-  free text fail it, `A9A 9A9` and `'AK'-9999` pass it. `N`, `P` and the weights of the score are calibrated at the
-  lot P2 on the corpus and recorded in this section then; they are not decided here (OPEN-009). Until then only the
-  relative order is a contract: an identifier scores strictly more than a free description and more than a column of
-  five statuses (AC-001).
+  free text fail it, `A9A 9A9` and `'AK'-9999` pass it. `N`, `P` and the weights of the score were calibrated at
+  the lot P2 on the corpus (OPEN-009, below); the relative order is the contract of AC-001: an identifier scores
+  strictly more than a free description and more than a column of five statuses.
 - The state and the reasons are published for every field, so a reader can tell "no pattern" from "not looked at".
   A field in a state other than `eligible` has the status `not_applicable` and no `families` (the entry below).
+  Until the entries of grammar 2 (lot P3), such an entry keeps the `reason` of the lot 4a, which is now the deciding
+  reason of its eligibility (the first that is not `regular_structure` or `integer_digits`).
+
+**Calibration of the eligibility (lot P2, OPEN-009, `scanner/pattern_eligibility.py`).** The first phase reads the
+facts, in this order: an exposure that masks or hides (`excluded`, `exposure`), the technical type `boolean`
+(`excluded`, `booleans_only`), samples withheld (`not_assessable`, `samples_withheld`). The population is that of the
+discovery (below), an integer read as its decimal text; when it is empty the field is `excluded` with
+`long_texts_only`, `structures_only` (only objects or arrays) or `no_values`, and with fewer values than
+`min_distinct` it is `not_assessable` with `too_few_distinct`. A field that is excluded or not assessable scores 0.
+The second phase tokenizes the population once (the inference reuses the tokens) and computes, each in both
+measures, the larger kept:
+
+```text
+F = share of the values that the N = 6 commonest formats of fixed length cover
+    (format = the tokens with their lengths, a literal with its character)
+S = share of the values with a structural mark (an ASCII digit or a literal
+    character other than a space)
+V = min(1, log2(distinct) / 6)                       variety, saturates at 64
+score = F * (0.5 * S + 0.5 * V) * D * G             rounded to four decimals
+D = 0.75 when a detector interprets the field (interpretations, except number
+    and configured patterns), else 1                AC-002
+G = 0.25 for each hard criterion failed: F < P = 0.90 (many_fixed_lengths), an
+    integer one of whose commonest formats (those that cover P of its values,
+    in either measure) has fewer than 4 digits (small_integers), the technical type number
+    (decimal_numbers)
+eligible when score >= 0.35, else low_relevance
+```
+
+A failed hard criterion brings the best score (1) under the threshold, so the state follows the score. The integer
+rule looks past the commonest format because a sequence of counts is mostly of its largest length (0 to 2,997 is two
+thirds four digits) while a code has no short tail: the cards of RC-11 need 16, 15 and 14 digits. The reasons
+list `regular_structure` (F reaches P) or `many_fixed_lengths`, then `integer_digits` (an integer of 4 digits or more,
+admitted) or `small_integers` or `decimal_numbers`, `no_structural_marks` (S < 0.5), `few_distinct` (V < 0.5, fewer
+than 8 distinct values) and `semantic_detector`. Why these values: RC-07 needs six formats and the hyphenated ISBN of
+RC-12 reaches only 0.80 with six (its 11 formats), so `N = 6` and `P = 0.90`; the threshold falls between the
+letters-only codes of RC-12 (0.4818, 55 codes) and five statuses (0.1935). Results on the corpus and the contract
+columns (`tests/patterns`):
+
+| Columns | State | Score | Reasons |
+| --- | --- | --- | --- |
+| RC-02, RC-03, RC-05 to RC-09, RC-13, RC-14, RC-16, RC-17 (scaled), identifiers | eligible | 1.0000 | `regular_structure` |
+| RC-10, RC-11 (typed `integer`) | eligible | 1.0000 | `regular_structure`, `integer_digits` |
+| RC-20 postal codes, ISO dates | eligible | 0.7500 | `regular_structure`, `semantic_detector` |
+| toys RC-01 to RC-04, RC-15 (4 to 6 values) | eligible | 0.6667 to 0.7154 | `regular_structure`, `few_distinct` |
+| RC-12 codes `AA`, `AAA` | eligible | 0.4818 | `regular_structure`, `no_structural_marks` |
+| RC-12 ISBN | low_relevance | 0.2000 | `many_fixed_lengths` |
+| five statuses | low_relevance | 0.1935 | `regular_structure`, `no_structural_marks`, `few_distinct` |
+| free descriptions | low_relevance | 0.0019 | `many_fixed_lengths`, `no_structural_marks` |
+| RC-18, RC-19 (masked) | excluded | 0 | `exposure` |
+| one value | not_assessable | 0 | `too_few_distinct` |
+
+These constants belong to the version of the algorithm, like those of the score below. Known limit: a column of
+uniform amounts of five digits is structurally a code and is eligible; the numeric profile describes it better.
 
 **Population (PAT-13, FR-002, FR-003, DEC-010, DEC-018).** The stored distinct original values of the field, each with
 its count: the `listed` of `values.samples` and the pool of `by_length.listed` (once each, by `id`), in id order, at
@@ -2467,7 +2520,7 @@ selection laws are not added (LEN-06). The counts are used: every score, order a
 (value, count), in the two measures `d` and `o`. The counts are exact when the sample is `all` (`population.complete`)
 and the basis of the occurrences is `sample` otherwise; a coverage in occurrences is then a discovery indicator and
 not a frequency of the file, which only the validation (20.9) gives. Excluded, and counted in `population.excluded`:
-the long texts (PAT-05 of the lot 4a, C10), values that are not strings, empty values, values longer than
+the long texts (PAT-05 of the lot 4a, C10), values that are neither strings nor integers (an integer is read as its decimal text), empty values, values longer than
 `max_value_length` (64) and values of more than 32 tokens. The discovery never reads the source (TR-001).
 
 **Grammar, version 2 (PAT-03, PAT-04, DEC-032).** A value is cut into tokens as in version 1: a run of ASCII digits, a run of ASCII capitals, a run of
@@ -3658,7 +3711,8 @@ flat list of compiled candidates) stays until then.
 **Population.** The content values of the field, `values`, which the Scan counted (`values.count`; empty cells and null
 markers are its `missing`). A value longer than `scan.pattern_inference.max_value_length` is excluded as `too_long`,
 a value of more than 32 tokens as `too_complex` (only a value of 33 characters or more is tokenized to find out), a
-JSON number or boolean as `non_string`: the exclusions of the discovery, counted. A field that is not `eligible` in
+JSON number that is not an integer or a boolean as `non_string`: the exclusions of the discovery, counted. A JSON
+integer is read as its decimal text, as the discovery reads it (lot P2). A field that is not `eligible` in
 the discovery (18.12) has nothing to validate. Every other value is tested.
 
 **Recognition, once per value (PAT-21, PAT-07, PAT-08, FR-013, TR-002, TR-007).** The families are compiled once,

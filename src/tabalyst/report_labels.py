@@ -180,14 +180,22 @@ REASON_NOTES = {
     "max_values": f"The inference reads at most {MAX_VALUES:,} distinct values of a column",
 }
 
-# Why the inference of patterns gave a field none (``FieldPatterns.reason``).
+# Why the inference of patterns gave a field none (``FieldPatterns.reason``, the
+# deciding reason of its eligibility).
 PATTERN_REASONS = {
-    "technical_type": "Only text and mixed columns have patterns",
     "exposure": "The values of this column are masked or hidden",
+    "booleans_only": "The values are booleans",
+    "structures_only": "The values are objects or arrays",
     "samples_withheld": "The sample of values was withheld",
     "long_texts_only": "The values are long texts, kept as a preview only",
     "no_values": "The column has no usable value",
     "too_few_distinct": "Too few distinct values to infer a pattern",
+    "many_fixed_lengths": "The values take too many forms of fixed length for patterns",
+    "small_integers": "Small whole numbers read as counts or measures, not codes",
+    "decimal_numbers": "Decimal numbers are described by their statistics, not patterns",
+    "no_structural_marks": "Plain words without digits or separators",
+    "few_distinct": "Too few distinct values for patterns to say more than the values",
+    "semantic_detector": "A detector already says what the values are",
     "inference_error": "The inference failed for this column",
 }
 

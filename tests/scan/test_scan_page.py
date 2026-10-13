@@ -122,7 +122,10 @@ def test_a_page_that_cannot_be_written_is_a_warning_and_the_scan_stands(tmp_path
 
 
 def test_a_second_pass_scan_writes_its_page_again_with_the_results(tmp_path):
-    source = _source(tmp_path)
+    # A column of codes is eligible for patterns, whose validation waits for the
+    # second pass.
+    rows = "\n".join(f"K-{i % 7},{i}" for i in range(200))
+    source = write_text(tmp_path, "data.csv", "kind,n\n" + rows + "\n")
     page = tmp_path / "data.scan.html"
     marker = "second pass did not run this analysis"
 

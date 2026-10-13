@@ -430,10 +430,12 @@ def test_the_command_runs_the_second_pass_and_names_it(tmp_path, monkeypatch):
 
     assert first.exit_code == 0, first.output
     assert "(scanned)" in first.output and "reading the source again for 2 analyses" in first.output
-    assert "Second pass:" in first.output and "2 computed, 0 reused" in first.output
+    # The four-digit ids are eligible for patterns: their validation is the third
+    # analysis, computed from the samples without reading the source.
+    assert "Second pass:" in first.output and "3 computed, 0 reused" in first.output
     assert again.exit_code == 0
     assert "(reused)" in again.output and "every result is already stored" in again.output
-    assert "0 computed, 2 reused, unchanged" in again.output
+    assert "0 computed, 3 reused, unchanged" in again.output
 
 
 def test_the_command_has_nothing_to_add_when_the_scan_answers_everything(tmp_path, monkeypatch):

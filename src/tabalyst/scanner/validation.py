@@ -16,8 +16,10 @@ from tabalyst.scanner.models import (
     Complete,
     DatasetResult,
     DetectorComplete,
+    FieldPatterns,
     FieldPatternsComplete,
     FieldPatternsFailed,
+    FieldPatternsNotApplicable,
     FieldResult,
     LengthStratum,
     LongTexts,
@@ -29,6 +31,7 @@ from tabalyst.scanner.models import (
     ScanResult,
 )
 from tabalyst.scanner.normalization import STAGES
+from tabalyst.scanner.pattern_eligibility import deciding_reason
 from tabalyst.scanner.patterninfer import (
     EXAMPLES,
     GRAMMAR_NAME,
@@ -633,12 +636,31 @@ def _check_patterns(result: ScanResult, problems: list[str]) -> None:
         )
         return
     for entry in patterns.fields:
+        _check_eligibility(entry, problems)
         if isinstance(entry, FieldPatternsFailed):
             _check_failed_patterns(entry, result, problems)
         elif isinstance(entry, FieldPatternsComplete):
             _check_field_patterns(
                 entry, fields[(entry.dataset, entry.field)], result, problems
             )
+
+
+def _check_eligibility(entry: FieldPatterns, problems: list[str]) -> None:
+    """The eligibility of an entry agrees with its status (design 18.12): only an
+    eligible field is discovered, a field that is not assessed scores 0, and
+    the reason of an entry without patterns is the deciding one."""
+    where = f"derived.patterns[{entry.dataset}.{entry.field}].eligibility"
+    eligibility = entry.eligibility
+    if not 0 <= eligibility.score <= 1 or not eligibility.reasons:
+        problems.append(f"{where}: needs a score from 0 to 1 and reasons")
+    if eligibility.state in ("excluded", "not_assessable") and eligibility.score:
+        problems.append(f"{where}: a field that is not assessed scores 0")
+    if isinstance(entry, FieldPatternsComplete) and eligibility.state != "eligible":
+        problems.append(f"{where}: only an eligible field has patterns")
+    if isinstance(entry, FieldPatternsNotApplicable) and (
+        eligibility.state == "eligible" or entry.reason != deciding_reason(eligibility)
+    ):
+        problems.append(f"{where}: does not say why the field has no patterns")
 
 
 def _check_failed_patterns(

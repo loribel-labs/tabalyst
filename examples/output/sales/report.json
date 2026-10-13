@@ -1,7 +1,7 @@
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 3,
+  "format_revision": 4,
   "engine": {
     "version": "0.7.0",
     "normalization_version": 1,
@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T01:41:27.945777Z",
-    "duration_seconds": 0.016698,
+    "started_at": "2026-10-13T06:54:23.395676Z",
+    "duration_seconds": 0.014525,
     "timings": {
-      "reading": 0.002399,
-      "analysis": 0.001991,
-      "finalize": 0.008368,
-      "derived": 0.001298,
-      "other": 0.002643
+      "reading": 0.002202,
+      "analysis": 0.002141,
+      "finalize": 0.007914,
+      "derived": 0.001825,
+      "other": 0.000442
     },
     "workers": 1,
-    "peak_memory_bytes": 65921024
+    "peak_memory_bytes": 64368640
   },
   "source": {
     "format": "excel",
@@ -8285,6 +8285,13 @@
           "dataset": "rows",
           "field": "column_1",
           "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 1.0,
+            "reasons": [
+              "regular_structure"
+            ]
+          },
           "population": {
             "source": "samples",
             "selection": "bottom_k",
@@ -8356,19 +8363,21 @@
         {
           "dataset": "rows",
           "field": "column_2",
-          "status": "not_applicable",
-          "reason": "technical_type"
-        },
-        {
-          "dataset": "rows",
-          "field": "column_3",
           "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 0.75,
+            "reasons": [
+              "regular_structure",
+              "semantic_detector"
+            ]
+          },
           "population": {
             "source": "samples",
             "selection": "all",
             "complete": true,
-            "available": 48,
-            "distinct": 48,
+            "available": 75,
+            "distinct": 75,
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -8383,47 +8392,49 @@
               "role": "principal",
               "signature": [
                 {
-                  "kind": "upper_ascii",
+                  "kind": "literal",
+                  "text": "2026",
                   "min": 1,
                   "max": 1
-                },
-                {
-                  "kind": "lower_ascii",
-                  "min": 2,
-                  "max": 5
                 },
                 {
                   "kind": "literal",
-                  "text": " ",
+                  "text": "-",
                   "min": 1,
                   "max": 1
                 },
                 {
-                  "kind": "upper_ascii",
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
                   "min": 1,
                   "max": 1
                 },
                 {
-                  "kind": "lower_ascii",
-                  "min": 4,
-                  "max": 6
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
                 }
               ],
-              "render": "Xx{2,5}' 'Xx{4,6}",
+              "render": "'2026'-99-99",
               "lengths": {
-                "min": 9,
-                "max": 14
+                "min": 10,
+                "max": 10
               },
               "generalization": 0,
               "merged_structures": 1,
               "coverage": {
-                "distinct": 48,
+                "distinct": 75,
                 "share": 1.0,
                 "basis": "all_distinct"
               },
               "confidence": {
                 "method": "laplace_share",
-                "value": 0.9796
+                "value": 0.9868
               },
               "examples": [
                 0,
@@ -8439,155 +8450,105 @@
           },
           "overlaps": [],
           "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_3",
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.097,
+            "reasons": [
+              "many_fixed_lengths",
+              "no_structural_marks"
+            ]
+          },
+          "reason": "many_fixed_lengths"
         },
         {
           "dataset": "rows",
           "field": "column_4",
           "status": "not_applicable",
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "exposure"
+            ]
+          },
           "reason": "exposure"
         },
         {
           "dataset": "rows",
           "field": "column_5",
-          "status": "complete",
-          "population": {
-            "source": "samples",
-            "selection": "all",
-            "complete": true,
-            "available": 5,
-            "distinct": 5,
-            "excluded": {
-              "long_text_occurrences": 0,
-              "non_string_values": 0,
-              "empty_values": 0,
-              "too_long_values": 0,
-              "too_complex_values": 0
-            }
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.1935,
+            "reasons": [
+              "regular_structure",
+              "no_structural_marks",
+              "few_distinct"
+            ]
           },
-          "candidates": [
-            {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "lower_ascii",
-                  "min": 3,
-                  "max": 5
-                }
-              ],
-              "render": "Xx{3,5}",
-              "lengths": {
-                "min": 4,
-                "max": 6
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 5,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.8333
-              },
-              "examples": [
-                0,
-                1,
-                2
-              ]
-            }
-          ],
-          "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
-          },
-          "overlaps": [],
-          "limits": []
+          "reason": "no_structural_marks"
         },
         {
           "dataset": "rows",
           "field": "column_6",
-          "status": "complete",
-          "population": {
-            "source": "samples",
-            "selection": "all",
-            "complete": true,
-            "available": 3,
-            "distinct": 3,
-            "excluded": {
-              "long_text_occurrences": 0,
-              "non_string_values": 0,
-              "empty_values": 0,
-              "too_long_values": 0,
-              "too_complex_values": 0
-            }
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.1321,
+            "reasons": [
+              "regular_structure",
+              "no_structural_marks",
+              "few_distinct"
+            ]
           },
-          "candidates": [
-            {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
-                {
-                  "kind": "lower_ascii",
-                  "min": 3,
-                  "max": 5
-                }
-              ],
-              "render": "x{3,5}",
-              "lengths": {
-                "min": 3,
-                "max": 5
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 3,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.75
-              },
-              "examples": [
-                0,
-                1,
-                2
-              ]
-            }
-          ],
-          "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
-          },
-          "overlaps": [],
-          "limits": []
+          "reason": "no_structural_marks"
         },
         {
           "dataset": "rows",
           "field": "column_7",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.1997,
+            "reasons": [
+              "regular_structure",
+              "small_integers"
+            ]
+          },
+          "reason": "small_integers"
         },
         {
           "dataset": "rows",
           "field": "column_8",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.1458,
+            "reasons": [
+              "regular_structure",
+              "decimal_numbers",
+              "few_distinct"
+            ]
+          },
+          "reason": "decimal_numbers"
         },
         {
           "dataset": "rows",
           "field": "column_9",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "booleans_only"
+            ]
+          },
+          "reason": "booleans_only"
         }
       ]
     }
@@ -8649,11 +8610,11 @@
       "format_revision": 2,
       "status": "complete",
       "base": {
-        "format_revision": 3,
+        "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
         "config_sha256": "1f14b5914b97bc31ac8114900e12abb9451db9acccd828b4529c677f22787fa5",
-        "facts_sha256": "3bbbda936728ccccae89c4fca674ffac09c39b61a91a80fb1ff61402b4db5e7a"
+        "facts_sha256": "588f2c5b87f1177dab19717ae5ed2c5ca22ee5802632c8566fee36b1a90d31ab"
       },
       "settings": {
         "bins": 100,
@@ -8749,13 +8710,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 13,
-        "plan_id": "edf46cf9516da09c6253ebe4a6da2cb3e184ce4d96dba9e01fb2c7270af79aec",
+        "plan_id": "a72a23acfbc7bed5e38bfab9083185ac87a02aceccc7d5d46b193eab16245427",
         "base": {
-          "format_revision": 3,
+          "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
           "config_sha256": "1f14b5914b97bc31ac8114900e12abb9451db9acccd828b4529c677f22787fa5",
-          "facts_sha256": "3bbbda936728ccccae89c4fca674ffac09c39b61a91a80fb1ff61402b4db5e7a"
+          "facts_sha256": "588f2c5b87f1177dab19717ae5ed2c5ca22ee5802632c8566fee36b1a90d31ab"
         },
         "objective": {
           "automatic": true,
@@ -8779,16 +8740,16 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 63,
-          "selected": 10,
+          "candidates": 64,
+          "selected": 8,
           "already_satisfied": 19,
-          "rejected": 34,
+          "rejected": 37,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 25270614,
-            "expected": 25473594,
-            "max": 26117362
+            "min": 25258294,
+            "expected": 25461274,
+            "max": 26105042
           },
           "beyond_automatic": []
         },
@@ -8825,19 +8786,19 @@
                 "few_lengths": 1,
                 "few_prefixes": 2,
                 "no_lengths": 1,
-                "no_pattern": 1,
+                "no_pattern": 4,
                 "not_text": 3,
                 "sensitive_exposure": 1,
                 "too_many_categories": 1
               },
-              "possible": 51,
-              "evaluated": 51,
-              "undefined": 17,
+              "possible": 39,
+              "evaluated": 39,
+              "undefined": 5,
               "undefined_reasons": {
-                "single_class": 17
+                "single_class": 5
               },
               "listed": 15,
-              "work": 6120,
+              "work": 4680,
               "cells": 186
             }
           ],
@@ -9329,7 +9290,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 9,
+              "priority": 7,
               "satisfied_by": null
             },
             "execution": {
@@ -9406,7 +9367,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 10,
+              "priority": 8,
               "satisfied_by": null
             },
             "execution": {
@@ -9960,12 +9921,12 @@
             }
           },
           {
-            "id": "pattern_validation:rows:column_3",
+            "id": "pattern_validation:rows:column_2",
             "analyzer": "pattern_validation",
             "analyzer_version": 1,
             "dataset": "rows",
-            "field": "column_3",
-            "display": "customer",
+            "field": "column_2",
+            "display": "order_date",
             "method": "compiled_matcher",
             "parameters": {
               "patterns": 1
@@ -9994,7 +9955,7 @@
               "cell_ns": 900,
               "states": [
                 {
-                  "key": "patterns:datasets/rows/fields/column_3",
+                  "key": "patterns:datasets/rows/fields/column_2",
                   "memory": {
                     "min": 5136,
                     "expected": 5136,
@@ -10002,7 +9963,7 @@
                   }
                 },
                 {
-                  "key": "result:pattern_validation:datasets/rows/fields/column_3",
+                  "key": "result:pattern_validation:datasets/rows/fields/column_2",
                   "memory": {
                     "min": 1024,
                     "expected": 1024,
@@ -10016,6 +9977,42 @@
               "reason": "automatic",
               "requested": false,
               "priority": 5,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:rows:column_3",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "customer",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "not_eligible"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
               "satisfied_by": null
             },
             "execution": {
@@ -10069,56 +10066,25 @@
             "dataset": "rows",
             "field": "column_5",
             "display": "region",
-            "method": "compiled_matcher",
-            "parameters": {
-              "patterns": 1
-            },
+            "method": null,
+            "parameters": {},
             "outputs": [
               "pattern_counts",
               "unmatched"
             ],
             "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 50,
+              "state": "not_applicable",
               "reasons": [
-                "derivable_from_samples"
+                "not_eligible"
               ]
             },
-            "costs": {
-              "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
-              },
-              "cpu": "moderate",
-              "cell_ns": 900,
-              "states": [
-                {
-                  "key": "patterns:datasets/rows/fields/column_5",
-                  "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
-                  }
-                },
-                {
-                  "key": "result:pattern_validation:datasets/rows/fields/column_5",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
-            },
+            "utility": null,
+            "costs": null,
             "selection": {
-              "state": "selected",
-              "reason": "automatic",
+              "state": "rejected",
+              "reason": "not_applicable",
               "requested": false,
-              "priority": 6,
+              "priority": null,
               "satisfied_by": null
             },
             "execution": {
@@ -10136,56 +10102,25 @@
             "dataset": "rows",
             "field": "column_6",
             "display": "channel",
-            "method": "compiled_matcher",
-            "parameters": {
-              "patterns": 1
-            },
+            "method": null,
+            "parameters": {},
             "outputs": [
               "pattern_counts",
               "unmatched"
             ],
             "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 50,
+              "state": "not_applicable",
               "reasons": [
-                "derivable_from_samples"
+                "not_eligible"
               ]
             },
-            "costs": {
-              "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
-              },
-              "cpu": "moderate",
-              "cell_ns": 900,
-              "states": [
-                {
-                  "key": "patterns:datasets/rows/fields/column_6",
-                  "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
-                  }
-                },
-                {
-                  "key": "result:pattern_validation:datasets/rows/fields/column_6",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
-            },
+            "utility": null,
+            "costs": null,
             "selection": {
-              "state": "selected",
-              "reason": "automatic",
+              "state": "rejected",
+              "reason": "not_applicable",
               "requested": false,
-              "priority": 7,
+              "priority": null,
               "satisfied_by": null
             },
             "execution": {
@@ -10261,7 +10196,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 8,
+              "priority": 6,
               "satisfied_by": null
             },
             "execution": {
@@ -13557,20 +13492,20 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T01:41:27.991560Z",
-        "duration_seconds": 0.007974,
+        "started_at": "2026-10-13T06:54:23.438364Z",
+        "duration_seconds": 0.00843,
         "timings": {
-          "reading": 0.002259,
-          "analysis": 0.002334,
-          "other": 0.003382
+          "reading": 0.002342,
+          "analysis": 0.002408,
+          "other": 0.003681
         },
         "workers": 1,
-        "peak_memory_bytes": 70316032,
+        "peak_memory_bytes": 67416064,
         "source_read": true,
         "source_verified": true,
         "records_read": 120,
         "cells_read": 480,
-        "executed": 10,
+        "executed": 8,
         "reused": 0,
         "skipped": 0
       },
@@ -13587,7 +13522,7 @@
             "distinct": 120
           },
           "domain": "analytical",
-          "key": "8c26f7d1859bc4455eda660700a16e072935e419052fe6c526353e4305de4934",
+          "key": "2e022b7dcf532e80ba03aef077997bb760565fd09baf87d9849ffb9019b742c9",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -14262,7 +14197,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "40f05716b9bdf4b9ae3c54575d8d3caa09b69eedafe031e0e2cd2f66a6ff2673",
+          "key": "8ecf8e30d53fed1e0c77d04eaf86ef16a05e74cc189d0984c0acb3797c74d6f2",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -14887,7 +14822,7 @@
             "domain": 12
           },
           "domain": "analytical",
-          "key": "f4fec36ed5d5c19b10d97881da095dbe321778f40f26e60f76c56986210f5ded",
+          "key": "bc4aa9b04770dcdd713d0062bda39945a4d40b0c97c50e62f002aa11bf194a7b",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -14996,7 +14931,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "88db723efa252aa47dc464370c3a7984b8e04cca651d194fe2107b500ea207ff",
+          "key": "e1de517794e1fd928866c336084c481d60234cf69767f52a43c531143aee6e89",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -15273,7 +15208,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "5dfa56979f870915b2496d04f47307e78db7ee646703f750ed8c97ccb090889a",
+          "key": "a890f5d600562e441cdc46a0ed46c22082cec612ce385420e9ffdf7ee90bc0e2",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -15299,18 +15234,18 @@
           }
         },
         {
-          "id": "pattern_validation:rows:column_3",
+          "id": "pattern_validation:rows:column_2",
           "analyzer": "pattern_validation",
           "analyzer_version": 1,
           "dataset": "rows",
-          "field": "column_3",
-          "display": "customer",
+          "field": "column_2",
+          "display": "order_date",
           "method": "compiled_matcher",
           "parameters": {
             "patterns": 1
           },
           "domain": "original",
-          "key": "c44dcd41cc88d18468dd2cc15d6f90abcc3c061b99c27d0e3f6c21b3073f77b4",
+          "key": "19715ff400cb5284fa0b315d8623a13beff36075d7c7f1c6e4de593348057a1b",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -15322,81 +15257,7 @@
             "candidates": [
               {
                 "id": "p1",
-                "render": "Xx{2,5}' 'Xx{4,6}",
-                "occurrences": 120
-              }
-            ],
-            "other": 0,
-            "excluded": {
-              "non_string": 0,
-              "too_long": 0,
-              "too_complex": 0
-            },
-            "overlaps": []
-          }
-        },
-        {
-          "id": "pattern_validation:rows:column_5",
-          "analyzer": "pattern_validation",
-          "analyzer_version": 1,
-          "dataset": "rows",
-          "field": "column_5",
-          "display": "region",
-          "method": "compiled_matcher",
-          "parameters": {
-            "patterns": 1
-          },
-          "domain": "original",
-          "key": "f54f4860cdf0926f2720d66249f2f7f4873b1d72c6731bd21af7f5cdb05155d9",
-          "status": "complete",
-          "result": {
-            "kind": "pattern_counts",
-            "accuracy": "exact",
-            "computed_from": "samples",
-            "grammar_version": 1,
-            "values": 120,
-            "matched": 120,
-            "candidates": [
-              {
-                "id": "p1",
-                "render": "Xx{3,5}",
-                "occurrences": 120
-              }
-            ],
-            "other": 0,
-            "excluded": {
-              "non_string": 0,
-              "too_long": 0,
-              "too_complex": 0
-            },
-            "overlaps": []
-          }
-        },
-        {
-          "id": "pattern_validation:rows:column_6",
-          "analyzer": "pattern_validation",
-          "analyzer_version": 1,
-          "dataset": "rows",
-          "field": "column_6",
-          "display": "channel",
-          "method": "compiled_matcher",
-          "parameters": {
-            "patterns": 1
-          },
-          "domain": "original",
-          "key": "30c7612ed80b8fca86fd21e74aeb43266e9a7644cf99f89a189286bcc5623039",
-          "status": "complete",
-          "result": {
-            "kind": "pattern_counts",
-            "accuracy": "exact",
-            "computed_from": "samples",
-            "grammar_version": 1,
-            "values": 120,
-            "matched": 120,
-            "candidates": [
-              {
-                "id": "p1",
-                "render": "x{3,5}",
+                "render": "'2026'-99-99",
                 "occurrences": 120
               }
             ],
@@ -15423,7 +15284,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "43065634aa0be1c0a048c50e020d62f91a1c1a89e32d52e4bd32a995e971d102",
+          "key": "6f13e32062b74ea60facdc1bbb822ebd276a98ebe5f069a6d807e477fba9b581",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -15758,7 +15619,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "eb843a916c99ce7c322c80e73376f0eda66f0986c1ec2e0e96880a0696a69ef7",
+          "key": "2cfe82289417cf6d41a5e494baeb049bc5e298fc72b753ebedc3b94b1663d118",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -15790,12 +15651,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T01:41:28.043703Z",
+    "generated_at": "2026-10-13T06:54:23.494448Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1214,
+    "processing_seconds": 0.1158,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -15825,11 +15686,11 @@
     "base_scan": {
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
-      "format_revision": 3,
+      "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
       "config_sha256": "1f14b5914b97bc31ac8114900e12abb9451db9acccd828b4529c677f22787fa5",
-      "facts_sha256": "3bbbda936728ccccae89c4fca674ffac09c39b61a91a80fb1ff61402b4db5e7a"
+      "facts_sha256": "588f2c5b87f1177dab19717ae5ed2c5ca22ee5802632c8566fee36b1a90d31ab"
     },
     "datasets": [
       {

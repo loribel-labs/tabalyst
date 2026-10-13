@@ -103,3 +103,10 @@ miss a value together (`missing_matrix`), the lengths of the arrays and the sets
 (`array_profile`, `structure_variants`), the words, lines and digits of long texts and their 128-bit
 fingerprints (`text_profile`, `fingerprint_distinct`) and the masks and classes of a masked column
 (`sensitive_forms`), which holds no value of it, and the distinct count of a masked or hidden column.
+
+## Version 0.2.0, revision 4 (in preparation)
+
+The report follows the scan base at revision 4 (see the
+[Scan format changelog](../scan/format-changelog.md)): the eligibility of each
+field for the inferred patterns. A column page says why a column has no pattern
+with the reason of its eligibility. The report adds no member of its own.

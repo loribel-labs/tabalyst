@@ -20,6 +20,7 @@ NOT_APPLICABLE = {
     "high_cardinality": "too many distinct values for a table of frequencies",
     "not_compactable": "the values are too long to be held in an exact set",
     "patterns_unavailable": "the scan inferred no pattern for this field",
+    "not_eligible": "a pattern would describe its values poorly, so the scan did not look for one",
     "too_few_distinct": "too few distinct values to infer patterns",
     "no_candidates": "no pattern candidate was found",
     "mixed_temporal_kinds": "the dates mix kinds (date, datetime, time zones)",

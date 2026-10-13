@@ -12,7 +12,8 @@ import pytest
 from planner_helpers import scan_csv
 from second_pass_helpers import deep_csv, entry, forced_plan
 
-from tabalyst.scanner.models import FieldPatternsComplete
+from tabalyst.scanner import pattern_eligibility
+from tabalyst.scanner.models import FieldPatternsComplete, PatternEligibility
 from tabalyst.scanner.patterninfer import compile_signature, matches
 from tabalyst.scanner.secondpass import run_second_pass
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
@@ -31,7 +32,13 @@ def _entry(tmp_path, rows, **settings):
     return result, patterns
 
 
-def test_the_compiled_expression_reads_an_ascii_value_like_the_token_matcher(tmp_path):
+def test_the_compiled_expression_reads_an_ascii_value_like_the_token_matcher(
+    tmp_path, monkeypatch
+):
+    # Random strings take too many formats to be eligible for patterns (design
+    # 18.12): the field is forced so that its candidates exercise the matchers.
+    eligible = PatternEligibility(state="eligible", score=1.0, reasons=["regular_structure"])
+    monkeypatch.setattr(pattern_eligibility, "assess", lambda *args: eligible)
     rng = random.Random(4)
     alphabet = string.ascii_letters + string.digits + "-_ '"
     rows = [

@@ -30,6 +30,12 @@ _REASONS = {
     "no_values": "no_values",
     "too_few_distinct": "too_few_distinct",
 }
+# Fields the discovery does not assess as text (booleans, structures) or reads
+# as measures (design 18.12), and empty fields: no pattern is ever validated
+# there, so the analysis is not listed for them.
+_IRRELEVANT = frozenset(
+    {"booleans_only", "structures_only", "small_integers", "decimal_numbers"}
+)
 
 
 class PatternValidation(Analyzer):
@@ -42,8 +48,10 @@ class PatternValidation(Analyzer):
 
     def relevant(self, facts: FieldFacts) -> bool:
         patterns = facts.patterns
-        return patterns is not None and not (
-            patterns.status == "not_applicable" and patterns.reason == "technical_type"
+        return (
+            patterns is not None
+            and facts.technical_type != "empty"
+            and not (patterns.status == "not_applicable" and patterns.reason in _IRRELEVANT)
         )
 
     def assess(self, facts: FieldFacts) -> Assessment:
@@ -53,7 +61,7 @@ class PatternValidation(Analyzer):
         if patterns.status == "failed":
             return Assessment("not_applicable", ("patterns_unavailable",))
         if patterns.status == "not_applicable":
-            reason = _REASONS.get(patterns.reason or "", "patterns_unavailable")
+            reason = _REASONS.get(patterns.reason or "", "not_eligible")
             return Assessment("not_applicable", (reason,))
         if patterns.candidates == 0:
             return Assessment("not_applicable", ("no_candidates",))

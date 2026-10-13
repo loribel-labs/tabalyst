@@ -556,7 +556,7 @@ with each sample entry on one line. The content is the same.
 ## Inferred patterns
 
 After a scan reads the whole source, it infers the structural patterns of each
-text field from the samples it kept, without reading the source again. They are
+eligible field from the samples it kept, without reading the source again. They are
 written in the top-level `derived.patterns` member, one entry per field, and
 they are not the [configured patterns](../reference/configuration.md#patterns),
 which are detectors. A pattern here is a shape, such as two capitals followed by
@@ -574,6 +574,10 @@ structure, not a rule that the data must follow.
           "dataset": "rows",
           "field": "column_1",
           "status": "complete",
+          "eligibility": {
+            "state": "eligible", "score": 1.0,
+            "reasons": ["regular_structure"]
+          },
           "population": {
             "source": "samples", "selection": "all", "complete": true,
             "available": 3000, "distinct": 3000,
@@ -618,10 +622,32 @@ structure, not a rule that the data must follow.
   that field (`reason` `inference_error`): `diagnostic` is the index of a
   `pattern_inference_failed` error in `diagnostics`, which names the field
   and the exception type, and the other fields and the rest of the scan are
-  unaffected. The reasons of `not_applicable` are: `technical_type` (only
-  `text` and `mixed` fields are read), `exposure` (the values of a [sensitive field](#sensitive-values) are masked or
-  hidden, so no pattern is inferred), `samples_withheld`, `long_texts_only`,
-  `no_values` and `too_few_distinct`.
+  unaffected.
+- Every entry has an `eligibility`: whether the field is worth a search for
+  patterns, decided from the facts and the samples of the scan before any
+  pattern is built. Only an `eligible` field is inferred; the others are
+  `not_applicable`, and their `reason` is the first reason that kept them out.
+  `state` is one of:
+  - `eligible`: the values have a regular structure.
+  - `low_relevance`: the field can be assessed, but a pattern would describe it
+    poorly (free text, a handful of words, decimal numbers).
+  - `excluded`: `exposure` (the values of a [sensitive field](#sensitive-values)
+    are masked or hidden, so no pattern is inferred), `booleans_only`,
+    `structures_only` (only objects or arrays), `long_texts_only` or
+    `no_values`.
+  - `not_assessable`: information is missing, `samples_withheld` or
+    `too_few_distinct`.
+
+  `score` runs from 0 to 1 and ranks the fields (0 for a field that is excluded
+  or not assessable); a field is eligible from 0.35. `reasons` explain it:
+  `regular_structure` (at most 6 forms of fixed length, such as `AA-9999`, cover
+  at least 90% of the values) or `many_fixed_lengths` (they do not, as for
+  hyphenated ISBNs or free text), `integer_digits` (a column of whole numbers
+  of 4 digits or more, read as text) or `small_integers` (shorter ones, read as
+  counts or measures), `decimal_numbers`, `no_structural_marks` (no digit and
+  no separator), `few_distinct` (fewer than 8 distinct values) and
+  `semantic_detector` (a detector already says what the values are, such as
+  dates, which lowers the score without excluding the field).
 - `population` is what the inference read: the distinct values of the field's
   [sample](#distinct-values-and-samples) and its
   [samples by length](#samples-by-length), once each. `complete` is true when the
@@ -630,8 +656,9 @@ structure, not a rule that the data must follow.
   values and `distinct` those that took part. `excluded` counts what did not:
   the occurrences of [long texts](#long-texts), whose preview never gives the
   pattern of the whole text (`long_text_occurrences`), and the values that are
-  not strings, are empty, are longer than `scan.pattern_inference.max_value_length`
-  or have more than 32 tokens.
+  neither strings nor integers (an integer is read as its decimal text), are
+  empty, are longer than `scan.pattern_inference.max_value_length` or have more
+  than 32 tokens.
 - A candidate has an `id` (`p1`, `p2`, ...), a `role` (`principal` for the first,
   the most common, then `secondary`) and a `signature`, the list of its tokens.
   A token is a class of characters (`digit_ascii`, `upper_ascii`, `lower_ascii`,

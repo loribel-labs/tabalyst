@@ -16,7 +16,8 @@ from planner_helpers import scan_csv
 from scan_helpers import write_text
 from second_pass_helpers import deep_csv, entry, forced_plan
 
-from tabalyst.scanner import ScanConfig, scan
+from tabalyst.scanner import ScanConfig, pattern_eligibility, scan
+from tabalyst.scanner.models import PatternEligibility
 from tabalyst.scanner.patterninfer import MAX_TOKENS, candidate_order, tokenize
 from tabalyst.scanner.secondpass import run_second_pass
 from tabalyst.scanner.secondpass.patterns import PatternAccumulator, derive_from_samples
@@ -96,8 +97,18 @@ def _codes(count, seed=3):
 # C11 ---------------------------------------------------------------------------
 
 
+@pytest.fixture
+def every_field_eligible(monkeypatch):
+    """The messy columns of these tests take too many formats to be eligible
+    for patterns (design 18.12); they exercise the counting, so they are forced."""
+    eligible = PatternEligibility(state="eligible", score=1.0, reasons=["regular_structure"])
+    monkeypatch.setattr(pattern_eligibility, "assess", lambda *args: eligible)
+
+
 @pytest.mark.scan_json_lot("7c")
-def test_C11_every_occurrence_is_counted_once_and_the_counts_reconcile(tmp_path):
+def test_C11_every_occurrence_is_counted_once_and_the_counts_reconcile(
+    tmp_path, every_field_eligible
+):
     rows = _codes(4_000)
     # K = 60 keeps the patterns a discovery on a sample: the source is read.
     result, _, outcome = deep_csv(tmp_path, "code", rows, limits={"max_samples": 60})
@@ -175,7 +186,8 @@ def test_C11_the_exact_counts_of_a_complete_scan_give_the_same_result_without_re
 
 @pytest.mark.scan_json_lot("7c")
 def test_C11_json_numbers_are_excluded_and_counted(tmp_path):
-    records = [{"code": f"AB{n:04d}"} for n in range(120)] + [{"code": n} for n in range(30)]
+    # Decimal numbers: an integer is read as its decimal text (design 20.9).
+    records = [{"code": f"AB{n:04d}"} for n in range(120)] + [{"code": n + 0.5} for n in range(30)]
     source = write_text(tmp_path, "data.json", json.dumps(records))
     result = scan(source, config=ScanConfig.model_validate({"limits": {"max_samples": 40}}))
     plan = forced_plan(result)

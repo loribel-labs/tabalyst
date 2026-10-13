@@ -132,3 +132,18 @@ Also in revision 2:
   `currency`, `percentage` and `quantity`. The Scan counts no number of an amount
   and does not change for the last three: the second pass reads the values with a
   unit by the evidence of their own detector.
+
+## Version 0.2.0, revision 4 (in preparation)
+
+Revision 4 gathers the changes of the hierarchical pattern discovery; it is not
+final until the release that ships it.
+
+- Every entry of `derived.patterns` has an `eligibility` (`state`, `score`,
+  `reasons`): whether the field is worth a search for patterns, decided before
+  any pattern is built (see [Inferred patterns](format.md#inferred-patterns)).
+  Only an `eligible` field is inferred. The `reason` of a `not_applicable`
+  entry is the first reason that kept the field out; `technical_type` is gone.
+- A column of whole numbers of 4 digits or more, such as a register number, is
+  now read as text and can have patterns. Shorter whole numbers, decimal
+  numbers, free text and a handful of words are `low_relevance`; booleans and
+  objects or arrays only are `excluded`.

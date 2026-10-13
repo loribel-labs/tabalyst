@@ -121,7 +121,7 @@ class PatternAccumulator:
                 overlaps[key] = overlaps.get(key, 0) + count
 
     def add_native(self, count: int = 1) -> None:
-        """JSON integers, numbers or booleans: not strings, so not tested."""
+        """JSON numbers that are not integers, or booleans: not tested."""
         self.values += count
         self.excluded["non_string"] += count
 
@@ -173,10 +173,11 @@ def derive_from_samples(accumulator: PatternAccumulator, field: FieldResult) -> 
         or any(entry.count_accuracy != "exact" for entry in samples.listed)
     ):
         raise ScanMismatch("the scan does not hold every distinct value with its exact count")
-    strings = [entry for entry in samples.listed if entry.type == "string"]
+    # An integer is read as its decimal text, as the discovery reads it.
+    strings = [entry for entry in samples.listed if entry.type in ("string", "integer")]
     accumulator.add_strings(
         [entry.value for entry in strings], [entry.count for entry in strings]
     )
     for entry in samples.listed:
-        if entry.type != "string":
+        if entry.type not in ("string", "integer"):
             accumulator.add_native(entry.count)

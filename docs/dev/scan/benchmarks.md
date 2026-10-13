@@ -1372,3 +1372,18 @@ for long values such as e-mails: within the guard rail of AC-026 only if the eli
 columns that matter, to be measured on the realistic file once B4 exists. The scans of this benchmark read one
 column, so the share of the inference in them says nothing of a realistic scan. RC-10 (30 %) and RC-11 are typed
 as integers by the Scan: the current inference skips them (`technical_type`).
+
+## Eligibility of the fields (Patterns lot P2)
+
+The eligibility (`scanner/pattern_eligibility.py`, design 18.12) tokenizes the population of every field once; the
+inference of an eligible field reuses the tokens, and a field that is not eligible is not inferred. Scan of the
+realistic file, the base `4603e41` (worktree) and the working tree alternated three times in one session, task `scan`,
+default workers (`benchmarks/interleave.py`, outputs under `D:/GIT.test/tabalyst/artifacts/patterns-p2/il/`):
+
+| File | Base (s) | Head (s) | Paired ratio | Guard | `derived` base / head (s) | Peak base / head (MB) |
+| --- | --- | --- | ---: | ---: | --- | --- |
+| insurance-combined.csv (1 M x 34, realistic) | 13.26, 13.23, 12.96 | 13.73, 13.34, 13.39 | **+3.3%** | 20% | 0.20 / 0.62 | 783 / 778 |
+
+`derived` grows by 0.42 s: the dates and the long integers, skipped before by their technical type, are now assessed
+and, when eligible, inferred, and every other field pays its tokenization; the free texts that are no longer
+inferred save less than that. The Scan stays within the guard of the post-pass (+20%) and the memory is unchanged.
