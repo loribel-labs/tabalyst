@@ -375,21 +375,29 @@ class RecordSettings(_Settings):
         return data
 
 
-MAX_INFERRED_PATTERNS = 64
+MAX_INFERRED_PATTERNS = 1_024
+# The most distinct values one field's discovery can be set to read (design 18.12).
+MAX_PATTERN_VALUES = 20_000
 MAX_PATTERN_VALUE_LENGTH = 1_000
 
 
 class PatternInferenceSettings(_Settings):
-    """Inference of structural patterns from the samples (design 18.12).
+    """Discovery of structural patterns from the samples (design 18.12).
 
-    The inference reads the samples of the finished scan, never the source.
-    ``max_patterns`` bounds the candidates of a field, ``max_value_length`` the
-    stored values that take part (longer ones are counted as excluded) and
-    ``min_distinct`` the distinct values a candidate needs.
+    The discovery reads the samples of the finished scan, never the source.
+    ``max_values`` bounds the distinct values a field's discovery reads,
+    ``max_families`` the families it publishes, ``max_patterns_per_family`` the
+    patterns of one family and ``max_patterns`` the patterns and nodes of a
+    field. ``max_value_length`` bounds the stored values that take part (longer
+    ones are counted as excluded) and ``min_distinct`` the distinct values a
+    field needs to be assessed.
     """
 
     enabled: bool = True
-    max_patterns: int = Field(default=8, ge=1, le=MAX_INFERRED_PATTERNS)
+    max_values: int = Field(default=10_000, ge=1, le=MAX_PATTERN_VALUES)
+    max_families: int = Field(default=16, ge=1, le=MAX_INFERRED_PATTERNS)
+    max_patterns_per_family: int = Field(default=32, ge=1, le=MAX_INFERRED_PATTERNS)
+    max_patterns: int = Field(default=128, ge=1, le=MAX_INFERRED_PATTERNS)
     max_value_length: int = Field(default=64, ge=1, le=MAX_PATTERN_VALUE_LENGTH)
     min_distinct: int = Field(default=2, ge=1, le=1_000)
 

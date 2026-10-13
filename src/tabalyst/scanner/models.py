@@ -1112,6 +1112,8 @@ PatternTokenKind = Literal[
     "upper_ascii",
     "lower_ascii",
     "letter_unicode",
+    "upper_digit",
+    "lower_digit",
     "alphanumeric",
     "literal",
 ]
@@ -1120,7 +1122,8 @@ PatternTokenKind = Literal[
 class PatternToken(ScanModel):
     """One token of a pattern signature (design 18.12): a class of characters
     repeated ``min`` to ``max`` times (characters), or a ``literal`` text
-    repeated ``min`` to ``max`` times."""
+    repeated ``min`` to ``max`` times. A discovered pattern has ``min`` equal
+    to ``max`` everywhere (DEC-034)."""
 
     kind: PatternTokenKind
     text: str | None = None
@@ -1132,13 +1135,8 @@ class PatternToken(ScanModel):
         return _omit_none(handler(self), ("text",))
 
 
-class PatternLengths(ScanModel):
-    min: int
-    max: int
-
-
 class PatternCoverage(ScanModel):
-    """Distinct values of the inference population that the candidate takes.
+    """Distinct values of the discovery population that a pattern takes.
     ``basis`` is ``all_distinct`` when the population is every distinct stored
     value of the field, ``sample`` when it is a sample: a discovery indicator,
     never a frequency of the file (specification 10.1)."""
@@ -1148,51 +1146,40 @@ class PatternCoverage(ScanModel):
     basis: Literal["all_distinct", "sample"]
 
 
-class PatternConfidence(ScanModel):
-    """Heuristic confidence, not a calibrated probability: the share of the
-    candidate damped by its support, ``share * n / (n + 1)``."""
+class PatternLengths(ScanModel):
+    """The shortest and longest value a pattern reads, in characters."""
 
-    method: Literal["laplace_share"]
-    value: float
-
-
-class PatternCandidate(ScanModel):
-    """A structural pattern found in the samples of a field (PAT-06).
-
-    ``examples`` are ids of entries of the field's samples. ``generalization``
-    is 0 for the structures as read, 1 when adjacent letters were merged and 2
-    when letters and digits were; ``merged_structures`` counts the structures
-    the candidate stands for."""
-
-    id: str
-    role: Literal["principal", "secondary"]
-    signature: list[PatternToken]
-    render: str
-    lengths: PatternLengths
-    generalization: int
-    merged_structures: int
-    coverage: PatternCoverage
-    confidence: PatternConfidence
-    examples: list[int]
+    min: int
+    max: int
 
 
-class PatternOther(ScanModel):
-    """The values no candidate takes, with the number of structures they have."""
+class PatternUnmatched(ScanModel):
+    """The values no published family reads, as the consumers of the flat list
+    count them: distinct values, their share of the population and the number
+    of structures left out."""
 
     distinct: int
     share: float
     structures: int
 
 
-class PatternOverlap(ScanModel):
-    """Distinct values that match every pattern of ``patterns`` (PAT-08)."""
+class PatternCandidate(ScanModel):
+    """A pattern of a field as the consumers that still read a flat list see it
+    (``FieldPatternsComplete.candidates``). It is a view of the hierarchy and is
+    never written in a document. ``examples`` are ids of entries of the field's
+    samples."""
 
-    patterns: list[str]
-    values: int
+    id: str
+    role: Literal["principal", "secondary"]
+    signature: list[PatternToken]
+    render: str
+    lengths: PatternLengths
+    coverage: PatternCoverage
+    examples: list[int]
 
 
 class PatternExcluded(ScanModel):
-    """What did not take part in the inference. ``long_text_occurrences`` counts
+    """What did not take part in the discovery. ``long_text_occurrences`` counts
     occurrences of values too long to be stored (their previews never serve:
     LONG-05); the others count distinct sampled values."""
 
@@ -1204,14 +1191,18 @@ class PatternExcluded(ScanModel):
 
 
 class PatternPopulation(ScanModel):
-    """The values the inference read. ``distinct`` took part out of
-    ``available`` usable values (a cap on the population may leave some out)."""
+    """The values the discovery read. ``distinct`` took part out of
+    ``available`` usable values (a cap on the population may leave some out);
+    ``occurrences`` is the sum of their counts, ``exact`` when the population is
+    the whole distribution of the field and ``sample`` otherwise."""
 
     source: Literal["samples"]
     selection: Literal["all", "bottom_k"]
     complete: bool
     available: int
     distinct: int
+    occurrences: int
+    occurrences_basis: Literal["exact", "sample"]
     excluded: PatternExcluded
 
 
@@ -1252,22 +1243,177 @@ class PatternEligibility(ScanModel):
     reasons: list[EligibilityReason]
 
 
+class PatternNode(ScanModel):
+    """A specialization of a pattern (design 18.12): the values of one of the
+    structures a family merged (``facet`` ``composition``), with its counts in
+    distinct values (``d``) and occurrences (``o``). The nodes of a pattern add
+    up to it."""
+
+    id: str
+    parent: str
+    level: int
+    facet: Literal["composition"]
+    signature: list[PatternToken]
+    render: str
+    d: int
+    o: int
+    role: Literal["principal", "secondary"]
+
+
+class FamilyPattern(ScanModel):
+    """A pattern of fixed length (DEC-034) of a family: one combination of the
+    lengths of the variable tokens, its constants folded into the signature.
+    ``lengths`` are those of the class tokens, a merged block counting as one;
+    ``format`` is the exact form of the commonest value, one symbol per
+    character."""
+
+    id: str
+    signature: list[PatternToken]
+    render: str
+    format: str
+    lengths: list[int]
+    d: int
+    o: int
+    examples: list[int]
+    nodes: list[PatternNode]
+
+
+class PatternTableCell(ScanModel):
+    value: str
+    d: int
+    o: int
+
+
+class PatternTableOthers(ScanModel):
+    distinct: int
+    d: int
+    o: int
+
+
+class PatternTable(ScanModel):
+    """The values of a facet of a family with their counts. The table of the
+    ``lengths`` lists the combinations of lengths that ``max_patterns_per_family``
+    or ``max_patterns`` kept out of the patterns; ``others`` is the rest of the
+    table."""
+
+    facet: Literal["lengths"]
+    cells: list[PatternTableCell]
+    others: PatternTableOthers
+
+
+class PatternFamily(ScanModel):
+    """The values of one structure (the classes of their tokens, without
+    lengths), or of structures merged at the edge of a block (``composition``
+    lists their keys). A family is not a pattern: it presents itself as its
+    patterns (design 18.12)."""
+
+    id: str
+    key: str
+    composition: list[str] = []
+    d: int
+    o: int
+    patterns: list[FamilyPattern]
+    tables: list[PatternTable]
+    examples: list[int]
+
+    @model_serializer(mode="wrap")
+    def _omit_composition(self, handler) -> dict[str, Any]:
+        data = handler(self)
+        if not data.get("composition"):
+            data.pop("composition", None)
+        return data
+
+
+class PatternOtherStructures(ScanModel):
+    """The values no published family reads: ``structures`` counts the
+    structures left out (``max_families``), ``d`` and ``o`` their values."""
+
+    structures: int
+    d: int
+    o: int
+
+
+PatternLimit = Literal[
+    "max_values", "max_families", "max_patterns_per_family", "max_patterns"
+]
+
+
+def _signature_lengths(signature: list[PatternToken]) -> PatternLengths:
+    """The characters a signature reads, at least and at most."""
+    low = high = 0
+    for token in signature:
+        size = len(token.text) if token.text is not None else 1
+        low += token.min * size
+        high += token.max * size
+    return PatternLengths(min=low, max=high)
+
+
 class FieldPatternsComplete(ScanModel):
     dataset: str
     field: str
     status: Literal["complete"] = "complete"
     eligibility: PatternEligibility
     population: PatternPopulation
-    candidates: list[PatternCandidate]
-    other: PatternOther
-    overlaps: list[PatternOverlap]
-    limits: list[Literal["max_patterns", "max_values"]]
+    families: list[PatternFamily]
+    other: PatternOtherStructures
+    limits: list[PatternLimit]
+
+    @property
+    def candidates(self) -> list[PatternCandidate]:
+        """The patterns of the hierarchy as a flat list, the largest first (by
+        distinct values, then in the order of the families): what the consumers
+        written for the flat list of the lot 4a read, until they read the
+        hierarchy (Patterns lots P6 and P7). Ids are those of the patterns."""
+        basis: Literal["all_distinct", "sample"] = (
+            "all_distinct" if self.population.complete else "sample"
+        )
+        total = self.population.distinct
+        flat = [
+            (family, pattern)
+            for family in self.families
+            for pattern in family.patterns
+        ]
+        flat.sort(key=lambda item: -item[1].d)
+        return [
+            PatternCandidate(
+                id=pattern.id,
+                role="principal" if number == 0 else "secondary",
+                signature=pattern.signature,
+                render=pattern.render,
+                lengths=_signature_lengths(pattern.signature),
+                coverage=PatternCoverage(
+                    distinct=pattern.d,
+                    share=round(pattern.d / total, 4) if total else 0.0,
+                    basis=basis,
+                ),
+                examples=pattern.examples,
+            )
+            for number, (family, pattern) in enumerate(flat)
+        ]
+
+    @property
+    def unmatched(self) -> PatternUnmatched:
+        """The values no pattern reads, for the readers of the flat list: those of
+        the families left out and those of the lengths that a budget kept out of
+        the patterns of a family."""
+        total = self.population.distinct
+        distinct = self.other.d + sum(
+            cell.d for family in self.families for table in family.tables for cell in table.cells
+        )
+        distinct += sum(
+            table.others.d for family in self.families for table in family.tables
+        )
+        return PatternUnmatched(
+            distinct=distinct,
+            share=round(distinct / total, 4) if total else 0.0,
+            structures=self.other.structures,
+        )
 
 
 class FieldPatternsNotApplicable(ScanModel):
     """A field the discovery does not read: its eligibility says why. ``reason``
-    repeats the deciding code of the eligibility until the entries of grammar 2
-    replace it (Patterns lot P3)."""
+    repeats the deciding code of the eligibility, for the readers that want one
+    word."""
 
     dataset: str
     field: str
@@ -1296,9 +1442,16 @@ FieldPatterns = Annotated[
 
 
 class PatternGrammar(ScanModel):
-    """The versioned grammar and generalization rules (PAT-04)."""
+    """The versioned grammar of the signatures and their rendering (PAT-04)."""
 
     name: str
+    version: int
+
+
+class PatternAlgorithm(ScanModel):
+    """The version of the discovery: scores, constants and order of its steps.
+    A change of the algorithm or of a constant of it raises it (FR-020)."""
+
     version: int
 
 
@@ -1308,6 +1461,7 @@ class DerivedPatterns(ScanModel):
     detectors."""
 
     grammar: PatternGrammar
+    algorithm: PatternAlgorithm
     domain: Literal["original"]
     fields: list[FieldPatterns]
 

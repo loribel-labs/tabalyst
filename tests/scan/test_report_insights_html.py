@@ -76,7 +76,13 @@ def _report(source, *options):
 @pytest.fixture
 def rich(tmp_path):
     source = _rich_source(tmp_path)
-    path = _report(source)
+    # One family per column: the hostile values have a structure of their own,
+    # which is not published, so no pattern reads them and they are left out.
+    config = tmp_path / "families.json"
+    config.write_text(
+        json.dumps({"scan": {"pattern_inference": {"max_families": 1}}}), encoding="utf-8"
+    )
+    path = _report(source, "--config", str(config))
     return source, path, load_profile(path)
 
 

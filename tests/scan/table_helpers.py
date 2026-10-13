@@ -29,18 +29,18 @@ CAPITALS = string.ascii_uppercase
 LOWERS = string.ascii_lowercase
 DIGITS = string.digits
 
-# Five shapes of identifier with five different structures (the inference groups
-# values by structure, so shapes that differ by their lengths only are one
-# pattern): X a capital, x a lowercase letter, 9 a digit, any other character
-# itself.
-SHAPE_ORDER = ["XX9999", "999999", "xx99", "XX-9999", "99-XX"]
+# Five shapes of identifier with five different structures that no family merges
+# (the inference groups values by structure, so shapes that differ by their
+# lengths only are one pattern, and `AA9999` with `999999` would be one family):
+# A a capital, a a lowercase letter, 9 a digit, any other character itself.
+SHAPE_ORDER = ["AA9999", "999-999", "aa99", "AA-9999", "99-AA"]
 
 
 def make_id(shape: str, rng: random.Random) -> str:
     """A random identifier of one of the shapes."""
     out = []
     for char in shape:
-        pool = {"X": CAPITALS, "x": LOWERS, "9": DIGITS}.get(char)
+        pool = {"A": CAPITALS, "a": LOWERS, "9": DIGITS}.get(char)
         out.append(char if pool is None else rng.choice(pool))
     return "".join(out)
 

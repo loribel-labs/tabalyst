@@ -283,7 +283,7 @@ def _pattern_rows(
             continue
         kind = "exact" if entry.population.complete else "sample"
         rows.extend((column, candidate, kind) for candidate in entry.candidates)
-        if entry.other.distinct:
+        if entry.unmatched.distinct:
             rows.append((column, None, kind))
     return rows
 

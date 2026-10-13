@@ -84,7 +84,7 @@ numbers and booleans) make the values of the field.
 ```json
 {"kind": "pattern_counts", "accuracy": "exact", "computed_from": "source",
  "values": 3000, "matched": 2990,
- "candidates": [{"id": "p1", "render": "XX9999'A'", "occurrences": 2100}],
+ "candidates": [{"id": "f1.p1", "render": "AA9999'A'", "occurrences": 2100}],
  "other": 10, "excluded": {"non_string": 0, "too_long": 0, "too_complex": 0},
  "overlaps": []}
 ```

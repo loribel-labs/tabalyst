@@ -27,7 +27,9 @@ _CLASS = {
     "upper_ascii": "[A-Z]",
     "lower_ascii": "[a-z]",
     "letter_unicode": "[^\\W\\d_]",
-    "alphanumeric": "[^\\W_]",
+    "upper_digit": "[0-9A-Z]",
+    "lower_digit": "[0-9a-z]",
+    "alphanumeric": "[0-9A-Za-z]",
 }
 
 
@@ -47,7 +49,7 @@ def _oracle(candidates, max_length, values):
     """Exclusive counts of ``values`` by brute force."""
     order = sorted(
         range(len(candidates)),
-        key=lambda n: candidate_order(candidates[n].signature, candidates[n].generalization, n),
+        key=lambda n: candidate_order(candidates[n].signature, 0, n),
     )
     regexes = [_oracle_regex(c.signature) for c in candidates]
     occurrences = [0] * len(candidates)
@@ -126,7 +128,7 @@ def test_C11_every_occurrence_is_counted_once_and_the_counts_reconcile(
     assert counts.excluded.too_complex == excluded["too_complex"]
     assert counts.excluded.non_string == 0
     assert {tuple(o.patterns): o.occurrences for o in counts.overlaps} == {
-        tuple(f"p{n + 1}" for n in key): value for key, value in overlaps.items()
+        tuple(candidates[n].id for n in key): value for key, value in overlaps.items()
     }
     # The identity of the specification: tested + other + excluded is the population.
     assert counts.values == len(rows) == result.datasets[0].fields[0].values.count
@@ -178,7 +180,7 @@ def test_C11_the_exact_counts_of_a_complete_scan_give_the_same_result_without_re
     once = PatternAccumulator(patterns, result.config.pattern_inference.max_value_length)
     once.add_strings(list(counted), [1] * len(counted))
     assert once.occurrences == [c.coverage.distinct for c in patterns.candidates]
-    assert once.other == patterns.other.distinct
+    assert once.other == patterns.other.d
     derived = PatternAccumulator(patterns, result.config.pattern_inference.max_value_length)
     derive_from_samples(derived, field)
     assert derived.occurrences == read.occurrences
@@ -205,7 +207,10 @@ def test_C11_json_numbers_are_excluded_and_counted(tmp_path):
 @pytest.mark.scan_json_lot("7c")
 def test_C11_an_unmatched_value_is_an_observation_and_never_an_error(tmp_path):
     rows = [f"AB{n:04d}" for n in range(200)] + ["???", "n/a"] * 10
-    _, _, outcome = deep_csv(tmp_path, "code", rows, limits={"max_samples": 40})
+    # One family only: the structures of the other two values are not published.
+    _, _, outcome = deep_csv(
+        tmp_path, "code", rows, limits={"max_samples": 40}, pattern_inference={"max_families": 1}
+    )
 
     answer = entry(outcome, "pattern_validation", "code")
 

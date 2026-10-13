@@ -597,7 +597,7 @@ def test_a_table_of_patterns_is_not_displaced_by_a_weaker_table_of_lengths(tmp_p
     # the code is one with noise. Patterns cost a little more per cell than lengths,
     # but the planner ranks the tables by what the sample says of them.
     rng = random.Random(3)
-    shapes = ["XX9999", "999999", "xx99ab", "XX-999", "99-XXX", "x9x9x9"]
+    shapes = ["XX9999", "999-999", "xx99ab", "XX-999", "99-XXX", "x9x9x9"]
     rows = []
     for n in range(1200):
         branch = n % 6
@@ -632,15 +632,15 @@ def test_a_feature_waits_for_the_best_one_of_its_columns_and_is_chosen_when_it_i
     result = scan_csv(tmp_path, "branch,client", rows)
     # The best feature (the prefix) needs more memory than the automatic budget
     # leaves (a complete sample reads no source, so no parser is reserved); the
-    # pattern, the smallest, fits.
-    budgets = default_budgets().model_copy(update={"automatic_memory_bytes": 100_000})
+    # pattern, with its six patterns of fixed length, fits.
+    budgets = default_budgets().model_copy(update={"automatic_memory_bytes": 135_000})
 
     plan = plan_analyses(result, budgets=budgets, registry=default_registry().runnable())
 
     by_feature = {c.parameters["feature"]: c for c in tables_of(plan)}
     assert by_feature["prefix"].selection.reason == "budget"
     assert by_feature["pattern"].selection.state == "selected"
-    assert by_feature["length"].selection.reason == "budget"
+    assert by_feature["length"].selection.state == "rejected"
     selected = [c for c in tables_of(plan) if c.selection.state == "selected"]
     assert len(selected) == 1
 

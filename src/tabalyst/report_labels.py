@@ -13,7 +13,6 @@ that turns them into words, so a reader of the JSON alone gets the same labels
 from dataclasses import dataclass
 
 from tabalyst.scanner.models import Observation
-from tabalyst.scanner.patterninfer import MAX_VALUES
 
 # How a number is qualified. The five kinds of HTML-03: an exact result, an
 # estimate, a result over a sample, a limited result (a proven lower bound) and
@@ -169,6 +168,9 @@ REASON_SETTINGS = {
     "field_limit": "scan.limits.max_fields",
     "memory_budget": "scan.limits.max_sample_memory",
     "max_patterns": "scan.pattern_inference.max_patterns",
+    "max_values": "scan.pattern_inference.max_values",
+    "max_families": "scan.pattern_inference.max_families",
+    "max_patterns_per_family": "scan.pattern_inference.max_patterns_per_family",
     "max_fields": "scan.limits.max_fields",
     "max_depth": "scan.limits.max_depth",
     "max_length_strata": "scan.limits.max_length_strata",
@@ -177,7 +179,6 @@ REASON_SETTINGS = {
 # Reasons that are not a setting to raise.
 REASON_NOTES = {
     "exposure": "Values withheld by the exposure setting of a sensitive column",
-    "max_values": f"The inference reads at most {MAX_VALUES:,} distinct values of a column",
 }
 
 # Why the inference of patterns gave a field none (``FieldPatterns.reason``, the

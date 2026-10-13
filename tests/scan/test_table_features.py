@@ -99,7 +99,7 @@ def test_a_column_without_exact_frequencies_is_not_a_category(tmp_path):
     assert coder is None and why == NO_FREQUENCIES
 
 
-def test_a_pattern_is_the_most_specific_candidate_that_reads_the_value(tmp_path):
+def test_a_pattern_is_the_class_of_the_values_it_reads(tmp_path):
     result, reader = _coders(tmp_path)
     entry = _entry(result, "client")
 
@@ -109,9 +109,9 @@ def test_a_pattern_is_the_most_specific_candidate_that_reads_the_value(tmp_path)
     )
 
     assert why is None and coder.domain == "original"
-    codes = coder.code_strings(["AB1234", "123456", "??##", "", "A" * 100, "x"])
+    codes = coder.code_strings(["AB1234", "123-456", "??##", "", "A" * 100, "x"])
     named = [c.label for c in coder.classes]
-    assert named[codes[0]] == "XX9999" and named[codes[1]] == "999999"
+    assert named[codes[0]] == "AA9999" and named[codes[1]] == "999-999"
     assert codes[2] == coder.other  # no candidate reads it
     assert codes[3] == MISSING
     assert codes[4] == UNCLASSIFIED  # longer than the inference reads

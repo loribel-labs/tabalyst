@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T11:56:21.465484Z",
-    "duration_seconds": 0.02301,
+    "started_at": "2026-10-13T13:31:38.856343Z",
+    "duration_seconds": 0.024353,
     "timings": {
-      "reading": 0.003505,
-      "analysis": 0.003499,
-      "finalize": 0.012078,
-      "derived": 0.003473,
-      "other": 0.000455
+      "reading": 0.003102,
+      "analysis": 0.003325,
+      "finalize": 0.012394,
+      "derived": 0.003564,
+      "other": 0.001967
     },
     "workers": 1,
-    "peak_memory_bytes": 67592192
+    "peak_memory_bytes": 65171456
   },
   "source": {
     "format": "json",
@@ -285,7 +285,10 @@
     },
     "pattern_inference": {
       "enabled": true,
-      "max_patterns": 8,
+      "max_values": 10000,
+      "max_families": 16,
+      "max_patterns_per_family": 32,
+      "max_patterns": 128,
       "max_value_length": 64,
       "min_distinct": 2
     },
@@ -295,7 +298,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "6d98d3e12193407013577b7252e34cd34989846dfd5bb6f5a37634439481c58f",
+  "config_sha256": "3da7baa31c4c35f94fec3cc6041eb3f566714a45d2540a98d8fe39ac41bfd550",
   "scope": {
     "collections": {
       "mode": "explicit",
@@ -16219,6 +16222,9 @@
     "patterns": {
       "grammar": {
         "name": "tabalyst.pattern",
+        "version": 2
+      },
+      "algorithm": {
         "version": 1
       },
       "domain": "original",
@@ -16240,6 +16246,8 @@
             "complete": true,
             "available": 60,
             "distinct": 60,
+            "occurrences": 60,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -16248,39 +16256,51 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "UD",
+              "d": 60,
+              "o": 60,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "C",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 4,
-                  "max": 4
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "C",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "00",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "'C00'99",
+                  "format": "A9999",
+                  "lengths": [
+                    1,
+                    4
+                  ],
+                  "d": 60,
+                  "o": 60,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'C'9999",
-              "lengths": {
-                "min": 5,
-                "max": 5
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 60,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9836
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -16289,11 +16309,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -16384,6 +16403,8 @@
             "complete": true,
             "available": 5,
             "distinct": 5,
+            "occurrences": 51,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -16392,33 +16413,38 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "D",
+              "d": 5,
+              "o": 51,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 5,
-                  "max": 5
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 5,
+                      "max": 5
+                    }
+                  ],
+                  "render": "99999",
+                  "format": "99999",
+                  "lengths": [
+                    5
+                  ],
+                  "d": 5,
+                  "o": 51,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "99999",
-              "lengths": {
-                "min": 5,
-                "max": 5
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 5,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.8333
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -16427,11 +16453,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -16452,6 +16477,8 @@
             "complete": true,
             "available": 58,
             "distinct": 58,
+            "occurrences": 60,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -16460,56 +16487,63 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 58,
+              "o": 60,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "2025",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "2025",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "'2025-'99-99",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 58,
+                  "o": 60,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'2025'-99-99",
-              "lengths": {
-                "min": 10,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 58,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9831
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -16518,11 +16552,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -16609,6 +16642,8 @@
             "complete": false,
             "available": 100,
             "distinct": 100,
+            "occurrences": 100,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -16617,50 +16652,63 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "UDP-D",
+              "d": 100,
+              "o": 100,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "O",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 4,
-                  "max": 4
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "O",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "00",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "'O00'99-9",
+                  "format": "A9999-9",
+                  "lengths": [
+                    1,
+                    4,
+                    1
+                  ],
+                  "d": 100,
+                  "o": 100,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'O'9999-9",
-              "lengths": {
-                "min": 7,
-                "max": 7
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 100,
-                "share": 1.0,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9901
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -16669,11 +16717,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -16694,6 +16741,8 @@
             "complete": true,
             "available": 92,
             "distinct": 92,
+            "occurrences": 119,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -16702,56 +16751,69 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 92,
+              "o": 119,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "2026",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "2026",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "0",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "'2026-0'9-99",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 92,
+                  "o": 119,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'2026'-99-99",
-              "lengths": {
-                "min": 10,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 92,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9892
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -16760,11 +16822,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -17079,8 +17140,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
-        "config_sha256": "6d98d3e12193407013577b7252e34cd34989846dfd5bb6f5a37634439481c58f",
-        "facts_sha256": "3f1c194d7a1919ebd426b07f177551d8406c33ed3c0f00a3553570e86b4f93a2"
+        "config_sha256": "3da7baa31c4c35f94fec3cc6041eb3f566714a45d2540a98d8fe39ac41bfd550",
+        "facts_sha256": "f9202a39beaf9178e54c10aafc619c2a6dbf7055d5be8ba4571dcb142f0594c0"
       },
       "settings": {
         "bins": 100,
@@ -17176,13 +17237,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 13,
-        "plan_id": "e9e9e52d283b89d62282c9ff3302b54d5456dcde0c4b7fa0077e7a73dbd03def",
+        "plan_id": "481a1b9d9eb6690395be549f774bd6256fb514a5cee164d0a9f7f1711dfdb9e7",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
-          "config_sha256": "6d98d3e12193407013577b7252e34cd34989846dfd5bb6f5a37634439481c58f",
-          "facts_sha256": "3f1c194d7a1919ebd426b07f177551d8406c33ed3c0f00a3553570e86b4f93a2"
+          "config_sha256": "3da7baa31c4c35f94fec3cc6041eb3f566714a45d2540a98d8fe39ac41bfd550",
+          "facts_sha256": "f9202a39beaf9178e54c10aafc619c2a6dbf7055d5be8ba4571dcb142f0594c0"
         },
         "objective": {
           "automatic": true,
@@ -24416,15 +24477,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T11:56:21.535559Z",
-        "duration_seconds": 0.013792,
+        "started_at": "2026-10-13T13:31:38.924650Z",
+        "duration_seconds": 0.013872,
         "timings": {
-          "reading": 0.003267,
-          "analysis": 0.004211,
-          "other": 0.006314
+          "reading": 0.003448,
+          "analysis": 0.004059,
+          "other": 0.006365
         },
         "workers": 1,
-        "peak_memory_bytes": 73568256,
+        "peak_memory_bytes": 71168000,
         "source_read": true,
         "source_verified": true,
         "records_read": 60,
@@ -24446,7 +24507,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "57b64199e1ed62c59419be5fde8e40d3e8065985b5b3e5080f2127ecabb932b4",
+          "key": "57bcf55291ab589fedcb1afb52028469fbe58a39b14e2ed139f1d577de4322a5",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -25116,7 +25177,7 @@
             "domain": 3
           },
           "domain": "analytical",
-          "key": "0fbca1de4dbc3a7fa2c19ceb1a693f948f0f07b6ad00fb01bedd135ceaff5258",
+          "key": "0da74b9fb88baeeba0cbda99e761a8ec40db77fcfdd58f8122fe48773eae58c7",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -25189,7 +25250,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "28bb91e28066c9fe728b63a437f90ba5d3c86ab4097c73a34ee368f3184c6122",
+          "key": "97df5fa301f20de4ca156cf6a8f3ebe1d7fed22eee280a0089a523f10327affe",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -25467,7 +25528,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "88c756e8867dddfffaeb0331c330e81c28fbd3a4ef52f2187873c54e7326a00e",
+          "key": "09729a58456bfe92d73172526bb815d2895dea63167248ca644200321812b1e8",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -25744,19 +25805,19 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "ceab8737281fbe0adbd3b54957d4658961ed04ac1a6b1e9e2d8e59abd3e72a66",
+          "key": "2455ed7584dd631f9c944e0578151f94c4c32fdcc363bf0d2eaadaf8cda9a862",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 60,
             "matched": 60,
             "candidates": [
               {
-                "id": "p1",
-                "render": "'C'9999",
+                "id": "f1.p1",
+                "render": "'C00'99",
                 "occurrences": 60
               }
             ],
@@ -25781,18 +25842,18 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "9ab75867dedb937d6533ea6f5406bccdb263d1907e3bc9128c669d4f0ff27754",
+          "key": "d33cbbd00c74bf30be6e182cf1e8d20c2cd1c32bafde357fd433ece1e5173fe6",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 51,
             "matched": 51,
             "candidates": [
               {
-                "id": "p1",
+                "id": "f1.p1",
                 "render": "99999",
                 "occurrences": 51
               }
@@ -25818,19 +25879,19 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "16153b4ac67f2c7ea6beb823b21ee0d4761c822db0793bf144e2609d7c006308",
+          "key": "3276466670b807aba94190a0876af14fa7403ff56dba4a4f04ca887f468763a6",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 60,
             "matched": 60,
             "candidates": [
               {
-                "id": "p1",
-                "render": "'2025'-99-99",
+                "id": "f1.p1",
+                "render": "'2025-'99-99",
                 "occurrences": 60
               }
             ],
@@ -25855,19 +25916,19 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "1f459dce58808c2ecac96cb8dfe090dfb390be61cdf7d23d4906776f24abf898",
+          "key": "767a30deac38257dcd732b5666ffae4fe31f46b0f1e84ec515e273fe89be234a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "source",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 119,
             "matched": 119,
             "candidates": [
               {
-                "id": "p1",
-                "render": "'O'9999-9",
+                "id": "f1.p1",
+                "render": "'O00'99-9",
                 "occurrences": 119
               }
             ],
@@ -25892,19 +25953,19 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "2395b4d734f555d9155fcac96b1b182c81d25c5996ace22f5779952c8b1b4d0a",
+          "key": "8008025d851dd38e7e318224b16916604c25a46853129c945ad214b1f0236723",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 119,
             "matched": 119,
             "candidates": [
               {
-                "id": "p1",
-                "render": "'2026'-99-99",
+                "id": "f1.p1",
+                "render": "'2026-0'9-99",
                 "occurrences": 119
               }
             ],
@@ -25931,7 +25992,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "ef9d8d7d5b21dc36d3bec695d7903039dbcc5572e7144393c6cd701e37e3b706",
+          "key": "7826dd3401b66b31bf0ac3a96abfbf7398f478fbbeb9743c381722a4c71925af",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -26196,7 +26257,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "247ce3e1e4ffc833d6eee54a1dbdd90f7f0e4677dbd6fa2ab85479710d534418",
+          "key": "3c176db408b1092c331ad3388954dc523677a76cfad4cb582dd678cd24eb0720",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -26599,7 +26660,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "ee6a1a22b5c090a2acecf07a188a7a7b738677ec248317039b7a0eb1f3fc7c7f",
+          "key": "d998ef422310f859b77ef79a83ac1681e8d62e379cac2da2e6500f9039c97dae",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -26610,8 +26671,8 @@
             "tables": [],
             "patterns": [
               {
-                "id": "p1",
-                "render": "'O'9999-9",
+                "id": "f1.p1",
+                "render": "'O00'99-9",
                 "occurrences": 119,
                 "distinct": 119,
                 "distinct_accuracy": "exact",
@@ -26641,7 +26702,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "7afe5f310e1cce907ece0b28755e23bc0fb89d3e982f424e74959d36f0d1a4f3",
+          "key": "22cda26047442cd2c86b8369c4ad0c28364853c01159c5d9638071f2fa29b629",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -26700,7 +26761,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "e48d2f6275d8760d7cec19a114110287b5d76fe5e69186d163bc3dc861c90bb3",
+          "key": "1a11e61c9d7644f63334487be5432f5a006e9b91cd8ae16f5873897095ea7e83",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -27003,7 +27064,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "c4d14e032a9d56a0dd5d8700fe79aa733841bd4e21e285a443876f32ccdc0f83",
+          "key": "707f8885ca641f0e7ac52bf9c4fb4d0cd6f6d8d0734e7798164226d4aa753fd0",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -27279,12 +27340,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T11:56:21.639544Z",
+    "generated_at": "2026-10-13T13:31:39.025747Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.2004,
+    "processing_seconds": 0.1963,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -27317,8 +27378,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
-      "config_sha256": "6d98d3e12193407013577b7252e34cd34989846dfd5bb6f5a37634439481c58f",
-      "facts_sha256": "3f1c194d7a1919ebd426b07f177551d8406c33ed3c0f00a3553570e86b4f93a2"
+      "config_sha256": "3da7baa31c4c35f94fec3cc6041eb3f566714a45d2540a98d8fe39ac41bfd550",
+      "facts_sha256": "f9202a39beaf9178e54c10aafc619c2a6dbf7055d5be8ba4571dcb142f0594c0"
     },
     "datasets": [
       {

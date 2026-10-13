@@ -24,11 +24,26 @@ from pathlib import Path
 from typing import Literal
 
 from pattern_corpus import Field, Variants
-from pattern_tree import Declared, SeenField
+from pattern_tree import (
+    Declared,
+    SeenFamily,
+    SeenField,
+    SeenNode,
+    SeenTable,
+    lengths,
+    structure,
+)
 
 from tabalyst.scanner import ScanConfig, scan
 from tabalyst.scanner.config import DetectorSettings
-from tabalyst.scanner.models import FieldPatterns
+from tabalyst.scanner.models import (
+    FamilyPattern,
+    FieldPatterns,
+    FieldPatternsComplete,
+    PatternFamily,
+    ScanResult,
+)
+from tabalyst.scanner.patterninfer import compile_signature, matches
 
 # The outcomes of a value at validation (REC-006); ``invalid`` is reserved and
 # never given by the inference. A set of lengths never seen in a known structure
@@ -53,11 +68,72 @@ def discover(
     ``max_families``, ``max_patterns_per_family``, ``max_patterns``,
     ``max_depth``); ``workers`` is the number of first-pass workers.
 
-    Binding (lots P3 and P4): build a scan of the field's pairs, run the
-    discovery and map each family, node and table to the values its signature
-    accepts.
+    A scan of the field's pairs is run and each family, pattern and node is
+    mapped to the values its signature accepts, so that the matcher checks the
+    signatures the discovery writes (lots P3 and P4).
     """
-    raise NotImplementedError("bind the hierarchical discovery (lots P3, P4)")
+    entry = _scanned_entry(field, _frozen(settings), workers)
+    if not isinstance(entry, FieldPatternsComplete):
+        return None
+    return _seen(entry, field)
+
+
+def _frozen(settings: Mapping[str, int] | None) -> tuple[tuple[str, int], ...]:
+    return tuple(sorted((settings or {}).items()))
+
+
+def _accepted(signature, values: Sequence[str]) -> frozenset[str]:
+    matcher = compile_signature(signature)
+    return frozenset(value for value in values if matches(matcher, value))
+
+
+def _seen(entry: FieldPatternsComplete, field: Field) -> SeenField:
+    values = field.values()
+    by_structure: dict[str, list[str]] = {}
+    for value in values:
+        by_structure.setdefault(structure(value), []).append(value)
+    families = []
+    for family in entry.families:
+        keys = family.composition or [family.key]
+        members = frozenset(v for key in keys for v in by_structure.get(key, ()))
+        families.append(_seen_family(family, members))
+    covered = frozenset().union(*(family.members for family in families))
+    return SeenField(tuple(families), frozenset(values) - covered, tuple(entry.limits))
+
+
+def _seen_family(family: PatternFamily, members: frozenset[str]) -> SeenFamily:
+    patterns = [
+        (pattern, _accepted(pattern.signature, sorted(members))) for pattern in family.patterns
+    ]
+    # A family of one pattern that holds all of it is that pattern: the nodes of
+    # the pattern are the nodes of the family (a node is a strict part).
+    if len(patterns) == 1 and patterns[0][1] == members:
+        nodes = _seen_nodes(patterns[0][0], members)
+    else:
+        nodes = tuple(
+            SeenNode(pattern.render, accepted, _seen_nodes(pattern, accepted))
+            for pattern, accepted in patterns
+        )
+    tables = []
+    taken = frozenset().union(*(accepted for _, accepted in patterns))
+    for table in family.tables:
+        cells = []
+        for cell in table.cells:
+            cells.append(
+                frozenset(
+                    value
+                    for value in members - taken
+                    if ",".join(map(str, lengths(value))) == cell.value
+                )
+            )
+        tables.append(SeenTable(table.facet, tuple(cells)))
+    return SeenFamily(family.patterns[0].render if family.patterns else family.key, members, nodes, tuple(tables))
+
+
+def _seen_nodes(pattern: FamilyPattern, members: frozenset[str]) -> tuple[SeenNode, ...]:
+    return tuple(
+        SeenNode(node.render, _accepted(node.signature, sorted(members))) for node in pattern.nodes
+    )
 
 
 def declared_keys(field: Field) -> Declared:
@@ -112,12 +188,19 @@ _SEMANTIC = tuple(name for name in DetectorSettings.model_fields if name != "num
 
 
 @cache
-def _scanned_entry(field: Field) -> FieldPatterns:
-    """The ``derived.patterns`` entry of a Scan of ``field``: a CSV file of one
-    column holding each value as many times as it occurs, outside the checkout."""
-    settings: dict[str, object] = {}
+def _scanned(
+    field: Field, settings: tuple[tuple[str, int], ...] = (), workers: int = 1
+) -> ScanResult:
+    """A Scan of ``field``: a CSV file of one column holding each value as many
+    times as it occurs, outside the checkout."""
+    config: dict[str, object] = {}
     if field.detector is None:
-        settings["detectors"] = {name: {"enabled": False} for name in _SEMANTIC}
+        config["detectors"] = {name: {"enabled": False} for name in _SEMANTIC}
+    if settings:
+        config["pattern_inference"] = dict(settings)
+    if field.distinct > 10_000:
+        # Every distinct value is kept, so the cut of the discovery acts alone.
+        config["limits"] = {"max_samples": field.distinct}
     with tempfile.TemporaryDirectory(prefix="tabalyst-patterns-") as folder:
         source = Path(folder) / "field.csv"
         with source.open("w", newline="", encoding="utf-8") as handle:
@@ -125,12 +208,21 @@ def _scanned_entry(field: Field) -> FieldPatterns:
             writer.writerow(["value"])
             for value, count in field.pairs:
                 writer.writerows([value] for _ in range(count))
-        result = scan(source, config=ScanConfig.model_validate(settings))
+        result = scan(source, config=ScanConfig.model_validate(config), workers=workers)
     scanned = result.datasets[0].fields[0]
     if field.detector is not None:
         interpreted = {item.detector for item in scanned.interpretations.candidates}
         assert field.detector in interpreted, f"{field.id}: {field.detector} not read"
     assert (scanned.exposure in ("mask", "hide")) == field.masked, field.id
+    assert result.derived is not None and result.derived.patterns is not None
+    return result
+
+
+def _scanned_entry(
+    field: Field, settings: tuple[tuple[str, int], ...] = (), workers: int = 1
+) -> FieldPatterns:
+    """The ``derived.patterns`` entry of a Scan of ``field``."""
+    result = _scanned(field, settings, workers)
     assert result.derived is not None and result.derived.patterns is not None
     [entry] = result.derived.patterns.fields
     return entry
@@ -232,7 +324,7 @@ def rerun_after(field: Field, change: Change) -> CacheRun:
 def published_text(field: Field) -> str:
     """Everything the Scan, the second pass and the Report publish for ``field``,
     as one text to search for values (exposure, FR-022). Lots P3 and P5."""
-    raise NotImplementedError("bind the published documents (lots P3, P5)")
+    return _scanned(field).model_dump_json()
 
 
 def published_renders(field: Field) -> list[str]:

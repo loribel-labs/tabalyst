@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T11:56:20.593551Z",
-    "duration_seconds": 0.004714,
+    "started_at": "2026-10-13T13:31:33.790126Z",
+    "duration_seconds": 0.006886,
     "timings": {
-      "reading": 0.000426,
-      "analysis": 0.000142,
-      "finalize": 0.002842,
-      "derived": 0.000915,
-      "other": 0.000389
+      "reading": 0.000429,
+      "analysis": 0.00015,
+      "finalize": 0.002991,
+      "derived": 0.001263,
+      "other": 0.002054
     },
     "workers": 1,
-    "peak_memory_bytes": 64815104
+    "peak_memory_bytes": 62558208
   },
   "source": {
     "format": "csv",
@@ -296,7 +296,10 @@
     },
     "pattern_inference": {
       "enabled": true,
-      "max_patterns": 8,
+      "max_values": 10000,
+      "max_families": 16,
+      "max_patterns_per_family": 32,
+      "max_patterns": 128,
       "max_value_length": 64,
       "min_distinct": 2
     },
@@ -306,7 +309,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "1008b288d844b8628f9439581c3b52323cc72f75b7365235dc203990a01d0723",
+  "config_sha256": "c1674d218b2da14dfdc6f492b037a806f4117fa48cec170647e79919c72d1bdd",
   "scope": {
     "collections": null,
     "records_read": 5,
@@ -4986,6 +4989,9 @@
     "patterns": {
       "grammar": {
         "name": "tabalyst.pattern",
+        "version": 2
+      },
+      "algorithm": {
         "version": 1
       },
       "domain": "original",
@@ -5008,6 +5014,8 @@
             "complete": true,
             "available": 4,
             "distinct": 4,
+            "occurrences": 5,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -5016,33 +5024,44 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "D",
+              "d": 4,
+              "o": 5,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 3,
-                  "max": 3
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "00",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "'00'9",
+                  "format": "999",
+                  "lengths": [
+                    3
+                  ],
+                  "d": 4,
+                  "o": 5,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "999",
-              "lengths": {
-                "min": 3,
-                "max": 3
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 4,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.8
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -5051,11 +5070,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -5091,6 +5109,8 @@
             "complete": true,
             "available": 3,
             "distinct": 3,
+            "occurrences": 4,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -5099,56 +5119,105 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP.D",
+              "d": 2,
+              "o": 3,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": ".",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": ".",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "99.99",
+                  "format": "99.99",
+                  "lengths": [
+                    2,
+                    2
+                  ],
+                  "d": 2,
+                  "o": 3,
+                  "examples": [
+                    0,
+                    1
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "99.99",
-              "lengths": {
-                "min": 5,
-                "max": 5
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 2,
-                "share": 0.6667,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.4444
-              },
+              "tables": [],
               "examples": [
                 0,
                 1
               ]
+            },
+            {
+              "id": "f2",
+              "key": "LP L",
+              "d": 1,
+              "o": 1,
+              "patterns": [
+                {
+                  "id": "f2.p1",
+                  "signature": [
+                    {
+                      "kind": "lower_ascii",
+                      "min": 3,
+                      "max": 3
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 9,
+                      "max": 9
+                    }
+                  ],
+                  "render": "aaa a{9}",
+                  "format": "aaa a{9}",
+                  "lengths": [
+                    3,
+                    9
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    2
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                2
+              ]
             }
           ],
           "other": {
-            "distinct": 1,
-            "share": 0.3333,
-            "structures": 1
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -5170,6 +5239,8 @@
             "complete": true,
             "available": 4,
             "distinct": 4,
+            "occurrences": 5,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -5178,55 +5249,70 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 4,
+              "o": 5,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 4,
-                  "max": 4
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "2026",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "0",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "01",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "'2026-0'9'-01'",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 4,
+                  "o": 5,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "9999-99-99",
-              "lengths": {
-                "min": 10,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 4,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.8
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -5235,11 +5321,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -5273,6 +5358,8 @@
             "complete": true,
             "available": 3,
             "distinct": 3,
+            "occurrences": 4,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -5281,61 +5368,185 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "ULP L",
+              "d": 2,
+              "o": 2,
+              "patterns": [
                 {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 4,
+                      "max": 4
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 5,
+                      "max": 5
+                    }
+                  ],
+                  "render": "Aaaaa aaaaa",
+                  "format": "Aaaaa aaaaa",
+                  "lengths": [
+                    1,
+                    4,
+                    5
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    0
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "lower_ascii",
-                  "min": 4,
-                  "max": 6
-                },
-                {
-                  "kind": "literal",
-                  "text": " ",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "lower_ascii",
-                  "min": 5,
-                  "max": 6
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 6,
+                      "max": 6
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 6,
+                      "max": 6
+                    }
+                  ],
+                  "render": "Aaaaaaa aaaaaa",
+                  "format": "Aaaaaaa aaaaaa",
+                  "lengths": [
+                    1,
+                    6,
+                    6
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    2
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "Xx{4,6}' 'x{5,6}",
-              "lengths": {
-                "min": 11,
-                "max": 14
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 2,
-                "share": 0.6667,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.4444
-              },
+              "tables": [],
               "examples": [
                 0,
                 2
               ]
+            },
+            {
+              "id": "f2",
+              "key": "ULP LP,P LP L",
+              "d": 1,
+              "o": 2,
+              "patterns": [
+                {
+                  "id": "f2.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 5,
+                      "max": 5
+                    },
+                    {
+                      "kind": "literal",
+                      "text": ",",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 3,
+                      "max": 3
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 5,
+                      "max": 5
+                    }
+                  ],
+                  "render": "Aaa aaaaa, aaa aaaaa",
+                  "format": "Aaa aaaaa, aaa aaaaa",
+                  "lengths": [
+                    1,
+                    2,
+                    5,
+                    3,
+                    5
+                  ],
+                  "d": 1,
+                  "o": 2,
+                  "examples": [
+                    1
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                1
+              ]
             }
           ],
           "other": {
-            "distinct": 1,
-            "share": 0.3333,
-            "structures": 1
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         }
       ]
@@ -5431,8 +5642,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-        "config_sha256": "1008b288d844b8628f9439581c3b52323cc72f75b7365235dc203990a01d0723",
-        "facts_sha256": "d15d1607ad1f85e959b3e2ac4390ed8f51b4415ff0190d66e136aebcb134de9f"
+        "config_sha256": "c1674d218b2da14dfdc6f492b037a806f4117fa48cec170647e79919c72d1bdd",
+        "facts_sha256": "4ea3880596128a0ed0f624613bc66c1ec7574d076d3844a85124e4d4947ee3cc"
       },
       "settings": {
         "bins": 100,
@@ -5528,13 +5739,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 13,
-        "plan_id": "548306e2ee0a13eb34363a7533581b0a55e9c2db01f003345d0dc5d5efbb1c8d",
+        "plan_id": "9d7f1d0d2dc46979f9d0bf3d4ef995edccf9d5553c18fd46642f501137e56a49",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-          "config_sha256": "1008b288d844b8628f9439581c3b52323cc72f75b7365235dc203990a01d0723",
-          "facts_sha256": "d15d1607ad1f85e959b3e2ac4390ed8f51b4415ff0190d66e136aebcb134de9f"
+          "config_sha256": "c1674d218b2da14dfdc6f492b037a806f4117fa48cec170647e79919c72d1bdd",
+          "facts_sha256": "4ea3880596128a0ed0f624613bc66c1ec7574d076d3844a85124e4d4947ee3cc"
         },
         "objective": {
           "automatic": true,
@@ -5558,16 +5769,16 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 36,
-          "selected": 8,
+          "candidates": 35,
+          "selected": 7,
           "already_satisfied": 16,
           "rejected": 12,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 25204230,
-            "expected": 25205097,
-            "max": 25210489
+            "min": 25210398,
+            "expected": 25211103,
+            "max": 25214371
           },
           "beyond_automatic": []
         },
@@ -6233,7 +6444,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 5,
+              "priority": 4,
               "satisfied_by": null
             },
             "execution": {
@@ -6289,7 +6500,7 @@
             "display": "amount",
             "method": "compiled_matcher",
             "parameters": {
-              "patterns": 1
+              "patterns": 2
             },
             "outputs": [
               "pattern_counts",
@@ -6307,19 +6518,19 @@
             },
             "costs": {
               "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
+                "min": 11288,
+                "expected": 11288,
+                "max": 11288
               },
               "cpu": "moderate",
-              "cell_ns": 900,
+              "cell_ns": 1000,
               "states": [
                 {
                   "key": "patterns:datasets/rows/fields/column_3",
                   "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
+                    "min": 10264,
+                    "expected": 10264,
+                    "max": 10264
                   }
                 },
                 {
@@ -6403,7 +6614,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 7,
+              "priority": 5,
               "satisfied_by": null
             },
             "execution": {
@@ -6423,7 +6634,7 @@
             "display": "notes",
             "method": "compiled_matcher",
             "parameters": {
-              "patterns": 1
+              "patterns": 3
             },
             "outputs": [
               "pattern_counts",
@@ -6441,19 +6652,19 @@
             },
             "costs": {
               "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
+                "min": 16416,
+                "expected": 16416,
+                "max": 16416
               },
               "cpu": "moderate",
-              "cell_ns": 900,
+              "cell_ns": 1100,
               "states": [
                 {
                   "key": "patterns:datasets/rows/fields/column_6",
                   "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
+                    "min": 15392,
+                    "expected": 15392,
+                    "max": 15392
                   }
                 },
                 {
@@ -6470,7 +6681,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 8,
+              "priority": 7,
               "satisfied_by": null
             },
             "execution": {
@@ -6546,7 +6757,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 4,
+              "priority": 3,
               "satisfied_by": null
             },
             "execution": {
@@ -6566,7 +6777,7 @@
             "display": "amount",
             "method": "residual_table",
             "parameters": {
-              "sources": "pattern,number",
+              "sources": "number",
               "max_listed": 20,
               "max_tracked": 10000,
               "max_value_length": 100,
@@ -6589,19 +6800,19 @@
             },
             "costs": {
               "memory": {
-                "min": 5870,
-                "expected": 6109,
-                "max": 8270
+                "min": 1774,
+                "expected": 1933,
+                "max": 3052
               },
               "cpu": "low",
-              "cell_ns": 390,
+              "cell_ns": 300,
               "states": [
                 {
                   "key": "residuals:datasets/rows/fields/column_3",
                   "memory": {
                     "min": 0,
-                    "expected": 239,
-                    "max": 1917
+                    "expected": 159,
+                    "max": 1278
                   }
                 },
                 {
@@ -6619,14 +6830,6 @@
                     "expected": 750,
                     "max": 750
                   }
-                },
-                {
-                  "key": "exact_set:residual:datasets/rows/fields/column_3",
-                  "memory": {
-                    "min": 4096,
-                    "expected": 4096,
-                    "max": 4579
-                  }
                 }
               ]
             },
@@ -6635,86 +6838,6 @@
               "reason": "automatic",
               "requested": false,
               "priority": 1,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            }
-          },
-          {
-            "id": "residual_values:rows:column_6",
-            "analyzer": "residual_values",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_6",
-            "display": "notes",
-            "method": "residual_table",
-            "parameters": {
-              "sources": "pattern",
-              "max_listed": 20,
-              "max_tracked": 10000,
-              "max_value_length": 100,
-              "records": 0
-            },
-            "outputs": [
-              "residual_values",
-              "pattern_profile"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 60,
-              "reasons": [
-                "values_left_out",
-                "derivable_from_samples"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 5120,
-                "expected": 5202,
-                "max": 6284
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "residuals:datasets/rows/fields/column_6",
-                  "memory": {
-                    "min": 0,
-                    "expected": 82,
-                    "max": 660
-                  }
-                },
-                {
-                  "key": "result:residual_values:datasets/rows/fields/column_6",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "exact_set:residual:datasets/rows/fields/column_6",
-                  "memory": {
-                    "min": 4096,
-                    "expected": 4096,
-                    "max": 4600
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "selected",
-              "reason": "automatic",
-              "requested": false,
-              "priority": 2,
               "satisfied_by": null
             },
             "execution": {
@@ -6785,7 +6908,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 3,
+              "priority": 2,
               "satisfied_by": null
             },
             "execution": {
@@ -7270,20 +7393,20 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T11:56:20.617007Z",
-        "duration_seconds": 0.002675,
+        "started_at": "2026-10-13T13:31:33.813626Z",
+        "duration_seconds": 0.003031,
         "timings": {
-          "reading": 0.000414,
-          "analysis": 6.5e-05,
-          "other": 0.002196
+          "reading": 0.000475,
+          "analysis": 7.7e-05,
+          "other": 0.002479
         },
         "workers": 1,
-        "peak_memory_bytes": 66768896,
+        "peak_memory_bytes": 65167360,
         "source_read": true,
         "source_verified": true,
         "records_read": 5,
         "cells_read": 5,
-        "executed": 8,
+        "executed": 7,
         "reused": 0,
         "skipped": 0
       },
@@ -7300,19 +7423,19 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "08321654e9b172f8a6c2de68955bf807a9b9abddcdfb0e570f71ff6b92f79c2b",
+          "key": "212ff4c5df8b7f7383e305cfed247b12c2bee88a56a3600989642a34e79217d6",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 5,
             "matched": 5,
             "candidates": [
               {
-                "id": "p1",
-                "render": "999",
+                "id": "f1.p1",
+                "render": "'00'9",
                 "occurrences": 5
               }
             ],
@@ -7334,26 +7457,31 @@
           "display": "amount",
           "method": "compiled_matcher",
           "parameters": {
-            "patterns": 1
+            "patterns": 2
           },
           "domain": "original",
-          "key": "39e72e232804dd15f1e8a94a3e863145d5122c984bb3f550730eb5848c12f703",
+          "key": "a3c072b6c0c4b7657788984fed1cfedf094a8abffcb359f65156b96a79dd05af",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 4,
-            "matched": 3,
+            "matched": 4,
             "candidates": [
               {
-                "id": "p1",
+                "id": "f1.p1",
                 "render": "99.99",
                 "occurrences": 3
+              },
+              {
+                "id": "f2.p1",
+                "render": "aaa a{9}",
+                "occurrences": 1
               }
             ],
-            "other": 1,
+            "other": 0,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
@@ -7374,19 +7502,19 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "fb96d12e1936cb570ba492c1e97f7032c77c2c639c425e13b12854583a578aaf",
+          "key": "93993c3591494913c87b87b8b4482d4517c8e681494af57dd6231e986abf29e0",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 5,
             "matched": 5,
             "candidates": [
               {
-                "id": "p1",
-                "render": "9999-99-99",
+                "id": "f1.p1",
+                "render": "'2026-0'9'-01'",
                 "occurrences": 5
               }
             ],
@@ -7408,26 +7536,36 @@
           "display": "notes",
           "method": "compiled_matcher",
           "parameters": {
-            "patterns": 1
+            "patterns": 3
           },
           "domain": "original",
-          "key": "3b273aed17acf6883e20369fd008c9766ff56704515f3a461725267a78435c53",
+          "key": "3d78fe8d73d6ce3ebc96b7749e942df8e05e8cc05055951b9c92a8dc5fe5d86a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 4,
-            "matched": 2,
+            "matched": 4,
             "candidates": [
               {
-                "id": "p1",
-                "render": "Xx{4,6}' 'x{5,6}",
+                "id": "f1.p1",
+                "render": "Aaaaa aaaaa",
+                "occurrences": 1
+              },
+              {
+                "id": "f1.p2",
+                "render": "Aaaaaaa aaaaaa",
+                "occurrences": 1
+              },
+              {
+                "id": "f2.p1",
+                "render": "Aaa aaaaa, aaa aaaaa",
                 "occurrences": 2
               }
             ],
-            "other": 2,
+            "other": 0,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
@@ -7450,7 +7588,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "85be5075ddbab8b249a7a5fd267718e2bb17ebe11588b57e89f6eb42c972426b",
+          "key": "b672cabf0bfd9237ef1ee513197d3380594ad9a184efad554aee43eeb0b26004",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -7494,14 +7632,14 @@
           "display": "amount",
           "method": "residual_table",
           "parameters": {
-            "sources": "pattern,number",
+            "sources": "number",
             "max_listed": 20,
             "max_tracked": 10000,
             "max_value_length": 100,
             "records": 0
           },
           "domain": "mixed",
-          "key": "eca470e1feef540603f4e3e076acfb145bf62bd795843dea81697192c7a4caec",
+          "key": "de82307d6c029131029df83d9933b80ac58004ee31a1392404dada5e138af44d",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -7510,22 +7648,6 @@
             "records": false,
             "values": 4,
             "tables": [
-              {
-                "source": "pattern",
-                "state": "other",
-                "occurrences": 1,
-                "distinct": 1,
-                "complete": true,
-                "untracked": 0,
-                "too_long": 0,
-                "truncated": false,
-                "listed": [
-                  {
-                    "value": "not available",
-                    "count": 1
-                  }
-                ]
-              },
               {
                 "source": "detector",
                 "detector": "number",
@@ -7544,21 +7666,6 @@
                 ]
               }
             ],
-            "patterns": [
-              {
-                "id": "p1",
-                "render": "99.99",
-                "occurrences": 3,
-                "distinct": 2,
-                "distinct_accuracy": "exact",
-                "example": "12.50"
-              }
-            ],
-            "pattern_excluded": {
-              "non_string": 0,
-              "too_long": 0,
-              "too_complex": 0
-            },
             "detectors": [
               {
                 "detector": "number",
@@ -7570,66 +7677,6 @@
                 "scan_not_tested": 0
               }
             ]
-          }
-        },
-        {
-          "id": "residual_values:rows:column_6",
-          "analyzer": "residual_values",
-          "analyzer_version": 1,
-          "dataset": "rows",
-          "field": "column_6",
-          "display": "notes",
-          "method": "residual_table",
-          "parameters": {
-            "sources": "pattern",
-            "max_listed": 20,
-            "max_tracked": 10000,
-            "max_value_length": 100,
-            "records": 0
-          },
-          "domain": "mixed",
-          "key": "23f84bf4be8c87f33ef1b2a132e7df6821f5424c1c4bdda2d172f3d93e07ab51",
-          "status": "complete",
-          "result": {
-            "kind": "residual_values",
-            "accuracy": "exact",
-            "computed_from": "samples",
-            "records": false,
-            "values": 4,
-            "tables": [
-              {
-                "source": "pattern",
-                "state": "other",
-                "occurrences": 2,
-                "distinct": 1,
-                "complete": true,
-                "untracked": 0,
-                "too_long": 0,
-                "truncated": false,
-                "listed": [
-                  {
-                    "value": "Two items, one order",
-                    "count": 2
-                  }
-                ]
-              }
-            ],
-            "patterns": [
-              {
-                "id": "p1",
-                "render": "Xx{4,6}' 'x{5,6}",
-                "occurrences": 2,
-                "distinct": 2,
-                "distinct_accuracy": "exact",
-                "example": "First order"
-              }
-            ],
-            "pattern_excluded": {
-              "non_string": 0,
-              "too_long": 0,
-              "too_complex": 0
-            },
-            "detectors": []
           }
         },
         {
@@ -7646,7 +7693,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "1e9ff00f48177c13d8831b5e67cb0d5326c1c89aa41f91592ffa430201798838",
+          "key": "5e5653bcd9e5b10be943f394039b14795276b2f58fe0c6e736cfc00d5fc73d32",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -7677,12 +7724,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T11:56:20.626540Z",
+    "generated_at": "2026-10-13T13:31:33.821645Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.042,
+    "processing_seconds": 0.0389,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -7715,8 +7762,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-      "config_sha256": "1008b288d844b8628f9439581c3b52323cc72f75b7365235dc203990a01d0723",
-      "facts_sha256": "d15d1607ad1f85e959b3e2ac4390ed8f51b4415ff0190d66e136aebcb134de9f"
+      "config_sha256": "c1674d218b2da14dfdc6f492b037a806f4117fa48cec170647e79919c72d1bdd",
+      "facts_sha256": "4ea3880596128a0ed0f624613bc66c1ec7574d076d3844a85124e4d4947ee3cc"
     },
     "datasets": [
       {

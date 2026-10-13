@@ -326,13 +326,13 @@ class _Builder:
                     params={"pattern": candidate.id},
                 )
                 made += 1
-            if entry.other.distinct > 0:
+            if entry.unmatched.distinct > 0:
                 if counts is not None:
                     frequency = self.counted(counts.other, method="pattern_validation")
                 else:
                     frequency = Frequency(
                         accuracy="indicator",
-                        share=round(entry.other.share, 12),
+                        share=round(entry.unmatched.share, 12),
                         method="distinct_share",
                     )
                 self.add(

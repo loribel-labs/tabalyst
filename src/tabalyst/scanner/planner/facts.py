@@ -408,7 +408,7 @@ def _patterns(
     if isinstance(entry, FieldPatternsComplete):
         basis = entry.candidates[0].coverage.basis if entry.candidates else None
         return PatternFacts(
-            "complete", None, len(entry.candidates), basis, entry.other.distinct
+            "complete", None, len(entry.candidates), basis, entry.unmatched.distinct
         )
     assert isinstance(entry, (FieldPatternsNotApplicable, FieldPatternsFailed))
     return PatternFacts(entry.status, entry.reason, 0, None, 0)

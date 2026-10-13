@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T11:56:23.860450Z",
-    "duration_seconds": 0.014914,
+    "started_at": "2026-10-13T13:31:41.120383Z",
+    "duration_seconds": 0.016607,
     "timings": {
-      "reading": 0.002532,
-      "analysis": 0.002084,
-      "finalize": 0.008031,
-      "derived": 0.001864,
-      "other": 0.000404
+      "reading": 0.002131,
+      "analysis": 0.002036,
+      "finalize": 0.008446,
+      "derived": 0.001949,
+      "other": 0.002044
     },
     "workers": 1,
-    "peak_memory_bytes": 66977792
+    "peak_memory_bytes": 64737280
   },
   "source": {
     "format": "excel",
@@ -300,7 +300,10 @@
     },
     "pattern_inference": {
       "enabled": true,
-      "max_patterns": 8,
+      "max_values": 10000,
+      "max_families": 16,
+      "max_patterns_per_family": 32,
+      "max_patterns": 128,
       "max_value_length": 64,
       "min_distinct": 2
     },
@@ -310,7 +313,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "63fe5c182acf36bba4c0edbc695fda7939bccacd0810ad72db9b346fe53292a4",
+  "config_sha256": "709f540b83b00ff64a6045e9d1369019b2d271d53fbaa68558f07d0bce373293",
   "scope": {
     "collections": null,
     "records_read": 120,
@@ -8545,6 +8548,9 @@
     "patterns": {
       "grammar": {
         "name": "tabalyst.pattern",
+        "version": 2
+      },
+      "algorithm": {
         "version": 1
       },
       "domain": "original",
@@ -8566,6 +8572,8 @@
             "complete": false,
             "available": 100,
             "distinct": 100,
+            "occurrences": 100,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -8574,45 +8582,57 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "UP-D",
+              "d": 100,
+              "o": 100,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "SO",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 4,
-                  "max": 4
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "SO",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "0",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 3,
+                      "max": 3
+                    }
+                  ],
+                  "render": "'SO-0'999",
+                  "format": "AA-9999",
+                  "lengths": [
+                    2,
+                    4
+                  ],
+                  "d": 100,
+                  "o": 100,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'SO'-9999",
-              "lengths": {
-                "min": 7,
-                "max": 7
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 100,
-                "share": 1.0,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9901
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -8621,11 +8641,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -8646,6 +8665,8 @@
             "complete": true,
             "available": 75,
             "distinct": 75,
+            "occurrences": 120,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -8654,56 +8675,69 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 75,
+              "o": 120,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "2026",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "2026",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "0",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "'2026-0'9-99",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 75,
+                  "o": 120,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'2026'-99-99",
-              "lengths": {
-                "min": 10,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 75,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9868
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -8712,11 +8746,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -8881,8 +8914,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-        "config_sha256": "63fe5c182acf36bba4c0edbc695fda7939bccacd0810ad72db9b346fe53292a4",
-        "facts_sha256": "eb9203c32f92130b4f0d335525f9c0b22ac696ff0ada48dcc127e481a94b9739"
+        "config_sha256": "709f540b83b00ff64a6045e9d1369019b2d271d53fbaa68558f07d0bce373293",
+        "facts_sha256": "4a0e39671a1e1b5504d153b3afe42f83bef43415ad05390d7b815343421905f9"
       },
       "settings": {
         "bins": 100,
@@ -8978,13 +9011,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 13,
-        "plan_id": "a23fcc2b4e20b730c4359d64c127a839348ebcb6ce8daf983690bc5df2f3e941",
+        "plan_id": "47d77c4b942a0708ea775fda899efc34cfdb79faf998123432572a5542962725",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-          "config_sha256": "63fe5c182acf36bba4c0edbc695fda7939bccacd0810ad72db9b346fe53292a4",
-          "facts_sha256": "eb9203c32f92130b4f0d335525f9c0b22ac696ff0ada48dcc127e481a94b9739"
+          "config_sha256": "709f540b83b00ff64a6045e9d1369019b2d271d53fbaa68558f07d0bce373293",
+          "facts_sha256": "4a0e39671a1e1b5504d153b3afe42f83bef43415ad05390d7b815343421905f9"
         },
         "objective": {
           "automatic": true,
@@ -13760,15 +13793,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T11:56:23.910978Z",
-        "duration_seconds": 0.00834,
+        "started_at": "2026-10-13T13:31:41.165241Z",
+        "duration_seconds": 0.008056,
         "timings": {
-          "reading": 0.002236,
-          "analysis": 0.002475,
-          "other": 0.003629
+          "reading": 0.002275,
+          "analysis": 0.002368,
+          "other": 0.003412
         },
         "workers": 1,
-        "peak_memory_bytes": 70504448,
+        "peak_memory_bytes": 68591616,
         "source_read": true,
         "source_verified": true,
         "records_read": 120,
@@ -13790,7 +13823,7 @@
             "distinct": 120
           },
           "domain": "analytical",
-          "key": "d5a5d5607bc73263a3d18bc0271600c7882e13dfc2572405e891302296b5bea2",
+          "key": "c6ac25db3378a71d7b9290a7aceab1b2ed33c262f6075fed774897e61ed2cbd8",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -14465,7 +14498,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "03353cfa800106bdbee2174bda49be92e173f70b05377b884d749c6d36127b6e",
+          "key": "6c03c29a25d876fabab2ba869aee0d6643d5c3d580d00470150072e11a5e5ba4",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -15090,7 +15123,7 @@
             "domain": 12
           },
           "domain": "analytical",
-          "key": "1967fa4d5494453221c08c7c925396007e69f5f58f9e0f9e44499dbf2c38e8e3",
+          "key": "6827cdb0a6f0fed4a800683a8bbcd2b486f7c1e2d6a7da3310d7d36a3d4fe97f",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -15199,7 +15232,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "3166e0200bd00879315f5edec4258d950c2d513db92836d0d5e08f0f74c30d1d",
+          "key": "ecebd263f33f99bf4142615c66749ebfa22eeb6d443de9086d3e79e0fca10388",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -15476,19 +15509,19 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "c853fe0c6297cfd5e427dad718b097f4fcf863eed49f63a1957e4f4a59954d14",
+          "key": "84ee65e9bc078f3240dd9545a2fc858af45a7c729287d48a1e2169bc65e4e122",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "source",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 120,
             "matched": 120,
             "candidates": [
               {
-                "id": "p1",
-                "render": "'SO'-9999",
+                "id": "f1.p1",
+                "render": "'SO-0'999",
                 "occurrences": 120
               }
             ],
@@ -15513,19 +15546,19 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "44e4439fbefe3d9ce0edbf113db73bc9f4356719445f411bd7df9ead35c65a0c",
+          "key": "c6dbb7790d6e7bc48221b61566e7ca4d58fed242dfe07c270dbe8485bd8cb42a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
-            "grammar_version": 1,
+            "grammar_version": 2,
             "values": 120,
             "matched": 120,
             "candidates": [
               {
-                "id": "p1",
-                "render": "'2026'-99-99",
+                "id": "f1.p1",
+                "render": "'2026-0'9-99",
                 "occurrences": 120
               }
             ],
@@ -15552,7 +15585,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "d71017b476cee989e1df3c996947f619b271f5651a771397ef9ab0b97a8cb397",
+          "key": "e2d0dcba7bd6954df92e74624a4f86f05f0c4110dce97717191f95c4a0cfb8e7",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -15887,7 +15920,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "b7542b41012eaa490048bb389d4b519cb626484f5e70634cccaf74d59e24da2e",
+          "key": "54468f2a32961690f3de0929aaeeeef4c0615156f77ed7c3c2338a60511fbda9",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -15898,8 +15931,8 @@
             "tables": [],
             "patterns": [
               {
-                "id": "p1",
-                "render": "'SO'-9999",
+                "id": "f1.p1",
+                "render": "'SO-0'999",
                 "occurrences": 120,
                 "distinct": 120,
                 "distinct_accuracy": "exact",
@@ -15919,12 +15952,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T11:56:23.970240Z",
+    "generated_at": "2026-10-13T13:31:41.219136Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1235,
+    "processing_seconds": 0.1187,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -15957,8 +15990,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-      "config_sha256": "63fe5c182acf36bba4c0edbc695fda7939bccacd0810ad72db9b346fe53292a4",
-      "facts_sha256": "eb9203c32f92130b4f0d335525f9c0b22ac696ff0ada48dcc127e481a94b9739"
+      "config_sha256": "709f540b83b00ff64a6045e9d1369019b2d271d53fbaa68558f07d0bce373293",
+      "facts_sha256": "4a0e39671a1e1b5504d153b3afe42f83bef43415ad05390d7b815343421905f9"
     },
     "datasets": [
       {

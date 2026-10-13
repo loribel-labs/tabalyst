@@ -21,7 +21,6 @@ from tabalyst.scanner.config import PatternInferenceSettings
 from tabalyst.scanner.models import PatternToken, ScanResult
 from tabalyst.scanner.patterninfer import (
     compile_signature,
-    generalize,
     matches,
     render_signature,
     tokenize,
@@ -74,13 +73,41 @@ def test_a_run_of_letters_with_a_non_ascii_letter_is_one_unicode_token():
     assert tokenize("a٣")[1] == ("P", "٣", 1, "٣")
 
 
-def test_generalization_merges_adjacent_letters_then_letters_and_digits():
-    tokens = tokenize("Ab12-cd")
-    assert [token[0] for token in generalize(tokens, 0)] == ["U", "L", "D", "P", "L"]
-    assert [token[0] for token in generalize(tokens, 1)] == ["X", "D", "P", "X"]
-    level2 = generalize(tokens, 2)
-    assert [token[0] for token in level2] == ["N", "P", "N"]
-    assert [token[2] for token in level2] == [4, 1, 2]
+def test_a_fixed_value_and_its_separator_or_space_are_one_block_of_text():
+    def text(*literals: str) -> str:
+        return render_signature(
+            [*(_token("literal", 1, text=item) for item in literals), _token("digit_ascii", 4)]
+        )
+
+    assert text("CLI", "-", "00") == "'CLI-00'9999"
+    # A single space between two elements is written as it is, after the block.
+    assert text("AK", " ") == "'AK' 9999"
+    assert text("AK", "-", " ") == "'AK-' 9999"
+    # A separator alone is not a fixed value: it is written as it is.
+    assert text("-") == "-9999"
+
+
+def test_a_single_space_between_two_elements_is_written_as_it_is():
+    letters, digits = _token("upper_ascii", 3), _token("digit_ascii", 3)
+    space = _token("literal", 1, text=" ")
+
+    assert render_signature([digits, space, letters]) == "999 AAA"
+    # At the start, at the end or repeated, a space is quoted to be seen.
+    assert render_signature([space, digits]) == "' '999"
+    assert render_signature([digits, space]) == "999' '"
+    assert render_signature([digits, _token("literal", 2, text=" "), letters]) == "999'  'AAA"
+    assert render_signature([_token("literal", 1, text="AK"), _token("literal", 2, text=" "), digits]) == "'AK  '999"
+
+
+def test_the_classes_that_mix_letters_and_digits_have_their_own_symbols():
+    signature = [_token("upper_digit", 1), _token("lower_digit", 2), _token("alphanumeric", 1)]
+
+    assert render_signature(signature) == "Xxx#"
+    matcher = compile_signature(signature)
+    assert matches(matcher, "7ab9")
+    assert matches(matcher, "Zx1c")
+    assert not matches(matcher, "zab9")
+    assert not matches(matcher, "7aB9")
 
 
 def test_rendering_quotes_literal_letters_so_they_are_not_classes():
@@ -89,7 +116,7 @@ def test_rendering_quotes_literal_letters_so_they_are_not_classes():
         _token("digit_ascii", 4),
         _token("literal", 1, text="A"),
     ]
-    assert render_signature(signature) == "XX9999'A'"
+    assert render_signature(signature) == "AA9999'A'"
     spaced = [
         _token("lower_ascii", 2, 5),
         _token("literal", 1, 2, text=" "),
@@ -98,7 +125,7 @@ def test_rendering_quotes_literal_letters_so_they_are_not_classes():
         _token("literal", 1, text="'"),
         _token("letter_unicode", 7),
     ]
-    assert render_signature(spaced) == "x{2,5}' '{1,2}#{1,12}-''''@{7}"
+    assert render_signature(spaced) == "a{2,5}' '{1,2}#{1,12}'-'''@{7}"
 
 
 def test_the_matcher_follows_the_signature_and_never_backtracks():
@@ -123,14 +150,30 @@ def test_the_matcher_follows_the_signature_and_never_backtracks():
 # Inference ------------------------------------------------------------------
 
 
-def test_a_constant_letter_needs_enough_values_to_become_a_literal(tmp_path):
-    def render(count: int) -> str:
-        rows = [f"{LETTERS[i]}{LETTERS[i + 3]}{1000 + i:04d}A" for i in range(count)]
-        entry = _entries(_scan(tmp_path, "id", rows))["column_1"]
-        return entry.candidates[0].render
+def test_a_constant_carried_by_every_value_of_a_pattern_is_folded_into_it(tmp_path):
+    rows = [f"{LETTERS[i]}{LETTERS[i + 3]}{1000 + i * 1111}A" for i in range(4)]
+    rows += ["xx-xx-xx"]
+    entry = _entries(_scan(tmp_path, "id", rows))["column_1"]
 
-    assert render(4) == "XX9999X"
-    assert render(5) == "XX9999'A'"
+    first, stray = entry.families
+    # The last letter is the same in all four values; a lone value proves nothing.
+    assert [pattern.render for pattern in first.patterns] == ["AA9999'A'"]
+    assert [pattern.render for pattern in stray.patterns] == ["aa-aa-aa"]
+
+
+def test_a_common_start_of_a_token_is_folded_and_the_rest_stays_a_class(tmp_path):
+    rows = [f"A{LETTERS[i]}-{i:04d}" for i in range(10)]
+    [pattern] = _entries(_scan(tmp_path, "id", rows))["column_1"].families[0].patterns
+
+    # The digits all start with 000 here: that is a constant of the pattern too.
+    assert pattern.render == "'A'A'-000'9"
+    assert [token.kind for token in pattern.signature] == [
+        "literal",
+        "upper_ascii",
+        "literal",
+        "literal",
+        "digit_ascii",
+    ]
 
 
 def test_a_complete_population_is_reported_as_all_distinct_values(tmp_path):
@@ -140,15 +183,19 @@ def test_a_complete_population_is_reported_as_all_distinct_values(tmp_path):
     assert entry.population.complete
     assert entry.population.selection == "all"
     [candidate] = entry.candidates
-    assert candidate.render == "'ID'-999"
+    assert candidate.render == "'ID-0'99"
     assert candidate.coverage.basis == "all_distinct"
     assert candidate.coverage.distinct == 50
     assert candidate.coverage.share == 1.0
     assert candidate.role == "principal"
     assert candidate.examples == [0, 1, 2]
-    assert candidate.confidence.method == "laplace_share"
-    assert entry.other.distinct == 0
+    assert entry.other.d == 0
     assert entry.limits == []
+    [family] = entry.families
+    assert (family.id, family.key, family.d, family.o) == ("f1", "UP-D", 50, 50)
+    assert [pattern.id for pattern in family.patterns] == ["f1.p1"]
+    assert entry.population.occurrences == 50
+    assert entry.population.occurrences_basis == "exact"
 
 
 def test_small_integers_are_assessed_and_not_inferred(tmp_path):
@@ -166,7 +213,7 @@ def test_a_column_of_long_integers_is_inferred_from_its_decimal_text(tmp_path):
     assert entry.status == "complete"
     assert entry.eligibility.state == "eligible"
     assert "integer_digits" in entry.eligibility.reasons
-    assert [candidate.render for candidate in entry.candidates] == ["9{9}"]
+    assert [candidate.render for candidate in entry.candidates] == ["'100'999999"]
 
 
 def test_a_sensitive_field_is_never_inferred(tmp_path):
@@ -186,14 +233,14 @@ def test_fewer_distinct_values_than_the_minimum_give_no_patterns(tmp_path):
     assert entry.reason == "too_few_distinct"
 
 
-def test_a_structure_with_one_value_is_other_not_a_pattern(tmp_path):
+def test_a_structure_with_one_value_is_a_family_of_its_own(tmp_path):
     rows = [f"{LETTERS[i]}{LETTERS[i + 1]}{i:03d}" for i in range(20)] + ["zz-zz-zz"]
     entry = _entries(_scan(tmp_path, "code", rows))["column_1"]
 
-    assert [candidate.render for candidate in entry.candidates] == ["XX999"]
-    assert entry.other.distinct == 1
-    assert entry.other.structures == 1
-    assert entry.other.share == round(1 / 21, 4)
+    assert [candidate.render for candidate in entry.candidates] == ["AA'0'99", "aa-aa-aa"]
+    assert [family.d for family in entry.families] == [20, 1]
+    assert entry.other.d == 0
+    assert entry.other.structures == 0
 
 
 def test_values_that_cannot_take_part_are_counted_as_excluded(tmp_path):
@@ -221,27 +268,100 @@ def test_a_value_with_too_many_tokens_is_excluded(tmp_path):
     assert entry.population.distinct == 20
 
 
-def test_the_candidates_are_bounded_and_the_rest_is_generalized(tmp_path):
+def _five_structures(tmp_path: Path, **settings) -> object:
     # Five structures of one fixed length each, so the field is eligible.
     rows = [f"ab{i:04d}" for i in range(200)]
     rows += [f"AB-{i:03d}" for i in range(200)]
     rows += [f"{i:03d}x" for i in range(100)]
     rows += [f"q_{i:03d}" for i in range(100)]
     rows += [f"Zz{i:02d}" for i in range(100)]
-    entry = _entries(
-        _scan(tmp_path, "code", rows, pattern_inference={"max_patterns": 2})
-    )["column_1"]
-
-    assert len(entry.candidates) <= 2
-    assert "max_patterns" in entry.limits
-    taken = sum(candidate.coverage.distinct for candidate in entry.candidates)
-    assert taken + entry.other.distinct == entry.population.distinct
+    return _entries(_scan(tmp_path, "code", rows, pattern_inference=settings))["column_1"]
 
 
-def test_a_population_above_the_cap_is_cut_and_says_so(tmp_path, monkeypatch):
-    monkeypatch.setattr(patterninfer, "MAX_VALUES", 30)
+def test_the_families_are_bounded_and_the_rest_is_other(tmp_path):
+    entry = _five_structures(tmp_path, max_families=2)
+
+    assert [family.d for family in entry.families] == [200, 200]
+    assert entry.limits == ["max_families"]
+    assert (entry.other.structures, entry.other.d, entry.other.o) == (3, 300, 300)
+    taken = sum(family.d for family in entry.families)
+    assert taken + entry.other.d == entry.population.distinct
+
+
+def _lengths_column(tmp_path: Path, **settings) -> tuple[ScanResult, object]:
+    # Five lengths of one structure: five patterns of fixed length, ten values each.
+    rows = [f"ID-{'7' * length}{i}" for length in range(1, 6) for i in range(10)]
+    result = _scan(tmp_path, "id", rows, pattern_inference=settings)
+    return result, _entries(result)["column_1"]
+
+
+def test_the_patterns_of_a_family_are_bounded_and_the_rest_is_a_table(tmp_path):
+    result, entry = _lengths_column(tmp_path, max_patterns_per_family=3)
+
+    [family] = entry.families
+    assert len(family.patterns) == 3
+    assert entry.limits == ["max_patterns_per_family"]
+    [table] = family.tables
+    assert table.facet == "lengths"
+    assert sum(cell.d for cell in table.cells) + table.others.d == family.d - 30
+    assert check_scan(result) == []
+
+
+def test_the_patterns_and_nodes_of_a_field_are_bounded_by_max_patterns(tmp_path):
+    result, entry = _lengths_column(tmp_path, max_patterns=2)
+
+    [family] = entry.families
+    assert len(family.patterns) == 2
+    assert entry.limits == ["max_patterns"]
+    assert family.tables
+    assert check_scan(result) == []
+
+
+def test_a_budget_below_the_number_of_families_leaves_the_smallest_in_other(tmp_path):
+    entry = _five_structures(tmp_path, max_patterns=3)
+
+    assert [family.d for family in entry.families] == [200, 200, 100]
+    assert entry.limits == ["max_patterns"]
+    assert (entry.other.structures, entry.other.d, entry.other.o) == (2, 200, 200)
+
+
+def test_the_values_a_budget_keeps_out_of_the_patterns_are_unmatched(tmp_path):
+    _, entry = _lengths_column(tmp_path, max_patterns_per_family=3)
+
+    # Two of the five lengths, ten values each, belong to no pattern.
+    assert entry.other.d == 0
+    assert entry.unmatched.distinct == 20
+    assert entry.unmatched.share == round(20 / 50, 4)
+
+
+def test_the_validator_catches_a_table_or_a_composition_that_does_not_fit(tmp_path):
+    (tmp_path / "cut").mkdir()
+    (tmp_path / "merged").mkdir()
+    cut = _scan(
+        tmp_path / "cut", "id",
+        [f"ID-{'7' * length}{i}" for length in range(1, 6) for i in range(10)],
+        pattern_inference={"max_patterns_per_family": 3},
+    )
+    merged = _scan(tmp_path / "merged", "code", _code_rows("U"))
+
+    def damaged(result, mutate):
+        document = result.model_dump(mode="json")
+        mutate(document["derived"]["patterns"]["fields"][0]["families"][0])
+        return check_scan(ScanResult.model_validate(document))
+
+    cells = [{"value": str(n), "d": 0, "o": 0} for n in range(4)]
+    assert any("table has more cells" in p for p in damaged(cut, lambda f: f["tables"][0].update(cells=cells)))
+    assert any(
+        "composition must start" in p
+        for p in damaged(merged, lambda f: f.update(composition=["UP-DU", "UP-D"]))
+    )
+
+
+def test_a_population_above_the_cap_is_cut_and_says_so(tmp_path):
     rows = [f"ID-{i:03d}" for i in range(50)]
-    entry = _entries(_scan(tmp_path, "id", rows))["column_1"]
+    entry = _entries(
+        _scan(tmp_path, "id", rows, pattern_inference={"max_values": 30})
+    )["column_1"]
 
     assert entry.population.available == 50
     assert entry.population.distinct == 30
@@ -294,6 +414,128 @@ def test_the_inference_is_deterministic_and_independent_of_the_run(tmp_path):
     assert first.derived is not None
 
 
+# Families: the structures that merge (E2) ---------------------------------------
+
+
+def _code_rows(trail: str, count: int = 30, extra: int = 10) -> list[str]:
+    """`AK-` + 4 digits + a digit for ``count`` values, then the same with a
+    character of ``trail`` ("U" capital, "L" lowercase letter) for ``extra``."""
+    rows = [f"AK-{1000 + i * 37:04d}{i % 10}" for i in range(count)]
+    for i in range(extra):
+        last = LETTERS[i % 26] if trail == "U" else LETTERS[i % 26].lower()
+        rows.append(f"AK-{2000 + i * 41:04d}{last}")
+    return rows
+
+
+def test_structures_that_differ_by_their_last_position_are_one_family(tmp_path):
+    result = _scan(tmp_path, "code", _code_rows("U"))
+    [family] = _entries(result)["column_1"].families
+    [pattern] = family.patterns
+
+    assert (family.key, family.composition, family.d) == ("UP-D", ["UP-D", "UP-DU"], 40)
+    # The last position is a capital or a digit; each structure is a node.
+    assert pattern.render == "'AK-'9999X"
+    assert pattern.signature[-1].kind == "upper_digit"
+    assert [(node.render, node.d, node.role) for node in pattern.nodes] == [
+        ("'AK-'99999", 30, "principal"),
+        ("'AK-2'999A", 10, "secondary"),
+    ]
+    assert sum(node.d for node in pattern.nodes) == pattern.d
+    assert check_scan(result) == []
+
+
+def test_the_merged_position_takes_the_classes_of_every_merged_structure(tmp_path):
+    lower = _entries(_scan(tmp_path, "code", _code_rows("L")))["column_1"]
+    assert lower.families[0].patterns[0].signature[-1].kind == "lower_digit"
+    rows = _code_rows("U") + [f"AK-{3000 + i * 43:04d}{LETTERS[i % 26].lower()}" for i in range(10)]
+    [family] = _entries(_scan(tmp_path, "code", rows))["column_1"].families
+
+    assert family.composition == ["UP-D", "UP-DL", "UP-DU"]
+    assert family.patterns[0].signature[-1].kind == "alphanumeric"
+    assert family.patterns[0].render == "'AK-'9999#"
+
+
+def test_a_pattern_takes_the_classes_of_the_structures_it_holds_only(tmp_path):
+    rows = [f"AK-{1000 + i * 37:04d}{i % 10}" for i in range(30)]
+    rows += [f"AK-{10000 + i * 371:05d}{i % 10}" for i in range(30)]
+    rows += [f"AK-{2000 + i * 41:04d}{LETTERS[i % 26]}" for i in range(10)]
+    rows += [f"AK-{20000 + i * 413:05d}{LETTERS[i % 26].lower()}" for i in range(10)]
+    [family] = _entries(_scan(tmp_path, "code", rows))["column_1"].families
+
+    assert family.composition == ["UP-D", "UP-DL", "UP-DU"]
+    kinds = {pattern.lengths[1]: pattern.signature[-1].kind for pattern in family.patterns}
+    assert kinds == {5: "upper_digit", 6: "lower_digit"}
+
+
+def test_structures_that_differ_at_the_start_of_a_block_are_one_family(tmp_path):
+    rows = [f"{i % 10}{1000 + i * 37:04d}-X" for i in range(30)]
+    rows += [f"{LETTERS[i % 26]}{2000 + i * 41:04d}-X" for i in range(10)]
+    [family] = _entries(_scan(tmp_path, "code", rows))["column_1"].families
+
+    assert family.composition == ["DP-U", "UDP-U"]
+    assert family.patterns[0].render == "X9999'-X'"
+
+
+@pytest.mark.parametrize(
+    ("name", "extra"),
+    [
+        ("three positions", [f"AK-{1000 + i * 37:04d}{LETTERS[i]}{LETTERS[i + 3]}{LETTERS[i + 5]}" for i in range(10)]),
+        ("a stable part shorter than the mixed one", [f"AK-{LETTERS[i]}{LETTERS[i + 3]}{i}" for i in range(10)]),
+        ("a block length the base never has", [f"AK-{20000 + i * 41:05d}{LETTERS[i]}" for i in range(10)]),
+        ("a structure with one value", ["AK-1234Z"]),
+    ],
+)
+def test_structures_that_do_not_fit_the_merge_rule_stay_apart(tmp_path, name, extra):
+    rows = [f"AK-{100 + i * 7:03d}" for i in range(30)] if name.startswith("a stable") else [
+        f"AK-{1000 + i * 37:04d}" for i in range(30)
+    ]
+    entry = _entries(_scan(tmp_path, "code", rows + extra))["column_1"]
+
+    assert len(entry.families) == 2, name
+    assert all(not family.composition for family in entry.families), name
+    assert [family.d for family in entry.families] == [30, len(extra)]
+
+
+def test_families_are_ranked_by_the_larger_of_their_shares_then_by_key(tmp_path):
+    # `UD` has 20 distinct values; `UP-D` 10 values with 50 occurrences each, so it
+    # is the larger family in occurrences although the smaller in distinct values.
+    rows = [f"{LETTERS[i]}{i:02d}" for i in range(20)] + [f"Q-{1000 + i * 91}" for i in range(10)] * 50
+    entry = _entries(_scan(tmp_path, "code", rows))["column_1"]
+
+    assert [family.key for family in entry.families] == ["UP-D", "UD"]
+    assert [family.id for family in entry.families] == ["f1", "f2"]
+    assert entry.families[0].o == 500
+
+
+def test_a_length_the_budget_keeps_out_is_counted_in_the_table_of_lengths(tmp_path):
+    result, entry = _lengths_column(tmp_path, max_patterns_per_family=3)
+    [table] = entry.families[0].tables
+
+    # The five combinations tie in size: the kept ones are the first by lengths,
+    # the others are cells of the table.
+    assert [pattern.lengths for pattern in entry.families[0].patterns] == [[2, 2], [2, 3], [2, 4]]
+    assert [cell.value for cell in table.cells] == ["2,5", "2,6"]
+    assert table.others.distinct == 0
+    assert check_scan(result) == []
+
+
+def test_the_discovery_gives_the_same_entry_whatever_the_order_of_the_rows(tmp_path):
+    rows = _code_rows("U") + [f"{1000 + i * 91}" for i in range(12)]
+    first = _entries(_scan(tmp_path, "code", rows))["column_1"]
+    second = _entries(_scan(tmp_path, "code", list(reversed(rows))))["column_1"]
+
+    def shape(entry):
+        return [
+            (family.key, family.d, family.o, [(p.render, p.d, p.o) for p in family.patterns])
+            for family in entry.families
+        ]
+
+    # The ids of the examples follow the order of the rows; nothing else does.
+    assert shape(first) == shape(second)
+    assert first.other == second.other
+    assert first.limits == second.limits
+
+
 # Document and Report --------------------------------------------------------
 
 
@@ -320,7 +562,7 @@ def test_the_schema_accepts_the_derived_block_and_rejects_a_damaged_one():
         for item in document["derived"]["patterns"]["fields"]
         if item["status"] == "complete"
     )
-    entry["candidates"][0]["role"] = "boss"
+    entry["families"][0]["patterns"][0]["signature"][0]["kind"] = "boss"
     assert not validator.is_valid(document)
 
 
@@ -329,23 +571,28 @@ def _damaged(mutate) -> list[str]:
     entry = next(
         item
         for item in document["derived"]["patterns"]["fields"]
-        if item["status"] == "complete" and item["candidates"]
+        if item["status"] == "complete" and item["families"]
     )
     mutate(entry)
     return check_scan(ScanResult.model_validate(document))
 
 
+def _first_pattern(entry):
+    return entry["families"][0]["patterns"][0]
+
+
 @pytest.mark.parametrize(
     "mutate",
     [
-        lambda e: e["candidates"][0]["coverage"].update(distinct=1),
-        lambda e: e["candidates"][0].update(render="9"),
-        lambda e: e["candidates"][0].update(examples=[10**6]),
-        lambda e: e["other"].update(distinct=e["other"]["distinct"] + 1),
+        lambda e: e["families"][0].update(d=e["families"][0]["d"] + 1),
+        lambda e: _first_pattern(e).update(render="9"),
+        lambda e: _first_pattern(e).update(examples=[10**6]),
+        lambda e: _first_pattern(e).update(id="f1.p9"),
+        lambda e: e["other"].update(d=e["other"]["d"] + 1),
         lambda e: e["population"].update(complete=not e["population"]["complete"]),
-        lambda e: e["overlaps"].append({"patterns": ["p1", "p9"], "values": 1}),
+        lambda e: _first_pattern(e)["signature"][0].update(max=99),
     ],
-    ids=["coverage", "render", "example", "other", "population", "overlap"],
+    ids=["family", "render", "example", "id", "other", "population", "fixed_length"],
 )
 def test_the_validator_catches_a_pattern_block_that_does_not_reconcile(mutate):
     assert any("derived.patterns" in problem for problem in _damaged(mutate))
@@ -365,7 +612,7 @@ def test_a_report_carries_the_patterns_of_its_scan():
     assert profile.derived == result.derived
     assert base_of(profile).derived == result.derived
     document = json.loads(profile.model_dump_json(by_alias=True))
-    assert document["derived"]["patterns"]["grammar"]["version"] == 1
+    assert document["derived"]["patterns"]["grammar"]["version"] == 2
     assert check_scan(base_of(profile)) == []
 
 

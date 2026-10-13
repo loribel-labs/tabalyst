@@ -25,6 +25,8 @@ from tabalyst.scanner.models import (
     LongTexts,
     Observation,
     Observations,
+    PatternFamily,
+    PatternToken,
     QualitySummary,
     RowSample,
     SampleEntry,
@@ -708,6 +710,10 @@ def _check_field_patterns(
     result: ScanResult,
     problems: list[str],
 ) -> None:
+    """The hierarchy of a field: a population that describes its samples, ids in
+    order, signatures of fixed length that match their examples, and the sums
+    that add up (patterns to their family, nodes to their pattern, families and
+    ``other`` to the population)."""
     where = f"derived.patterns[{entry.dataset}.{entry.field}]"
     settings = result.config.pattern_inference
     samples = field.values.samples
@@ -726,70 +732,113 @@ def _check_field_patterns(
     )
     if population.selection != samples.selection or population.complete != complete:
         problems.append(f"{where}.population: does not describe the field's samples")
+    if population.occurrences_basis != ("exact" if complete else "sample"):
+        problems.append(f"{where}.population: occurrences_basis must follow the population")
     if population.distinct > population.available:
         problems.append(f"{where}.population: distinct exceeds available")
     expected_long = samples.long_texts.occurrences if samples.long_texts else 0
     if population.excluded.long_text_occurrences != expected_long:
         problems.append(f"{where}.population.excluded: long_text_occurrences differs")
-    if len(entry.candidates) > settings.max_patterns:
-        problems.append(f"{where}: more candidates than max_patterns")
+    if population.distinct > settings.max_values:
+        problems.append(f"{where}.population: more values than max_values")
+    if len(entry.families) > settings.max_families:
+        problems.append(f"{where}: more families than max_families")
     values = {item.id: item.value for item in samples.listed}
     if samples.by_length is not None:
         values.update({item.id: item.value for item in samples.by_length.listed})
     # A Report base keeps fewer values: its examples may name values it dropped.
     resolvable = samples.kept == samples.of
-    ids = [candidate.id for candidate in entry.candidates]
-    if ids != [f"p{number + 1}" for number in range(len(ids))]:
-        problems.append(f"{where}: candidate ids must be p1, p2, ... in order")
-    total = population.distinct
-    taken = 0
-    for number, candidate in enumerate(entry.candidates):
-        label = f"{where}.candidates[{candidate.id}]"
-        taken += candidate.coverage.distinct
-        if candidate.role != ("principal" if number == 0 else "secondary"):
-            problems.append(f"{label}: only the first candidate is principal")
-        if candidate.render != render_signature(candidate.signature):
-            problems.append(f"{label}: render does not describe the signature")
-        if any(
-            token.min > token.max
-            or token.min < 0
-            or (token.kind == "literal") != (token.text is not None)
-            for token in candidate.signature
-        ):
-            problems.append(f"{label}.signature: invalid token")
-        if candidate.coverage.basis != ("all_distinct" if complete else "sample"):
-            problems.append(f"{label}.coverage: basis must follow the population")
-        share = round(candidate.coverage.distinct / total, 4) if total else 0
-        if candidate.coverage.share != share:
-            problems.append(f"{label}.coverage: share must be distinct / population")
-        if not 0 <= candidate.generalization <= 2:
-            problems.append(f"{label}: generalization must be 0, 1 or 2")
-        if len(candidate.examples) > EXAMPLES or candidate.examples != sorted(
-            candidate.examples
-        ):
-            problems.append(f"{label}: examples are the smallest ids, at most {EXAMPLES}")
-        matcher = compile_signature(candidate.signature)
-        for example in candidate.examples if resolvable else ():
-            value = values.get(example)
-            if value is None:
-                problems.append(f"{label}: example {example} is not a sampled value")
-            elif not matches(matcher, value) or not (
-                candidate.lengths.min <= len(value) <= candidate.lengths.max
-            ):
-                problems.append(f"{label}: example {example} does not match")
-    if taken + entry.other.distinct != total:
-        problems.append(f"{where}: candidates and other must add up to the population")
-    if entry.other.share != (round(entry.other.distinct / total, 4) if total else 0):
-        problems.append(f"{where}.other: share must be distinct / population")
-    known = set(ids)
-    for overlap in entry.overlaps:
-        if (
-            len(overlap.patterns) < 2
-            or not known.issuperset(overlap.patterns)
-            or overlap.patterns != sorted(overlap.patterns, key=ids.index)
-            or overlap.values < 1
-        ):
-            problems.append(f"{where}.overlaps: invalid entry {overlap.patterns}")
+    published = 0
+    distinct = occurrences = 0
+    for number, family in enumerate(entry.families, 1):
+        label = f"{where}.families[{family.id}]"
+        if family.id != f"f{number}":
+            problems.append(f"{label}: family ids must be f1, f2, ... in order")
+        distinct += family.d
+        occurrences += family.o
+        published += _check_family(
+            family, label, settings.max_patterns_per_family, values if resolvable else None,
+            problems,
+        )
+    if published > settings.max_patterns:
+        problems.append(f"{where}: more patterns and nodes than max_patterns")
+    if (distinct + entry.other.d, occurrences + entry.other.o) != (
+        population.distinct,
+        population.occurrences,
+    ):
+        problems.append(f"{where}: families and other must add up to the population")
+
+
+def _check_family(
+    family: PatternFamily,
+    label: str,
+    per_family: int,
+    values: dict[int, str] | None,
+    problems: list[str],
+) -> int:
+    """The checks of one family; returns the patterns and nodes it publishes."""
+    if len(family.patterns) > per_family:
+        problems.append(f"{label}: more patterns than max_patterns_per_family")
+    if len(family.examples) > EXAMPLES or family.examples != sorted(family.examples):
+        problems.append(f"{label}: examples are the smallest ids, at most {EXAMPLES}")
+    if family.composition and family.composition[0] != family.key:
+        problems.append(f"{label}: composition must start with the key of the family")
+    for table in family.tables:
+        if len(table.cells) > per_family:
+            problems.append(f"{label}: a table has more cells than max_patterns_per_family")
+    published = len(family.patterns)
+    left_out = sum(cell.d for table in family.tables for cell in table.cells)
+    left_out += sum(table.others.d for table in family.tables)
+    left_out_o = sum(cell.o for table in family.tables for cell in table.cells)
+    left_out_o += sum(table.others.o for table in family.tables)
+    if (
+        sum(pattern.d for pattern in family.patterns) + left_out,
+        sum(pattern.o for pattern in family.patterns) + left_out_o,
+    ) != (family.d, family.o):
+        problems.append(f"{label}: patterns and tables must add up to the family")
+    for number, pattern in enumerate(family.patterns, 1):
+        name = f"{label}.patterns[{pattern.id}]"
+        published += len(pattern.nodes)
+        if pattern.id != f"{family.id}.p{number}":
+            problems.append(f"{name}: pattern ids must be p1, p2, ... in order")
+        _check_signature(pattern.signature, pattern.render, name, problems)
+        if len(pattern.examples) > EXAMPLES or pattern.examples != sorted(pattern.examples):
+            problems.append(f"{name}: examples are the smallest ids, at most {EXAMPLES}")
+        if pattern.nodes and (
+            sum(node.d for node in pattern.nodes),
+            sum(node.o for node in pattern.nodes),
+        ) != (pattern.d, pattern.o):
+            problems.append(f"{name}: nodes must add up to the pattern")
+        for position, node in enumerate(pattern.nodes, 1):
+            node_name = f"{name}.nodes[{node.id}]"
+            if node.id != f"{pattern.id}.n{position}" or node.parent != pattern.id:
+                problems.append(f"{node_name}: node id or parent is wrong")
+            if node.role != ("principal" if position == 1 else "secondary"):
+                problems.append(f"{node_name}: only the first node is principal")
+            _check_signature(node.signature, node.render, node_name, problems)
+        if values is not None:
+            matcher = compile_signature(pattern.signature)
+            for example in pattern.examples:
+                value = values.get(example)
+                if value is None:
+                    problems.append(f"{name}: example {example} is not a sampled value")
+                elif not matches(matcher, value):
+                    problems.append(f"{name}: example {example} does not match")
+    return published
+
+
+def _check_signature(
+    signature: list[PatternToken], render: str, name: str, problems: list[str]
+) -> None:
+    if render != render_signature(signature):
+        problems.append(f"{name}: render does not describe the signature")
+    if any(
+        token.min != token.max
+        or token.min < 1
+        or (token.kind == "literal") != (token.text is not None)
+        for token in signature
+    ):
+        problems.append(f"{name}.signature: invalid token")
 
 
 _STATUS_RANK = {"confirmed_issue": 0, "candidate_anomaly": 1, "informational": 2}
