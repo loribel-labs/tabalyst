@@ -10,6 +10,7 @@ import csv
 import math
 import random
 import re
+import string
 import unicodedata
 from collections import Counter, deque
 from collections.abc import Callable, Mapping, Sequence
@@ -27,7 +28,10 @@ OPERATION_KEYS = frozenset({"kind", "column", "rate", "count", "value", "when", 
 FORMAT_VALUES = frozenset({
     "upper", "lower", "strip", "date_slash", "phone_spaces", "insert_space", "double_space",
     "drop_char", "double_hyphen", "suffix_x", "strip_accents", "negate", "leading_apostrophe",
+    "double_char", "swap_first_two", "transpose", "replace_char", "phone_double_space",
+    "date_dmy", "date_iso", "currency_suffix", "currency_prefix", "currency_fr", "currency_code",
 })
+CURRENCY_CODE = "CAD"
 CLASS_NAME = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
 # Enough to pick a copy that is not the previous line, small enough to stream in constant memory.
 COPY_WINDOW = 1000
@@ -61,6 +65,88 @@ def _strip_accents(value: str, rng: random.Random) -> str:
         "NFC", "".join(char for char in decomposed if unicodedata.category(char) != "Mn"))
 
 
+def _letter_spots(value: str) -> list[int]:
+    return [i for i, char in enumerate(value) if char.isalpha()]
+
+
+def _double_char(value: str, rng: random.Random) -> str:
+    spots = _letter_spots(value)
+    if not spots:
+        return value
+    spot = rng.choice(spots)
+    return value[:spot] + value[spot] + value[spot:]
+
+
+def _swap_first_two(value: str, rng: random.Random) -> str:
+    if len(value) < 2 or value[0] == value[1]:
+        return value
+    return value[1] + value[0] + value[2:]
+
+
+def _transpose(value: str, rng: random.Random) -> str:
+    spots = [i for i in range(len(value) - 1)
+             if value[i].isalpha() and value[i + 1].isalpha() and value[i] != value[i + 1]]
+    if not spots:
+        return value
+    spot = rng.choice(spots)
+    return value[:spot] + value[spot + 1] + value[spot] + value[spot + 2:]
+
+
+def _replace_char(value: str, rng: random.Random) -> str:
+    # Plain ASCII letters of the same case keep the substitution a typo, not an encoding fault.
+    spots = [i for i in _letter_spots(value) if value[i].isascii()]
+    if not spots:
+        return value
+    spot = rng.choice(spots)
+    alphabet = string.ascii_uppercase if value[spot].isupper() else string.ascii_lowercase
+    other = rng.choice([char for char in alphabet if char != value[spot]])
+    return value[:spot] + other + value[spot + 1:]
+
+
+def _phone_double_space(value: str, rng: random.Random) -> str:
+    return re.sub(r"^(\+\d)-", r"\1  ", value, count=1)
+
+
+def _date_dmy(value: str, rng: random.Random) -> str:
+    match = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", value)
+    return f"{match[3]}-{match[2]}-{match[1]}" if match else value
+
+
+def _date_iso(value: str, rng: random.Random) -> str:
+    match = re.fullmatch(r"(\d{2})-(\d{2})-(\d{4})", value)
+    return f"{match[3]}-{match[2]}-{match[1]}" if match else value
+
+
+def _split_amount(value: str) -> tuple[str, str, str] | None:
+    """Return sign, integer digits and decimals of a plain decimal number."""
+    match = re.fullmatch(r"([+-]?)(\d+)(\.\d+)?", value)
+    return (match[1], match[2], match[3] or "") if match else None
+
+
+def _currency_suffix(value: str, rng: random.Random) -> str:
+    parts = _split_amount(value)
+    return f"{value} $" if parts else value
+
+
+def _currency_prefix(value: str, rng: random.Random) -> str:
+    parts = _split_amount(value)
+    return f"{parts[0]}${parts[1]}{parts[2]}" if parts else value
+
+
+def _currency_fr(value: str, rng: random.Random) -> str:
+    parts = _split_amount(value)
+    if not parts:
+        return value
+    sign, whole, decimals = parts
+    grouped = f"{int(whole):,}".replace(",", " ")
+    return f"{sign}{grouped}{decimals.replace('.', ',')} $"
+
+
+def _currency_code(value: str, rng: random.Random) -> str:
+    parts = _split_amount(value)
+    return f"{value} {CURRENCY_CODE}" if parts else value
+
+
 # The random stream is passed to every transform so that adding one never shifts another.
 TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "upper": lambda value, rng: value.upper(),
@@ -76,6 +162,17 @@ TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "strip_accents": _strip_accents,
     "negate": _negate,
     "leading_apostrophe": lambda value, rng: f"'{value}",
+    "double_char": _double_char,
+    "swap_first_two": _swap_first_two,
+    "transpose": _transpose,
+    "replace_char": _replace_char,
+    "phone_double_space": _phone_double_space,
+    "date_dmy": _date_dmy,
+    "date_iso": _date_iso,
+    "currency_suffix": _currency_suffix,
+    "currency_prefix": _currency_prefix,
+    "currency_fr": _currency_fr,
+    "currency_code": _currency_code,
 }
 
 

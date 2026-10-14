@@ -286,3 +286,102 @@ def test_duplicate_row_drops_the_earlier_changes_it_overwrites_from_journal_and_
         assert (row == rows[position]) == (not recorded)
     assert summary["changed_cells"] == len(changes)
     assert summary["affected_rows"] == len(by_row)
+
+
+@pytest.mark.parametrize(("transform", "value", "expected"), [
+    ("swap_first_two", "Leblanc", "eLblanc"),
+    ("phone_double_space", "+1-468-555-0110", "+1  468-555-0110"),
+    ("date_dmy", "2024-03-31", "31-03-2024"),
+    ("date_iso", "31-03-2024", "2024-03-31"),
+    ("currency_suffix", "1234.18", "1234.18 $"),
+    ("currency_suffix", "-744.79", "-744.79 $"),
+    ("currency_prefix", "1234.18", "$1234.18"),
+    ("currency_prefix", "-744.79", "-$744.79"),
+    ("currency_fr", "1234.18", "1 234,18 $"),
+    ("currency_fr", "1234567", "1 234 567 $"),
+    ("currency_fr", "-744.79", "-744,79 $"),
+    ("currency_fr", "12.5", "12,5 $"),
+    ("currency_code", "1234.18", "1234.18 CAD"),
+])
+def test_deterministic_format_value_rewrites_the_cell(
+        tmp_path: Path, transform: str, value: str, expected: str) -> None:
+    altered, changes, _ = _inject(
+        tmp_path, _each_row([value] * 4),
+        [{"kind": "format", "column": "v", "value": transform, "count": 4}])
+    assert [row["v"] for row in altered] == [expected] * 4
+    assert len(changes) == 4
+
+
+@pytest.mark.parametrize(("transform", "value"), [
+    ("swap_first_two", "A"),
+    ("swap_first_two", "oo"),
+    ("phone_double_space", "468-555-0110"),
+    ("phone_double_space", "+1  468-555-0110"),
+    ("date_dmy", "31-03-2024"),
+    ("date_dmy", "2024/03/31"),
+    ("date_iso", "2024-03-31"),
+    ("currency_suffix", "abc"),
+    ("currency_suffix", "12 $"),
+    ("currency_prefix", ""),
+    ("currency_fr", "1,234.18"),
+    ("currency_code", "12 CAD"),
+    ("double_char", "1234"),
+    ("transpose", "aa"),
+    ("transpose", "a1"),
+    ("replace_char", "1234"),
+    ("replace_char", "é"),
+])
+def test_format_value_leaves_an_ineligible_cell_and_counts_it_skipped(
+        tmp_path: Path, transform: str, value: str) -> None:
+    altered, changes, summary = _inject(
+        tmp_path, _each_row([value] * 3),
+        [{"kind": "format", "column": "v", "value": transform, "count": 3}])
+    assert [row["v"] for row in altered] == [value] * 3
+    assert changes == []
+    assert summary["operations"][0]["skipped_rows"] == 3  # type: ignore[index]
+
+
+def test_double_char_repeats_exactly_one_letter(tmp_path: Path) -> None:
+    altered, _, _ = _inject(
+        tmp_path, _each_row(["Olivier"] * 8),
+        [{"kind": "format", "column": "v", "value": "double_char", "count": 8}])
+    for row in altered:
+        assert len(row["v"]) == 8
+        assert any(row["v"] == "Olivier"[:i] + "Olivier"[i] + "Olivier"[i:] for i in range(7))
+
+
+def test_transpose_exchanges_two_adjacent_different_letters(tmp_path: Path) -> None:
+    altered, _, _ = _inject(
+        tmp_path, _each_row(["Benjamin"] * 8),
+        [{"kind": "format", "column": "v", "value": "transpose", "count": 8}])
+    for row in altered:
+        differing = [i for i, (a, b) in enumerate(zip(row["v"], "Benjamin")) if a != b]
+        assert len(differing) == 2 and differing[1] == differing[0] + 1
+        assert sorted(row["v"]) == sorted("Benjamin")
+
+
+def test_replace_char_changes_one_letter_and_keeps_its_case(tmp_path: Path) -> None:
+    altered, _, _ = _inject(
+        tmp_path, _each_row(["Penelope"] * 8),
+        [{"kind": "format", "column": "v", "value": "replace_char", "count": 8}])
+    for row in altered:
+        differing = [i for i, (a, b) in enumerate(zip(row["v"], "Penelope")) if a != b]
+        assert len(row["v"]) == 8 and len(differing) == 1
+        assert row["v"][differing[0]].isupper() == "Penelope"[differing[0]].isupper()
+
+
+def test_every_format_value_is_accepted_by_a_definition_and_runs(tmp_path: Path) -> None:
+    from tabalyst.generate_anomalies import FORMAT_VALUES
+
+    plain = {"upper", "lower", "strip", "date_slash", "phone_spaces"}
+    operations = "".join(
+        f"      - {{kind: format, column: id, value: {name}, count: 2}}\n"
+        for name in sorted(FORMAT_VALUES - plain))
+    text = COUNT_DEFINITION.format(rows=20).split("    operations:")[0] + (
+        "    operations:\n" + operations)
+    package = write_columns_package(tmp_path, text)
+    out = tmp_path / "out"
+    generate_datasets(build_generate_plan(package, output_dir=out, anomaly_profile="stress"))
+    summary = json.loads((out / "people.stress.summary.json").read_text(encoding="utf-8"))
+    assert len(summary["operations"]) == len(FORMAT_VALUES - plain)
+    assert all(e["requested_rows"] == 2 for e in summary["operations"])

@@ -219,6 +219,14 @@ call `operation_option_error` and share `OPERATION_KINDS`, `FORMAT_VALUES` and
   Each is a function of the cell and of the operation's own random stream, so
   adding one never shifts another. `insert_space` and `drop_char` need at
   least two characters; `negate` accepts an unsigned non-zero decimal only.
+- **`format` values added in lot G1b.** Typos: `double_char`, `swap_first_two`, `transpose`,
+  `replace_char` (an ASCII letter of the same case, so it stays a typo and not an encoding
+  fault). `phone_double_space` rewrites a leading `+N-` to `+N` and two spaces. `date_dmy` and
+  `date_iso` convert between `YYYY-MM-DD` and `DD-MM-YYYY` and leave any other text. The four
+  currency values take a plain signed decimal (`[+-]?digits[.digits]`) and refuse text that is
+  already formatted: `currency_suffix` (`1234.18 $`), `currency_prefix` (`$1234.18`, `-$12.5`),
+  `currency_fr` (space as thousands separator, decimal comma, `1 234,18 $`) and `currency_code`
+  (`1234.18 CAD`, the code is `CURRENCY_CODE`). An ineligible cell is skipped, as for G1 values.
 - **`duplicate_row`.** Replaces the selected row with an exact copy of a row
   already written, drawn from the last 1,000 output rows (altered rows count
   as written). The file keeps its row count. The journal lists the cells that

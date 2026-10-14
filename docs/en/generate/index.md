@@ -117,7 +117,13 @@ The `format` values are `upper`, `lower`, `strip`, `date_slash`,
 `phone_spaces`, `insert_space` (a space inside a word), `double_space` (the
 first space doubled), `drop_char` (one character removed), `double_hyphen`
 (the first hyphen doubled), `suffix_x` (appends `_X`), `strip_accents`,
-`negate` (a minus sign before a non-zero number) and `leading_apostrophe`.
+`negate` (a minus sign before a non-zero number), `leading_apostrophe`,
+`double_char` (one letter written twice), `swap_first_two`, `transpose` (two
+adjacent letters exchanged), `replace_char` (one letter replaced by another of
+the same case), `phone_double_space` (`+1-514-...` becomes `+1  514-...`),
+`date_dmy` (`2024-03-31` to `31-03-2024`), `date_iso` (the reverse) and, for a
+plain decimal number, `currency_suffix` (`1234.18 $`), `currency_prefix`
+(`$1234.18`), `currency_fr` (`1 234,18 $`) and `currency_code` (`1234.18 CAD`).
 An optional `when: {column: text}` limits an operation to rows whose cell
 equals the text. A request that cannot apply, such as `double_hyphen` on a
 cell without a hyphen, is not counted as a defect: the summary reports the
