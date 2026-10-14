@@ -66,3 +66,540 @@ anomaly_profiles:
       column: nom
       value: upper
       rate: 0.02
+  dirty_stress:
+    targets:
+    - insurance-combined
+    operations:
+    - kind: format
+      column: id_client
+      value: "drop_digit"
+      count: 1
+      class: id_client_missing_digit
+      when: {filiale: "ontario"}
+    - kind: format
+      column: id_client
+      value: "drop_digit"
+      count: 5
+      class: id_client_missing_digit
+      when: {filiale: "quebec"}
+    - kind: format
+      column: id_client
+      value: "drop_digit"
+      count: 14
+      class: id_client_missing_digit
+      when: {filiale: "principal"}
+    - kind: format
+      column: id_client
+      value: "double_hyphen"
+      count: 5
+      class: id_client_double_hyphen
+      when: {filiale: "quebec"}
+    - kind: format
+      column: id_client
+      value: "double_hyphen"
+      count: 12
+      class: id_client_double_hyphen
+      when: {filiale: "principal"}
+    - kind: format
+      column: date_naissance
+      value: "date_mdy_iso"
+      count: 2
+      class: date_other_branch_format
+      when: {filiale: "ontario"}
+    - kind: format
+      column: date_naissance
+      value: "date_iso"
+      count: 3
+      class: date_other_branch_format
+      when: {filiale: "quebec"}
+    - kind: format
+      column: date_naissance
+      value: "date_dmy"
+      count: 9
+      class: date_other_branch_format
+      when: {filiale: "principal"}
+    - kind: format
+      column: date_debut
+      value: "date_mdy_iso"
+      count: 2
+      class: date_other_branch_format
+      when: {filiale: "ontario"}
+    - kind: format
+      column: date_debut
+      value: "date_iso"
+      count: 3
+      class: date_other_branch_format
+      when: {filiale: "quebec"}
+    - kind: format
+      column: date_debut
+      value: "date_dmy"
+      count: 9
+      class: date_other_branch_format
+      when: {filiale: "principal"}
+    - kind: format
+      column: date_fin
+      value: "date_mdy_iso"
+      count: 2
+      class: date_other_branch_format
+      when: {filiale: "ontario"}
+    - kind: format
+      column: date_fin
+      value: "date_iso"
+      count: 3
+      class: date_other_branch_format
+      when: {filiale: "quebec"}
+    - kind: format
+      column: date_fin
+      value: "date_dmy"
+      count: 6
+      class: date_other_branch_format
+      when: {filiale: "principal"}
+    - kind: format
+      column: date_creation
+      value: "date_mdy_iso"
+      count: 2
+      class: date_other_branch_format
+      when: {filiale: "ontario"}
+    - kind: format
+      column: date_creation
+      value: "date_iso"
+      count: 3
+      class: date_other_branch_format
+      when: {filiale: "quebec"}
+    - kind: format
+      column: date_creation
+      value: "date_dmy"
+      count: 9
+      class: date_other_branch_format
+      when: {filiale: "principal"}
+    - kind: format
+      column: date_modification
+      value: "date_mdy_iso"
+      count: 2
+      class: date_other_branch_format
+      when: {filiale: "ontario"}
+    - kind: format
+      column: date_modification
+      value: "date_iso"
+      count: 3
+      class: date_other_branch_format
+      when: {filiale: "quebec"}
+    - kind: format
+      column: date_modification
+      value: "date_dmy"
+      count: 9
+      class: date_other_branch_format
+      when: {filiale: "principal"}
+    - kind: replace
+      column: province_nom
+      value: "quebec"
+      count: 10
+      class: province_nom_lower
+      when: {province_nom: "Québec"}
+    - kind: replace
+      column: province_nom
+      value: "ontario"
+      count: 1
+      class: province_nom_lower
+      when: {province_nom: "Ontario"}
+    - kind: replace
+      column: province_nom
+      value: "british columbia"
+      count: 1
+      class: province_nom_lower
+      when: {province_nom: "British Columbia"}
+    - kind: replace
+      column: province_code
+      value: "ON"
+      count: 3
+      class: province_code_city_mismatch
+      when: {ville: "Montréal"}
+    - kind: replace
+      column: ville
+      value: "MontrÃ©al"
+      count: 2
+      class: city_mojibake
+      when: {ville: "Montréal"}
+    - kind: format
+      column: mode_paiement
+      value: "strip_accents"
+      count: 16
+      class: mode_paiement_accent_removed
+      when: {mode_paiement: "prélèvement"}
+    - kind: format
+      column: mode_paiement
+      value: "strip_accents"
+      count: 1
+      class: mode_paiement_accent_removed
+      when: {mode_paiement: "chèque"}
+    - kind: format
+      column: type_contrat
+      value: "trailing_space"
+      count: 2
+      class: type_contrat_variant
+      when: {type_contrat: "auto"}
+    - kind: replace
+      column: type_contrat
+      value: "autos"
+      count: 2
+      class: type_contrat_variant
+      when: {type_contrat: "auto"}
+    - kind: replace
+      column: montant_reclamation
+      value: "0.00"
+      count: 5
+      class: claim_amount_zero
+      when: {reclamation_status: "fermé"}
+    - kind: format
+      column: montant_reclamation
+      value: "negate"
+      count: 1
+      class: claim_amount_negative
+      when: {reclamation_status: "fermé"}
+    - kind: format
+      column: id_contrat
+      value: "drop_digit"
+      count: 22
+      class: id_contrat_missing_digit
+    - kind: format
+      column: id_contrat
+      value: "double_hyphen"
+      count: 14
+      class: id_contrat_double_hyphen
+    - kind: set_missing
+      column: id_contrat
+      count: 9
+      class: id_contrat_empty
+    - kind: format
+      column: agence_code
+      value: "double_hyphen"
+      count: 16
+      class: agence_code_double_hyphen
+    - kind: set_missing
+      column: prenom
+      count: 7
+      class: prenom_empty
+    - kind: set_missing
+      column: nom
+      count: 4
+      class: nom_empty
+    - kind: set_missing
+      column: date_naissance
+      count: 6
+      class: date_naissance_empty
+    - kind: set_missing
+      column: province_code
+      count: 3
+      class: province_code_empty
+    - kind: set_missing
+      column: type_contrat
+      count: 2
+      class: type_contrat_empty
+    - kind: format
+      column: prenom
+      value: "insert_space"
+      count: 3
+      class: name_space_inside
+    - kind: format
+      column: nom
+      value: "insert_space"
+      count: 5
+      class: name_space_inside
+    - kind: format
+      column: prenom
+      value: "insert_double_space"
+      count: 6
+      class: name_double_space
+    - kind: format
+      column: nom
+      value: "insert_double_space"
+      count: 5
+      class: name_double_space
+    - kind: format
+      column: nom
+      value: "leading_apostrophe"
+      count: 1
+      class: nom_leading_apostrophe
+    - kind: format
+      column: province_code
+      value: "lower"
+      count: 23
+      class: province_code_lower
+    - kind: format
+      column: pays_code
+      value: "lower"
+      count: 22
+      class: pays_code_lower
+    - kind: format
+      column: code_postal
+      value: "double_space"
+      count: 54
+      class: code_postal_double_space
+    - kind: format
+      column: code_postal
+      value: "drop_char"
+      count: 21
+      class: code_postal_char_missing
+    - kind: format
+      column: telephone
+      value: "phone_double_space"
+      count: 42
+      class: telephone_double_space
+    - kind: format
+      column: courriel
+      value: "insert_space"
+      count: 12
+      class: courriel_space_inside
+    - kind: format
+      column: type_contrat
+      value: "suffix_x"
+      count: 6
+      class: category_suffix_x
+    - kind: format
+      column: statut_contrat
+      value: "suffix_x"
+      count: 5
+      class: category_suffix_x
+    - kind: format
+      column: frequence_paiement
+      value: "suffix_x"
+      count: 3
+      class: category_suffix_x
+    - kind: format
+      column: mode_paiement
+      value: "suffix_x"
+      count: 8
+      class: category_suffix_x
+    - kind: format
+      column: type_contrat
+      value: "upper"
+      count: 3
+      class: type_contrat_variant
+    - kind: format
+      column: date_naissance
+      value: "date_slash"
+      count: 9
+      class: date_slash
+    - kind: format
+      column: date_debut
+      value: "date_slash"
+      count: 8
+      class: date_slash
+    - kind: format
+      column: date_fin
+      value: "date_slash"
+      count: 8
+      class: date_slash
+    - kind: format
+      column: date_creation
+      value: "date_slash"
+      count: 9
+      class: date_slash
+    - kind: format
+      column: date_modification
+      value: "date_slash"
+      count: 7
+      class: date_slash
+    - kind: swap
+      column: date_debut
+      value: "date_fin"
+      count: 27
+      class: date_start_after_end
+    - kind: format
+      column: prime_annuelle
+      value: "negate"
+      count: 25
+      class: prime_annuelle_negative
+    - kind: replace
+      column: prime_annuelle
+      value: "N/A"
+      count: 3
+      class: prime_annuelle_text
+    - kind: replace
+      column: prime_annuelle
+      value: "-"
+      count: 2
+      class: prime_annuelle_text
+    - kind: format
+      column: prime_annuelle
+      value: "currency_suffix"
+      count: 4
+      class: prime_annuelle_currency_suffix
+    - kind: format
+      column: prime_annuelle
+      value: "currency_prefix"
+      count: 3
+      class: prime_annuelle_currency_prefix
+    - kind: format
+      column: prime_annuelle
+      value: "currency_fr"
+      count: 3
+      class: prime_annuelle_currency_fr
+    - kind: format
+      column: prime_annuelle
+      value: "currency_code"
+      count: 2
+      class: prime_annuelle_currency_code
+    - kind: replace
+      column: date_fin
+      value: "9999-12-31"
+      count: 2
+      class: date_fin_sentinel
+    - kind: replace
+      column: nom_voie
+      value: "chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans "
+      count: 2
+      class: nom_voie_very_long
+    - kind: format
+      column: prenom
+      value: "lower"
+      count: 8
+      class: prenom_typo
+    - kind: format
+      column: prenom
+      value: "double_char"
+      count: 11
+      class: prenom_typo
+    - kind: format
+      column: prenom
+      value: "drop_char"
+      count: 4
+      class: prenom_typo
+    - kind: format
+      column: prenom
+      value: "swap_first_two"
+      count: 2
+      class: prenom_typo
+    - kind: format
+      column: prenom
+      value: "transpose"
+      count: 8
+      class: prenom_typo
+    - kind: format
+      column: prenom
+      value: "replace_char"
+      count: 10
+      class: prenom_typo
+    - kind: format
+      column: prenom
+      value: "strip_accents"
+      count: 4
+      class: prenom_typo
+    - kind: format
+      column: nom
+      value: "lower"
+      count: 11
+      class: nom_typo
+    - kind: format
+      column: nom
+      value: "double_char"
+      count: 9
+      class: nom_typo
+    - kind: format
+      column: nom
+      value: "drop_char"
+      count: 10
+      class: nom_typo
+    - kind: format
+      column: nom
+      value: "swap_first_two"
+      count: 22
+      class: nom_typo
+    - kind: format
+      column: nom
+      value: "transpose"
+      count: 12
+      class: nom_typo
+    - kind: format
+      column: nom
+      value: "replace_char"
+      count: 11
+      class: nom_typo
+    - kind: format
+      column: nom
+      value: "strip_accents"
+      count: 4
+      class: nom_typo
+    - kind: format
+      column: ville
+      value: "lower"
+      count: 6
+      class: ville_typo
+    - kind: format
+      column: ville
+      value: "double_char"
+      count: 13
+      class: ville_typo
+    - kind: format
+      column: ville
+      value: "drop_char"
+      count: 5
+      class: ville_typo
+    - kind: format
+      column: ville
+      value: "swap_first_two"
+      count: 4
+      class: ville_typo
+    - kind: format
+      column: ville
+      value: "transpose"
+      count: 12
+      class: ville_typo
+    - kind: format
+      column: ville
+      value: "replace_char"
+      count: 12
+      class: ville_typo
+    - kind: format
+      column: ville
+      value: "strip_accents"
+      count: 10
+      class: ville_typo
+    - kind: format
+      column: nom_voie
+      value: "lower"
+      count: 10
+      class: nom_voie_typo
+    - kind: format
+      column: nom_voie
+      value: "double_space"
+      count: 8
+      class: nom_voie_typo
+    - kind: format
+      column: nom_voie
+      value: "drop_char"
+      count: 12
+      class: nom_voie_typo
+    - kind: format
+      column: nom_voie
+      value: "double_char"
+      count: 12
+      class: nom_voie_typo
+    - kind: format
+      column: nom_voie
+      value: "swap_first_two"
+      count: 5
+      class: nom_voie_typo
+    - kind: format
+      column: nom_voie
+      value: "transpose"
+      count: 12
+      class: nom_voie_typo
+    - kind: format
+      column: nom_voie
+      value: "replace_char"
+      count: 14
+      class: nom_voie_typo
+    - kind: format
+      column: nom_voie
+      value: "strip_accents"
+      count: 6
+      class: nom_voie_typo
+    - kind: format
+      column: ville
+      value: "insert_space"
+      count: 6
+      class: ville_space_inside
+    - kind: duplicate_row
+      count: 8
+      class: duplicate_rows

@@ -64,6 +64,12 @@ dataset:
 tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d insurance-dirty/
 ```
 
+Insurance also offers `dirty_stress`, which gives 45 kinds of defect a fixed number
+of rows each (a missing digit in 20 client identifiers, one lone `ontario`
+in lower case, 8 duplicated rows) however many rows you generate, with a
+`class` column in the change log. It needs enough rows for its classes and
+stops with an error on a file that is too small (about 1,000 rows or more).
+
 Computer offers `dirty_realistic`, `dirty_stress`, `unit_variants` and
 `unit_variants_extended`; the last two mix unit spellings in the measurement
 columns.

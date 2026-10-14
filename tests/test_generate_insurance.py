@@ -122,7 +122,8 @@ def test_insurance_package_quotas(tmp_path: Path) -> None:
     assert sum(len(table.rows) * len(table.columns) for table in package.tables.values()) < MAX_CELLS
     assert all(path.stat().st_size <= MAX_YAML_BYTES for path in PACKAGE.rglob("*.yaml"))
     assert len(FIELDS) == 33 < MAX_COLUMNS
-    assert len(package.manifest["anomaly_profiles"]) == 1 < MAX_PROFILES
+    assert set(package.manifest["anomaly_profiles"]) == {"dirty_realistic", "dirty_stress"}
+    assert len(package.manifest["anomaly_profiles"]) < MAX_PROFILES
     plan = build_generate_plan(example="insurance", output_dir=tmp_path,
                                anomaly_profile="dirty_realistic")
     assert plan.rows == {"insurance-principal": 200000, "insurance-ontario": 25000,

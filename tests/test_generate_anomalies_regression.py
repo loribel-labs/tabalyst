@@ -2,7 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Pin the bytes of every shipped anomaly profile so engine changes cannot alter them."""
+"""Pin the bytes of every shipped anomaly profile so engine changes cannot alter them.
+
+The dirty_stress profile of Insurance (lot G2) was added after the others, with the
+digests of its first accepted output.
+"""
 
 from __future__ import annotations
 
@@ -21,6 +25,7 @@ EXAMPLES = Path(str(files("tabalyst").joinpath("generate_examples")))
 CASES = {
     "crm-dirty_realistic": ("crm", 500, {}, "dirty_realistic"),
     "insurance-dirty_realistic": ("insurance", 3000, {}, "dirty_realistic"),
+    "insurance-dirty_stress": ("insurance", 3000, {}, "dirty_stress"),
     "computer-dirty_realistic": ("computer", 500, {"output_profile": "extended"}, "dirty_realistic"),
     "computer-dirty_stress": ("computer", 500, {"output_profile": "extended"}, "dirty_stress"),
     "computer-unit_variants": ("computer", 500, {"output_profile": "extended"}, "unit_variants"),
@@ -110,6 +115,22 @@ EXPECTED: dict[str, dict[str, str]] = {
             "d76cfd4d27a21a1139278607e431585afa30dc38fb521f07db0ed751f8106aca",
         "crm-contacts.dirty_realistic.summary.json":
             "0cac916b4f7af32a4224db6e5be29bc0925927dcbd3f015ebeba5bfd7c562621",
+    },
+    "insurance-dirty_stress": {
+        "insurance-combined.csv":
+            "78273be501d01ee2f5bbf4e35b1a5fc0915b972e89d4913c986ec1009f16a5f8",
+        "insurance-combined.dirty_stress.changes.csv":
+            "c65da200ee47c9988cfbce1f60098f736749b75cce78739c4217c1396519af46",
+        "insurance-combined.dirty_stress.csv":
+            "74c8b3e8bf0211c7df6683328ba36a1b7b7a54e4bc8553fa7e3d3344222e0933",
+        "insurance-combined.dirty_stress.summary.json":
+            "b7fda5259044ca2beb8a103eb3ffa4b322c1f3924309fb056607e43ce641ff8a",
+        "insurance-ontario.csv":
+            "69252bca2b365c06213a94a01c840ae37406219834a995ffe24d8eb7059bd545",
+        "insurance-principal.csv":
+            "ae5323a64a906d0937cd54a787111e012b51d63cab99af67297c13c24d8ad3dc",
+        "insurance-quebec.csv":
+            "4ddd34572552035106d296168692652d65a69f1582dec66bdb523402b35e390e",
     },
     "insurance-dirty_realistic": {
         "insurance-combined.csv":

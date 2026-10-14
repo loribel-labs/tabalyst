@@ -247,6 +247,28 @@ call `operation_option_error` and share `OPERATION_KINDS`, `FORMAT_VALUES` and
   that row from `applied_rows` to `skipped_rows`: the journal always describes the
   altered file. A copy identical to the clean row is skipped and keeps the earlier changes.
 
+## Lot G2: the Insurance `dirty_stress` profile
+
+`generate_examples/insurance/dataset.yaml` declares `dirty_stress`, targeting
+`insurance-combined`: 102 operations in 45 classes, all with an absolute `count`,
+adding up to 845 rows (events), each row in one class. The numbers come from
+`examples/datasets/insurance-customers.csv` (measured in
+`docs/dev/generate/insurance-stress-cases.md`, section 1) plus the new cases of
+that document, and `tests/test_generate_insurance_stress.py` holds the table
+`CLASSES` that the profile must meet at 3,000 and at 100,000 rows. Differences from
+the 3,000-row file, all caused by the clean version: `Quebec` without accent and the
+English province names are natural (80 rows of `Quebec`), so `province_nom_lower` has 12
+rows (`Québec`, `Ontario`, `British Columbia` in lower case) instead of 23; the space
+typos are in `name_space_inside` and `name_double_space`, not counted twice in the typo
+classes (47, 79, 62, 79 cells, 267 against about 280). `date_other_branch_format` uses the
+layout of each branch: ISO for principal, `MM-DD-YYYY` for ontario (`date_mdy_iso`) and
+`DD-MM-YYYY` for quebec. The clean version already holds 3 contracts that end before they
+start and 15 modification dates before creation; `date_start_after_end` adds 27.
+The profile needs at least about 1,000 rows (the narrowest condition sets the floor:
+each class draws among rows with its `when`, and classes never share a row); a smaller
+file stops with the `ValueError` of lot G1c, wrapped in a `ReportError`. At 100,000 rows
+generation with the profile takes about 45 s.
+
 ## Lot 2 implementation state
 
 Direct datasets and schema-backed datasets can now stream elementary columns:

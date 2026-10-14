@@ -31,7 +31,7 @@ FORMAT_VALUES = frozenset({
     "drop_char", "double_hyphen", "suffix_x", "strip_accents", "negate", "leading_apostrophe",
     "double_char", "swap_first_two", "transpose", "replace_char", "phone_double_space",
     "date_dmy", "date_iso", "currency_suffix", "currency_prefix", "currency_fr", "currency_code",
-    "drop_digit", "insert_double_space", "trailing_space",
+    "drop_digit", "insert_double_space", "trailing_space", "date_mdy_iso",
 })
 CURRENCY_CODE = "CAD"
 CLASS_NAME = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
@@ -135,6 +135,12 @@ def _date_iso(value: str, rng: random.Random) -> str:
     return f"{match[3]}-{match[2]}-{match[1]}" if match else value
 
 
+def _date_mdy_iso(value: str, rng: random.Random) -> str:
+    # Ontario writes MM-DD-YYYY; a first part above 12 is not a month and is left alone.
+    match = re.fullmatch(r"(\d{2})-(\d{2})-(\d{4})", value)
+    return f"{match[3]}-{match[1]}-{match[2]}" if match and 1 <= int(match[1]) <= 12 else value
+
+
 def _split_amount(value: str) -> tuple[str, str, str] | None:
     """Return sign, integer digits and decimals of a plain decimal number."""
     match = re.fullmatch(r"([+-]?)(\d+)(\.\d+)?", value)
@@ -187,6 +193,7 @@ TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "phone_double_space": _phone_double_space,
     "date_dmy": _date_dmy,
     "date_iso": _date_iso,
+    "date_mdy_iso": _date_mdy_iso,
     "currency_suffix": _currency_suffix,
     "currency_prefix": _currency_prefix,
     "currency_fr": _currency_fr,

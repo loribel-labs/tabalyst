@@ -203,3 +203,12 @@ it never makes the column a currency column. A genuine currency column belongs t
 
 Section 5 stands with these changes: the `prime_annuelle` row becomes four rows (one per
 form, a few rows each, for example 4, 3, 3 and 2) in addition to the `N/A` and `-` rows.
+
+## 7. Outcome (lot G2)
+
+`dirty_stress` is implemented (see `docs/dev/generate/design.md`, lot G2). The clean version
+turned out to produce by itself 80 `Quebec` without accent, English province names, 3
+contracts ending before they start and 15 modification dates before creation, so the profile
+does not reproduce `Quebec`, `Nouvelle-Ecosse` and `colombie-britannique` (replaced by
+`quebec`, `ontario` and `british columbia`, 12 rows). The date layout of ontario is
+`MM-DD-YYYY`, which needed one more `format` value, `date_mdy_iso`. 845 rows in 45 classes.
