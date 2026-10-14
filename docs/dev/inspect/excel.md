@@ -279,9 +279,9 @@ smoke test only, no dedicated project tests.
   concepts, limitations, examples; the overview in English and French; the
   README. `inspect/format-changelog.md` records the kind as an addition to
   revision 1, as decided in X-2.
-- **Demo.** `examples/input/sales.xlsx` (written deterministically by
-  `examples/make_sales_workbook.py`, `xlsxwriter` only for that) and
-  `examples/output/sales/`; the other outputs were regenerated, which updates
+- **Demo.** `examples/datasets/sales.xlsx` (written deterministically by
+  `examples/tools/make_sales_workbook.py`, `xlsxwriter` only for that) and
+  `examples/showcase/sales/`; the other outputs were regenerated, which updates
   their profile revision.
 - **Checked.** Full test suite, ruff, the links and anchors of `docs/en/`, and
   the sales report in the in-app browser (no console error). The Playwright
@@ -333,7 +333,7 @@ smoke test only, no dedicated project tests.
 `reference/python-api.md` became `index.md` in a folder, same URLs). The website only
 advertises what the README documents, and the README now documents Excel:
 update the feature list when a release carries it. The demo it copies,
-`examples/output/insurance-customers/`, is regenerated (profile revision 11).
+`examples/showcase/insurance-customers/`, is regenerated (profile revision 11).
 
 **Release, when it comes.** Excel is unreleased: update `about/releases.md` and
 the version at the release, and the private status in `tabalyst-gb/DOCS/`, per

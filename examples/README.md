@@ -1,110 +1,117 @@
 # Tabalyst examples
 
-The examples are organized by input name so additional public datasets can be
-added without mixing source data and generated artifacts.
+The examples are organized by role, so source data, published demos, scenarios
+and scripts never mix.
 
 ```text
 examples/
 |-- config.json
-|-- generate/
-|   |-- generate_examples.py
-|   |-- common-references/ (reference provider fixture)
-|   |-- cohorts-anomalies/ (cohort and anomaly fixture)
-|   `-- output/ (generated locally; ignored by Git)
-|-- input/
+|-- datasets/ (shared synthetic sources, with their provenance)
 |   |-- basic.csv
 |   |-- insurance-customers.csv
 |   |-- orders.json
 |   |-- sales.xlsx
 |   `-- web-events.jsonl
-`-- output/
-    |-- insurance-customers-scan/
-    |   |-- insurance-customers.scan.json
-    |   |-- insurance-customers.scan.html
-    |   |-- insurance-customers.deep.json
-    |   |-- smart-plan.txt
-    |   |-- insurance-customers.sample.csv
-    |   |-- insurance-customers.sample.json
-    |   `-- insurance-customers.sample.html
-    |-- basic/
-    |   |-- report.html
-    |   |-- report.json
-    |   `-- executions.json
-    |-- insurance-customers/
-    |   |-- report.html
-    |   |-- report.json
-    |   |-- report/ (34 standalone column pages with --details)
-    |   `-- executions.json
-    |-- orders/
-    |   |-- report.html
-    |   |-- report.json
-    |   `-- executions.json
-    |-- sales/
-    |   |-- report.html
-    |   |-- report.json
-    |   `-- executions.json
-    `-- web-events/
-        |-- report.html
-        |-- report.json
-        `-- executions.json
+|-- showcase/ (what the website and the documentation publish, nothing else)
+|   |-- basic/
+|   |-- insurance-customers/ (report.html, report.json, report/ with --details)
+|   |-- insurance-customers-scan/ (scan, second pass, smart plan and sample)
+|   |-- orders/
+|   |-- sales/
+|   `-- web-events/
+|-- cases/ (reproducible scenarios with a manifest, see cases/README.md)
+|-- tools/
+|   |-- regenerate.py
+|   `-- make_sales_workbook.py
+`-- generate/
+    |-- generate_examples.py
+    |-- common-references/ (reference provider fixture)
+    |-- cohorts-anomalies/ (cohort and anomaly fixture)
+    `-- output/ (generated locally; ignored by Git)
 ```
 
-`basic.csv` is a five-row smoke example. `insurance-customers.csv` contains 3,000
-synthetic customer and contract records across 34 columns. Its people, contact
-details, and contracts are fictional; email addresses use reserved `.example`
-domains. `orders.json` is a synthetic shop export: 60 customers with nested
-addresses, tags and orders. Its report has one dataset, `$.customers[]`, the only
-collection of arrays of objects that Tabalyst Inspect finds in it.
-`web-events.jsonl` is a synthetic web analytics log in JSON Lines: 300 events with
-nested `user` and `device` objects, tags arrays, null values and an optional
-field that appears late, plus three bad lines (a truncated record, a line that
-is not JSON and a JSON array instead of an object). Its report is partial on
-purpose: the three lines are excluded and counted, the 300 events are analyzed.
-Its people and identifiers are fictional. `sales.xlsx` is a synthetic Excel
-workbook: a sheet `Orders` of 120 fictional orders under two title lines, a
+## Datasets
+
+`datasets/README.md` describes each source file and who uses it. `basic.csv` is a
+five-row smoke example. `insurance-customers.csv` contains 3,000 synthetic
+customer and contract records across 34 columns. Its people, contact details, and
+contracts are fictional; email addresses use reserved `.example` domains.
+`orders.json` is a synthetic shop export: 60 customers with nested addresses, tags
+and orders. Its report has one dataset, `$.customers[]`, the only collection of
+arrays of objects that Tabalyst Inspect finds in it. `web-events.jsonl` is a
+synthetic web analytics log in JSON Lines: 300 events with nested `user` and
+`device` objects, tags arrays, null values and an optional field that appears
+late, plus three bad lines (a truncated record, a line that is not JSON and a JSON
+array instead of an object). Its report is partial on purpose: the three lines
+are excluded and counted, the 300 events are analyzed. `sales.xlsx` is a synthetic
+Excel workbook: a sheet `Orders` of 120 fictional orders under two title lines, a
 five-row `Regions` lookup sheet and a `Notes` sheet. Inspect selects `$.Orders`,
 which has more than ten times the rows of `$.Regions`, so the report needs no
-choice. The workbook is written by `make_sales_workbook.py`, with the same
+choice. The workbook is written by `tools/make_sales_workbook.py`, with the same
 bytes on every run; it needs `pip install xlsxwriter` and is only to run when the
 input itself must be regenerated.
 
-From the repository root, regenerate the outputs with:
+## Showcase
+
+Each folder of `showcase/` holds a manifest, `demo.json`, next to the files it
+generates: the source dataset, the `steps` (the `tabalyst` command lines, written
+from the repository root), and `publish`: `site` is true when `tabalyst.com`
+copies the folder, `docs` lists the documentation pages that quote it. Today the
+website copies `insurance-customers` (the report of the home page) and the proofs
+of the format pages: `orders`, `web-events` and `sales`. `basic` and
+`insurance-customers-scan` are only quoted by the documentation.
+
+From the repository root, regenerate every demo with:
 
 ```console
-tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --config examples/config.json --force
-tabalyst report examples/input/insurance-customers.csv -o examples/output/insurance-customers/report.html --config examples/config.json --details --force
-tabalyst report examples/input/orders.json -o examples/output/orders/report.html --config examples/config.json --force
-tabalyst report examples/input/web-events.jsonl -o examples/output/web-events/report.html --config examples/config.json --force
-tabalyst report examples/input/sales.xlsx -o examples/output/sales/report.html --config examples/config.json --force
+python examples/tools/regenerate.py --fresh
+```
+
+Name some demos to regenerate only those (`regenerate.py basic sales`), or use
+`--list` to print the ids, the tool and the publication of each. `--fresh` deletes
+the `executions.json` of a demo first, so its history restarts at one entry; without
+it, each run adds an entry. A step stops the run when its command fails.
+
+The commands of the report demos are, with `--config examples/config.json --force`
+added to each:
+
+```console
+tabalyst report examples/datasets/basic.csv -o examples/showcase/basic/report.html
+tabalyst report examples/datasets/insurance-customers.csv -o examples/showcase/insurance-customers/report.html --details
+tabalyst report examples/datasets/orders.json -o examples/showcase/orders/report.html
+tabalyst report examples/datasets/web-events.jsonl -o examples/showcase/web-events/report.html
+tabalyst report examples/datasets/sales.xlsx -o examples/showcase/sales/report.html
 ```
 
 The folder `insurance-customers-scan/` shows the three steps of Tabalyst Scan on
 `insurance-customers.csv` (see "Simple, Clear and Smart" in the documentation):
 the scan (Simple, with its web page, Clear), the second pass and the plan of a
-smart sample (Smart), and the smart sample with its report and page. Regenerate it
-with:
+smart sample (Smart), and the smart sample with its report and page. Its four steps
+are in its `demo.json`:
 
 ```console
-tabalyst scan examples/input/insurance-customers.csv -o examples/output/insurance-customers-scan/insurance-customers.scan.json --config examples/config.json --deep --yes --force
-tabalyst scan examples/input/insurance-customers.csv --config examples/config.json --deep --yes --force
-tabalyst scan examples/input/insurance-customers.csv --plan --smart --sample-size 150 --config examples/config.json > examples/output/insurance-customers-scan/smart-plan.txt
-tabalyst sample examples/input/insurance-customers.csv --sample-method smart --rows 150 --seed 42 -o examples/output/insurance-customers-scan/insurance-customers.sample.csv --config examples/config.json --force
+tabalyst scan examples/datasets/insurance-customers.csv -o examples/showcase/insurance-customers-scan/insurance-customers.scan.json --config examples/config.json --deep --yes --force
+tabalyst scan examples/datasets/insurance-customers.csv --config examples/config.json --deep --yes --force --no-html
+tabalyst scan examples/datasets/insurance-customers.csv --plan --smart --sample-size 150 --config examples/config.json
+tabalyst sample examples/datasets/insurance-customers.csv --smart --rows 150 --seed 42 -o examples/showcase/insurance-customers-scan/insurance-customers.sample.csv --config examples/config.json --force
 ```
 
-The plan and the sample read the second pass stored in the workspace for the file, not
-the one written beside `-o`; the second command stores the full one. Without it, a
-report made just before leaves its smaller automatic second pass there and the plan
-counts fewer targets (391 instead of 469 relations included).
+The plan (third command) is saved as `smart-plan.txt`. The plan and the sample read the
+second pass stored in the workspace for the file, not the one written beside `-o`; the
+second command stores the full one, with `--no-html` because the first already wrote the
+page and a second one would land beside the dataset. Without it, a report made just
+before leaves its smaller automatic second pass there and the plan counts fewer targets.
+
+## Cases
 
 `cases/` holds reproducible scenarios that test and document a command, each with
 its input, its measured result and a test (see `cases/README.md`). The first,
 `cases/sample-injected-errors/`, injects known errors in the insurance example and
 measures how many a smart sample keeps against a random one.
 
-Every output folder of the reports is independent and contains its own HTML report, canonical
-JSON profile and cumulative `executions.json` history. The insurance example
-also has standalone HTML pages under `report/`. Delete an output folder
-before regenerating when a fresh one-entry execution history is required.
+Every report demo is independent and contains its own HTML report, canonical JSON
+profile and cumulative `executions.json` history. The insurance example also has
+standalone HTML pages under `report/`.
 
 The input datasets and generated output are public repository examples. The wheel
 contains the runtime package, report resources, and the CRM, Insurance, and
@@ -144,7 +151,7 @@ and three anomaly artifacts for that union. The 2,182/273/545 branch allocation
 comes from the declared 200,000/25,000/50,000 weights. The new clean CSV has
 the same 34 column names as the existing public demo, but places `filiale` last
 and has different rows and identifiers. Do not replace
-`examples/input/insurance-customers.csv` or its report without a separate
+`examples/datasets/insurance-customers.csv` or its report without a separate
 decision to change the published demo.
 
 `examples/generate/cohorts-anomalies/` is a cohort and anomaly fixture. It

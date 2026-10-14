@@ -10,11 +10,11 @@ comparing reports as Tabalyst and its configuration evolve.
 Given this command:
 
 ```console
-tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --config examples/config.json
+tabalyst report examples/datasets/basic.csv -o examples/showcase/basic/report.html --config examples/config.json
 ```
 
 Tabalyst writes `report.html`, `report.json`, and `executions.json` in
-`examples/output/basic`. A later named report in the same folder adds another item
+`examples/showcase/basic`. A later named report in the same folder adds another item
 to the existing history. Only filenames are stored because all generated files
 share one folder.
 

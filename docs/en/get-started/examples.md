@@ -34,12 +34,15 @@ Clone the repository at
 install Tabalyst and run, from the repository root:
 
 ```console
-tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --config examples/config.json --force
-tabalyst report examples/input/insurance-customers.csv -o examples/output/insurance-customers/report.html --config examples/config.json --details --force
-tabalyst report examples/input/orders.json -o examples/output/orders/report.html --config examples/config.json --force
-tabalyst report examples/input/web-events.jsonl -o examples/output/web-events/report.html --config examples/config.json --force
-tabalyst report examples/input/sales.xlsx -o examples/output/sales/report.html --config examples/config.json --force
+tabalyst report examples/datasets/basic.csv -o examples/showcase/basic/report.html --config examples/config.json --force
+tabalyst report examples/datasets/insurance-customers.csv -o examples/showcase/insurance-customers/report.html --config examples/config.json --details --force
+tabalyst report examples/datasets/orders.json -o examples/showcase/orders/report.html --config examples/config.json --force
+tabalyst report examples/datasets/web-events.jsonl -o examples/showcase/web-events/report.html --config examples/config.json --force
+tabalyst report examples/datasets/sales.xlsx -o examples/showcase/sales/report.html --config examples/config.json --force
 ```
+
+From a clone, `python examples/tools/regenerate.py` runs the same steps for every
+demo, as listed in the `demo.json` of each folder under `examples/showcase/`.
 
 Each output folder holds an HTML report, a JSON profile and a cumulative
 `executions.json`. The insurance example also has one HTML page per column under

@@ -816,7 +816,7 @@ point from which the overhead is worth a decision, and it reads 12 million cells
 100 million that an automatic choice may take (decision O36). It was 23.8 s (+105%) before the
 dates were remembered. The estimate of the plan (12 to 41 s) holds the measure. The JSON grows
 from 0.76 to 1.19 MB (the embedded second-pass document, with the plan of 126 candidates), the
-HTML from 0.65 to 0.76 MB. On `examples/input/insurance-customers.csv` (3,000 rows) the report
+HTML from 0.65 to 0.76 MB. On `examples/datasets/insurance-customers.csv` (3,000 rows) the report
 takes 1.8 s against 1.7 s without it (the second pass is 0.07 s of 29 analyses). The lever, if the overhead is too much, is the automatic
 budget of 20.2, which is deterministic and recorded in the plan.
 
@@ -870,7 +870,7 @@ validation inline: calling `PatternClassifier.classify` for each distinct value 
 column of identifiers (296 against 215 ns, 300,000 distinct values, one candidate), so the loop is
 repeated in `add_strings` and the figures of lot 7c still hold (221 against 214 ns).
 
-On `examples/input/insurance-customers.csv` (3,000 rows, 34 columns) the exploration of the tables
+On `examples/datasets/insurance-customers.csv` (3,000 rows, 34 columns) the exploration of the tables
 costs a fraction of the 0.12 s of the whole second pass of the Report (44 analyses, 8 of them tables).
 
 **Overhead of the Report with tables** (`benchmarks/report_overhead.py`, same file and cases as lots 7c and 8a):

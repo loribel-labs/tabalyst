@@ -694,7 +694,7 @@ def test_a_request_naming_a_column_that_repeats_in_a_record_is_not_applicable(tm
 def test_an_excel_workbook_gives_tables_from_its_records(tmp_path):
     from pathlib import Path
 
-    workbook = Path(__file__).resolve().parents[2] / "examples" / "input" / "sales.xlsx"
+    workbook = Path(__file__).resolve().parents[2] / "examples" / "datasets" / "sales.xlsx"
     if not workbook.exists():
         pytest.skip("no workbook fixture")
     config = ScanConfig.model_validate({"excel": {"dataset_path": "$.Orders"}})

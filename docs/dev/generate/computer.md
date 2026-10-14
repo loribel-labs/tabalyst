@@ -488,7 +488,7 @@ operations, and measured totals. Compare row invariants where semantics allow
 and distributions with predeclared tolerances at the same volume and seed.
 Byte identity across v1 and the package format is not required. Record and
 obtain acceptance for any substantive functional difference before deleting
-the v1 reader. The separate `examples/input/insurance-customers.csv` demo is
+the v1 reader. The separate `examples/datasets/insurance-customers.csv` demo is
 not a byte or value parity target.
 
 ## Reference fixture and delivery gates

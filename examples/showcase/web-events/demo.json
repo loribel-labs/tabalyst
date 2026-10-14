@@ -1,0 +1,10 @@
+{
+  "id": "web-events",
+  "title": "Web analytics log in JSON Lines",
+  "tool": "report",
+  "datasets": ["web-events.jsonl"],
+  "steps": [
+    {"command": "tabalyst report examples/datasets/web-events.jsonl -o examples/showcase/web-events/report.html --config examples/config.json --force"}
+  ],
+  "publish": {"site": true, "docs": ["get-started/examples.md"]}
+}

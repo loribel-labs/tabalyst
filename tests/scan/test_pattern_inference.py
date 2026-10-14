@@ -27,7 +27,7 @@ from tabalyst.scanner.patterninfer import (
 )
 from tabalyst.scanner.validation import check_scan
 
-EXAMPLES = Path(__file__).resolve().parents[2] / "examples" / "input"
+EXAMPLES = Path(__file__).resolve().parents[2] / "examples" / "datasets"
 LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 

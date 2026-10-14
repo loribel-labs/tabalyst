@@ -1,0 +1,13 @@
+{
+  "id": "insurance-customers-scan",
+  "title": "Scan, second pass and smart sample",
+  "tool": "scan",
+  "datasets": ["insurance-customers.csv"],
+  "steps": [
+    {"command": "tabalyst scan examples/datasets/insurance-customers.csv -o examples/showcase/insurance-customers-scan/insurance-customers.scan.json --config examples/config.json --deep --yes --force"},
+    {"command": "tabalyst scan examples/datasets/insurance-customers.csv --config examples/config.json --deep --yes --force --no-html"},
+    {"command": "tabalyst scan examples/datasets/insurance-customers.csv --plan --smart --sample-size 150 --config examples/config.json", "stdout": "examples/showcase/insurance-customers-scan/smart-plan.txt"},
+    {"command": "tabalyst sample examples/datasets/insurance-customers.csv --smart --rows 150 --seed 42 -o examples/showcase/insurance-customers-scan/insurance-customers.sample.csv --config examples/config.json --force"}
+  ],
+  "publish": {"site": false, "docs": ["get-started/simple-clear-smart.md"]}
+}

@@ -22,7 +22,7 @@ from tabalyst import ScanConfig, analyze_csv, generate_reports, generate_scans, 
 from tabalyst.errors import InputError
 from tabalyst.scanner.config import config_sha256
 
-EXAMPLES = Path(__file__).resolve().parents[2] / "examples" / "input"
+EXAMPLES = Path(__file__).resolve().parents[2] / "examples" / "datasets"
 INSURANCE = EXAMPLES / "insurance-customers.csv"
 ORDERS = EXAMPLES / "orders.json"
 

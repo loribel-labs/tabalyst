@@ -11,14 +11,14 @@ Tabalyst works in three steps, and each one is useful on its own.
 | **Clear** | What does that mean, and how sure is it? | `tabalyst report` | A report that labels every figure exact, estimated or limited. |
 | **Smart** | What should I do next, and what would it cost? | `tabalyst scan --plan`, `--deep`, `tabalyst sample --smart` | A plan of extra analyses, exact figures, and a small file that still shows every case. |
 
-The examples below use `examples/input/insurance-customers.csv` of the
+The examples below use `examples/datasets/insurance-customers.csv` of the
 repository: 3,000 fictional customer and contract records across 34 columns.
-Their outputs are in `examples/output/insurance-customers-scan/`.
+Their outputs are in `examples/showcase/insurance-customers-scan/`.
 
 ## Simple: scan the file
 
 ```console
-tabalyst scan examples/input/insurance-customers.csv -o customers.scan.json
+tabalyst scan examples/datasets/insurance-customers.csv -o customers.scan.json
 ```
 
 The scan reads the file once. It writes `customers.scan.json` and, beside it,
@@ -40,7 +40,7 @@ quote one.
 ## Clear: read the report
 
 ```console
-tabalyst report examples/input/insurance-customers.csv
+tabalyst report examples/datasets/insurance-customers.csv
 ```
 
 The report is an HTML page built from a JSON profile, and it needs nothing else
@@ -62,7 +62,7 @@ A scan is a first pass: it never reads the file twice. Ask what a second reading
 could still add, and what it would cost, without running anything:
 
 ```console
-tabalyst scan examples/input/insurance-customers.csv --plan
+tabalyst scan examples/datasets/insurance-customers.csv --plan
 ```
 
 ```text
@@ -83,7 +83,7 @@ confirm first, once for a whole batch. Outside a terminal it stops with exit cod
 Run the second pass when you want exact figures:
 
 ```console
-tabalyst scan examples/input/insurance-customers.csv --deep -o customers.scan.json
+tabalyst scan examples/datasets/insurance-customers.csv --deep -o customers.scan.json
 ```
 
 It reads the source again and writes `customers.deep.json` beside the scan:
@@ -96,7 +96,7 @@ planner chose.
 Ask for the plan of a sample that would cover the cases the scan knows about:
 
 ```console
-tabalyst scan examples/input/insurance-customers.csv --plan --smart --sample-size 150
+tabalyst scan examples/datasets/insurance-customers.csv --plan --smart --sample-size 150
 ```
 
 ```text
@@ -111,7 +111,7 @@ Targets: 347 (146 mandatory, 201 optional), 11 the sample cannot recognize yet.
 Then create it:
 
 ```console
-tabalyst sample examples/input/insurance-customers.csv --smart --rows 150 --seed 42
+tabalyst sample examples/datasets/insurance-customers.csv --smart --rows 150 --seed 42
 ```
 
 ```text

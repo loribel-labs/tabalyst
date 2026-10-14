@@ -1,0 +1,10 @@
+{
+  "id": "sales",
+  "title": "Sales workbook in Excel",
+  "tool": "report",
+  "datasets": ["sales.xlsx"],
+  "steps": [
+    {"command": "tabalyst report examples/datasets/sales.xlsx -o examples/showcase/sales/report.html --config examples/config.json --force"}
+  ],
+  "publish": {"site": true, "docs": ["get-started/examples.md"]}
+}

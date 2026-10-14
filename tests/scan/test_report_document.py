@@ -25,7 +25,7 @@ from tabalyst.scanner.validation import check_scan
 pytestmark = pytest.mark.scan_json_lot("1b")
 
 ROOT = Path(__file__).resolve().parents[2]
-INPUT = ROOT / "examples" / "input"
+INPUT = ROOT / "examples" / "datasets"
 SOURCES = ["insurance-customers.csv", "orders.json", "web-events.jsonl"]
 CSV = "id,city,amount\n1,Paris,10\n2,,x\n3,Lyon,30\n1,Paris,10\n"
 

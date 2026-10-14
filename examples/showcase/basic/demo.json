@@ -1,0 +1,10 @@
+{
+  "id": "basic",
+  "title": "Five-row smoke example",
+  "tool": "report",
+  "datasets": ["basic.csv"],
+  "steps": [
+    {"command": "tabalyst report examples/datasets/basic.csv -o examples/showcase/basic/report.html --config examples/config.json --force"}
+  ],
+  "publish": {"site": false, "docs": ["get-started/examples.md", "reference/history.md"]}
+}

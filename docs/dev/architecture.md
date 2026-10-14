@@ -333,7 +333,7 @@ With Node.js, Playwright and Edge installed, run the interactive regression chec
 on a generated report and its JSON:
 
 ```powershell
-node tests/browser/report.cjs examples/output/insurance-customers/report.html examples/output/insurance-customers/report.json
+node tests/browser/report.cjs examples/showcase/insurance-customers/report.html examples/showcase/insurance-customers/report.json
 ```
 
 An optional third argument is the Playwright module path. `TABALYST_BROWSER`

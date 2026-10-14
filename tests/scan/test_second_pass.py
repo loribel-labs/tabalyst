@@ -54,7 +54,7 @@ from tabalyst.source_guard import StalePlan
 pytestmark = pytest.mark.scan_json_lot("7a")
 
 ROOT = Path(__file__).resolve().parents[2]
-INPUT = ROOT / "examples" / "input"
+INPUT = ROOT / "examples" / "datasets"
 runner = CliRunner()
 
 

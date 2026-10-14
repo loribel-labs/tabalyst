@@ -6,7 +6,7 @@ least one of them? `tabalyst sample --smart` is compared with
 
 ## Input
 
-`input/dirty.csv` is `examples/input/insurance-customers.csv` (3,000 rows) with
+`input/dirty.csv` is `examples/datasets/insurance-customers.csv` (3,000 rows) with
 161 rows changed on purpose and 6 rows copied, in 21 classes. `input/truth.json`
 lists the 0-based data rows of every class.
 

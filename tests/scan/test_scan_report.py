@@ -81,7 +81,7 @@ def _rows(report):
 
 @pytest.mark.parametrize("demo", ["basic", "insurance-customers"])
 def test_demo_facts_are_those_of_the_former_engine(demo):
-    source = EXAMPLES / "input" / f"{demo}.csv"
+    source = EXAMPLES / "datasets" / f"{demo}.csv"
 
     report, current = _dataset(source, resolve_report_config([DEMO_CONFIG]))
 

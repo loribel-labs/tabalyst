@@ -26,7 +26,7 @@ from tabalyst.scanner.validation import check_scan
 pytestmark = pytest.mark.scan_json_lot("1a")
 
 ROOT = Path(__file__).resolve().parents[2]
-INPUT = ROOT / "examples" / "input"
+INPUT = ROOT / "examples" / "datasets"
 SOURCES = [
     "basic.csv",
     "insurance-customers.csv",

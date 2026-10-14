@@ -14,7 +14,7 @@ from tabalyst import ReportConfig, analyze_csv
 
 pytestmark = pytest.mark.scan_json_lot("1a")
 
-INPUT = Path(__file__).resolve().parents[2] / "examples" / "input"
+INPUT = Path(__file__).resolve().parents[2] / "examples" / "datasets"
 
 
 def _datasets(name: str, **limits) -> list[dict]:

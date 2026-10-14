@@ -21,7 +21,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 CASE_DIR = Path(__file__).resolve().parent
-SOURCE = CASE_DIR.parents[1] / "input" / "insurance-customers.csv"
+SOURCE = CASE_DIR.parents[1] / "datasets" / "insurance-customers.csv"
 DIRTY = CASE_DIR / "input" / "dirty.csv"
 TRUTH = CASE_DIR / "input" / "truth.json"
 MANIFEST = json.loads((CASE_DIR / "case.json").read_text(encoding="utf-8"))

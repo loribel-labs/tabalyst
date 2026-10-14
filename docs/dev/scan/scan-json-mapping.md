@@ -91,7 +91,7 @@ the main process and are never summed with worker time.
 | `projects/` (`_codec`, `_validation`, `_queries`, `_generation`, `_publication`, `_staging`, `_session`) | Models, invariants, codecs | Adapted (1d): `validate_database` runs `check_scan`; no codec or schema change |
 | `sampling.py`, `sampling_service.py` | Scan for `stratified` and later `smart` | Chain with the planner (9); the plan of a smart sample is `scanner/smart/` (10a), the selection is `smart_service.py` and `scanner/smart/` (10b); `sampling.py` gains the method and the writer; D23 in `sampling_service.py` |
 | `cli/scan.py`, `cli/` | Options, output | `--plan` (6a); `--deep` with `--plan` (6b); `--deep` alone and `--yes`, exit code 3 (7a); `report --deep`, `--yes`, exit code 3 and the line of the second pass (7c) |
-| `examples/output/`, copies for the site | Report JSON and HTML | Regenerate each lot; follow-up in `tabalyst-studio` |
+| `examples/showcase/`, copies for the site | Report JSON and HTML | Regenerate each lot; follow-up in `tabalyst-studio` |
 | `tests/scan/`, `tests/test_reporting.py`, `tests/browser/report.cjs` | Everything above | Contract tests gated by lot |
 
 ## Ambiguities resolved in lot 0

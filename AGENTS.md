@@ -29,7 +29,8 @@ support is not yet required. Record format changes in the relevant changelogs.
   (`docs.tabalyst.com`), public website (`tabalyst.com`), brand guidelines and
   DNS references. It consumes this repository: the documentation site imports
   `docs/en/` and `docs/fr/`, and the website copies
-  `examples/output/insurance-customers/`. The website
+  `examples/showcase/insurance-customers/` and the demos whose `demo.json` says
+  `publish.site: true`. The website
   only advertises features documented in this `README.md`. When a change affects
   the CLI, the public API, the report or the demos, mention the follow-up needed
   in `tabalyst-studio` (see its `AGENTS.md`), but do not edit it unless asked.
@@ -169,8 +170,10 @@ After Python changes:
 
 After report JavaScript or CSS changes, regenerate a report and run the browser
 regression check described in `docs/dev/architecture.md` at desktop and mobile sizes.
-After every project modification, regenerate the public demos using the commands
-in `examples/README.md`. Use the `insurance-customers` output for browser checks.
+After every project modification, regenerate the public demos with
+`.\.venv\Scripts\python.exe examples\tools\regenerate.py --fresh` (the steps of each
+demo are in its `examples/showcase/<id>/demo.json`; see `examples/README.md`). Use the
+`insurance-customers` demo for browser checks.
 
 Progress logs and work-in-progress requests are kept in the private
 `tabalyst-gb` repository (`IN-PROGRESS/`), not here; record meaningful work

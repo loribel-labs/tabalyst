@@ -1,0 +1,10 @@
+{
+  "id": "insurance-customers",
+  "title": "Insurance customers report",
+  "tool": "report",
+  "datasets": ["insurance-customers.csv"],
+  "steps": [
+    {"command": "tabalyst report examples/datasets/insurance-customers.csv -o examples/showcase/insurance-customers/report.html --config examples/config.json --details --force"}
+  ],
+  "publish": {"site": true, "docs": ["get-started/examples.md"]}
+}

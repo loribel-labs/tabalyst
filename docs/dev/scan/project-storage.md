@@ -1222,14 +1222,14 @@ Initial single-run measurements, imports excluded, Windows/Python above:
 
 | Source | Records | Build including validation (s) | Read-only validation (s) | DB hash (s) | DB bytes | Peak process bytes |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `examples/input/insurance-customers.csv` | 3,000 | 2.603 | 0.690 | 0.008 | 9,711,616 | 201,867,264 |
-| `examples/input/orders.json` | 61 | 0.472 | 0.064 | 0.004 | 5,779,456 | 133,750,784 |
+| `examples/datasets/insurance-customers.csv` | 3,000 | 2.603 | 0.690 | 0.008 | 9,711,616 | 201,867,264 |
+| `examples/datasets/orders.json` | 61 | 0.472 | 0.064 | 0.004 | 5,779,456 | 133,750,784 |
 | Synthetic CSV, id/text/marker, `str(i)` repeated 100 times | 20,000 | 2.576 | 0.524 | 0.010 | 15,216,640 | 236,662,784 |
 
 Reproduce with a fresh stage:
 
 ```console
-python benchmarks/project_storage.py examples/input/insurance-customers.csv --stage artifacts/storage-measure-1
+python benchmarks/project_storage.py examples/datasets/insurance-customers.csv --stage artifacts/storage-measure-1
 ```
 
 On the insurance input, 64-row buffers took 3.191 s versus 2.603 s at 2,048

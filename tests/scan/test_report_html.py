@@ -334,7 +334,7 @@ def test_the_global_table_names_the_family_of_each_pattern(tmp_path):
 def test_a_table_of_a_family_renders_its_cells_and_an_others_row_on_one_base():
     from pathlib import Path
 
-    source = Path(__file__).resolve().parents[2] / "examples" / "input" / "insurance-customers.csv"
+    source = Path(__file__).resolve().parents[2] / "examples" / "datasets" / "insurance-customers.csv"
     profile = analyze_csv(source)
     dataset = dataset_views(profile)[0]
     column = next(c for c in dataset.columns if any(f.tables for f in c.patterns.families))

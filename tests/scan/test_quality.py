@@ -21,7 +21,7 @@ from tabalyst.scanner.models import ScanResult
 from tabalyst.scanner.quality import RULES
 from tabalyst.scanner.validation import check_scan
 
-EXAMPLES = Path(__file__).resolve().parents[2] / "examples" / "input"
+EXAMPLES = Path(__file__).resolve().parents[2] / "examples" / "datasets"
 
 
 def _scan(tmp_path: Path, header: str, rows, name: str = "data.csv", **settings):

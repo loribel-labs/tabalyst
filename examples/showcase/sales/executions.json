@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "executions": [
+    {
+      "timestamp": "2026-10-14T18:47:47.698189Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.1492,
+      "total_seconds": 0.3437,
+      "git": {
+        "available": true,
+        "commit": "70345eec9bdb3ef571b74fd0c626553bc8a6ef13",
+        "dirty": true,
+        "state": "70345eec+working"
+      }
+    }
+  ]
+}

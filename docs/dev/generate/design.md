@@ -284,7 +284,7 @@ tables are synthetic project data, with provenance in
 Branch-specific client identifiers and dates retain the prototype's formats.
 Amounts have two decimal places; claims are optional and tied to product
 probabilities. The new dataset is not a byte-for-byte reproduction of either
-the prototype or `examples/input/insurance-customers.csv`. The existing public
+the prototype or `examples/datasets/insurance-customers.csv`. The existing public
 3,000-row CSV has the same 34 column names but places `filiale` first, uses
 different values and remains unchanged. This provider models a pedagogical
 export, not actuarial rates or comprehensive insurance validation.

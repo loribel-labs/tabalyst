@@ -572,7 +572,7 @@ def test_a_wrong_pearson_setting_is_refused(tmp_path, monkeypatch):
 def test_excel_pairs_are_read_from_the_records_of_the_workbook(tmp_path):
     from pathlib import Path
 
-    workbook = Path(__file__).resolve().parents[2] / "examples" / "input" / "sales.xlsx"
+    workbook = Path(__file__).resolve().parents[2] / "examples" / "datasets" / "sales.xlsx"
     if not workbook.exists():
         pytest.skip("no workbook fixture")
     config = ScanConfig.model_validate({"excel": {"dataset_path": "$.Orders"}})

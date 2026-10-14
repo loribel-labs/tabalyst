@@ -1,0 +1,10 @@
+{
+  "id": "orders",
+  "title": "Shop export in JSON",
+  "tool": "report",
+  "datasets": ["orders.json"],
+  "steps": [
+    {"command": "tabalyst report examples/datasets/orders.json -o examples/showcase/orders/report.html --config examples/config.json --force"}
+  ],
+  "publish": {"site": true, "docs": ["get-started/examples.md"]}
+}

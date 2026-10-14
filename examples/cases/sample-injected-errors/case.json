@@ -4,7 +4,7 @@
   "tool": "sample",
   "question": "When a file holds a few wrong rows, how often does a sample keep at least one of them?",
   "inputs": {
-    "source": "../../input/insurance-customers.csv",
+    "source": "../../datasets/insurance-customers.csv",
     "dirty": "input/dirty.csv",
     "truth": "input/truth.json"
   },
