@@ -692,7 +692,7 @@ class PatternSettings(_Settings):
 
 
 class ExposureSettings(_Settings):
-    sensitive_values: Literal["mask", "hide", "show"] = "mask"
+    sensitive_values: Literal["mask", "hide", "show"] = "show"
     # ``aggregate`` publishes the declared keys of the detectors (extension and
     # domain, area code, postal area) on a masked or hidden field too; ``mask``
     # brings the masking back (Patterns DEC-027).

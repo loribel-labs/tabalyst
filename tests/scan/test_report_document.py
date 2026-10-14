@@ -287,6 +287,7 @@ def test_a_document_that_is_neither_scan_nor_report_is_refused(tmp_path):
         load_document(other)
 
 
+@pytest.mark.shipped_exposure_default
 def test_the_committed_report_schema_is_the_generated_one():
     committed = ROOT / "src" / "tabalyst" / "schemas" / SCHEMA_FILE
     assert committed.read_text(encoding="utf-8") == report_schema_text()

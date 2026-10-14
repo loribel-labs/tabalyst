@@ -34,7 +34,8 @@ from several detectors at once.
 | `ip_address` | IPv4 dotted decimal and IPv6 text, including compressed and embedded-IPv4 forms. | Invalid octets, leading zeros, compression and group counts can be reported. |
 
 `email`, `phone` and `ip_address` are sensitive detectors. When they match a
-field, its examples, value profile and rows of the data sample are masked by default. A
+field, its examples, value profile and rows of the data sample are masked when
+`scan.exposure.sensitive_values` is `mask`; they are shown by default. A
 configured pattern can also be sensitive. `postal_code` is not sensitive by
 default. See [exposure settings](../configuration.md#sensitive-values-and-sampling).
 

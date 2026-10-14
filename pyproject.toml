@@ -76,6 +76,7 @@ markers = [
     "lot(name): Tabalyst Scan implementation lot that provides the tested behavior",
     "scan_json_lot(name): Scan and JSON work lot (plan 2026-10-06) that provides the tested behavior; lot 0 tests describe current behavior",
     "inspect_lot(name): Tabalyst Inspect implementation lot that provides the tested behavior",
+    "shipped_exposure_default: the test reads the shipped default of scan.exposure.sensitive_values (show), not the masking default the suite runs with",
 ]
 
 [tool.ruff]

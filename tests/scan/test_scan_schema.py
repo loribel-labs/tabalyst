@@ -54,6 +54,7 @@ def _limited(tmp_path) -> ScanResult:
     )
 
 
+@pytest.mark.shipped_exposure_default
 def test_the_committed_schema_is_the_generated_one():
     assert COMMITTED.read_text(encoding="utf-8") == scan_schema_text()
     outcome = subprocess.run(

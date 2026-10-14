@@ -8,12 +8,28 @@ Choose exactly one size option: `--rows` for a fixed count or `--percent` for a
 percentage.
 
 ```console
-tabalyst sample customers.csv --sample-method random --rows 1000
+tabalyst sample customers.csv --smart --rows 1000
 ```
 
 This creates `customers.sample.csv` beside `customers.csv`. The output keeps the
 header, column order, raw cell values and configured encoding. Existing files
 are not replaced unless you pass `--force`; the source can never be overwritten.
+
+`--smart` (short for `--sample-method smart`) is the recommended method: it
+keeps every value of the columns that have few values, and the rare cases a
+random draw drops. It costs a little more than the others, because it reads the
+source twice at most: once to scan and once to choose the rows. When a current
+stored [scan](../scan/index.md) exists it reads the source once. See
+[Cover rare cases with a smart sample](#cover-rare-cases-with-a-smart-sample).
+
+## Which method to use
+
+| Method | Use it when | Readings |
+| --- | --- | --- |
+| `smart` (recommended) | You need every value of the small columns, the extremes and the odd cases in the sample | 2 at most (1 with a current scan) |
+| `random` | You need a quick sample that keeps the proportions of the file | 1 |
+| `stratified` | You need the proportions of one field, or of a few, preserved | 1 |
+| `first`, `last` | You only need the start or the end of the file | 1 |
 
 ## Choose a method
 
@@ -70,7 +86,7 @@ odd. Its proportions are not those of the file, so never estimate the population
 from it.
 
 ```console
-tabalyst sample customers.csv --sample-method smart --rows 1000
+tabalyst sample customers.csv --smart --rows 1000
 ```
 
 This writes `customers.sample.csv` and, beside it, `customers.sample.json`: the
@@ -107,6 +123,14 @@ ones win and the report lists the others with the reason. The command prints how
 many targets are covered, how many of the mandatory ones, how many ordinary rows
 the sample holds and how many readings of the file it cost.
 
+On the 3,000-row `insurance-customers.csv` example, a smart sample of 100 rows
+keeps all 146 distinct values of its 9 columns of 50 values or fewer. A random
+sample of the same size, with the same seed, misses 48 of them. When the size is
+too small for every value, the heavier targets win and the sample misses fewer
+values than a random one: at 40 rows it missed 10 of the 146 (random: 67), and
+at 20 rows it missed 39 (random: 86). The command line says how many mandatory
+targets are covered, so compare it with what you needed.
+
 The same seed gives the same file. `--seed` changes the choice among equal
 candidates and the ordinary rows; by default it is the seed of the scan.
 
@@ -121,6 +145,28 @@ memory the candidate rows may take.
 A rare phenomenon the scan has no target for can still be missing. The report
 names what it covers precisely: the catalog of targets of the plan, not every
 phenomenon of the data.
+
+### What the smart method reads and ignores
+
+- It needs a size (`--rows` or `--percent`) like the other methods.
+- `--smart` and `--sample-method smart` mean the same thing. `--smart` cannot
+  be combined with another `--sample-method`, and one of the two is required.
+- No option is ignored silently: an option the chosen method does not read is
+  an error (exit code 2). `--field` and `--max-strata` belong to `stratified`
+  alone; the targets of `smart` come from the scan, not from the fields you
+  name. `--yes` and `--no-html` belong to `smart` alone. `--seed` has no effect
+  with `first` and `last`, which keep the rows in file order.
+- The reserve of ordinary rows is a fifth of the size by default, but the
+  mandatory targets come first: on a sample of 100 rows over 9 small columns
+  the reserve was 5 rows, and with 40 rows or fewer it was empty. A sample
+  that small is made of covering rows only, so its proportions are far from
+  those of the file.
+- Its tuning (candidates per target, share of ordinary rows, memory) has no
+  command-line option: it is in the
+  [configuration file](../reference/configuration.md#smart-settings), given
+  with `--config`.
+- It does not run a [second pass](../scan/deep.md) by itself, and it reads
+  CSV files only.
 
 Percentages round up to the next whole row. A 100% sample contains every data
 record. A header-only CSV therefore produces a header-only output at 100%.

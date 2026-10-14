@@ -96,6 +96,11 @@ the one written beside `-o`; the second command stores the full one. Without it,
 report made just before leaves its smaller automatic second pass there and the plan
 counts fewer targets (391 instead of 469 relations included).
 
+`cases/` holds reproducible scenarios that test and document a command, each with
+its input, its measured result and a test (see `cases/README.md`). The first,
+`cases/sample-injected-errors/`, injects known errors in the insurance example and
+measures how many a smart sample keeps against a random one.
+
 Every output folder of the reports is independent and contains its own HTML report, canonical
 JSON profile and cumulative `executions.json` history. The insurance example
 also has standalone HTML pages under `report/`. Delete an output folder

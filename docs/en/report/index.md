@@ -45,7 +45,9 @@ modified or sent anywhere.
   analyzed.
 
 The report is built on [Tabalyst Scan](../scan/files.md). Values of
-sensitive fields, such as email addresses, are masked by default. Ambiguous
+sensitive fields, such as email addresses, are shown by default; the
+[exposure settings](../reference/configuration.md#sensitive-values-and-sampling)
+mask or hide them. Ambiguous
 dates stay ambiguous: the report shows the evidence without applying it. The
 HTML works without a network connection or a CDN.
 

@@ -5768,7 +5768,7 @@
       "additionalProperties": false,
       "properties": {
         "sensitive_values": {
-          "default": "mask",
+          "default": "show",
           "enum": [
             "mask",
             "hide",

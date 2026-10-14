@@ -24,7 +24,7 @@ when the source has not changed.
 
 Numbers with decimal commas, dates, booleans, enumerations, email addresses,
 URLs, phone numbers, postal codes, currency amounts, percentages, quantities,
-UUIDs and IP addresses. Values of sensitive fields are masked by default.
+UUIDs and IP addresses. Values of sensitive fields are shown by default and can be masked or hidden.
 Memory depends on configurable limits, not on the number of records. Results
 are written atomically: an interrupted scan never leaves a partial file.
 

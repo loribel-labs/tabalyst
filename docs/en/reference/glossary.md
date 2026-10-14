@@ -115,7 +115,7 @@ Keep these exactly as written in every language:
 | field | champ | A CSV column or a path inside JSON records, such as `orders[].amount` |
 | detector | détecteur | A rule that recognizes a kind of value, such as email addresses or dates |
 | interpretation | interprétation | A meaning proposed for a field by the detectors that match its values |
-| sensitive value | valeur sensible | A value identifying a person, such as an email address, masked by default |
+| sensitive value | valeur sensible | A value identifying a person, such as an email address; shown by default, maskable |
 | mask | masque | A value with letters replaced by `A` or `a` and digits by `9` |
 | measure envelope | enveloppe de mesure | The `status` wrapper saying whether a measure is complete or limited |
 | diagnostic | diagnostic | A technical event of a scan, such as an excluded record or a reached limit |

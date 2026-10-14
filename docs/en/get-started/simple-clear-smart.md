@@ -9,7 +9,7 @@ Tabalyst works in three steps, and each one is useful on its own.
 | --- | --- | --- | --- |
 | **Simple** | What does this file contain? | `tabalyst scan` | One JSON document, read once, with bounded memory. |
 | **Clear** | What does that mean, and how sure is it? | `tabalyst report` | A report that labels every figure exact, estimated or limited. |
-| **Smart** | What should I do next, and what would it cost? | `tabalyst scan --plan`, `--deep`, `tabalyst sample --sample-method smart` | A plan of extra analyses, exact figures, and a small file that still shows every case. |
+| **Smart** | What should I do next, and what would it cost? | `tabalyst scan --plan`, `--deep`, `tabalyst sample --smart` | A plan of extra analyses, exact figures, and a small file that still shows every case. |
 
 The examples below use `examples/input/insurance-customers.csv` of the
 repository: 3,000 fictional customer and contract records across 34 columns.
@@ -111,7 +111,7 @@ Targets: 347 (146 mandatory, 201 optional), 11 the sample cannot recognize yet.
 Then create it:
 
 ```console
-tabalyst sample examples/input/insurance-customers.csv --sample-method smart --rows 150 --seed 42
+tabalyst sample examples/input/insurance-customers.csv --smart --rows 150 --seed 42
 ```
 
 ```text

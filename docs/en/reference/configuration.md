@@ -160,11 +160,12 @@ the tooltip lists masked values.
   `scan.detection.minimum_share` of the present values, such as `enumeration`,
   `email`, `phone` or `postal_code`. `number` and `boolean` are not repeated as
   semantic types.
-- **Sensitive values.** Columns where a sensitive detector matches, such as
-  email addresses and phone numbers, are masked by default in examples, value
-  profiles and the data sample: `jane@example.com` becomes `aaaa@aaaaaaa.aaa`. Set
-  `scan.exposure.sensitive_values` to `show` to keep the values, or `hide` to
-  remove them.
+- **Sensitive values.** Sensitive columns are not handled in this beta: by
+  default every value is shown, including in examples, value profiles and the
+  data sample. Set `scan.exposure.sensitive_values` to `mask` to replace the
+  values of columns where a sensitive detector matches, such as email addresses
+  and phone numbers (`jane@example.com` becomes `aaaa@aaaaaaa.aaa`), or to
+  `hide` to remove them.
 - **Limits.** When a scan limit stops a measure, such as the distinct values
   of a column with more than `scan.limits.max_distinct_per_field` of them, the
   report shows `limited` instead of a number and lists the column in the
@@ -294,7 +295,7 @@ The counts per bin are exact with either strategy.
 
 The top-level `smart` object configures the plan of a smart sample, in [Plan the
 analyses a scan could add](../scan/plan.md#smart-sample-plan), and the sample that
-[`tabalyst sample --sample-method smart`](../sample/index.md#cover-rare-cases-with-a-smart-sample)
+[`tabalyst sample --smart`](../sample/index.md#cover-rare-cases-with-a-smart-sample)
 builds from it. It is not part of the
 `scan` object or of `deep`: changing it never makes a stored scan or a second-pass
 result stale.
@@ -698,8 +699,9 @@ written in `observations` (see
 
 - `exposure.sensitive_values`: how values of sensitive fields (email
   addresses, phone numbers, IP addresses and sensitive patterns) appear in the
-  result. `mask` (default) replaces letters with `A` or `a` and digits with
-  `9`; `hide` removes the values and keeps the counts; `show` keeps them.
+  result. `show` (default) keeps them; `mask` replaces letters with `A` or `a`
+  and digits with `9`; `hide` removes the values and keeps the counts. Sample
+  files always keep the values of the source.
 - `exposure.detector_keys`: `aggregate` (default) publishes the keys that the
   `email`, `phone` and `postal_code` detectors declare (extension and domain,
   region and area code, postal area) even on a masked or hidden field, as counts of

@@ -3,7 +3,7 @@ title: Format of the report of a smart sample
 description: What the JSON report written beside a smart sample contains - the plan, the rows chosen, the coverage by family and weighted, the targets missed and why - and how to read it without mistaking it for a guarantee.
 ---
 
-`tabalyst sample --sample-method smart` writes `<stem>.sample.json` beside the
+`tabalyst sample --smart` writes `<stem>.sample.json` beside the
 sample. It is the report of what the sample aimed at and what it covers. The
 document has `format: "tabalyst.sample"`, `format_version: "0.2.0"` and its own
 `format_revision`, which is `1`. The format is experimental while Tabalyst is in
@@ -11,7 +11,7 @@ beta. The JSON Schema is `tabalyst/schemas/tabalyst.sample.schema.json`, generat
 from the same models as the document.
 
 ```console
-tabalyst sample customers.csv --sample-method smart --rows 1000
+tabalyst sample customers.csv --smart --rows 1000
 ```
 
 The command also writes `<stem>.sample.html`, a page rendered from this document

@@ -274,3 +274,16 @@ def test_show_keeps_statistics(tmp_path):
     )
 
     assert field["numeric"]["value"]["min"] == 123456789
+
+
+@pytest.mark.shipped_exposure_default
+def test_sensitive_values_are_shown_by_default(tmp_path):
+    source = tmp_path / "data.csv"
+    source.write_text("email\njane@example.com\nbob@example.com\n", encoding="utf-8")
+
+    result = scan(source, config=ScanConfig()).model_dump(mode="json")
+
+    [field] = result["datasets"][0]["fields"]
+    assert field["sensitive"] is True
+    assert field["exposure"] == "show"
+    assert "jane@example.com" in json.dumps(field)

@@ -1020,7 +1020,7 @@ The second pass reads the numbers of such a field as the scan counted them.
 
 A field is sensitive when a sensitive detector (`email`, `phone`,
 `ip_address`, or a pattern declared `sensitive`) matched one of its values.
-With the default `mask` exposure, its listed values, evidence and variant
+With the `mask` exposure, its listed values, evidence and variant
 groups show masks: uppercase letters become `A`, other letters `a` and digits
 `9`. Equal masks are merged. Under `mask` and `hide`, the `numeric` and
 `temporal` blocks of a sensitive field are `disabled`, since a minimum or a

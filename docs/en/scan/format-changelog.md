@@ -138,6 +138,13 @@ Also in revision 2:
 Revision 4 gathers the changes of the hierarchical pattern discovery; it is not
 final until the release that ships it.
 
+- The default of `scan.exposure.sensitive_values` becomes `show` (it was `mask`):
+  sensitive columns are not handled in this beta, so their values are listed and
+  patterns are inferred for them like for any other column. `mask` and `hide`
+  keep their meaning. The structure of the document does not change; the
+  `sensitive` member of a field still says whether a sensitive detector matched,
+  and `exposure` now reads `show` unless the setting asks otherwise.
+
 - Every entry of `derived.patterns` has an `eligibility` (`state`, `score`,
   `reasons`): whether the field is worth a search for patterns, decided before
   any pattern is built (see [Inferred patterns](format.md#inferred-patterns)).

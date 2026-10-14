@@ -80,7 +80,7 @@
       "duplicates": true
     },
     "exposure": {
-      "sensitive_values": "mask"
+      "sensitive_values": "show"
     },
     "random_seed": 42
   }

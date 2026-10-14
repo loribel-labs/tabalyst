@@ -50,9 +50,9 @@ existing ones without `--force`.
 ## Sensitive values
 
 Generated JSON and HTML contain values from your source, including a sample of
-the first rows. Values of fields detected as sensitive, such as email
-addresses and phone numbers, are masked by default. Values of every other field
-are listed, so share the outputs as you would share the data.
+the first rows. Sensitive columns, such as email addresses and phone numbers, are not handled
+yet: every value is listed by default (`scan.exposure.sensitive_values`
+can mask or hide them), so share the outputs as you would share the data.
 
 ## Descriptive, not corrective
 

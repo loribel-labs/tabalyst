@@ -123,6 +123,45 @@ def _run_smart(
     return execute_smart_samples(preparation, confirmed=True, on_progress=progress)
 
 
+def _resolve_method(method: SampleMethod | None, *, smart: bool) -> SampleMethod:
+    """The method named by --sample-method or --smart, never both and never neither."""
+    if smart:
+        if method is not None and method is not SampleMethod.SMART:
+            raise typer.BadParameter(
+                f"--smart cannot be combined with --sample-method {method.value}."
+            )
+        return SampleMethod.SMART
+    if method is None:
+        raise typer.BadParameter("Choose a method: --sample-method METHOD or --smart.")
+    return method
+
+
+def _reject_unused_options(
+    method: SampleMethod,
+    *,
+    field: list[str] | None,
+    max_strata: int | None,
+    seed: int | None,
+    yes: bool,
+    no_html: bool,
+) -> None:
+    """Refuse an option the method does not read: none is ignored without an error."""
+    smart = method is SampleMethod.SMART
+    for name, given in (("--yes", yes), ("--no-html", no_html)):
+        if given and not smart:
+            raise typer.BadParameter(f"{name} only goes with the smart method.")
+    stratified = method is SampleMethod.STRATIFIED
+    for name, given in (("--field", bool(field)), ("--max-strata", max_strata is not None)):
+        if given and not stratified:
+            raise typer.BadParameter(
+                f"{name} only goes with --sample-method stratified, not {method.value}."
+            )
+    if seed is not None and method in {SampleMethod.FIRST, SampleMethod.LAST}:
+        raise typer.BadParameter(
+            f"--seed has no effect with {method.value}: it keeps the rows in file order."
+        )
+
+
 def sample_command(
     inputs: Annotated[
         list[str],
@@ -132,9 +171,20 @@ def sample_command(
         ),
     ],
     method: Annotated[
-        SampleMethod,
-        typer.Option("--sample-method", help="Sampling strategy."),
-    ],
+        SampleMethod | None,
+        typer.Option(
+            "--sample-method",
+            help="Sampling strategy. Required unless --smart is given.",
+        ),
+    ] = None,
+    smart: Annotated[
+        bool,
+        typer.Option(
+            "--smart",
+            help="Shortcut for --sample-method smart: keep every value of the "
+            "columns with few values (recommended).",
+        ),
+    ] = False,
     rows: Annotated[
         int | None,
         typer.Option("--rows", help="Number of data rows to select."),
@@ -215,10 +265,15 @@ def sample_command(
 ) -> None:
     """Create a CSV sample without modifying the source file."""
 
-    if yes and method is not SampleMethod.SMART:
-        raise typer.BadParameter("--yes only goes with --sample-method smart.")
-    if no_html and method is not SampleMethod.SMART:
-        raise typer.BadParameter("--no-html only goes with --sample-method smart.")
+    method = _resolve_method(method, smart=smart)
+    _reject_unused_options(
+        method,
+        field=field,
+        max_strata=max_strata,
+        seed=seed,
+        yes=yes,
+        no_html=no_html,
+    )
     try:
         if method is SampleMethod.SMART:
             batch = _run_smart(

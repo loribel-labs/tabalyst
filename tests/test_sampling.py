@@ -364,3 +364,36 @@ def test_sample_output_mode_follows_umask(source, tmp_path, umask):
         os.umask(previous)
 
     assert stat.S_IMODE(output.stat().st_mode) == 0o666 & ~umask
+
+
+def test_cli_smart_flag_is_the_shortcut_of_the_smart_method(source, tmp_path):
+    result = runner.invoke(
+        app,
+        ["sample", str(source), "--smart", "--rows", "10", "-o", str(tmp_path / "s.csv")],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Method:        smart" in result.stderr
+    assert (tmp_path / "s.csv").is_file()
+
+
+@pytest.mark.parametrize(
+    ("args", "message"),
+    [
+        (["--rows", "2"], "Choose a method"),
+        (["--smart", "--sample-method", "random", "--rows", "2"], "cannot be combined"),
+        (["--smart", "--field", "region", "--rows", "2"], "--field only goes with"),
+        (["--smart", "--max-strata", "5", "--rows", "2"], "--max-strata only goes with"),
+        (["--sample-method", "random", "--max-strata", "5", "--rows", "2"], "--max-strata only"),
+        (["--sample-method", "first", "--field", "region", "--rows", "2"], "--field only goes"),
+        (["--sample-method", "first", "--seed", "1", "--rows", "2"], "--seed has no effect"),
+        (["--sample-method", "random", "--yes", "--rows", "2"], "--yes only goes"),
+        (["--sample-method", "random", "--no-html", "--rows", "2"], "--no-html only goes"),
+    ],
+)
+def test_cli_rejects_an_option_the_method_does_not_read(source, args, message):
+    result = runner.invoke(app, ["sample", str(source), *args])
+
+    assert result.exit_code == 2
+    assert message in result.output
+    assert not source.with_suffix(".sample.csv").exists()

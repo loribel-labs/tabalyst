@@ -239,7 +239,7 @@ sample, a JSON report and a web page that say what the sample covers and what it
 does not:
 
 ```console
-tabalyst sample customers.csv --sample-method smart --rows 1000
+tabalyst sample customers.csv --smart --rows 1000
 ```
 
 Its proportions are not those of the file, so never estimate the population from
@@ -351,7 +351,7 @@ statistics, normalization variants, technical type and the result of every
 detector: numbers with decimal commas, dates, booleans, enumerations, email
 addresses, URLs, phone numbers, postal codes, currency amounts, percentages,
 quantities, UUIDs and IP addresses. Values of sensitive fields, such as email
-addresses, are masked by default. Results are written atomically: an
+addresses, are shown by default and can be masked or hidden. Results are written atomically: an
 interrupted scan never leaves a partial file. Files of 16 MiB or more are
 analyzed by several worker processes, with the same result; `--workers`
 chooses their number, `--workers 1` keeps one process.
