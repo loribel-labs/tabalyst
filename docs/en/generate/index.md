@@ -96,7 +96,9 @@ anomaly_profiles:
 
 Use `count` when a defect must stay as rare in a large file as in a small one:
 `count: 1` changes one row at 3,000 rows and at 100,000 rows, while `rate`
-grows with the file. A `count` larger than the number of rows stops the
+grows with the file. A row picked for a request that cannot apply (see
+below) is skipped and no other row is drawn, so the changes made can be fewer
+than `count`; the summary says how many. A `count` larger than the number of rows stops the
 command before anything is written. An optional `class` (a lower-case
 identifier) names the defect; it is copied to a `class` column of the
 `*.changes.csv` file and to the summary. A profile with no `class` writes the
@@ -109,7 +111,7 @@ same files as before.
 | `duplicate` | Copies a value from an earlier row of the same column. |
 | `swap` | Exchanges the cell with the column named by `value`. |
 | `format` | Rewrites the cell as `value` says (below). |
-| `duplicate_row` | Replaces the row with an exact copy of an earlier output row. It takes no `column` and no `value`; put it last in the profile. |
+| `duplicate_row` | Replaces the row with an exact copy of an earlier output row. It takes no `column` and no `value`, and runs after the other operations of the row: a row it replaces loses their changes, which the summary then counts as skipped. |
 
 The `format` values are `upper`, `lower`, `strip`, `date_slash`,
 `phone_spaces`, `insert_space` (a space inside a word), `double_space` (the

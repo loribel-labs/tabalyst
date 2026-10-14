@@ -160,9 +160,11 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     so a fixed ``count`` touches the same number of rows in any file size.
     The journal gains a ``class`` column only when an operation declares one,
     which keeps the files of profiles without classes byte for byte unchanged.
-    A ``duplicate_row`` operation overwrites the row with an exact copy of an
-    earlier output row; put it last in a profile, since the other operations of
-    the same row are lost in the copy.
+    A ``duplicate_row`` operation runs after the other operations of its row and
+    overwrites the row with an exact copy of an earlier output row. Changes the
+    row had already received are then gone from the file, so their journal
+    entries are dropped and their operations count the row as skipped: the
+    journal always describes the file.
     """
     # Imported here because generate_values reaches generate_definition, which
     # imports this module for the operation rules.
@@ -190,6 +192,8 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     keeps_classes = any("class" in operation for operation in operations)
     copies_rows = any(operation["kind"] in ROW_KINDS for operation in operations)
     written: deque[tuple[int, tuple[str, ...]]] = deque(maxlen=COPY_WINDOW)
+    # Row operations go last whatever their place in the profile (stable sort).
+    order = sorted(range(len(operations)), key=lambda i: operations[i]["kind"] in ROW_KINDS)
     affected_rows = 0
     changed_cells = 0
     events = 0
@@ -209,8 +213,10 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
         for row_index, clean_row in enumerate(reader):
             observed += 1
             row = clean_row.copy()
-            changed = False
-            for index, operation in enumerate(operations):
+            # (operation index, cell updates) of this row, written once it is final.
+            pending: list[tuple[int, list[tuple[str, str, str, str]]]] = []
+            for index in order:
+                operation = operations[index]
                 rows_left = count - row_index
                 selected = (remaining[index] == rows_left or
                             (remaining[index] > 0 and
@@ -229,7 +235,15 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                         continue
                     number, values = written[mutation_rngs[index].randrange(len(written))]
                     updates = {field: value for field, value in zip(fields, values)
-                               if row[field] != value}
+                               if clean_row[field] != value}
+                    if not updates:
+                        skipped[index] += 1
+                        continue
+                    for earlier, _ in pending:
+                        applied[earlier] -= 1
+                        skipped[earlier] += 1
+                    pending.clear()
+                    row = clean_row.copy()
                     cause += f" copy_of_row={number}"
                 else:
                     updates = _mutate(row, operation, history, mutation_rngs[index], locale,
@@ -237,23 +251,26 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                 if not updates:
                     skipped[index] += 1
                     continue
-                events += 1
+                cells = []
                 for column, after in updates.items():
-                    before = row[column]
+                    cells.append((column, row[column], after, cause))
                     row[column] = after
+                pending.append((index, cells))
+                applied[index] += 1
+            for index, cells in pending:
+                events += 1
+                for column, before, after, cause in cells:
                     changed_cells += 1
                     entry = {"event_id": events, "dataset": dataset,
                              "profile": profile_id, "row_number": row_index + 2,
-                             "operation_index": index + 1, "kind": operation["kind"],
+                             "operation_index": index + 1, "kind": operations[index]["kind"],
                              "column": column, "before": before, "after": after,
                              "cause": cause}
                     if keeps_classes:
-                        entry["class"] = operation.get("class", "")
+                        entry["class"] = operations[index].get("class", "")
                     log.writerow(entry)
-                applied[index] += 1
-                changed = True
             writer.writerow(row)
-            affected_rows += int(changed)
+            affected_rows += int(bool(pending))
             if copies_rows:
                 written.append((row_index + 2, tuple(row[field] for field in fields)))
             for field, value in clean_row.items():

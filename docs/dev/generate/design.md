@@ -224,7 +224,11 @@ call `operation_option_error` and share `OPERATION_KINDS`, `FORMAT_VALUES` and
   as written). The file keeps its row count. The journal lists the cells that
   differ, kind `duplicate_row`, and the cause ends with ` copy_of_row=N`, the
   CSV record number copied. The first row has nothing to copy and is skipped.
-  Operations run in order and the copy replaces the whole row, so list it last.
+  Row operations run after the cell operations of the same row, whatever their place
+  in the profile. The copy replaces the whole row, so the changes the row had received
+  are dropped from the journal, `changed_cells` and `events`, and their operations move
+  that row from `applied_rows` to `skipped_rows`: the journal always describes the
+  altered file. A copy identical to the clean row is skipped and keeps the earlier changes.
 
 ## Lot 2 implementation state
 

@@ -259,3 +259,30 @@ def test_computer_profile_accepts_counts_classes_and_new_transforms_and_checks_t
         build_generate_plan(copied, output_dir=tmp_path / "small", rows=3,
                             output_profile="extended", anomaly_profile="dirty_realistic")
     assert not (tmp_path / "small").exists()
+
+
+def test_duplicate_row_drops_the_earlier_changes_it_overwrites_from_journal_and_counts(
+        tmp_path: Path) -> None:
+    rows = _each_row([f"value-{i}" for i in range(40)])
+    # The row operation is listed first on purpose: it must still run last.
+    altered, changes, summary = _inject(
+        tmp_path, rows,
+        [{"kind": "duplicate_row", "count": 40},
+         {"kind": "set_missing", "column": "v", "count": 40}])
+    copies, blanks = summary["operations"]  # type: ignore[misc]
+    assert copies["requested_rows"] == blanks["requested_rows"] == 40
+    for entry in (copies, blanks):
+        assert entry["applied_rows"] + entry["skipped_rows"] == 40
+    # A row is blanked or replaced by a copy, never both: the journal matches the file.
+    assert copies["applied_rows"] > 0 and blanks["applied_rows"] > 0
+    by_row: dict[str, dict[str, str]] = {}
+    for change in changes:
+        position = int(change["row_number"]) - 2
+        assert change["before"] == rows[position][change["column"]]
+        assert change["after"] == altered[position][change["column"]]
+        by_row.setdefault(change["row_number"], {})[change["column"]] = change["kind"]
+    for position, row in enumerate(altered):
+        recorded = by_row.get(str(position + 2), {})
+        assert (row == rows[position]) == (not recorded)
+    assert summary["changed_cells"] == len(changes)
+    assert summary["affected_rows"] == len(by_row)
