@@ -161,7 +161,7 @@ cohort sequence. A fixed dataset cohort does not change entity pool cohorts.
 
 Selecting `--anomaly-profile` adds a separate pass over each targeted staged
 clean CSV. Operations run in YAML order. Each operation names a `column` and a
-`rate` from 0 to 1. The engine selects exactly `round(rows * rate)` source
+`rate` from 0 to 1 (or an absolute `count`, see lot G1). The engine selects exactly `round(rows * rate)` source
 rows with its own seeded stream. Optional `when: {column: text}` limits the
 mutation to rows whose current value matches; ineligible or unchanged requests
 are counted as skipped. Selection is independent per operation, so one row
@@ -185,6 +185,46 @@ events, and changed cells. Natural missing values and no-op mutation requests
 are never reported as introduced defects. All four outputs are staged before
 publication. The clean CSV has identical bytes whether or not the profile is
 selected.
+
+## Lot G1: absolute counts, classes and more operations
+
+The engine in `generate_anomalies.py` also serves the Computer package, whose
+operations are validated by `generate_service._computer_anomaly_profile`; the
+definition validator is `generate_definition.validate_generate_mapping`. Both
+call `operation_option_error` and share `OPERATION_KINDS`, `FORMAT_VALUES` and
+`OPERATION_KEYS`, so a rule exists once. `generate_anomalies` imports
+`generate_values` lazily, since that module reaches `generate_definition`.
+
+- **`count`.** An operation has exactly one of `rate` and `count`. `count` is a
+  positive integer, the number of rows to select, whatever the file size
+  (the decision of 2026-10-14 is that defects are absolute numbers, not
+  proportions). A `count` above the dataset's row count fails at planning
+  (`PACKAGE_ANOMALY`), only for the selected profile, and again in the engine.
+  Selection is the same seeded stream as for `rate`. A selected row whose
+  cell cannot take the change (condition `when` not met, no hyphen to double)
+  is counted in `skipped_rows`; the engine does not look for another row, so
+  a class that must reach an exact number needs a target column where every
+  row is eligible.
+- **`class`.** Optional lower-case identifier (at most 64 characters), shared
+  freely by several operations. When at least one operation of the profile has
+  a class, `changes.csv` gains a last `class` column (empty for operations
+  without one); otherwise the journal is byte for byte the previous one. The
+  summary operation entry carries `class` and, with `count`, `count` instead
+  of `rate`; `column` is absent for a row operation. The other summary keys
+  and their order are unchanged. `tests/test_generate_anomalies_regression.py`
+  pins the SHA-256 of every file of the shipped profiles (CRM, Insurance and
+  the four Computer profiles) to prove it.
+- **`format` values added.** `insert_space`, `double_space`, `drop_char`,
+  `double_hyphen`, `suffix_x`, `strip_accents`, `negate`, `leading_apostrophe`.
+  Each is a function of the cell and of the operation's own random stream, so
+  adding one never shifts another. `insert_space` and `drop_char` need at
+  least two characters; `negate` accepts an unsigned non-zero decimal only.
+- **`duplicate_row`.** Replaces the selected row with an exact copy of a row
+  already written, drawn from the last 1,000 output rows (altered rows count
+  as written). The file keeps its row count. The journal lists the cells that
+  differ, kind `duplicate_row`, and the cause ends with ` copy_of_row=N`, the
+  CSV record number copied. The first row has nothing to copy and is skipped.
+  Operations run in order and the copy replaces the whole row, so list it last.
 
 ## Lot 2 implementation state
 

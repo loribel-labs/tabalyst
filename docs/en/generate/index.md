@@ -68,6 +68,59 @@ Computer offers `dirty_realistic`, `dirty_stress`, `unit_variants` and
 `unit_variants_extended`; the last two mix unit spellings in the measurement
 columns.
 
+## Write an anomaly profile
+
+A package declares its profiles under `anomaly_profiles`. Each operation names
+a `kind`, usually a `column`, and how many rows it touches: exactly one of
+`rate` (a share of the rows, from 0 to 1) or `count` (an absolute number of
+rows). Giving both, or neither, is an error.
+
+```yaml
+anomaly_profiles:
+  stress:
+    targets: [customers]
+    operations:
+      - kind: format
+        column: id
+        value: double_hyphen
+        count: 3
+        class: id_hyphen
+      - kind: replace
+        column: country
+        value: quebec
+        count: 1
+      - kind: duplicate_row
+        count: 2
+        class: copies
+```
+
+Use `count` when a defect must stay as rare in a large file as in a small one:
+`count: 1` changes one row at 3,000 rows and at 100,000 rows, while `rate`
+grows with the file. A `count` larger than the number of rows stops the
+command before anything is written. An optional `class` (a lower-case
+identifier) names the defect; it is copied to a `class` column of the
+`*.changes.csv` file and to the summary. A profile with no `class` writes the
+same files as before.
+
+| `kind` | What it does |
+| --- | --- |
+| `set_missing` | Empties a cell. |
+| `replace` | Sets the cell to the literal `value`. |
+| `duplicate` | Copies a value from an earlier row of the same column. |
+| `swap` | Exchanges the cell with the column named by `value`. |
+| `format` | Rewrites the cell as `value` says (below). |
+| `duplicate_row` | Replaces the row with an exact copy of an earlier output row. It takes no `column` and no `value`; put it last in the profile. |
+
+The `format` values are `upper`, `lower`, `strip`, `date_slash`,
+`phone_spaces`, `insert_space` (a space inside a word), `double_space` (the
+first space doubled), `drop_char` (one character removed), `double_hyphen`
+(the first hyphen doubled), `suffix_x` (appends `_X`), `strip_accents`,
+`negate` (a minus sign before a non-zero number) and `leading_apostrophe`.
+An optional `when: {column: text}` limits an operation to rows whose cell
+equals the text. A request that cannot apply, such as `double_hyphen` on a
+cell without a hyphen, is not counted as a defect: the summary reports the
+rows requested, applied and skipped for every operation.
+
 Choose `-o` only when the result is one clean CSV. Use `-d` for multiple CSVs
 or an anomaly profile. Existing output files require `--force`. Nothing is
 written beside the package or into the current directory by default.

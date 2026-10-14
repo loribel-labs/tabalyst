@@ -17,6 +17,13 @@ from typing import Any, NoReturn, TypeGuard
 import yaml
 
 from tabalyst.errors import ConfigurationError
+from tabalyst.generate_anomalies import (
+    FORMAT_VALUES,
+    OPERATION_KEYS,
+    OPERATION_KINDS,
+    ROW_KINDS,
+    operation_option_error,
+)
 
 MAX_DATASETS = 64
 MAX_COLUMNS = 256
@@ -528,21 +535,22 @@ def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:
             _fail(source, item, "profile.targets must be distinct declared datasets")
         operations = _list(source, item.get("operations", []), "profile.operations", 256)
         for operation in operations:
-            _mapping(source, operation, "profile operation", {"kind", "column", "rate", "value", "when"})
-            if not isinstance(operation.get("kind"), str) or operation["kind"] not in {"set_missing", "replace", "duplicate", "format", "swap"}:
+            _mapping(source, operation, "profile operation", set(OPERATION_KEYS))
+            if not isinstance(operation.get("kind"), str) or operation["kind"] not in OPERATION_KINDS:
                 _fail(source, operation, "unknown anomaly operation kind")
             column = operation.get("column")
-            if not isinstance(column, str) or not COLUMN_NAME.fullmatch(column):
+            if operation["kind"] not in ROW_KINDS and (
+                    not isinstance(column, str) or not COLUMN_NAME.fullmatch(column)):
                 _fail(source, operation, "operation.column must name a column")
-            rate = operation.get("rate")
-            if type(rate) not in (int, float) or not math.isfinite(rate) or not 0 <= rate <= 1:
-                _fail(source, operation, "operation.rate must be from 0 to 1")
+            problem = operation_option_error(operation)
+            if problem is not None:
+                _fail(source, operation, problem)
             value = operation.get("value")
             if operation["kind"] in {"replace", "format", "swap"} and not isinstance(value, str):
                 _fail(source, operation, "operation.value must be text")
             if operation["kind"] in {"set_missing", "duplicate"} and "value" in operation:
                 _fail(source, operation, "operation.value is unused for this kind")
-            if operation["kind"] == "format" and value not in {"upper", "lower", "strip", "date_slash", "phone_spaces", "unit_gb"}:
+            if operation["kind"] == "format" and value not in {*FORMAT_VALUES, "unit_gb"}:
                 _fail(source, operation, "unknown format mutation")
             if "when" in operation and (not isinstance(operation["when"], dict)
                 or len(operation["when"]) != 1 or any(not isinstance(k, str) or not isinstance(v, str)
@@ -559,7 +567,7 @@ def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:
                 else:
                     columns = dataset.get("columns") or schemas[dataset["schema"]]["columns"]
                     names = {c["name"] for c in columns}
-                required = {column}
+                required = {column} if column is not None else set()
                 if operation["kind"] == "swap":
                     required.add(value)
                     if value == column:

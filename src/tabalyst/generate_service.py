@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import csv
 import json
-import math
 import os
 import shutil
 import tempfile
@@ -23,6 +22,14 @@ from typing import cast
 from tabalyst import __version__
 from tabalyst.batch import apply_default_file_mode, path_key, validate_outputs
 from tabalyst.errors import ConfigurationError, InputError, ReportError
+from tabalyst.generate_anomalies import (
+    FORMAT_VALUES,
+    OPERATION_KEYS,
+    OPERATION_KINDS,
+    ROW_KINDS,
+    check_operation_counts,
+    operation_option_error,
+)
 from tabalyst.generate_columns_package import load_columns_definition
 from tabalyst.generate_computer_output import (
     LABEL_FIELDS,
@@ -151,28 +158,26 @@ def _computer_anomaly_profile(
         raise ConfigurationError(f"PACKAGE_ANOMALY: invalid operations in {name}")
     fields = set(PROFILE_COLUMNS[output_profile]) - set(LABEL_FIELDS)
     for index, operation in enumerate(operations, 1):
-        if not isinstance(operation, dict) or set(operation) - {"kind", "column", "rate", "value", "when"}:
+        if not isinstance(operation, dict) or set(operation) - OPERATION_KEYS:
             raise ConfigurationError(f"PACKAGE_ANOMALY: invalid operation {index} in {name}")
         kind = operation.get("kind")
         column = operation.get("column")
-        rate = operation.get("rate")
         value = operation.get("value")
         when = operation.get("when", {})
-        if (not isinstance(kind, str)
-            or kind not in {"set_missing", "replace", "duplicate", "format", "swap"}
-            or not isinstance(column, str) or column not in fields
-            or not isinstance(rate, (int, float)) or isinstance(rate, bool)
-            or not math.isfinite(rate) or not 0 <= rate <= 1
+        problem = operation_option_error(operation)
+        if (problem is not None or not isinstance(kind, str) or kind not in OPERATION_KINDS
+            or kind not in ROW_KINDS and (not isinstance(column, str) or column not in fields)
             or not isinstance(when, dict) or len(when) > 1
             or any(not isinstance(key, str) or key not in fields or not isinstance(expected, str)
                    for key, expected in when.items())):
-            raise ConfigurationError(f"PACKAGE_ANOMALY: invalid operation {index} in {name}")
+            raise ConfigurationError(
+                f"PACKAGE_ANOMALY: invalid operation {index} in {name}"
+                + (f": {problem}" if problem else ""))
         if kind in {"replace", "swap"} and (not isinstance(value, str)
                                                 or kind == "swap" and (value not in fields or value == column)):
             raise ConfigurationError(f"PACKAGE_ANOMALY: invalid value in operation {index}")
         if kind == "format" and (not isinstance(value, str) or value not in {
-            "upper", "lower", "strip", "date_slash", "phone_spaces", "unit_gb",
-            "unit_suffix",
+            *FORMAT_VALUES, "unit_gb", "unit_suffix",
         }):
             raise ConfigurationError(f"PACKAGE_ANOMALY: invalid format in operation {index}")
         if value == "unit_gb" and column not in {"memory_gb", "storage_gb", "gpu_vram_gb"}:
@@ -182,6 +187,14 @@ def _computer_anomaly_profile(
         if kind in {"set_missing", "duplicate"} and "value" in operation:
             raise ConfigurationError(f"PACKAGE_ANOMALY: unused value in operation {index}")
     return {"id": name, "operations": operations}
+
+
+def _check_counts(operations: list[dict[str, object]], rows: int, where: str) -> None:
+    """Reject an absolute anomaly count larger than the dataset before any write."""
+    try:
+        check_operation_counts(operations, rows, where)
+    except ValueError as exc:
+        raise ConfigurationError(f"PACKAGE_ANOMALY: {exc}") from exc
 
 
 def _validate_computer_anomaly_profiles(package: DatasetPackage) -> None:
@@ -294,6 +307,7 @@ def _computer_plan(
         selected_anomaly = _computer_anomaly_profile(package, effective_anomaly,
                                                      effective_output)
         operations = cast(list[dict[str, object]], selected_anomaly["operations"])
+        _check_counts(operations, effective_rows, f"{effective_anomaly} on computers")
         if effective_units == "localized" and any(
             operation.get("value") in {"unit_gb", "unit_suffix"}
             and operation["column"] in ordered_units for operation in operations
@@ -424,6 +438,10 @@ def build_generate_plan(
             raise ConfigurationError("--rows is ambiguous for independent datasets.")
     for dataset in combined:
         counts[dataset["id"]] = sum(counts[name] for name in dataset["combine"]["inputs"])
+    if anomaly_profile is not None:
+        for target in profiles[anomaly_profile]["targets"]:
+            _check_counts(profiles[anomaly_profile]["operations"], counts[target],
+                          f"{anomaly_profile} on {target}")
 
     if output is not None:
         if len(definition.datasets) != 1 or anomaly_profile is not None:
