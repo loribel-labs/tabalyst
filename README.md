@@ -1,31 +1,45 @@
 # Tabalyst
 
-**Tools for unfamiliar data.**
+**Open-source Python toolkit for data profiling and data quality analysis.**
 
-Tabalyst is an open-source, local-first toolkit for understanding and working
-with structured data.
+*Tools for unfamiliar data.*
 
-Its first tool is **Tabalyst Report**. The current CSV implementation,
-**Tabalyst CSV Report**, analyzes a CSV file and produces both a structured JSON
-profile and a self-contained interactive HTML report.
-**Tabalyst Scan** describes CSV, JSON, JSONL and Excel files in a scan document,
-**Tabalyst Inspect** finds how to read a JSON, JSONL or Excel file, and
-**Tabalyst Sample** creates smaller CSV files by sampling, and **Tabalyst
-Generate** creates synthetic CSV datasets.
+Tabalyst helps you understand CSV, Excel, JSON and JSONL datasets with minimal
+configuration. Detect missing values, duplicates, mixed types, data formats and
+quality issues. Generate interactive HTML reports and structured JSON profiles,
+entirely on your computer.
 
-Tabalyst is in beta. Its interfaces may still change while
-the shared toolkit architecture is being established.
+**Simple. Clear. Smart.**
 
-## Install
+Tabalyst is in beta. Its interfaces may still change while the shared toolkit
+architecture is being established.
+
+## Quick start
 
 Tabalyst supports Python 3.11, 3.12, 3.13, and 3.14.
 
 ```console
 pip install --upgrade tabalyst
+tabalyst report customers.csv
 ```
 
-The same command installs Tabalyst or updates it. Tabalyst is in beta and
-changes often: update it before each new test.
+Explore the interactive HTML report or use the generated JSON profile in your
+own workflows. The same `pip` command installs Tabalyst or updates it. Tabalyst
+is in beta and changes often: update it before each new test.
+
+[Live demo](https://tabalyst.com/examples/report.html) ·
+[Documentation](https://docs.tabalyst.com/) ·
+[Website](https://tabalyst.com/)
+
+## What can Tabalyst do?
+
+| Tool | Purpose |
+| --- | --- |
+| **Tabalyst Report** | Generate interactive HTML profiling reports and JSON profiles |
+| **Tabalyst Scan** | Analyze dataset structure, types, statistics and data quality |
+| **Tabalyst Inspect** | Discover and configure JSON collections and Excel tables |
+| **Tabalyst Sample** | Create random, stratified and smart CSV samples |
+| **Tabalyst Generate** | Generate synthetic CSV datasets for testing and demos |
 
 ## Tabalyst Report
 
@@ -56,279 +70,32 @@ customers.json
 executions.json
 ```
 
-Add `--details` to generate one self-contained HTML page per column:
+Add `--details` to generate one self-contained HTML page per column, and `-o`
+to choose another HTML filename for one source:
 
 ```console
 tabalyst report customers.csv --details
-```
-
-The **Columns** table then links to those pages. Each page has its own sidebar
-and shows values, counts, detected formats and other analysis directly. The
-subfolder takes the HTML filename without `.html`; for `-o report.html`, pages
-are in `report/`. Names use `col-01-` and a shortened slug of the column name,
-in source order. Details are off by default. `--no-details` states that choice
-explicitly; with `--force`, it removes prior generated column pages while
-preserving other files in the folder.
-
-Use `-o` to choose a different HTML filename for one source:
-
-```console
 tabalyst report customers.csv -o customer-analysis.html
 ```
 
-### JSON files
+Existing outputs are never replaced silently: add `--force` when replacement is
+intentional. A batch is checked for name collisions before any file is
+processed, and a malformed file does not stop the others.
 
-A JSON or JSONL file gets a report too, named `<stem>.report.html` so its
-profile `<stem>.report.json` never replaces the source. The report analyzes one
-collection of records, such as the `customers` array of
-`{"customers": [...]}`, chosen by Tabalyst Inspect, and nested fields are
-columns named by their path, such as `address.city`:
+JSON, JSONL and Excel sources work the same way. When a JSON file or a workbook
+holds several equally plausible collections, Tabalyst stops and prints one
+command per candidate to copy, such as
+`tabalyst report shop.xlsx --collection Costs`.
 
-```console
-tabalyst report orders.json
-tabalyst report events.jsonl
-```
+Useful options: `--delimiter`, `--encoding`, `--config`, `--workers`,
+`--verbose`, `--quiet` and `--help`. `python -m tabalyst` accepts the same
+commands.
 
-In a JSONL file (`.jsonl` or `.ndjson`), each line is a record. A line that is
-not valid JSON or not an object is excluded and counted, and the report is
-partial. When a JSON file holds several arrays that are equally plausible,
-Tabalyst stops and lists them instead of choosing: see
-[Tabalyst Inspect](#tabalyst-inspect).
-
-### Excel workbooks
-
-An `.xlsx` or `.xlsm` workbook gets a report too, named `<stem>.report.html`. The
-report analyzes one table, a sheet or a named Excel table, and its columns are
-the cells of the header, which Tabalyst finds even under a title:
-
-```console
-tabalyst report sales.xlsx
-```
-
-Cells keep their Excel type, and dates are read as dates. A workbook with one
-table needs nothing else. When several sheets or tables are equally plausible,
-Tabalyst stops and prints one command per table to copy and run, such as
-`tabalyst report shop.xlsx --collection Costs` (or `Sales.Orders` for a named
-table), or see [Tabalyst Inspect](#tabalyst-inspect). To report every table at
-once, use `--all-collections`:
-
-```console
-tabalyst report shop.xlsx --all-collections -d reports
-```
-
-This writes `shop.costs.html` and `shop.costs.json` for each table, named after
-the file and the sheet. Older `.xls` files are not read: save them as `.xlsx`.
-
-### Multiple files
-
-Report several CSV files at once:
-
-```console
-tabalyst report *.csv
-```
-
-Each report is created beside its source and keeps the source stem:
-
-```text
-customers.csv → customers.html
-orders.csv    → orders.html
-products.csv  → products.html
-```
-
-Use `-d` to place all reports in one directory:
-
-```console
-tabalyst report *.csv -d reports/
-```
-
-This produces:
-
-```text
-reports/
-├── customers.html
-├── customers.json
-├── orders.html
-├── orders.json
-├── products.html
-├── products.json
-└── executions.json
-```
-
-Both `-d reports/` and `-d reports` are accepted. Quotes are only needed when a
-path contains spaces.
-
-`-o` always names one output file and therefore accepts only one input. `-d`
-always names an output directory and accepts one or many inputs.
-
-This is invalid because several inputs cannot share one output file:
-
-```console
-tabalyst report *.csv -o report.html
-```
-
-Tabalyst rejects the command before processing any file. Use `-d reports/`
-instead.
-
-### Safe batch behavior
-
-Before processing begins, Tabalyst resolves every input and planned main HTML
-and JSON output. It stops the entire batch if those names collide or if an
-output already exists. With `--details`, each column page is checked after its
-profile has been built, before that report's files are written.
-Use `--force` only when replacing all matching report artifacts is intentional:
-
-```console
-tabalyst report *.csv -d reports/ --force
-```
-
-If one CSV is malformed during analysis, Tabalyst reports that error, continues
-with the remaining files, and returns a non-zero exit code at the end.
-
-Interactive terminals show accurate file and phase progress:
-
-```text
-[2/8] orders.csv - Analyzing
-```
-
-Progress and diagnostics use standard error. Progress is disabled automatically
-outside a terminal and can be disabled explicitly with `--no-progress` or
-`--quiet`.
-
-### Useful options
-
-```console
-tabalyst report data.csv --delimiter ";"
-tabalyst report data.csv --encoding cp1252
-tabalyst report data.csv --config tabalyst.json
-tabalyst report data.csv --verbose
-tabalyst report data.csv --workers 4
-tabalyst report --help
-tabalyst --version
-```
-
-`python -m tabalyst` accepts the same commands.
-
-## Tabalyst Sample
-
-Create a smaller CSV without modifying the source:
-
-```console
-tabalyst sample customers.csv --sample-method random --rows 1000 --seed 42
-```
-
-The default output is `customers.sample.csv` beside the source. Use `-o` to
-name the output for one input, or `-d` to sample several files into one
-directory:
-
-```console
-tabalyst sample customers.csv --sample-method first --rows 100 -o test.csv
-tabalyst sample *.csv --sample-method random --percent 5 -d samples/
-```
-
-Available methods are `first`, `last`, `random`, `stratified` and `smart`.
-Stratified sampling approximately preserves the distribution of a selected field:
-
-```console
-tabalyst sample customers.csv --sample-method stratified --field province --rows 1000 --seed 42
-```
-
-A smart sample is built to keep the diversity of the file instead of its
-proportions: every value of a column that has few values, the extremes, each
-pattern and format of date, and the cases the scan found odd. It writes the
-sample, a JSON report and a web page that say what the sample covers and what it
-does not:
-
-```console
-tabalyst sample customers.csv --smart --rows 1000
-```
-
-Its proportions are not those of the file, so never estimate the population from
-it. See [Tabalyst Sample](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/sample/index.md).
-
-Sampling reads CSV records as a stream. Random and stratified sampling keep
-only the requested sample, plus stratum counts, in memory. Existing outputs
-require `--force`, and an input file is never overwritten.
-
-## Tabalyst Generate
-
-Tabalyst 0.7.0 generates synthetic CSV data from a Generate package or a
-packaged example. The packaged `crm` example writes one contacts file;
-`insurance` writes three branch files and a combined file; `computer` writes
-English and French files of the same computer offers:
-
-```console
-tabalyst generate --example crm -o crm-contacts.csv
-tabalyst generate --example insurance --rows 3000 -d insurance-output/
-tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d insurance-dirty/
-tabalyst generate --example computer --rows 10000 -d computer-output/
-```
-
-The package format replaces the `definition_version: 1` YAML files of 0.6.2,
-which are no longer read. A selected anomaly profile writes an altered CSV, a
-cell change log and a summary beside the untouched clean CSV. Insurance's
-profile changes only the combined file. `--rows 3000` apportions 2,182, 273 and
-545 rows to the three branches. Existing outputs require `--force`.
-
-Run `python examples/generate/generate_examples.py` in the development checkout
-to generate the four column packages into ignored local output folders. The
-Computer package has 40, 70 and 111-column profiles and synchronized EN/FR
-CSVs. See [`examples/generate/README.md`](examples/generate/README.md) for
-commands and
-[`docs/dev/generate/computer.md`](docs/dev/generate/computer.md) for the
-package contract.
-
-Insurance preserves the 33 source columns and the combined `filiale` column of
-the existing public demo, but its generated rows are different. The branch date
-and identifier formats are preserved; `filiale` is the last column in the new
-combined CSV. The current public demo and report remain unchanged.
-
-## Tabalyst Inspect
-
-A JSON file can hold several arrays, and an Excel workbook several sheets.
-**Tabalyst Inspect** reads a JSON, JSONL, NDJSON or Excel file once, finds which
-array, sheet or table holds the records and writes its answer in
-`<source>-inspect.json` beside the source:
-
-```console
-tabalyst inspect orders.json
-```
-
-```text
-Inspect: orders.json-inspect.json
-Selection: $.customers[] (the only eligible collection)
-```
-
-The last section of that file, `config`, holds the rules that `tabalyst scan`
-and `tabalyst report` apply to the source: the collection
-(`structure.dataset_path`), the flatten settings, the array mode and the error
-policy. Edit it, then scan or report as usual. Running `tabalyst inspect` again
-refreshes the detection and keeps your `config`; `--reset-config` replaces it.
-
-Inspect is optional: `tabalyst scan` and `tabalyst report` inspect a JSON file
-themselves when it has no Inspect file. When several arrays are equally
-plausible, or none holds objects, they stop with exit code `2` before analyzing
-anything and list the candidates; set `config.structure.dataset_path` in the
-Inspect file, or pass `--collection` (`--collection customers` or
-`--collection '$.customers[]'`). See
-[Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/json.md)
-and the [Inspect format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/format.md).
-
-For a workbook, Inspect lists the sheets and named tables, proposes one and
-writes the same kind of file:
-
-```console
-tabalyst inspect sales.xlsx
-```
-
-```text
-Inspect: sales.xlsx-inspect.json
-Selection: $.Orders (much larger than $.Regions)
-```
-
-Its `config` holds `structure.dataset_path` (`$.Orders` for a sheet,
-`$.Orders.Table1` for a named table) and `structure.header_row`, to set the header
-row when the detection picks the wrong one. See
-[Inspect Excel workbooks](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/excel.md).
+Details: [Tabalyst Report](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/report/index.md),
+[JSON and JSONL](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/report/json.md),
+[Excel](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/report/excel.md),
+[CSV batches and options](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/report/csv.md) and the
+[`report` command reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/cli/report.md).
 
 ## Tabalyst Scan
 
@@ -337,31 +104,18 @@ Describe every field of a CSV, JSON, JSONL or Excel file in one JSON document:
 ```console
 tabalyst scan customers.csv
 tabalyst scan orders.json --collection "$.customers[]"
-tabalyst scan events.jsonl
 tabalyst scan sales.xlsx --collection Orders
 ```
 
-Without `-o` or `-d`, the scan is a reusable `scan.json` under Tabalyst's local
-storage directory (or `TABALYST_HOME`). The default workflow does not build a
-DuckDB database. `-o` or `-d` writes
-a standalone `<stem>.scan.json` export instead. Tabalyst Scan reads the file once as
-a stream, with memory bounded by configurable limits, and records for each
-field its presence, native types, missing values, frequencies, exact
-statistics, normalization variants, technical type and the result of every
-detector: numbers with decimal commas, dates, booleans, enumerations, email
-addresses, URLs, phone numbers, postal codes, currency amounts, percentages,
-quantities, UUIDs and IP addresses. Values of sensitive fields, such as email
-addresses, are shown by default and can be masked or hidden. Results are written atomically: an
-interrupted scan never leaves a partial file. Files of 16 MiB or more are
-analyzed by several worker processes, with the same result; `--workers`
-chooses their number, `--workers 1` keeps one process.
+Scan reads the file once as a stream, with bounded memory, and records for each
+field its types, missing values, frequencies, statistics and the result of every
+detector (dates, numbers with decimal commas, emails, URLs, phone numbers,
+postal codes, currencies, UUIDs, IP addresses and more). It also writes
+`customers.scan.html`, a page that shows the scan (`--no-html` skips it).
 
-An explicit `tabalyst scan` also writes `customers.scan.html`, a page that shows
-the scan (`--no-html` skips it). A scan reads the file once, so a column with
-many distinct values can end up limited or estimated. Ask what a second reading
-would add, and what it would cost, without running it, then run it for exact
-distinct counts, frequencies, histograms, medians, patterns, dates, correlations
-and tables of a category against a feature:
+A second reading gives exact distinct counts, frequencies, histograms,
+medians, patterns, correlations and more. `--plan` shows what it would add and
+cost without running it, and `--deep` runs it:
 
 ```console
 tabalyst scan customers.csv --plan
@@ -369,45 +123,69 @@ tabalyst scan customers.csv --deep
 ```
 
 `tabalyst report` decides by itself whether that second reading is worth its
-cost, and says what it added. A forced second reading whose estimate is large
-asks for confirmation first (`--yes` skips the question; outside a terminal it
-is required). `--plan --stratify` adds advice on stratified sampling, and
-`--plan --smart` the plan of a smart sample. See
-[Simple, Clear and Smart](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/get-started/simple-clear-smart.md)
-and how to
-[read exact, estimated and limited results](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/reading-results.md).
+cost, and says what it added. `tabalyst report` also reuses a stored scan
+while the source is unchanged.
 
-`tabalyst report customers.csv` reuses the verified stored scan when the
-source content and requested scan settings are current, and so does a report on
-a JSON, JSONL or Excel file. It creates a scan when none exists and atomically replaces
-a stale one. The source check uses the SHA-256 of the whole content, and a scan
-written by another version of Tabalyst is replaced. Existing DuckDB projects from 0.4.3 are left
-untouched.
+Details: [Scan CSV and JSON files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/files.md),
+[the second reading](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/deep.md),
+[reading exact, estimated and limited results](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/reading-results.md),
+[scan storage and cache](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/cache.md) and the
+[scan format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/format.md).
 
-Build the report from a standalone scan document without reading the source again:
+## Tabalyst Inspect
+
+A JSON file can hold several arrays, and an Excel workbook several sheets.
+**Tabalyst Inspect** finds which array, sheet or table holds the records and
+writes its answer in `<source>-inspect.json` beside the source:
 
 ```console
-tabalyst report --scan customers.scan.json
+tabalyst inspect orders.json
+tabalyst inspect sales.xlsx
 ```
 
-Tabalyst refuses a scan whose source changed since it was written, or whose
-settings differ from the `scan` settings of `--config`.
+The `config` section of that file holds the rules that `tabalyst scan` and
+`tabalyst report` apply (collection, flatten settings, header row). Inspect is
+optional: both commands inspect a source themselves, and stop with exit code
+`2` and a list of candidates when the choice is ambiguous. Pass
+`--collection` to choose.
 
-Inspect or clean disposable query caches of existing DuckDB projects, for every
-project or for one CSV file:
+Details: [Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/json.md),
+[Inspect Excel workbooks](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/excel.md) and the
+[Inspect format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/format.md).
+
+## Tabalyst Sample
+
+Create a smaller CSV without modifying the source:
 
 ```console
-tabalyst cache info
-tabalyst cache info customers.csv
-tabalyst cache clean
-tabalyst cache clean customers.csv
+tabalyst sample customers.csv --sample-method random --rows 1000 --seed 42
+tabalyst sample customers.csv --smart --rows 1000
 ```
 
-`cache clean` leaves project scans and databases in place. Ordinary scans and
-reports do not create these query caches.
+Methods are `first`, `last`, `random`, `stratified` and `smart`. A smart sample
+keeps the diversity of the file (rare values, extremes, formats, odd cases)
+instead of its proportions, and writes a report of what it covers, so never
+estimate the population from it. Sampling reads records as a stream.
 
-See [Scan CSV and JSON files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/files.md)
-and the [scan format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/format.md).
+Details: [Tabalyst Sample](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/sample/index.md).
+
+## Tabalyst Generate
+
+Generate synthetic CSV data from a packaged example (`crm`, `insurance` or
+`computer`) or from a Generate package:
+
+```console
+tabalyst generate --example crm -o crm-contacts.csv
+tabalyst generate --example insurance --rows 3000 -d insurance-output/
+tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d insurance-dirty/
+```
+
+An anomaly profile writes an altered CSV, a cell change log and a summary
+beside the untouched clean CSV.
+
+Details: [Tabalyst Generate](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/generate/index.md),
+[`examples/generate/README.md`](examples/generate/README.md) and the
+[Computer package contract](docs/dev/generate/computer.md).
 
 ## What the report analyzes
 
@@ -419,13 +197,13 @@ and the [scan format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en
 - CSV record widths, quoting, encoding, and delimiter configuration.
 - A bounded raw-data preview while every record is analyzed.
 
-The report is built on Tabalyst Scan: it reads the CSV once as a stream and
-masks values of sensitive columns, such as email addresses, by default.
-Ambiguous dates stay ambiguous; the report shows the evidence of the column
-without applying it. The HTML report is self-contained and works without a CDN
-or network connection.
+The report is built on Tabalyst Scan; values of sensitive columns can be masked
+or hidden. Ambiguous dates stay
+ambiguous; the report shows the evidence of the column without applying it. The
+HTML report is self-contained and works without a CDN or network connection.
 The JSON profile contains the same canonical analysis result for scripts and
-future Tabalyst tools.
+future Tabalyst tools. See
+[how to read the report](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/report/read-report.md).
 
 ## Python API
 
@@ -434,73 +212,34 @@ The same operations are available without the CLI:
 ```python
 import tabalyst
 
-result = tabalyst.analyze(
-    "customers.csv",
-    "customers.html",
-    separator=";",
-)
-
-batch = tabalyst.generate_reports(
-    ["*.csv"],
-    output_dir="reports",
-)
-
-sample = tabalyst.sample_csv(
-    "customers.csv",
-    method="random",
-    rows=1000,
-    seed=42,
-)
-
+result = tabalyst.analyze("customers.csv", "customers.html", separator=";")
+batch = tabalyst.generate_reports(["*.csv"], output_dir="reports")
+sample = tabalyst.sample_csv("customers.csv", method="random", rows=1000, seed=42)
 scan = tabalyst.scan("orders.json")
-scans = tabalyst.generate_scans(["data/*.json"], output_dir="scans")
-
 inspection = tabalyst.inspect("orders.json")
-inspections = tabalyst.generate_inspections(
-    ["data/*.json", "logs/*.jsonl", "*.xlsx"]
-)
-reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 ```
 
-`analyze()` returns the JSON-serializable profile for one report.
-`generate_reports()` returns the complete batch plan, successes, and failures.
-`scan()` returns a scan result without writing anything, at the level of the
-engine: it does not read an Inspect file. `generate_scans()` writes one
-standalone `.scan.json` document per source by default, and applies Inspect to
-JSON, JSONL and Excel sources. Pass `project_storage=True` to use the command's
-scan-only storage. `inspect()` writes the Inspect file of one JSON, JSONL or
-Excel source and returns its path and document; `generate_inspections()` does it for
-several sources. `from_scan=True`
-builds reports from standalone scan documents.
-Expected failures derive from `tabalyst.TabalystError`.
-
-Existing artifacts are never replaced silently. Pass `force=True` when
-replacement is intentional.
+Existing artifacts are never replaced silently: pass `force=True` when
+replacement is intentional. Expected failures derive from
+`tabalyst.TabalystError`. See the
+[Python API reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/python-api/index.md).
 
 ## Configuration
 
-Configuration files are strict JSON. A minimal file is:
+Configuration files are strict JSON, loaded only with `--config`:
 
 ```json
 {
   "scan": {
-    "csv": {
-      "delimiter": ";",
-      "encoding": "cp1252"
-    },
+    "csv": {"delimiter": ";", "encoding": "cp1252"},
     "values": {"null_markers": ["N/A"]}
   }
 }
 ```
 
-Analysis settings, CSV reading included, go in the `scan` object, shared by
-`tabalyst report`, `tabalyst scan` and `tabalyst inspect`. The `config` of an
-Inspect file outranks the `scan` object for the source it sits beside. Top-level settings shape the report
-presentation, and `csv` configures `tabalyst sample`. Explicit CLI or Python
-arguments override the configuration file, which overrides Tabalyst defaults.
-No configuration file is loaded unless it is passed with `--config`. See the
-[configuration reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/configuration.md)
-for all analysis settings.
+Explicit CLI or Python arguments override the configuration file, which
+overrides Tabalyst defaults. See the
+[configuration reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/configuration.md).
 
 ## Local-first behavior and current limits
 
@@ -509,16 +248,9 @@ Generated JSON and HTML may contain source values and should be shared
 accordingly.
 
 Reports, samples, and scans read files as a stream, with memory bounded by
-configurable limits, including duplicate-row detection
-(`scan.limits.max_tracked_records`). Reports and scans show the share of the file read;
-throughput estimates, recursive directory input, and parallel batch execution
-will require later work. Inspect reads a JSON or JSONL source once from start to
-end, with little memory; on the synthetic benchmarks it took roughly a tenth of the
-time of a scan, a ratio that depends on the data.
-
-An Excel workbook is read by sheet into memory (about 0.9 byte per byte of sheet
-XML), so a sheet of a million rows of eight columns takes about 4 seconds and
-360 MB to read. A sheet above 1 GiB of XML is refused.
+configurable limits. An Excel workbook is read by sheet into memory, and a
+sheet above 1 GiB of XML is refused. See
+[limitations](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/about/limitations.md).
 
 ## Examples and development
 
@@ -534,11 +266,8 @@ python -m build
 
 Additional documentation:
 
-- [Architecture](https://github.com/loribel-labs/tabalyst/blob/main/docs/dev/architecture.md)
-- [Configuration](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/configuration.md)
-- [Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/json.md)
-- [Inspect Excel workbooks](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/excel.md)
 - [Documentation site](https://docs.tabalyst.com/)
+- [Architecture](https://github.com/loribel-labs/tabalyst/blob/main/docs/dev/architecture.md)
 - [Release procedure](https://github.com/loribel-labs/tabalyst/blob/main/RELEASING.md)
 
 Please report defects and feature requests through the
