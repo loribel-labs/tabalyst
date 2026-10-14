@@ -1,0 +1,60 @@
+{
+  "id": "sample-injected-errors",
+  "title": "Errors kept by a sample",
+  "tool": "sample",
+  "question": "When a file holds a few wrong rows, how often does a sample keep at least one of them?",
+  "inputs": {
+    "source": "../../input/insurance-customers.csv",
+    "dirty": "input/dirty.csv",
+    "truth": "input/truth.json"
+  },
+  "build": {
+    "script": "case.py",
+    "seed": 123
+  },
+  "runs": {
+    "smart": {
+      "args": ["--smart", "--yes"],
+      "seeds": [1, 2, 3]
+    },
+    "random": {
+      "args": ["--sample-method", "random"],
+      "seeds": [1, 2, 3, 4, 5, 6, 7, 8]
+    }
+  },
+  "measure": {
+    "sizes": [100, 200, 400],
+    "unit": "share of runs that keep at least one injected row"
+  },
+  "expectations": {
+    "run": "smart",
+    "rows": 100,
+    "seed": 1,
+    "kept": [
+      "email_malformed",
+      "phone_malformed",
+      "postal_malformed",
+      "birthdate_invalid",
+      "premium_outlier",
+      "id_trailing_space",
+      "name_long_weird",
+      "end_before_start",
+      "novel_category_typo"
+    ],
+    "gaps": [
+      {
+        "class": "missing_required",
+        "reason": "an empty cell in a column with many values has no target yet"
+      },
+      {
+        "class": "duplicate_rows",
+        "reason": "the target exists but cannot be evaluated yet"
+      }
+    ]
+  },
+  "publish": {
+    "site": false,
+    "docs": []
+  },
+  "captures": []
+}

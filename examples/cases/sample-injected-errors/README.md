@@ -76,5 +76,5 @@ Reading:
   were never kept at 100 rows (0%): a masked column has no pattern and no
   target.
 
-The expectations are in `tests/cases/test_sample_injected_errors.py`: the nine
+The expectations are in `case.json` and run by `tests/cases/test_cases.py`: the nine
 kept classes must stay kept, and the two gaps are `xfail(strict=True)`.

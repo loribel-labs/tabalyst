@@ -23,7 +23,11 @@ CASE_DIR = Path(__file__).resolve().parent
 SOURCE = CASE_DIR.parents[1] / "input" / "insurance-customers.csv"
 DIRTY = CASE_DIR / "input" / "dirty.csv"
 TRUTH = CASE_DIR / "input" / "truth.json"
-BUILD_SEED = 123
+MANIFEST = json.loads((CASE_DIR / "case.json").read_text(encoding="utf-8"))
+BUILD_SEED: int = MANIFEST["build"]["seed"]
+ARGS: dict[str, list[str]] = {m: r["args"] for m, r in MANIFEST["runs"].items()}
+SEEDS: dict[str, tuple[int, ...]] = {m: tuple(r["seeds"]) for m, r in MANIFEST["runs"].items()}
+SIZES: tuple[int, ...] = tuple(MANIFEST["measure"]["sizes"])
 
 Row = list[str]
 Injector = Callable[[Row, int], None]
@@ -136,22 +140,34 @@ def score(sample_csv: Path, dirty: Path = DIRTY, truth: Path = TRUTH) -> dict[st
     return result
 
 
-def run_sample(method: str, rows: int, seed: int, output: Path, dirty: Path = DIRTY) -> None:
-    """Run ``tabalyst sample`` (``smart`` or ``random``) and raise if it fails."""
+def build_matches_input() -> bool:
+    """Whether the committed input is exactly what the deterministic build gives."""
+    header, rows, classes = build()
+    if json.loads(TRUTH.read_text(encoding="utf-8")) != classes:
+        return False
+    committed_header, committed = _read(DIRTY)
+    return committed_header == header and committed == rows
+
+
+def run(method: str, rows: int, seed: int, output: Path, dirty: Path = DIRTY) -> None:
+    """Run ``tabalyst sample`` with the arguments of ``runs[method]`` in the manifest.
+
+    Raises ``RuntimeError`` with the error output when the command fails.
+    """
     command = [
         sys.executable, "-m", "tabalyst", "sample", str(dirty),
         "-o", str(output), "--force", "--rows", str(rows), "--seed", str(seed),
     ]
-    command += ["--smart", "--yes"] if method == "smart" else ["--sample-method", method]
+    command += ARGS[method]
     done = subprocess.run(command, capture_output=True, text=True, check=False)
     if done.returncode:
         raise RuntimeError(done.stderr)
 
 
-def measure(work: Path, sizes: tuple[int, ...] = (100, 200, 400)) -> str:
+def measure(work: Path, sizes: tuple[int, ...] = SIZES) -> str:
     """The markdown table of the share of runs that keep each error class."""
     classes: dict[str, list[int]] = json.loads(TRUTH.read_text(encoding="utf-8"))
-    seeds = {"smart": (1, 2, 3), "random": tuple(range(1, 9))}
+    seeds = SEEDS
     work.mkdir(parents=True, exist_ok=True)
     lines = ["| Error class | Rows | " + " | ".join(
         f"{method} {size}" for size in sizes for method in seeds
@@ -162,7 +178,7 @@ def measure(work: Path, sizes: tuple[int, ...] = (100, 200, 400)) -> str:
             runs = []
             for seed in method_seeds:
                 output = work / "sample.csv"
-                run_sample(method, size, seed, output)
+                run(method, size, seed, output)
                 runs.append(score(output))
             results[(method, size)] = runs
     for name, indexes in classes.items():
