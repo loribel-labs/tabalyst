@@ -45,10 +45,22 @@ from tabalyst.scanner.smart.models import SamplingPlan
 SELECT_NS_PER_CELL = 600
 SELECT_NS_PER_DISTINCT_CELL = 3_000
 SELECT_NS_PER_ROW = 2_000
+# The digest of every row that recognizing duplicate rows needs: 1.1 us for a row
+# of 34 cells of ten characters, measured on the machine of the other constants.
+DIGEST_NS_PER_ROW = 300
+DIGEST_NS_PER_CELL = 25
 
 
 def _tested_fields(plan: SamplingPlan) -> set[str]:
     return {field for target in plan.targets if target.feasibility == "ready" for field in target.fields}
+
+
+def _digests_rows(plan: SamplingPlan) -> bool:
+    """Whether a ready target is about the rows as a whole (the duplicate rows)."""
+    return any(
+        target.feasibility == "ready" and target.predicate.kind == "observation" and not target.fields
+        for target in plan.targets
+    )
 
 
 def tested_columns(plan: SamplingPlan) -> int:
@@ -100,7 +112,10 @@ def estimate_selection(
         1.0 if reading <= 0 or modeled <= 0 else min(high_factor, max(low_factor, reading / modeled))
     )
     per_cell = SELECT_NS_PER_CELL + SELECT_NS_PER_DISTINCT_CELL * distinct_share(plan, scan)
-    work = (rows * tested_columns(plan) * per_cell + rows * SELECT_NS_PER_ROW) / 1e9 * speed
+    digest = (
+        DIGEST_NS_PER_ROW + DIGEST_NS_PER_CELL * width if _digests_rows(plan) else 0
+    )
+    work = (rows * tested_columns(plan) * per_cell + rows * (SELECT_NS_PER_ROW + digest)) / 1e9 * speed
     share = READING_LOW_SHARE if scan.source.format == "csv" else 1.0
     low_work, high_work = WORK_RANGE
     estimate = TimeEstimate(

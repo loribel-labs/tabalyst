@@ -1251,6 +1251,12 @@
           "minimum": 0,
           "title": "Bin",
           "type": "number"
+        },
+        "missing": {
+          "default": 6.0,
+          "minimum": 0,
+          "title": "Missing",
+          "type": "number"
         }
       },
       "title": "SmartBaseWeights",

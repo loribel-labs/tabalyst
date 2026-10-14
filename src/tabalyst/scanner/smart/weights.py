@@ -23,6 +23,7 @@ BaseKind = Literal[
     "extreme",
     "signal",
     "bin",
+    "missing",
 ]
 
 

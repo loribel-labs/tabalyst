@@ -45,7 +45,7 @@ python examples/cases/sample-injected-errors/case.py measure OUTPUT_DIR
 
 ## Result
 
-Measured on 2026-10-14, sensitive values shown (the default since the sensitive
+Measured on 2026-10-14 (lot S1), sensitive values shown (the default since the sensitive
 columns are off for now).
 
 | Error class           | Rows | smart 100 | random 100 | smart 200 | random 200 | smart 400 | random 400 |
@@ -59,16 +59,21 @@ columns are off for now).
 | `name_long_weird`     | 4    | 100%      | 0%         | 100%      | 25%        | 100%      | 50%        |
 | `end_before_start`    | 8    | 100%      | 12%        | 100%      | 0%         | 100%      | 75%        |
 | `novel_category_typo` | 4    | 100%      | 12%        | 100%      | 25%        | 100%      | 50%        |
-| `missing_required`    | 6    | 0%        | 12%        | 33%       | 38%        | 33%       | 75%        |
-| `duplicate_rows`      | 6    | 0%        | 62%        | 33%       | 75%        | 100%      | 88%        |
+| `missing_required`    | 6    | 100%      | 38%        | 100%      | 100%       | 100%      | 100%       |
+| `duplicate_rows`      | 6    | 100%      | 62%        | 100%      | 75%        | 100%      | 88%        |
 
 Reading:
 
-- A smart sample keeps a row of nine classes out of eleven from 100 rows, where
-  a random sample of the same size keeps one in a quarter of the runs or less.
-- Two gaps remain: `missing_required` (an empty cell in a column with many
-  values has no target) and `duplicate_rows` (the target exists but cannot be
-  evaluated yet). Random does better there only because it needs no target.
+- A smart sample keeps a row of all eleven classes from 100 rows, where a
+  random sample of the same size keeps one in a quarter of the runs or less
+  (62% for the copied rows, 38% for the empty identifiers).
+- `missing_required` and `duplicate_rows` were the two gaps of the first
+  measure. An empty cell in a column with many values now has a target, and a
+  row that repeats an earlier row is recognized by a digest of every row. Both
+  are scored by content: the source already holds empty contract identifiers
+  (9 of the 15) and copied rows (8 of the 14) that cannot be told from the
+  injected ones, and the sample is right to keep any of them. That is also why
+  the random columns of these two rows moved since the first measure.
 - `end_before_start` is kept because the injected dates are also the earliest
   and the latest of their columns; the sample does not yet look for a start
   after its end.
@@ -76,5 +81,6 @@ Reading:
   were never kept at 100 rows (0%): a masked column has no pattern and no
   target.
 
-The expectations are in `case.json` and run by `tests/cases/test_cases.py`: the nine
-kept classes must stay kept, and the two gaps are `xfail(strict=True)`.
+The expectations are in `case.json` and run by `tests/cases/test_cases.py`: the
+eleven classes must stay kept. A known gap would be listed there as
+`xfail(strict=True)`; none is left.

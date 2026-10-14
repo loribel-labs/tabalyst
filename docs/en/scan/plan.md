@@ -262,7 +262,7 @@ The plan lists **targets**, each a thing worth having in the sample, with a
 | `structured_string` | each inferred pattern and the values no pattern takes, the shortest and the longest length |
 | `numeric` | the minimum, the maximum, zero, each sign when both occur, ten bins of equal width |
 | `date` | the earliest and the latest date, each format when several occur, each year |
-| `quality` | each candidate anomaly or confirmed issue of the scan that a row can show |
+| `quality` | each candidate anomaly or confirmed issue of the scan that a row can show, the rows that repeat an earlier row, and the empty cells of each column that has some and no target for them yet |
 | `relations` | the exceptions to a [table of a category against a feature](#tables-of-a-category-against-a-feature), when the second pass has computed it |
 
 A target names what it stands for by reference into the scan and never holds a
@@ -271,7 +271,9 @@ ceiling; a target whose frequency is unknown gets a neutral weight, and its
 `frequency` says `unknown`. A target is `mandatory` when the plan can promise
 it: the values of a column whose table of values is complete, and the confirmed
 issues. The others are `optional`. A target the sample cannot recognize yet, such
-as a duplicate row, says `not_evaluable` and why.
+as a variant of a value, says `not_evaluable` and why. A duplicate row is one
+target for the whole file, covered by any row that repeats an earlier row: a
+sample keeps at least one such row, not one per group of copies.
 
 Each column has a catalog that says what the targets promise. `catalog_complete`:
 every value the column can take has a target. `known_values_only`: only the values

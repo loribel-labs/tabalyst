@@ -142,6 +142,14 @@ Smart sampling reads CSV files only. The [`smart` settings](../reference/configu
 change the number of candidates per target, the share of ordinary rows and the
 memory the candidate rows may take.
 
+Two kinds of rows are recognized by a test on the whole file. A column with
+empty cells has a target for them, so a rare blank in an otherwise filled column
+(a required identifier, say) is kept in a small sample. A row that repeats an
+earlier row is recognized because the selection digests every row as the scan
+did; a sample holds at least one such row, not one per group of copies. Like the
+scan, it stops remembering digests at `limits.max_tracked_records`, and a copy of
+a row it no longer remembers goes unseen.
+
 A rare phenomenon the scan has no target for can still be missing. The report
 names what it covers precisely: the catalog of targets of the plan, not every
 phenomenon of the data.

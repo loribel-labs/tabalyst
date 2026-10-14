@@ -39,18 +39,11 @@
       "id_trailing_space",
       "name_long_weird",
       "end_before_start",
-      "novel_category_typo"
+      "novel_category_typo",
+      "missing_required",
+      "duplicate_rows"
     ],
-    "gaps": [
-      {
-        "class": "missing_required",
-        "reason": "an empty cell in a column with many values has no target yet"
-      },
-      {
-        "class": "duplicate_rows",
-        "reason": "the target exists but cannot be evaluated yet"
-      }
-    ]
+    "gaps": []
   },
   "publish": {
     "site": false,

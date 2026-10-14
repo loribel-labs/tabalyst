@@ -36,6 +36,7 @@ from tabalyst.scanner.models import (
     Observation,
     ScanResult,
 )
+from tabalyst.scanner.records import table_digest
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
 from tabalyst.scanner.secondpass.models import AnalysisResult, DeepResult
 from tabalyst.scanner.secondpass.patterns import pattern_entry
@@ -318,6 +319,35 @@ class _RelationTests:
                 covered[position].extend(hit)
 
 
+class _DuplicateTests:
+    """The rows that repeat an earlier row of the source.
+
+    The Scan lists only a few records of its duplicates, so the evaluator digests
+    every row as the Scan did (``table_digest``) and remembers the digests seen.
+    Like the Scan it stops storing at ``limit`` digests: a later copy of a row that
+    was not stored goes unseen, and the count is then a lower bound.
+    """
+
+    def __init__(self, limit: int) -> None:
+        self.limit = limit
+        self.targets: Cover = ()
+        self._seen: set[bytes] = set()
+
+    def covers(self, rows: list[list[str]]) -> list[Cover]:
+        """The targets of the duplicates each row of a batch covers, in order."""
+        seen = self._seen
+        found: list[Cover] = []
+        for row in rows:
+            digest = table_digest(row)
+            if digest in seen:
+                found.append(self.targets)
+                continue
+            if len(seen) < self.limit:
+                seen.add(digest)
+            found.append(NO_COVER)
+        return found
+
+
 class Evaluator:
     """Which targets each row of the source covers.
 
@@ -348,6 +378,7 @@ class Evaluator:
         )
         self._columns: dict[str, _ColumnTests] = {}
         self._relations: dict[str, _RelationTests] = {}
+        self._duplicates: _DuplicateTests | None = None
         for position, target in enumerate(targets):
             if target.feasibility != "ready":
                 continue
@@ -371,6 +402,9 @@ class Evaluator:
         kind = predicate.kind
         if kind == "relation_exception":
             self._relation(position, target)
+            return
+        if kind == "observation" and not target.fields:
+            self._dataset_observation(position, target)
             return
         if not target.fields:
             raise _Unresolved("unsupported_predicate")
@@ -492,7 +526,9 @@ class Evaluator:
         if item is None:
             raise _Unresolved("reference_missing")
         rule = item.rule
-        if rule == "ambiguous_dates":
+        if rule == "missing_values":
+            tests.missing.append(position)
+        elif rule == "ambiguous_dates":
             tests.ambiguous.append(position)
         elif rule == "minority_pattern":
             scan = self._scan
@@ -515,8 +551,19 @@ class Evaluator:
         else:
             raise _Unresolved("unsupported_predicate")
 
+    def _dataset_observation(self, position: int, target: Target) -> None:
+        """An observation of the whole dataset: the duplicate rows."""
+        item = self._observations.get(target.origin or "")
+        if item is None:
+            raise _Unresolved("reference_missing")
+        if item.rule != "duplicate_rows":
+            raise _Unresolved("unsupported_predicate")
+        if self._duplicates is None:
+            self._duplicates = _DuplicateTests(self._scan.config.limits.max_tracked_records)
+        self._duplicates.targets += (position,)
+
     def _relation(self, position: int, target: Target) -> None:
-        analysis = self._analyses.get(target.origin or "")
+        analysis =self._analyses.get(target.origin or "")
         if (
             analysis is None
             or analysis.status != "complete"
@@ -584,6 +631,8 @@ class Evaluator:
             for relation in self._relations.values():
                 relation.covers(rows, extra)
             columns.append([tuple(more) for more in extra])
+        if self._duplicates is not None:
+            columns.append(self._duplicates.covers(rows))
         if not columns:
             return [NO_COVER] * len(rows)
         if len(columns) == 1:

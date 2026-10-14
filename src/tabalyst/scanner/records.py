@@ -103,6 +103,12 @@ def _table_digest(values: list[str]) -> bytes:
     return digest.digest()
 
 
+def table_digest(values: list[str]) -> bytes:
+    """The digest the Scan gives a row of a declared table, for the readers of
+    the source that must tell the same rows as the Scan did (the smart sample)."""
+    return _table_digest(values)
+
+
 class PathTokens:
     """A short, stable digest token per path.
 

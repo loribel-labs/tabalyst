@@ -109,4 +109,4 @@ An entry also gives `observed` (the rows of the source that cover the target),
 
 | Revision | Change |
 | --- | --- |
-| 1 | First revision, with the version 0.2.0 family: the report of a smart sample (`request`, `output`, `run`, `plan`, `selection`, `coverage`, `statements`, `targets`). It starts the family; breaking changes are allowed during the beta and are recorded here. |
+| 1 | First revision, with the version 0.2.0 family: the report of a smart sample (`request`, `output`, `run`, `plan`, `selection`, `coverage`, `statements`, `targets`). It starts the family; breaking changes are allowed during the beta and are recorded here. The embedded plan has the `missing` base weight (`plan.settings.weights.base`) since the targets of empty cells; the revision stays `1` while the family is unreleased. |

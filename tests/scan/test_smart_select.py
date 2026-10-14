@@ -16,6 +16,8 @@ from smart_helpers import (
     run,
 )
 
+from tabalyst.scanner.smart.evaluate import _DuplicateTests
+
 
 def _assert_faithful(document):
     """The tests agree with the Scan: nothing could not be tested, every count
@@ -81,3 +83,45 @@ def test_dates_and_types_are_tested_as_the_first_pass_counted_them(tmp_path):
     assert {"date_min", "date_max", "date_year"} <= kinds
     rules = {t.predicate.params["rule"] for t in plan.targets if t.predicate.kind == "observation"}
     assert {"ambiguous_dates", "mixed_types"} <= rules
+
+
+def _empties_and_copies() -> list[str]:
+    """Identifiers with a few blanks in them and rows copied from far away."""
+    rows = [f"{i},{i % 7},v{i % 3}" for i in range(4000)]
+    for i in (1234, 2890):
+        rows[i] = f",{i % 7},v{i % 3}"
+    rows.extend(rows[i] for i in (10, 2222, 3333))
+    return rows
+
+
+def test_empty_cells_of_a_column_of_many_values_and_duplicate_rows_are_found_in_a_small_sample(
+    tmp_path,
+):
+    _, plan, selection, document = report(tmp_path, "id,n,k", _empties_and_copies(), 30)
+
+    _assert_faithful(document)
+    entries = {e.id: e for e in document.targets}
+    [blank] = [t for t in plan.targets if t.predicate.params.get("rule") == "missing_values"]
+    [copies] = [t for t in plan.targets if t.predicate.params.get("rule") == "duplicate_rows"]
+    assert entries[blank.id].status == entries[copies.id].status == "covered"
+    assert (entries[blank.id].expected, entries[copies.id].expected) == (2, 3)
+    assert all(entries[t.id].agrees for t in (blank, copies))
+    assert any(not row[0] for row in selection.rows)
+    assert len(selection.rows) == 30
+
+
+def test_a_file_without_a_repeated_row_has_no_duplicate_target(tmp_path):
+    _, plan, selection = run(tmp_path, "id,n,k", [f"{i},{i % 7},v{i % 3}" for i in range(600)], 20)
+
+    rules = {t.predicate.params.get("rule") for t in plan.targets}
+    assert "duplicate_rows" not in rules
+    assert len(selection.rows) == 20
+
+
+def test_the_duplicate_test_stops_storing_at_its_limit_like_the_scan():
+    tests = _DuplicateTests(limit=2)
+    tests.targets = (5,)
+
+    found = tests.covers([["a"], ["b"], ["c"], ["a"], ["c"], ["b"]])
+
+    assert found == [(), (), (), (5,), (), (5,)]

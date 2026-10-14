@@ -125,9 +125,13 @@ def score(sample_csv: Path, dirty: Path = DIRTY, truth: Path = TRUTH) -> dict[st
     A row is matched by its whole content. A duplicated row cannot be told
     from its original, so for ``duplicate_rows`` the count is the number of
     distinct contents in the sample that occur more than once in the source.
+    In the same way the source already holds empty contract identifiers, which
+    cannot be told from the injected ones, so for ``missing_required`` the count
+    is the number of sample rows whose contract identifier is empty.
     """
-    _, source = _read(dirty)
+    header, source = _read(dirty)
     _, sample = _read(sample_csv)
+    contract = header.index("id_contrat")
     occurrences = collections.Counter(map(tuple, source))
     kept = collections.Counter(map(tuple, sample))
     classes: dict[str, list[int]] = json.loads(truth.read_text(encoding="utf-8"))
@@ -135,6 +139,8 @@ def score(sample_csv: Path, dirty: Path = DIRTY, truth: Path = TRUTH) -> dict[st
     for name, indexes in classes.items():
         if name == "duplicate_rows":
             result[name] = sum(1 for row in kept if occurrences[row] > 1)
+        elif name == "missing_required":
+            result[name] = sum(1 for row in sample if not row[contract].strip())
         else:
             result[name] = sum(1 for index in indexes if tuple(source[index]) in kept)
     return result

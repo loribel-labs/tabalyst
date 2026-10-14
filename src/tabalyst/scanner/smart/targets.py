@@ -56,12 +56,18 @@ MAX_PERIODS = 30
 
 # What the Scan observed that a sample can recognize on a row, by rule of the
 # observation; and what it cannot yet, with the reason. The other rules describe
-# a column or the file (presence, names, normalization remarks), not a row.
+# a column or the file (names, normalization remarks), not a row.
 EVALUABLE_RULES = frozenset(
-    {"mixed_types", "type_outliers", "ambiguous_dates", "minority_pattern"}
+    {
+        "mixed_types",
+        "type_outliers",
+        "ambiguous_dates",
+        "minority_pattern",
+        "missing_values",
+        "duplicate_rows",
+    }
 )
 NOT_EVALUABLE_RULES = {
-    "duplicate_rows": "needs_row_digest",
     "variant_groups": "needs_variant_keys",
     "minority_length": "needs_length_test",
 }
@@ -108,6 +114,9 @@ class _Builder:
         # Columns whose every value has a target: the other families have
         # nothing to add to them.
         self.enumerated: set[str] = set()
+        # Columns that already have a target for their empty cells: the
+        # observation of missing values would only repeat it.
+        self.missing_targeted: set[str] = set()
         # Several tables can share the same two columns (one per feature), so the
         # analyses are a list, not a map keyed by the columns.
         self.analyses: list[AnalysisResult] = []
@@ -271,6 +280,7 @@ class _Builder:
                 obligation=obligation,
                 ref=f"datasets/{self.dataset.id}/fields/{field.id}/missing",
             )
+            self.missing_targeted.add(field.id)
             count += 1
         self.catalog(
             "low_cardinality",
@@ -551,7 +561,7 @@ class _Builder:
         if observations is None:
             return
         for item in observations.items:
-            if item.dataset != self.dataset.id or item.status == "informational":
+            if item.dataset != self.dataset.id:
                 continue
             self._observation(item)
 
@@ -567,6 +577,8 @@ class _Builder:
         field = self.fields.get(item.field) if item.field is not None else None
         if item.field is not None and (field is None or self.withheld(field)):
             return
+        if item.rule == "missing_values" and item.field in self.missing_targeted:
+            return
         exact_population = item.population in (
             "records",
             "occurrences",
@@ -580,12 +592,18 @@ class _Builder:
         else:
             accuracy = "exact" if item.accuracy == "exact" else "lower_bound"
         confirmed = item.status == "confirmed_issue"
+        base: BaseKind = "confirmed_issue" if confirmed else "candidate_anomaly"
+        if item.rule == "missing_values":
+            # An empty cell is a remark, not an anomaly: a light base, which the
+            # rarity of the column raises (a required identifier with a few
+            # blanks weighs more than an optional column that is mostly empty).
+            base = "missing"
         self.add(
             "quality",
             [] if item.field is None else [item.field],
             "observation",
             item.id,
-            base="confirmed_issue" if confirmed else "candidate_anomaly",
+            base=base,
             frequency=Frequency(
                 accuracy=accuracy, count=item.count, share=share, method=item.rule
             ),

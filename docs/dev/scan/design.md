@@ -4462,14 +4462,17 @@ without being its frequency) or `unknown`.
 | `structured_string` | `pattern_matches` per inferred candidate, `pattern_other`, `length_min`, `length_max` | `derived.patterns`; the exact length histogram; the counts of `pattern_validation` when the second pass has them | never |
 | `numeric` | `numeric_min`, `numeric_max`, `numeric_zero`, `numeric_sign` (when both signs occur), `numeric_bin` | the numeric measure; `smart.numeric_bins` (10) bins of equal width between the exact minimum and maximum, never fewer than three | never |
 | `date` | `date_min`, `date_max` per kind, `date_kind` when several formats occur, `date_year` (at most 30 years) | the temporal measure | never |
-| `quality` | `observation`, one per candidate anomaly or confirmed issue that a row can show | `observations` | the confirmed issues the sample can recognize |
+| `quality` | `observation`, one per candidate anomaly or confirmed issue that a row can show, `duplicate_rows` and `missing_values` included | `observations` | the confirmed issues the sample can recognize |
 | `relations` | `relation_exception`, one per listed exception cell of a table | `category_crosstab` results of the second-pass document | never |
 
 A column whose every value has a target (`catalog_complete`) gets no pattern, length, numeric or date target: they would
 only repeat it. A column masked or hidden by exposure gets no target (`exposure`). The observations a row cannot show
 (excluded records, ambiguous header, presence and normalization remarks) are not targets; those a row could show but the
-sample cannot recognize yet (`duplicate_rows`, `variant_groups`) are targets with `feasibility: not_evaluable` and a reason
-(SMART-11). The ordinary population is not a target but a reserve (below).
+sample cannot recognize yet (`variant_groups`, `minority_length`) are targets with `feasibility: not_evaluable` and a reason
+(SMART-11). Two rules of lot S1 are evaluable: `missing_values` (an empty cell, for every column that has some and no
+`value_missing` target of the low-cardinality family; informational for the Scan, base `missing` and never mandatory) and
+`duplicate_rows` (one target for the dataset, no field, covered by any row that repeats an earlier row; a sample holds at
+least one, not one per group, because a target names no value and the Scan lists only `max_listed_records` records). The ordinary population is not a target but a reserve (below).
 
 **Catalogs (E09, E12, SMART-13).** `catalogs` has one entry per column and family: `complete`, `guarantee`
 (`catalog_complete`: every value the column can take has a target, so a large enough sample covers them all;
@@ -4481,7 +4484,7 @@ not estimated gets none (`domain_unknown`). The plan covers the catalog of targe
 **Weight (SMART-02, SRS 15.3).** `weight = min(cap, base * (1 + gain * rarity))`, with `rarity` from 0 (a share of 1) to 1 (a
 share of `floor` or less) on a logarithmic scale, and `unknown_rarity` (0.5) when the frequency is unknown. It never falls
 when the share of the target falls or when its base rises, and never passes `cap`. The bases are by kind: confirmed issue
-10, candidate anomaly 6, value 5, relation exception 5, pattern 4, extreme 4, sign and zero 3, bin 2; `gain` 1, `floor`
+10, candidate anomaly 6, value 5, relation exception 5, pattern 4, extreme 4, sign and zero 3, bin 2, empty cells (`missing`) 6; `gain` 1, `floor`
 1e-6, `cap` 20. Everything is in `smart.weights`, written in the plan (`settings`, `settings_sha256`) with the version of the
 formula (`weights_version`, 1). The values are initial and to be validated on the demos. Rarity is not an error: a rare
 target weighs more but is not called an anomaly.
@@ -4552,7 +4555,11 @@ the coders of the table (`CategoryCoder`, `feature_coder`) on the category and t
 batch of rows tests each distinct string once; the result per string is remembered up to 16,384 strings of at
 most 256 characters per column. A target that cannot be tested (`unresolved`: a reference that is gone, a Scan
 that no longer supports the table) covers nothing and the report says why. `not_evaluable` targets of the plan
-(duplicate rows, variant groups) stay so.
+(variant groups, minority lengths) stay so. A `missing_values` observation reuses the test of the empty cells of the column
+(`value_missing`). The duplicate rows are tested on the whole row (`_DuplicateTests`): the evaluator digests every row as
+the Scan did (`records.table_digest`) and remembers the digests seen, up to `limits.max_tracked_records` like the Scan, so
+a row is a duplicate from its second occurrence and, past the limit, a copy of a row no longer remembered goes unseen (the
+count the report verifies is then a lower bound, as in the Scan).
 
 **Pool and cover (`select.py`).** Rows are numbered by their record, and a row has a priority (`RowPriority` of
 the seed of the plan: `blake2b` of the position, shared with the row sample). For each target the pool keeps the
@@ -4576,7 +4583,8 @@ leaves no output (20.6). The reader is the one of the Scan, so a tolerant error 
 
 **Time and confirmation (`estimate.py`).** As for a second pass (20.3): the reading costs at least the parsing
 share and at most the reading phase of the first pass; the work adds `SELECT_NS_PER_CELL` (600) for each cell of
-a column that has a test and `SELECT_NS_PER_ROW` (2,000), scaled by the speed of the first pass. It is a message
+a column that has a test and `SELECT_NS_PER_ROW` (2,000), scaled by the speed of the first pass; a plan with the duplicate-rows target adds `DIGEST_NS_PER_ROW` (300) and
+`DIGEST_NS_PER_CELL` (25) for each cell of the row. It is a message
 and a threshold (120 s on the upper bound), not an input of the choice, and it is not in the plan, which keeps
 its identity. `tabalyst sample --sample-method smart` shows the estimate and asks when it passes the threshold;
 outside a terminal it stops with exit code 3 unless `--yes` is given. A batch asks once, with the total.

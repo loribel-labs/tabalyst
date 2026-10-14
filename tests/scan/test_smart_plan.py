@@ -60,7 +60,16 @@ def test_a_weight_never_falls_when_the_target_gets_rarer():
 
 def test_a_weight_never_falls_when_the_base_rises_and_never_passes_the_cap():
     base = SmartBaseWeights()
-    kinds = ["bin", "signal", "extreme", "pattern", "value", "candidate_anomaly", "confirmed_issue"]
+    kinds = [
+        "bin",
+        "signal",
+        "extreme",
+        "pattern",
+        "value",
+        "candidate_anomaly",
+        "missing",
+        "confirmed_issue",
+    ]
     at = [weight_of(kind, 0.001, WEIGHTS).value for kind in kinds]
     assert at == sorted(at)
     assert base.confirmed_issue > base.bin
@@ -233,11 +242,47 @@ def test_observations_become_quality_targets_and_some_are_not_evaluable_yet(tmp_
     assert all(t.predicate.kind == "observation" and t.origin for t in quality)
     by_rule = {t.predicate.params["rule"]: t for t in quality}
     duplicates = by_rule["duplicate_rows"]
-    assert duplicates.feasibility == "not_evaluable"
-    assert duplicates.reason == "needs_row_digest" and duplicates.obligation == "optional"
+    assert duplicates.feasibility == "ready" and duplicates.obligation == "optional"
+    assert not duplicates.fields and duplicates.frequency.count == 6
+
+
+def test_a_variant_of_a_value_is_a_target_the_sample_cannot_recognize_yet(tmp_path):
+    cities = ["Montreal", "montreal", "MONTREAL ", "Quebec", "Laval"]
+    result = scan_csv(tmp_path, "id,city", [f"{i},{cities[i % 5]}" for i in range(300)])
+
+    plan = plan_sampling(result)
+
+    [variants] = [t for t in _targets(plan, "quality") if t.predicate.params["rule"] == "variant_groups"]
+    assert variants.feasibility == "not_evaluable" and variants.reason == "needs_variant_keys"
     assert plan.summary.not_evaluable >= 1
-    text = sampling_plan_text(plan, "data.csv")
-    assert "cannot recognize yet" in text
+    assert "cannot recognize yet" in sampling_plan_text(plan, "data.csv")
+
+
+def test_empty_cells_of_a_column_of_many_values_are_a_target_of_the_column(tmp_path):
+    rows = [f",{i % 3}" if i % 100 == 7 else f"{i},{i % 3}" for i in range(500)]
+    result = scan_csv(tmp_path, "id,k", rows)
+
+    plan = plan_sampling(result)
+
+    [target] = [
+        t for t in _targets(plan, "quality")
+        if t.predicate.params["rule"] == "missing_values"
+    ]
+    assert target.displays == ["id"]
+    assert target.feasibility == "ready" and target.obligation == "optional"
+    assert target.frequency.accuracy == "exact" and target.frequency.count == 5
+    assert target.weight.base == SmartBaseWeights().missing
+
+
+def test_a_column_that_already_has_a_target_for_its_empty_cells_gets_no_second_one(tmp_path):
+    rows = [f"{i}," if i % 10 == 3 else f"{i},v{i % 4}" for i in range(200)]
+    result = scan_csv(tmp_path, "id,k", rows)
+
+    plan = plan_sampling(result)
+
+    assert _targets(plan, "low_cardinality", "value_missing")
+    rules = {t.predicate.params["rule"] for t in _targets(plan, "quality")}
+    assert "missing_values" not in rules
 
 
 def test_relations_come_from_the_second_pass_only(tmp_path):
@@ -522,3 +567,15 @@ def test_a_second_pass_on_an_enumerated_column_is_not_announced_for_nothing(tmp_
     [success] = asked.successes
     assert not success.sampling.enrichment.awaiting
     assert success.sampling.passes.total == 1
+
+
+def test_hashing_every_row_is_part_of_the_estimate_only_when_duplicates_are_a_target(tmp_path):
+    from tabalyst.scanner.smart.estimate import _digests_rows
+
+    (tmp_path / "a").mkdir()
+    (tmp_path / "b").mkdir()
+    with_copies = scan_csv(tmp_path / "a", "id,k", [f"{i},{i % 3}" for i in range(100)] + ["5,2"])
+    without = scan_csv(tmp_path / "b", "id,k", [f"{i},{i % 3}" for i in range(100)])
+
+    assert _digests_rows(plan_sampling(with_copies)) is True
+    assert _digests_rows(plan_sampling(without)) is False

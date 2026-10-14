@@ -565,6 +565,7 @@ class SmartBaseWeights(BaseModel):
     extreme: float = Field(default=4.0, ge=0)
     signal: float = Field(default=3.0, ge=0)
     bin: float = Field(default=2.0, ge=0)
+    missing: float = Field(default=6.0, ge=0)
 
 
 class SmartWeights(BaseModel):
