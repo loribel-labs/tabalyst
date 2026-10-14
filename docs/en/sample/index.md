@@ -156,6 +156,17 @@ group of variants of one value (the same name with other capitals or accents). A
 group is covered by a row that holds a variant other than the one most rows hold,
 and a column gets at most 20 such targets, the largest groups first.
 
+A character nobody expects has a target too, per column and only when few
+strings have it. The values a text column holds once (its tail, where a typo
+lives) are one target per column: the sample keeps one of them, not each. A
+column whose values are nearly all different, such as an identifier, has none.
+
+The rows that show the most anomalies at once are worst cases. A cover counts a
+target once, so a row that shows six anomalies would be left out once each of
+them had another row. The sample keeps up to `smart.worst_rows` such rows (3 by
+default, and at most a twentieth of its size), and the report counts them in
+`by_worst`.
+
 A rare phenomenon the scan has no target for can still be missing. The report
 names what it covers precisely: the catalog of targets of the plan, not every
 phenomenon of the data.

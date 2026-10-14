@@ -54,6 +54,8 @@ PredicateKind = Literal[
     "date_kind",
     "date_year",
     "observation",
+    "characteristic",
+    "value_rare",
     "relation_exception",
 ]
 

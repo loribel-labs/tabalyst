@@ -29,7 +29,7 @@ from tabalyst.scanner.readers.factory import open_reader
 from tabalyst.scanner.rowsample import RowPriority
 from tabalyst.scanner.secondpass.models import DeepResult
 from tabalyst.scanner.smart.evaluate import Evaluator
-from tabalyst.scanner.smart.models import SamplingPlan
+from tabalyst.scanner.smart.models import SamplingPlan, Target
 from tabalyst.scanner.smart.select import SelectionOutcome, SelectionPool
 from tabalyst.source_guard import SourceGuard, check_plan_base
 
@@ -51,6 +51,13 @@ class SmartSelection:
     reading_seconds: float
     selection_seconds: float
     peak_memory: int | None
+
+
+def _is_anomaly(target: Target) -> bool:
+    """Whether a target says something is wrong with a row, for the score of a row:
+    what the Scan observed or found in the characters, not a value, a pattern or an
+    extreme every column has, and not an empty cell, which is a remark."""
+    return target.family == "quality" and target.predicate.params.get("rule") != "missing_values"
 
 
 def select_rows(
@@ -92,6 +99,8 @@ def select_rows(
         [t.obligation == "mandatory" and ok for t, ok in zip(plan.targets, ready, strict=True)],
         size=size,
         reserve=plan.reserve.rows_granted,
+        worst=plan.settings.worst_rows,
+        anomaly=[_is_anomaly(target) and ok for target, ok in zip(plan.targets, ready, strict=True)],
         per_target=plan.candidates.per_target_effective,
         budget=plan.candidates.budget_bytes,
     )

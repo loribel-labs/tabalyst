@@ -262,7 +262,7 @@ The plan lists **targets**, each a thing worth having in the sample, with a
 | `structured_string` | each inferred pattern and the values no pattern takes, the shortest and the longest length |
 | `numeric` | the minimum, the maximum, zero, each sign when both occur, ten bins of equal width |
 | `date` | the earliest and the latest date, each format when several occur, each year |
-| `quality` | each candidate anomaly or confirmed issue of the scan that a row can show, the rows that repeat an earlier row, the empty cells of each column that has some and no target for them yet, cells that a trim or a collapse of whitespace changed, strings whose length is not the usual one, and a group of variants of one value (`Montreal`, `MONTREAL`) per group |
+| `quality` | each candidate anomaly or confirmed issue of the scan that a row can show, the rows that repeat an earlier row, the empty cells of each column that has some and no target for them yet, cells that a trim or a collapse of whitespace changed, strings whose length is not the usual one, a group of variants of one value (`Montreal`, `MONTREAL`) per group, the characters nobody expects in a column (control characters, line breaks, tabulations, non-breaking spaces, invisible characters, the replacement character, non-ASCII characters in a column that has them in 5% of its strings or fewer), and the values a text column holds once |
 | `relations` | the exceptions to a [table of a category against a feature](#tables-of-a-category-against-a-feature), when the second pass has computed it |
 
 A target names what it stands for by reference into the scan and never holds a

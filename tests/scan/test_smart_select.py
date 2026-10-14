@@ -5,6 +5,7 @@
 """The tests of the targets on a row and the bounded selection of a smart sample
 (design 20.16, lot 10b)."""
 
+from planner_helpers import scan_csv
 from smart_helpers import (
     NORMAL,
     RICH_HEADER,
@@ -16,7 +17,10 @@ from smart_helpers import (
     run,
 )
 
+from tabalyst.config import SmartSettings
+from tabalyst.scanner.smart import plan_sampling
 from tabalyst.scanner.smart.evaluate import _DuplicateTests
+from tabalyst.scanner.smart.execute import select_rows
 
 
 def _assert_faithful(document):
@@ -181,3 +185,81 @@ def test_a_sample_shows_a_minority_variant_of_each_group_and_not_the_dominant_on
     position = plan.targets.index(group)
     assert selection.outcome.targets[position].covered
     assert any(row[1] == "LAVAL" for row in selection.rows)
+
+
+def _odd_characters_rows() -> list[str]:
+    zero_width, replacement, nbsp = chr(0x200B), chr(0xFFFD), chr(0xA0)
+    rows = [f"C{1000 + i},name{i},ville{i % 4}" for i in range(800)]
+    rows[30] = f"C1030,na{zero_width}me30,ville2"
+    rows[330] = f"C1330,na{replacement}me330,ville2"
+    rows[630] = f"C1630,na{nbsp}me630,ville3"
+    rows[700] = "C1700,   ,ville1"
+    return rows
+
+
+def test_unexpected_characters_are_targets_counted_as_the_scan_counted_them(tmp_path):
+    _, plan, selection, document = report(tmp_path, "code,name,city", _odd_characters_rows(), 40)
+
+    _assert_faithful(document)
+    names = {
+        t.predicate.params["name"]: t for t in plan.targets if t.predicate.kind == "characteristic"
+    }
+    assert {
+        "with_invisible_characters",
+        "with_replacement_character",
+        "with_non_breaking_spaces",
+        "non_ascii",
+    } <= set(names)
+    entries = {e.id: e for e in document.targets}
+    assert all(entries[t.id].expected is not None and entries[t.id].agrees for t in names.values())
+    chosen = [row[1] for row in selection.rows]
+    assert any(chr(0x200B) in name for name in chosen)
+    assert any(chr(0xFFFD) in name for name in chosen)
+
+
+def _common_anomalies_rows() -> list[str]:
+    """Four columns whose cells are padded in 15 rows each, and two rows padded in
+    all four: each anomaly has many candidate rows, the two rows are the worst cases."""
+    rows = [f"C{1000 + i},a{i},b{i},c{i},d{i}" for i in range(700)]
+    for i in range(15):
+        at = 10 + 40 * i
+        cells = [f"a{at}", f"b{at}", f"c{at}", f"d{at}"]
+        cells[i % 4] = " " + cells[i % 4]
+        rows[at] = f"C{1000 + at}," + ",".join(cells)
+    for at in (101, 303):
+        rows[at] = f"C{1000 + at},  a{at}, b{at}, c{at}, d{at}"
+    return rows
+
+
+def test_the_rows_with_the_most_anomalies_at_once_are_kept_and_counted_as_worst(tmp_path):
+    result = scan_csv(tmp_path, "code,a,b,c,d", _common_anomalies_rows())
+    plan = plan_sampling(result, size=40)
+    selection = select_rows(result, tmp_path / "data.csv", plan)
+
+    assert selection.outcome.worst_rows == 2
+    chosen = {row[0] for row in selection.rows}
+    assert {"C1101", "C1303"} <= chosen
+
+    off = plan_sampling(result, size=40, settings=SmartSettings(worst_rows=0))
+    assert select_rows(result, tmp_path / "data.csv", off).outcome.worst_rows == 0
+
+
+def test_a_small_sample_gives_no_room_to_worst_rows(tmp_path):
+    result = scan_csv(tmp_path, "code,a,b,c,d", _common_anomalies_rows())
+    plan = plan_sampling(result, size=19)
+
+    assert select_rows(result, tmp_path / "data.csv", plan).outcome.worst_rows == 0
+
+
+def test_the_values_a_text_column_holds_once_are_a_tail_target_counted_exactly(tmp_path):
+    rows = [f"C{i},town{i % 150}" for i in range(600)]
+    rows[7] = "C7,Zzyzx"
+    rows[8] = "C8,Quimby"
+    _, plan, _, document = report(tmp_path, "code,town", rows, 40)
+
+    _assert_faithful(document)
+    [tail] = [t for t in plan.targets if t.predicate.kind == "value_rare"]
+    assert tail.displays == ["town"] and tail.frequency.accuracy == "exact"
+    assert tail.frequency.count == 2
+    entry = next(e for e in document.targets if e.id == tail.id)
+    assert entry.expected == 2 and entry.agrees

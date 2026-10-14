@@ -4476,6 +4476,14 @@ sample cannot recognize yet (none today, see below) are targets with `feasibilit
 comparison key is the group's and whose raw value is not the group's first variant; exact count `group.count` minus
 that variant's; base `signal`, since at `candidate_anomaly` the groups of a column of names pushed out the anomalies
 the Scan is surer of). No rule is `not_evaluable` now: `NOT_EVALUABLE_RULES` stays for the next rule the Scan gains.
+Lot S2b adds two kinds of target of the `quality` family that stand on no observation: `characteristic` (the
+unexpected characteristics of the strings of a column, `UNEXPECTED_CHARACTERISTICS`, counted by the Scan on the raw
+string, whitespace-only strings included, so the test runs before the missing-cell test; only when at most
+`RARE_CHARACTERISTIC_SHARE` (5%) of the non-empty strings have it) and `value_rare` (the sampled values of a text
+column with a count of one, a single target per column; exact when the Scan sampled every distinct value, a lower bound
+for a priority sample; none when they exceed `MAX_TAIL_SHARE` (20%) of the values, as in an identifier; base `signal`).
+The one `pattern_other` per column stays: the structures that no pattern reads are already one family, hence one
+`pattern_matches` target, each, so a target per kind of reject would repeat them (measured on the case).
 Two rules of lot S1 are evaluable: `missing_values` (an empty cell, for every column that has some and no
 `value_missing` target of the low-cardinality family; informational for the Scan, base `missing` and never mandatory) and
 `duplicate_rows` (one target for the dataset, no field, covered by any row that repeats an earlier row; a sample holds at
@@ -4491,7 +4499,7 @@ not estimated gets none (`domain_unknown`). The plan covers the catalog of targe
 **Weight (SMART-02, SRS 15.3).** `weight = min(cap, base * (1 + gain * rarity))`, with `rarity` from 0 (a share of 1) to 1 (a
 share of `floor` or less) on a logarithmic scale, and `unknown_rarity` (0.5) when the frequency is unknown. It never falls
 when the share of the target falls or when its base rises, and never passes `cap`. The bases are by kind: confirmed issue
-10, candidate anomaly 6, value 5, relation exception 5, pattern 4, extreme 4, sign and zero 3, bin 2, empty cells (`missing`) 6, remarks (`remark`) 5; `gain` 1, `floor`
+10, candidate anomaly 6, value 5, relation exception 5, pattern 4, extreme 4, sign and zero 3, bin 2, empty cells (`missing`) 6, remarks (`remark`) 5, unexpected characters (`character`) 5; `gain` 1, `floor`
 1e-6, `cap` 20. Everything is in `smart.weights`, written in the plan (`settings`, `settings_sha256`) with the version of the
 formula (`weights_version`, 1). The values are initial and to be validated on the demos. Rarity is not an error: a rare
 target weighs more but is not called an anomaly.
@@ -4579,7 +4587,12 @@ the cover has taken its rows the reserve can still be filled in priority order. 
 80% of it so that mandatory targets and the reserve are not starved, and a row that does not fit is refused,
 counted (`pool.refused_rows`, `refused` on the target) and never shortened (E15). The cover is a lazy greedy:
 first with the weights of the mandatory targets alone, then with all weights, taking each time the row that adds
-the most weight not yet covered (ties by priority, then record), for `size - reserve.rows_granted` rows. What is
+the most weight not yet covered (ties by priority, then record), for `size - reserve.rows_granted` rows. Between the two
+passes the cover takes the worst rows (lot S2b): the pool keeps, apart from the candidates of the targets, the
+`smart.worst_rows` rows with the largest sum of the weights of the anomaly targets they cover (`quality` family, empty
+cells excluded: `execute._is_anomaly`), and the selection puts up to `min(worst_rows, size // 20)` of them in the sample
+whether or not their targets are covered, because a cover counts a target once and would take one such row only. The
+report counts them in `selection.by_worst`, apart from `by_cover`. What is
 left goes to the rows of the reserve, then to any other held row, by priority (E13: the report declares it in
 `reserve.adjusted`). A target is covered once. The result is a heuristic on a bounded pool and promises no
 optimum (SMART-07). The rows are written in the order of the source and the targets are not added to the CSV

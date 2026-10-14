@@ -19,6 +19,7 @@ from decimal import Decimal
 from itertools import chain
 from typing import NamedTuple
 
+from tabalyst.scanner.characters import PRESENCE, PRESENCE_BIT, presence_flags
 from tabalyst.scanner.detectors.temporal import kind_of
 from tabalyst.scanner.features import (
     MISSING,
@@ -27,7 +28,11 @@ from tabalyst.scanner.features import (
     PatternCoder,
     feature_coder,
 )
-from tabalyst.scanner.measures import UNCONVERTIBLE
+from tabalyst.scanner.measures import (
+    CHARACTERISTICS,
+    UNCONVERTIBLE,
+    characteristic_flags,
+)
 from tabalyst.scanner.models import (
     ColumnSegment,
     DatasetResult,
@@ -203,6 +208,11 @@ class _ColumnTests:
         # The length nearly every string has, and the targets of the others.
         self.dominant_length: int | None = None
         self.off_length: list[int] = []
+        # Unexpected characteristics of the strings: name to its targets.
+        self.odd: dict[str, list[int]] = {}
+        # The sampled values the column holds once, and the target they cover.
+        self.rare: set[str] = set()
+        self.rare_targets: list[int] = []
         self.types: list[_TypeRule] = []
         self.mixed: list[_TypeRule] = []
         self.memo: dict[str, Cover] = {}
@@ -260,6 +270,10 @@ class _ColumnTests:
             hit = self.exact.get(raw)
             if hit:
                 found.extend(hit)
+            if self.rare and raw in self.rare:
+                found.extend(self.rare_targets)
+            if self.odd and raw:
+                self._odd(raw, found)
             if not content[position]:
                 if self.missing and self.reader.strings.category(raw) in self._blank:
                     found.extend(self.missing)
@@ -275,6 +289,21 @@ class _ColumnTests:
                 self._normalization(raw, found)
             covers.append(tuple(found))
         return covers
+
+    def _odd(self, raw: str, found: list[int]) -> None:
+        """The targets of the characteristics the string has, read as the Scan counted
+        them: on the raw string, whitespace-only strings included."""
+        if raw.isascii() and raw.isprintable():
+            return
+        flags = characteristic_flags(raw)
+        presence = presence_flags(raw)
+        for name, positions in self.odd.items():
+            if name in PRESENCE:
+                has = presence & PRESENCE_BIT[name]
+            else:
+                has = flags & (1 << CHARACTERISTICS.index(name))
+            if has:
+                found.extend(positions)
 
     def _normalization(self, raw: str, found: list[int]) -> None:
         """The targets of the remarks of the normalization stages the string
@@ -474,6 +503,21 @@ class Evaluator:
             self._date(tests, position, target)
         elif kind == "observation":
             self._observation(tests, position, target)
+        elif kind == "value_rare":
+            singles = {
+                entry.value
+                for entry in field.values.samples.listed
+                if entry.count == 1 and entry.count_accuracy == "exact"
+            }
+            if not singles:
+                raise _Unresolved("reference_missing")
+            tests.rare |= singles
+            tests.rare_targets.append(position)
+        elif kind == "characteristic":
+            name = str(predicate.params.get("name"))
+            if name not in PRESENCE and name not in CHARACTERISTICS:
+                raise _Unresolved("unsupported_predicate")
+            tests.odd.setdefault(name, []).append(position)
         else:
             raise _Unresolved("unsupported_predicate")
 

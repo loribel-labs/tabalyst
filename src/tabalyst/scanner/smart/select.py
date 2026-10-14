@@ -73,6 +73,7 @@ class SelectionOutcome:
     refused_rows: int
     mandatory_covered: int = 0
     mandatory_total: int = 0
+    worst_rows: int = 0
 
 
 def row_cost(row: Sequence[str]) -> int:
@@ -99,6 +100,8 @@ class SelectionPool:
         reserve: int,
         per_target: int,
         budget: int,
+        worst: int = 0,
+        anomaly: Sequence[bool] | None = None,
     ) -> None:
         self.weights = weights
         self.mandatory = mandatory
@@ -106,6 +109,10 @@ class SelectionPool:
         self.reserve = reserve
         self.per_target = per_target
         self.budget = budget
+        self.worst = worst
+        # The targets that count in the score of a row (what is wrong with it, not
+        # how many ordinary values it holds): all of them unless told otherwise.
+        self.anomaly = anomaly if anomaly is not None else [True] * len(weights)
         count = len(weights)
         self.outcomes = [TargetOutcome() for _ in range(count)]
         # Rows that cover each target, counted flat (the hot path of the reading),
@@ -115,6 +122,9 @@ class SelectionPool:
         self._slots: list[list[tuple[int, int]]] = [[] for _ in range(count)]
         self._held: dict[int, _Held] = {}
         self._bottom: list[tuple[int, int, int]] = []
+        # The ``worst`` rows that cover the most weight at once: (weight, -priority,
+        # -record, record), the lightest first so that it is the one to give way.
+        self._best: list[tuple[float, int, int, int]] = []
         self.used = 0
         self.peak = 0
         self.refused_rows = 0
@@ -145,6 +155,8 @@ class SelectionPool:
                 held = self._offer(target, record, priority, row, cover, held)
             if cap and (len(bottom) < cap or (-bottom[0][0], -bottom[0][1]) > (priority, record)):
                 self._reserve(record, priority, row, cover)
+            if self.worst and len(cover) > 1:
+                self._worst_row(record, priority, row, cover)
 
     def _limit(self, target: int) -> float:
         return self.budget if self.mandatory[target] else self.budget * OPTIONAL_SHARE
@@ -215,7 +227,49 @@ class SelectionPool:
                     self._held.pop(worst, None)
                     self.used -= gone.cost
 
+    def _worst_row(self, record: int, priority: int, row: list[str], cover: Cover) -> None:
+        """Keep a row that shows a lot of anomalies at once even when it is among the
+        candidates of none of its targets: each of them may have many other rows, and
+        the sum of their weights is what makes the row worth a place in the sample."""
+        weight = sum(self.weights[target] for target in cover if self.anomaly[target])
+        if weight <= 0:
+            return
+        best = self._best
+        key = (weight, -priority, -record)
+        if len(best) >= self.worst and key <= best[0][:3]:
+            return
+        known = self._held.get(record)
+        if known is None and self.used + row_cost(row) > self.budget:
+            self.refused_rows += 1
+            return
+        held = known or self._hold(record, priority, row, cover)
+        held.refs += 1
+        heapq.heappush(best, (*key, record))
+        if len(best) > self.worst:
+            gone = self._held.get(heapq.heappop(best)[3])
+            if gone is not None:
+                self._release(gone)
+
     # Choosing --------------------------------------------------------------------
+
+    def _take_worst(self, chosen: dict[int, _Held], covered: list[bool], slots_left: int) -> int:
+        """Put the rows with the most weight of anomalies at once into the sample, even
+        when their targets are covered already: they are the worst cases, which a cover
+        counts once. At most ``worst`` rows and a twentieth of the size, so that they
+        never take the room of the targets in a small sample."""
+        allowed = min(self.worst, self.size // 20, slots_left)
+        taken = 0
+        for _, _, _, record in sorted(self._best, reverse=True):
+            if taken >= allowed:
+                break
+            row = self._held.get(record)
+            if row is None or record in chosen:
+                continue
+            chosen[record] = row
+            taken += 1
+            for target in row.cover:
+                covered[target] = True
+        return taken
 
     def finish(self) -> SelectionOutcome:
         """The rows of the sample, once the whole source was read."""
@@ -254,8 +308,10 @@ class SelectionPool:
 
         mandatory_weight = [w if m else 0.0 for w, m in zip(self.weights, self.mandatory, strict=True)]
         greedy(mandatory_weight)
+        worst_taken = self._take_worst(chosen, covered, slots_left)
+        slots_left -= worst_taken
         greedy(self.weights)
-        cover_rows = len(chosen)
+        cover_rows = len(chosen) - worst_taken
 
         # What is left of the sample goes to ordinary rows, by priority: the
         # reserve first, then any other row the pool holds (SMART-10, E13).
@@ -308,4 +364,5 @@ class SelectionPool:
             refused_rows=self.refused_rows,
             mandatory_covered=mandatory_done,
             mandatory_total=mandatory_total,
+            worst_rows=worst_taken,
         )

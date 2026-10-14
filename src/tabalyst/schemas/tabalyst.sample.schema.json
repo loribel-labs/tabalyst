@@ -768,6 +768,8 @@
             "date_kind",
             "date_year",
             "observation",
+            "characteristic",
+            "value_rare",
             "relation_exception"
           ],
           "title": "Kind",
@@ -1112,6 +1114,10 @@
           "title": "By Cover",
           "type": "integer"
         },
+        "by_worst": {
+          "title": "By Worst",
+          "type": "integer"
+        },
         "by_reserve": {
           "title": "By Reserve",
           "type": "integer"
@@ -1130,6 +1136,7 @@
       "required": [
         "rows",
         "by_cover",
+        "by_worst",
         "by_reserve",
         "shortfall",
         "reserve",
@@ -1263,6 +1270,12 @@
           "minimum": 0,
           "title": "Remark",
           "type": "number"
+        },
+        "character": {
+          "default": 5.0,
+          "minimum": 0,
+          "title": "Character",
+          "type": "number"
         }
       },
       "title": "SmartBaseWeights",
@@ -1270,7 +1283,7 @@
     },
     "SmartSettings": {
       "additionalProperties": false,
-      "description": "How the plan of a smart sample defines its targets (design 20.15).\n\nA column of at most ``max_enum_values`` distinct values gets one target per\nvalue; a numeric column is cut into ``numeric_bins`` bins of equal width\nbetween its minimum and maximum. The plan keeps ``candidates_per_target`` rows\nper target in memory at most, in ``max_candidate_bytes`` bytes, and\n``reserve_share`` of the rows asked for are a reserve of ordinary rows. At\nmost ``max_targets`` targets are kept, the heaviest first.",
+      "description": "How the plan of a smart sample defines its targets (design 20.15).\n\nA column of at most ``max_enum_values`` distinct values gets one target per\nvalue; a numeric column is cut into ``numeric_bins`` bins of equal width\nbetween its minimum and maximum. The plan keeps ``candidates_per_target`` rows\nper target in memory at most, in ``max_candidate_bytes`` bytes, and\n``reserve_share`` of the rows asked for are a reserve of ordinary rows, and the\n``worst_rows`` rows that cover the most weight of targets at once are kept in\nmemory too, whatever their rank for each target (0 turns that off). At most\n``max_targets`` targets are kept, the heaviest first.",
       "properties": {
         "max_enum_values": {
           "default": 100,
@@ -1299,6 +1312,13 @@
           "minimum": 0,
           "title": "Reserve Share",
           "type": "number"
+        },
+        "worst_rows": {
+          "default": 3,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Worst Rows",
+          "type": "integer"
         },
         "max_targets": {
           "default": 10000,

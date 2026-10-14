@@ -38,7 +38,7 @@ alone. The page is not part of the format: it adds nothing the JSON does not say
 | `output` | The CSV file written: `name`, `rows` (without the header), `columns`, `encoding`, `delimiter`, and `order: "source"` |
 | `run` | `started_at`, `duration_seconds`, `timings` (`reading`, `selection`, `other`), `peak_memory_bytes`, `records_read`, `cells_read`, `source_verified` and `passes` |
 | `plan` | The [smart sample plan](../scan/plan.md#smart-sample-plan) the sample followed: targets, weights, sizes, reserve, budget of candidates and the readings announced |
-| `selection` | How the rows were found: `rows`, `by_cover`, `by_reserve`, `shortfall`, the `reserve` and the `pool` |
+| `selection` | How the rows were found: `rows`, `by_cover`, `by_worst`, `by_reserve`, `shortfall`, the `reserve` and the `pool` |
 | `coverage` | What the rows cover, below |
 | `statements` | Codes of what a reader must not take the sample for |
 | `targets` | One entry for each target of the plan, below |
@@ -51,7 +51,9 @@ leaves no output.
 
 ### Selection
 
-`by_cover` rows were chosen to cover targets. `by_reserve` rows are ordinary rows,
+`by_cover` rows were chosen to cover targets. `by_worst` rows are the rows that show
+the most weight of anomalies at once (at most `smart.worst_rows` of them and a twentieth
+of the size), kept even when their targets are covered already. `by_reserve` rows are ordinary rows,
 chosen by a seeded hash of their position. `reserve.planned` is the share the plan
 granted (20% of the size by default, less when mandatory targets need the room);
 `reserve.taken` is what the sample holds, which is more when the targets needed
@@ -109,4 +111,4 @@ An entry also gives `observed` (the rows of the source that cover the target),
 
 | Revision | Change |
 | --- | --- |
-| 1 | First revision, with the version 0.2.0 family: the report of a smart sample (`request`, `output`, `run`, `plan`, `selection`, `coverage`, `statements`, `targets`). It starts the family; breaking changes are allowed during the beta and are recorded here. The embedded plan has the `missing` and `remark` base weights (`plan.settings.weights.base`) since the targets of empty cells and of remarks; the revision stays `1` while the family is unreleased. |
+| 1 | First revision, with the version 0.2.0 family: the report of a smart sample (`request`, `output`, `run`, `plan`, `selection`, `coverage`, `statements`, `targets`). It starts the family; breaking changes are allowed during the beta and are recorded here. The embedded plan has the `missing`, `remark` and `character` base weights (`plan.settings.weights.base`) and the `worst_rows` setting, and `selection` has `by_worst`, since the targets of empty cells, remarks, characters and rare values and the worst rows; the revision stays `1` while the family is unreleased. |

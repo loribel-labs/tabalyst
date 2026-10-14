@@ -14,6 +14,7 @@ import collections
 import csv
 import json
 import random
+import re
 import subprocess
 import sys
 from collections.abc import Callable
@@ -30,9 +31,15 @@ SEEDS: dict[str, tuple[int, ...]] = {m: tuple(r["seeds"]) for m, r in MANIFEST["
 SIZES: tuple[int, ...] = tuple(MANIFEST["measure"]["sizes"])
 
 Row = list[str]
-# Classes the source already holds some of (whitespace around a name, a shouting
-# city, an agency code of another length): scored by the property of the cell.
+# Classes the source already holds some of (malformed emails, whitespace around a
+# name, a shouting city, an agency code of another length): scored by the property of the cell.
+# Classes scored by the rows whose value occurs once in the source (a value seen
+# once is what a typo or a rare name is; the source holds some by itself).
+SINGLETONS: dict[str, str] = {"rare_surname": "nom"}
 BY_CONTENT: dict[str, tuple[str, Callable[[str], bool]]] = {
+    "email_malformed": ("courriel", lambda v: re.fullmatch(r"[^@\s]+@[^@\s]+[.][^@\s]+", v) is None),
+    "name_zero_width": ("prenom", lambda v: chr(0x200B) in v),
+    "name_replacement_char": ("nom", lambda v: chr(0xFFFD) in v),
     "name_leading_space": ("prenom", lambda v: v != v.lstrip()),
     "name_double_space": ("nom", lambda v: "  " in v),
     "city_case_variant": ("ville", lambda v: len(v) > 1 and v.isupper()),
@@ -123,6 +130,38 @@ def build(source: Path = SOURCE) -> tuple[list[str], list[Row], dict[str, list[i
         "AG-PR-01", "AG-PR-00001", "AG-PR-1", "AGPR001",
     ]))
 
+    zero_width, replacement = chr(0x200B), chr(0xFFFD)
+    inject("name_zero_width", 4, edit("prenom", lambda v, i: v[:2] + zero_width + v[2:]))
+    inject("name_replacement_char", 4, edit("nom", lambda v, i: v[:1] + replacement + v[1:]))
+    inject("rare_surname", 6, replace("nom", [
+        "Zzyzx", "Quimbleton", "Xanthopoulos", "Wojciechowski", "Przybylski", "Ngcobo",
+    ]))
+
+    inject("city_typo", 6, edit("ville", lambda v, i: v[: len(v) // 2] + v[len(v) // 2] + v[len(v) // 2 :]))
+
+    # Six anomalies that are common in the file, one per column: each is a target of
+    # the sample with many candidate rows, so a row that has all six is not among
+    # the candidates of any of them unless the sample looks for such rows.
+    common = (
+        ("nom_voie", lambda v: " " + v),
+        ("province_nom", lambda v: " " + v),
+        ("date_creation", lambda v: " " + v),
+        ("appartement", lambda v: v + "  x"),
+        ("montant_reclamation", lambda v: v[:1] + "  " + v[1:]),
+        ("date_modification", lambda v: v[:4] + "  " + v[4:]),
+    )
+
+    def common_anomaly(row: Row, position: int) -> None:
+        field, change = common[position % len(common)]
+        row[column[field]] = change(row[column[field]])
+
+    def worst_row(row: Row, position: int) -> None:
+        for field, change in common:
+            row[column[field]] = change(row[column[field]])
+
+    inject("common_anomalies", 60, common_anomaly)
+    inject("worst_row", 3, worst_row)
+
     copies = pick(6)
     rows.extend(list(rows[index]) for index in copies)
     classes["duplicate_rows"] = list(range(original, original + 6))
@@ -149,7 +188,8 @@ def score(sample_csv: Path, dirty: Path = DIRTY, truth: Path = TRUTH) -> dict[st
     In the same way the source already holds empty contract identifiers, which
     cannot be told from the injected ones, so for ``missing_required`` the count
     is the number of sample rows whose contract identifier is empty. The classes
-    of ``BY_CONTENT`` are scored the same way, by the property of the row.
+    of ``BY_CONTENT`` are scored the same way, by the property of the row, and
+    the classes of ``SINGLETONS`` count the sample rows whose value occurs once in the source.
     """
     header, source = _read(dirty)
     _, sample = _read(sample_csv)
@@ -163,6 +203,10 @@ def score(sample_csv: Path, dirty: Path = DIRTY, truth: Path = TRUTH) -> dict[st
             result[name] = sum(1 for row in kept if occurrences[row] > 1)
         elif name == "missing_required":
             result[name] = sum(1 for row in sample if not row[contract].strip())
+        elif name in SINGLETONS:
+            at = header.index(SINGLETONS[name])
+            seen = collections.Counter(row[at] for row in source)
+            result[name] = sum(1 for row in sample if seen[row[at]] == 1)
         elif name in BY_CONTENT:
             field, has = BY_CONTENT[name]
             result[name] = sum(1 for row in sample if has(row[header.index(field)]))
@@ -196,13 +240,15 @@ def run(method: str, rows: int, seed: int, output: Path, dirty: Path = DIRTY) ->
 
 
 def measure(work: Path, sizes: tuple[int, ...] = SIZES) -> str:
-    """The markdown table of the share of runs that keep each error class."""
+    """Two markdown tables: the share of runs that keep at least one row of each
+    error class, then the mean number of rows of the class a run keeps (the
+    first hides the classes of several different errors, the second shows them)."""
     classes: dict[str, list[int]] = json.loads(TRUTH.read_text(encoding="utf-8"))
     seeds = SEEDS
     work.mkdir(parents=True, exist_ok=True)
-    lines = ["| Error class | Rows | " + " | ".join(
+    head = "| Error class | Rows | " + " | ".join(
         f"{method} {size}" for size in sizes for method in seeds
-    ) + " |", "| --- | --- |" + " --- |" * (len(sizes) * len(seeds))]
+    ) + " |\n| --- | --- |" + " --- |" * (len(sizes) * len(seeds)) + "\n"
     results: dict[tuple[str, int], list[dict[str, int]]] = {}
     for size in sizes:
         for method, method_seeds in seeds.items():
@@ -212,14 +258,17 @@ def measure(work: Path, sizes: tuple[int, ...] = SIZES) -> str:
                 run(method, size, seed, output)
                 runs.append(score(output))
             results[(method, size)] = runs
+    shares, means = [], []
     for name, indexes in classes.items():
-        cells = []
+        share, mean = [], []
         for size in sizes:
             for method in seeds:
                 runs = results[(method, size)]
-                cells.append(f"{sum(1 for run in runs if run[name]) / len(runs):.0%}")
-        lines.append(f"| `{name}` | {len(indexes)} | " + " | ".join(cells) + " |")
-    return "\n".join(lines) + "\n"
+                share.append(f"{sum(1 for run in runs if run[name]) / len(runs):.0%}")
+                mean.append(f"{sum(run[name] for run in runs) / len(runs):.1f}")
+        shares.append(f"| `{name}` | {len(indexes)} | " + " | ".join(share) + " |")
+        means.append(f"| `{name}` | {len(indexes)} | " + " | ".join(mean) + " |")
+    return head + "\n".join(shares) + "\n\n" + head + "\n".join(means) + "\n"
 
 
 def main() -> None:

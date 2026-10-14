@@ -310,6 +310,7 @@ result stale.
 | `smart.numeric_bins` | `10` | Bins of equal width between the minimum and the maximum of a numeric column, from 2 to 100. A column with fewer than three possible bins gets none |
 | `smart.candidates_per_target` | `2` | Rows the selection holds in memory for each target, from 1 to 3 |
 | `smart.reserve_share` | `0.2` | Share of the rows asked for that is kept for ordinary rows, from 0 to 0.9. It gives way to mandatory targets |
+| `smart.worst_rows` | `3` | Rows with the most weight of anomalies at once that the sample keeps whatever their targets, from 0 (off) to 100. A sample gives them at most a twentieth of its size |
 | `smart.max_targets` | `10000` | Targets the plan keeps at most, the heaviest first; the plan counts the others |
 | `smart.max_candidate_bytes` | `67108864` | Memory the candidate rows may take, in bytes of source text |
 | `smart.weights.gain`, `smart.weights.floor`, `smart.weights.cap`, `smart.weights.unknown_rarity` | `1`, `0.000001`, `20`, `0.5` | A target weighs `min(cap, base * (1 + gain * rarity))`. The rarity goes from 0 (the target covers every row) to 1 (it covers a share of `floor` or less); it is `unknown_rarity` when the frequency is not known |
@@ -317,8 +318,9 @@ result stale.
 
 The base weights are `confirmed_issue` 10, `candidate_anomaly` 6, `value` 5,
 `relation_exception` 5, `pattern` 4, `extreme` 4, `signal` 3, `bin` 2 and
-`missing` 6 (the empty cells of a column) and `remark` 5 (a remark of the scan that
-may be valid: cells trimmed or with collapsed whitespace; the rarity of the target raises both). A weight never falls
+`missing` 6 (the empty cells of a column), `remark` 5 (a remark of the scan that
+may be valid: cells trimmed or with collapsed whitespace) and `character` 5 (an unexpected
+character in a column); the rarity of the target raises them. A weight never falls
 when the target gets rarer or when its base rises, and never passes `cap`.
 
 ## Sample settings

@@ -130,6 +130,7 @@ class Pool(ScanModel):
 class Selection(ScanModel):
     rows: int
     by_cover: int
+    by_worst: int
     by_reserve: int
     shortfall: int
     reserve: Reserve
@@ -390,6 +391,7 @@ def build_document(
         selection=Selection(
             rows=len(selection.rows),
             by_cover=outcome.cover_rows,
+            by_worst=outcome.worst_rows,
             by_reserve=outcome.reserve_rows,
             shortfall=outcome.shortfall,
             reserve=Reserve(

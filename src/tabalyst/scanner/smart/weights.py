@@ -25,6 +25,7 @@ BaseKind = Literal[
     "bin",
     "missing",
     "remark",
+    "character",
 ]
 
 

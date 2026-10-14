@@ -78,6 +78,25 @@ EVALUABLE_RULES = frozenset(
 # sample can recognize it goes here, with a code of ``reasons.FEASIBILITY``.
 NOT_EVALUABLE_RULES: dict[str, str] = {}
 
+# The characteristics of the strings of a column that nobody expects in data
+# (control characters, line breaks, tabulations, non-breaking spaces, invisible
+# characters, the replacement character, non-ASCII characters), and the share
+# of the strings at or below which they stand out: a column of free text that
+# has line breaks everywhere is a format.
+UNEXPECTED_CHARACTERISTICS = (
+    "with_control_characters",
+    "with_line_breaks",
+    "with_tabs",
+    "with_non_breaking_spaces",
+    "with_invisible_characters",
+    "with_replacement_character",
+    "non_ascii",
+)
+RARE_CHARACTERISTIC_SHARE = 0.05
+# The values a column holds once make a tail worth a target only when they are few
+# next to its rows: in an identifier every value is seen once.
+MAX_TAIL_SHARE = 0.2
+
 # Analyzers of the second pass that bring or sharpen the targets of a family.
 ENRICHES: dict[str, Family] = {
     "numeric_histogram": "numeric",
@@ -562,6 +581,63 @@ class _Builder:
                         params={"kind": kind.kind, "index": year_index},
                     )
 
+    def tail(self, field: FieldResult) -> None:
+        """One target for the values of a text column that occur once: the tail of
+        its frequencies, where a typo or a stray value lives. Exact when the Scan
+        sampled every distinct value, a lower bound when it kept a priority sample."""
+        if field.technical_type.type not in ("text", "mixed") or field.values.count == 0:
+            return
+        samples = field.values.samples
+        singles = [
+            entry for entry in samples.listed if entry.count == 1 and entry.count_accuracy == "exact"
+        ]
+        if not singles or len(singles) > MAX_TAIL_SHARE * field.values.count:
+            return
+        exhaustive = (
+            samples.selection == "all"
+            and samples.kept == samples.of
+            and samples.long_texts is None
+            and isinstance(field.values.cardinality, CardinalityComplete)
+        )
+        self.add(
+            "quality",
+            [field.id],
+            "value_rare",
+            "",
+            base="signal",
+            frequency=self.counted(
+                len(singles),
+                "exact" if exhaustive else "lower_bound",
+                "singleton_values",
+            ),
+            evidence="exact" if exhaustive else "sample",
+            ref=f"datasets/{self.dataset.id}/fields/{field.id}/values/samples",
+            params={"max_count": 1},
+        )
+
+    def characters(self, field: FieldResult) -> None:
+        """One target per unexpected characteristic that only a few strings of the
+        column have, with the exact count the Scan holds."""
+        strings = field.strings.count - field.strings.empty
+        if strings <= 0:
+            return
+        counts = field.string_characteristics
+        for name in UNEXPECTED_CHARACTERISTICS:
+            count = int(getattr(counts, name))
+            if not 0 < count <= RARE_CHARACTERISTIC_SHARE * strings:
+                continue
+            self.add(
+                "quality",
+                [field.id],
+                "characteristic",
+                name,
+                base="character",
+                frequency=self.counted(count, method=name),
+                evidence="exact",
+                ref=f"datasets/{self.dataset.id}/fields/{field.id}/string_characteristics",
+                params={"name": name},
+            )
+
     def quality(self) -> None:
         observations = self.scan.observations
         if observations is None:
@@ -702,6 +778,8 @@ def build_targets(
         builder.lengths(field)
         builder.numeric(field)
         builder.dates(field)
+        builder.characters(field)
+        builder.tail(field)
     builder.quality()
     builder.relations()
     return builder.result

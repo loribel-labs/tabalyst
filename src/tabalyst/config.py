@@ -567,6 +567,7 @@ class SmartBaseWeights(BaseModel):
     bin: float = Field(default=2.0, ge=0)
     missing: float = Field(default=6.0, ge=0)
     remark: float = Field(default=5.0, ge=0)
+    character: float = Field(default=5.0, ge=0)
 
 
 class SmartWeights(BaseModel):
@@ -591,8 +592,10 @@ class SmartSettings(BaseModel):
     value; a numeric column is cut into ``numeric_bins`` bins of equal width
     between its minimum and maximum. The plan keeps ``candidates_per_target`` rows
     per target in memory at most, in ``max_candidate_bytes`` bytes, and
-    ``reserve_share`` of the rows asked for are a reserve of ordinary rows. At
-    most ``max_targets`` targets are kept, the heaviest first.
+    ``reserve_share`` of the rows asked for are a reserve of ordinary rows, and the
+    ``worst_rows`` rows that cover the most weight of targets at once are kept in
+    memory too, whatever their rank for each target (0 turns that off). At most
+    ``max_targets`` targets are kept, the heaviest first.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -601,6 +604,7 @@ class SmartSettings(BaseModel):
     numeric_bins: int = Field(default=10, ge=2, le=100)
     candidates_per_target: int = Field(default=2, ge=1, le=3)
     reserve_share: float = Field(default=0.2, ge=0, le=0.9)
+    worst_rows: int = Field(default=3, ge=0, le=100)
     max_targets: int = Field(default=10_000, ge=1, le=1_000_000)
     max_candidate_bytes: int = Field(default=64 * 1024 * 1024, ge=1)
     weights: SmartWeights = Field(default_factory=SmartWeights)

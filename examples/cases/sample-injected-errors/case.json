@@ -28,7 +28,7 @@
   },
   "expectations": {
     "run": "smart",
-    "rows": 100,
+    "rows": 150,
     "seed": 1,
     "kept": [
       "email_malformed",
@@ -45,9 +45,18 @@
       "agency_code_length",
       "name_leading_space",
       "name_double_space",
-      "city_case_variant"
+      "city_case_variant",
+      "rare_surname",
+      "worst_row",
+      "name_zero_width",
+      "name_replacement_char"
     ],
-    "gaps": []
+    "gaps": [
+      {
+        "class": "city_typo",
+        "reason": "the tail of the frequencies has one target per column, so one row of about 70 singletons"
+      }
+    ]
   },
   "publish": {
     "site": false,

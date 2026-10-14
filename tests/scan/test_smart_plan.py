@@ -626,3 +626,24 @@ def test_the_digests_the_selection_remembers_are_part_of_the_memory_it_announces
     assert announced == plan.candidates.budget_bytes + 101 * DIGEST_BYTES
     plain = plan_sampling(without)
     assert estimate_selection(plain, without).memory_max_bytes == plain.candidates.budget_bytes
+
+
+def test_a_characteristic_many_strings_have_is_a_format_and_not_a_target(tmp_path):
+    dash = chr(0x2014)
+    rows = [f"{i},text{i}{dash if i % 2 else 'a'}" for i in range(300)]
+    result = scan_csv(tmp_path, "id,text", rows + ["300,odd" + chr(0x7F)])
+
+    plan = plan_sampling(result)
+
+    names = {t.predicate.params["name"] for t in _targets(plan, "quality", "characteristic")}
+    assert "with_control_characters" in names
+    assert "non_ascii" not in names
+
+
+def test_an_identifier_column_has_no_tail_target_because_every_value_occurs_once(tmp_path):
+    rows = [f"C{i},town{i % 150}" for i in range(600)]
+    result = scan_csv(tmp_path, "code,town", rows)
+
+    plan = plan_sampling(result)
+
+    assert _targets(plan, "quality", "value_rare") == []

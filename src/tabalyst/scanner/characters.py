@@ -50,6 +50,7 @@ PRESENCE = (
     "with_replacement_character",
 )
 _BIT = {name_: 1 << index for index, name_ in enumerate(PRESENCE)}
+PRESENCE_BIT = _BIT
 
 REASON = "character_limit"
 
@@ -190,6 +191,15 @@ class _Presence(dict[int, int]):
 
 
 _PRESENCE = _Presence()
+
+
+def presence_flags(raw: str) -> int:
+    """The presence bits (``PRESENCE`` names, bit ``i`` for ``PRESENCE[i]``) of
+    one raw string, as the profile counts them."""
+    mask = 0
+    for char in set(raw):
+        mask |= SYMBOL_BITS[_symbol(char)]
+    return _PRESENCE[mask]
 
 
 class CharacterProfile:
