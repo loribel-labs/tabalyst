@@ -4556,7 +4556,8 @@ batch of rows tests each distinct string once; the result per string is remember
 most 256 characters per column. A target that cannot be tested (`unresolved`: a reference that is gone, a Scan
 that no longer supports the table) covers nothing and the report says why. `not_evaluable` targets of the plan
 (variant groups, minority lengths) stay so. A `missing_values` observation reuses the test of the empty cells of the column
-(`value_missing`). The duplicate rows are tested on the whole row (`_DuplicateTests`): the evaluator digests every row as
+(`value_missing`), which counts the categories of `values.missing` as the Scan does (a null marker that
+the configuration does not call missing is not an empty cell). The duplicate rows are tested on the whole row (`_DuplicateTests`): the evaluator digests every row as
 the Scan did (`records.table_digest`) and remembers the digests seen, up to `limits.max_tracked_records` like the Scan, so
 a row is a duplicate from its second occurrence and, past the limit, a copy of a row no longer remembered goes unseen (the
 count the report verifies is then a lower bound, as in the Scan).
@@ -4584,7 +4585,8 @@ leaves no output (20.6). The reader is the one of the Scan, so a tolerant error 
 **Time and confirmation (`estimate.py`).** As for a second pass (20.3): the reading costs at least the parsing
 share and at most the reading phase of the first pass; the work adds `SELECT_NS_PER_CELL` (600) for each cell of
 a column that has a test and `SELECT_NS_PER_ROW` (2,000), scaled by the speed of the first pass; a plan with the duplicate-rows target adds `DIGEST_NS_PER_ROW` (300) and
-`DIGEST_NS_PER_CELL` (25) for each cell of the row. It is a message
+`DIGEST_NS_PER_CELL` (25) for each cell of the row. The digests live beside the pool, so the memory the confirmation announces adds
+`DIGEST_BYTES` (100) for each tracked row. It is a message
 and a threshold (120 s on the upper bound), not an input of the choice, and it is not in the plan, which keeps
 its identity. `tabalyst sample --sample-method smart` shows the estimate and asks when it passes the threshold;
 outside a terminal it stops with exit code 3 unless `--yes` is given. A batch asks once, with the total.

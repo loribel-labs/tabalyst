@@ -194,6 +194,9 @@ class _ColumnTests:
         self.types: list[_TypeRule] = []
         self.mixed: list[_TypeRule] = []
         self.memo: dict[str, Cover] = {}
+        # The categories the Scan counts as missing (``RecordContext.missing``):
+        # a cell that is not content is only an empty cell when it is one of them.
+        self._blank = frozenset(evaluator.scan_missing)
 
     @property
     def _numbers(self) -> bool:
@@ -242,7 +245,8 @@ class _ColumnTests:
             if hit:
                 found.extend(hit)
             if not content[position]:
-                found.extend(self.missing)
+                if self.missing and self.reader.strings.category(raw) in self._blank:
+                    found.extend(self.missing)
                 covers.append(tuple(found))
                 continue
             if codes is not None:
@@ -364,6 +368,7 @@ class Evaluator:
         targets: Sequence[Target],
     ) -> None:
         self.reader = CellReader(scan.config)
+        self.scan_missing = frozenset(scan.config.values.missing) - {"absent", "null"}
         self.unresolved: dict[int, str] = {}
         self._scan = scan
         self._dataset = dataset

@@ -47,6 +47,8 @@ SELECT_NS_PER_DISTINCT_CELL = 3_000
 SELECT_NS_PER_ROW = 2_000
 # The digest of every row that recognizing duplicate rows needs: 1.1 us for a row
 # of 34 cells of ten characters, measured on the machine of the other constants.
+# A 16-byte digest in a set: the bytes object and its slot.
+DIGEST_BYTES = 100
 DIGEST_NS_PER_ROW = 300
 DIGEST_NS_PER_CELL = 25
 
@@ -55,10 +57,12 @@ def _tested_fields(plan: SamplingPlan) -> set[str]:
     return {field for target in plan.targets if target.feasibility == "ready" for field in target.fields}
 
 
-def _digests_rows(plan: SamplingPlan) -> bool:
-    """Whether a ready target is about the rows as a whole (the duplicate rows)."""
+def digests_rows(plan: SamplingPlan) -> bool:
+    """Whether a ready target asks for the duplicate rows, which digest every row."""
     return any(
-        target.feasibility == "ready" and target.predicate.kind == "observation" and not target.fields
+        target.feasibility == "ready"
+        and target.predicate.kind == "observation"
+        and target.predicate.params.get("rule") == "duplicate_rows"
         for target in plan.targets
     )
 
@@ -113,7 +117,7 @@ def estimate_selection(
     )
     per_cell = SELECT_NS_PER_CELL + SELECT_NS_PER_DISTINCT_CELL * distinct_share(plan, scan)
     digest = (
-        DIGEST_NS_PER_ROW + DIGEST_NS_PER_CELL * width if _digests_rows(plan) else 0
+        DIGEST_NS_PER_ROW + DIGEST_NS_PER_CELL * width if digests_rows(plan) else 0
     )
     work = (rows * tested_columns(plan) * per_cell + rows * (SELECT_NS_PER_ROW + digest)) / 1e9 * speed
     share = READING_LOW_SHARE if scan.source.format == "csv" else 1.0
@@ -122,10 +126,14 @@ def estimate_selection(
         low_seconds=reading * share + work * low_work,
         high_seconds=reading + work * high_work,
     )
+    # The digests the selection remembers live beside the pool, not in its budget.
+    digest_bytes = (
+        min(rows, scan.config.limits.max_tracked_records) * DIGEST_BYTES if digests_rows(plan) else 0
+    )
     reasons = [TIME_REASON] if estimate.high_seconds >= threshold_seconds else []
     return Confirmation(
         required=bool(reasons),
         reasons=tuple(reasons),
-        memory_max_bytes=plan.candidates.budget_bytes,
+        memory_max_bytes=plan.candidates.budget_bytes + digest_bytes,
         estimate=estimate,
     )

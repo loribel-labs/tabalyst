@@ -570,12 +570,29 @@ def test_a_second_pass_on_an_enumerated_column_is_not_announced_for_nothing(tmp_
 
 
 def test_hashing_every_row_is_part_of_the_estimate_only_when_duplicates_are_a_target(tmp_path):
-    from tabalyst.scanner.smart.estimate import _digests_rows
+    from tabalyst.scanner.smart.estimate import digests_rows
 
     (tmp_path / "a").mkdir()
     (tmp_path / "b").mkdir()
     with_copies = scan_csv(tmp_path / "a", "id,k", [f"{i},{i % 3}" for i in range(100)] + ["5,2"])
     without = scan_csv(tmp_path / "b", "id,k", [f"{i},{i % 3}" for i in range(100)])
 
-    assert _digests_rows(plan_sampling(with_copies)) is True
-    assert _digests_rows(plan_sampling(without)) is False
+    assert digests_rows(plan_sampling(with_copies)) is True
+    assert digests_rows(plan_sampling(without)) is False
+
+
+def test_the_digests_the_selection_remembers_are_part_of_the_memory_it_announces(tmp_path):
+    from tabalyst.scanner.smart.estimate import DIGEST_BYTES, estimate_selection
+
+    (tmp_path / "a").mkdir()
+    (tmp_path / "b").mkdir()
+    rows = [f"{i},{i % 3}" for i in range(100)]
+    with_copies = scan_csv(tmp_path / "a", "id,k", rows + ["5,2"])
+    without = scan_csv(tmp_path / "b", "id,k", rows)
+
+    plan = plan_sampling(with_copies)
+    announced = estimate_selection(plan, with_copies).memory_max_bytes
+
+    assert announced == plan.candidates.budget_bytes + 101 * DIGEST_BYTES
+    plain = plan_sampling(without)
+    assert estimate_selection(plain, without).memory_max_bytes == plain.candidates.budget_bytes

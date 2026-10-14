@@ -125,3 +125,19 @@ def test_the_duplicate_test_stops_storing_at_its_limit_like_the_scan():
     found = tests.covers([["a"], ["b"], ["c"], ["a"], ["c"], ["b"]])
 
     assert found == [(), (), (), (5,), (), (5,)]
+
+
+def test_a_marker_that_the_scan_does_not_count_as_missing_is_not_an_empty_cell_target(tmp_path):
+    rows = [f"{i},{i % 7}" for i in range(600)]
+    rows[100] = ",3"
+    rows[200] = ",4"
+    for i in (300, 400, 500):
+        rows[i] = "NA,5"
+    values = {"null_markers": ["NA"], "missing": ["empty"]}
+
+    _, plan, _, document = report(tmp_path, "id,n", rows, 20, values=values)
+
+    _assert_faithful(document)
+    [blank] = [t for t in plan.targets if t.predicate.params.get("rule") == "missing_values"]
+    entry = next(e for e in document.targets if e.id == blank.id)
+    assert entry.expected == 2 and entry.agrees
