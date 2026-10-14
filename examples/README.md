@@ -9,18 +9,20 @@ examples/
 |-- datasets/ (shared synthetic sources, with their provenance)
 |   |-- basic.csv
 |   |-- insurance-customers.csv
+|   |-- insurance-customers-100k.json (request for a generated 100,000-row file)
 |   |-- orders.json
 |   |-- sales.xlsx
 |   `-- web-events.jsonl
 |-- showcase/ (what the website and the documentation publish, nothing else)
 |   |-- basic/
-|   |-- insurance-customers/ (report.html, report.json, report/ with --details)
-|   |-- insurance-customers-scan/ (scan, second pass, smart plan and sample)
+|   |-- insurance-customers/ (report.html, report.json, report/ with --details; 100,000 rows)
+|   |-- insurance-customers-scan/ (scan, second pass, smart plan and sample; 100,000 rows)
 |   |-- orders/
 |   |-- sales/
 |   `-- web-events/
 |-- cases/ (reproducible scenarios with a manifest, see cases/README.md)
 |-- tools/
+|   |-- make_datasets.py (builds the generated datasets outside the checkout)
 |   |-- regenerate.py
 |   `-- make_sales_workbook.py
 `-- generate/
@@ -73,30 +75,32 @@ the `executions.json` of a demo first, so its history restarts at one entry; wit
 it, each run adds an entry. A step stops the run when its command fails.
 
 The commands of the report demos are, with `--config examples/config.json --force`
-added to each:
+added to each (`{datasets}` is the folder where `make_datasets.py` builds the generated
+datasets, `D:/GIT.test/tabalyst/datasets/` here, or `$TABALYST_DATASETS`):
 
 ```console
 tabalyst report examples/datasets/basic.csv -o examples/showcase/basic/report.html
-tabalyst report examples/datasets/insurance-customers.csv -o examples/showcase/insurance-customers/report.html --details
+tabalyst report {datasets}/insurance-customers-100k.csv -o examples/showcase/insurance-customers/report.html --details
 tabalyst report examples/datasets/orders.json -o examples/showcase/orders/report.html
 tabalyst report examples/datasets/web-events.jsonl -o examples/showcase/web-events/report.html
 tabalyst report examples/datasets/sales.xlsx -o examples/showcase/sales/report.html
 ```
 
 The folder `insurance-customers-scan/` shows the three steps of Tabalyst Scan on
-`insurance-customers.csv` (see "Simple, Clear and Smart" in the documentation):
+`insurance-customers-100k.csv`, the generated base of 100,000 rows (see "Simple, Clear and Smart" in the documentation):
 the scan (Simple, with its web page, Clear), the second pass and the plan of a
 smart sample (Smart), and the smart sample with its report and page. Its four steps
 are in its `demo.json`:
 
 ```console
-tabalyst scan examples/datasets/insurance-customers.csv -o examples/showcase/insurance-customers-scan/insurance-customers.scan.json --config examples/config.json --deep --yes --force
-tabalyst scan examples/datasets/insurance-customers.csv --config examples/config.json --deep --yes --force --no-html
-tabalyst scan examples/datasets/insurance-customers.csv --plan --smart --sample-size 150 --config examples/config.json
-tabalyst sample examples/datasets/insurance-customers.csv --smart --rows 150 --seed 42 -o examples/showcase/insurance-customers-scan/insurance-customers.sample.csv --config examples/config.json --force
+tabalyst scan {datasets}/insurance-customers-100k.csv -o examples/showcase/insurance-customers-scan/insurance-customers.scan.json --config examples/config.json --deep --yes --force
+tabalyst scan {datasets}/insurance-customers-100k.csv --config examples/config.json --deep --yes --force --no-html
+tabalyst scan {datasets}/insurance-customers-100k.csv --plan --smart --sample-size 3000 --config examples/config.json
+tabalyst sample {datasets}/insurance-customers-100k.csv --smart --rows 3000 --seed 42 -o examples/showcase/insurance-customers-scan/insurance-customers.sample.csv --config examples/config.json --force
 ```
 
-The plan (third command) is saved as `smart-plan.txt`. The plan and the sample read the
+`make_datasets.py` generates the base (45 seconds, 27 MB, SHA-256 checked) and leaves it outside the
+checkout; `regenerate.py` calls it first. The plan (third command) is saved as `smart-plan.txt`. The plan and the sample read the
 second pass stored in the workspace for the file, not the one written beside `-o`; the
 second command stores the full one, with `--no-html` because the first already wrote the
 page and a second one would land beside the dataset. Without it, a report made just
@@ -107,7 +111,9 @@ before leaves its smaller automatic second pass there and the plan counts fewer 
 `cases/` holds reproducible scenarios that test and document a command, each with
 its input, its measured result and a test (see `cases/README.md`). The first,
 `cases/sample-injected-errors/`, injects known errors in the insurance example and
-measures how many a smart sample keeps against a random one.
+measures how many a smart sample keeps against a random one on the 3,000-row file.
+The second, `cases/sample-real-errors/`, does it on the generated base of 100,000 rows,
+whose 45 classes of defect have a handful of rows each.
 
 Every report demo is independent and contains its own HTML report, canonical JSON
 profile and cumulative `executions.json` history. The insurance example also has

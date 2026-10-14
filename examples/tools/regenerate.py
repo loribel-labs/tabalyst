@@ -10,19 +10,47 @@
     python examples/tools/regenerate.py --fresh    # restart executions.json
 
 Run it from the repository root with Tabalyst installed. Each step of a manifest
-is a ``tabalyst`` command line written relative to the repository root.
+is a ``tabalyst`` command line written relative to the repository root. A demo whose
+``datasets`` names a generation request (``examples/datasets/*.json``, see
+``make_datasets.py``) reads the generated file as ``{datasets}/<file>``: the request is built
+first, outside the checkout, and ``{datasets}`` is replaced by its folder.
 """
 
 import argparse
+import importlib.util
 import json
 import shlex
+import shutil
 import subprocess
 import sys
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 SHOWCASE = ROOT / "examples" / "showcase"
+
+
+def load_make_datasets() -> ModuleType:
+    """The sibling tool that builds generated datasets."""
+    script = Path(__file__).resolve().parent / "make_datasets.py"
+    spec = importlib.util.spec_from_file_location("examples_make_datasets", script)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def prepare_datasets(demo: dict[str, Any]) -> str:
+    """Build the generated datasets of a demo; return the folder that replaces ``{datasets}``."""
+    tool = load_make_datasets()
+    folder = tool.default_root()
+    for name in demo["datasets"]:
+        path = tool.DATASETS / name
+        if tool.is_request(path):
+            tool.ensure(path, folder)
+    return str(folder.as_posix())
 
 
 def load_demos() -> dict[str, dict[str, Any]]:
@@ -42,11 +70,30 @@ def command_line(command: str) -> list[str]:
     return [sys.executable, "-m", "tabalyst", *words[1:]]
 
 
-def run_step(step: dict[str, str]) -> int:
-    """Run one step from the repository root; ``stdout`` names a file to write."""
+def clear_details(words: list[str]) -> None:
+    """Delete the ``--details`` folder a report step is about to rewrite.
+
+    The column pages are named after the column order, so a source whose columns moved would
+    leave the pages of the old order beside the new ones.
+    """
+    if "--details" not in words or "-o" not in words:
+        return
+    output = (ROOT / words[words.index("-o") + 1]).resolve()
+    folder = output.with_suffix("")
+    if folder.is_dir() and folder.is_relative_to(SHOWCASE):
+        shutil.rmtree(folder)
+
+
+def run_step(step: dict[str, str], datasets: str = "") -> int:
+    """Run one step from the repository root; ``stdout`` names a file to write.
+
+    ``{datasets}`` in the command is replaced by the folder of the generated datasets.
+    """
     sys.stdout.write(f"> {step['command']}\n")
+    words = command_line(step["command"].replace("{datasets}", datasets))
+    clear_details(words)
     completed = subprocess.run(
-        command_line(step["command"]),
+        words,
         cwd=ROOT,
         capture_output="stdout" in step,
         check=False,
@@ -77,8 +124,9 @@ def main() -> int:
     for name in args.ids or list(demos):
         if args.fresh:
             (SHOWCASE / name / "executions.json").unlink(missing_ok=True)
+        datasets = prepare_datasets(demos[name])
         for step in demos[name]["steps"]:
-            code = run_step(step)
+            code = run_step(step, datasets)
             if code:
                 sys.stderr.write(f"demo {name} failed with exit code {code}\n")
                 return code

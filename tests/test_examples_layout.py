@@ -76,21 +76,43 @@ def test_demo_datasets_and_documentation_pages_exist(manifest: Path) -> None:
         assert (ROOT / "docs" / "en" / page).is_file(), page
 
 
+def _declared_sources(data: dict[str, Any]) -> set[str]:
+    """Paths a step may read: a plain dataset, or a file of a generation request as ``{datasets}/``."""
+    declared: set[str] = set()
+    for name in data["datasets"]:
+        declared.add(f"examples/datasets/{name}")
+        path = DATASETS / name
+        if path.suffix == ".json" and "generate" in json.loads(path.read_text(encoding="utf-8")):
+            files = json.loads(path.read_text(encoding="utf-8"))["files"]
+            declared |= {f"{{datasets}}/{file}" for file in files}
+    return declared
+
+
 @pytest.mark.parametrize("manifest", MANIFESTS, ids=_ids(MANIFESTS))
 def test_demo_steps_read_declared_datasets_and_write_in_their_folder(manifest: Path) -> None:
     data = _load(manifest)
     regenerate = _regenerate()
-    declared = {f"examples/datasets/{name}" for name in data["datasets"]}
+    declared = _declared_sources(data)
     folder = f"examples/showcase/{data['id']}/"
 
     for step in data["steps"]:
         words = regenerate.command_line(step["command"])[3:]
-        sources = {word for word in words if word.startswith("examples/datasets/")}
+        sources = {word for word in words
+                   if word.startswith(("examples/datasets/", "{datasets}/"))}
         outputs = [word for word in words if word.startswith("examples/showcase/")]
         assert sources and sources <= declared, step["command"]
         assert all(word.startswith(folder) for word in outputs), step["command"]
         if "stdout" in step:
             assert step["stdout"].startswith(folder)
+
+
+@pytest.mark.parametrize("manifest", MANIFESTS, ids=_ids(MANIFESTS))
+def test_demo_never_writes_generated_datasets_inside_the_checkout(manifest: Path) -> None:
+    data = _load(manifest)
+
+    if any(name.endswith("-100k.json") for name in data["datasets"]):
+        tool = _regenerate().load_make_datasets()
+        assert not tool.default_root().is_relative_to(ROOT)
 
 
 def test_a_step_must_start_with_tabalyst() -> None:
