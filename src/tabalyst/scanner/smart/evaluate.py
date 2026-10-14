@@ -36,6 +36,7 @@ from tabalyst.scanner.models import (
     Observation,
     ScanResult,
 )
+from tabalyst.scanner.normalization import KEY_STAGE, STAGES
 from tabalyst.scanner.records import table_digest
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
 from tabalyst.scanner.secondpass.models import AnalysisResult, DeepResult
@@ -57,6 +58,9 @@ MEMO_CHARS = 256
 UNRESOLVED = reasons.UNRESOLVED
 
 _BOOLEAN_WORDS = frozenset({"true", "false"})
+# The bits of ``Normalizer.run`` that say a stage changed its input.
+_TRIM = 1 << STAGES.index("trim")
+_COLLAPSE = 1 << STAGES.index("collapse_whitespace")
 
 
 class _Unresolved(Exception):
@@ -191,6 +195,14 @@ class _ColumnTests:
         self.numeric: _NumericTests | None = None
         self.dates: list[_DateRule] = []
         self.ambiguous: list[int] = []
+        self.trimmed: list[int] = []
+        self.collapsed: list[int] = []
+        # Comparison key of a variant group to the raw value the group holds most
+        # of and the target of the group: a minority variant covers it.
+        self.variants: dict[str, tuple[str, int]] = {}
+        # The length nearly every string has, and the targets of the others.
+        self.dominant_length: int | None = None
+        self.off_length: list[int] = []
         self.types: list[_TypeRule] = []
         self.mixed: list[_TypeRule] = []
         self.memo: dict[str, Cover] = {}
@@ -208,7 +220,11 @@ class _ColumnTests:
 
     @property
     def _cells(self) -> bool:
-        return bool(self.lengths or self._numbers or self._dates)
+        return bool(self.lengths or self.off_length or self._numbers or self._dates)
+
+    @property
+    def _stages(self) -> bool:
+        return bool(self.trimmed or self.collapsed or self.variants)
 
     def tuples(self, column: list[str]) -> list[Cover]:
         """The targets covered by each string of a column, in order."""
@@ -255,13 +271,31 @@ class _ColumnTests:
                     found.extend(hit)
             if cells is not None:
                 self._cell(cells[position], found)
+            if self._stages:
+                self._normalization(raw, found)
             covers.append(tuple(found))
         return covers
+
+    def _normalization(self, raw: str, found: list[int]) -> None:
+        """The targets of the remarks of the normalization stages the string
+        shows: the Scan counted a string when a stage changed what the stage
+        before it gave, and a variant by the key of the last stage."""
+        outputs, changes = self.reader.normalizer.run(raw)
+        if changes & _TRIM:
+            found.extend(self.trimmed)
+        if changes & _COLLAPSE:
+            found.extend(self.collapsed)
+        if self.variants:
+            group = self.variants.get(outputs[KEY_STAGE])
+            if group is not None and raw != group[0]:
+                found.append(group[1])
 
     def _cell(self, cell: Cell, found: list[int]) -> None:
         hit = self.lengths.get(cell.length)
         if hit:
             found.extend(hit)
+        if self.off_length and cell.length != self.dominant_length:
+            found.extend(self.off_length)
         number = cell.number
         if self.numeric is not None and number is not None and number is not UNCONVERTIBLE:
             self.numeric.hit(number, found)  # type: ignore[arg-type]
@@ -533,6 +567,14 @@ class Evaluator:
         rule = item.rule
         if rule == "missing_values":
             tests.missing.append(position)
+        elif rule == "trimmed_cells":
+            tests.trimmed.append(position)
+        elif rule == "collapsed_whitespace":
+            tests.collapsed.append(position)
+        elif rule == "variant_groups":
+            self._variant_group(tests, position, target)
+        elif rule == "minority_length":
+            self._minority_length(tests, position)
         elif rule == "ambiguous_dates":
             tests.ambiguous.append(position)
         elif rule == "minority_pattern":
@@ -555,6 +597,26 @@ class Evaluator:
             rules.append(_TypeRule(position, _accepted_families(tests.field, rule)))
         else:
             raise _Unresolved("unsupported_predicate")
+
+    @staticmethod
+    def _variant_group(tests: _ColumnTests, position: int, target: Target) -> None:
+        groups = tests.field.normalization.variant_groups
+        index = int(target.predicate.params.get("group", -1))
+        if groups.status != "complete" or not 0 <= index < len(groups.value.listed):
+            raise _Unresolved("reference_missing")
+        group = groups.value.listed[index]
+        if not group.variants:
+            raise _Unresolved("reference_missing")
+        tests.variants[group.key] = (group.variants[0].value, position)
+
+    @staticmethod
+    def _minority_length(tests: _ColumnTests, position: int) -> None:
+        envelope = tests.field.string_lengths
+        if envelope.status != "complete" or not envelope.value.length_histogram:
+            raise _Unresolved("reference_missing")
+        histogram = envelope.value.length_histogram
+        tests.dominant_length = max(histogram, key=lambda item: item.count).length
+        tests.off_length.append(position)
 
     def _dataset_observation(self, position: int, target: Target) -> None:
         """An observation of the whole dataset: the duplicate rows."""

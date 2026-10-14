@@ -27,11 +27,9 @@ CATALOG: dict[str, str] = {
     ),
 }
 
-# Why a target cannot be evaluated by the sample (``Target.reason``).
-FEASIBILITY: dict[str, str] = {
-    "needs_length_test": "the rule has no test on a row yet",
-    "needs_variant_keys": "recognizing a variant needs the normalized key of every value",
-}
+# Why a target cannot be evaluated by the sample (``Target.reason``): empty while
+# every rule of the Scan has a test on a row (``targets.NOT_EVALUABLE_RULES``).
+FEASIBILITY: dict[str, str] = {}
 
 # Why a target is not covered by the sample (``TargetEntry.reason`` of a target
 # that is ``not_covered``): the sample is too small for it, the budget of

@@ -150,6 +150,12 @@ did; a sample holds at least one such row, not one per group of copies. Like the
 scan, it stops remembering digests at `limits.max_tracked_records`, and a copy of
 a row it no longer remembers goes unseen.
 
+The remarks of the scan about a column have a target too: a cell with spaces
+around it or inside it, a string of a length that nearly no other has, and each
+group of variants of one value (the same name with other capitals or accents). A
+group is covered by a row that holds a variant other than the one most rows hold,
+and a column gets at most 20 such targets, the largest groups first.
+
 A rare phenomenon the scan has no target for can still be missing. The report
 names what it covers precisely: the catalog of targets of the plan, not every
 phenomenon of the data.

@@ -24,6 +24,7 @@ BaseKind = Literal[
     "signal",
     "bin",
     "missing",
+    "remark",
 ]
 
 

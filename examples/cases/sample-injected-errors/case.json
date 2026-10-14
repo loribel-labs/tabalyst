@@ -41,7 +41,11 @@
       "end_before_start",
       "novel_category_typo",
       "missing_required",
-      "duplicate_rows"
+      "duplicate_rows",
+      "agency_code_length",
+      "name_leading_space",
+      "name_double_space",
+      "city_case_variant"
     ],
     "gaps": []
   },

@@ -317,7 +317,8 @@ result stale.
 
 The base weights are `confirmed_issue` 10, `candidate_anomaly` 6, `value` 5,
 `relation_exception` 5, `pattern` 4, `extreme` 4, `signal` 3, `bin` 2 and
-`missing` 6 (the empty cells of a column; the rarity of the column raises it). A weight never falls
+`missing` 6 (the empty cells of a column) and `remark` 5 (a remark of the scan that
+may be valid: cells trimmed or with collapsed whitespace; the rarity of the target raises both). A weight never falls
 when the target gets rarer or when its base rises, and never passes `cap`.
 
 ## Sample settings

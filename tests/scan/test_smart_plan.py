@@ -66,6 +66,7 @@ def test_a_weight_never_falls_when_the_base_rises_and_never_passes_the_cap():
         "extreme",
         "pattern",
         "value",
+        "remark",
         "candidate_anomaly",
         "missing",
         "confirmed_issue",
@@ -246,16 +247,45 @@ def test_observations_become_quality_targets_and_some_are_not_evaluable_yet(tmp_
     assert not duplicates.fields and duplicates.frequency.count == 6
 
 
-def test_a_variant_of_a_value_is_a_target_the_sample_cannot_recognize_yet(tmp_path):
-    cities = ["Montreal", "montreal", "MONTREAL ", "Quebec", "Laval"]
-    result = scan_csv(tmp_path, "id,city", [f"{i},{cities[i % 5]}" for i in range(300)])
+def test_a_rule_without_a_test_on_a_row_is_a_target_the_sample_cannot_recognize_yet(
+    tmp_path, monkeypatch
+):
+    from tabalyst.scanner.smart import reasons, targets
+
+    rows = [f"{1000 + i},{i % 3}" for i in range(300)] + ["12,1", "13,2"]
+    result = scan_csv(tmp_path, "code,k", rows)
+    monkeypatch.setattr(targets, "EVALUABLE_RULES", targets.EVALUABLE_RULES - {"minority_length"})
+    monkeypatch.setitem(targets.NOT_EVALUABLE_RULES, "minority_length", "needs_test")
+    monkeypatch.setitem(reasons.FEASIBILITY, "needs_test", "the rule has no test on a row yet")
 
     plan = plan_sampling(result)
 
-    [variants] = [t for t in _targets(plan, "quality") if t.predicate.params["rule"] == "variant_groups"]
-    assert variants.feasibility == "not_evaluable" and variants.reason == "needs_variant_keys"
+    [short] = [t for t in _targets(plan, "quality") if t.predicate.params["rule"] == "minority_length"]
+    assert short.feasibility == "not_evaluable" and short.reason == "needs_test"
     assert plan.summary.not_evaluable >= 1
     assert "cannot recognize yet" in sampling_plan_text(plan, "data.csv")
+
+
+def test_the_remarks_of_the_normalization_and_the_variants_are_targets_a_row_can_show(tmp_path):
+    cities = ["Montreal", "montreal", "MONTREAL", "Quebec", "Laval"]
+    rows = [f"{1000 + i},{cities[i % 5]},  x{i}  ,a  b" for i in range(300)]
+    result = scan_csv(tmp_path, "id,city,pad,gap", rows)
+
+    plan = plan_sampling(result)
+
+    quality: dict[tuple[str, str], list] = {}
+    for t in _targets(plan, "quality"):
+        if t.fields:
+            quality.setdefault((t.displays[0], t.predicate.params["rule"]), []).append(t)
+    [trimmed] = quality["pad", "trimmed_cells"]
+    [collapsed] = quality["gap", "collapsed_whitespace"]
+    [group] = quality["city", "variant_groups"]
+    assert trimmed.feasibility == collapsed.feasibility == group.feasibility == "ready"
+    assert trimmed.weight.base == SmartBaseWeights().remark
+    assert group.weight.base == SmartBaseWeights().signal
+    # Two of the three variants are minority: the group holds 60 rows of each.
+    assert group.frequency.accuracy == "exact" and group.frequency.count == 120
+    assert plan.summary.not_evaluable == 0
 
 
 def test_empty_cells_of_a_column_of_many_values_are_a_target_of_the_column(tmp_path):

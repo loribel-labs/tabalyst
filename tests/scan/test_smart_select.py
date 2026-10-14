@@ -141,3 +141,43 @@ def test_a_marker_that_the_scan_does_not_count_as_missing_is_not_an_empty_cell_t
     [blank] = [t for t in plan.targets if t.predicate.params.get("rule") == "missing_values"]
     entry = next(e for e in document.targets if e.id == blank.id)
     assert entry.expected == 2 and entry.agrees
+
+
+def _whitespace_variants_and_lengths() -> list[str]:
+    cities = ["Montreal", "montreal", "MONTREAL", "Quebec", "Laval"]
+    rows = [f"C{1000 + i},{cities[i % 5]},name{i},nom{i}" for i in range(600)]
+    rows[40] = "C1040,Quebec, name40,nom40"
+    rows[41] = "C1041,Quebec,name41  ,nom41"
+    rows[50] = "C1050,Laval,name50,nom  50"
+    rows[60] = "C60,Laval,name60,nom60"
+    return rows
+
+
+def test_trimmed_collapsed_variant_and_short_strings_are_found_as_the_scan_counted_them(tmp_path):
+    _, plan, selection, document = report(
+        tmp_path, "code,city,first,last", _whitespace_variants_and_lengths(), 60
+    )
+
+    _assert_faithful(document)
+    rules = {t.predicate.params.get("rule") for t in plan.targets if t.predicate.kind == "observation"}
+    assert {"trimmed_cells", "collapsed_whitespace", "variant_groups", "minority_length"} <= rules
+    entries = {e.id: e for e in document.targets}
+    checked = [
+        entries[t.id]
+        for t in plan.targets
+        if t.predicate.params.get("rule")
+        in ("trimmed_cells", "collapsed_whitespace", "minority_length", "variant_groups")
+    ]
+    assert checked and all(e.expected is not None and e.agrees for e in checked)
+    assert any(e.status == "covered" for e in checked)
+    assert not selection.unresolved
+
+
+def test_a_sample_shows_a_minority_variant_of_each_group_and_not_the_dominant_one_alone(tmp_path):
+    rows = [f"{i},{('Laval', 'LAVAL')[i % 50 == 0]}" for i in range(300)]
+    _, plan, selection = run(tmp_path, "id,city", rows, 20)
+
+    [group] = [t for t in plan.targets if t.predicate.params.get("rule") == "variant_groups"]
+    position = plan.targets.index(group)
+    assert selection.outcome.targets[position].covered
+    assert any(row[1] == "LAVAL" for row in selection.rows)

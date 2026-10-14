@@ -30,6 +30,14 @@ SEEDS: dict[str, tuple[int, ...]] = {m: tuple(r["seeds"]) for m, r in MANIFEST["
 SIZES: tuple[int, ...] = tuple(MANIFEST["measure"]["sizes"])
 
 Row = list[str]
+# Classes the source already holds some of (whitespace around a name, a shouting
+# city, an agency code of another length): scored by the property of the cell.
+BY_CONTENT: dict[str, tuple[str, Callable[[str], bool]]] = {
+    "name_leading_space": ("prenom", lambda v: v != v.lstrip()),
+    "name_double_space": ("nom", lambda v: "  " in v),
+    "city_case_variant": ("ville", lambda v: len(v) > 1 and v.isupper()),
+    "agency_code_length": ("agence_code", lambda v: len(v) != 9),
+}
 Injector = Callable[[Row, int], None]
 
 
@@ -102,6 +110,19 @@ def build(source: Path = SOURCE) -> tuple[list[str], list[Row], dict[str, list[i
     inject("novel_category_typo", 4, replace("type_contrat", ["autoo", "VIE", "santé ", "hab"]))
     inject("missing_required", 6, blank_contract)
 
+    def edit(field: str, change: Callable[[str, int], str]) -> Injector:
+        def apply(row: Row, position: int) -> None:
+            row[column[field]] = change(row[column[field]], position)
+
+        return apply
+
+    inject("name_leading_space", 6, edit("prenom", lambda v, i: (" ", "	")[i % 2] + v))
+    inject("name_double_space", 4, edit("nom", lambda v, i: f"{v}  Jr"))
+    inject("city_case_variant", 6, edit("ville", lambda v, i: v.upper()))
+    inject("agency_code_length", 4, replace("agence_code", [
+        "AG-PR-01", "AG-PR-00001", "AG-PR-1", "AGPR001",
+    ]))
+
     copies = pick(6)
     rows.extend(list(rows[index]) for index in copies)
     classes["duplicate_rows"] = list(range(original, original + 6))
@@ -127,7 +148,8 @@ def score(sample_csv: Path, dirty: Path = DIRTY, truth: Path = TRUTH) -> dict[st
     distinct contents in the sample that occur more than once in the source.
     In the same way the source already holds empty contract identifiers, which
     cannot be told from the injected ones, so for ``missing_required`` the count
-    is the number of sample rows whose contract identifier is empty.
+    is the number of sample rows whose contract identifier is empty. The classes
+    of ``BY_CONTENT`` are scored the same way, by the property of the row.
     """
     header, source = _read(dirty)
     _, sample = _read(sample_csv)
@@ -141,6 +163,9 @@ def score(sample_csv: Path, dirty: Path = DIRTY, truth: Path = TRUTH) -> dict[st
             result[name] = sum(1 for row in kept if occurrences[row] > 1)
         elif name == "missing_required":
             result[name] = sum(1 for row in sample if not row[contract].strip())
+        elif name in BY_CONTENT:
+            field, has = BY_CONTENT[name]
+            result[name] = sum(1 for row in sample if has(row[header.index(field)]))
         else:
             result[name] = sum(1 for index in indexes if tuple(source[index]) in kept)
     return result

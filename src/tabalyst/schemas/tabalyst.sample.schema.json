@@ -1257,6 +1257,12 @@
           "minimum": 0,
           "title": "Missing",
           "type": "number"
+        },
+        "remark": {
+          "default": 5.0,
+          "minimum": 0,
+          "title": "Remark",
+          "type": "number"
         }
       },
       "title": "SmartBaseWeights",

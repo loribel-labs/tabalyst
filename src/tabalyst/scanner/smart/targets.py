@@ -53,6 +53,9 @@ from tabalyst.scanner.smart.weights import BaseKind, weight_of
 
 # More periods than this are a distribution, not a list of targets.
 MAX_PERIODS = 30
+# Groups of variants of one column that get a target, the largest first: a column
+# of free text with accents and capitals in thousands of groups is not a list.
+MAX_VARIANT_GROUPS = 20
 
 # What the Scan observed that a sample can recognize on a row, by rule of the
 # observation; and what it cannot yet, with the reason. The other rules describe
@@ -65,12 +68,15 @@ EVALUABLE_RULES = frozenset(
         "minority_pattern",
         "missing_values",
         "duplicate_rows",
+        "minority_length",
+        "variant_groups",
+        "trimmed_cells",
+        "collapsed_whitespace",
     }
 )
-NOT_EVALUABLE_RULES = {
-    "variant_groups": "needs_variant_keys",
-    "minority_length": "needs_length_test",
-}
+# No rule waits for a test on a row today; a rule the Scan gains before the
+# sample can recognize it goes here, with a code of ``reasons.FEASIBILITY``.
+NOT_EVALUABLE_RULES: dict[str, str] = {}
 
 # Analyzers of the second pass that bring or sharpen the targets of a family.
 ENRICHES: dict[str, Family] = {
@@ -579,6 +585,9 @@ class _Builder:
             return
         if item.rule == "missing_values" and item.field in self.missing_targeted:
             return
+        if item.rule == "variant_groups":
+            self._variant_groups(item)
+            return
         exact_population = item.population in (
             "records",
             "occurrences",
@@ -593,6 +602,10 @@ class _Builder:
             accuracy = "exact" if item.accuracy == "exact" else "lower_bound"
         confirmed = item.status == "confirmed_issue"
         base: BaseKind = "confirmed_issue" if confirmed else "candidate_anomaly"
+        if item.status == "informational":
+            # A remark (cells trimmed, whitespace collapsed): it may be perfectly
+            # valid, so it weighs less than an anomaly.
+            base = "remark"
         if item.rule == "missing_values":
             # An empty cell is a remark, not an anomaly: a light base, which the
             # rarity of the column raises (a required identifier with a few
@@ -615,6 +628,36 @@ class _Builder:
             feasibility=feasibility,
             reason=reason,
         )
+
+    def _variant_groups(self, item: Observation) -> None:
+        """One target per group of variants of a value (``Montreal``, ``MONTREAL``),
+        covered by a row that holds a variant other than the one the group holds
+        most of: a group is a distinct phenomenon and a sample shows each one."""
+        field = self.fields.get(item.field or "")
+        if field is None or field.normalization.variant_groups.status != "complete":
+            return
+        groups = field.normalization.variant_groups.value.listed[:MAX_VARIANT_GROUPS]
+        for index, group in enumerate(groups):
+            if not group.variants:
+                continue
+            # The variants are sorted by count and the first is always listed:
+            # the rest of the group is exactly its minority variants.
+            minority = group.count - group.variants[0].count
+            self.add(
+                "quality",
+                [field.id],
+                "observation",
+                f"{item.id}:{index}",
+                # Light, like the other remarks of the normalization: a column of
+                # names has dozens of groups, and at 9 each they pushed out the
+                # rows of the anomalies the Scan is surer of (measured on the case).
+                base="signal",
+                frequency=self.counted(minority, method="variant_groups"),
+                evidence="exact",
+                ref=f"observations/items/{item.id}",
+                params={"rule": "variant_groups", "group": index},
+                origin=item.id,
+            )
 
     def relations(self) -> None:
         for analysis in self.analyses:
