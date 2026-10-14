@@ -14,6 +14,7 @@ import string
 import unicodedata
 from collections import Counter, deque
 from collections.abc import Callable, Mapping, Sequence
+from itertools import compress
 from pathlib import Path
 from typing import cast
 
@@ -30,6 +31,7 @@ FORMAT_VALUES = frozenset({
     "drop_char", "double_hyphen", "suffix_x", "strip_accents", "negate", "leading_apostrophe",
     "double_char", "swap_first_two", "transpose", "replace_char", "phone_double_space",
     "date_dmy", "date_iso", "currency_suffix", "currency_prefix", "currency_fr", "currency_code",
+    "drop_digit", "insert_double_space", "trailing_space",
 })
 CURRENCY_CODE = "CAD"
 CLASS_NAME = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
@@ -63,6 +65,22 @@ def _strip_accents(value: str, rng: random.Random) -> str:
     decomposed = unicodedata.normalize("NFD", value)
     return unicodedata.normalize(
         "NFC", "".join(char for char in decomposed if unicodedata.category(char) != "Mn"))
+
+
+def _drop_digit(value: str, rng: random.Random) -> str:
+    spots = [i for i, char in enumerate(value) if char.isdigit()]
+    if not spots or len(value) < 2:
+        return value
+    spot = rng.choice(spots)
+    return value[:spot] + value[spot + 1:]
+
+
+def _insert_double_space(value: str, rng: random.Random) -> str:
+    spots = [i for i in range(1, len(value)) if value[i - 1] != " " and value[i] != " "]
+    if not spots:
+        return value
+    spot = rng.choice(spots)
+    return f"{value[:spot]}  {value[spot:]}"
 
 
 def _letter_spots(value: str) -> list[int]:
@@ -173,6 +191,9 @@ TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "currency_prefix": _currency_prefix,
     "currency_fr": _currency_fr,
     "currency_code": _currency_code,
+    "drop_digit": _drop_digit,
+    "insert_double_space": _insert_double_space,
+    "trailing_space": lambda value, rng: value if value.endswith(" ") else f"{value} ",
 }
 
 
@@ -232,7 +253,7 @@ def _mutate(row: dict[str, str], operation: Mapping[str, object],
         return {column: rng.choice(choices)} if choices else {}
     if kind == "swap":
         other = cast(str, operation["value"])
-        return {column: row[other], other: before} if before != row[other] else {}
+        return {column: row[other], other: before} if before and row[other] and before != row[other] else {}
     if operation["value"] in {"unit_gb", "unit_suffix"}:
         if not re.fullmatch(r"[+-]?\d+(?:\.\d+)?", before):
             return {}
@@ -246,6 +267,59 @@ def _mutate(row: dict[str, str], operation: Mapping[str, object],
     return {column: after} if before and after != before else {}
 
 
+def _can_apply(row: dict[str, str], operation: Mapping[str, object], row_index: int,
+               probe: random.Random, locale: str,
+               unit_suffixes: Mapping[str, tuple[str, str]] | None) -> bool:
+    """Tell whether an operation would change this clean row."""
+    when = cast(dict[str, str], operation.get("when", {}))
+    if any(row.get(field) != value for field, value in when.items()):
+        return False
+    kind = operation["kind"]
+    if kind == "duplicate_row":
+        return row_index > 0
+    if kind == "duplicate":
+        return row_index > 0 and bool(row[cast(str, operation["column"])])
+    return bool(_mutate(row, operation, {}, probe, locale, unit_suffixes))
+
+
+def _choose_rows(clean: Path, delimiter: str, operations: Sequence[Mapping[str, object]],
+                 rows: int, selection_rngs: Sequence[random.Random], where: str, locale: str,
+                 unit_suffixes: Mapping[str, tuple[str, str]] | None) -> dict[int, set[int]]:
+    """Pick exactly ``count`` rows for every absolute-count operation.
+
+    One read of the clean file marks the rows each operation can change; the
+    picks then follow the profile order and never share a row, so a row carries
+    one class and an operation changes exactly its ``count`` rows. Operations
+    with ``rate`` are not involved. Raises ValueError when fewer rows are left.
+    """
+    indexes = [i for i, operation in enumerate(operations) if "count" in operation]
+    if not indexes:
+        return {}
+    eligible = {i: bytearray(rows) for i in indexes}
+    probe = random.Random(0)
+    with clean.open("r", encoding="utf-8", newline="") as source:
+        for row_index, row in enumerate(csv.DictReader(source, delimiter=delimiter)):
+            if row_index >= rows:
+                break
+            for i in indexes:
+                if _can_apply(row, operations[i], row_index, probe, locale, unit_suffixes):
+                    eligible[i][row_index] = 1
+    claimed = bytearray(rows)
+    chosen: dict[int, set[int]] = {}
+    for i in indexes:
+        pool = [r for r in compress(range(rows), eligible[i]) if not claimed[r]]
+        wanted = cast(int, operations[i]["count"])
+        if len(pool) < wanted:
+            raise ValueError(
+                f"{where}: operation {i + 1} asks for count {wanted} but only {len(pool)} "
+                f"rows can take it (not already used by an earlier count operation)")
+        picked = selection_rngs[i].sample(pool, wanted)
+        for r in picked:
+            claimed[r] = 1
+        chosen[i] = set(picked)
+    return chosen
+
+
 def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                      dataset: str, profile: Mapping[str, object], seed: int, count: int,
                      delimiter: str, locale: str = "en",
@@ -253,8 +327,10 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     """Write altered CSV and cell log; return requested and actual counts.
 
     Computer unit suffixes are supplied by its output register. An operation
-    selects ``round(count * rate)`` rows, or exactly its own absolute ``count``,
-    so a fixed ``count`` touches the same number of rows in any file size.
+    selects ``round(count * rate)`` rows at random, or, with an absolute
+    ``count``, exactly that many rows among those it can change (see
+    ``_choose_rows``), so a fixed ``count`` changes the same number of rows in
+    any file size.
     The journal gains a ``class`` column only when an operation declares one,
     which keeps the files of profiles without classes byte for byte unchanged.
     A ``duplicate_row`` operation runs after the other operations of its row and
@@ -281,6 +357,8 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     remaining = requested.copy()
     selection_rngs = [_stream(seed, dataset, f"{profile_id}:{index}",
                               "anomaly_selection") for index in range(len(operations))]
+    chosen = _choose_rows(clean, delimiter, operations, count, selection_rngs,
+                          f"{profile_id} on {dataset}", locale, unit_suffixes)
     mutation_rngs = [_stream(seed, dataset, f"{profile_id}:{index}", "anomaly_value")
                      for index in range(len(operations))]
     applied: Counter[int] = Counter()
@@ -314,13 +392,17 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
             pending: list[tuple[int, list[tuple[str, str, str, str]]]] = []
             for index in order:
                 operation = operations[index]
-                rows_left = count - row_index
-                selected = (remaining[index] == rows_left or
-                            (remaining[index] > 0 and
-                             selection_rngs[index].random() < remaining[index] / rows_left))
-                if not selected:
-                    continue
-                remaining[index] -= 1
+                if index in chosen:
+                    if row_index not in chosen[index]:
+                        continue
+                else:
+                    rows_left = count - row_index
+                    selected = (remaining[index] == rows_left or
+                                (remaining[index] > 0 and
+                                 selection_rngs[index].random() < remaining[index] / rows_left))
+                    if not selected:
+                        continue
+                    remaining[index] -= 1
                 when = cast(dict[str, str], operation.get("when", {}))
                 if any(row.get(field) != value for field, value in when.items()):
                     skipped[index] += 1

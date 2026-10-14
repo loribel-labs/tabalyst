@@ -196,15 +196,20 @@ call `operation_option_error` and share `OPERATION_KINDS`, `FORMAT_VALUES` and
 `generate_values` lazily, since that module reaches `generate_definition`.
 
 - **`count`.** An operation has exactly one of `rate` and `count`. `count` is a
-  positive integer, the number of rows to select, whatever the file size
-  (the decision of 2026-10-14 is that defects are absolute numbers, not
-  proportions). A `count` above the dataset's row count fails at planning
-  (`PACKAGE_ANOMALY`), only for the selected profile, and again in the engine.
-  Selection is the same seeded stream as for `rate`. A selected row whose
-  cell cannot take the change (condition `when` not met, no hyphen to double)
-  is counted in `skipped_rows`; the engine does not look for another row, so
-  a class that must reach an exact number needs a target column where every
-  row is eligible.
+  positive integer, the number of rows to change, whatever the file size (the
+  decision of 2026-10-14 is that defects are absolute numbers, not proportions).
+  A `count` above the dataset's row count fails at planning (`PACKAGE_ANOMALY`),
+  only for the selected profile. Lot G1c: `_choose_rows` reads the clean CSV once,
+  marks for each count operation the rows it can change (`when` holds and the
+  mutation, run on the clean row, gives a different cell; `duplicate_row` needs a
+  row above the first), then picks exactly `count` of them per operation, in
+  profile order, among rows no earlier count operation took. One row therefore
+  carries one count class, and `applied_rows` equals `count` unless a `rate`
+  operation of the same profile changed the cell first. Fewer rows left than
+  `count` is a `ValueError` from the engine (`ReportError` in the service) before
+  the result is published. Operations with `rate` keep the streaming selection,
+  skips included, so shipped profiles are unchanged. The pre-pass costs one extra
+  read of the staged file and one byte per row and count operation.
 - **`class`.** Optional lower-case identifier (at most 64 characters), shared
   freely by several operations. When at least one operation of the profile has
   a class, `changes.csv` gains a last `class` column (empty for operations
@@ -227,6 +232,10 @@ call `operation_option_error` and share `OPERATION_KINDS`, `FORMAT_VALUES` and
   already formatted: `currency_suffix` (`1234.18 $`), `currency_prefix` (`$1234.18`, `-$12.5`),
   `currency_fr` (space as thousands separator, decimal comma, `1 234,18 $`) and `currency_code`
   (`1234.18 CAD`, the code is `CURRENCY_CODE`). An ineligible cell is skipped, as for G1 values.
+- **Values added in lot G1c.** `drop_digit` removes one digit (cell of two characters or
+  more), `insert_double_space` inserts two spaces inside a word, `trailing_space` appends one.
+  `swap` now needs both cells filled and different: exchanging with an empty cell was an
+  erasure, which `set_missing` already does. No shipped profile used `swap`.
 - **`duplicate_row`.** Replaces the selected row with an exact copy of a row
   already written, drawn from the last 1,000 output rows (altered rows count
   as written). The file keeps its row count. The journal lists the cells that

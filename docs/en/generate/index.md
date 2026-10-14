@@ -96,10 +96,11 @@ anomaly_profiles:
 
 Use `count` when a defect must stay as rare in a large file as in a small one:
 `count: 1` changes one row at 3,000 rows and at 100,000 rows, while `rate`
-grows with the file. A row picked for a request that cannot apply (see
-below) is skipped and no other row is drawn, so the changes made can be fewer
-than `count`; the summary says how many. A `count` larger than the number of rows stops the
-command before anything is written. An optional `class` (a lower-case
+grows with the file. An operation with `count` picks its rows among those it
+can change (the `when` condition holds and the cell accepts the change), and
+two `count` operations never pick the same row, so each defective row belongs
+to one class. A `count` larger than the number of rows, or than the rows left for the
+operation, stops the command; a result file is never half written. An optional `class` (a lower-case
 identifier) names the defect; it is copied to a `class` column of the
 `*.changes.csv` file and to the summary. A profile with no `class` writes the
 same files as before.
@@ -109,7 +110,7 @@ same files as before.
 | `set_missing` | Empties a cell. |
 | `replace` | Sets the cell to the literal `value`. |
 | `duplicate` | Copies a value from an earlier row of the same column. |
-| `swap` | Exchanges the cell with the column named by `value`. |
+| `swap` | Exchanges the cell with the column named by `value`, when both are filled and differ. |
 | `format` | Rewrites the cell as `value` says (below). |
 | `duplicate_row` | Replaces the row with an exact copy of an earlier output row. It takes no `column` and no `value`, and runs after the other operations of the row: a row it replaces loses their changes, which the summary then counts as skipped. |
 
@@ -117,17 +118,17 @@ The `format` values are `upper`, `lower`, `strip`, `date_slash`,
 `phone_spaces`, `insert_space` (a space inside a word), `double_space` (the
 first space doubled), `drop_char` (one character removed), `double_hyphen`
 (the first hyphen doubled), `suffix_x` (appends `_X`), `strip_accents`,
-`negate` (a minus sign before a non-zero number), `leading_apostrophe`,
-`double_char` (one letter written twice), `swap_first_two`, `transpose` (two
+`negate` (a minus sign before a non-zero number), `leading_apostrophe`, `drop_digit`, `insert_double_space`,
+`trailing_space`, `double_char` (one letter written twice), `swap_first_two`, `transpose` (two
 adjacent letters exchanged), `replace_char` (one letter replaced by another of
 the same case), `phone_double_space` (`+1-514-...` becomes `+1  514-...`),
 `date_dmy` (`2024-03-31` to `31-03-2024`), `date_iso` (the reverse) and, for a
 plain decimal number, `currency_suffix` (`1234.18 $`), `currency_prefix`
 (`$1234.18`), `currency_fr` (`1 234,18 $`) and `currency_code` (`1234.18 CAD`).
 An optional `when: {column: text}` limits an operation to rows whose cell
-equals the text. A request that cannot apply, such as `double_hyphen` on a
-cell without a hyphen, is not counted as a defect: the summary reports the
-rows requested, applied and skipped for every operation.
+equals the text. With `rate`, a request that cannot apply, such as
+`double_hyphen` on a cell without a hyphen, is not counted as a defect. The
+summary reports the rows requested, applied and skipped for every operation.
 
 Choose `-o` only when the result is one clean CSV. Use `-d` for multiple CSVs
 or an anomaly profile. Existing output files require `--force`. Nothing is

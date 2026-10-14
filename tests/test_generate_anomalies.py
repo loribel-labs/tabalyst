@@ -79,7 +79,7 @@ def test_ineligible_cell_is_counted_as_skipped_and_left_unchanged(
         tmp_path: Path, transform: str, value: str) -> None:
     altered, changes, summary = _inject(
         tmp_path, _each_row([value] * 4),
-        [{"kind": "format", "column": "v", "value": transform, "count": 4}])
+        [{"kind": "format", "column": "v", "value": transform, "rate": 1.0}])
     assert [row["v"] for row in altered] == [value] * 4
     assert changes == []
     entry = summary["operations"][0]  # type: ignore[index]
@@ -109,7 +109,7 @@ def test_duplicate_row_copies_an_earlier_output_row_without_changing_the_row_cou
         tmp_path: Path) -> None:
     rows = _each_row([f"value-{i}" for i in range(30)])
     altered, changes, summary = _inject(
-        tmp_path, rows, [{"kind": "duplicate_row", "count": 30, "class": "copies"}])
+        tmp_path, rows, [{"kind": "duplicate_row", "rate": 1.0, "class": "copies"}])
     assert len(altered) == 30
     entry = summary["operations"][0]  # type: ignore[index]
     # The first row has no earlier row to copy.
@@ -130,8 +130,8 @@ def test_duplicate_row_respects_its_absolute_count_and_when_condition(tmp_path: 
     altered, changes, summary = _inject(
         tmp_path, rows, [{"kind": "duplicate_row", "count": 6, "when": {"v": "a"}}])
     entry = summary["operations"][0]  # type: ignore[index]
-    assert entry["requested_rows"] == 6
-    assert entry["applied_rows"] + entry["skipped_rows"] == 6
+    assert (entry["requested_rows"], entry["applied_rows"], entry["skipped_rows"]) == (6, 6, 0)
+    assert all(row["v"] == "a" for row in altered if row not in rows)
     assert len(altered) == 40
     assert len({change["event_id"] for change in changes}) == entry["applied_rows"]
 
@@ -173,7 +173,7 @@ anomaly_profiles:
     targets: [people]
     operations:
       - {{kind: set_missing, column: city, count: 7, class: missing_city}}
-      - {{kind: format, column: id, value: double_hyphen, count: 2}}
+      - {{kind: format, column: id, value: suffix_x, count: 2}}
       - {{kind: replace, column: city, value: Oslo, count: 1, class: lone_city,
          when: {{city: Rome}}}}
 """
@@ -194,10 +194,9 @@ def test_absolute_count_touches_the_same_rows_at_any_file_size(tmp_path: Path) -
         assert [e["count"] for e in entries] == [7, 2, 1]
         assert [e["requested_rows"] for e in entries] == [7, 2, 1]
         assert all("rate" not in e for e in entries)
-        assert [e["applied_rows"] + e["skipped_rows"] for e in entries] == [7, 2, 1]
     assert small[0]["applied_rows"] == large[0]["applied_rows"] == 7
-    # The id column holds no hyphen: the request is made and reported as skipped.
-    assert (large[1]["applied_rows"], large[1]["skipped_rows"]) == (0, 2)
+    assert [e["applied_rows"] for e in small] == [e["applied_rows"] for e in large] == [7, 2, 1]
+    assert all(e["skipped_rows"] == 0 for e in small + large)
 
 
 @pytest.mark.parametrize(("operation", "message"), [
@@ -267,12 +266,12 @@ def test_duplicate_row_drops_the_earlier_changes_it_overwrites_from_journal_and_
     # The row operation is listed first on purpose: it must still run last.
     altered, changes, summary = _inject(
         tmp_path, rows,
-        [{"kind": "duplicate_row", "count": 40},
-         {"kind": "set_missing", "column": "v", "count": 40}])
+        [{"kind": "duplicate_row", "count": 20},
+         {"kind": "set_missing", "column": "v", "rate": 1.0}])
     copies, blanks = summary["operations"]  # type: ignore[misc]
-    assert copies["requested_rows"] == blanks["requested_rows"] == 40
-    for entry in (copies, blanks):
-        assert entry["applied_rows"] + entry["skipped_rows"] == 40
+    assert (copies["requested_rows"], blanks["requested_rows"]) == (20, 40)
+    assert copies["applied_rows"] == 20
+    assert blanks["applied_rows"] + blanks["skipped_rows"] == 40
     # A row is blanked or replaced by a copy, never both: the journal matches the file.
     assert copies["applied_rows"] > 0 and blanks["applied_rows"] > 0
     by_row: dict[str, dict[str, str]] = {}
@@ -335,7 +334,7 @@ def test_format_value_leaves_an_ineligible_cell_and_counts_it_skipped(
         tmp_path: Path, transform: str, value: str) -> None:
     altered, changes, summary = _inject(
         tmp_path, _each_row([value] * 3),
-        [{"kind": "format", "column": "v", "value": transform, "count": 3}])
+        [{"kind": "format", "column": "v", "value": transform, "rate": 1.0}])
     assert [row["v"] for row in altered] == [value] * 3
     assert changes == []
     assert summary["operations"][0]["skipped_rows"] == 3  # type: ignore[index]
@@ -375,7 +374,7 @@ def test_every_format_value_is_accepted_by_a_definition_and_runs(tmp_path: Path)
 
     plain = {"upper", "lower", "strip", "date_slash", "phone_spaces"}
     operations = "".join(
-        f"      - {{kind: format, column: id, value: {name}, count: 2}}\n"
+        f"      - {{kind: format, column: id, value: {name}, rate: 0.1}}\n"
         for name in sorted(FORMAT_VALUES - plain))
     text = COUNT_DEFINITION.format(rows=20).split("    operations:")[0] + (
         "    operations:\n" + operations)
@@ -385,3 +384,76 @@ def test_every_format_value_is_accepted_by_a_definition_and_runs(tmp_path: Path)
     summary = json.loads((out / "people.stress.summary.json").read_text(encoding="utf-8"))
     assert len(summary["operations"]) == len(FORMAT_VALUES - plain)
     assert all(e["requested_rows"] == 2 for e in summary["operations"])
+
+
+def test_count_picks_exactly_that_many_rows_among_those_that_can_change(
+        tmp_path: Path) -> None:
+    rows = [{"id": f"R{i:03d}", "branch": "a" if i % 10 == 0 else "b", "v": "x-y"}
+            for i in range(200)]
+    altered, changes, summary = _inject(
+        tmp_path, rows,
+        [{"kind": "format", "column": "v", "value": "double_hyphen", "count": 5,
+          "when": {"branch": "a"}, "class": "rare"}])
+    entry = summary["operations"][0]  # type: ignore[index]
+    assert (entry["requested_rows"], entry["applied_rows"], entry["skipped_rows"]) == (5, 5, 0)
+    assert {c["row_number"] for c in changes} <= {str(i + 2) for i in range(0, 200, 10)}
+    assert sum(row["v"] == "x--y" for row in altered) == 5
+
+
+def test_count_operations_never_share_a_row(tmp_path: Path) -> None:
+    rows = _each_row([f"value-{i}" for i in range(30)])
+    _, changes, summary = _inject(
+        tmp_path, rows,
+        [{"kind": "set_missing", "column": "v", "count": 15, "class": "first"},
+         {"kind": "format", "column": "v", "value": "suffix_x", "count": 15, "class": "second"}])
+    assert [e["applied_rows"] for e in summary["operations"]] == [15, 15]  # type: ignore[attr-defined]
+    by_row: dict[str, set[str]] = {}
+    for change in changes:
+        by_row.setdefault(change["row_number"], set()).add(change["class"])
+    assert len(by_row) == 30 and all(len(classes) == 1 for classes in by_row.values())
+
+
+def test_count_larger_than_the_rows_that_can_change_fails_before_writing_the_result(
+        tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="count 4 but only 3 rows can take it"):
+        _inject(tmp_path, _each_row(["a-b", "a-b", "a-b", "ab", "ab", "ab"]),
+                [{"kind": "format", "column": "v", "value": "double_hyphen", "count": 4}])
+    with pytest.raises(ValueError, match="count 2 but only 0 rows can take it"):
+        _inject(tmp_path, _each_row(["one", "one", "three", "four"]),
+                [{"kind": "set_missing", "column": "v", "count": 4},
+                 {"kind": "replace", "column": "id", "value": "R000", "count": 2,
+                  "when": {"v": "one"}}])
+
+
+def test_swap_needs_two_filled_cells(tmp_path: Path) -> None:
+    rows = [{"a": "1", "b": "2"}, {"a": "3", "b": ""}, {"a": "", "b": "4"}, {"a": "5", "b": "5"}]
+    altered, changes, summary = _inject(
+        tmp_path, rows, [{"kind": "swap", "column": "a", "value": "b", "rate": 1.0}])
+    assert altered == [{"a": "2", "b": "1"}, *rows[1:]]
+    assert summary["operations"][0]["skipped_rows"] == 3  # type: ignore[index]
+    assert len(changes) == 2
+
+
+@pytest.mark.parametrize(("transform", "value", "expected"), [
+    ("trailing_space", "auto", "auto "),
+    ("trailing_space", "auto ", None),
+    ("drop_digit", "CLI-00000281", None),
+    ("drop_digit", "CLI", None),
+    ("drop_digit", "7", None),
+    ("insert_double_space", "Marie", None),
+    ("insert_double_space", "a b", "a b"),
+])
+def test_g1c_format_values(
+        tmp_path: Path, transform: str, value: str, expected: str | None) -> None:
+    altered, _, _ = _inject(
+        tmp_path, _each_row([value] * 6),
+        [{"kind": "format", "column": "v", "value": transform, "rate": 1.0}])
+    cells = {row["v"] for row in altered}
+    if expected is not None:
+        assert cells == {expected}
+    elif transform == "drop_digit" and value == "CLI-00000281":
+        assert all(len(cell) == len(value) - 1 and cell.startswith("CLI-") for cell in cells)
+    elif transform == "insert_double_space":
+        assert all(cell.replace("  ", "") == value and "  " in cell for cell in cells)
+    else:
+        assert cells == {value}
