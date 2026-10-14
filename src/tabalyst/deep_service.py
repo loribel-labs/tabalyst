@@ -282,6 +282,7 @@ def execute_deep(
                 index=index,
                 total=total,
                 duration_seconds=outcome.document.run.duration_seconds,
+                stage="Scan Deep",
             )
     return BatchDeepResult(preparation, tuple(successes), tuple(failures))
 

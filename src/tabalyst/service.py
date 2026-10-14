@@ -491,6 +491,7 @@ def _write_report(
     """Render and write the report artifacts of ``profile``; ``source`` names
     the analyzed file in the execution history, ``progress_source`` the input
     in progress events."""
+    rendering_started = perf_counter()
     result = profile.model_dump(mode="json")
     json_text = dump_json(result, indent=json_indent)
     emit_progress(on_progress, progress_source, ProgressPhase.RENDERING)
@@ -550,7 +551,13 @@ def _write_report(
         raise ReportError(
             f"Cannot update execution history {execution_report}: {exc}"
         ) from exc
-    emit_progress(on_progress, progress_source, ProgressPhase.COMPLETE)
+    emit_progress(
+        on_progress,
+        progress_source,
+        ProgressPhase.COMPLETE,
+        duration_seconds=perf_counter() - rendering_started,
+        stage="Report",
+    )
     return result
 
 

@@ -320,6 +320,7 @@ def generate_scans(
                 index=index,
                 total=total,
                 duration_seconds=result.run.duration_seconds,
+                stage="Scan",
             )
 
     return BatchScanResult(

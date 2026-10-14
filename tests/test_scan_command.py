@@ -431,6 +431,22 @@ def test_progress_printer_shows_the_share_read(capsys):
     assert "[1/2] data.csv - Reading 50%" in capsys.readouterr().err
 
 
+def test_progress_printer_names_the_stage_and_its_duration(capsys):
+    printer = ProgressPrinter(enabled=True)
+    printer(
+        ProgressEvent(
+            source=Path("data.csv"),
+            phase=ProgressPhase.COMPLETE,
+            index=1,
+            total=1,
+            duration_seconds=10.46,
+            stage="Scan",
+        )
+    )
+
+    assert "[1/1] data.csv - Scan : Complete (10.5s)" in capsys.readouterr().err
+
+
 # Oversized JSON numbers ---------------------------------------------------
 
 

@@ -460,6 +460,8 @@ def generate_reports(
                     detail=event.detail,
                     bytes_read=event.bytes_read,
                     bytes_total=event.bytes_total,
+                    duration_seconds=event.duration_seconds,
+                    stage=event.stage,
                 )
             )
 

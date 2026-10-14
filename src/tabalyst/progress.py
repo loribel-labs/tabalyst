@@ -31,6 +31,9 @@ class ProgressEvent:
     bytes_total: int | None = None
     # Processing time of the file, on completion of sources that report it.
     duration_seconds: float | None = None
+    # Pass the event belongs to ("Scan", "Scan Deep", "Report") for the commands
+    # that chain several; the terminal names it on the line.
+    stage: str | None = None
 
 
 ProgressCallback = Callable[[ProgressEvent], None]
@@ -47,6 +50,7 @@ def emit_progress(
     bytes_read: int | None = None,
     bytes_total: int | None = None,
     duration_seconds: float | None = None,
+    stage: str | None = None,
 ) -> None:
     if callback is not None:
         callback(
@@ -59,6 +63,7 @@ def emit_progress(
                 bytes_read=bytes_read,
                 bytes_total=bytes_total,
                 duration_seconds=duration_seconds,
+                stage=stage,
             )
         )
 

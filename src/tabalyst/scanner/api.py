@@ -356,5 +356,11 @@ def scan(
         ),
         observations=observations,
     )
-    emit_progress(on_progress, path, ProgressPhase.COMPLETE)
+    emit_progress(
+        on_progress,
+        path,
+        ProgressPhase.COMPLETE,
+        duration_seconds=duration,
+        stage="Scan",
+    )
     return result

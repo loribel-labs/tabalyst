@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from time import perf_counter
 
 from tabalyst.config import DeepMode, DeepSettings
 from tabalyst.deep_store import ConfirmationRequired, write_deep
@@ -192,6 +193,7 @@ def run_chain(
     source = chain.source if chain.source is not None else chain.deep_path
     where = progress_source or source
     selected = sum(1 for c in plan.candidates if c.selection.state == "selected")
+    deep_started = perf_counter()
     if selected:
         emit_progress(
             on_progress,
@@ -223,6 +225,14 @@ def run_chain(
         if chain.mode == "forced":
             raise
         return AnalysesBlock(mode=chain.mode, outcome="failed", reason=str(exc))
+    if selected:
+        emit_progress(
+            on_progress,
+            where,
+            ProgressPhase.COMPLETE,
+            duration_seconds=perf_counter() - deep_started,
+            stage="Scan Deep",
+        )
     reason = REASONS[chain.skip_reading] if chain.skip_reading and outcome.skipped else None
     return AnalysesBlock(
         mode=chain.mode,
