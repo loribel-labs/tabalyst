@@ -108,6 +108,17 @@ the pairs of date columns whose order the sample shows (`date_order`, 22 of the 
 seen, the other 5 have dates that stay ambiguous) and `smart` has a target for the pair: 8 seeds
 of 8 keep a row of the class at 100 and at 300 rows.
 
+## Typos of a category (lot S5)
+
+`smart` has a target for a frequent value with rare values one edit away from it (`near_value`, at most
+8% of the rows asked for, none under 75% of the mandatory targets). On this file the five typo classes
+(`ville_typo`, `nom_voie_typo`, `prenom_typo`, `nom_typo`, `code_postal_char_missing`) were kept already,
+by their number. Measured again on 2026-10-15: the 45 classes are still kept at 3,000 rows by every seed;
+at 300 rows the classes kept by at least one of 3 seeds go from 40.3 to 40.0 on average (two classes
+gain and four lose a seed: `claim_amount_zero`, `prenom_empty`, `nom_empty`, `nom_leading_apostrophe`),
+because 24 groups of typos take rows a sample of 300 would give to rare cells. That is a cost of the
+target, within what 3 seeds can tell.
+
 ## Known gaps
 
 None at 3,000 rows with seed 1: the list `expectations.gaps` of `case.json` is empty. Lot S4 recovered nine

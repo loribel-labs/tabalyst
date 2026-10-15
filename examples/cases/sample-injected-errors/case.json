@@ -25,7 +25,7 @@
     }
   },
   "measure": {
-    "sizes": [100, 200, 400],
+    "sizes": [100, 150, 200, 400],
     "unit": "share of runs that keep at least one injected row"
   },
   "expectations": {
@@ -51,14 +51,10 @@
       "rare_surname",
       "worst_row",
       "name_zero_width",
-      "name_replacement_char"
+      "name_replacement_char",
+      "city_typo"
     ],
-    "gaps": [
-      {
-        "class": "city_typo",
-        "reason": "the tail of the frequencies has one target per column, so one row of about 70 singletons"
-      }
-    ]
+    "gaps": []
   },
   "publish": {
     "site": false,

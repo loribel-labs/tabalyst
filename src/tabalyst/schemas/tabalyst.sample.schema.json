@@ -771,6 +771,7 @@
             "characteristic",
             "value_rare",
             "residual_value",
+            "near_value",
             "date_order",
             "relation_exception"
           ],
@@ -1284,6 +1285,12 @@
           "minimum": 0,
           "title": "Exact Value",
           "type": "number"
+        },
+        "near_value": {
+          "default": 4.0,
+          "minimum": 0,
+          "title": "Near Value",
+          "type": "number"
         }
       },
       "title": "SmartBaseWeights",
@@ -1291,7 +1298,7 @@
     },
     "SmartSettings": {
       "additionalProperties": false,
-      "description": "How the plan of a smart sample defines its targets (design 20.15).\n\nA column of at most ``max_enum_values`` distinct values gets one target per\nvalue, up to ``max_exact_values`` when the second pass counted every value\nexactly; a numeric column is cut into ``numeric_bins`` bins of equal width\nbetween its minimum and maximum. The plan keeps ``candidates_per_target`` rows\nper target in memory at most, in ``max_candidate_bytes`` bytes, and\n``reserve_share`` of the rows asked for are a reserve of ordinary rows, and the\n``worst_rows`` rows that cover the most weight of targets at once are kept in\nmemory too, whatever their rank for each target (0 turns that off). At most\n``max_targets`` targets are kept, the heaviest first.",
+      "description": "How the plan of a smart sample defines its targets (design 20.15).\n\nA column of at most ``max_enum_values`` distinct values gets one target per\nvalue, up to ``max_exact_values`` when the second pass counted every value\nexactly; a numeric column is cut into ``numeric_bins`` bins of equal width\nbetween its minimum and maximum. The plan keeps ``candidates_per_target`` rows\nper target in memory at most, in ``max_candidate_bytes`` bytes, and\n``reserve_share`` of the rows asked for are a reserve of ordinary rows, and the\n``worst_rows`` rows that cover the most weight of targets at once are kept in\nmemory too, whatever their rank for each target (0 turns that off). At most\n``max_targets`` targets are kept, the heaviest first. A text column whose values\nthe Scan or the second pass counted exactly (at most ``max_exact_values`` of\nthem) gets one target per frequent value that has rare values one edit away\n(the typos of a category), ``near_groups_per_column`` per column and\n``near_groups`` per dataset at most, and at most ``near_share`` of the rows asked\nfor (one row each at best), shared between the columns in turn, the heaviest\ngroups of each first (0 for any of the three turns them off).",
       "properties": {
         "max_enum_values": {
           "default": 100,
@@ -1334,6 +1341,27 @@
           "minimum": 0,
           "title": "Worst Rows",
           "type": "integer"
+        },
+        "near_groups_per_column": {
+          "default": 10,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Near Groups Per Column",
+          "type": "integer"
+        },
+        "near_groups": {
+          "default": 100,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Near Groups",
+          "type": "integer"
+        },
+        "near_share": {
+          "default": 0.08,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Near Share",
+          "type": "number"
         },
         "max_targets": {
           "default": 10000,
@@ -1561,7 +1589,7 @@
     },
     "Summary": {
       "additionalProperties": false,
-      "description": "Counts of the targets kept. ``dropped`` are the ones the budget of\ntargets left out, the lightest first (SMART-11).",
+      "description": "Counts of the targets kept. ``dropped`` are the ones the budget of\ntargets left out, the lightest first (SMART-11), and the groups of near values\nover their caps (``near_groups_per_column``, ``near_groups``).",
       "properties": {
         "targets": {
           "title": "Targets",

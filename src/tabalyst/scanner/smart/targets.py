@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from typing import Literal
+from typing import Literal, NamedTuple
 
 from tabalyst.config import SmartSettings
 from tabalyst.scanner.models import (
@@ -52,6 +52,7 @@ from tabalyst.scanner.smart.models import (
     PredicateKind,
     Target,
 )
+from tabalyst.scanner.smart.near import NearGroup, near_groups
 from tabalyst.scanner.smart.weights import BaseKind, weight_of
 
 # More periods than this are a distribution, not a list of targets.
@@ -106,6 +107,10 @@ MAX_RESIDUAL_VALUES = 20
 # small sample with them (the first columns win).
 MAX_RESIDUAL_TARGETS = 100
 MAX_RESIDUAL_SHARE = 0.2
+# Groups of near values (typos of a category) are optional signals: a sample smaller than
+# this share of its mandatory targets cannot hold even those, and a typo would take the
+# place of a value of a list (measured on the case of injected errors at 100 rows).
+NEAR_MIN_MANDATORY_SHARE = 0.75
 
 # Analyzers of the second pass that bring or sharpen the targets of a family.
 ENRICHES: dict[str, Family] = {
@@ -121,6 +126,19 @@ class TargetSet:
 
     targets: list[Target] = dataclass_field(default_factory=list)
     catalogs: list[Catalog] = dataclass_field(default_factory=list)
+    # Groups of near values over the caps of the settings, counted in the plan.
+    capped: int = 0
+
+
+class _NearSource(NamedTuple):
+    """The ``(text, rows)`` table a column's near values are looked for in, and how a
+    target names the entries of the table it is made of."""
+
+    table: list[tuple[str, int]]
+    ids: list[int]
+    source: Literal["scan", "second_pass"]
+    ref: str
+    origin: str | None
 
 
 def _share(count: int, records: int) -> float | None:
@@ -138,7 +156,9 @@ class _Builder:
         dataset: DatasetResult,
         deep: DeepResult | None,
         settings: SmartSettings,
+        size: int | None = None,
     ) -> None:
+        self.size = size
         self.scan = scan
         self.dataset = dataset
         self.deep = deep
@@ -149,11 +169,16 @@ class _Builder:
         # Columns whose every value has a target: the other families have
         # nothing to add to them.
         self.enumerated: set[str] = set()
+        # Columns with one mandatory target per value: their typos are values of the list.
+        self.listed_whole: set[str] = set()
         # Columns that already have a target for their empty cells: the
         # observation of missing values would only repeat it.
         self.missing_targeted: set[str] = set()
         # Targets made from the values a detector leaves out, in the whole dataset.
         self.residual_targets = 0
+        # The columns that have groups of near values, in file order, until the rows
+        # asked for are shared between them.
+        self.near_candidates: list[tuple[FieldResult, _NearSource, list[NearGroup]]] = []
         # Several tables can share the same two columns (one per feature), so the
         # analyses are a list, not a map keyed by the columns.
         self.analyses: list[AnalysisResult] = []
@@ -316,6 +341,7 @@ class _Builder:
         )
         if exhaustive:
             self.enumerated.add(field.id)
+            self.listed_whole.add(field.id)
 
     def missing_target(self, field: FieldResult, obligation: Obligation) -> int:
         """The target of the empty cells of a column, when it has some; how many
@@ -677,6 +703,109 @@ class _Builder:
             params={"max_count": 1},
         )
 
+    def near_source(self, field: FieldResult) -> _NearSource | None:
+        """The exact values of a text column: the list of the Scan when it holds every
+        value, else the table of the second pass, with at most ``max_exact_values``
+        values either way. ``None`` for a column whose values are not all known."""
+        limit = self.settings.max_exact_values
+        samples = field.values.samples
+        if (
+            samples.selection == "all"
+            and samples.kept == samples.of
+            and samples.long_texts is None
+            and isinstance(field.values.cardinality, CardinalityComplete)
+        ):
+            listed = samples.listed
+            if 0 < len(listed) <= limit and all(
+                e.type == "string" and e.count_accuracy == "exact" for e in listed
+            ):
+                return _NearSource(
+                    [(e.value, e.count) for e in listed],
+                    [e.id for e in listed],
+                    "scan",
+                    f"datasets/{self.dataset.id}/fields/{field.id}/values/samples",
+                    None,
+                )
+            return None
+        analysis = self.analysis("exact_frequencies", field.id)
+        table = analysis.result if analysis is not None else None
+        if (
+            analysis is None
+            or not isinstance(table, FrequencyTable)
+            or not 0 < len(table.values) == table.distinct <= limit
+            or any(entry.type != "string" for entry in table.values)
+            or len({entry.value for entry in table.values}) < len(table.values)
+        ):
+            return None
+        return _NearSource(
+            [(e.value, e.count) for e in table.values],
+            list(range(len(table.values))),
+            "second_pass",
+            f"analyses/{analysis.id}",
+            analysis.id,
+        )
+
+    def near_values(self, field: FieldResult) -> None:
+        """Remember the groups of near values of a text column: frequent values that have
+        rare values one edit away from them (``Longueuuil`` for ``Longueuil``). Each typo
+        is a value seen once or twice, which no other target names. ``share_near`` makes
+        the targets once every column is known."""
+        if not (
+            self.settings.near_groups_per_column
+            and self.settings.near_groups
+            and self.settings.near_share
+        ):
+            return
+        if field.technical_type.type not in ("text", "mixed") or field.values.count == 0:
+            return
+        found = self.near_source(field)
+        groups = near_groups(found.table) if found is not None else []
+        if found is not None and groups:
+            self.near_candidates.append((field, found, groups))
+
+    def share_near(self) -> None:
+        """One target per group, shared between the columns in turn (the heaviest group of
+        each first) up to ``near_groups`` in the dataset, ``near_groups_per_column`` in a
+        column and ``near_share`` of the rows asked for, so a small sample spends few rows
+        on typos and a large one more, and none below ``NEAR_MIN_MANDATORY_SHARE`` of its
+        mandatory targets. What the caps leave out is counted in the plan."""
+        budget = self.settings.near_groups
+        if self.size is not None:
+            mandatory = sum(t.obligation == "mandatory" for t in self.result.targets)
+            budget = min(budget, int(self.settings.near_share * self.size))
+            if self.size < NEAR_MIN_MANDATORY_SHARE * mandatory:
+                budget = 0
+        per_column = self.settings.near_groups_per_column
+        taken = [0] * len(self.near_candidates)
+        given = 0
+        while given < budget:
+            before = given
+            for k, (_, _, groups) in enumerate(self.near_candidates):
+                if given < budget and taken[k] < min(len(groups), per_column):
+                    taken[k] += 1
+                    given += 1
+            if given == before:
+                break
+        for (field, found, groups), count in zip(self.near_candidates, taken, strict=True):
+            for index, group in enumerate(groups[:count]):
+                self.add(
+                    "quality",
+                    [field.id],
+                    "near_value",
+                    str(index),
+                    base="near_value",
+                    frequency=self.counted(group.count, method="near_values"),
+                    evidence="exact" if found.source == "scan" else "second_pass",
+                    source=found.source,
+                    ref=found.ref,
+                    params={
+                        "of": found.ids[group.frequent],
+                        "entries": ",".join(str(found.ids[i]) for i in group.neighbours),
+                    },
+                    origin=found.origin,
+                )
+        self.result.capped += sum(len(groups) for _, _, groups in self.near_candidates) - given
+
     def characters(self, field: FieldResult) -> None:
         """One target per unexpected characteristic that only a few strings of the
         column have, with the exact count the Scan holds."""
@@ -888,16 +1017,24 @@ def build_targets(
     dataset: DatasetResult,
     deep: DeepResult | None,
     settings: SmartSettings,
+    size: int | None = None,
 ) -> TargetSet:
     """Every target of a dataset, the families in order, before the budget of
     targets and the sort. ``deep`` is a second-pass document that is current for
-    ``scan``, or ``None``."""
-    builder = _Builder(scan, dataset, deep, settings)
+    ``scan``, or ``None``. ``size`` is the number of rows asked for, which bounds the
+    groups of near values."""
+    builder = _Builder(scan, dataset, deep, settings, size)
     for field in dataset.fields:
         builder.low_cardinality(field)
     builder.structured_string()
     for field in dataset.fields:
-        if builder.withheld(field) or field.id in builder.enumerated:
+        if builder.withheld(field):
+            continue
+        # Also for a column with a target per value counted by the second pass: those are
+        # light and one for each typo, and a group says that the typos of a value matter.
+        if field.id not in builder.listed_whole:
+            builder.near_values(field)
+        if field.id in builder.enumerated:
             continue
         builder.lengths(field)
         builder.numeric(field)
@@ -905,6 +1042,7 @@ def build_targets(
         builder.characters(field)
         builder.tail(field)
         builder.residuals(field)
+    builder.share_near()
     builder.quality()
     builder.date_orders()
     builder.relations()

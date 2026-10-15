@@ -27,6 +27,7 @@ BaseKind = Literal[
     "remark",
     "character",
     "exact_value",
+    "near_value",
 ]
 
 

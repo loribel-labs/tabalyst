@@ -5508,6 +5508,44 @@ by 8 of 8 seeds at 100 rows, where none was. The 5 broken rows whose dates stay 
 **Left out.** A card of the Report for the order of the dates, chains (a date before a second that is before a third),
 tolerance (a date allowed to be a few days late), and the comparison of dates of different kinds.
 
+### 20.39 Typos of a category (lot S5)
+
+`smart/near.py` finds, in the exact values of a text column, the groups of a frequent value and the rare values one edit
+away from it (`Longueuuil` for `Longueuil`): the typos of a category, which no other target names because each is a value
+seen once or twice (`value_rare` is one target per column). `near_groups(table)` is a pure function of a table of
+`(text, rows)`: a value is frequent from `MIN_FREQUENT` (10) rows, rare up to `MAX_RARE` (2) rows and `MIN_LENGTH` (4)
+characters (and at most `MAX_LENGTH` 64: a longer text is a sentence, and the index would hold a thousand copies of it), and a frequent value must have `MIN_RATIO` (10) times the rows of its neighbour. An edit is an insertion, a
+deletion, a substitution or the exchange of two neighbouring characters (`one_edit`); texts that fold alike (case, accents,
+spaces; `fold`) are variants and belong to `variant_groups`. A rare value joins the most frequent value within one edit (a tie
+goes to the text that sorts first); candidates come from an index by deletion of one character, so the cost does not grow
+with the square of the values. A group lists 20 neighbours at most, the most frequent first; groups are sorted by the rows of
+their neighbours, then by the text of the frequent value, so the result does not depend on the order of the table.
+
+**Source.** `_Builder.near_source`: the list of the Scan when it holds every value (`samples.selection` `all`, complete
+cardinality, strings with exact counts), or the table `exact_frequencies` of the second pass when the list is truncated,
+with at most `smart.max_exact_values` values either way. A target of the list has `source` `scan`, `evidence` `exact` and
+names its entries by their `id`; one of the table has `source` `second_pass`, `origin` the analysis and names its entries by
+their position. Both carry `params` `of` (the frequent value) and `entries` (the neighbours, comma separated), so the evaluator
+needs no settings. A column with one mandatory target per value (`listed_whole`) has none; a column whose values have targets
+from the exact table (`exact_value`, 2 each) has one more per group.
+
+**Target.** `near_value`, family `quality`, base `near_value` (4), optional, `frequency.count` the rows of the neighbours. The
+evaluator (`Evaluator._near_value`) registers the position of the target under each neighbour (`tests.exact` by original
+text, `tests.analytic` by analytical text), so a row with any of them covers it; an entry that is not there makes the target
+unresolved (`reference_missing`).
+
+**Budget.** `share_near` makes the targets once every column is known: `smart.near_share` (0.08) of the rows asked for, at
+most `smart.near_groups` (100) in the dataset and `smart.near_groups_per_column` (10) in one column, shared between the
+columns in turn (the heaviest group of each first), none when the size is below `NEAR_MIN_MANDATORY_SHARE` (0.75) of the
+mandatory targets, and only the hard limits without a size. What the limits leave out is added to `dropped` of the family
+`quality` in the summary of the plan. Measured on `cases/sample-injected-errors` (12 seeds, `ville`): rows with a typo of
+the sample, with the groups and without, 6.3 and 6.3 at 100 rows, 11.3 and 8.8 at 150, 13.1 and 9.7 at 200, 20.5 and 13.6 at
+400; the classes kept do not fall (20.4 and 20.1 at 150). The rule of 75% comes from 100 rows, where every weight from 3 to 8
+cost 0.4 to 3 classes of anomalies. The weight 4 is the smallest that gains at 150 rows (2 and 3 gain half a row); from 5 up a share of 0.10 loses `city_case_variant` on some seeds at 150.
+
+**Left out.** Two edits, a typo that changes the length by more than one character, the neighbours of a number or a date, a
+group that names the frequent value in the report, and a target per rare value.
+
 ## 21. Original value domain (O32)
 
 Bottom-k, patterns and smart sampling rest on original values, decoded but

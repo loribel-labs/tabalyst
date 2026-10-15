@@ -595,6 +595,7 @@ class SmartBaseWeights(BaseModel):
     remark: float = Field(default=5.0, ge=0)
     character: float = Field(default=5.0, ge=0)
     exact_value: float = Field(default=2.0, ge=0)
+    near_value: float = Field(default=4.0, ge=0)
 
 
 class SmartWeights(BaseModel):
@@ -623,7 +624,13 @@ class SmartSettings(BaseModel):
     ``reserve_share`` of the rows asked for are a reserve of ordinary rows, and the
     ``worst_rows`` rows that cover the most weight of targets at once are kept in
     memory too, whatever their rank for each target (0 turns that off). At most
-    ``max_targets`` targets are kept, the heaviest first.
+    ``max_targets`` targets are kept, the heaviest first. A text column whose values
+    the Scan or the second pass counted exactly (at most ``max_exact_values`` of
+    them) gets one target per frequent value that has rare values one edit away
+    (the typos of a category), ``near_groups_per_column`` per column and
+    ``near_groups`` per dataset at most, and at most ``near_share`` of the rows asked
+    for (one row each at best), shared between the columns in turn, the heaviest
+    groups of each first (0 for any of the three turns them off).
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -634,6 +641,9 @@ class SmartSettings(BaseModel):
     candidates_per_target: int = Field(default=2, ge=1, le=3)
     reserve_share: float = Field(default=0.2, ge=0, le=0.9)
     worst_rows: int = Field(default=3, ge=0, le=100)
+    near_groups_per_column: int = Field(default=10, ge=0, le=1_000)
+    near_groups: int = Field(default=100, ge=0, le=100_000)
+    near_share: float = Field(default=0.08, ge=0, le=1)
     max_targets: int = Field(default=10_000, ge=1, le=1_000_000)
     max_candidate_bytes: int = Field(default=64 * 1024 * 1024, ge=1)
     weights: SmartWeights = Field(default_factory=SmartWeights)

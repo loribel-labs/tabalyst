@@ -161,6 +161,19 @@ strings have it. The values a text column holds once (its tail, where a typo
 lives) are one target per column: the sample keeps one of them, not each. A
 column whose values are nearly all different, such as an identifier, has none.
 
+A typo of a category has a target of its own. When the exact count of every value of
+a text column is known (the scan lists them all, or the second pass counted them, at
+most `smart.max_exact_values` of them), a frequent value with rare values one edit
+away from it (`Longueuuil` next to `Longueuil`) gets one target, covered by a row that
+holds any of those rare values. The frequent value has at least 10 rows and at least
+ten times those of each rare value, which has at most 2 rows and at least 4
+characters, and no text has more than 64; a difference of capitals, accents or spaces is a variant, not a typo. The
+sample spends at most `smart.near_share` of its rows on these targets (8% by
+default), shared between the columns in turn, and none when it is too small for the
+mandatory targets of the file. A column of 100 values or fewer, which has a mandatory
+target for each of them, has no such target, and the plan counts the groups its limits
+leave out.
+
 The rows that show the most anomalies at once are worst cases. A cover counts a
 target once, so a row that shows six anomalies would be left out once each of
 them had another row. The sample keeps up to `smart.worst_rows` such rows (3 by

@@ -48,6 +48,10 @@ Row = list[str]
 # Classes scored by the rows whose value occurs once in the source (a value seen
 # once is what a typo or a rare name is; the source holds some by itself).
 SINGLETONS: dict[str, str] = {"rare_surname": "nom"}
+# Classes scored by the typos of the column: a value of at most two rows one edit away from a
+# value of ten rows or more. The source holds about fifty of its own in ``ville``, so an injected
+# row cannot be told from them.
+TYPOS: dict[str, str] = {"city_typo": "ville"}
 BY_CONTENT: dict[str, tuple[str, Callable[[str], bool]]] = {
     "email_malformed": ("courriel", lambda v: re.fullmatch(r"[^@\s]+@[^@\s]+[.][^@\s]+", v) is None),
     "name_zero_width": ("prenom", lambda v: chr(0x200B) in v),
@@ -102,6 +106,31 @@ def operations(request: dict[str, object]) -> list[dict[str, object]]:
         base = {key: item for key, item in operation.items() if key != "values"}
         expanded.extend({**base, "value": value, "count": 1} for value in values)
     return expanded
+
+
+def _one_edit(a: str, b: str) -> bool:
+    """Whether the texts differ by one insertion, deletion, substitution or exchange of neighbours."""
+    if a == b or abs(len(a) - len(b)) > 1:
+        return False
+    if len(a) == len(b):
+        spots = [i for i, (x, y) in enumerate(zip(a, b, strict=True)) if x != y]
+        return len(spots) == 1 or (
+            len(spots) == 2 and spots[1] == spots[0] + 1 and a[spots[0]] == b[spots[1]] and a[spots[1]] == b[spots[0]]
+        )
+    shorter, longer = sorted((a, b), key=len)
+    spot = next((i for i, c in enumerate(shorter) if c != longer[i]), len(shorter))
+    return shorter[spot:] == longer[spot + 1 :]
+
+
+def typo_values(rows: list[Row], column: int) -> set[str]:
+    """The values of a column that are typos of a frequent value."""
+    counts = collections.Counter(row[column] for row in rows if row[column])
+    frequent = [value for value, count in counts.items() if count >= 10]
+    return {
+        value
+        for value, count in counts.items()
+        if count <= 2 and len(value) >= 4 and any(_one_edit(value, other) for other in frequent)
+    }
 
 
 def build(source: Path = SOURCE) -> tuple[list[str], list[Row], dict[str, list[int]], str]:
@@ -163,7 +192,8 @@ def score(sample_csv: Path, dirty: Path = DIRTY, truth: Path = TRUTH) -> dict[st
     cannot be told from the injected ones, so for ``missing_required`` the count
     is the number of sample rows whose contract identifier is empty. The classes
     of ``BY_CONTENT`` are scored the same way, by the property of the row, and
-    the classes of ``SINGLETONS`` count the sample rows whose value occurs once in the source.
+    the classes of ``SINGLETONS`` count the sample rows whose value occurs once in the source,
+    and ``TYPOS`` those whose value is a typo of a frequent value of the source.
     """
     header, source = _read(dirty)
     _, sample = _read(sample_csv)
@@ -181,6 +211,10 @@ def score(sample_csv: Path, dirty: Path = DIRTY, truth: Path = TRUTH) -> dict[st
             at = header.index(SINGLETONS[name])
             seen = collections.Counter(row[at] for row in source)
             result[name] = sum(1 for row in sample if seen[row[at]] == 1)
+        elif name in TYPOS:
+            at = header.index(TYPOS[name])
+            typos = typo_values(source, at)
+            result[name] = sum(1 for row in sample if row[at] in typos)
         elif name in BY_CONTENT:
             field, has = BY_CONTENT[name]
             result[name] = sum(1 for row in sample if has(row[header.index(field)]))

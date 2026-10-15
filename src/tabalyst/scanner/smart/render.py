@@ -52,7 +52,7 @@ def sampling_plan_text(plan: SamplingPlan, name: str) -> str:
         f"Targets: {summary.targets} ({summary.mandatory} mandatory, "
         f"{summary.optional} optional)"
         + (f", {summary.not_evaluable} the sample cannot recognize yet" if summary.not_evaluable else "")
-        + (f", {summary.dropped} left out by the budget of targets" if summary.dropped else "")
+        + (f", {summary.dropped} left out by the limits of the plan (budget of targets, groups of typos)" if summary.dropped else "")
         + ".",
     ]
     for family in summary.families:

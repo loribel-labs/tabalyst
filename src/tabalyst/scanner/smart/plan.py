@@ -253,8 +253,9 @@ def plan_sampling(
     target_dataset = _dataset(scan, dataset)
     status = _deep_status(scan, deep)
     usable = deep if status == "current" else None
-    built = build_targets(scan, target_dataset, usable, settings)
+    built = build_targets(scan, target_dataset, usable, settings, size)
     kept, catalogs, dropped = _budget(built.targets, built.catalogs, settings.max_targets)
+    dropped["quality"] += built.capped
 
     ready = [target for target in kept if target.feasibility == "ready"]
     records = target_dataset.record_count

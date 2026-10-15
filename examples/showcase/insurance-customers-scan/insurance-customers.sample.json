@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-15T05:11:40.454724Z",
-    "duration_seconds": 7.946638,
+    "started_at": "2026-10-15T06:59:08.458560Z",
+    "duration_seconds": 8.140779,
     "timings": {
-      "reading": 7.835276,
-      "selection": 0.056351,
-      "other": 0.055011
+      "reading": 8.022481,
+      "selection": 0.061256,
+      "other": 0.057042
     },
-    "peak_memory_bytes": 167264256,
+    "peak_memory_bytes": 167555072,
     "records_read": 100000,
     "cells_read": 3400000,
     "source_verified": true,
@@ -120,7 +120,7 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "f51bd3dcb9a03a35dba76fa2f477b35b4551f0a5c1a0b362895ec194760d7e28",
+    "plan_id": "3cb011991c877287d6ed43ddc13962711ced6bb607b6625afbbd2898235162a5",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
@@ -135,6 +135,9 @@
       "candidates_per_target": 2,
       "reserve_share": 0.2,
       "worst_rows": 3,
+      "near_groups_per_column": 10,
+      "near_groups": 100,
+      "near_share": 0.08,
       "max_targets": 10000,
       "max_candidate_bytes": 67108864,
       "weights": {
@@ -150,7 +153,8 @@
           "missing": 6.0,
           "remark": 5.0,
           "character": 5.0,
-          "exact_value": 2.0
+          "exact_value": 2.0,
+          "near_value": 4.0
         },
         "gain": 1.0,
         "floor": 1e-06,
@@ -158,12 +162,12 @@
         "unknown_rarity": 0.5
       }
     },
-    "settings_sha256": "edd1e8f52332deb61bdca66810be4a441c526b0bb31247307c6632f5a206ef1b",
+    "settings_sha256": "b7a8e38a815160700463120792876ed6a73bcb0c95ab19ea12645348d380ac33",
     "dataset": "rows",
     "size": {
       "requested": 3000,
       "mandatory_bound": 157,
-      "useful_maximum": 1848,
+      "useful_maximum": 1898,
       "records": 100000
     },
     "reserve": {
@@ -175,9 +179,9 @@
     "candidates": {
       "per_target": 2,
       "per_target_effective": 2,
-      "rows": 3556,
+      "rows": 3636,
       "row_bytes": 275,
-      "bytes_expected": 977900,
+      "bytes_expected": 999900,
       "budget_bytes": 67108864,
       "fits": true
     },
@@ -217,12 +221,12 @@
       ]
     },
     "summary": {
-      "targets": 1478,
+      "targets": 1518,
       "mandatory": 157,
-      "optional": 1321,
+      "optional": 1361,
       "not_evaluable": 0,
-      "dropped": 0,
-      "total_weight": 6881.103975,
+      "dropped": 124,
+      "total_weight": 7166.076014,
       "families": [
         {
           "family": "low_cardinality",
@@ -258,11 +262,11 @@
         },
         {
           "family": "quality",
-          "targets": 166,
+          "targets": 206,
           "mandatory": 0,
           "not_evaluable": 0,
-          "dropped": 0,
-          "total_weight": 1200.371394
+          "dropped": 124,
+          "total_weight": 1485.343433
         },
         {
           "family": "relations",
@@ -13432,6 +13436,393 @@
         ]
       },
       {
+        "id": "quality:rows:column_10:near_value:9",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_10"
+        ],
+        "displays": [
+          "nom_voie"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_10",
+          "params": {
+            "of": 45,
+            "entries": "111"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.333333,
+          "base": 4.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_10",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_3:near_value:2",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_3"
+        ],
+        "displays": [
+          "prenom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_3",
+          "params": {
+            "of": 5,
+            "entries": "175"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.333333,
+          "base": 4.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_3",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_3:near_value:3",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_3"
+        ],
+        "displays": [
+          "prenom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_3",
+          "params": {
+            "of": 10,
+            "entries": "174"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.333333,
+          "base": 4.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_3",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_3:near_value:4",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_3"
+        ],
+        "displays": [
+          "prenom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_3",
+          "params": {
+            "of": 85,
+            "entries": "177"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.333333,
+          "base": 4.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_3",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_3:near_value:5",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_3"
+        ],
+        "displays": [
+          "prenom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_3",
+          "params": {
+            "of": 140,
+            "entries": "212"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.333333,
+          "base": 4.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_3",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_3:near_value:6",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_3"
+        ],
+        "displays": [
+          "prenom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_3",
+          "params": {
+            "of": 141,
+            "entries": "178"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.333333,
+          "base": 4.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_3",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_3:near_value:7",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_3"
+        ],
+        "displays": [
+          "prenom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_3",
+          "params": {
+            "of": 119,
+            "entries": "179"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.333333,
+          "base": 4.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_3",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_3:near_value:8",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_3"
+        ],
+        "displays": [
+          "prenom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_3",
+          "params": {
+            "of": 49,
+            "entries": "180"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.333333,
+          "base": 4.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_3",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_3:near_value:9",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_3"
+        ],
+        "displays": [
+          "prenom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_3",
+          "params": {
+            "of": 9,
+            "entries": "181"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.333333,
+          "base": 4.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_3",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "structured_string:rows:column_16:pattern_matches:f7.p1",
         "family": "structured_string",
         "dataset": "rows",
@@ -13990,6 +14381,694 @@
         ]
       },
       {
+        "id": "quality:rows:column_10:near_value:2",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_10"
+        ],
+        "displays": [
+          "nom_voie"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_10",
+          "params": {
+            "of": 7,
+            "entries": "135,156"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_10",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_10:near_value:3",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_10"
+        ],
+        "displays": [
+          "nom_voie"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_10",
+          "params": {
+            "of": 6,
+            "entries": "158,173"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_10",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_10:near_value:4",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_10"
+        ],
+        "displays": [
+          "nom_voie"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_10",
+          "params": {
+            "of": 8,
+            "entries": "139,140"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_10",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_10:near_value:5",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_10"
+        ],
+        "displays": [
+          "nom_voie"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_10",
+          "params": {
+            "of": 4,
+            "entries": "141,149"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_10",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_10:near_value:6",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_10"
+        ],
+        "displays": [
+          "nom_voie"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_10",
+          "params": {
+            "of": 30,
+            "entries": "143,144"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_10",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_10:near_value:7",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_10"
+        ],
+        "displays": [
+          "nom_voie"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_10",
+          "params": {
+            "of": 9,
+            "entries": "164,165"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_10",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_10:near_value:8",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_10"
+        ],
+        "displays": [
+          "nom_voie"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_10",
+          "params": {
+            "of": 15,
+            "entries": "166,176"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_10",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_13:near_value:6",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_13"
+        ],
+        "displays": [
+          "ville"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_13",
+          "params": {
+            "of": 26,
+            "entries": "79,80"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_13",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_13:near_value:7",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_13"
+        ],
+        "displays": [
+          "ville"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_13",
+          "params": {
+            "of": 2,
+            "entries": "91,102"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_13",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_13:near_value:8",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_13"
+        ],
+        "displays": [
+          "ville"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_13",
+          "params": {
+            "of": 28,
+            "entries": "109,110"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_13",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_13:near_value:9",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_13"
+        ],
+        "displays": [
+          "ville"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_13",
+          "params": {
+            "of": 22,
+            "entries": "112,113"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_13",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_3:near_value:1",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_3"
+        ],
+        "displays": [
+          "prenom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_3",
+          "params": {
+            "of": 117,
+            "entries": "206,219"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_3",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_4:near_value:6",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_4"
+        ],
+        "displays": [
+          "nom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_4",
+          "params": {
+            "of": 13,
+            "entries": "135"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_4",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_4:near_value:7",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_4"
+        ],
+        "displays": [
+          "nom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_4",
+          "params": {
+            "of": 2,
+            "entries": "148,154"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_4",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_4:near_value:8",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_4"
+        ],
+        "displays": [
+          "nom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_4",
+          "params": {
+            "of": 44,
+            "entries": "167,168"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_4",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_4:near_value:9",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_4"
+        ],
+        "displays": [
+          "nom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_4",
+          "params": {
+            "of": 8,
+            "entries": "169,214"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.132647,
+          "base": 4.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_4",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "structured_string:rows:column_16:pattern_matches:f6.p1",
         "family": "structured_string",
         "dataset": "rows",
@@ -14295,6 +15374,522 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_10:near_value:1",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_10"
+        ],
+        "displays": [
+          "nom_voie"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_10",
+          "params": {
+            "of": 2,
+            "entries": "137,138,174"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_10",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_13:near_value:2",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_13"
+        ],
+        "displays": [
+          "ville"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_13",
+          "params": {
+            "of": 3,
+            "entries": "84,86,123"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_13",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_13:near_value:3",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_13"
+        ],
+        "displays": [
+          "ville"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_13",
+          "params": {
+            "of": 19,
+            "entries": "83,87,130"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_13",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_13:near_value:4",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_13"
+        ],
+        "displays": [
+          "ville"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_13",
+          "params": {
+            "of": 36,
+            "entries": "90,120,129"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_13",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_13:near_value:5",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_13"
+        ],
+        "displays": [
+          "ville"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_13",
+          "params": {
+            "of": 10,
+            "entries": "103,104,131"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_13",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_3:near_value:0",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_3"
+        ],
+        "displays": [
+          "prenom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_3",
+          "params": {
+            "of": 64,
+            "entries": "194,198,199"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_3",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_4:near_value:0",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_4"
+        ],
+        "displays": [
+          "nom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_4",
+          "params": {
+            "of": 25,
+            "entries": "136,140"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_4",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_4:near_value:1",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_4"
+        ],
+        "displays": [
+          "nom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_4",
+          "params": {
+            "of": 31,
+            "entries": "142,143,188"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_4",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_4:near_value:2",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_4"
+        ],
+        "displays": [
+          "nom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_4",
+          "params": {
+            "of": 7,
+            "entries": "149,150,192"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_4",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_4:near_value:3",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_4"
+        ],
+        "displays": [
+          "nom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_4",
+          "params": {
+            "of": 18,
+            "entries": "152,153,208"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_4",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_4:near_value:4",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_4"
+        ],
+        "displays": [
+          "nom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_4",
+          "params": {
+            "of": 48,
+            "entries": "156,158,189"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_4",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_4:near_value:5",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_4"
+        ],
+        "displays": [
+          "nom"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_4",
+          "params": {
+            "of": 6,
+            "entries": "161,164,165"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.015252,
+          "base": 4.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_4",
         "needs": [
           "scan",
           "second_pass"
@@ -14809,6 +16404,49 @@
         ]
       },
       {
+        "id": "quality:rows:column_10:near_value:0",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_10"
+        ],
+        "displays": [
+          "nom_voie"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_10",
+          "params": {
+            "of": 10,
+            "entries": "121,129,130,132"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 4,
+          "share": 4e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.93196,
+          "base": 4.0,
+          "rarity": 0.73299,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_10",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "structured_string:rows:column_1:pattern_matches:f3.p3",
         "family": "structured_string",
         "dataset": "rows",
@@ -14972,6 +16610,92 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_13:near_value:0",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_13"
+        ],
+        "displays": [
+          "ville"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_13",
+          "params": {
+            "of": 0,
+            "entries": "96,97,99,100,101"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 5e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.867353,
+          "base": 4.0,
+          "rarity": 0.716838,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_13",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_13:near_value:1",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_13"
+        ],
+        "displays": [
+          "ville"
+        ],
+        "predicate": {
+          "kind": "near_value",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/exact_frequencies:rows:column_13",
+          "params": {
+            "of": 1,
+            "entries": "74,105,106,107"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 5e-05,
+          "method": "near_values"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.867353,
+          "base": 4.0,
+          "rarity": 0.716838,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "exact_frequencies:rows:column_13",
         "needs": [
           "scan",
           "second_pass"
@@ -62921,13 +64645,13 @@
   },
   "selection": {
     "rows": 3000,
-    "by_cover": 528,
-    "by_worst": 2,
-    "by_reserve": 2470,
+    "by_cover": 523,
+    "by_worst": 3,
+    "by_reserve": 2474,
     "shortfall": 0,
     "reserve": {
       "planned": 600,
-      "taken": 2470,
+      "taken": 2474,
       "adjusted": true
     },
     "pool": {
@@ -62940,13 +64664,13 @@
   },
   "coverage": {
     "scope": "target_catalog",
-    "defined": 1478,
-    "evaluable": 1478,
-    "observed": 1478,
-    "covered": 1478,
+    "defined": 1518,
+    "evaluable": 1518,
+    "observed": 1518,
+    "covered": 1518,
     "weighted": {
-      "total": 6881.103975,
-      "covered": 6881.103975,
+      "total": 7166.076014,
+      "covered": 7166.076014,
       "share": 1.0
     },
     "mandatory": {
@@ -62989,11 +64713,11 @@
       },
       {
         "family": "quality",
-        "defined": 166,
-        "evaluable": 166,
-        "covered": 166,
-        "weight": 1200.371394,
-        "weight_covered": 1200.371394
+        "defined": 206,
+        "evaluable": 206,
+        "covered": 206,
+        "weight": 1485.343433,
+        "weight_covered": 1485.343433
       },
       {
         "family": "relations",
@@ -63007,8 +64731,8 @@
     "missing": [],
     "missing_total": 0,
     "verification": {
-      "checked": 1457,
-      "agreed": 1457,
+      "checked": 1497,
+      "agreed": 1497,
       "disagreed": []
     }
   },
@@ -65443,6 +67167,78 @@
       "agrees": true
     },
     {
+      "id": "quality:rows:column_10:near_value:9",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_3:near_value:2",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_3:near_value:3",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_3:near_value:4",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_3:near_value:5",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_3:near_value:6",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_3:near_value:7",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_3:near_value:8",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_3:near_value:9",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
       "id": "structured_string:rows:column_16:pattern_matches:f7.p1",
       "status": "covered",
       "observed": 1,
@@ -65547,6 +67343,134 @@
       "agrees": true
     },
     {
+      "id": "quality:rows:column_10:near_value:2",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_10:near_value:3",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_10:near_value:4",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_10:near_value:5",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_10:near_value:6",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_10:near_value:7",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_10:near_value:8",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_13:near_value:6",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_13:near_value:7",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_13:near_value:8",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_13:near_value:9",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_3:near_value:1",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_4:near_value:6",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_4:near_value:7",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_4:near_value:8",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_4:near_value:9",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
       "id": "structured_string:rows:column_16:pattern_matches:f6.p1",
       "status": "covered",
       "observed": 2,
@@ -65600,6 +67524,102 @@
       "observed": 355,
       "candidates": 2,
       "expected": 355,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_10:near_value:1",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_13:near_value:2",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_13:near_value:3",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_13:near_value:4",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_13:near_value:5",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_3:near_value:0",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_4:near_value:0",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_4:near_value:1",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_4:near_value:2",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_4:near_value:3",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_4:near_value:4",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_4:near_value:5",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
       "agrees": true
     },
     {
@@ -65699,6 +67719,14 @@
       "agrees": true
     },
     {
+      "id": "quality:rows:column_10:near_value:0",
+      "status": "covered",
+      "observed": 4,
+      "candidates": 2,
+      "expected": 4,
+      "agrees": true
+    },
+    {
       "id": "structured_string:rows:column_1:pattern_matches:f3.p3",
       "status": "covered",
       "observed": 4,
@@ -65724,6 +67752,22 @@
     },
     {
       "id": "numeric:rows:column_8:numeric_min",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_13:near_value:0",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_13:near_value:1",
       "status": "covered",
       "observed": 5,
       "candidates": 2,

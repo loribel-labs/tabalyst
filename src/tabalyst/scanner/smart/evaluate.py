@@ -554,6 +554,8 @@ class Evaluator:
             tests.rare_targets.append(position)
         elif kind == "residual_value":
             self._residual(tests, position, target)
+        elif kind == "near_value":
+            self._near_value(tests, position, target)
         elif kind == "characteristic":
             name = str(predicate.params.get("name"))
             if name not in PRESENCE and name not in CHARACTERISTICS:
@@ -576,6 +578,35 @@ class Evaluator:
         ):
             raise _Unresolved("reference_missing")
         tests.analytic.setdefault(table.values[entry].value, []).append(position)
+
+    def _near_value(self, tests: _ColumnTests, position: int, target: Target) -> None:
+        """The rare values of a group, named by their entries in the list of the Scan
+        (compared as the original string, like ``value_equals``) or in the exact table
+        of the second pass (compared with the analytical text, like ``exact_value``):
+        a row that holds any of them covers the target."""
+        predicate = target.predicate
+        try:
+            entries = [int(item) for item in str(predicate.params.get("entries", "")).split(",")]
+        except ValueError:
+            raise _Unresolved("reference_missing") from None
+        if predicate.source == "second_pass":
+            analysis = self._analyses.get(target.origin or "")
+            table = analysis.result if analysis is not None else None
+            if (
+                analysis is None
+                or analysis.status != "complete"
+                or not isinstance(table, FrequencyTable)
+                or not all(0 <= entry < len(table.values) for entry in entries)
+            ):
+                raise _Unresolved("reference_missing")
+            for entry in entries:
+                tests.analytic.setdefault(table.values[entry].value, []).append(position)
+            return
+        listed = {entry.id: entry.value for entry in tests.field.values.samples.listed}
+        if not all(entry in listed for entry in entries):
+            raise _Unresolved("reference_missing")
+        for entry in entries:
+            tests.exact.setdefault(listed[entry], []).append(position)
 
     def _residual(self, tests: _ColumnTests, position: int, target: Target) -> None:
         """A value the second pass listed as left out by a detector: the string is

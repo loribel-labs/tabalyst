@@ -57,6 +57,7 @@ PredicateKind = Literal[
     "characteristic",
     "value_rare",
     "residual_value",
+    "near_value",
     "date_order",
     "relation_exception",
 ]
@@ -175,7 +176,8 @@ class FamilySummary(ScanModel):
 
 class Summary(ScanModel):
     """Counts of the targets kept. ``dropped`` are the ones the budget of
-    targets left out, the lightest first (SMART-11)."""
+    targets left out, the lightest first (SMART-11), and the groups of near values
+    over their caps (``near_groups_per_column``, ``near_groups``)."""
 
     targets: int
     mandatory: int
