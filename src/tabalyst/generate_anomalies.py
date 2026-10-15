@@ -32,6 +32,7 @@ FORMAT_VALUES = frozenset({
     "double_char", "swap_first_two", "transpose", "replace_char", "phone_double_space",
     "date_dmy", "date_iso", "currency_suffix", "currency_prefix", "currency_fr", "currency_code",
     "drop_digit", "insert_double_space", "trailing_space", "date_mdy_iso",
+    "leading_space", "leading_tab", "insert_zero_width", "insert_replacement_char",
 })
 CURRENCY_CODE = "CAD"
 CLASS_NAME = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
@@ -81,6 +82,25 @@ def _insert_double_space(value: str, rng: random.Random) -> str:
         return value
     spot = rng.choice(spots)
     return f"{value[:spot]}  {value[spot:]}"
+
+
+def _lead(prefix: str) -> Callable[[str, random.Random], str]:
+    """A transform that puts ``prefix`` in front of a value that does not start with
+    whitespace already (a leading space or tab is a defect, not a layout)."""
+    def lead(value: str, rng: random.Random) -> str:
+        return value if value[:1].isspace() else f"{prefix}{value}"
+    return lead
+
+
+def _insert_invisible(char: str) -> Callable[[str, random.Random], str]:
+    """A transform that inserts ``char`` inside a value of two characters or more,
+    once: a value that holds it already is left alone."""
+    def insert(value: str, rng: random.Random) -> str:
+        if len(value) < 2 or char in value:
+            return value
+        spot = rng.randrange(1, len(value))
+        return f"{value[:spot]}{char}{value[spot:]}"
+    return insert
 
 
 def _letter_spots(value: str) -> list[int]:
@@ -201,6 +221,10 @@ TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "drop_digit": _drop_digit,
     "insert_double_space": _insert_double_space,
     "trailing_space": lambda value, rng: value if value.endswith(" ") else f"{value} ",
+    "leading_space": _lead(" "),
+    "leading_tab": _lead("\t"),
+    "insert_zero_width": _insert_invisible("\u200b"),
+    "insert_replacement_char": _insert_invisible("\ufffd"),
 }
 
 

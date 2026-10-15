@@ -1,0 +1,260 @@
+event_id,dataset,profile,row_number,operation_index,kind,column,before,after,cause,class
+1,insurance-customers,sample-injected-errors,129,16,replace,code_postal,T6G 3N1,h4a 9m3,sample-injected-errors.operations[15],postal_malformed
+2,insurance-customers,sample-injected-errors,142,58,format,ville,Longueuil,Longueuuil,sample-injected-errors.operations[57],city_typo
+3,insurance-customers,sample-injected-errors,169,14,replace,code_postal,J2C 7N5,12345,sample-injected-errors.operations[13],postal_malformed
+4,insurance-customers,sample-injected-errors,192,31,format,id_client,CLI-00030284,CLI-00030284 ,sample-injected-errors.operations[30],id_trailing_space
+5,insurance-customers,sample-injected-errors,224,6,replace,courriel,simonouellet@outlook.example,u@v,sample-injected-errors.operations[5],email_malformed
+6,insurance-customers,sample-injected-errors,296,44,format,nom,Poulin,P  oulin,sample-injected-errors.operations[43],name_double_space
+7,insurance-customers,sample-injected-errors,313,51,format,nom,Boucher,Bou�cher,sample-injected-errors.operations[50],name_replacement_char
+8,insurance-customers,sample-injected-errors,323,50,format,prenom,Diane,Dian​e,sample-injected-errors.operations[49],name_zero_width
+9,insurance-customers,sample-injected-errors,376,53,replace,nom,Bouchard,Quimbleton,sample-injected-errors.operations[52],rare_surname
+10,insurance-customers,sample-injected-errors,398,41,set_missing,id_contrat,CTR-1000066294,,sample-injected-errors.operations[40],missing_required
+11,insurance-customers,sample-injected-errors,416,24,replace,date_naissance,1980-06-24,2099-01-01,sample-injected-errors.operations[23],birthdate_invalid
+12,insurance-customers,sample-injected-errors,470,57,replace,nom,Gagné,Ngcobo,sample-injected-errors.operations[56],rare_surname
+13,insurance-customers,sample-injected-errors,475,43,format,prenom,Alain,	Alain,sample-injected-errors.operations[42],name_leading_space
+14,insurance-customers,sample-injected-errors,494,9,replace,telephone,+1-579-555-0135,abc,sample-injected-errors.operations[8],phone_malformed
+15,insurance-customers,sample-injected-errors,528,15,replace,code_postal,G4R 3T6,H4A 9M,sample-injected-errors.operations[14],postal_malformed
+16,insurance-customers,sample-injected-errors,530,5,replace,courriel,claude_bouchard@videotron.example,bad email@z.example,sample-injected-errors.operations[4],email_malformed
+17,insurance-customers,sample-injected-errors,596,22,replace,date_naissance,1963-11-17,31-03-1961,sample-injected-errors.operations[21],birthdate_invalid
+18,insurance-customers,sample-injected-errors,615,32,replace,nom,Morin,XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX,sample-injected-errors.operations[31],name_long_weird
+19,insurance-customers,sample-injected-errors,620,45,format,ville,Waterloo,WATERLOO,sample-injected-errors.operations[44],city_case_variant
+20,insurance-customers,sample-injected-errors,624,34,replace,nom,Cormier,<script>,sample-injected-errors.operations[33],name_long_weird
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,id_client,CLI-00115137,CLI-00104864,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,prenom,Sophie,Mia,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,date_naissance,1951-09-05,1958-06-03,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,langue_preferee,fr,en,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,numero_voie,4237,2182,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,type_voie,boulevard,Place,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,nom_voie,de la Clairière,Cedar,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,appartement,,969,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,ville,Montréal,Saint John,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,province_code,QC,NB,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,province_nom,Québec,Nouveau-Brunswick,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,code_postal,H3G 4H8,H9A 7H4,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,courriel,sop5190@outlook.example,johnson.mia@gmail.example,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,telephone,+1-418-555-0156,+1-506-555-0162,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,id_contrat,CTR-1000115137,CTR-1000104864,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,type_contrat,auto,habitation,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,date_debut,2022-03-27,2018-09-27,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,date_fin,2025-09-24,2027-06-28,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,statut_contrat,résilié,actif,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,prime_annuelle,1602.31,2476.97,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,frequence_paiement,annuelle,mensuelle,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,mode_paiement,prélèvement,chèque,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,agence_code,AG-PR-005,AG-PR-003,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,date_creation,2022-03-26,2018-08-31,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,date_modification,2024-12-04,2023-02-17,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,date_reclamation,2025-09-11,2019-08-08,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,montant_reclamation,,112084.39,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+21,insurance-customers,sample-injected-errors,651,59,duplicate_row,reclamation_status,rejeté,fermé,sample-injected-errors.operations[58] copy_of_row=595,duplicate_rows
+22,insurance-customers,sample-injected-errors,734,58,format,ville,Montréal,Montréall,sample-injected-errors.operations[57],city_typo
+23,insurance-customers,sample-injected-errors,760,36,swap,date_debut,2017-11-22,2027-05-10,sample-injected-errors.operations[35],end_before_start
+23,insurance-customers,sample-injected-errors,760,36,swap,date_fin,2027-05-10,2017-11-22,sample-injected-errors.operations[35],end_before_start
+24,insurance-customers,sample-injected-errors,783,23,replace,date_naissance,1954-10-26,0000-00-00,sample-injected-errors.operations[22],birthdate_invalid
+25,insurance-customers,sample-injected-errors,794,39,replace,type_contrat,habitation,santé ,sample-injected-errors.operations[38],novel_category_typo
+26,insurance-customers,sample-injected-errors,836,8,replace,telephone,+1-438-555-0120,+1-4685550110,sample-injected-errors.operations[7],phone_malformed
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,id_client,CLI-00147581,CLI-0012694,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,prenom,Valérie,Nathalie,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,nom,Hall,Hernandez,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,date_naissance,1984-04-06,1969-03-17,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,numero_voie,3881,6466,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,type_voie,avenue,impasse,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,nom_voie,du Lac,des Cascades,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,appartement,,138,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,ville,Saguenay,Drummondville,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,code_postal,G7J 8K5,J2C 6N8,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,courriel,valerie_hall@gmail.example,nathalie.hernandez@outlook.example,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,telephone,+1-418-555-0140,+1-579-555-0133,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,id_contrat,CTR-1000147581,CTR-1000126949,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,type_contrat,auto,vie,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,date_debut,2021-07-23,2023-01-25,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,date_fin,2027-02-28,2027-01-16,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,prime_annuelle,1745.14,2614.36,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,frequence_paiement,annuelle,mensuelle,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,mode_paiement,carte,prélèvement,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,date_creation,2021-07-04,2023-01-16,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+27,insurance-customers,sample-injected-errors,842,59,duplicate_row,date_modification,2025-05-20,2025-12-29,sample-injected-errors.operations[58] copy_of_row=727,duplicate_rows
+28,insurance-customers,sample-injected-errors,907,26,replace,prime_annuelle,734.21,abc,sample-injected-errors.operations[25],premium_outlier
+29,insurance-customers,sample-injected-errors,926,37,replace,type_contrat,auto,autoo,sample-injected-errors.operations[36],novel_category_typo
+30,insurance-customers,sample-injected-errors,927,45,format,ville,Québec,QUÉBEC,sample-injected-errors.operations[44],city_case_variant
+31,insurance-customers,sample-injected-errors,945,58,format,ville,Lévis,LLévis,sample-injected-errors.operations[57],city_typo
+32,insurance-customers,sample-injected-errors,958,31,format,id_client,CLI-00171562,CLI-00171562 ,sample-injected-errors.operations[30],id_trailing_space
+33,insurance-customers,sample-injected-errors,1001,45,format,ville,Shawinigan,SHAWINIGAN,sample-injected-errors.operations[44],city_case_variant
+34,insurance-customers,sample-injected-errors,1007,51,format,nom,Fortin,For�tin,sample-injected-errors.operations[50],name_replacement_char
+35,insurance-customers,sample-injected-errors,1027,10,replace,telephone,+1-581-555-0179,(514) 555-0110,sample-injected-errors.operations[9],phone_malformed
+36,insurance-customers,sample-injected-errors,1038,27,replace,prime_annuelle,1199.42,99999999,sample-injected-errors.operations[26],premium_outlier
+37,insurance-customers,sample-injected-errors,1094,36,swap,date_debut,2020-06-01,2027-01-13,sample-injected-errors.operations[35],end_before_start
+37,insurance-customers,sample-injected-errors,1094,36,swap,date_fin,2027-01-13,2020-06-01,sample-injected-errors.operations[35],end_before_start
+38,insurance-customers,sample-injected-errors,1108,7,replace,telephone,+1-581-555-0147,5551234,sample-injected-errors.operations[6],phone_malformed
+39,insurance-customers,sample-injected-errors,1116,38,replace,type_contrat,auto,VIE,sample-injected-errors.operations[37],novel_category_typo
+40,insurance-customers,sample-injected-errors,1127,58,format,ville,Châteauguay,Châteaugguay,sample-injected-errors.operations[57],city_typo
+41,insurance-customers,sample-injected-errors,1174,54,replace,nom,Rahman,Xanthopoulos,sample-injected-errors.operations[53],rare_surname
+42,insurance-customers,sample-injected-errors,1213,36,swap,date_debut,09-05-2024,04-20-2027,sample-injected-errors.operations[35],end_before_start
+42,insurance-customers,sample-injected-errors,1213,36,swap,date_fin,04-20-2027,09-05-2024,sample-injected-errors.operations[35],end_before_start
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,filiale,ontario,principal,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,id_client,ONT0024213,CLI-00039858,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,civilite,Mme,M.,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,prenom,Scarlett,Samuel,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,nom,Smith,Bergeron,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,date_naissance,07-25-1963,1981-10-16,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,sexe,F,M,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,langue_preferee,en,fr,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,numero_voie,7279,1921,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,type_voie,Drive,croissant,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,nom_voie,Valleyview,des Lilas,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,appartement,,794,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,ville,London,Montréal,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,province_code,ON,QC,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,province_nom,Ontario,Québec,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,code_postal,N6A 3M6,H3G 1S8,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,courriel,sca1336@gmail.example,samuelb@outlook.example,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,telephone,+1-548-555-0197,+1-819-555-0192,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,id_contrat,CTR-2000024213,CTR-1000039858,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,date_debut,07-09-2026,2022-02-11,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,date_fin,09-13-2026,2023-09-19,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,statut_contrat,expiré,résilié,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,prime_annuelle,2044.48,765.98,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,frequence_paiement,semestrielle,mensuelle,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,agence_code,AG-ON-003,AG-PR-005,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,date_creation,07-05-2026,2022-01-20,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+43,insurance-customers,sample-injected-errors,1234,59,duplicate_row,date_modification,08-15-2026,2024-07-20,sample-injected-errors.operations[58] copy_of_row=255,duplicate_rows
+44,insurance-customers,sample-injected-errors,1316,12,replace,telephone,+1-263-555-0199,0,sample-injected-errors.operations[11],phone_malformed
+45,insurance-customers,sample-injected-errors,1330,42,format,prenom,Josée, Josée,sample-injected-errors.operations[41],name_leading_space
+46,insurance-customers,sample-injected-errors,1390,42,format,prenom,Jacques, Jacques,sample-injected-errors.operations[41],name_leading_space
+47,insurance-customers,sample-injected-errors,1404,47,replace,agence_code,AG-QC-001,AG-PR-00001,sample-injected-errors.operations[46],agency_code_length
+48,insurance-customers,sample-injected-errors,1433,49,replace,agence_code,AG-QC-002,AGPR001,sample-injected-errors.operations[48],agency_code_length
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,filiale,quebec,ontario,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,id_client,QC-0003-7957,ONT0015447,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,civilite,M.,Mme,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,prenom,Sylvain,Sophia,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,nom,Simard,White,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,date_naissance,26-04-1953,09-17-1986,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,sexe,M,F,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,langue_preferee,fr,en,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,numero_voie,2533,5830,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,type_voie,rang,Drive,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,nom_voie,des Laurentides,Riverside,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,appartement,,889,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,ville,Laval,Mississauga,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,province_code,QC,ON,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,province_nom,Québec,Ontario,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,code_postal,H7N 2Z4,L5G 4Y4,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,courriel,sylvain.simard@bell.example,sophia545@hotmail.example,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,telephone,+1-450-555-0185,+1-705-555-0160,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,id_contrat,CTR-3000037957,CTR-2000015447,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,type_contrat,auto,habitation,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,date_debut,06-04-2018,01-19-2017,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,date_fin,25-04-2027,,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,prime_annuelle,673.10,1110.77,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,frequence_paiement,mensuelle,annuelle,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,mode_paiement,chèque,carte,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,agence_code,AG-QC-001,AG-ON-004,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,date_creation,23-03-2018,01-11-2017,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,date_modification,08-02-2024,07-16-2022,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,date_reclamation,12-05-2022,,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,montant_reclamation,6084.22,,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+49,insurance-customers,sample-injected-errors,1440,59,duplicate_row,reclamation_status,en_cours,,sample-injected-errors.operations[58] copy_of_row=1191,duplicate_rows
+50,insurance-customers,sample-injected-errors,1454,20,replace,date_naissance,05-10-2007,N/A,sample-injected-errors.operations[19],birthdate_invalid
+51,insurance-customers,sample-injected-errors,1457,41,set_missing,id_contrat,CTR-3000041864,,sample-injected-errors.operations[40],missing_required
+52,insurance-customers,sample-injected-errors,1534,45,format,ville,Montréal,MONTRÉAL,sample-injected-errors.operations[44],city_case_variant
+53,insurance-customers,sample-injected-errors,1550,28,replace,prime_annuelle,1872.84,0,sample-injected-errors.operations[27],premium_outlier
+54,insurance-customers,sample-injected-errors,1559,3,replace,courriel,luc0390@gmail.example,x@,sample-injected-errors.operations[2],email_malformed
+55,insurance-customers,sample-injected-errors,1580,58,format,ville,Saint-Jérôme,Saint-Jérômme,sample-injected-errors.operations[57],city_typo
+56,insurance-customers,sample-injected-errors,1627,33,replace,nom,Lévesque,Réx,sample-injected-errors.operations[32],name_long_weird
+57,insurance-customers,sample-injected-errors,1691,18,replace,code_postal,R3C 5S6,ZZZ,sample-injected-errors.operations[17],postal_malformed
+58,insurance-customers,sample-injected-errors,1699,31,format,id_client,CLI-00032121,CLI-00032121 ,sample-injected-errors.operations[30],id_trailing_space
+59,insurance-customers,sample-injected-errors,1701,50,format,prenom,Henry,H​enry,sample-injected-errors.operations[49],name_zero_width
+60,insurance-customers,sample-injected-errors,1722,44,format,nom,Fortin,For  tin,sample-injected-errors.operations[43],name_double_space
+61,insurance-customers,sample-injected-errors,1728,51,format,nom,Lapointe,Lapo�inte,sample-injected-errors.operations[50],name_replacement_char
+62,insurance-customers,sample-injected-errors,1827,36,swap,date_debut,2025-08-12,2025-09-21,sample-injected-errors.operations[35],end_before_start
+62,insurance-customers,sample-injected-errors,1827,36,swap,date_fin,2025-09-21,2025-08-12,sample-injected-errors.operations[35],end_before_start
+63,insurance-customers,sample-injected-errors,1853,48,replace,agence_code,AG-PR-002,AG-PR-1,sample-injected-errors.operations[47],agency_code_length
+64,insurance-customers,sample-injected-errors,1870,44,format,nom,Leblanc,Lebl  anc,sample-injected-errors.operations[43],name_double_space
+65,insurance-customers,sample-injected-errors,1904,43,format,prenom,Marc-André,	Marc-André,sample-injected-errors.operations[42],name_leading_space
+66,insurance-customers,sample-injected-errors,1916,44,format,nom,Adams,A  dams,sample-injected-errors.operations[43],name_double_space
+67,insurance-customers,sample-injected-errors,1975,1,replace,courriel,scott.nova@icloud.example,nobody.example,sample-injected-errors.operations[0],email_malformed
+68,insurance-customers,sample-injected-errors,1993,42,format,prenom,Louis-Philippe, Louis-Philippe,sample-injected-errors.operations[41],name_leading_space
+69,insurance-customers,sample-injected-errors,2026,36,swap,date_debut,2022-10-08,2026-12-09,sample-injected-errors.operations[35],end_before_start
+69,insurance-customers,sample-injected-errors,2026,36,swap,date_fin,2026-12-09,2022-10-08,sample-injected-errors.operations[35],end_before_start
+70,insurance-customers,sample-injected-errors,2101,58,format,ville,Lavul,Laavul,sample-injected-errors.operations[57],city_typo
+71,insurance-customers,sample-injected-errors,2138,2,replace,courriel,nic912@hotmail.example,a@@b.example,sample-injected-errors.operations[1],email_malformed
+72,insurance-customers,sample-injected-errors,2146,50,format,prenom,Marie-Ève,Marie​-Ève,sample-injected-errors.operations[49],name_zero_width
+73,insurance-customers,sample-injected-errors,2165,51,format,nom,Pelletier,Pel�letier,sample-injected-errors.operations[50],name_replacement_char
+74,insurance-customers,sample-injected-errors,2174,41,set_missing,id_contrat,CTR-1000124823,,sample-injected-errors.operations[40],missing_required
+75,insurance-customers,sample-injected-errors,2225,41,set_missing,id_contrat,CTR-1000134787,,sample-injected-errors.operations[40],missing_required
+76,insurance-customers,sample-injected-errors,2236,31,format,id_client,CLI-00135697,CLI-00135697 ,sample-injected-errors.operations[30],id_trailing_space
+77,insurance-customers,sample-injected-errors,2245,36,swap,date_debut,2016-10-26,2027-06-03,sample-injected-errors.operations[35],end_before_start
+77,insurance-customers,sample-injected-errors,2245,36,swap,date_fin,2027-06-03,2016-10-26,sample-injected-errors.operations[35],end_before_start
+78,insurance-customers,sample-injected-errors,2256,41,set_missing,id_contrat,CTR-1000139199,,sample-injected-errors.operations[40],missing_required
+79,insurance-customers,sample-injected-errors,2275,56,replace,nom,Roy,Przybylski,sample-injected-errors.operations[55],rare_surname
+80,insurance-customers,sample-injected-errors,2296,46,replace,agence_code,AG-PR-008,AG-PR-01,sample-injected-errors.operations[45],agency_code_length
+81,insurance-customers,sample-injected-errors,2298,17,replace,code_postal,J3A 2B3,H4A  9M3,sample-injected-errors.operations[16],postal_malformed
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,id_client,CLI-00151155,CLI-00084426,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,prenom,Sophia,Nathalie,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,nom,Anderson,Bélanger,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,date_naissance,1967-07-08,1937-10-27,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,langue_preferee,en,fr,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,numero_voie,3784,7122,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,type_voie,Circle,place,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,nom_voie,Spring,des Prairies,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,orientation,,Est,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,ville,Saguenay,Drummondville,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,code_postal,G7J 5R4,J2C 9E9,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,courriel,sophiaanderson@gmail.example,nat0180@gmail.example,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,telephone,+1-819-555-0123,+1-450-555-0134,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,id_contrat,CTR-1000151155,CTR-1000084426,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,date_debut,2025-05-12,2022-01-07,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,date_fin,2027-07-30,2027-02-15,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,prime_annuelle,2553.63,1411.12,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,agence_code,AG-PR-004,AG-PR-007,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,date_creation,2025-04-15,2021-12-25,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+82,insurance-customers,sample-injected-errors,2325,59,duplicate_row,date_modification,2025-04-21,2025-01-31,sample-injected-errors.operations[58] copy_of_row=1964,duplicate_rows
+83,insurance-customers,sample-injected-errors,2359,31,format,id_client,CLI-00156722,CLI-00156722 ,sample-injected-errors.operations[30],id_trailing_space
+84,insurance-customers,sample-injected-errors,2363,19,replace,date_naissance,1948-07-13,1961-13-45,sample-injected-errors.operations[18],birthdate_invalid
+85,insurance-customers,sample-injected-errors,2383,30,replace,prime_annuelle,1000.78,"12,5,6",sample-injected-errors.operations[29],premium_outlier
+86,insurance-customers,sample-injected-errors,2444,50,format,prenom,Isabelle,I​sabelle,sample-injected-errors.operations[49],name_zero_width
+87,insurance-customers,sample-injected-errors,2452,43,format,prenom,F  lorence,	F  lorence,sample-injected-errors.operations[42],name_leading_space
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,id_client,CLI-00189444,CLI-00121778,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,prenom,Luke,Véronique,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,nom,Green,aSvard,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,date_naissance,1975-01-31,1969-09-28,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,langue_preferee,en,fr,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,numero_voie,9626,985,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,type_voie,Street,avenue,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,nom_voie,Sunset,du Ruisseau,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,ville,Saskatoon,Saint-Hyacinthe,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,province_code,SK,QC,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,province_nom,Saskatchewan,Québec,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,code_postal,S7K 5Y3,J2S 6B8,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,courriel,luke3514@gmail.example,veroniquesavard@hotmail.example,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,telephone,+1-306-555-0137,+1-819-555-0172,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,id_contrat,CTR-1000189444,CTR-1000121778,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,date_debut,2024-08-05,2021-08-01,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,date_fin,,2027-07-04,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,statut_contrat,actif,suspendu,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,prime_annuelle,870.26,1751.75,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,frequence_paiement,mensuelle,annuelle,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,agence_code,AG-PR-002,AG-PR-001,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,date_creation,2024-07-11,2021-07-08,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,date_modification,2024-12-25,2025-07-20,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,date_reclamation,2025-07-15,2026-09-09,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,montant_reclamation,19835.95,12678.53,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+88,insurance-customers,sample-injected-errors,2516,59,duplicate_row,reclamation_status,en_cours,fermé,sample-injected-errors.operations[58] copy_of_row=2151,duplicate_rows
+89,insurance-customers,sample-injected-errors,2594,11,replace,telephone,+1-807-555-0165,+1-468-555-01,sample-injected-errors.operations[10],phone_malformed
+90,insurance-customers,sample-injected-errors,2683,29,replace,prime_annuelle,769.02,1e9,sample-injected-errors.operations[28],premium_outlier
+91,insurance-customers,sample-injected-errors,2689,55,replace,nom,King,Wojciechowski,sample-injected-errors.operations[54],rare_surname
+92,insurance-customers,sample-injected-errors,2700,25,replace,prime_annuelle,356.26,-100,sample-injected-errors.operations[24],premium_outlier
+93,insurance-customers,sample-injected-errors,2702,36,swap,date_debut,15-08-2025,14-08-2027,sample-injected-errors.operations[35],end_before_start
+93,insurance-customers,sample-injected-errors,2702,36,swap,date_fin,14-08-2027,15-08-2025,sample-injected-errors.operations[35],end_before_start
+94,insurance-customers,sample-injected-errors,2729,45,format,ville,Ottawa,OTTAWA,sample-injected-errors.operations[44],city_case_variant
+95,insurance-customers,sample-injected-errors,2732,31,format,id_client,QC-0000-4681,QC-0000-4681 ,sample-injected-errors.operations[30],id_trailing_space
+96,insurance-customers,sample-injected-errors,2788,45,format,ville,Sherbrooke,SHERBROOKE,sample-injected-errors.operations[44],city_case_variant
+97,insurance-customers,sample-injected-errors,2800,21,replace,date_naissance,20-01-1975,1961/03/31,sample-injected-errors.operations[20],birthdate_invalid
+98,insurance-customers,sample-injected-errors,2851,40,replace,type_contrat,habitation,hab,sample-injected-errors.operations[39],novel_category_typo
+99,insurance-customers,sample-injected-errors,2864,4,replace,courriel,juliette448@gmail.example,@y.example,sample-injected-errors.operations[3],email_malformed
+100,insurance-customers,sample-injected-errors,2906,36,swap,date_debut,09-11-2018,09-11-2026,sample-injected-errors.operations[35],end_before_start
+100,insurance-customers,sample-injected-errors,2906,36,swap,date_fin,09-11-2026,09-11-2018,sample-injected-errors.operations[35],end_before_start
+101,insurance-customers,sample-injected-errors,2913,41,set_missing,id_contrat,CTR-3000038478,,sample-injected-errors.operations[40],missing_required
+102,insurance-customers,sample-injected-errors,2982,52,replace,nom,Lewis,Zzyzx,sample-injected-errors.operations[51],rare_surname
+103,insurance-customers,sample-injected-errors,2984,13,replace,code_postal,G9A 9P6,H4A9M3,sample-injected-errors.operations[12],postal_malformed
+104,insurance-customers,sample-injected-errors,3001,35,replace,nom,Morin,‮‮,sample-injected-errors.operations[34],name_long_weird

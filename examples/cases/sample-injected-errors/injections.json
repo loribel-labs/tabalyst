@@ -1,0 +1,191 @@
+{
+ "id": "sample-injected-errors",
+ "dataset": "insurance-customers",
+ "operations": [
+  {
+   "kind": "replace",
+   "column": "courriel",
+   "values": [
+    "nobody.example",
+    "a@@b.example",
+    "x@",
+    "@y.example",
+    "bad email@z.example",
+    "u@v"
+   ],
+   "class": "email_malformed"
+  },
+  {
+   "kind": "replace",
+   "column": "telephone",
+   "values": [
+    "5551234",
+    "+1-4685550110",
+    "abc",
+    "(514) 555-0110",
+    "+1-468-555-01",
+    "0"
+   ],
+   "class": "phone_malformed"
+  },
+  {
+   "kind": "replace",
+   "column": "code_postal",
+   "values": [
+    "H4A9M3",
+    "12345",
+    "H4A 9M",
+    "h4a 9m3",
+    "H4A  9M3",
+    "ZZZ"
+   ],
+   "class": "postal_malformed"
+  },
+  {
+   "kind": "replace",
+   "column": "date_naissance",
+   "values": [
+    "1961-13-45",
+    "N/A",
+    "1961/03/31",
+    "31-03-1961",
+    "0000-00-00",
+    "2099-01-01"
+   ],
+   "class": "birthdate_invalid"
+  },
+  {
+   "kind": "replace",
+   "column": "prime_annuelle",
+   "values": [
+    "-100",
+    "abc",
+    "99999999",
+    "0",
+    "1e9",
+    "12,5,6"
+   ],
+   "class": "premium_outlier"
+  },
+  {
+   "kind": "format",
+   "column": "id_client",
+   "value": "trailing_space",
+   "count": 6,
+   "class": "id_trailing_space"
+  },
+  {
+   "kind": "replace",
+   "column": "nom",
+   "values": [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "R\u00e9\u0007x",
+    "<script>",
+    "\u202e\u202e"
+   ],
+   "class": "name_long_weird"
+  },
+  {
+   "kind": "swap",
+   "column": "date_debut",
+   "value": "date_fin",
+   "count": 8,
+   "class": "end_before_start"
+  },
+  {
+   "kind": "replace",
+   "column": "type_contrat",
+   "values": [
+    "autoo",
+    "VIE",
+    "sant\u00e9 ",
+    "hab"
+   ],
+   "class": "novel_category_typo"
+  },
+  {
+   "kind": "set_missing",
+   "column": "id_contrat",
+   "count": 6,
+   "class": "missing_required"
+  },
+  {
+   "kind": "format",
+   "column": "prenom",
+   "value": "leading_space",
+   "count": 3,
+   "class": "name_leading_space"
+  },
+  {
+   "kind": "format",
+   "column": "prenom",
+   "value": "leading_tab",
+   "count": 3,
+   "class": "name_leading_space"
+  },
+  {
+   "kind": "format",
+   "column": "nom",
+   "value": "insert_double_space",
+   "count": 4,
+   "class": "name_double_space"
+  },
+  {
+   "kind": "format",
+   "column": "ville",
+   "value": "upper",
+   "count": 6,
+   "class": "city_case_variant"
+  },
+  {
+   "kind": "replace",
+   "column": "agence_code",
+   "values": [
+    "AG-PR-01",
+    "AG-PR-00001",
+    "AG-PR-1",
+    "AGPR001"
+   ],
+   "class": "agency_code_length"
+  },
+  {
+   "kind": "format",
+   "column": "prenom",
+   "value": "insert_zero_width",
+   "count": 4,
+   "class": "name_zero_width"
+  },
+  {
+   "kind": "format",
+   "column": "nom",
+   "value": "insert_replacement_char",
+   "count": 4,
+   "class": "name_replacement_char"
+  },
+  {
+   "kind": "replace",
+   "column": "nom",
+   "values": [
+    "Zzyzx",
+    "Quimbleton",
+    "Xanthopoulos",
+    "Wojciechowski",
+    "Przybylski",
+    "Ngcobo"
+   ],
+   "class": "rare_surname"
+  },
+  {
+   "kind": "format",
+   "column": "ville",
+   "value": "double_char",
+   "count": 6,
+   "class": "city_typo"
+  },
+  {
+   "kind": "duplicate_row",
+   "count": 6,
+   "class": "duplicate_rows"
+  }
+ ]
+}

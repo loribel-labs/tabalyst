@@ -141,7 +141,7 @@ the log does not name, with the same six edits as today, and written to the same
 `truth.json` (class to 0-based data rows, same format as now).
 
 **Files.** `input/dirty.csv` and `input/truth.json` stay committed and rebuildable;
-`input/changes.csv` (the change log, a few hundred lines) is committed too, since it is the proof
+`input/changes.csv` (the change log, about 40 KB) is committed too, since it is the proof
 that the truth comes from the generation. `case.py build` rebuilds the three and the
 generic test of the cases (E1) compares them to the committed ones.
 
@@ -172,3 +172,14 @@ a clean source for the case, any change to `smart`.
   the `date_order` target of lot S3b should keep it. If it does not, that is a finding about
   `smart`, for a separate lot.
 - The copy of a `duplicate_row` that carries another class (3.3).
+
+## 7. Outcome of G3b (2026-10-15)
+
+The four `format` values, `injections.json`, `examples/tools/case_truth.py` and the new
+`case.py` are in. 19 classes come from the Generate run (167 rows of truth with the two
+classes of `case.py`), the file keeps its 3,000 rows and `input/changes.csv` is the change
+log (about 40 KB). No copied row shares its content with an altered row. The measure at 150
+rows and seed 1 keeps the same classes as before (only `city_typo` stays a gap). Across
+sizes, `city_case_variant` at 100 rows goes from 67% to 0% and `city_typo` from
+33%/67%/100% to 0%/0%/33% (100/200/400 rows); the rest is equal or better. Recorded in the
+README of the case as a finding about `smart`, not investigated in this lot.

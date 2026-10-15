@@ -5,24 +5,36 @@
 """Case "sample-injected-errors": how many injected errors a sample keeps.
 
 Builds a dirty copy of the insurance example with known errors, runs
-``tabalyst sample`` on it and counts the injected rows a sample holds. The
-build is deterministic, so the committed ``input/dirty.csv`` and ``truth.json``
-can always be rebuilt and compared.
+``tabalyst sample`` on it and counts the injected rows a sample holds. The errors
+are injected by the Generate engine from ``injections.json`` (design
+``docs/dev/generate/test-cases.md``), which also writes the change log the truth
+comes from. Two classes stay here because Generate never puts two classes on a row:
+``common_anomalies`` and ``worst_row``, applied afterwards on rows the log does not
+name. The build is deterministic, so the committed ``input/dirty.csv``,
+``input/changes.csv`` and ``input/truth.json`` can always be rebuilt and compared.
 """
 
 import collections
 import csv
+import importlib.util
 import json
 import random
 import re
 import subprocess
 import sys
+import tempfile
 from collections.abc import Callable
 from pathlib import Path
+from types import ModuleType
+
+from tabalyst.generate_anomalies import inject_anomalies
 
 CASE_DIR = Path(__file__).resolve().parent
-SOURCE = CASE_DIR.parents[1] / "datasets" / "insurance-customers.csv"
+EXAMPLES = CASE_DIR.parents[1]
+SOURCE = EXAMPLES / "datasets" / "insurance-customers.csv"
+INJECTIONS = CASE_DIR / "injections.json"
 DIRTY = CASE_DIR / "input" / "dirty.csv"
+CHANGES = CASE_DIR / "input" / "changes.csv"
 TRUTH = CASE_DIR / "input" / "truth.json"
 MANIFEST = json.loads((CASE_DIR / "case.json").read_text(encoding="utf-8"))
 BUILD_SEED: int = MANIFEST["build"]["seed"]
@@ -45,7 +57,20 @@ BY_CONTENT: dict[str, tuple[str, Callable[[str], bool]]] = {
     "city_case_variant": ("ville", lambda v: len(v) > 1 and v.isupper()),
     "agency_code_length": ("agence_code", lambda v: len(v) != 9),
 }
-Injector = Callable[[Row, int], None]
+
+# Six anomalies that are common in the file, one per column: each is a target of
+# the sample with many candidate rows, so a row that has all six is not among
+# the candidates of any of them unless the sample looks for such rows.
+COMMON: tuple[tuple[str, Callable[[str], str]], ...] = (
+    ("nom_voie", lambda v: " " + v),
+    ("province_nom", lambda v: " " + v),
+    ("date_creation", lambda v: " " + v),
+    ("appartement", lambda v: v + "  x"),
+    ("montant_reclamation", lambda v: v[:1] + "  " + v[1:]),
+    ("date_modification", lambda v: v[:4] + "  " + v[4:]),
+)
+COMMON_ROWS = 60
+WORST_ROWS = 3
 
 
 def _read(path: Path) -> tuple[list[str], list[Row]]:
@@ -55,127 +80,76 @@ def _read(path: Path) -> tuple[list[str], list[Row]]:
         return header, list(reader)
 
 
-def build(source: Path = SOURCE) -> tuple[list[str], list[Row], dict[str, list[int]]]:
-    """The dirty rows and, per error class, the 0-based data rows that hold it."""
-    header, rows = _read(source)
+def _tool(name: str) -> ModuleType:
+    """A script of ``examples/tools/`` loaded as a module."""
+    spec = importlib.util.spec_from_file_location(f"case_{name}", EXAMPLES / "tools" / f"{name}.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def operations(request: dict[str, object]) -> list[dict[str, object]]:
+    """The operations of the engine: a ``replace`` with ``values`` becomes one operation
+    of ``count`` 1 per value, with the same class."""
+    expanded: list[dict[str, object]] = []
+    for operation in request["operations"]:  # type: ignore[attr-defined]
+        values = operation.get("values")
+        if values is None:
+            expanded.append(operation)
+            continue
+        assert operation["kind"] == "replace" and "count" not in operation
+        base = {key: item for key, item in operation.items() if key != "values"}
+        expanded.extend({**base, "value": value, "count": 1} for value in values)
+    return expanded
+
+
+def build(source: Path = SOURCE) -> tuple[list[str], list[Row], dict[str, list[int]], str]:
+    """The dirty rows, the 0-based data rows of each error class and the change log.
+
+    Generate injects the classes of ``injections.json`` into the source and its change log
+    is the truth of those classes; ``common_anomalies`` and ``worst_row`` are then applied to
+    rows no class has taken. The classes are listed in the order of the request.
+    """
+    request = json.loads(INJECTIONS.read_text(encoding="utf-8"))
+    _, original = _read(source)
+    with tempfile.TemporaryDirectory() as work:
+        altered, changes = Path(work) / "altered.csv", Path(work) / "changes.csv"
+        inject_anomalies(
+            source, altered, changes, dataset=request["dataset"],
+            profile={"id": request["id"], "operations": operations(request)},
+            seed=BUILD_SEED, count=len(original), delimiter=",",
+        )
+        header, rows = _read(altered)
+        log = changes.read_text(encoding="utf-8")
+        found = _tool("case_truth").truth_from_changes(changes)
+    order = list(dict.fromkeys(str(operation["class"]) for operation in request["operations"]))
+    classes = {name: found[name] for name in order}
     column = {name: index for index, name in enumerate(header)}
-    rng = random.Random(BUILD_SEED)
-    original = len(rows)
-    used: set[int] = set()
-    classes: dict[str, list[int]] = {}
-
-    def pick(count: int) -> list[int]:
-        chosen: list[int] = []
-        while len(chosen) < count:
-            index = rng.randrange(original)
-            if index not in used:
-                used.add(index)
-                chosen.append(index)
-        return chosen
-
-    def inject(name: str, count: int, change: Injector) -> None:
-        indexes = pick(count)
-        for position, index in enumerate(indexes):
-            change(rows[index], position)
-        classes[name] = indexes
-
-    def replace(field: str, values: list[str]) -> Injector:
-        def change(row: Row, position: int) -> None:
-            row[column[field]] = values[position]
-
-        return change
-
-    def trailing_space(row: Row, position: int) -> None:
-        row[column["id_client"]] += " "
-
-    def end_before_start(row: Row, position: int) -> None:
-        row[column["date_debut"]] = "2030-01-01"
-        row[column["date_fin"]] = "2001-01-01"
-
-    def blank_contract(row: Row, position: int) -> None:
-        row[column["id_contrat"]] = ""
-
-    inject("email_malformed", 6, replace("courriel", [
-        "nobody.example", "a@@b.example", "x@", "@y.example", "bad email@z.example", "u@v",
-    ]))
-    inject("phone_malformed", 6, replace("telephone", [
-        "5551234", "+1-4685550110", "abc", "(514) 555-0110", "+1-468-555-01", "0",
-    ]))
-    inject("postal_malformed", 6, replace("code_postal", [
-        "H4A9M3", "12345", "H4A 9M", "h4a 9m3", "H4A  9M3", "ZZZ",
-    ]))
-    inject("birthdate_invalid", 6, replace("date_naissance", [
-        "1961-13-45", "N/A", "1961/03/31", "31-03-1961", "0000-00-00", "2099-01-01",
-    ]))
-    inject("premium_outlier", 6, replace("prime_annuelle", [
-        "-100", "abc", "99999999", "0", "1e9", "12,5,6",
-    ]))
-    inject("id_trailing_space", 6, trailing_space)
-    bell, bidi = chr(0x07), chr(0x202E)
-    inject("name_long_weird", 4, replace("nom", ["X" * 300, f"Ré{bell}x", "<script>", bidi * 2]))
-    inject("end_before_start", 8, end_before_start)
-    inject("novel_category_typo", 4, replace("type_contrat", ["autoo", "VIE", "santé ", "hab"]))
-    inject("missing_required", 6, blank_contract)
-
-    def edit(field: str, change: Callable[[str, int], str]) -> Injector:
-        def apply(row: Row, position: int) -> None:
-            row[column[field]] = change(row[column[field]], position)
-
-        return apply
-
-    inject("name_leading_space", 6, edit("prenom", lambda v, i: (" ", "	")[i % 2] + v))
-    inject("name_double_space", 4, edit("nom", lambda v, i: f"{v}  Jr"))
-    inject("city_case_variant", 6, edit("ville", lambda v, i: v.upper()))
-    inject("agency_code_length", 4, replace("agence_code", [
-        "AG-PR-01", "AG-PR-00001", "AG-PR-1", "AGPR001",
-    ]))
-
-    zero_width, replacement = chr(0x200B), chr(0xFFFD)
-    inject("name_zero_width", 4, edit("prenom", lambda v, i: v[:2] + zero_width + v[2:]))
-    inject("name_replacement_char", 4, edit("nom", lambda v, i: v[:1] + replacement + v[1:]))
-    inject("rare_surname", 6, replace("nom", [
-        "Zzyzx", "Quimbleton", "Xanthopoulos", "Wojciechowski", "Przybylski", "Ngcobo",
-    ]))
-
-    inject("city_typo", 6, edit("ville", lambda v, i: v[: len(v) // 2] + v[len(v) // 2] + v[len(v) // 2 :]))
-
-    # Six anomalies that are common in the file, one per column: each is a target of
-    # the sample with many candidate rows, so a row that has all six is not among
-    # the candidates of any of them unless the sample looks for such rows.
-    common = (
-        ("nom_voie", lambda v: " " + v),
-        ("province_nom", lambda v: " " + v),
-        ("date_creation", lambda v: " " + v),
-        ("appartement", lambda v: v + "  x"),
-        ("montant_reclamation", lambda v: v[:1] + "  " + v[1:]),
-        ("date_modification", lambda v: v[:4] + "  " + v[4:]),
-    )
-
-    def common_anomaly(row: Row, position: int) -> None:
-        field, change = common[position % len(common)]
-        row[column[field]] = change(row[column[field]])
-
-    def worst_row(row: Row, position: int) -> None:
-        for field, change in common:
-            row[column[field]] = change(row[column[field]])
-
-    inject("common_anomalies", 60, common_anomaly)
-    inject("worst_row", 3, worst_row)
-
-    copies = pick(6)
-    rows.extend(list(rows[index]) for index in copies)
-    classes["duplicate_rows"] = list(range(original, original + 6))
-    return header, rows, classes
+    taken = {index for indexes in classes.values() for index in indexes}
+    free = [index for index in range(len(rows)) if index not in taken]
+    chosen = random.Random(BUILD_SEED).sample(free, COMMON_ROWS + WORST_ROWS)
+    common, worst = sorted(chosen[:COMMON_ROWS]), sorted(chosen[COMMON_ROWS:])
+    for position, index in enumerate(common):
+        field, change = COMMON[position % len(COMMON)]
+        rows[index][column[field]] = change(rows[index][column[field]])
+    for index in worst:
+        for field, change in COMMON:
+            rows[index][column[field]] = change(rows[index][column[field]])
+    classes["common_anomalies"] = common
+    classes["worst_row"] = worst
+    return header, rows, classes, log
 
 
 def write_case() -> None:
-    """Write ``input/dirty.csv`` and ``input/truth.json``."""
-    header, rows, classes = build()
+    """Write ``input/dirty.csv``, ``input/changes.csv`` and ``input/truth.json``."""
+    header, rows, classes, log = build()
     DIRTY.parent.mkdir(parents=True, exist_ok=True)
     with DIRTY.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.writer(handle)
+        writer = csv.writer(handle, lineterminator="\n")
         writer.writerow(header)
         writer.writerows(rows)
+    CHANGES.write_text(log, encoding="utf-8", newline="")
     TRUTH.write_text(json.dumps(classes, indent=1) + "\n", encoding="utf-8")
 
 
@@ -217,8 +191,10 @@ def score(sample_csv: Path, dirty: Path = DIRTY, truth: Path = TRUTH) -> dict[st
 
 def build_matches_input() -> bool:
     """Whether the committed input is exactly what the deterministic build gives."""
-    header, rows, classes = build()
+    header, rows, classes, log = build()
     if json.loads(TRUTH.read_text(encoding="utf-8")) != classes:
+        return False
+    if CHANGES.read_text(encoding="utf-8") != log:
         return False
     committed_header, committed = _read(DIRTY)
     return committed_header == header and committed == rows

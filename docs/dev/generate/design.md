@@ -236,6 +236,11 @@ call `operation_option_error` and share `OPERATION_KINDS`, `FORMAT_VALUES` and
   more), `insert_double_space` inserts two spaces inside a word, `trailing_space` appends one.
   `swap` now needs both cells filled and different: exchanging with an empty cell was an
   erasure, which `set_missing` already does. No shipped profile used `swap`.
+- **Values added in lot G3b.** `leading_space` and `leading_tab` put a space or a tab in front
+  of a value that does not start with whitespace. `insert_zero_width` (U+200B) and
+  `insert_replacement_char` (U+FFFD) insert the character once, inside a value of two
+  characters or more that does not hold it yet. They exist for the test cases
+  (`test-cases.md`) and are as usable by a profile as any other value.
 - **`duplicate_row`.** Replaces the selected row with an exact copy of a row
   already written, drawn from the last 1,000 output rows (altered rows count
   as written). The file keeps its row count. The journal lists the cells that

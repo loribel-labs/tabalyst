@@ -343,6 +343,36 @@ def test_format_value_leaves_an_ineligible_cell_and_counts_it_skipped(
     assert summary["operations"][0]["skipped_rows"] == 3  # type: ignore[index]
 
 
+@pytest.mark.parametrize(("transform", "value", "expected"), [
+    ("leading_space", "Marie", " Marie"),
+    ("leading_space", " Marie", None),
+    ("leading_space", "\tMarie", None),
+    ("leading_tab", "Marie", "\tMarie"),
+    ("leading_tab", " Marie", None),
+    ("insert_zero_width", "Marie", None),
+    ("insert_zero_width", "M", None),
+    ("insert_zero_width", "Ma\u200brie", None),
+    ("insert_replacement_char", "Marie", None),
+    ("insert_replacement_char", "M", None),
+])
+def test_g3b_format_values(
+        tmp_path: Path, transform: str, value: str, expected: str | None) -> None:
+    altered, changes, summary = _inject(
+        tmp_path, _each_row([value] * 6),
+        [{"kind": "format", "column": "v", "value": transform, "rate": 1.0}])
+    cells = {row["v"] for row in altered}
+    invisible = {"insert_zero_width": "\u200b", "insert_replacement_char": "\ufffd"}
+    if expected is not None:
+        assert cells == {expected} and len(changes) == 6
+    elif transform in invisible and len(value) > 1 and invisible[transform] not in value:
+        char = invisible[transform]
+        assert all(cell.replace(char, "") == value and cell.count(char) == 1
+                   and not cell.startswith(char) and not cell.endswith(char) for cell in cells)
+    else:
+        assert cells == {value} and changes == []
+        assert summary["operations"][0]["skipped_rows"] == 6  # type: ignore[index]
+
+
 def test_double_char_repeats_exactly_one_letter(tmp_path: Path) -> None:
     altered, _, _ = _inject(
         tmp_path, _each_row(["Olivier"] * 8),

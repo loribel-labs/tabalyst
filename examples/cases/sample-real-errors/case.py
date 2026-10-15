@@ -32,9 +32,9 @@ SIZES: tuple[int, ...] = tuple(MANIFEST["measure"]["sizes"])
 Row = tuple[str, ...]
 
 
-def _tool() -> ModuleType:
-    script = EXAMPLES / "tools" / "make_datasets.py"
-    spec = importlib.util.spec_from_file_location("case_make_datasets", script)
+def _tool(name: str) -> ModuleType:
+    """A script of ``examples/tools/`` loaded as a module."""
+    spec = importlib.util.spec_from_file_location(f"case_{name}", EXAMPLES / "tools" / f"{name}.py")
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -44,7 +44,7 @@ def _tool() -> ModuleType:
 @cache
 def dataset() -> tuple[Path, Path]:
     """The generated source and its change log (built or reused, SHA-256 checked)."""
-    paths: dict[str, Path] = _tool().ensure(REQUEST)
+    paths: dict[str, Path] = _tool("make_datasets").ensure(REQUEST)
     return paths["insurance-customers-100k.csv"], paths["insurance-customers-100k.changes.csv"]
 
 
@@ -57,11 +57,8 @@ def _read(path: Path) -> tuple[Row, list[Row]]:
 
 def truth_from_changes(changes: Path) -> dict[str, list[int]]:
     """Per class, the sorted 0-based data rows the generation changed."""
-    rows: dict[str, set[int]] = collections.defaultdict(set)
-    with changes.open(newline="", encoding="utf-8") as handle:
-        for change in csv.DictReader(handle):
-            rows[change["class"]].add(int(change["row_number"]) - 2)
-    return {name: sorted(indexes) for name, indexes in rows.items()}
+    truth: dict[str, list[int]] = _tool("case_truth").truth_from_changes(changes)
+    return truth
 
 
 def build_matches_input() -> bool:

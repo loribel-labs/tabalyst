@@ -20,7 +20,7 @@ A new case needs no new test file: `test_cases.py` reads each `case.json`.
 | Key | Holds |
 | --- | --- |
 | `id`, `title`, `tool`, `question` | the folder name, a short title, the command checked, the question asked |
-| `inputs` | `source`, `dirty` and `truth`, paths relative to the case folder |
+| `inputs` | `source`, `dirty` and `truth`, and when the case is generated `injections` (the Generate request) and `changes` (its change log), paths relative to the case folder |
 | `build` | the `script` (`case.py`) and the `seed` of the deterministic build |
 | `runs` | per method, the command-line `args` and the `seeds` to measure |
 | `measure` | the `sizes` measured and the `unit` of the table |
