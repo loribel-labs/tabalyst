@@ -4458,7 +4458,7 @@ without being its frequency) or `unknown`.
 
 | Family | Targets | Comes from | Mandatory |
 | --- | --- | --- | --- |
-| `low_cardinality` | one `value_equals` per distinct original value, `value_missing` | `values.samples` of a column of at most `smart.max_enum_values` (100) values | when the table lists every value (`samples.selection == all`, exact cardinality) |
+| `low_cardinality` | one `value_equals` per distinct original value, `value_missing` | `values.samples` of a column of at most `smart.max_enum_values` (100) values; else, from a current second pass, the `exact_frequencies` table (analytical texts, at most `smart.max_exact_values` (500), optional, base `exact_value`) | when the table lists every value (`samples.selection == all`, exact cardinality) |
 | `structured_string` | `pattern_matches` per inferred candidate, `pattern_other`, `length_min`, `length_max` | `derived.patterns`; the exact length histogram; the counts of `pattern_validation` when the second pass has them | never |
 | `numeric` | `numeric_min`, `numeric_max`, `numeric_zero`, `numeric_sign` (when both signs occur), `numeric_bin` | the numeric measure; `smart.numeric_bins` (10) bins of equal width between the exact minimum and maximum, never fewer than three | never |
 | `date` | `date_min`, `date_max` per kind, `date_kind` when several formats occur, `date_year` (at most 30 years) | the temporal measure | never |
@@ -4484,6 +4484,17 @@ column with a count of one, a single target per column; exact when the Scan samp
 for a priority sample; none when they exceed `MAX_TAIL_SHARE` (20%) of the values, as in an identifier; base `signal`).
 The one `pattern_other` per column stays: the structures that no pattern reads are already one family, hence one
 `pattern_matches` target, each, so a target per kind of reject would repeat them (measured on the case).
+Lot S4 reads three exact tables of the second pass that no target read (measured on the 100,000-row case, `sample-real-errors`:
+nine classes of a few rows were lost, hidden in values the first pass does not list). (1) `residual_value`: one target per
+value of a `residual_values` table of a detector (`invalid` or `not_matched`; a table that is complete and not truncated, whose
+occurrences are at most `MAX_RESIDUAL_SHARE` (20%) of the values, at most `MAX_RESIDUAL_VALUES` (20) per column; base
+`candidate_anomaly`; `MAX_RESIDUAL_TARGETS` (100) for the whole dataset, the first columns winning); a row covers it when its raw string is the listed value. (2) `value_equals` with `source: second_pass`
+for a column above `max_enum_values` whose `exact_frequencies` table holds at most `max_exact_values` values (the first pass keeps
+100 values chosen by hash, so half of the rare ones are missing): optional, base `exact_value` = 2 (at 5 these ~760 targets
+pushed the empty cells and the zero amounts out of a 300-row sample), tested on the analytical text of the cell since the table
+counts analytical texts (a table whose texts are not unique, one per native type, makes no target; a number or a date keeps its other targets, only text is `enumerated`); the catalog becomes `catalog_complete` and the column is `enumerated` for the other families.
+(3) `pattern_other` is made when the second pass finds occurrences that no pattern reads (`PatternCounts.outside_patterns()`) even
+if the sampled values were all read. Without a current second pass nothing changes.
 Two rules of lot S1 are evaluable: `missing_values` (an empty cell, for every column that has some and no
 `value_missing` target of the low-cardinality family; informational for the Scan, base `missing` and never mandatory) and
 `duplicate_rows` (one target for the dataset, no field, covered by any row that repeats an earlier row; a sample holds at
@@ -4499,7 +4510,7 @@ not estimated gets none (`domain_unknown`). The plan covers the catalog of targe
 **Weight (SMART-02, SRS 15.3).** `weight = min(cap, base * (1 + gain * rarity))`, with `rarity` from 0 (a share of 1) to 1 (a
 share of `floor` or less) on a logarithmic scale, and `unknown_rarity` (0.5) when the frequency is unknown. It never falls
 when the share of the target falls or when its base rises, and never passes `cap`. The bases are by kind: confirmed issue
-10, candidate anomaly 6, value 5, relation exception 5, pattern 4, extreme 4, sign and zero 3, bin 2, empty cells (`missing`) 6, remarks (`remark`) 5, unexpected characters (`character`) 5; `gain` 1, `floor`
+10, candidate anomaly 6, value 5, relation exception 5, pattern 4, extreme 4, sign and zero 3, bin 2, empty cells (`missing`) 6, remarks (`remark`) 5, unexpected characters (`character`) 5, values of an exact table of the second pass (`exact_value`) 2; `gain` 1, `floor`
 1e-6, `cap` 20. Everything is in `smart.weights`, written in the plan (`settings`, `settings_sha256`) with the version of the
 formula (`weights_version`, 1). The values are initial and to be validated on the demos. Rarity is not an error: a rare
 target weighs more but is not called an anomaly.

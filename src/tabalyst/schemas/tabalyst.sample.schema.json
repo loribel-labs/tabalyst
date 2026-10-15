@@ -770,6 +770,7 @@
             "observation",
             "characteristic",
             "value_rare",
+            "residual_value",
             "relation_exception"
           ],
           "title": "Kind",
@@ -1276,6 +1277,12 @@
           "minimum": 0,
           "title": "Character",
           "type": "number"
+        },
+        "exact_value": {
+          "default": 2.0,
+          "minimum": 0,
+          "title": "Exact Value",
+          "type": "number"
         }
       },
       "title": "SmartBaseWeights",
@@ -1283,13 +1290,20 @@
     },
     "SmartSettings": {
       "additionalProperties": false,
-      "description": "How the plan of a smart sample defines its targets (design 20.15).\n\nA column of at most ``max_enum_values`` distinct values gets one target per\nvalue; a numeric column is cut into ``numeric_bins`` bins of equal width\nbetween its minimum and maximum. The plan keeps ``candidates_per_target`` rows\nper target in memory at most, in ``max_candidate_bytes`` bytes, and\n``reserve_share`` of the rows asked for are a reserve of ordinary rows, and the\n``worst_rows`` rows that cover the most weight of targets at once are kept in\nmemory too, whatever their rank for each target (0 turns that off). At most\n``max_targets`` targets are kept, the heaviest first.",
+      "description": "How the plan of a smart sample defines its targets (design 20.15).\n\nA column of at most ``max_enum_values`` distinct values gets one target per\nvalue, up to ``max_exact_values`` when the second pass counted every value\nexactly; a numeric column is cut into ``numeric_bins`` bins of equal width\nbetween its minimum and maximum. The plan keeps ``candidates_per_target`` rows\nper target in memory at most, in ``max_candidate_bytes`` bytes, and\n``reserve_share`` of the rows asked for are a reserve of ordinary rows, and the\n``worst_rows`` rows that cover the most weight of targets at once are kept in\nmemory too, whatever their rank for each target (0 turns that off). At most\n``max_targets`` targets are kept, the heaviest first.",
       "properties": {
         "max_enum_values": {
           "default": 100,
           "maximum": 10000,
           "minimum": 1,
           "title": "Max Enum Values",
+          "type": "integer"
+        },
+        "max_exact_values": {
+          "default": 500,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Max Exact Values",
           "type": "integer"
         },
         "numeric_bins": {

@@ -307,6 +307,7 @@ result stale.
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | `smart.max_enum_values` | `100` | Most distinct values a column may have to get one target per value. From 1 to 10,000 |
+| `smart.max_exact_values` | `500` | Most distinct values a column may have to get one target per value when the second pass counted every value exactly (above `smart.max_enum_values`, which limits the values the first pass lists). From 1 to 10,000 |
 | `smart.numeric_bins` | `10` | Bins of equal width between the minimum and the maximum of a numeric column, from 2 to 100. A column with fewer than three possible bins gets none |
 | `smart.candidates_per_target` | `2` | Rows the selection holds in memory for each target, from 1 to 3 |
 | `smart.reserve_share` | `0.2` | Share of the rows asked for that is kept for ordinary rows, from 0 to 0.9. It gives way to mandatory targets |
@@ -320,7 +321,7 @@ The base weights are `confirmed_issue` 10, `candidate_anomaly` 6, `value` 5,
 `relation_exception` 5, `pattern` 4, `extreme` 4, `signal` 3, `bin` 2 and
 `missing` 6 (the empty cells of a column), `remark` 5 (a remark of the scan that
 may be valid: cells trimmed or with collapsed whitespace) and `character` 5 (an unexpected
-character in a column); the rarity of the target raises them. A weight never falls
+character in a column) and `exact_value` 2 (a value of a column the second pass counted exactly, above `smart.max_enum_values`); the rarity of the target raises them. A weight never falls
 when the target gets rarer or when its base rises, and never passes `cap`.
 
 ## Sample settings

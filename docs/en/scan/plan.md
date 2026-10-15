@@ -258,11 +258,11 @@ The plan lists **targets**, each a thing worth having in the sample, with a
 
 | Family | Targets |
 | --- | --- |
-| `low_cardinality` | each distinct value of a column of at most 100 values, and its missing cells |
-| `structured_string` | each inferred pattern and the values no pattern takes, the shortest and the longest length |
+| `low_cardinality` | each distinct value of a column of at most 100 values, and its missing cells; with a current second pass, each value of a column of up to 500 values that the second pass counted exactly |
+| `structured_string` | each inferred pattern and the values no pattern takes (the second pass counts them on every occurrence), the shortest and the longest length |
 | `numeric` | the minimum, the maximum, zero, each sign when both occur, ten bins of equal width |
 | `date` | the earliest and the latest date, each format when several occur, each year |
-| `quality` | each candidate anomaly or confirmed issue of the scan that a row can show, the rows that repeat an earlier row, the empty cells of each column that has some and no target for them yet, cells that a trim or a collapse of whitespace changed, strings whose length is not the usual one, a group of variants of one value (`Montreal`, `MONTREAL`) per group, the characters nobody expects in a column (control characters, line breaks, tabulations, non-breaking spaces, invisible characters, the replacement character, non-ASCII characters in a column that has them in 5% of its strings or fewer), and the values a text column holds once |
+| `quality` | each candidate anomaly or confirmed issue of the scan that a row can show, the rows that repeat an earlier row, the empty cells of each column that has some and no target for them yet, cells that a trim or a collapse of whitespace changed, strings whose length is not the usual one, a group of variants of one value (`Montreal`, `MONTREAL`) per group, the characters nobody expects in a column (control characters, line breaks, tabulations, non-breaking spaces, invisible characters, the replacement character, non-ASCII characters in a column that has them in 5% of its strings or fewer), the values a text column holds once, and, with a current second pass, each value that a detector reads as invalid or not matched (an address with a space inside, a currency sign in a column of numbers) |
 | `relations` | the exceptions to a [table of a category against a feature](#tables-of-a-category-against-a-feature), when the second pass has computed it |
 
 A target names what it stands for by reference into the scan and never holds a

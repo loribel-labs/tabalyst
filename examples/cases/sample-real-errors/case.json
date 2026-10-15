@@ -83,48 +83,21 @@
       "code_postal_char_missing",
       "nom_empty",
       "type_contrat_empty",
-      "nom_voie_very_long"
+      "nom_voie_very_long",
+      "courriel_space_inside",
+      "date_slash",
+      "prime_annuelle_currency_code",
+      "name_space_inside",
+      "prime_annuelle_currency_suffix",
+      "ville_space_inside",
+      "prime_annuelle_currency_fr",
+      "city_mojibake",
+      "nom_leading_apostrophe"
     ],
     "gaps": [
       {
-        "class": "courriel_space_inside",
-        "reason": "12 rows among 100,000, a space inside an address; kept by 2 of 3 smart seeds at 3,000 rows and by none at 300"
-      },
-      {
-        "class": "date_slash",
-        "reason": "41 rows over five date columns, a slash for the hyphen; kept by 2 of 3 smart seeds at 3,000 rows and by none at 300"
-      },
-      {
-        "class": "prime_annuelle_currency_code",
-        "reason": "2 rows with an ISO currency code in a column of plain numbers; kept by no smart seed"
-      },
-      {
-        "class": "name_space_inside",
-        "reason": "8 rows with one space inserted inside a name; kept by no smart seed"
-      },
-      {
-        "class": "prime_annuelle_currency_suffix",
-        "reason": "4 rows with a currency sign after the number; kept by no smart seed at 3,000 rows"
-      },
-      {
-        "class": "ville_space_inside",
-        "reason": "6 rows with a space inserted inside a city name; kept by no smart seed"
-      },
-      {
-        "class": "prime_annuelle_currency_fr",
-        "reason": "3 rows in the French convention (space thousands, comma decimals); kept by 2 of 3 smart seeds at 3,000 rows"
-      },
-      {
         "class": "province_code_city_mismatch",
         "reason": "3 rows whose province is valid but wrong for the city: a combination of two columns, the target of lot S3"
-      },
-      {
-        "class": "city_mojibake",
-        "reason": "2 rows with a mis-decoded city name; kept by no smart seed"
-      },
-      {
-        "class": "nom_leading_apostrophe",
-        "reason": "1 row with an apostrophe before the surname; kept by no smart seed"
       }
     ]
   },

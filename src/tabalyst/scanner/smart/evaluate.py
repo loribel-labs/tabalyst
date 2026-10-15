@@ -44,7 +44,12 @@ from tabalyst.scanner.models import (
 from tabalyst.scanner.normalization import KEY_STAGE, STAGES
 from tabalyst.scanner.records import table_digest
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
-from tabalyst.scanner.secondpass.models import AnalysisResult, DeepResult
+from tabalyst.scanner.secondpass.models import (
+    AnalysisResult,
+    DeepResult,
+    FrequencyTable,
+    ResidualResult,
+)
 from tabalyst.scanner.secondpass.patterns import pattern_entry
 from tabalyst.scanner.secondpass.replay import Cell, CellReader
 from tabalyst.scanner.smart import reasons
@@ -193,6 +198,8 @@ class _ColumnTests:
         # The numbers the Scan counted in the field (design 20.27).
         self.reader = evaluator.reader.for_field(field)
         self.exact: dict[str, list[int]] = {}
+        # Values of an exact table of the second pass, by analytical text.
+        self.analytic: dict[str, list[int]] = {}
         self.missing: list[int] = []
         self.coder: PatternCoder | None = None
         self.by_code: dict[int, list[int]] = {}
@@ -230,7 +237,7 @@ class _ColumnTests:
 
     @property
     def _cells(self) -> bool:
-        return bool(self.lengths or self.off_length or self._numbers or self._dates)
+        return bool(self.lengths or self.off_length or self.analytic or self._numbers or self._dates)
 
     @property
     def _stages(self) -> bool:
@@ -320,6 +327,10 @@ class _ColumnTests:
                 found.append(group[1])
 
     def _cell(self, cell: Cell, found: list[int]) -> None:
+        if self.analytic:
+            hit = self.analytic.get(cell.text)
+            if hit:
+                found.extend(hit)
         hit = self.lengths.get(cell.length)
         if hit:
             found.extend(hit)
@@ -479,7 +490,9 @@ class Evaluator:
         tests = self._tests(target.fields[0])
         field = tests.field
         params = predicate.params
-        if kind == "value_equals":
+        if kind == "value_equals" and predicate.source == "second_pass":
+            self._exact_value(tests, position, target)
+        elif kind == "value_equals":
             entry = next(
                 (e for e in field.values.samples.listed if e.id == params.get("entry")), None
             )
@@ -513,6 +526,8 @@ class Evaluator:
                 raise _Unresolved("reference_missing")
             tests.rare |= singles
             tests.rare_targets.append(position)
+        elif kind == "residual_value":
+            self._residual(tests, position, target)
         elif kind == "characteristic":
             name = str(predicate.params.get("name"))
             if name not in PRESENCE and name not in CHARACTERISTICS:
@@ -520,6 +535,38 @@ class Evaluator:
             tests.odd.setdefault(name, []).append(position)
         else:
             raise _Unresolved("unsupported_predicate")
+
+    def _exact_value(self, tests: _ColumnTests, position: int, target: Target) -> None:
+        """A value of the exact table of the second pass, which counts analytical
+        texts: it is compared with the analytical text of the cell."""
+        analysis = self._analyses.get(target.origin or "")
+        table = analysis.result if analysis is not None else None
+        entry = int(target.predicate.params.get("entry", -1))
+        if (
+            analysis is None
+            or analysis.status != "complete"
+            or not isinstance(table, FrequencyTable)
+            or not 0 <= entry < len(table.values)
+        ):
+            raise _Unresolved("reference_missing")
+        tests.analytic.setdefault(table.values[entry].value, []).append(position)
+
+    def _residual(self, tests: _ColumnTests, position: int, target: Target) -> None:
+        """A value the second pass listed as left out by a detector: the string is
+        compared as it is, since the table holds the original values."""
+        analysis = self._analyses.get(target.origin or "")
+        if (
+            analysis is None
+            or analysis.status != "complete"
+            or not isinstance(analysis.result, ResidualResult)
+        ):
+            raise _Unresolved("reference_missing")
+        params = target.predicate.params
+        tables = analysis.result.tables
+        table, entry = int(params.get("table", -1)), int(params.get("entry", -1))
+        if not 0 <= table < len(tables) or not 0 <= entry < len(tables[table].listed):
+            raise _Unresolved("reference_missing")
+        tests.exact.setdefault(tables[table].listed[entry].value, []).append(position)
 
     def _pattern(self, tests: _ColumnTests, position: int, target: Target) -> None:
         scan = self._scan

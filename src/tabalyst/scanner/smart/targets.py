@@ -34,7 +34,9 @@ from tabalyst.scanner.secondpass.models import (
     CrosstabResult,
     DeepResult,
     DenseHistogram,
+    FrequencyTable,
     PatternCounts,
+    ResidualResult,
 )
 from tabalyst.scanner.smart.bins import bin_index
 from tabalyst.scanner.smart.models import (
@@ -96,6 +98,13 @@ RARE_CHARACTERISTIC_SHARE = 0.05
 # The values a column holds once make a tail worth a target only when they are few
 # next to its rows: in an identifier every value is seen once.
 MAX_TAIL_SHARE = 0.2
+# The values a detector leaves out, one target each (the second pass lists at most
+# 20 per table): beyond this share of the column they are its format, not defects.
+MAX_RESIDUAL_VALUES = 20
+# And in all the columns of a dataset: a file full of invalid values must not fill a
+# small sample with them (the first columns win).
+MAX_RESIDUAL_TARGETS = 100
+MAX_RESIDUAL_SHARE = 0.2
 
 # Analyzers of the second pass that bring or sharpen the targets of a family.
 ENRICHES: dict[str, Family] = {
@@ -142,6 +151,8 @@ class _Builder:
         # Columns that already have a target for their empty cells: the
         # observation of missing values would only repeat it.
         self.missing_targeted: set[str] = set()
+        # Targets made from the values a detector leaves out, in the whole dataset.
+        self.residual_targets = 0
         # Several tables can share the same two columns (one per feature), so the
         # analyses are a list, not a map keyed by the columns.
         self.analyses: list[AnalysisResult] = []
@@ -264,6 +275,8 @@ class _Builder:
             )
             return
         if distinct > self.settings.max_enum_values or len(samples.listed) > self.settings.max_enum_values:
+            if self.exact_values(field):
+                return
             self.catalog(
                 "low_cardinality", field, complete=False, targets=0, reasons=["high_cardinality"]
             )
@@ -292,21 +305,7 @@ class _Builder:
                 ref=where,
                 params={"entry": entry.id},
             )
-        count = len(samples.listed)
-        if missing > 0:
-            self.add(
-                "low_cardinality",
-                [field.id],
-                "value_missing",
-                "",
-                base="value",
-                frequency=self.counted(missing),
-                evidence="exact",
-                obligation=obligation,
-                ref=f"datasets/{self.dataset.id}/fields/{field.id}/missing",
-            )
-            self.missing_targeted.add(field.id)
-            count += 1
+        count = len(samples.listed) + self.missing_target(field, obligation)
         self.catalog(
             "low_cardinality",
             field,
@@ -316,6 +315,64 @@ class _Builder:
         )
         if exhaustive:
             self.enumerated.add(field.id)
+
+    def missing_target(self, field: FieldResult, obligation: Obligation) -> int:
+        """The target of the empty cells of a column, when it has some; how many
+        targets it made."""
+        missing = field.missing.count
+        if missing <= 0:
+            return 0
+        self.add(
+            "low_cardinality",
+            [field.id],
+            "value_missing",
+            "",
+            base="value",
+            frequency=self.counted(missing),
+            evidence="exact",
+            obligation=obligation,
+            ref=f"datasets/{self.dataset.id}/fields/{field.id}/missing",
+        )
+        self.missing_targeted.add(field.id)
+        return 1
+
+    def exact_values(self, field: FieldResult) -> bool:
+        """One target per value of a column the first pass could not list but the
+        second pass counted exactly, up to ``max_exact_values``: the values the
+        Scan sampled by hash miss half of the rare ones. They are optional (a
+        sample need not hold every value of a column of hundreds) and stand on the
+        analytical text, which is what the table counts. Whether it made targets."""
+        analysis = self.analysis("exact_frequencies", field.id)
+        table = analysis.result if analysis is not None else None
+        if (
+            analysis is None
+            or not isinstance(table, FrequencyTable)
+            or not 0 < len(table.values) == table.distinct <= self.settings.max_exact_values
+            # The table is keyed by native type too, but a row is tested on its text.
+            or len({entry.value for entry in table.values}) < len(table.values)
+        ):
+            return False
+        for index, entry in enumerate(table.values):
+            self.add(
+                "low_cardinality",
+                [field.id],
+                "value_equals",
+                str(index),
+                base="exact_value",
+                frequency=self.counted(entry.count, method="exact_frequencies"),
+                evidence="second_pass",
+                source="second_pass",
+                ref=f"analyses/{analysis.id}",
+                params={"entry": index},
+                origin=analysis.id,
+            )
+        count = len(table.values) + self.missing_target(field, "optional")
+        self.catalog("low_cardinality", field, complete=True, targets=count, reasons=[])
+        # Only text is left to its values: a number or a date keeps its extremes,
+        # signs, bins and years, which weigh more than any one of its values.
+        if field.technical_type.type in ("text", "mixed"):
+            self.enumerated.add(field.id)
+        return True
 
     def structured_string(self) -> None:
         if self.scan.derived is None or self.scan.derived.patterns is None:
@@ -361,7 +418,11 @@ class _Builder:
                 )
                 made += 1
             unmatched = entry.outside_patterns()[0]
-            if unmatched > 0:
+            # The second pass reads every occurrence: values no pattern reads
+            # may exist though the sampled values were all read (a slash in a
+            # column of dates written with hyphens).
+            rest = counts.outside_patterns() if counts is not None else 0
+            if unmatched > 0 or rest > 0:
                 if counts is not None:
                     frequency = self.counted(
                         counts.outside_patterns(), method="pattern_validation"
@@ -735,6 +796,37 @@ class _Builder:
                 origin=item.id,
             )
 
+    def residuals(self, field: FieldResult) -> None:
+        """One target per value that a detector of the second pass reads as invalid
+        or not matched. The table is exact and complete, so each value is a
+        defect the Scan counted and no other target names (a space inside an
+        address, a currency sign in a column of numbers)."""
+        analysis = self.analysis("residual_values", field.id)
+        if analysis is None or not isinstance(analysis.result, ResidualResult):
+            return
+        for position, table in enumerate(analysis.result.tables):
+            if table.source != "detector" or not table.complete or table.truncated:
+                continue
+            if table.occurrences > MAX_RESIDUAL_SHARE * max(1, analysis.result.values):
+                continue
+            for entry_index, entry in enumerate(table.listed[:MAX_RESIDUAL_VALUES]):
+                if self.residual_targets >= MAX_RESIDUAL_TARGETS:
+                    return
+                self.residual_targets += 1
+                self.add(
+                    "quality",
+                    [field.id],
+                    "residual_value",
+                    f"{position}:{entry_index}",
+                    base="candidate_anomaly",
+                    frequency=self.counted(entry.count, method="residual_values"),
+                    evidence="second_pass",
+                    source="second_pass",
+                    ref=f"analyses/{analysis.id}",
+                    params={"table": position, "entry": entry_index},
+                    origin=analysis.id,
+                )
+
     def relations(self) -> None:
         for analysis in self.analyses:
             result = analysis.result
@@ -780,6 +872,7 @@ def build_targets(
         builder.dates(field)
         builder.characters(field)
         builder.tail(field)
+        builder.residuals(field)
     builder.quality()
     builder.relations()
     return builder.result

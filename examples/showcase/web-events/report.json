@@ -14946,7 +14946,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -22905,21 +22905,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-14T18:47:48.476583Z",
-        "duration_seconds": 0.038549,
+        "started_at": "2026-10-15T00:56:51.730391Z",
+        "duration_seconds": 0.00014,
         "timings": {
-          "reading": 0.005389,
-          "analysis": 0.008579,
-          "other": 0.024581
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.00014
         },
         "workers": 1,
-        "peak_memory_bytes": 75988992,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 300,
-        "cells_read": 876,
-        "executed": 11,
-        "reused": 0,
+        "peak_memory_bytes": 72851456,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 11,
         "skipped": 0
       },
       "analyses": [
@@ -27399,12 +27399,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-14T18:47:48.781266Z",
+    "generated_at": "2026-10-15T00:56:51.993424Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.4223,
+    "processing_seconds": 0.3218,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

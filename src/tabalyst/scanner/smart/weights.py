@@ -26,6 +26,7 @@ BaseKind = Literal[
     "missing",
     "remark",
     "character",
+    "exact_value",
 ]
 
 

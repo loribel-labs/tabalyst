@@ -43,15 +43,15 @@ than once in the source.
 
 ## Result
 
-Measured on 2026-10-14 (lot E2b), sensitive values shown (the default). Share of the 3 runs of
+Measured on 2026-10-14 (lot S4), sensitive values shown (the default). Share of the 3 runs of
 each method that keep at least one row of the class:
 
 | Class | Rows | smart 3000 | random 3000 | smart 300 | random 300 |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | `code_postal_double_space` | 54 | 100% | 100% | 100% | 0% |
-| `courriel_space_inside` | 12 | 67% | 33% | 0% | 0% |
+| `courriel_space_inside` | 12 | 100% | 33% | 100% | 0% |
 | `id_contrat_empty` | 9 | 100% | 33% | 100% | 0% |
-| `date_slash` | 41 | 67% | 67% | 0% | 0% |
+| `date_slash` | 41 | 100% | 67% | 100% | 0% |
 | `province_code_lower` | 23 | 100% | 67% | 100% | 0% |
 | `date_other_branch_format` | 67 | 100% | 67% | 0% | 0% |
 | `agence_code_double_hyphen` | 16 | 100% | 0% | 100% | 0% |
@@ -62,10 +62,10 @@ each method that keep at least one row of the class:
 | `prenom_typo` | 47 | 100% | 100% | 100% | 33% |
 | `duplicate_rows` | 8 | 100% | 0% | 100% | 0% |
 | `nom_typo` | 79 | 100% | 100% | 100% | 33% |
-| `prime_annuelle_currency_code` | 2 | 0% | 0% | 0% | 0% |
+| `prime_annuelle_currency_code` | 2 | 100% | 0% | 100% | 0% |
 | `type_contrat_variant` | 7 | 100% | 67% | 100% | 0% |
 | `province_nom_lower` | 12 | 100% | 33% | 100% | 0% |
-| `name_space_inside` | 8 | 0% | 0% | 0% | 0% |
+| `name_space_inside` | 8 | 100% | 0% | 33% | 0% |
 | `province_code_empty` | 3 | 100% | 0% | 100% | 0% |
 | `name_double_space` | 11 | 100% | 33% | 100% | 0% |
 | `prime_annuelle_negative` | 25 | 100% | 67% | 100% | 33% |
@@ -74,41 +74,43 @@ each method that keep at least one row of the class:
 | `id_contrat_missing_digit` | 22 | 100% | 67% | 100% | 33% |
 | `id_client_missing_digit` | 20 | 100% | 33% | 100% | 0% |
 | `id_contrat_double_hyphen` | 14 | 100% | 67% | 100% | 0% |
-| `prime_annuelle_currency_suffix` | 4 | 0% | 33% | 0% | 0% |
-| `prime_annuelle_currency_prefix` | 3 | 33% | 33% | 33% | 0% |
+| `prime_annuelle_currency_suffix` | 4 | 100% | 33% | 100% | 0% |
+| `prime_annuelle_currency_prefix` | 3 | 100% | 33% | 100% | 0% |
 | `pays_code_lower` | 22 | 100% | 100% | 100% | 0% |
 | `date_start_after_end` | 27 | 100% | 67% | 100% | 0% |
-| `ville_space_inside` | 6 | 0% | 67% | 0% | 0% |
+| `ville_space_inside` | 6 | 100% | 67% | 0% | 0% |
 | `date_fin_sentinel` | 2 | 100% | 0% | 100% | 0% |
 | `date_naissance_empty` | 6 | 100% | 0% | 100% | 0% |
 | `mode_paiement_accent_removed` | 17 | 100% | 67% | 100% | 0% |
-| `claim_amount_zero` | 5 | 100% | 0% | 100% | 0% |
+| `claim_amount_zero` | 5 | 100% | 0% | 67% | 0% |
 | `prime_annuelle_text` | 5 | 100% | 33% | 100% | 0% |
 | `prenom_empty` | 7 | 100% | 0% | 100% | 0% |
 | `code_postal_char_missing` | 21 | 100% | 67% | 100% | 0% |
 | `nom_empty` | 4 | 100% | 0% | 100% | 0% |
 | `type_contrat_empty` | 2 | 100% | 0% | 100% | 0% |
-| `prime_annuelle_currency_fr` | 3 | 67% | 0% | 67% | 0% |
+| `prime_annuelle_currency_fr` | 3 | 100% | 0% | 100% | 0% |
 | `province_code_city_mismatch` | 3 | 0% | 0% | 0% | 0% |
-| `city_mojibake` | 2 | 0% | 0% | 0% | 0% |
-| `nom_leading_apostrophe` | 1 | 0% | 0% | 0% | 0% |
+| `city_mojibake` | 2 | 100% | 0% | 0% | 0% |
+| `nom_leading_apostrophe` | 1 | 100% | 0% | 33% | 0% |
 | `nom_voie_very_long` | 2 | 100% | 0% | 100% | 0% |
 
-Over the 3 seeds, the number of classes of 45 that no run kept at all: `smart` 7 at 3,000 rows and
-10 at 300, `random` 18 at 3,000 and 37 at 300. With seed 1, the run the test checks, `smart` keeps 35
-classes at 3,000 rows against 17 for `random`; at 300 rows `smart` keeps 34 and `random` 3. These are the
-numbers to compare when a change to Sample is made.
+Over the 3 seeds, the number of classes of 45 that no run kept at all: `smart` 1 at 3,000 rows and
+4 at 300, `random` 18 at 3,000 and 37 at 300. With seed 1, the run the test checks, `smart` keeps 44
+classes at 3,000 rows against 17 for `random`; at 300 rows `smart` keeps 39 and `random` 3. These are the
+numbers to compare when a change to Sample is made. Before lot S4 `smart` kept 35 and 34 classes with
+seed 1 (7 and 10 never kept).
 
 ## Known gaps
 
-The 10 classes that `smart` does not keep at 3,000 rows with seed 1 are listed in `case.json`
-(`expectations.gaps`) and run as strict `xfail`: the test fails the day one of them is kept, so
-the list is updated on purpose. Two kinds of gap appear. Classes of a handful of rows hidden in
-a value that Scan sees as ordinary (a space inserted inside a name or a city, a currency sign or
-code in a column of numbers, a mis-decoded city, an apostrophe before a surname) are not
-targets of `smart` yet. `province_code_city_mismatch` is a combination of two columns, which is
-the subject of lot S3. The rest is for a lot S4 that looks at why the other classes are lost,
-without adding rows to the base to hide them.
+The one class that `smart` does not keep at 3,000 rows with seed 1 is listed in `case.json`
+(`expectations.gaps`) and runs as strict `xfail`: the test fails the day it is kept, so the list is
+updated on purpose. `province_code_city_mismatch` is a combination of two columns, which is the
+subject of lot S3. Lot S4 recovered the other nine: they were hidden in values that the first pass
+does not list (a space inside a name, an address or a city, a currency sign or code in a column of
+numbers, a mis-decoded city, an apostrophe before a surname, a slash in a date) but that the
+second pass counts exactly, and no target read those counts. They need the second pass (`--deep`
+when scanning); without it `smart` is as before. At 300 rows a few classes of the smallest kinds are
+still kept by some seeds only.
 
 ## Files
 

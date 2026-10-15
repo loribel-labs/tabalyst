@@ -169,12 +169,12 @@ Smart sample plan for insurance-customers-100k.csv (dataset rows, 100,000 rows)
 
 A smart sample covers diversity and rare cases; its proportions are not those of the population. The targets are those the Scan and the stored second pass know: other cases may exist.
 
-Targets: 615 (157 mandatory, 458 optional).
-  Low cardinality: 157 targets, 157 mandatory
-  Structured strings: 50 targets, 0 mandatory
+Targets: 1412 (157 mandatory, 1255 optional).
+  Low cardinality: 922 targets, 157 mandatory
+  Structured strings: 47 targets, 0 mandatory
   Numeric: 53 targets, 0 mandatory
   Dates: 70 targets, 0 mandatory
-  Quality: 128 targets, 0 mandatory
+  Quality: 163 targets, 0 mandatory
   Relations: 157 targets, 0 mandatory
 
 Columns whose values are only partly known:
@@ -190,20 +190,20 @@ Columns whose values are only partly known:
   date_reclamation (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
 
 Heaviest targets:
-  10.5229  prime_annuelle: observation:missing_values (3 rows, 0.0030%)
-  10.3979  nom: observation:missing_values (4 rows, 0.0040%)
-  10.2218  date_naissance: observation:missing_values (6 rows, 0.0060%)
-  10.1549  prenom: observation:missing_values (7 rows, 0.0070%)
-  10.0969  rows: observation:duplicate_rows (8 rows, 0.0080%)
-  10.0458  id_contrat: observation:missing_values (9 rows, 0.0090%)
-  9.85386  prime_annuelle: observation:type_outliers (14 rows, 0.0140%)
-  9.79588  agence_code: observation:minority_length (16 rows, 0.0160%)
-  9.67778  code_postal: observation:minority_length (21 rows, 0.0210%)
-  9.44366  id_contrat: observation:minority_length (36 rows, 0.0360%)
+  11  code_postal: residual_value (1 row, 0.0010%)
+  11  code_postal: residual_value (1 row, 0.0010%)
+  11  code_postal: residual_value (1 row, 0.0010%)
+  11  code_postal: residual_value (1 row, 0.0010%)
+  11  code_postal: residual_value (1 row, 0.0010%)
+  11  code_postal: residual_value (1 row, 0.0010%)
+  11  code_postal: residual_value (1 row, 0.0010%)
+  11  code_postal: residual_value (1 row, 0.0010%)
+  11  code_postal: residual_value (1 row, 0.0010%)
+  11  code_postal: residual_value (1 row, 0.0010%)
 
-Size: 3,000 rows asked; 157 rows are enough for the mandatory targets one by one; beyond 769 rows only the reserve grows.
+Size: 3,000 rows asked; 157 rows are enough for the mandatory targets one by one; beyond 1,765 rows only the reserve grows.
 Reserve of ordinary rows: 20%, 600 rows.
-Candidate rows kept in memory: up to 1,830, about 491.5 KiB of source text.
+Candidate rows kept in memory: up to 3,424, about 919.5 KiB of source text.
 
 Readings of the source: 1
   scan (not needed): a current Scan is stored: it is not read again

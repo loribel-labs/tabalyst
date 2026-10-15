@@ -568,6 +568,7 @@ class SmartBaseWeights(BaseModel):
     missing: float = Field(default=6.0, ge=0)
     remark: float = Field(default=5.0, ge=0)
     character: float = Field(default=5.0, ge=0)
+    exact_value: float = Field(default=2.0, ge=0)
 
 
 class SmartWeights(BaseModel):
@@ -589,7 +590,8 @@ class SmartSettings(BaseModel):
     """How the plan of a smart sample defines its targets (design 20.15).
 
     A column of at most ``max_enum_values`` distinct values gets one target per
-    value; a numeric column is cut into ``numeric_bins`` bins of equal width
+    value, up to ``max_exact_values`` when the second pass counted every value
+    exactly; a numeric column is cut into ``numeric_bins`` bins of equal width
     between its minimum and maximum. The plan keeps ``candidates_per_target`` rows
     per target in memory at most, in ``max_candidate_bytes`` bytes, and
     ``reserve_share`` of the rows asked for are a reserve of ordinary rows, and the
@@ -601,6 +603,7 @@ class SmartSettings(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     max_enum_values: int = Field(default=100, ge=1, le=10_000)
+    max_exact_values: int = Field(default=500, ge=1, le=10_000)
     numeric_bins: int = Field(default=10, ge=2, le=100)
     candidates_per_target: int = Field(default=2, ge=1, le=3)
     reserve_share: float = Field(default=0.2, ge=0, le=0.9)
