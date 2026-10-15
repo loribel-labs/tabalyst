@@ -11,35 +11,38 @@ entirely on your computer.
 
 **Simple. Clear. Smart.**
 
-Tabalyst is in beta. Its interfaces may still change while the shared toolkit
-architecture is being established.
-
 ## Quick start
 
 Tabalyst supports Python 3.11, 3.12, 3.13, and 3.14.
 
 ```console
 pip install --upgrade tabalyst
-tabalyst report customers.csv
+tabalyst report insurance-customers.csv
 ```
 
-Explore the interactive HTML report or use the generated JSON profile in your
-own workflows. The same `pip` command installs Tabalyst or updates it. Tabalyst
-is in beta and changes often: update it before each new test.
+Save [`insurance-customers.csv`](https://github.com/loribel-labs/tabalyst/blob/main/examples/datasets/insurance-customers.csv),
+a synthetic example, in your working folder, or use your own file. Explore the
+interactive HTML report or use the generated JSON profile in your own
+workflows. The same `pip` command installs Tabalyst or updates it.
 
-[Live demo](https://tabalyst.com/examples/report.html) ·
-[Documentation](https://docs.tabalyst.com/) ·
-[Website](https://tabalyst.com/)
+Tabalyst is in beta. Commands and interfaces may change between releases.
+Update before each new test.
+
+## Tabalyst Websites
+
+- [tabalyst.com](https://tabalyst.com/): the official website, with an interactive demo.
+- [docs.tabalyst.com](https://docs.tabalyst.com/): the documentation, for people and for AI assistants.
+- [Interactive report](https://tabalyst.com/examples/report.html): a real Tabalyst report you can explore in your browser.
 
 ## What can Tabalyst do?
 
 | Tool | Purpose |
 | --- | --- |
-| **Tabalyst Report** | Generate interactive HTML profiling reports and JSON profiles |
-| **Tabalyst Scan** | Analyze dataset structure, types, statistics and data quality |
-| **Tabalyst Inspect** | Discover and configure JSON collections and Excel tables |
-| **Tabalyst Sample** | Create random, stratified and smart CSV samples |
-| **Tabalyst Generate** | Generate synthetic CSV datasets for testing and demos |
+| [**Tabalyst Report**](https://docs.tabalyst.com/report/) | Generate interactive HTML profiling reports and JSON profiles |
+| [**Tabalyst Scan**](https://docs.tabalyst.com/scan/) | Profile datasets and generate JSON and HTML scan summaries |
+| [**Tabalyst Inspect**](https://docs.tabalyst.com/inspect/) | Discover and configure JSON collections and Excel tables |
+| [**Tabalyst Sample**](https://docs.tabalyst.com/sample/) | Create random, stratified and smart CSV samples |
+| [**Tabalyst Generate**](https://docs.tabalyst.com/generate/) | Generate synthetic CSV datasets for testing and demos |
 
 ## Tabalyst Report
 
@@ -91,11 +94,29 @@ Useful options: `--delimiter`, `--encoding`, `--config`, `--workers`,
 `--verbose`, `--quiet` and `--help`. `python -m tabalyst` accepts the same
 commands.
 
-Details: [Tabalyst Report](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/report/index.md),
-[JSON and JSONL](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/report/json.md),
-[Excel](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/report/excel.md),
-[CSV batches and options](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/report/csv.md) and the
-[`report` command reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/cli/report.md).
+Details: [Tabalyst Report](https://docs.tabalyst.com/report/),
+[JSON and JSONL](https://docs.tabalyst.com/report/json/),
+[Excel](https://docs.tabalyst.com/report/excel/),
+[CSV batches and options](https://docs.tabalyst.com/report/csv/) and the
+[`report` command reference](https://docs.tabalyst.com/reference/cli/report/).
+
+### What the report analyzes
+
+- Dataset dimensions, missing cells, duplicates, and quality observations.
+- Physical and semantic types with confidence and error rates.
+- Numeric, date, string-length, normalization, and value distributions.
+- Distinct values, representative examples, date formats, and semantic types
+  such as enumerations, email addresses, phone numbers, and postal codes.
+- CSV record widths, quoting, encoding, and delimiter configuration.
+- A bounded raw-data preview while every record is analyzed.
+
+The report is built on Tabalyst Scan; values of sensitive columns can be masked
+or hidden. Ambiguous dates stay
+ambiguous; the report shows the evidence of the column without applying it. The
+HTML report is self-contained and works without a CDN or network connection.
+The JSON profile contains the same canonical analysis result for scripts and
+future Tabalyst tools. See
+[how to read the report](https://docs.tabalyst.com/report/read-report/).
 
 ## Tabalyst Scan
 
@@ -107,14 +128,15 @@ tabalyst scan orders.json --collection "$.customers[]"
 tabalyst scan sales.xlsx --collection Orders
 ```
 
-Scan reads the file once as a stream, with bounded memory, and records for each
+Scan reads a text file once as a stream, with bounded memory. An Excel sheet is
+loaded into memory. It records for each
 field its types, missing values, frequencies, statistics and the result of every
 detector (dates, numbers with decimal commas, emails, URLs, phone numbers,
 postal codes, currencies, UUIDs, IP addresses and more). It also writes
 `customers.scan.html`, a page that shows the scan (`--no-html` skips it).
 
-A second reading gives exact distinct counts, frequencies, histograms,
-medians, patterns, correlations and more. `--plan` shows what it would add and
+A second reading can provide exact distinct counts, frequencies, histograms,
+medians, patterns, correlations and more, within the limits of your data. `--plan` shows what it would add and
 cost without running it, and `--deep` runs it:
 
 ```console
@@ -126,11 +148,11 @@ tabalyst scan customers.csv --deep
 cost, and says what it added. `tabalyst report` also reuses a stored scan
 while the source is unchanged.
 
-Details: [Scan CSV and JSON files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/files.md),
-[the second reading](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/deep.md),
-[reading exact, estimated and limited results](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/reading-results.md),
-[scan storage and cache](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/cache.md) and the
-[scan format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/format.md).
+Details: [Scan CSV and JSON files](https://docs.tabalyst.com/scan/files/),
+[the second reading](https://docs.tabalyst.com/scan/deep/),
+[reading exact, estimated and limited results](https://docs.tabalyst.com/scan/reading-results/),
+[scan storage and cache](https://docs.tabalyst.com/scan/cache/) and the
+[scan format](https://docs.tabalyst.com/scan/format/).
 
 ## Tabalyst Inspect
 
@@ -149,9 +171,9 @@ optional: both commands inspect a source themselves, and stop with exit code
 `2` and a list of candidates when the choice is ambiguous. Pass
 `--collection` to choose.
 
-Details: [Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/json.md),
-[Inspect Excel workbooks](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/excel.md) and the
-[Inspect format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/format.md).
+Details: [Inspect JSON and JSONL files](https://docs.tabalyst.com/inspect/json/),
+[Inspect Excel workbooks](https://docs.tabalyst.com/inspect/excel/) and the
+[Inspect format](https://docs.tabalyst.com/inspect/format/).
 
 ## Tabalyst Sample
 
@@ -167,7 +189,7 @@ keeps the diversity of the file (rare values, extremes, formats, odd cases)
 instead of its proportions, and writes a report of what it covers, so never
 estimate the population from it. Sampling reads records as a stream.
 
-Details: [Tabalyst Sample](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/sample/index.md).
+Details: [Tabalyst Sample](https://docs.tabalyst.com/sample/).
 
 ## Tabalyst Generate
 
@@ -177,33 +199,16 @@ Generate synthetic CSV data from a packaged example (`crm`, `insurance` or
 ```console
 tabalyst generate --example crm -o crm-contacts.csv
 tabalyst generate --example insurance --rows 3000 -d insurance-output/
+tabalyst generate --example computer --rows 10000 -d computer-output/
 tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d insurance-dirty/
 ```
 
 An anomaly profile writes an altered CSV, a cell change log and a summary
 beside the untouched clean CSV.
 
-Details: [Tabalyst Generate](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/generate/index.md),
+Details: [Tabalyst Generate](https://docs.tabalyst.com/generate/),
 [`examples/generate/README.md`](examples/generate/README.md) and the
 [Computer package contract](docs/dev/generate/computer.md).
-
-## What the report analyzes
-
-- Dataset dimensions, missing cells, duplicates, and quality observations.
-- Physical and semantic types with confidence and error rates.
-- Numeric, date, string-length, normalization, and value distributions.
-- Distinct values, representative examples, date formats, and semantic types
-  such as enumerations, email addresses, phone numbers, and postal codes.
-- CSV record widths, quoting, encoding, and delimiter configuration.
-- A bounded raw-data preview while every record is analyzed.
-
-The report is built on Tabalyst Scan; values of sensitive columns can be masked
-or hidden. Ambiguous dates stay
-ambiguous; the report shows the evidence of the column without applying it. The
-HTML report is self-contained and works without a CDN or network connection.
-The JSON profile contains the same canonical analysis result for scripts and
-future Tabalyst tools. See
-[how to read the report](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/report/read-report.md).
 
 ## Python API
 
@@ -212,7 +217,7 @@ The same operations are available without the CLI:
 ```python
 import tabalyst
 
-result = tabalyst.analyze("customers.csv", "customers.html", separator=";")
+result = tabalyst.analyze("customers.csv", "customers.html")
 batch = tabalyst.generate_reports(["*.csv"], output_dir="reports")
 sample = tabalyst.sample_csv("customers.csv", method="random", rows=1000, seed=42)
 scan = tabalyst.scan("orders.json")
@@ -222,7 +227,7 @@ inspection = tabalyst.inspect("orders.json")
 Existing artifacts are never replaced silently: pass `force=True` when
 replacement is intentional. Expected failures derive from
 `tabalyst.TabalystError`. See the
-[Python API reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/python-api/index.md).
+[Python API reference](https://docs.tabalyst.com/reference/python-api/).
 
 ## Configuration
 
@@ -239,7 +244,7 @@ Configuration files are strict JSON, loaded only with `--config`:
 
 Explicit CLI or Python arguments override the configuration file, which
 overrides Tabalyst defaults. See the
-[configuration reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/configuration.md).
+[configuration reference](https://docs.tabalyst.com/reference/configuration/).
 
 ## Local-first behavior and current limits
 
@@ -247,10 +252,10 @@ Tabalyst performs analysis locally and adds no telemetry or remote processing.
 Generated JSON and HTML may contain source values and should be shared
 accordingly.
 
-Reports, samples, and scans read files as a stream, with memory bounded by
-configurable limits. An Excel workbook is read by sheet into memory, and a
-sheet above 1 GiB of XML is refused. See
-[limitations](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/about/limitations.md).
+Reports, samples, and scans read CSV, JSON and JSONL files as a stream, with
+memory bounded by configurable limits. An Excel workbook is read by sheet into
+memory, and a sheet above 1 GiB of XML is refused. See
+[limitations](https://docs.tabalyst.com/about/limitations/).
 
 ## Examples and development
 
