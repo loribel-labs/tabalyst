@@ -448,8 +448,10 @@ shows the share of each category in every class before any score.
   a fifth of the cells under 5, or one under 1) on the categories and classes that
   hold at least 5 rows; the `sparse` ones, with fewer, are counted but do not make a
   score unstable. An unstable score is not to be called strong, and when the planner
-  chooses tables by itself a table with an unstable score ranks after every stable one,
-  whatever its score; it stays listed.
+  lists tables, a table with an unstable score ranks after every stable one of the same
+  kind (a score of 0.45 or more, or less); an unstable table that strong ranks before the
+  weak stable ones, and the other features of a pair of columns rank after the first
+  feature of every other pair. An unstable table always stays listed.
 - `rules` are the **candidate rules** the table suggests: a category whose dominant
   class is a real pattern, length or prefix (not `other`), with at least 30 counted
   rows of which 90% are in it. A rule is learned from the data, not validated by

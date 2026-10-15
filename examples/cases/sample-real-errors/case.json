@@ -92,14 +92,10 @@
       "ville_space_inside",
       "prime_annuelle_currency_fr",
       "city_mojibake",
-      "nom_leading_apostrophe"
+      "nom_leading_apostrophe",
+      "province_code_city_mismatch"
     ],
-    "gaps": [
-      {
-        "class": "province_code_city_mismatch",
-        "reason": "3 rows whose province is valid but wrong for the city: a combination of two columns, the target of lot S3"
-      }
-    ]
+    "gaps": []
   },
   "publish": {
     "site": false,

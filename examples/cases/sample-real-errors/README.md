@@ -89,28 +89,27 @@ each method that keep at least one row of the class:
 | `nom_empty` | 4 | 100% | 0% | 100% | 0% |
 | `type_contrat_empty` | 2 | 100% | 0% | 100% | 0% |
 | `prime_annuelle_currency_fr` | 3 | 100% | 0% | 100% | 0% |
-| `province_code_city_mismatch` | 3 | 0% | 0% | 0% | 0% |
+| `province_code_city_mismatch` | 3 | 100% | 0% | 100% | 0% |
 | `city_mojibake` | 2 | 100% | 0% | 0% | 0% |
 | `nom_leading_apostrophe` | 1 | 100% | 0% | 33% | 0% |
 | `nom_voie_very_long` | 2 | 100% | 0% | 100% | 0% |
 
-Over the 3 seeds, the number of classes of 45 that no run kept at all: `smart` 1 at 3,000 rows and
-4 at 300, `random` 18 at 3,000 and 37 at 300. With seed 1, the run the test checks, `smart` keeps 44
-classes at 3,000 rows against 17 for `random`; at 300 rows `smart` keeps 39 and `random` 3. These are the
+Over the 3 seeds, the number of classes of 45 that no run kept at all: `smart` 0 at 3,000 rows and
+3 at 300, `random` 18 at 3,000 and 37 at 300. With seed 1, the run the test checks, `smart` keeps all 45
+classes at 3,000 rows against 17 for `random`; at 300 rows `smart` keeps 41 and `random` 3. These are the
 numbers to compare when a change to Sample is made. Before lot S4 `smart` kept 35 and 34 classes with
-seed 1 (7 and 10 never kept).
+seed 1 (7 and 10 never kept), after S4 44 and 39.
 
 ## Known gaps
 
-The one class that `smart` does not keep at 3,000 rows with seed 1 is listed in `case.json`
-(`expectations.gaps`) and runs as strict `xfail`: the test fails the day it is kept, so the list is
-updated on purpose. `province_code_city_mismatch` is a combination of two columns, which is the
-subject of lot S3. Lot S4 recovered the other nine: they were hidden in values that the first pass
-does not list (a space inside a name, an address or a city, a currency sign or code in a column of
-numbers, a mis-decoded city, an apostrophe before a surname, a slash in a date) but that the
-second pass counts exactly, and no target read those counts. They need the second pass (`--deep`
-when scanning); without it `smart` is as before. At 300 rows a few classes of the smallest kinds are
-still kept by some seeds only.
+None at 3,000 rows with seed 1: the list `expectations.gaps` of `case.json` is empty. Lot S4 recovered nine
+classes hidden in values that the first pass does not list but that the second pass counts exactly (a space
+inside a name, an address or a city, a currency sign or code in a column of numbers, a mis-decoded city, an
+apostrophe before a surname, a slash in a date); they need the second pass (`--deep` when scanning), without
+it `smart` is as before. Lot S3a recovered `province_code_city_mismatch`: the table of the province code
+against the province name has a near-functional dependency whose exception cell holds the 3 rows, and the
+planner now lists such a strong table although its counts are low. At 300 rows a few classes of the smallest
+kinds are still kept by some seeds only.
 
 ## Files
 

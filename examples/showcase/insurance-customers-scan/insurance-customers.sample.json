@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-15T00:56:43.479027Z",
-    "duration_seconds": 5.366705,
+    "started_at": "2026-10-15T03:42:05.072164Z",
+    "duration_seconds": 7.754363,
     "timings": {
-      "reading": 5.275132,
-      "selection": 0.039469,
-      "other": 0.052104
+      "reading": 7.580249,
+      "selection": 0.081511,
+      "other": 0.092603
     },
-    "peak_memory_bytes": 164655104,
+    "peak_memory_bytes": 165195776,
     "records_read": 100000,
     "cells_read": 3400000,
     "source_verified": true,
@@ -120,7 +120,7 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "225ef9ce6128ac8decad2439247251b888d913f9bf7514c6e5ef04b989ecd5d4",
+    "plan_id": "bcaec808e1644166490cd17adf157936b354f1d5856e5b3c507075d9cd9476b4",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
@@ -163,7 +163,7 @@
     "size": {
       "requested": 3000,
       "mandatory_bound": 157,
-      "useful_maximum": 1765,
+      "useful_maximum": 1844,
       "records": 100000
     },
     "reserve": {
@@ -175,9 +175,9 @@
     "candidates": {
       "per_target": 2,
       "per_target_effective": 2,
-      "rows": 3424,
+      "rows": 3550,
       "row_bytes": 275,
-      "bytes_expected": 941600,
+      "bytes_expected": 976250,
       "budget_bytes": 67108864,
       "fits": true
     },
@@ -189,7 +189,7 @@
     },
     "enrichment": {
       "deep": "current",
-      "used": 150,
+      "used": 159,
       "requested": false,
       "awaiting": []
     },
@@ -217,12 +217,12 @@
       ]
     },
     "summary": {
-      "targets": 1412,
+      "targets": 1475,
       "mandatory": 157,
-      "optional": 1255,
+      "optional": 1318,
       "not_evaluable": 0,
       "dropped": 0,
-      "total_weight": 6356.648327,
+      "total_weight": 6852.940308,
       "families": [
         {
           "family": "low_cardinality",
@@ -266,11 +266,11 @@
         },
         {
           "family": "relations",
-          "targets": 157,
+          "targets": 220,
           "mandatory": 0,
           "not_evaluable": 0,
           "dropped": 0,
-          "total_weight": 1071.373942
+          "total_weight": 1567.665923
         }
       ]
     },
@@ -9123,6 +9123,501 @@
         ]
       },
       {
+        "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:4",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_14",
+          "column_15"
+        ],
+        "displays": [
+          "province_code",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_14>column_15:prefix",
+          "params": {
+            "category": 1,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_14>column_15:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:5",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_14",
+          "column_15"
+        ],
+        "displays": [
+          "province_code",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_14>column_15:prefix",
+          "params": {
+            "category": 2,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_14>column_15:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_14+column_16:relation_exception:category_crosstab:rows:column_14>column_16:prefix:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_14",
+          "column_16"
+        ],
+        "displays": [
+          "province_code",
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_14>column_16:prefix",
+          "params": {
+            "category": 0,
+            "column": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_14>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_14+column_16:relation_exception:category_crosstab:rows:column_14>column_16:prefix:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_14",
+          "column_16"
+        ],
+        "displays": [
+          "province_code",
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_14>column_16:prefix",
+          "params": {
+            "category": 5,
+            "column": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_14>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:4",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_14"
+        ],
+        "displays": [
+          "province_nom",
+          "province_code"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_14:prefix",
+          "params": {
+            "category": 6,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:5",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_14"
+        ],
+        "displays": [
+          "province_nom",
+          "province_code"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_14:prefix",
+          "params": {
+            "category": 9,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:6",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_14"
+        ],
+        "displays": [
+          "province_nom",
+          "province_code"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_14:prefix",
+          "params": {
+            "category": 10,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_16:relation_exception:category_crosstab:rows:column_15>column_16:prefix:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_16"
+        ],
+        "displays": [
+          "province_nom",
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_16:prefix",
+          "params": {
+            "category": 0,
+            "column": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_16:relation_exception:category_crosstab:rows:column_15>column_16:prefix:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_16"
+        ],
+        "displays": [
+          "province_nom",
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_16:prefix",
+          "params": {
+            "category": 6,
+            "column": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_16:relation_exception:category_crosstab:rows:column_15>column_16:prefix:4",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_16"
+        ],
+        "displays": [
+          "province_nom",
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_16:prefix",
+          "params": {
+            "category": 16,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:12",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 10,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 1e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.166667,
+          "base": 5.0,
+          "rarity": 0.833333,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_34+column_1:relation_exception:category_crosstab:rows:column_34>column_1:length:4",
         "family": "relations",
         "dataset": "rows",
@@ -9434,6 +9929,141 @@
         ]
       },
       {
+        "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_14"
+        ],
+        "displays": [
+          "province_nom",
+          "province_code"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_14:prefix",
+          "params": {
+            "category": 1,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.915808,
+          "base": 5.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_14"
+        ],
+        "displays": [
+          "province_nom",
+          "province_code"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_14:prefix",
+          "params": {
+            "category": 3,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.915808,
+          "base": 5.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:11",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 12,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2,
+          "share": 2e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.915808,
+          "base": 5.0,
+          "rarity": 0.783162,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_1:relation_exception:category_crosstab:rows:column_7>column_1:pattern:10",
         "family": "relations",
         "dataset": "rows",
@@ -9610,6 +10240,186 @@
         ]
       },
       {
+        "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_14",
+          "column_15"
+        ],
+        "displays": [
+          "province_code",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_14>column_15:prefix",
+          "params": {
+            "category": 1,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.769066,
+          "base": 5.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_14>column_15:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_14+column_16:relation_exception:category_crosstab:rows:column_14>column_16:prefix:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_14",
+          "column_16"
+        ],
+        "displays": [
+          "province_code",
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_14>column_16:prefix",
+          "params": {
+            "category": 1,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.769066,
+          "base": 5.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_14>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_14"
+        ],
+        "displays": [
+          "province_nom",
+          "province_code"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.769066,
+          "base": 5.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:10",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 6,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3,
+          "share": 3e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.769066,
+          "base": 5.0,
+          "rarity": 0.753813,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:15",
         "family": "relations",
         "dataset": "rows",
@@ -9782,6 +10592,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:9",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 8,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 5e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.584192,
+          "base": 5.0,
+          "rarity": 0.716838,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_34+column_1:relation_exception:category_crosstab:rows:column_34>column_1:length:2",
         "family": "relations",
         "dataset": "rows",
@@ -9911,6 +10766,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_34>column_1:pattern",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:19",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 0,
+            "column": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 5e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.584192,
+          "base": 5.0,
+          "rarity": 0.716838,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
         "needs": [
           "scan",
           "second_pass"
@@ -10138,6 +11038,96 @@
         ]
       },
       {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:8",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 7,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 6,
+          "share": 6e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.518207,
+          "base": 5.0,
+          "rarity": 0.703641,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:18",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 0,
+            "column": 7
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 6,
+          "share": 6e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.518207,
+          "base": 5.0,
+          "rarity": 0.703641,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "quality:rows:column_3:observation:o24",
         "family": "quality",
         "dataset": "rows",
@@ -10347,6 +11337,276 @@
         ]
       },
       {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:7",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 5,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 9,
+          "share": 9e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.371465,
+          "base": 5.0,
+          "rarity": 0.674293,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:17",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 0,
+            "column": 5
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 9,
+          "share": 9e-05,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.371465,
+          "base": 5.0,
+          "rarity": 0.674293,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_14",
+          "column_15"
+        ],
+        "displays": [
+          "province_code",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_14>column_15:prefix",
+          "params": {
+            "category": 0,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 10,
+          "share": 0.0001,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.333333,
+          "base": 5.0,
+          "rarity": 0.666667,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_14>column_15:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:6",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 4,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 10,
+          "share": 0.0001,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.333333,
+          "base": 5.0,
+          "rarity": 0.666667,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:16",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 0,
+            "column": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 10,
+          "share": 0.0001,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.333333,
+          "base": 5.0,
+          "rarity": 0.666667,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:5",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 9,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 12,
+          "share": 0.00012,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.267349,
+          "base": 5.0,
+          "rarity": 0.65347,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_34+column_1:relation_exception:category_crosstab:rows:column_34>column_1:length:1",
         "family": "relations",
         "dataset": "rows",
@@ -10437,6 +11697,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:15",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 9
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 12,
+          "share": 0.00012,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.267349,
+          "base": 5.0,
+          "rarity": 0.65347,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_1:relation_exception:category_crosstab:rows:column_7>column_1:length:3",
         "family": "relations",
         "dataset": "rows",
@@ -10521,6 +11826,96 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_1:pattern",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:4",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 3,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 13,
+          "share": 0.00013,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.238381,
+          "base": 5.0,
+          "rarity": 0.647676,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:14",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 0,
+            "column": 3
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 13,
+          "share": 0.00013,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.238381,
+          "base": 5.0,
+          "rarity": 0.647676,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
         "needs": [
           "scan",
           "second_pass"
@@ -10707,6 +12102,141 @@
         ]
       },
       {
+        "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_14"
+        ],
+        "displays": [
+          "province_nom",
+          "province_code"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 16,
+          "share": 0.00016,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.163233,
+          "base": 5.0,
+          "rarity": 0.632647,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 2,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 18,
+          "share": 0.00018,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.120606,
+          "base": 5.0,
+          "rarity": 0.624121,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:13",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 0,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 18,
+          "share": 0.00018,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.120606,
+          "base": 5.0,
+          "rarity": 0.624121,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:12",
         "family": "relations",
         "dataset": "rows",
@@ -10746,6 +12276,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_14",
+          "column_15"
+        ],
+        "displays": [
+          "province_code",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_14>column_15:prefix",
+          "params": {
+            "category": 12,
+            "column": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 37,
+          "share": 0.00037,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.859832,
+          "base": 5.0,
+          "rarity": 0.571966,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_14>column_15:prefix",
         "needs": [
           "scan",
           "second_pass"
@@ -10831,6 +12406,186 @@
         "origin": "o33",
         "needs": [
           "scan"
+        ]
+      },
+      {
+        "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:7",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_11",
+          "column_7"
+        ],
+        "displays": [
+          "orientation",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_11>column_7:prefix",
+          "params": {
+            "category": 7,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 67,
+          "share": 0.00067,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.644938,
+          "base": 5.0,
+          "rarity": 0.528988,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_11>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:6",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_11",
+          "column_7"
+        ],
+        "displays": [
+          "orientation",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_11>column_7:prefix",
+          "params": {
+            "category": 6,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 70,
+          "share": 0.0007,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.629085,
+          "base": 5.0,
+          "rarity": 0.525817,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_11>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:5",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_11",
+          "column_7"
+        ],
+        "displays": [
+          "orientation",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_11>column_7:prefix",
+          "params": {
+            "category": 3,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 89,
+          "share": 0.00089,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.542175,
+          "base": 5.0,
+          "rarity": 0.508435,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_11>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 11,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 89,
+          "share": 0.00089,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.542175,
+          "base": 5.0,
+          "rarity": 0.508435,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
         ]
       },
       {
@@ -10969,6 +12724,96 @@
         ]
       },
       {
+        "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:4",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_11",
+          "column_7"
+        ],
+        "displays": [
+          "orientation",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_11>column_7:prefix",
+          "params": {
+            "category": 4,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 108,
+          "share": 0.00108,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.472147,
+          "base": 5.0,
+          "rarity": 0.494429,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_11>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_11",
+          "column_7"
+        ],
+        "displays": [
+          "orientation",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_11>column_7:prefix",
+          "params": {
+            "category": 5,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 110,
+          "share": 0.0011,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.465506,
+          "base": 5.0,
+          "rarity": 0.493101,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_11>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_13:relation_exception:category_crosstab:rows:column_7>column_13:prefix:18",
         "family": "relations",
         "dataset": "rows",
@@ -11008,6 +12853,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_13:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_11",
+          "column_7"
+        ],
+        "displays": [
+          "orientation",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_11>column_7:prefix",
+          "params": {
+            "category": 2,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 117,
+          "share": 0.00117,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.443178,
+          "base": 5.0,
+          "rarity": 0.488636,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_11>column_7:prefix",
         "needs": [
           "scan",
           "second_pass"
@@ -11149,6 +13039,96 @@
         ]
       },
       {
+        "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_11",
+          "column_7"
+        ],
+        "displays": [
+          "orientation",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_11>column_7:prefix",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 135,
+          "share": 0.00135,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.391389,
+          "base": 5.0,
+          "rarity": 0.478278,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_11>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_11",
+          "column_7"
+        ],
+        "displays": [
+          "orientation",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_11>column_7:prefix",
+          "params": {
+            "category": 1,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 136,
+          "share": 0.00136,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.388718,
+          "base": 5.0,
+          "rarity": 0.477744,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_11>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:10",
         "family": "relations",
         "dataset": "rows",
@@ -11188,6 +13168,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:12",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 0,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 149,
+          "share": 0.00149,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.355678,
+          "base": 5.0,
+          "rarity": 0.471136,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
         "needs": [
           "scan",
           "second_pass"
@@ -12108,6 +14133,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:11",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 10
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 355,
+          "share": 0.00355,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.041476,
+          "base": 5.0,
+          "rarity": 0.408295,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "structured_string:rows:column_16:pattern_matches:f4.p1",
         "family": "structured_string",
         "dataset": "rows",
@@ -12229,6 +14299,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_13:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:10",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 403,
+          "share": 0.00403,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.995579,
+          "base": 5.0,
+          "rarity": 0.399116,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
         "needs": [
           "scan",
           "second_pass"
@@ -12822,6 +14937,96 @@
         ]
       },
       {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:9",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 0,
+            "column": 9
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 578,
+          "share": 0.00578,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.86506,
+          "base": 5.0,
+          "rarity": 0.373012,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_14",
+          "column_15"
+        ],
+        "displays": [
+          "province_code",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_14>column_15:prefix",
+          "params": {
+            "category": 4,
+            "column": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 589,
+          "share": 0.00589,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.858237,
+          "base": 5.0,
+          "rarity": 0.371647,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_14>column_15:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:9",
         "family": "relations",
         "dataset": "rows",
@@ -13191,6 +15396,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:8",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 879,
+          "share": 0.00879,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.713343,
+          "base": 5.0,
+          "rarity": 0.342669,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:8",
         "family": "relations",
         "dataset": "rows",
@@ -13230,6 +15480,96 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:7",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 7
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 883,
+          "share": 0.00883,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.711699,
+          "base": 5.0,
+          "rarity": 0.34234,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_16:relation_exception:category_crosstab:rows:column_15>column_16:prefix:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_16"
+        ],
+        "displays": [
+          "province_nom",
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_16:prefix",
+          "params": {
+            "category": 4,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 894,
+          "share": 0.00894,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.707219,
+          "base": 5.0,
+          "rarity": 0.341444,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_16:prefix",
         "needs": [
           "scan",
           "second_pass"
@@ -13371,6 +15711,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:6",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 6
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 910,
+          "share": 0.0091,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.700799,
+          "base": 5.0,
+          "rarity": 0.34016,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "structured_string:rows:column_29:pattern_other",
         "family": "structured_string",
         "dataset": "rows",
@@ -13486,6 +15871,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:5",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 5
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1142,
+          "share": 0.01142,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.618612,
+          "base": 5.0,
+          "rarity": 0.323722,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
         "needs": [
           "scan",
           "second_pass"
@@ -13662,6 +16092,96 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_13:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1190,
+          "share": 0.0119,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.603711,
+          "base": 5.0,
+          "rarity": 0.320742,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:4",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1190,
+          "share": 0.0119,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.603711,
+          "base": 5.0,
+          "rarity": 0.320742,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
         "needs": [
           "scan",
           "second_pass"
@@ -14612,6 +17132,96 @@
         ]
       },
       {
+        "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_7"
+        ],
+        "displays": [
+          "province_nom",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_7:prefix",
+          "params": {
+            "category": 1,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2257,
+          "share": 0.02257,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.372057,
+          "base": 5.0,
+          "rarity": 0.274411,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_7:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2257,
+          "share": 0.02257,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.372057,
+          "base": 5.0,
+          "rarity": 0.274411,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:5",
         "family": "relations",
         "dataset": "rows",
@@ -14651,6 +17261,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2470,
+          "share": 0.0247,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.339419,
+          "base": 5.0,
+          "rarity": 0.267884,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
         "needs": [
           "scan",
           "second_pass"
@@ -14831,6 +17486,96 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_10:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2603,
+          "share": 0.02603,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.320438,
+          "base": 5.0,
+          "rarity": 0.264088,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_7",
+          "column_15"
+        ],
+        "displays": [
+          "langue_preferee",
+          "province_nom"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_7>column_15:value",
+          "params": {
+            "category": 1,
+            "column": 3
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2604,
+          "share": 0.02604,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.320299,
+          "base": 5.0,
+          "rarity": 0.26406,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_7>column_15:value",
         "needs": [
           "scan",
           "second_pass"
@@ -18541,6 +21286,96 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_7>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_15+column_16:relation_exception:category_crosstab:rows:column_15>column_16:prefix:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_15",
+          "column_16"
+        ],
+        "displays": [
+          "province_nom",
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_15>column_16:prefix",
+          "params": {
+            "category": 0,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 14159,
+          "share": 0.14159,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.707473,
+          "base": 5.0,
+          "rarity": 0.141495,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_15>column_16:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_14+column_16:relation_exception:category_crosstab:rows:column_14>column_16:prefix:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_14",
+          "column_16"
+        ],
+        "displays": [
+          "province_code",
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_14>column_16:prefix",
+          "params": {
+            "category": 0,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 15053,
+          "share": 0.15053,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.685314,
+          "base": 5.0,
+          "rarity": 0.137063,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_14>column_16:prefix",
         "needs": [
           "scan",
           "second_pass"
@@ -59963,32 +62798,32 @@
   },
   "selection": {
     "rows": 3000,
-    "by_cover": 516,
+    "by_cover": 524,
     "by_worst": 2,
-    "by_reserve": 2482,
+    "by_reserve": 2474,
     "shortfall": 0,
     "reserve": {
       "planned": 600,
-      "taken": 2482,
+      "taken": 2474,
       "adjusted": true
     },
     "pool": {
       "per_target": 2,
-      "candidate_rows": 3508,
-      "peak_bytes": 956347,
+      "candidate_rows": 3523,
+      "peak_bytes": 960395,
       "budget_bytes": 67108864,
       "refused_rows": 0
     }
   },
   "coverage": {
     "scope": "target_catalog",
-    "defined": 1412,
-    "evaluable": 1412,
-    "observed": 1412,
-    "covered": 1412,
+    "defined": 1475,
+    "evaluable": 1475,
+    "observed": 1475,
+    "covered": 1475,
     "weighted": {
-      "total": 6356.648327,
-      "covered": 6356.648327,
+      "total": 6852.940308,
+      "covered": 6852.940308,
       "share": 1.0
     },
     "mandatory": {
@@ -60039,18 +62874,18 @@
       },
       {
         "family": "relations",
-        "defined": 157,
-        "evaluable": 157,
-        "covered": 157,
-        "weight": 1071.373942,
-        "weight_covered": 1071.373942
+        "defined": 220,
+        "evaluable": 220,
+        "covered": 220,
+        "weight": 1567.665923,
+        "weight_covered": 1567.665923
       }
     ],
     "missing": [],
     "missing_total": 0,
     "verification": {
-      "checked": 1391,
-      "agreed": 1391,
+      "checked": 1454,
+      "agreed": 1454,
       "disagreed": []
     }
   },
@@ -61709,6 +64544,94 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:4",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:5",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_14+column_16:relation_exception:category_crosstab:rows:column_14>column_16:prefix:2",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_14+column_16:relation_exception:category_crosstab:rows:column_14>column_16:prefix:3",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:4",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:5",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:6",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_16:relation_exception:category_crosstab:rows:column_15>column_16:prefix:2",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_16:relation_exception:category_crosstab:rows:column_15>column_16:prefix:3",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_16:relation_exception:category_crosstab:rows:column_15>column_16:prefix:4",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:12",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_34+column_1:relation_exception:category_crosstab:rows:column_34>column_1:length:4",
       "status": "covered",
       "observed": 1,
@@ -61765,6 +64688,30 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:2",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:3",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:11",
+      "status": "covered",
+      "observed": 2,
+      "candidates": 2,
+      "expected": 2,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_7+column_1:relation_exception:category_crosstab:rows:column_7>column_1:pattern:10",
       "status": "covered",
       "observed": 2,
@@ -61794,6 +64741,38 @@
       "observed": 2,
       "candidates": 2,
       "expected": 2,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:3",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_14+column_16:relation_exception:category_crosstab:rows:column_14>column_16:prefix:1",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:1",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:10",
+      "status": "covered",
+      "observed": 3,
+      "candidates": 2,
+      "expected": 3,
       "agrees": true
     },
     {
@@ -61829,6 +64808,14 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:9",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_34+column_1:relation_exception:category_crosstab:rows:column_34>column_1:length:2",
       "status": "covered",
       "observed": 5,
@@ -61846,6 +64833,14 @@
     },
     {
       "id": "relations:rows:column_34+column_1:relation_exception:category_crosstab:rows:column_34>column_1:pattern:2",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:19",
       "status": "covered",
       "observed": 5,
       "candidates": 2,
@@ -61893,6 +64888,22 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:8",
+      "status": "covered",
+      "observed": 6,
+      "candidates": 2,
+      "expected": 6,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:18",
+      "status": "covered",
+      "observed": 6,
+      "candidates": 2,
+      "expected": 6,
+      "agrees": true
+    },
+    {
       "id": "quality:rows:column_3:observation:o24",
       "status": "covered",
       "observed": 6,
@@ -61933,6 +64944,54 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:7",
+      "status": "covered",
+      "observed": 9,
+      "candidates": 2,
+      "expected": 9,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:17",
+      "status": "covered",
+      "observed": 9,
+      "candidates": 2,
+      "expected": 9,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:2",
+      "status": "covered",
+      "observed": 10,
+      "candidates": 2,
+      "expected": 10,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:6",
+      "status": "covered",
+      "observed": 10,
+      "candidates": 2,
+      "expected": 10,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:16",
+      "status": "covered",
+      "observed": 10,
+      "candidates": 2,
+      "expected": 10,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:5",
+      "status": "covered",
+      "observed": 12,
+      "candidates": 2,
+      "expected": 12,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_34+column_1:relation_exception:category_crosstab:rows:column_34>column_1:length:1",
       "status": "covered",
       "observed": 12,
@@ -61942,6 +65001,14 @@
     },
     {
       "id": "relations:rows:column_34+column_1:relation_exception:category_crosstab:rows:column_34>column_1:pattern:1",
+      "status": "covered",
+      "observed": 12,
+      "candidates": 2,
+      "expected": 12,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:15",
       "status": "covered",
       "observed": 12,
       "candidates": 2,
@@ -61962,6 +65029,22 @@
       "observed": 12,
       "candidates": 2,
       "expected": 12,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:4",
+      "status": "covered",
+      "observed": 13,
+      "candidates": 2,
+      "expected": 13,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:14",
+      "status": "covered",
+      "observed": 13,
+      "candidates": 2,
+      "expected": 13,
       "agrees": true
     },
     {
@@ -61997,11 +65080,43 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_15+column_14:relation_exception:category_crosstab:rows:column_15>column_14:prefix:0",
+      "status": "covered",
+      "observed": 16,
+      "candidates": 2,
+      "expected": 16,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:3",
+      "status": "covered",
+      "observed": 18,
+      "candidates": 2,
+      "expected": 18,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:13",
+      "status": "covered",
+      "observed": 18,
+      "candidates": 2,
+      "expected": 18,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:12",
       "status": "covered",
       "observed": 18,
       "candidates": 2,
       "expected": 18,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:1",
+      "status": "covered",
+      "observed": 37,
+      "candidates": 2,
+      "expected": 37,
       "agrees": true
     },
     {
@@ -62018,6 +65133,38 @@
       "observed": 54,
       "candidates": 2,
       "expected": 54,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:7",
+      "status": "covered",
+      "observed": 67,
+      "candidates": 2,
+      "expected": 67,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:6",
+      "status": "covered",
+      "observed": 70,
+      "candidates": 2,
+      "expected": 70,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:5",
+      "status": "covered",
+      "observed": 89,
+      "candidates": 2,
+      "expected": 89,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:2",
+      "status": "covered",
+      "observed": 89,
+      "candidates": 2,
+      "expected": 89,
       "agrees": true
     },
     {
@@ -62045,11 +65192,35 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:4",
+      "status": "covered",
+      "observed": 108,
+      "candidates": 2,
+      "expected": 108,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:3",
+      "status": "covered",
+      "observed": 110,
+      "candidates": 2,
+      "expected": 110,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_7+column_13:relation_exception:category_crosstab:rows:column_7>column_13:prefix:18",
       "status": "covered",
       "observed": 113,
       "candidates": 2,
       "expected": 113,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:2",
+      "status": "covered",
+      "observed": 117,
+      "candidates": 2,
+      "expected": 117,
       "agrees": true
     },
     {
@@ -62077,11 +65248,35 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:1",
+      "status": "covered",
+      "observed": 135,
+      "candidates": 2,
+      "expected": 135,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_11+column_7:relation_exception:category_crosstab:rows:column_11>column_7:prefix:0",
+      "status": "covered",
+      "observed": 136,
+      "candidates": 2,
+      "expected": 136,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:10",
       "status": "covered",
       "observed": 137,
       "candidates": 2,
       "expected": 137,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:12",
+      "status": "covered",
+      "observed": 149,
+      "candidates": 2,
+      "expected": 149,
       "agrees": true
     },
     {
@@ -62253,6 +65448,14 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:11",
+      "status": "covered",
+      "observed": 355,
+      "candidates": 2,
+      "expected": 355,
+      "agrees": true
+    },
+    {
       "id": "structured_string:rows:column_16:pattern_matches:f4.p1",
       "status": "covered",
       "observed": 3,
@@ -62274,6 +65477,14 @@
       "observed": 382,
       "candidates": 2,
       "expected": 382,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:10",
+      "status": "covered",
+      "observed": 403,
+      "candidates": 2,
+      "expected": 403,
       "agrees": true
     },
     {
@@ -62389,6 +65600,22 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:9",
+      "status": "covered",
+      "observed": 578,
+      "candidates": 2,
+      "expected": 578,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_14+column_15:relation_exception:category_crosstab:rows:column_14>column_15:prefix:0",
+      "status": "covered",
+      "observed": 589,
+      "candidates": 2,
+      "expected": 589,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:9",
       "status": "covered",
       "observed": 597,
@@ -62461,11 +65688,35 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:8",
+      "status": "covered",
+      "observed": 879,
+      "candidates": 2,
+      "expected": 879,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:8",
       "status": "covered",
       "observed": 879,
       "candidates": 2,
       "expected": 879,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:7",
+      "status": "covered",
+      "observed": 883,
+      "candidates": 2,
+      "expected": 883,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_16:relation_exception:category_crosstab:rows:column_15>column_16:prefix:1",
+      "status": "covered",
+      "observed": 894,
+      "candidates": 2,
+      "expected": 894,
       "agrees": true
     },
     {
@@ -62486,6 +65737,14 @@
     },
     {
       "id": "relations:rows:column_7+column_13:relation_exception:category_crosstab:rows:column_7>column_13:prefix:14",
+      "status": "covered",
+      "observed": 910,
+      "candidates": 2,
+      "expected": 910,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:6",
       "status": "covered",
       "observed": 910,
       "candidates": 2,
@@ -62514,6 +65773,14 @@
       "observed": 1110,
       "candidates": 2,
       "expected": 1110,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:5",
+      "status": "covered",
+      "observed": 1142,
+      "candidates": 2,
+      "expected": 1142,
       "agrees": true
     },
     {
@@ -62546,6 +65813,22 @@
       "observed": 1188,
       "candidates": 2,
       "expected": 1188,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:1",
+      "status": "covered",
+      "observed": 1190,
+      "candidates": 2,
+      "expected": 1190,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:4",
+      "status": "covered",
+      "observed": 1190,
+      "candidates": 2,
+      "expected": 1190,
       "agrees": true
     },
     {
@@ -62725,11 +66008,35 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_15+column_7:relation_exception:category_crosstab:rows:column_15>column_7:prefix:0",
+      "status": "covered",
+      "observed": 2257,
+      "candidates": 2,
+      "expected": 2257,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:3",
+      "status": "covered",
+      "observed": 2257,
+      "candidates": 2,
+      "expected": 2257,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_7+column_16:relation_exception:category_crosstab:rows:column_7>column_16:prefix:5",
       "status": "covered",
       "observed": 2257,
       "candidates": 2,
       "expected": 2257,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:2",
+      "status": "covered",
+      "observed": 2470,
+      "candidates": 2,
+      "expected": 2470,
       "agrees": true
     },
     {
@@ -62762,6 +66069,22 @@
       "observed": 2602,
       "candidates": 2,
       "expected": 2602,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:1",
+      "status": "covered",
+      "observed": 2603,
+      "candidates": 2,
+      "expected": 2603,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:0",
+      "status": "covered",
+      "observed": 2604,
+      "candidates": 2,
+      "expected": 2604,
       "agrees": true
     },
     {
@@ -63418,6 +66741,22 @@
       "observed": 13944,
       "candidates": 2,
       "expected": 13944,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_15+column_16:relation_exception:category_crosstab:rows:column_15>column_16:prefix:0",
+      "status": "covered",
+      "observed": 14159,
+      "candidates": 2,
+      "expected": 14159,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_14+column_16:relation_exception:category_crosstab:rows:column_14>column_16:prefix:0",
+      "status": "covered",
+      "observed": 15053,
+      "candidates": 2,
+      "expected": 15053,
       "agrees": true
     },
     {

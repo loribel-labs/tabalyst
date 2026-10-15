@@ -25,6 +25,7 @@ from tabalyst.config import CrosstabSettings, DeepSettings
 from tabalyst.errors import ConfigurationError
 from tabalyst.scanner import ScanConfig, scan
 from tabalyst.scanner.planner import AnalysisRequest, default_registry, plan_analyses
+from tabalyst.scanner.planner.crosstabs import STRONG_SCORE
 from tabalyst.scanner.planner.registry import AnalyzerRegistry
 from tabalyst.scanner.secondpass import analysis_key, deep_document, run_second_pass
 from tabalyst.source_guard import StaleSource
@@ -713,21 +714,36 @@ def test_an_excel_workbook_gives_tables_from_its_records(tmp_path):
             assert item.result.rows == item.result.counted + sum(item.result.excluded.model_dump().values())
 
 
-def test_a_table_on_counts_too_low_to_trust_is_ranked_after_the_stable_ones(tmp_path):
-    rng = random.Random(11)
+def _unstable_strong_and_stable_weak_rows():
+    """`prov` and `pname` depend on each other, but twelve of their values have a few
+    rows each (unstable, strong); `big` and `kind` are weakly related with large counts."""
+    rng = random.Random(3)
+    names = {"QC": "Quebec", "ON": "Ontario", **{f"P{i}": f"Zone{i}x" for i in range(12)}}
     rows = []
-    for n in range(600):
-        # `big` and `kind` are weakly related with large counts: a stable, modest score.
+    for n in range(900):
+        draw = rng.random()
+        code = "QC" if draw < 0.5 else "ON" if draw < 0.97 else f"P{rng.randrange(12)}"
         big = n % 3
         kind = f"{'AB'[(big + (1 if rng.random() < 0.35 else 0)) % 2]}{rng.randrange(10)}"
-        # `rare` and `code` are perfectly related, but a handful of rows per class.
-        rare = n % 120
-        rows.append(f"g{big},{kind},r{rare:03d},{'xy'[rare % 2]}{rare % 40}-{n % 5}")
-    result = scan_csv(tmp_path, "big,kind,rare,code", rows)
+        rows.append(f"g{big},{kind},{code},{names[code]}")
+    return rows
 
+
+def _scored(tmp_path):
+    result = scan_csv(tmp_path, "big,kind,prov,pname", _unstable_strong_and_stable_weak_rows())
     plan = _plan(result, forced=True)
+    return [c for c in tables_of(plan) if c.exploration is not None and c.exploration.score is not None]
 
-    scored = [c for c in tables_of(plan) if c.exploration is not None and c.exploration.score is not None]
-    flags = [c.exploration.stable is False for c in scored]
-    assert any(flags) and not all(flags)
-    assert flags == sorted(flags)
+
+def test_a_strong_table_on_low_counts_ranks_before_a_weak_stable_one(tmp_path):
+    scored = _scored(tmp_path)
+
+    strong_unstable = [
+        i for i, c in enumerate(scored)
+        if c.exploration.stable is False and c.exploration.score >= STRONG_SCORE
+    ]
+    weak_stable = [
+        i for i, c in enumerate(scored) if c.exploration.stable and c.exploration.score < STRONG_SCORE
+    ]
+    assert strong_unstable and weak_stable
+    assert max(strong_unstable) < min(weak_stable)

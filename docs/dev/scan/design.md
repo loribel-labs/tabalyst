@@ -4358,9 +4358,15 @@ category in every cell before any score, the exceptions with their first rows, a
 to be learned and not validated. It also lists the correlations of 20.12 and says what the planner explored on
 the sample. `report_relations.py` builds it from the `analyses` of the document.
 
-**Ranking and stability (lot 11, O45).** The exploration ranks the tables by `(unstable, -score, -rows)`: a table whose
-expected counts are too low to trust (`stable` false, the rule above) comes after every stable one, whatever its score,
-and is never left out for that reason (it stays listed with its caution). The score of a table of few large cells is a
+**Ranking and stability (lot 11, O45, amended by lot S3a).** The exploration ranks the tables by `(weak, redundant, unstable,
+-score, -rows)`, where `weak` is a score below `STRONG_SCORE` (0.45, the threshold of the automatic choice) and `redundant`
+marks the features of a pair of columns that score below the best one (REL-16). A table whose expected counts are too low to
+trust (`stable` false, the rule above) comes after every stable one of the same kind, and is never left out for that reason
+(it stays listed with its caution). Lot S3a changed two things that filled the `max_candidates` (20) places with tables of
+little use: an unstable table of 0.45 or more ranks before the weak stable ones (the automatic choice would not take them
+anyway), and the redundant features rank after the first feature of every other pair. Measured on the 100,000-row
+case: the table of the province code against the province name (V 0.90, unstable, a few rows per rare province) was
+not listed, and its exception cell holds the 3 rows of `province_code_city_mismatch`. The score of a table of few large cells is a
 fair indicator; the score of many small cells is inflated by chance, and the automatic budget (`automatic_tables`) no
 longer spends its tables on them while a stable one is left. The report prints a pair that is listed in both
 directions (category A by column B, then B by A) as one phenomenon: the weaker direction follows the stronger one,

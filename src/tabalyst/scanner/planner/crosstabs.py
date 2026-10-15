@@ -66,6 +66,11 @@ NEAR_UNIQUE = "near_unique"
 SAME_COLUMN = "same_column"
 
 
+# The corrected Cramér's V from which the automatic choice takes a table (its utility
+# of 45, ``planner.AUTOMATIC_MIN_UTILITY``).
+STRONG_SCORE = 0.45
+
+
 def _rounded(value: float | None) -> float | None:
     return None if value is None else round(value, DECIMALS)
 
@@ -402,7 +407,13 @@ def explore_dataset(
                         redundant=True,
                     )
                 scored.append((unstable, negative, rows_key, position, proposal))
-    scored.sort(key=lambda item: item[:4])
+    # Strong tables first (the automatic choice takes nothing weaker), and among them the
+    # best feature of each pair of columns before the redundant ones, which the choice
+    # rejects anyway (REL-16): they must not fill the list and push out another
+    # relation. A strong table that is unstable (a near-functional dependency has a few
+    # rows per rare class) thus ranks before the weak ones; among tables of the same kind
+    # an unstable one still comes after every stable one (decision O45, lot S3a).
+    scored.sort(key=lambda item: (-item[1] < STRONG_SCORE, item[4].redundant, *item[:4]))
     listed = [item[4] for item in scored[: settings.max_candidates]]
     block = block.model_copy(
         update={

@@ -12,7 +12,10 @@ the maintainer to weigh.
 ## Decision
 
 - The planner ranks a table by `(unstable, -score, -rows)`: an unstable table comes after every stable one and is
-  never dropped for that reason.
+  never dropped for that reason. *Amended by lot S3a (2026-10-14):* the key is `(weak, redundant, unstable, -score,
+  -rows)` (`weak`: V below 0.45): a strong unstable table, such as a near-functional dependency between two
+  columns, ranks before the weak stable ones, and the redundant features of a pair rank after the first feature of
+  the other pairs, so that they do not fill the list.
 - The report folds the weaker direction of a pair listed in both directions under the stronger one. No count is
   merged and the documents do not change.
 - `tabalyst sample --sample-method smart` writes `<stem>.sample.html` from the `tabalyst.sample` document alone,

@@ -1,22 +1,22 @@
-Plan for insurance-customers-100k.csv (plan 9b14b924c4c9, planner 1).
+Plan for insurance-customers-100k.csv (plan 3e5eee09dca9, planner 1).
 284 candidates: 42 selected, 90 already answered by the scan, 152 left out.
 
 Selected:
   1. category_crosstab [contingency_table]: rows / civilite and sexe (prefix) (up to 996.6 KiB, CPU low, automatic)
   2. category_crosstab [contingency_table]: rows / sexe and civilite (length) (up to 996.6 KiB, CPU low, automatic)
   3. category_crosstab [contingency_table]: rows / filiale and id_client (prefix) (up to 1007.2 KiB, CPU low, automatic)
-  4. category_crosstab [contingency_table]: rows / filiale and agence_code (value) (up to 1007.2 KiB, CPU low, automatic)
-  5. category_crosstab [contingency_table]: rows / langue_preferee and code_postal (prefix) (up to 996.6 KiB, CPU low, automatic)
-  6. category_crosstab [contingency_table]: rows / langue_preferee and type_voie (prefix) (up to 996.6 KiB, CPU low, automatic)
-  7. category_stats [group_moments]: rows / type_contrat and montant_reclamation (up to 893.5 KiB, CPU moderate, automatic)
-  8. category_stats [group_moments]: rows / type_contrat and prime_annuelle (up to 893.5 KiB, CPU moderate, automatic)
-  9. category_crosstab [contingency_table]: rows / langue_preferee and nom_voie (length) (up to 996.6 KiB, CPU low, automatic)
-  10. exact_frequencies [hash_table]: rows / prenom (up to 286.9 KiB, CPU low, automatic)
-  11. exact_frequencies [hash_table]: rows / nom (up to 285.0 KiB, CPU low, automatic)
-  12. exact_frequencies [hash_table]: rows / nom_voie (up to 327.9 KiB, CPU low, automatic)
-  13. exact_frequencies [hash_table]: rows / appartement (up to 396.4 KiB, CPU low, automatic)
-  14. exact_frequencies [hash_table]: rows / ville (up to 273.2 KiB, CPU low, automatic)
-  15. category_crosstab [contingency_table]: rows / langue_preferee and ville (prefix) (up to 996.6 KiB, CPU low, automatic)
+  4. category_crosstab [contingency_table]: rows / province_nom and province_code (prefix) (up to 1.1 MiB, CPU low, automatic)
+  5. category_crosstab [contingency_table]: rows / agence_code and id_client (prefix) (up to 1.3 MiB, CPU low, automatic)
+  6. category_crosstab [contingency_table]: rows / agence_code and filiale (length) (up to 1.3 MiB, CPU low, automatic)
+  7. category_crosstab [contingency_table]: rows / province_code and province_nom (prefix) (up to 1.1 MiB, CPU low, automatic)
+  8. category_crosstab [contingency_table]: rows / province_code and code_postal (prefix) (up to 1.1 MiB, CPU low, automatic)
+  9. category_stats [group_moments]: rows / type_contrat and montant_reclamation (up to 893.5 KiB, CPU moderate, automatic)
+  10. category_stats [group_moments]: rows / type_contrat and prime_annuelle (up to 893.5 KiB, CPU moderate, automatic)
+  11. exact_frequencies [hash_table]: rows / prenom (up to 286.9 KiB, CPU low, automatic)
+  12. exact_frequencies [hash_table]: rows / nom (up to 285.0 KiB, CPU low, automatic)
+  13. exact_frequencies [hash_table]: rows / nom_voie (up to 327.9 KiB, CPU low, automatic)
+  14. exact_frequencies [hash_table]: rows / appartement (up to 396.4 KiB, CPU low, automatic)
+  15. exact_frequencies [hash_table]: rows / ville (up to 273.2 KiB, CPU low, automatic)
   16. pattern_validation [family_recognizer]: rows / agence_code (up to 19.8 KiB, CPU moderate, automatic)
   17. numeric_histogram [dense_counts]: rows / appartement (up to 258.8 KiB, CPU moderate, automatic)
   18. numeric_histogram [dense_counts]: rows / numero_voie (up to 329.1 KiB, CPU moderate, automatic)
@@ -56,18 +56,18 @@ Left out:
   duplicates_report [digest_table]: rows / id_contrat: its memory does not fit in the budget with the analyses already selected
   pearson_correlation [pairwise_complete]: rows / prime_annuelle and montant_reclamation: too little expected benefit for an automatic choice
   pearson_correlation [pairwise_complete]: rows / numero_voie and appartement: too little expected benefit for an automatic choice
-  category_crosstab [contingency_table]: rows / civilite and sexe (value): another feature of the same two columns says more
-  category_crosstab [contingency_table]: rows / sexe and civilite (prefix): another feature of the same two columns says more
-  category_crosstab [contingency_table]: rows / filiale and id_client (pattern): another feature of the same two columns says more
-  category_crosstab [contingency_table]: rows / langue_preferee and type_voie (value): another feature of the same two columns says more
-  category_crosstab [contingency_table]: rows / filiale and id_client (length): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / filiale and agence_code (value): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / langue_preferee and code_postal (prefix): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / langue_preferee and type_voie (prefix): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / langue_preferee and nom_voie (length): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / langue_preferee and ville (prefix): enough tables were already chosen automatically
   category_crosstab [contingency_table]: rows / langue_preferee and id_client (prefix): enough tables were already chosen automatically
   category_crosstab [contingency_table]: rows / langue_preferee and filiale (length): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and filiale (prefix): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and filiale (value): enough tables were already chosen automatically
   category_crosstab [contingency_table]: rows / filiale and langue_preferee (prefix): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and id_client (pattern): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and id_client (length): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / province_nom and code_postal (prefix): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / orientation and langue_preferee (prefix): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / province_nom and langue_preferee (prefix): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / langue_preferee and province_nom (value): enough tables were already chosen automatically
   category_stats [group_moments]: rows / reclamation_status and montant_reclamation: too little expected benefit for an automatic choice
   category_stats [group_moments]: rows / statut_contrat and montant_reclamation: too little expected benefit for an automatic choice
   category_stats [group_moments]: rows / agence_code and montant_reclamation: too little expected benefit for an automatic choice
@@ -161,7 +161,7 @@ Not applicable:
   19 x a pattern would describe its values poorly, so the scan did not look for one
   10 x the field misses no value and has too many distinct values to follow by position
 
-A second reading of the source is needed (3,400,000 cells, CPU low). Memory: 28.0 MiB to 110.9 MiB, about 56.1 MiB.
+A second reading of the source is needed (3,400,000 cells, CPU low). Memory: 28.3 MiB to 112.2 MiB, about 56.8 MiB.
 Estimated time: 2 s to 7 s (a guide from the first pass, not a promise).
 Running it would not ask for a confirmation.
 
@@ -169,13 +169,13 @@ Smart sample plan for insurance-customers-100k.csv (dataset rows, 100,000 rows)
 
 A smart sample covers diversity and rare cases; its proportions are not those of the population. The targets are those the Scan and the stored second pass know: other cases may exist.
 
-Targets: 1412 (157 mandatory, 1255 optional).
+Targets: 1475 (157 mandatory, 1318 optional).
   Low cardinality: 922 targets, 157 mandatory
   Structured strings: 47 targets, 0 mandatory
   Numeric: 53 targets, 0 mandatory
   Dates: 70 targets, 0 mandatory
   Quality: 163 targets, 0 mandatory
-  Relations: 157 targets, 0 mandatory
+  Relations: 220 targets, 0 mandatory
 
 Columns whose values are only partly known:
   id_client (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
@@ -201,9 +201,9 @@ Heaviest targets:
   11  code_postal: residual_value (1 row, 0.0010%)
   11  code_postal: residual_value (1 row, 0.0010%)
 
-Size: 3,000 rows asked; 157 rows are enough for the mandatory targets one by one; beyond 1,765 rows only the reserve grows.
+Size: 3,000 rows asked; 157 rows are enough for the mandatory targets one by one; beyond 1,844 rows only the reserve grows.
 Reserve of ordinary rows: 20%, 600 rows.
-Candidate rows kept in memory: up to 3,424, about 919.5 KiB of source text.
+Candidate rows kept in memory: up to 3,550, about 953.4 KiB of source text.
 
 Readings of the source: 1
   scan (not needed): a current Scan is stored: it is not read again
