@@ -106,6 +106,8 @@ fingerprints (`text_profile`, `fingerprint_distinct`) and the masks and classes 
 
 ## Version 0.2.0, revision 4 (in preparation)
 
+The report carries the new result `date_order` of the second pass under `analyses` (the records where the
+first date of a pair of columns is after the second).
 The report follows the scan base at revision 4 (see the
 [Scan format changelog](../scan/format-changelog.md)): the eligibility of each
 field for the inferred patterns and the character profile of its strings

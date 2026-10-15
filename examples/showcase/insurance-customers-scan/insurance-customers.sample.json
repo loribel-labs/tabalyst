@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-15T03:42:05.072164Z",
-    "duration_seconds": 7.754363,
+    "started_at": "2026-10-15T05:11:40.454724Z",
+    "duration_seconds": 7.946638,
     "timings": {
-      "reading": 7.580249,
-      "selection": 0.081511,
-      "other": 0.092603
+      "reading": 7.835276,
+      "selection": 0.056351,
+      "other": 0.055011
     },
-    "peak_memory_bytes": 165195776,
+    "peak_memory_bytes": 167264256,
     "records_read": 100000,
     "cells_read": 3400000,
     "source_verified": true,
@@ -120,7 +120,7 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "bcaec808e1644166490cd17adf157936b354f1d5856e5b3c507075d9cd9476b4",
+    "plan_id": "f51bd3dcb9a03a35dba76fa2f477b35b4551f0a5c1a0b362895ec194760d7e28",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
@@ -163,7 +163,7 @@
     "size": {
       "requested": 3000,
       "mandatory_bound": 157,
-      "useful_maximum": 1844,
+      "useful_maximum": 1848,
       "records": 100000
     },
     "reserve": {
@@ -175,9 +175,9 @@
     "candidates": {
       "per_target": 2,
       "per_target_effective": 2,
-      "rows": 3550,
+      "rows": 3556,
       "row_bytes": 275,
-      "bytes_expected": 976250,
+      "bytes_expected": 977900,
       "budget_bytes": 67108864,
       "fits": true
     },
@@ -189,7 +189,7 @@
     },
     "enrichment": {
       "deep": "current",
-      "used": 159,
+      "used": 171,
       "requested": false,
       "awaiting": []
     },
@@ -217,12 +217,12 @@
       ]
     },
     "summary": {
-      "targets": 1475,
+      "targets": 1478,
       "mandatory": 157,
-      "optional": 1318,
+      "optional": 1321,
       "not_evaluable": 0,
       "dropped": 0,
-      "total_weight": 6852.940308,
+      "total_weight": 6881.103975,
       "families": [
         {
           "family": "low_cardinality",
@@ -258,11 +258,11 @@
         },
         {
           "family": "quality",
-          "targets": 163,
+          "targets": 166,
           "mandatory": 0,
           "not_evaluable": 0,
           "dropped": 0,
-          "total_weight": 1172.207727
+          "total_weight": 1200.371394
         },
         {
           "family": "relations",
@@ -9082,6 +9082,47 @@
         ]
       },
       {
+        "id": "quality:rows:column_22+column_23:date_order:date_order:rows:column_22>column_23",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_22",
+          "column_23"
+        ],
+        "displays": [
+          "date_debut",
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "date_order",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/date_order:rows:column_22>column_23"
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 22,
+          "share": 0.000318356125,
+          "method": "date_order"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.497087,
+          "base": 6.0,
+          "rarity": 0.582848,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "date_order:rows:column_22>column_23",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "quality:rows:column_20:observation:o13",
         "family": "quality",
         "dataset": "rows",
@@ -9120,6 +9161,88 @@
         "origin": "o13",
         "needs": [
           "scan"
+        ]
+      },
+      {
+        "id": "quality:rows:column_22+column_31:date_order:date_order:rows:column_22>column_31",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_22",
+          "column_31"
+        ],
+        "displays": [
+          "date_debut",
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "date_order",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/date_order:rows:column_22>column_31"
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 0.000425025502,
+          "method": "date_order"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.371585,
+          "base": 6.0,
+          "rarity": 0.561931,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "date_order:rows:column_22>column_31",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "quality:rows:column_31+column_23:date_order:date_order:rows:column_31>column_23",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_31",
+          "column_23"
+        ],
+        "displays": [
+          "date_reclamation",
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "date_order",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/date_order:rows:column_31>column_23"
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 0.000506996552,
+          "method": "date_order"
+        },
+        "weight": {
+          "version": 1,
+          "value": 9.294995,
+          "base": 6.0,
+          "rarity": 0.549166,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "date_order:rows:column_31>column_23",
+        "needs": [
+          "scan",
+          "second_pass"
         ]
       },
       {
@@ -62798,32 +62921,32 @@
   },
   "selection": {
     "rows": 3000,
-    "by_cover": 524,
+    "by_cover": 528,
     "by_worst": 2,
-    "by_reserve": 2474,
+    "by_reserve": 2470,
     "shortfall": 0,
     "reserve": {
       "planned": 600,
-      "taken": 2474,
+      "taken": 2470,
       "adjusted": true
     },
     "pool": {
       "per_target": 2,
-      "candidate_rows": 3523,
-      "peak_bytes": 960395,
+      "candidate_rows": 3527,
+      "peak_bytes": 961532,
       "budget_bytes": 67108864,
       "refused_rows": 0
     }
   },
   "coverage": {
     "scope": "target_catalog",
-    "defined": 1475,
-    "evaluable": 1475,
-    "observed": 1475,
-    "covered": 1475,
+    "defined": 1478,
+    "evaluable": 1478,
+    "observed": 1478,
+    "covered": 1478,
     "weighted": {
-      "total": 6852.940308,
-      "covered": 6852.940308,
+      "total": 6881.103975,
+      "covered": 6881.103975,
       "share": 1.0
     },
     "mandatory": {
@@ -62866,11 +62989,11 @@
       },
       {
         "family": "quality",
-        "defined": 163,
-        "evaluable": 163,
-        "covered": 163,
-        "weight": 1172.207727,
-        "weight_covered": 1172.207727
+        "defined": 166,
+        "evaluable": 166,
+        "covered": 166,
+        "weight": 1200.371394,
+        "weight_covered": 1200.371394
       },
       {
         "family": "relations",
@@ -62884,8 +63007,8 @@
     "missing": [],
     "missing_total": 0,
     "verification": {
-      "checked": 1454,
-      "agreed": 1454,
+      "checked": 1457,
+      "agreed": 1457,
       "disagreed": []
     }
   },
@@ -64536,11 +64659,35 @@
       "agrees": true
     },
     {
+      "id": "quality:rows:column_22+column_23:date_order:date_order:rows:column_22>column_23",
+      "status": "covered",
+      "observed": 22,
+      "candidates": 2,
+      "expected": 22,
+      "agrees": true
+    },
+    {
       "id": "quality:rows:column_20:observation:o13",
       "status": "covered",
       "observed": 36,
       "candidates": 2,
       "expected": 36,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_22+column_31:date_order:date_order:rows:column_22>column_31",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_31+column_23:date_order:date_order:rows:column_31>column_23",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
       "agrees": true
     },
     {

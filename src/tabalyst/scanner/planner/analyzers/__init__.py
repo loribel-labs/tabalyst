@@ -9,6 +9,7 @@ from __future__ import annotations
 from tabalyst.scanner.planner.analyzer import Analyzer
 from tabalyst.scanner.planner.analyzers.characters import CharacterProfile
 from tabalyst.scanner.planner.analyzers.crosstab import CategoryCrosstab
+from tabalyst.scanner.planner.analyzers.date_order import DateOrder
 from tabalyst.scanner.planner.analyzers.distinct import ExactDistinct
 from tabalyst.scanner.planner.analyzers.drift import PositionDrift
 from tabalyst.scanner.planner.analyzers.duplicates import DuplicatesReport
@@ -45,6 +46,7 @@ BUILT_INS: tuple[type[Analyzer], ...] = (
     DatetimeParts,
     PositionDrift,
     MissingMatrix,
+    DateOrder,
     ArrayProfile,
     StructureVariants,
     TextProfile,

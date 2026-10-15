@@ -15028,6 +15028,15 @@
           "max_tracked": 1000,
           "max_listed": 12
         },
+        "date_order": {
+          "max_columns": 50,
+          "max_work": 1000000,
+          "max_candidates": 20,
+          "automatic_pairs": 20,
+          "explore_min_pairs": 30,
+          "min_share": 0.99,
+          "max_listed": 10
+        },
         "missing": {
           "max_columns": 100,
           "max_listed": 10
@@ -15051,13 +15060,13 @@
           "max_tracked": 10000
         }
       },
-      "settings_sha256": "3699905ac2675231e146461e4181eea25097cd46c9be94493cf96a3ba6b1b837",
+      "settings_sha256": "0e257bc8bd73e0338a6753d664b8d2ee9c728ab01a86048a0e0a6fe91fb12fa9",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 16,
-        "plan_id": "01cc11cb314aaf8c19e4e62deb519e4a966d20c602f047474b3e1230b173824e",
+        "cost_model_version": 17,
+        "plan_id": "ac2496930449a8f97ed48f66725917e54ee6db4bf4f242dbcc392593160eb9b7",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
@@ -22905,15 +22914,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-15T03:42:15.778595Z",
-        "duration_seconds": 0.000152,
+        "started_at": "2026-10-15T05:11:51.276116Z",
+        "duration_seconds": 0.000141,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000152
+          "other": 0.000141
         },
         "workers": 1,
-        "peak_memory_bytes": 73617408,
+        "peak_memory_bytes": 73261056,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -27399,12 +27408,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-15T03:42:16.056740Z",
+    "generated_at": "2026-10-15T05:11:51.528117Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.3372,
+    "processing_seconds": 0.3094,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

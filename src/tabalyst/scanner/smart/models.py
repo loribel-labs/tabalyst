@@ -57,6 +57,7 @@ PredicateKind = Literal[
     "characteristic",
     "value_rare",
     "residual_value",
+    "date_order",
     "relation_exception",
 ]
 

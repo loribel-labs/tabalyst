@@ -53,6 +53,7 @@ from tabalyst.scanner.planner.models import (
     Execution,
     Exploration,
     ExploredDataset,
+    ExploredOrders,
     ExploredStats,
     ExploredTables,
     Memory,
@@ -463,7 +464,7 @@ def _pair_entries(
     facts_list: Sequence[FieldFacts],
     requests: Sequence[AnalysisRequest],
     start: int,
-) -> tuple[list[_Entry], list[ExploredDataset] | list[ExploredTables] | list[ExploredStats]]:
+) -> tuple[list[_Entry], list[ExploredDataset] | list[ExploredTables] | list[ExploredStats] | list[ExploredOrders]]:
     """The candidates of the pairs of columns an analyzer proposes: the best its
     exploration of the row sample found, then the pairs a request named that it
     did not list (REL-06). Reads the row sample of the Scan and nothing else."""
@@ -608,6 +609,7 @@ def plan_analyses(
                 datasets=explored.get("datasets", []),
                 tables=explored.get("tables", []),
                 stats=explored.get("stats", []),
+                orders=explored.get("orders", []),
             )
             if any(explored.values())
             else None

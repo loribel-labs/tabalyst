@@ -384,6 +384,31 @@ class PatternCountSettings(BaseModel):
     distinct_bytes: int = Field(default=1_048_576, ge=1_024, le=512 * 1024 * 1024)
 
 
+class DateOrderSettings(BaseModel):
+    """How the order of two dates of the same row is explored and counted (design
+    20.38).
+
+    The exploration reads the row sample and keeps the pairs of date columns where
+    the first is on or before the second in at least ``min_share`` of the rows
+    that have both, and not the other way round too. ``max_columns`` and
+    ``max_work`` (pairs times rows compared) bound it; ``max_candidates`` pairs at
+    most are written in the plan, ``automatic_pairs`` of them chosen without being
+    asked, and a pair needs ``explore_min_pairs`` rows in the sample. The result
+    lists ``max_listed`` rows that break the order. ``max_listed`` is part of the key
+    of a result; ``min_share`` only changes the pairs the plan lists.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_columns: int = Field(default=50, ge=2, le=200)
+    max_work: int = Field(default=1_000_000, ge=1)
+    max_candidates: int = Field(default=20, ge=0, le=1_000)
+    automatic_pairs: int = Field(default=20, ge=0, le=1_000)
+    explore_min_pairs: int = Field(default=30, ge=4)
+    min_share: float = Field(default=0.99, ge=0.5, le=1)
+    max_listed: int = Field(default=10, ge=1, le=1_000)
+
+
 class DriftSettings(BaseModel):
     """How a column is followed by position in the file (design 20.30).
 
@@ -513,6 +538,7 @@ class DeepSettings(BaseModel):
     residuals: ResidualSettings = Field(default_factory=ResidualSettings)
     duplicates: DuplicateSettings = Field(default_factory=DuplicateSettings)
     drift: DriftSettings = Field(default_factory=DriftSettings)
+    date_order: DateOrderSettings = Field(default_factory=DateOrderSettings)
     missing: MissingSettings = Field(default_factory=MissingSettings)
     arrays: ArraySettings = Field(default_factory=ArraySettings)
     structure: StructureSettings = Field(default_factory=StructureSettings)

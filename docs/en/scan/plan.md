@@ -55,6 +55,7 @@ the analyses that concern it:
 | `numeric_shape` | The asymmetry, kurtosis, outliers of Tukey and decimals of a numeric field, with a logarithmic and an equal-count histogram. Asked for, or run with `--deep`, never by itself |
 | `position_drift` | The records, values and missing values of each tenth of the file for a field, and its values by tenth when it has few different ones. Asked for, or run with `--deep`, never by itself |
 | `missing_matrix` | For a column that lacks a value, the records where it lacks one together with each other column. One candidate per column, one counting for the dataset. Asked for, or run with `--deep`, never by itself |
+| `date_order` | For a pair of date columns where the sample shows one on or before the other, the records where the first date is after the second. One candidate per pair, always reading the source. Chosen by `tabalyst report` by itself |
 | `array_profile` | The number of arrays of every length for a JSON field that holds arrays. Asked for, or run with `--deep`, never by itself |
 | `structure_variants` | The sets of keys the objects of a JSON field have, and the records themselves under the field `$`. Asked for, or run with `--deep`, never by itself |
 | `character_profile` | The exact character map of a field with text. Asked for, or run with `--deep`, never by itself |

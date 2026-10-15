@@ -403,21 +403,53 @@ class ExploredStats(ScanModel):
         return _omit_none(handler(self), ("scope", "unavailable"))
 
 
+class ExploredOrders(ScanModel):
+    """The exploration of the order of two dates in the rows of one dataset (design
+    20.38). ``dates`` columns were looked at; those left out are counted by reason
+    in ``excluded`` (``sensitive_exposure``, ``repeated_path``, ``mixed_kinds``,
+    ``not_in_sample``, ``too_few_values``, ``column_budget``) and ``columns`` were
+    kept. Of the ``possible`` pairs, ``evaluated`` were compared on the ``rows`` of
+    the sample (``scope``), ``undefined`` of them have too few rows with a date in
+    both columns, and ``listed`` are candidates of the plan: a pair is listed when
+    one column is on or before the other in the share of rows that the settings
+    ask for, and not the other way round too. ``work`` is the pairs times the rows
+    compared. ``unavailable`` says why the dataset was not explored."""
+
+    dataset: str
+    scope: Literal["interior_rows", "all_rows"] | None = None
+    rows: int = 0
+    dates: int = 0
+    columns: int = 0
+    excluded: dict[str, int] = Field(default_factory=dict)
+    possible: int = 0
+    evaluated: int = 0
+    undefined: int = 0
+    listed: int = 0
+    work: int = 0
+    unavailable: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("scope", "unavailable"))
+
+
 class Relations(ScanModel):
     """What the planner looked at to propose pairs of columns (``datasets``: one
     entry per dataset with at least two numeric columns) and tables of a
     category against a feature (``tables``: one per dataset with a category) and
     of the numbers by category (``stats``: one per dataset with a category and a
-    number)."""
+    number) and of the order of two dates (``orders``: one per dataset with two
+    columns of dates)."""
 
     datasets: list[ExploredDataset] = Field(default_factory=list)
     tables: list[ExploredTables] = Field(default_factory=list)
     stats: list[ExploredStats] = Field(default_factory=list)
+    orders: list[ExploredOrders] = Field(default_factory=list)
 
     @model_serializer(mode="wrap")
     def _omit_empty(self, handler) -> dict[str, Any]:
         data = handler(self)
-        for name in ("datasets", "tables", "stats"):
+        for name in ("datasets", "tables", "stats", "orders"):
             if not data.get(name):
                 data.pop(name, None)
         return data

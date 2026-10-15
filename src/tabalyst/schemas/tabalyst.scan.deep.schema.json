@@ -276,6 +276,7 @@
                   "category_stats": "#/$defs/StatsResult",
                   "character_profile": "#/$defs/CharacterProfileResult",
                   "crosstab": "#/$defs/CrosstabResult",
+                  "date_order": "#/$defs/DateOrderResult",
                   "datetime_parts": "#/$defs/PartsResult",
                   "dense_counts": "#/$defs/DenseHistogram",
                   "distinct": "#/$defs/DistinctCount",
@@ -356,6 +357,9 @@
                 },
                 {
                   "$ref": "#/$defs/MissingMatrixResult"
+                },
+                {
+                  "$ref": "#/$defs/DateOrderResult"
                 },
                 {
                   "$ref": "#/$defs/ArrayProfileResult"
@@ -1756,6 +1760,173 @@
       "title": "CrosstabSettings",
       "type": "object"
     },
+    "DateOrderBreak": {
+      "additionalProperties": false,
+      "description": "A record where the first date is after the second: its number (the first\nrecord is 1) and the two dates, written as ISO 8601 by the reading that\ncompared them.",
+      "properties": {
+        "record": {
+          "title": "Record",
+          "type": "integer"
+        },
+        "first": {
+          "title": "First",
+          "type": "string"
+        },
+        "second": {
+          "title": "Second",
+          "type": "string"
+        }
+      },
+      "required": [
+        "record",
+        "first",
+        "second"
+      ],
+      "title": "DateOrderBreak",
+      "type": "object"
+    },
+    "DateOrderExclusions": {
+      "additionalProperties": false,
+      "description": "The records of a pair that were not compared, by reason: a column has no\nvalue (``missing``), a value that no date reads (``not_a_date``), a date that\nstays ambiguous (``ambiguous``), or two dates of different kinds, a date and a\ndate and time, with and without a zone (``other_kind``). A record counts for the\nfirst reason that applies, in that order.",
+      "properties": {
+        "missing": {
+          "default": 0,
+          "title": "Missing",
+          "type": "integer"
+        },
+        "not_a_date": {
+          "default": 0,
+          "title": "Not A Date",
+          "type": "integer"
+        },
+        "ambiguous": {
+          "default": 0,
+          "title": "Ambiguous",
+          "type": "integer"
+        },
+        "other_kind": {
+          "default": 0,
+          "title": "Other Kind",
+          "type": "integer"
+        }
+      },
+      "title": "DateOrderExclusions",
+      "type": "object"
+    },
+    "DateOrderResult": {
+      "additionalProperties": false,
+      "description": "Whether the first date of a pair of columns is on or before the second, in\neach record where both can be compared (design 20.38).\n\n``records`` of the dataset were read; ``compared`` have a date in both columns\nof the same kind (the ambiguous dates are read in the order the evidence of the\nScan gives their column), of which ``equal`` fall on the same date or instant\nand ``broken`` have the first after the second. The other records are counted\nin ``excluded``. The counts are exact. ``listed`` holds the first ``broken``\nrecords in file order, ``max_listed`` at most; ``truncated`` says that more\nexist. It shows that an order is broken, not why.",
+      "properties": {
+        "kind": {
+          "const": "date_order",
+          "default": "date_order",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "compared": {
+          "title": "Compared",
+          "type": "integer"
+        },
+        "equal": {
+          "title": "Equal",
+          "type": "integer"
+        },
+        "broken": {
+          "title": "Broken",
+          "type": "integer"
+        },
+        "excluded": {
+          "$ref": "#/$defs/DateOrderExclusions"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/DateOrderBreak"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "records",
+        "compared",
+        "equal",
+        "broken",
+        "excluded",
+        "truncated",
+        "listed"
+      ],
+      "title": "DateOrderResult",
+      "type": "object"
+    },
+    "DateOrderSettings": {
+      "additionalProperties": false,
+      "description": "How the order of two dates of the same row is explored and counted (design\n20.38).\n\nThe exploration reads the row sample and keeps the pairs of date columns where\nthe first is on or before the second in at least ``min_share`` of the rows\nthat have both, and not the other way round too. ``max_columns`` and\n``max_work`` (pairs times rows compared) bound it; ``max_candidates`` pairs at\nmost are written in the plan, ``automatic_pairs`` of them chosen without being\nasked, and a pair needs ``explore_min_pairs`` rows in the sample. The result\nlists ``max_listed`` rows that break the order. ``max_listed`` is part of the key\nof a result; ``min_share`` only changes the pairs the plan lists.",
+      "properties": {
+        "max_columns": {
+          "default": 50,
+          "maximum": 200,
+          "minimum": 2,
+          "title": "Max Columns",
+          "type": "integer"
+        },
+        "max_work": {
+          "default": 1000000,
+          "minimum": 1,
+          "title": "Max Work",
+          "type": "integer"
+        },
+        "max_candidates": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Max Candidates",
+          "type": "integer"
+        },
+        "automatic_pairs": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Automatic Pairs",
+          "type": "integer"
+        },
+        "explore_min_pairs": {
+          "default": 30,
+          "minimum": 4,
+          "title": "Explore Min Pairs",
+          "type": "integer"
+        },
+        "min_share": {
+          "default": 0.99,
+          "maximum": 1,
+          "minimum": 0.5,
+          "title": "Min Share",
+          "type": "number"
+        },
+        "max_listed": {
+          "default": 10,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Listed",
+          "type": "integer"
+        }
+      },
+      "title": "DateOrderSettings",
+      "type": "object"
+    },
     "DateResolution": {
       "additionalProperties": false,
       "description": "The order the ambiguous dates of a field were read in: ``source`` is\n``evidence`` when the unambiguous dates of the field read in only one order\n(``25/03/2020`` is day-month and none is month-day), whatever their\nseparator and with or without year-first dates. ``evidence`` counts those\nunambiguous dates by order (``DMY``, ``MDY``). The ambiguous dates, which the\nScan counts and does not place, that this reading made valid are the\n``resolved`` count of the result.",
@@ -1979,6 +2150,9 @@
         },
         "drift": {
           "$ref": "#/$defs/DriftSettings"
+        },
+        "date_order": {
+          "$ref": "#/$defs/DateOrderSettings"
         },
         "missing": {
           "$ref": "#/$defs/MissingSettings"
@@ -2858,6 +3032,96 @@
         "dataset"
       ],
       "title": "ExploredDataset",
+      "type": "object"
+    },
+    "ExploredOrders": {
+      "additionalProperties": false,
+      "description": "The exploration of the order of two dates in the rows of one dataset (design\n20.38). ``dates`` columns were looked at; those left out are counted by reason\nin ``excluded`` (``sensitive_exposure``, ``repeated_path``, ``mixed_kinds``,\n``not_in_sample``, ``too_few_values``, ``column_budget``) and ``columns`` were\nkept. Of the ``possible`` pairs, ``evaluated`` were compared on the ``rows`` of\nthe sample (``scope``), ``undefined`` of them have too few rows with a date in\nboth columns, and ``listed`` are candidates of the plan: a pair is listed when\none column is on or before the other in the share of rows that the settings\nask for, and not the other way round too. ``work`` is the pairs times the rows\ncompared. ``unavailable`` says why the dataset was not explored.",
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "enum": [
+                "interior_rows",
+                "all_rows"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scope"
+        },
+        "rows": {
+          "default": 0,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "dates": {
+          "default": 0,
+          "title": "Dates",
+          "type": "integer"
+        },
+        "columns": {
+          "default": 0,
+          "title": "Columns",
+          "type": "integer"
+        },
+        "excluded": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Excluded",
+          "type": "object"
+        },
+        "possible": {
+          "default": 0,
+          "title": "Possible",
+          "type": "integer"
+        },
+        "evaluated": {
+          "default": 0,
+          "title": "Evaluated",
+          "type": "integer"
+        },
+        "undefined": {
+          "default": 0,
+          "title": "Undefined",
+          "type": "integer"
+        },
+        "listed": {
+          "default": 0,
+          "title": "Listed",
+          "type": "integer"
+        },
+        "work": {
+          "default": 0,
+          "title": "Work",
+          "type": "integer"
+        },
+        "unavailable": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unavailable"
+        }
+      },
+      "required": [
+        "dataset"
+      ],
+      "title": "ExploredOrders",
       "type": "object"
     },
     "ExploredStats": {
@@ -5877,7 +6141,7 @@
     },
     "Relations": {
       "additionalProperties": false,
-      "description": "What the planner looked at to propose pairs of columns (``datasets``: one\nentry per dataset with at least two numeric columns) and tables of a\ncategory against a feature (``tables``: one per dataset with a category) and\nof the numbers by category (``stats``: one per dataset with a category and a\nnumber).",
+      "description": "What the planner looked at to propose pairs of columns (``datasets``: one\nentry per dataset with at least two numeric columns) and tables of a\ncategory against a feature (``tables``: one per dataset with a category) and\nof the numbers by category (``stats``: one per dataset with a category and a\nnumber) and of the order of two dates (``orders``: one per dataset with two\ncolumns of dates).",
       "properties": {
         "datasets": {
           "items": {
@@ -5898,6 +6162,13 @@
             "$ref": "#/$defs/ExploredStats"
           },
           "title": "Stats",
+          "type": "array"
+        },
+        "orders": {
+          "items": {
+            "$ref": "#/$defs/ExploredOrders"
+          },
+          "title": "Orders",
           "type": "array"
         }
       },

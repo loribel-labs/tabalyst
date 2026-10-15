@@ -5467,6 +5467,47 @@ the automatic threshold, so the map is exact only when asked for or with `--deep
 plan parameter is `top`, the size of the lists, which the Scan's setting gives. The Report
 shows the exact map in place of the Scan's when the second pass has one (`report_sections.character_view`).
 
+### 20.38 The order of two dates (lot S3b)
+
+`date_order` (`planner/analyzers/date_order.py`, `planner/orders.py`, `secondpass/orders.py`) counts, for a pair of date
+columns of a dataset, the records where the first date is after the second. It is a `PairAnalyzer` (`relations: "orders"`,
+`directed`): the first column is the one expected to come first, and its id is `date_order:dataset:first>second`. Measured
+on the 100,000-row case: `date_debut` and `date_fin` have 22 broken records among 69,105 compared, and nothing in the Scan
+or in the other analyses said so (the class `date_start_after_end` was kept by chance, 0 of 8 seeds at 100 rows).
+
+**Exploration (`orders.explore_dataset`).** On the usable rows of the row sample (20.12; fewer than `explore_min_pairs` (30)
+are too few), the date columns (`technical_type` `date`, one temporal kind among `date`, `datetime_naive` and
+`datetime_aware`, not withheld, not repeated) are read with the date detector, the ambiguous dates in the order of the
+evidence of the field (`TemporalFacts.inferred`). A pair is compared on the rows where both have a date of the same kind;
+it is listed when the earlier column is on or before the later one in at least `min_share` (0.99) of them and the other
+order does not hold as well. The score is that share (rounded to six decimals); the utility is that share from 0 to 100,
+so the pair is chosen by itself (from 45). `max_columns` (50) and `max_work` (1,000,000, pairs times rows) bound the work,
+`max_candidates` (20) the pairs written in the plan, and the block `relations.orders` (`ExploredOrders`) counts what was
+left out (`mixed_kinds`, `sensitive_exposure`, `repeated_path`, `not_in_sample`, `too_few_values`, `column_budget`) and
+the pairs without enough rows. A request names the earlier column first; an explicit pair is scored from the sample when it
+can be and is not applicable only when a column cannot be put in order.
+
+**Counting (`OrderAccumulator`).** One accumulator for each pair, fed by the rows of a batch (`add_rows`) or by the
+records of a JSON or Excel source (`add_record`, buffered by `PAIR_FEED_ROWS`) through the channel of the matrix of missing
+values (`Router.matrices`, typed `RowAccumulator`). A string is read once (`DateSide`: the cells of the reader, the order of
+the evidence of the field, memo of `REPLAY_MEMO_ENTRIES`). A record is compared when both columns hold a date of the same
+kind; the others are counted by the first reason that applies: `missing`, `not_a_date`, `ambiguous`, `other_kind`. The
+pairs stay in the process (20.18). `records` is checked against the Scan (`scan_mismatch`); the planner leaves a pair out
+when the Scan excluded records (`records_excluded`), as for the drift (20.30). The result `date_order` lists the first
+`max_listed` (10) broken records in file order with their number and the two ISO dates; all counts are exact.
+
+**Cost.** `NS_PER_CELL["date_order"]` 5,000 (4.9 microseconds a row for the pair, measured with 1, 6 and 12 pairs on the
+100,000-row base: 0.49 s a pair), `COST_MODEL_VERSION` 17; the states are a counter, the result and the replay of each
+column. It always reads the source.
+
+**In `smart`.** A target `date_order` of the `quality` family for each pair whose result has `broken` > 0: base
+`candidate_anomaly`, optional, exact frequency `broken`, source `second_pass`, covered by a row whose two dates are
+comparable and out of order (`_OrderTests`, the same readings as the accumulator). Measured on the case: the class is kept
+by 8 of 8 seeds at 100 rows, where none was. The 5 broken rows whose dates stay ambiguous are not seen.
+
+**Left out.** A card of the Report for the order of the dates, chains (a date before a second that is before a third),
+tolerance (a date allowed to be a few days late), and the comparison of dates of different kinds.
+
 ## 21. Original value domain (O32)
 
 Bottom-k, patterns and smart sampling rest on original values, decoded but

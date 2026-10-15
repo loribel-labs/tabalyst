@@ -57,6 +57,7 @@ stored.
 | `numeric_shape` | Numeric fields | The asymmetry and kurtosis, the outliers of Tukey, the decimals the numbers are written with, and a logarithmic and an equal-count histogram |
 | `position_drift` | Fields of a dataset of at least 100 records that miss a value, or have few enough different values | The records, values and missing values of each tenth of the file, the slice where each value first appears, and whether the position tells the missing values or the values apart |
 | `missing_matrix` | Columns of a dataset that lack a value in some records | For each column, the records where it lacks a value together with each other column |
+| `date_order` | Two date columns of a dataset where one is on or before the other in nearly every sampled row | The records where the first date is after the second, counted exactly, with the first of them |
 | `array_profile` | JSON fields that hold arrays of different lengths | The number of arrays of every length, the quantiles of the lengths, the empty arrays and the items |
 | `structure_variants` | JSON objects whose keys are not all in every object, and the records themselves (`$`) | The sets of keys the objects have, each with its exact count and the keys it lacks |
 | `text_profile` | Fields of long texts (80 characters or more) | The words, lines and digits of the texts, by powers of two and by tenth of the characters |
@@ -821,6 +822,45 @@ It shows that values go missing together, not why.
 
 It is not chosen by `tabalyst report` by itself: ask for it with `--deep` or
 `tabalyst.AnalysisRequest("missing_matrix")`.
+
+## The order of two dates
+
+A contract that ends before it starts, a modification dated before the creation: the
+scan reads each date column alone and cannot see that two dates of a record contradict
+each other. The second pass compares the dates of a pair of columns record by record.
+The planner picks the pairs on the rows the scan sampled: the first column is on or
+before the second in at least 99% of the rows that have both, and not the other way
+round too (two columns of the same dates have no order to follow). The pair is
+directed: the first column is the one expected to come first.
+
+```json
+{"kind": "date_order", "accuracy": "exact",
+ "records": 100000, "compared": 69105, "equal": 0, "broken": 22,
+ "excluded": {"missing": 16408, "not_a_date": 0, "ambiguous": 14487, "other_kind": 0},
+ "truncated": true,
+ "listed": [{"record": 11656, "first": "2026-12-09", "second": "2021-08-01"}]}
+```
+
+- **What is compared.** The records where both columns hold a date of the same kind
+  (a date, a date and time without a zone, a date and time with a zone). Each column is
+  read as the scan read it: the ambiguous dates (`03/04/2020`) are placed in the order
+  the unambiguous dates of the column prove, when they prove one. A date that stays
+  ambiguous is not compared.
+- **What is left out.** `excluded` counts the other records by reason, in this order:
+  `missing` (a column has no value), `not_a_date`, `ambiguous` and `other_kind` (a date
+  against a date and time, or with a zone against one without). `records` is
+  `compared` plus the excluded, and is checked against the scan.
+- **Equal dates.** The same date or instant in both columns is in order (`equal`); only
+  `broken` records have the first date after the second.
+- **The records.** `listed` holds the first `max_listed` (10) broken records, in file
+  order, with their number (the first record is 1) and the two dates in ISO 8601;
+  `truncated` says that more exist.
+
+It is chosen by `tabalyst report` by itself when the sample shows the order. A pair can
+also be asked for, the earlier column first:
+`tabalyst.AnalysisRequest("date_order", field="start", partner="end")`. CSV, JSON and
+Excel sources are supported. A dataset whose records the scan left out (a tolerant error
+policy) is not analyzed: the numbers of its records no longer give their place.
 
 ## Arrays and sets of keys in JSON
 

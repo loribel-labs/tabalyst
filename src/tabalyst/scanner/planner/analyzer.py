@@ -33,6 +33,7 @@ from tabalyst.scanner.planner.models import (
     CpuClass,
     Exploration,
     ExploredDataset,
+    ExploredOrders,
     ExploredStats,
     ExploredTables,
     Memory,
@@ -249,7 +250,7 @@ class PairAnalyzer(Analyzer):
         lenient: bool,
     ) -> tuple[
         list[PairProposal],
-        list[ExploredDataset] | list[ExploredTables] | list[ExploredStats],
+        list[ExploredDataset] | list[ExploredTables] | list[ExploredStats] | list[ExploredOrders],
     ]:
         """The pairs to list: the best the exploration of each dataset found,
         then those a request named that it did not list (REL-06), and the blocks

@@ -42,6 +42,7 @@ from tabalyst.scanner.models import (
     ScanResult,
 )
 from tabalyst.scanner.normalization import KEY_STAGE, STAGES
+from tabalyst.scanner.planner.facts import inferred_order
 from tabalyst.scanner.records import table_digest
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
 from tabalyst.scanner.secondpass.models import (
@@ -50,6 +51,7 @@ from tabalyst.scanner.secondpass.models import (
     FrequencyTable,
     ResidualResult,
 )
+from tabalyst.scanner.secondpass.orders import DateSide, breaks_order
 from tabalyst.scanner.secondpass.patterns import pattern_entry
 from tabalyst.scanner.secondpass.replay import Cell, CellReader
 from tabalyst.scanner.smart import reasons
@@ -397,6 +399,26 @@ class _RelationTests:
                 covered[position].extend(hit)
 
 
+class _OrderTests:
+    """The rows whose first date is after the second, for a pair of date columns:
+    the dates are read as the second pass read them (the ambiguous ones in the order
+    the evidence of each column gives)."""
+
+    def __init__(
+        self, first: tuple[int, DateSide], second: tuple[int, DateSide], targets: Cover
+    ) -> None:
+        self.first_index, self.first = first
+        self.second_index, self.second = second
+        self.targets = targets
+
+    def covers(self, rows: list[list[str]], covered: list[list[int]]) -> None:
+        left = self.first.read([row[self.first_index] for row in rows])
+        right = self.second.read([row[self.second_index] for row in rows])
+        for position, (a, b) in enumerate(zip(left, right, strict=True)):
+            if breaks_order(a, b):
+                covered[position].extend(self.targets)
+
+
 class _DuplicateTests:
     """The rows that repeat an earlier row of the source.
 
@@ -457,6 +479,7 @@ class Evaluator:
         )
         self._columns: dict[str, _ColumnTests] = {}
         self._relations: dict[str, _RelationTests] = {}
+        self._orders: dict[str, _OrderTests] = {}
         self._duplicates: _DuplicateTests | None = None
         for position, target in enumerate(targets):
             if target.feasibility != "ready":
@@ -481,6 +504,9 @@ class Evaluator:
         kind = predicate.kind
         if kind == "relation_exception":
             self._relation(position, target)
+            return
+        if kind == "date_order":
+            self._order(position, target)
             return
         if kind == "observation" and not target.fields:
             self._dataset_observation(position, target)
@@ -720,6 +746,28 @@ class Evaluator:
             self._duplicates = _DuplicateTests(self._scan.config.limits.max_tracked_records)
         self._duplicates.targets += (position,)
 
+    def _order(self, position: int, target: Target) -> None:
+        """The order of a pair of date columns that the second pass found broken."""
+        analysis = self._analyses.get(target.origin or "")
+        if (
+            analysis is None
+            or analysis.status != "complete"
+            or analysis.partner is None
+            or len(target.fields) != 2
+        ):
+            raise _Unresolved("reference_missing")
+        first, second = self._fields.get(analysis.field), self._fields.get(analysis.partner)
+        if first is None or second is None:
+            raise _Unresolved("reference_missing")
+        existing = self._orders.get(analysis.id)
+        if existing is None:
+            existing = self._orders[analysis.id] = _OrderTests(
+                (_column_of(first), DateSide(self.reader, inferred_order(first))),
+                (_column_of(second), DateSide(self.reader, inferred_order(second))),
+                (),
+            )
+        existing.targets += (position,)
+
     def _relation(self, position: int, target: Target) -> None:
         analysis =self._analyses.get(target.origin or "")
         if (
@@ -784,10 +832,12 @@ class Evaluator:
         columns = [
             tests.tuples([row[tests.index] for row in rows]) for tests in self.columns
         ]
-        if self._relations:
+        if self._relations or self._orders:
             extra: list[list[int]] = [[] for _ in rows]
             for relation in self._relations.values():
                 relation.covers(rows, extra)
+            for order in self._orders.values():
+                order.covers(rows, extra)
             columns.append([tuple(more) for more in extra])
         if self._duplicates is not None:
             columns.append(self._duplicates.covers(rows))

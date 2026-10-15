@@ -65066,6 +65066,15 @@
           "max_tracked": 1000,
           "max_listed": 12
         },
+        "date_order": {
+          "max_columns": 50,
+          "max_work": 1000000,
+          "max_candidates": 20,
+          "automatic_pairs": 20,
+          "explore_min_pairs": 30,
+          "min_share": 0.99,
+          "max_listed": 10
+        },
         "missing": {
           "max_columns": 100,
           "max_listed": 10
@@ -65089,13 +65098,13 @@
           "max_tracked": 10000
         }
       },
-      "settings_sha256": "3699905ac2675231e146461e4181eea25097cd46c9be94493cf96a3ba6b1b837",
+      "settings_sha256": "0e257bc8bd73e0338a6753d664b8d2ee9c728ab01a86048a0e0a6fe91fb12fa9",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 16,
-        "plan_id": "3e5eee09dca9d9c7b2914bcd42f690f9b760684a8d78267766e56445a790b438",
+        "cost_model_version": 17,
+        "plan_id": "986e7d47d156c349eedd0e4d4f4d7ef473b0a7433f6a60288570caba43a7f76c",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
@@ -65125,10 +65134,10 @@
           "cpu": "low"
         },
         "summary": {
-          "candidates": 284,
+          "candidates": 296,
           "selected": 42,
           "already_satisfied": 90,
-          "rejected": 152,
+          "rejected": 164,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -65208,6 +65217,21 @@
               },
               "listed": 20,
               "work": 54000
+            }
+          ],
+          "orders": [
+            {
+              "dataset": "rows",
+              "scope": "interior_rows",
+              "rows": 900,
+              "dates": 6,
+              "columns": 6,
+              "excluded": {},
+              "possible": 15,
+              "evaluated": 15,
+              "undefined": 0,
+              "listed": 12,
+              "work": 13500
             }
           ]
         },
@@ -81381,6 +81405,1074 @@
             }
           },
           {
+            "id": "date_order:rows:column_5>column_29",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "date_naissance and date_creation",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_5>column_29",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_5>column_29",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_29",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_29",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 737,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_29>column_30",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_29",
+            "display": "date_creation and date_modification",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_29>column_30",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_29>column_30",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_29",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_30",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 736,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_5>column_30",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "date_naissance and date_modification",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_5>column_30",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_5>column_30",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_30",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 733,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_29>column_22",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_29",
+            "display": "date_creation and date_debut",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_29>column_22",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_29>column_22",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_29",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_22",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_22",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 733,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_5>column_22",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "date_naissance and date_debut",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_5>column_22",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_5>column_22",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_22",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_22",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 732,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_29>column_23",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_29",
+            "display": "date_creation and date_fin",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_29>column_23",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_29>column_23",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_29",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_23",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 629,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_5>column_23",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "date_naissance and date_fin",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_5>column_23",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_5>column_23",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_23",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 626,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_22>column_23",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_22",
+            "display": "date_debut and date_fin",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_22>column_23",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_22>column_23",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_22",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_23",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 611,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_29>column_31",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_29",
+            "display": "date_creation and date_reclamation",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_29>column_31",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_29>column_31",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_29",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_31",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 122,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_5>column_31",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "date_naissance and date_reclamation",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_5>column_31",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_5>column_31",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_31",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 121,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_22>column_31",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_22",
+            "display": "date_debut and date_reclamation",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_22>column_31",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_22>column_31",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_22",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_31",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 119,
+              "score": 1.0
+            }
+          },
+          {
+            "id": "date_order:rows:column_31>column_23",
+            "analyzer": "date_order",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_31",
+            "display": "date_reclamation and date_fin",
+            "method": "compare",
+            "parameters": {
+              "max_listed": 10
+            },
+            "outputs": [
+              "date_order",
+              "broken_records"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "ordered_dates"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1536,
+                "expected": 129536,
+                "max": 513536
+              },
+              "cpu": "high",
+              "cell_ns": 5000,
+              "states": [
+                {
+                  "key": "date_order:datasets/rows/fields/column_31>column_23",
+                  "memory": {
+                    "min": 512,
+                    "expected": 512,
+                    "max": 512
+                  }
+                },
+                {
+                  "key": "result:date_order:datasets/rows/fields/column_31>column_23",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "cpu_class",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_23",
+            "exploration": {
+              "scope": "interior_rows",
+              "pairs": 100,
+              "score": 1.0
+            }
+          },
+          {
             "id": "text_profile:rows:column_10",
             "analyzer": "text_profile",
             "analyzer_version": 1,
@@ -83263,15 +84355,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-15T03:41:50.867602Z",
-        "duration_seconds": 0.000447,
+        "started_at": "2026-10-15T05:11:27.759900Z",
+        "duration_seconds": 0.000445,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000447
+          "other": 0.000445
         },
         "workers": 1,
-        "peak_memory_bytes": 116359168,
+        "peak_memory_bytes": 115744768,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -152438,12 +153530,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-15T03:41:51.397828Z",
+    "generated_at": "2026-10-15T05:11:28.265304Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 3.1248,
+    "processing_seconds": 3.0737,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

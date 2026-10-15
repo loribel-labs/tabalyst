@@ -44,7 +44,12 @@ from tabalyst.scanner.planner.costmodel import (
     PERIOD_MEMO_ENTRIES,
 )
 from tabalyst.scanner.planner.crosstabs import code_rows
-from tabalyst.scanner.planner.facts import ROOT_FIELD, date_evidence, matrix_members
+from tabalyst.scanner.planner.facts import (
+    ROOT_FIELD,
+    date_evidence,
+    inferred_order,
+    matrix_members,
+)
 from tabalyst.scanner.planner.models import AnalysisPlan, Candidate
 from tabalyst.scanner.planner.registry import default_registry
 from tabalyst.scanner.planner.relations import column_floats
@@ -92,6 +97,7 @@ from tabalyst.scanner.secondpass.models import (
     DistinctLimited,
     DuplicatesLimited,
 )
+from tabalyst.scanner.secondpass.orders import OrderAccumulator
 from tabalyst.scanner.secondpass.parallel import (
     RemoteRoute,
     SecondPassWorkers,
@@ -148,6 +154,7 @@ Accumulator = (
     | StatsAccumulator
     | DriftAccumulator
     | MatrixAccumulator
+    | OrderAccumulator
     | ArrayAccumulator
     | KeySets
     | TextAccumulator
@@ -493,6 +500,22 @@ def _setup_matrix(
         raise ScanMismatch("the scan no longer counts the field among the columns that miss a value")
     job.column = ids.index(job.field.id)
     job.accumulator = matrix
+    job.reads_pair = True
+
+
+def _setup_order(
+    job: _Job, cells: CellReader, orders: list[tuple[str, OrderAccumulator]]
+) -> None:
+    """The accumulator of the order of a pair of date columns: each column is read
+    with the order its evidence gives its ambiguous dates."""
+    first, second = job.field, job.partner
+    assert second is not None
+    job.accumulator = OrderAccumulator(
+        (first, cells, inferred_order(first)),
+        (second, cells, inferred_order(second)),
+        int(job.candidate.parameters["max_listed"]),
+    )
+    orders.append((job.dataset.id, job.accumulator))
     job.reads_pair = True
 
 
@@ -857,6 +880,9 @@ def _finish(job: _Job) -> _Finished:
                 int(parameters["max_keys"]),
             ),
         )
+    if isinstance(accumulator, OrderAccumulator):
+        accumulator.check(job.dataset)
+        return _Finished("complete", accumulator.result())
     if isinstance(accumulator, MatrixAccumulator):
         accumulator.check(job.dataset)
         return _Finished(
@@ -931,7 +957,7 @@ def _conclude(job: _Job) -> AnalysisResult:
     if job.route is not None and job.route.failure is not None:
         return _entry(candidate, key, "failed", reason="analysis_error", detail=job.route.failure)
     pair = job.accumulator
-    if isinstance(pair, MatrixAccumulator) and pair.failure is not None:
+    if isinstance(pair, MatrixAccumulator | OrderAccumulator) and pair.failure is not None:
         return _entry(candidate, key, "failed", reason="analysis_error", detail=pair.failure)
     if isinstance(pair, KeySets) and job.structure is not None and job.structure.failure is not None:
         return _entry(candidate, key, "failed", reason="analysis_error", detail=job.structure.failure)
@@ -1148,6 +1174,7 @@ def run_second_pass(
         stats_cache: dict[tuple[str, str, int, str], StatsEdges] = {}
         matrices: dict[str, MatrixAccumulator] = {}
         structures: dict[str, StructureAccumulator] = {}
+        orders: list[tuple[str, OrderAccumulator]] = []
         # An analysis the Scan can answer alone (the patterns of a field whose
         # every distinct value it holds) does not read the source.
         for job in jobs:
@@ -1163,6 +1190,9 @@ def run_second_pass(
                     continue
                 if job.candidate.analyzer == "missing_matrix":
                     _setup_matrix(job, cells, matrices)
+                    continue
+                if job.candidate.analyzer == "date_order":
+                    _setup_order(job, cells, orders)
                     continue
                 if job.candidate.analyzer == "structure_variants":
                     _setup_structure(job, structures)
@@ -1253,7 +1283,7 @@ def run_second_pass(
                     feeds,
                     pairs,
                     after_batch=None if pool is None else pool.flush,
-                    matrices=[(dataset, matrix) for dataset, matrix in matrices.items()],
+                    matrices=[*matrices.items(), *orders],
                     structures=[(dataset, found) for dataset, found in structures.items()],
                 )
                 consume_started = perf_counter()

@@ -32,6 +32,7 @@ from tabalyst.scanner.secondpass.models import (
     AnalysisResult,
     BinnedHistogram,
     CrosstabResult,
+    DateOrderResult,
     DeepResult,
     DenseHistogram,
     FrequencyTable,
@@ -827,6 +828,37 @@ class _Builder:
                     origin=analysis.id,
                 )
 
+    def date_orders(self) -> None:
+        """One target per pair of date columns whose order the second pass found
+        broken in some records (``broken`` is exact): a row covers it when its
+        first date is after its second."""
+        for analysis in self.analyses:
+            result = analysis.result
+            if analysis.analyzer != "date_order" or analysis.partner is None:
+                continue
+            if not isinstance(result, DateOrderResult) or result.broken == 0:
+                continue
+            fields = [analysis.field, analysis.partner]
+            if any(i not in self.fields or self.withheld(self.fields[i]) for i in fields):
+                continue
+            self.add(
+                "quality",
+                fields,
+                "date_order",
+                analysis.id,
+                base="candidate_anomaly",
+                frequency=Frequency(
+                    accuracy="exact",
+                    count=result.broken,
+                    share=_share(result.broken, result.compared),
+                    method="date_order",
+                ),
+                evidence="second_pass",
+                source="second_pass",
+                ref=f"analyses/{analysis.id}",
+                origin=analysis.id,
+            )
+
     def relations(self) -> None:
         for analysis in self.analyses:
             result = analysis.result
@@ -874,5 +906,6 @@ def build_targets(
         builder.tail(field)
         builder.residuals(field)
     builder.quality()
+    builder.date_orders()
     builder.relations()
     return builder.result

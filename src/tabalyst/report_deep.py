@@ -40,6 +40,7 @@ from tabalyst.scanner.secondpass.models import (
     BinnedHistogram,
     CharacterProfileResult,
     CrosstabResult,
+    DateOrderResult,
     DateResolution,
     DenseHistogram,
     DistinctCount,
@@ -209,6 +210,8 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         return _drift_summary(result), EXACT
     if isinstance(result, MissingMatrixResult):
         return _matrix_summary(result), EXACT
+    if isinstance(result, DateOrderResult):
+        return _order_summary(result), EXACT
     if isinstance(result, ArrayProfileResult):
         return _arrays_summary(result), EXACT
     if isinstance(result, StructureResult):
@@ -367,6 +370,14 @@ def _matrix_summary(result: MissingMatrixResult) -> str:
     if result.listed:
         top = result.listed[0]
         text += f", most with {top.display} ({top.both:,})"
+    return text
+
+
+def _order_summary(result: DateOrderResult) -> str:
+    text = f"{result.compared:,} records compared, {result.broken:,} with the first date after the second"
+    skipped = sum(result.excluded.model_dump().values())
+    if skipped:
+        text += f"; {skipped:,} not compared"
     return text
 
 

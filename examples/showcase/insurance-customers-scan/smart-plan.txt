@@ -1,5 +1,5 @@
-Plan for insurance-customers-100k.csv (plan 3e5eee09dca9, planner 1).
-284 candidates: 42 selected, 90 already answered by the scan, 152 left out.
+Plan for insurance-customers-100k.csv (plan 986e7d47d156, planner 1).
+296 candidates: 42 selected, 90 already answered by the scan, 164 left out.
 
 Selected:
   1. category_crosstab [contingency_table]: rows / civilite and sexe (prefix) (up to 996.6 KiB, CPU low, automatic)
@@ -133,6 +133,18 @@ Left out:
   missing_matrix [bit_sets]: rows / date_reclamation: too little expected benefit for an automatic choice
   missing_matrix [bit_sets]: rows / montant_reclamation: too little expected benefit for an automatic choice
   missing_matrix [bit_sets]: rows / reclamation_status: too little expected benefit for an automatic choice
+  date_order [compare]: rows / date_naissance and date_creation: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_creation and date_modification: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_naissance and date_modification: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_creation and date_debut: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_naissance and date_debut: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_creation and date_fin: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_naissance and date_fin: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_debut and date_fin: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_creation and date_reclamation: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_naissance and date_reclamation: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_debut and date_reclamation: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_reclamation and date_fin: its CPU class is above the automatic limit
   text_profile [text_counters]: rows / nom_voie: too little expected benefit for an automatic choice
   fingerprint_distinct [fingerprints]: rows / nom_voie: too little expected benefit for an automatic choice
   character_profile [character_census]: rows / id_client: too little expected benefit for an automatic choice
@@ -169,12 +181,12 @@ Smart sample plan for insurance-customers-100k.csv (dataset rows, 100,000 rows)
 
 A smart sample covers diversity and rare cases; its proportions are not those of the population. The targets are those the Scan and the stored second pass know: other cases may exist.
 
-Targets: 1475 (157 mandatory, 1318 optional).
+Targets: 1478 (157 mandatory, 1321 optional).
   Low cardinality: 922 targets, 157 mandatory
   Structured strings: 47 targets, 0 mandatory
   Numeric: 53 targets, 0 mandatory
   Dates: 70 targets, 0 mandatory
-  Quality: 163 targets, 0 mandatory
+  Quality: 166 targets, 0 mandatory
   Relations: 220 targets, 0 mandatory
 
 Columns whose values are only partly known:
@@ -201,9 +213,9 @@ Heaviest targets:
   11  code_postal: residual_value (1 row, 0.0010%)
   11  code_postal: residual_value (1 row, 0.0010%)
 
-Size: 3,000 rows asked; 157 rows are enough for the mandatory targets one by one; beyond 1,844 rows only the reserve grows.
+Size: 3,000 rows asked; 157 rows are enough for the mandatory targets one by one; beyond 1,848 rows only the reserve grows.
 Reserve of ordinary rows: 20%, 600 rows.
-Candidate rows kept in memory: up to 3,550, about 953.4 KiB of source text.
+Candidate rows kept in memory: up to 3,556, about 955.0 KiB of source text.
 
 Readings of the source: 1
   scan (not needed): a current Scan is stored: it is not read again

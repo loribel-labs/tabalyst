@@ -1426,6 +1426,52 @@ class MissingMatrixResult(ScanModel):
     listed: list[MissingPartner]
 
 
+class DateOrderBreak(ScanModel):
+    """A record where the first date is after the second: its number (the first
+    record is 1) and the two dates, written as ISO 8601 by the reading that
+    compared them."""
+
+    record: int
+    first: str
+    second: str
+
+
+class DateOrderExclusions(ScanModel):
+    """The records of a pair that were not compared, by reason: a column has no
+    value (``missing``), a value that no date reads (``not_a_date``), a date that
+    stays ambiguous (``ambiguous``), or two dates of different kinds, a date and a
+    date and time, with and without a zone (``other_kind``). A record counts for the
+    first reason that applies, in that order."""
+
+    missing: int = 0
+    not_a_date: int = 0
+    ambiguous: int = 0
+    other_kind: int = 0
+
+
+class DateOrderResult(ScanModel):
+    """Whether the first date of a pair of columns is on or before the second, in
+    each record where both can be compared (design 20.38).
+
+    ``records`` of the dataset were read; ``compared`` have a date in both columns
+    of the same kind (the ambiguous dates are read in the order the evidence of the
+    Scan gives their column), of which ``equal`` fall on the same date or instant
+    and ``broken`` have the first after the second. The other records are counted
+    in ``excluded``. The counts are exact. ``listed`` holds the first ``broken``
+    records in file order, ``max_listed`` at most; ``truncated`` says that more
+    exist. It shows that an order is broken, not why."""
+
+    kind: Literal["date_order"] = "date_order"
+    accuracy: Literal["exact"] = "exact"
+    records: int
+    compared: int
+    equal: int
+    broken: int
+    excluded: DateOrderExclusions
+    truncated: bool
+    listed: list[DateOrderBreak]
+
+
 class ArrayProfileResult(ScanModel):
     """The lengths of the arrays of a field, exactly (design 20.33).
 
@@ -1628,6 +1674,7 @@ AnalysisOutput = Annotated[
     | StatsResult
     | PositionDriftResult
     | MissingMatrixResult
+    | DateOrderResult
     | ArrayProfileResult
     | StructureResult
     | TextProfileResult

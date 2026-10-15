@@ -100,6 +100,14 @@ classes at 3,000 rows against 17 for `random`; at 300 rows `smart` keeps 41 and 
 numbers to compare when a change to Sample is made. Before lot S4 `smart` kept 35 and 34 classes with
 seed 1 (7 and 10 never kept), after S4 44 and 39.
 
+## The order of two dates (lot S3b)
+
+`date_start_after_end` (27 rows) was kept by chance before lot S3b: no target stood for a start date
+after an end date, and at 100 rows no seed of 8 kept one of its rows. The second pass now counts
+the pairs of date columns whose order the sample shows (`date_order`, 22 of the 27 rows are
+seen, the other 5 have dates that stay ambiguous) and `smart` has a target for the pair: 8 seeds
+of 8 keep a row of the class at 100 and at 300 rows.
+
 ## Known gaps
 
 None at 3,000 rows with seed 1: the list `expectations.gaps` of `case.json` is empty. Lot S4 recovered nine

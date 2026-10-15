@@ -265,6 +265,12 @@ It is not part of the `scan` object: changing it never makes a stored scan stale
 | `deep.drift.max_listed` | `12` | Values listed with their counts in each tenth of the file, the most frequent first; the others are summed up. From 1 to 100. Changing it computes the drift of the columns whose values are followed again |
 | `deep.missing.max_columns` | `100` | Columns of a dataset that lack a value that `missing_matrix` accepts; a dataset with more is left out, because the pairs grow with the square of the columns. From 2 to 1,000. Changing it computes the matrix again |
 | `deep.missing.max_listed` | `10` | Partners listed for a column, the ones that lack a value most often with it. From 1 to 1,000. Changing it computes the matrix again |
+| `deep.date_order.min_share` | `0.99` | Share of the sampled rows with both dates where the first date must be on or before the second for a pair of date columns to be counted by `date_order`. From 0.5 to 1. Changing it changes the pairs the plan lists, not a result |
+| `deep.date_order.max_listed` | `10` | Broken records listed in a `date_order` result, in file order. From 1 to 1,000. Changing it computes the order again |
+| `deep.date_order.max_candidates` | `20` | Pairs of date columns at most that the plan lists. From 0 to 1,000 |
+| `deep.date_order.automatic_pairs` | `20` | Pairs at most that `tabalyst report` takes by itself. From 0 to 1,000 |
+| `deep.date_order.explore_min_pairs` | `30` | Sampled rows with both dates a pair needs to be scored |
+| `deep.date_order.max_columns`, `deep.date_order.max_work` | `50`, `1000000` | Date columns of a dataset and pairs times rows the exploration of the sample accepts; the least present columns are left out and counted |
 | `deep.arrays.max_lengths` | `10000` | Different lengths `array_profile` counts one by one; a JSON field whose arrays spread over a wider range (longest minus shortest) is left out. From 2 to 100,000. Changing it computes the lengths again |
 | `deep.structure.max_variants` | `1000` | Sets of keys `structure_variants` tracks, each counted exactly from its first object; objects with another set are summed up and the result says it is not complete. From 2 to 10,000. Changing it computes the sets again |
 | `deep.structure.max_listed`, `deep.structure.max_keys` | `10`, `30` | Sets listed, the most frequent first (from 1 to 100), and keys named in a list (from 1 to 200). Changing them computes the sets again |

@@ -16,7 +16,7 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Callable, Iterable, Sequence
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 from tabalyst.scanner.models import (
     ColumnSegment,
@@ -63,7 +63,12 @@ from tabalyst.scanner.secondpass.texts import FingerprintAccumulator, TextAccumu
 if TYPE_CHECKING:
     # The matrix and the sets of keys read the field paths this module defines.
     from tabalyst.scanner.secondpass.matrix import MatrixAccumulator
+    from tabalyst.scanner.secondpass.orders import OrderAccumulator
     from tabalyst.scanner.secondpass.structure import StructureAccumulator
+
+    # The accumulators that read the rows of a dataset on their own: the records that
+    # miss a value together and the order of two dates.
+    RowAccumulator: TypeAlias = MatrixAccumulator | OrderAccumulator
 
 # The columns of the pairs and tables, converted once whatever the number of
 # analyses that read them, and the analyses that read two of them.
@@ -445,7 +450,7 @@ class Router:
         feeds: dict[tuple[str, FieldPath, str], Feed] | None = None,
         pairs: Sequence[tuple[str, PairLike]] = (),
         after_batch: Callable[[], None] | None = None,
-        matrices: Sequence[tuple[str, MatrixAccumulator]] = (),
+        matrices: Sequence[tuple[str, RowAccumulator]] = (),
         structures: Sequence[tuple[str, StructureAccumulator]] = (),
     ) -> None:
         # Called when every route has had the column of a batch: the routes of
@@ -462,7 +467,7 @@ class Router:
             self.pairs.setdefault(dataset, []).append(pair)
         # The records that lack a value in several columns are counted from the
         # rows of each batch, whatever the routes do with them.
-        self.matrices: dict[str, list[MatrixAccumulator]] = {}
+        self.matrices: dict[str, list[RowAccumulator]] = {}
         for dataset, matrix in matrices:
             self.matrices.setdefault(dataset, []).append(matrix)
         # The sets of keys of the objects are counted from the observations of each
@@ -472,7 +477,7 @@ class Router:
             self.structures.setdefault(dataset, []).append(structure)
         # Where each member of a matrix is in a row, per dataset; ``None`` for a
         # source that hands records and not rows.
-        self._matrix_indexes: dict[str, list[tuple[MatrixAccumulator, list[int] | None]]] = {}
+        self._matrix_indexes: dict[str, list[tuple[RowAccumulator, list[int] | None]]] = {}
         self.records_read = 0
         self._columns: dict[str, list[tuple[int, FieldRoute]]] = {}
         self._feed_columns: dict[str, list[tuple[int, Feed]]] = {}
@@ -512,7 +517,7 @@ class Router:
 
     @staticmethod
     def _guarded(
-        matrix: MatrixAccumulator | StructureAccumulator, action: Callable[[], None]
+        matrix: RowAccumulator | StructureAccumulator, action: Callable[[], None]
     ) -> None:
         """Run a step of a matrix or of the sets of keys: one that raises stops
         counting and fails alone."""

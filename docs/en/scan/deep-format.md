@@ -826,6 +826,28 @@ column that looks like an identifier, or in a combination of two columns.
   selects, and a plan whose `columns` parameter is not the number the scan gives fails
   with `scan_mismatch`.
 
+**`date_order`**: the order of the dates of two columns, record by record.
+
+```json
+{
+  "kind": "date_order",
+  "accuracy": "exact",
+  "records": 100000, "compared": 69105, "equal": 0, "broken": 22,
+  "excluded": {"missing": 16408, "not_a_date": 0, "ambiguous": 14487, "other_kind": 0},
+  "truncated": true,
+  "listed": [{"record": 11656, "first": "2026-12-09", "second": "2021-08-01"}]
+}
+```
+
+- The analysis belongs to the first column of the pair; `partner` of the analysis is the
+  second. `compared` records have a date in both columns of the same kind, of which `equal`
+  fall on the same date or instant and `broken` have the first after the second.
+  `records` is `compared` plus the four counts of `excluded`, and is checked against the
+  scan (`scan_mismatch`).
+- `listed` holds at most `max_listed` broken records in file order, `record` counting from
+  1; `first` and `second` are ISO 8601. `truncated` is true when `broken` exceeds the list.
+- Plan parameter: `max_listed`. It is part of the key of the result.
+
 **`array_profile`**: the lengths of the arrays of a field.
 
 ```json
@@ -1011,6 +1033,9 @@ as the writer. It describes what a reader accepts.
 
 ### Version 0.2.0, revision 3 (in preparation)
 
+The result `date_order` of the analyzer `date_order` (the order of two dates of a record), the
+settings member `deep.date_order` and the plan block `relations.orders` (the exploration of the pairs
+of date columns on the row sample).
 The result `character_profile` of the analyzer `character_profile` (the exact character map of a field).
 The result `pattern_counts` follows the hierarchy of the scan: `families` (each with
 its `patterns` and their `nodes`, the `distinct` values of each with their accuracy,

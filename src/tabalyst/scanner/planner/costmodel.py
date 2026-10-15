@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 16
+COST_MODEL_VERSION = 17
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -320,6 +320,11 @@ NS_PER_CELL = {
     # of the pairs included, measured the same way on 300,000 rows: 82 ns for 4 and
     # 20 columns, 105 for 100 (4,950 pairs). Rounded up to one figure.
     "matrix": 200,
+    # The order of two dates (lot S3b), measured on the executor (1 pair then 6 and 12 pairs
+    # of the 100,000-row insurance base, one process, the reading of the cell included):
+    # 0.49 s a pair, 4.9 microseconds a row for the two columns, of which the date detector
+    # reads each distinct string once and the comparison of the two dates is the rest.
+    "date_order": 5_000,
     # What JSON adds (lot 18), measured on the executor (`lot18/measure_costs.py`, 300,000
     # records of 4, 16 and 44 fields, one process, the sweep of the source included).
     # The lengths of the arrays: 4,028 ns an array on 4 fields and 10,349 on 44, the
