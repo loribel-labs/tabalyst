@@ -4,14 +4,27 @@ The source files shared by the showcase demos, the cases and the documentation.
 Every file is synthetic: people, addresses and amounts are fictional, and email
 addresses use reserved `.example` domains. They hold no real data.
 
-| File | Rows | Content | Used by |
-| --- | --- | --- | --- |
-| `basic.csv` | 5 | A five-row smoke example | `showcase/basic/` |
-| `insurance-customers.csv` | 3,000 | Fictional customer and contract records across 34 columns | `cases/sample-injected-errors/` |
-| `insurance-customers-100k.json` | 100,000 | The request that builds a larger insurance file, with 45 kinds of defect, 845 rows in all, outside the checkout (see below) | `showcase/insurance-customers/`, `showcase/insurance-customers-scan/`, `cases/sample-real-errors/` |
-| `orders.json` | 60 customers | A shop export with nested addresses, tags and orders | `showcase/orders/` |
-| `web-events.jsonl` | 300 events | A web analytics log in JSON Lines, with three bad lines on purpose | `showcase/web-events/` |
-| `sales.xlsx` | 120 orders | A workbook with the sheets `Orders`, `Regions` and `Notes` | `showcase/sales/` |
+| File | Rows | Content |
+| --- | --- | --- |
+| `basic.csv` | 5 | A five-row smoke example |
+| `insurance-customers.csv` | 3,000 | Fictional customer and contract records across 34 columns |
+| `insurance-customers-100k.json` | 100,000 | The request that builds a larger insurance file, with 45 kinds of defect, 845 rows in all, outside the checkout (see below) |
+| `orders.json` | 60 customers | A shop export with nested addresses, tags and orders |
+| `web-events.jsonl` | 300 events | A web analytics log in JSON Lines, with three bad lines on purpose |
+| `sales.xlsx` | 120 orders | A workbook with the sheets `Orders`, `Regions` and `Notes` |
+
+Who uses each file (generated from the manifests by `tools/make_index.py`):
+
+<!-- index:users:start -->
+| File | Used by |
+| --- | --- |
+| `basic.csv` | `showcase/basic/` |
+| `insurance-customers-100k.json` | `showcase/insurance-customers/`, `showcase/insurance-customers-scan/`, `cases/sample-real-errors/` |
+| `insurance-customers.csv` | `cases/sample-injected-errors/` |
+| `orders.json` | `showcase/orders/` |
+| `sales.xlsx` | `showcase/sales/` |
+| `web-events.jsonl` | `showcase/web-events/` |
+<!-- index:users:end -->
 
 `sales.xlsx` is written by `examples/tools/make_sales_workbook.py`, with the same
 bytes on every run. Do not replace `insurance-customers.csv` without a separate

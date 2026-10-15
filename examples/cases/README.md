@@ -43,8 +43,11 @@ Rules:
 - The `README.md` of a case holds the commands and the measured result, written
   so that a documentation page can quote it.
 
-Cases:
+Cases (generated from the `case.json` manifests by `tools/make_index.py`):
 
-| Case | Checks |
-| --- | --- |
-| [`sample-injected-errors`](sample-injected-errors/README.md) | Which injected errors a `tabalyst sample --smart` keeps, against a random sample |
+<!-- index:cases:start -->
+| Case | Tool | Question |
+| --- | --- | --- |
+| [`sample-injected-errors`](sample-injected-errors/README.md) | `sample` | When a file holds a few wrong rows, how often does a sample keep at least one of them? |
+| [`sample-real-errors`](sample-real-errors/README.md) | `sample` | When a 100,000-row file holds defects of 45 kinds, a few rows each, how many kinds does a sample of 3,000 or 300 rows keep? |
+<!-- index:cases:end -->

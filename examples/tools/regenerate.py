@@ -13,7 +13,8 @@ Run it from the repository root with Tabalyst installed. Each step of a manifest
 is a ``tabalyst`` command line written relative to the repository root. A demo whose
 ``datasets`` names a generation request (``examples/datasets/*.json``, see
 ``make_datasets.py``) reads the generated file as ``{datasets}/<file>``: the request is built
-first, outside the checkout, and ``{datasets}`` is replaced by its folder.
+first, outside the checkout, and ``{datasets}`` is replaced by its folder. When every step has
+succeeded, ``make_index.py`` refreshes the generated lists of the examples READMEs.
 """
 
 import argparse
@@ -40,6 +41,12 @@ def load_make_datasets() -> ModuleType:
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
+
+
+def update_index() -> None:
+    """Refresh the generated lists of the examples READMEs (``make_index.py``)."""
+    script = Path(__file__).resolve().parent / "make_index.py"
+    subprocess.run([sys.executable, str(script)], check=True)
 
 
 def prepare_datasets(demo: dict[str, Any]) -> str:
@@ -130,6 +137,7 @@ def main() -> int:
             if code:
                 sys.stderr.write(f"demo {name} failed with exit code {code}\n")
                 return code
+    update_index()
     return 0
 
 

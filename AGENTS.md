@@ -175,6 +175,10 @@ After every project modification, regenerate the public demos with
 demo are in its `examples/showcase/<id>/demo.json`; see `examples/README.md`). Use the
 `insurance-customers` demo for browser checks.
 
+The lists of demos, cases and dataset users in the `examples/` READMEs are generated from the manifests
+(`examples/tools/make_index.py`, run by `regenerate.py`; `--check` fails when one is stale): never edit
+them by hand, add a `demo.json` or a `case.json` instead.
+
 Progress logs and work-in-progress requests are kept in the private
 `tabalyst-gb` repository (`IN-PROGRESS/`), not here; record meaningful work
 there. Update

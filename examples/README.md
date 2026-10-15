@@ -23,6 +23,7 @@ examples/
 |-- cases/ (reproducible scenarios with a manifest, see cases/README.md)
 |-- tools/
 |   |-- make_datasets.py (builds the generated datasets outside the checkout)
+|   |-- make_index.py (writes the generated lists of the READMEs)
 |   |-- regenerate.py
 |   `-- make_sales_workbook.py
 `-- generate/
@@ -58,10 +59,20 @@ input itself must be regenerated.
 Each folder of `showcase/` holds a manifest, `demo.json`, next to the files it
 generates: the source dataset, the `steps` (the `tabalyst` command lines, written
 from the repository root), and `publish`: `site` is true when `tabalyst.com`
-copies the folder, `docs` lists the documentation pages that quote it. Today the
-website copies `insurance-customers` (the report of the home page) and the proofs
-of the format pages: `orders`, `web-events` and `sales`. `basic` and
-`insurance-customers-scan` are only quoted by the documentation.
+copies the folder, `docs` lists the documentation pages that quote it. The list of
+demos below is generated from these manifests by `tools/make_index.py` (`--check`
+fails when it is stale; `regenerate.py` runs it), so it never drifts.
+
+<!-- index:showcase:start -->
+| Demo | Tool | Copied by tabalyst.com | Quoted by |
+| --- | --- | --- | --- |
+| `showcase/basic/` | `report` | no | `get-started/examples.md`, `reference/history.md` |
+| `showcase/insurance-customers/` | `report` | yes | `get-started/examples.md` |
+| `showcase/insurance-customers-scan/` | `scan` | no | `get-started/simple-clear-smart.md` |
+| `showcase/orders/` | `report` | yes | `get-started/examples.md` |
+| `showcase/sales/` | `report` | yes | `get-started/examples.md` |
+| `showcase/web-events/` | `report` | yes | `get-started/examples.md` |
+<!-- index:showcase:end -->
 
 From the repository root, regenerate every demo with:
 
@@ -109,11 +120,15 @@ before leaves its smaller automatic second pass there and the plan counts fewer 
 ## Cases
 
 `cases/` holds reproducible scenarios that test and document a command, each with
-its input, its measured result and a test (see `cases/README.md`). The first,
-`cases/sample-injected-errors/`, injects known errors in the insurance example and
-measures how many a smart sample keeps against a random one on the 3,000-row file.
-The second, `cases/sample-real-errors/`, does it on the generated base of 100,000 rows,
-whose 45 classes of defect have a handful of rows each.
+its input, its measured result and a test (see `cases/README.md`). The list is
+generated from the `case.json` manifests:
+
+<!-- index:cases:start -->
+| Case | Tool | Question |
+| --- | --- | --- |
+| [`sample-injected-errors`](cases/sample-injected-errors/README.md) | `sample` | When a file holds a few wrong rows, how often does a sample keep at least one of them? |
+| [`sample-real-errors`](cases/sample-real-errors/README.md) | `sample` | When a 100,000-row file holds defects of 45 kinds, a few rows each, how many kinds does a sample of 3,000 or 300 rows keep? |
+<!-- index:cases:end -->
 
 Every report demo is independent and contains its own HTML report, canonical JSON
 profile and cumulative `executions.json` history. The insurance example also has
