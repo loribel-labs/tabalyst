@@ -223,3 +223,19 @@ def test_no_date_order_target_when_the_order_holds_everywhere(tmp_path):
     _, plan, _, _ = report(tmp_path, "start,end,n", _rows(count=900), 40)
 
     assert [t for t in plan.targets if t.predicate.kind == "date_order"] == []
+
+
+def test_the_keys_of_dates_and_instants_follow_their_order_to_the_microsecond() -> None:
+    from datetime import UTC, time, timezone
+
+    from tabalyst.scanner.secondpass.orders import instant_key
+
+    paris = timezone(timedelta(hours=2))
+    assert instant_key(date(2020, 1, 1)) < instant_key(date(2020, 1, 2))
+    assert instant_key(date(1960, 1, 1)) < instant_key(date(1970, 1, 1)) < instant_key(date(1980, 1, 1))
+    assert instant_key(datetime(2020, 1, 1, 12, 0, 0, 1)) > instant_key(datetime(2020, 1, 1, 12, 0, 0))  # noqa: DTZ001
+    # The same instant in two zones is the same key, and one second later is one second apart.
+    noon_utc = datetime(2020, 1, 1, 12, 0, tzinfo=UTC)
+    assert instant_key(datetime(2020, 1, 1, 14, 0, tzinfo=paris)) == instant_key(noon_utc)
+    assert instant_key(noon_utc + timedelta(seconds=1)) - instant_key(noon_utc) == 1_000_000
+    assert instant_key(time(9, 30)) < instant_key(time(9, 30, 0, 1)) < instant_key(time(10, 0))

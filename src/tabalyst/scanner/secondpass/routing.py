@@ -450,7 +450,7 @@ class Router:
         feeds: dict[tuple[str, FieldPath, str], Feed] | None = None,
         pairs: Sequence[tuple[str, PairLike]] = (),
         after_batch: Callable[[], None] | None = None,
-        matrices: Sequence[tuple[str, RowAccumulator]] = (),
+        row_accumulators: Sequence[tuple[str, RowAccumulator]] = (),
         structures: Sequence[tuple[str, StructureAccumulator]] = (),
     ) -> None:
         # Called when every route has had the column of a batch: the routes of
@@ -465,19 +465,20 @@ class Router:
         self.pairs: dict[str, list[PairLike]] = {}
         for dataset, pair in pairs:
             self.pairs.setdefault(dataset, []).append(pair)
-        # The records that lack a value in several columns are counted from the
-        # rows of each batch, whatever the routes do with them.
-        self.matrices: dict[str, list[RowAccumulator]] = {}
-        for dataset, matrix in matrices:
-            self.matrices.setdefault(dataset, []).append(matrix)
+        # The accumulators that count whole rows (the records that lack a value in several
+        # columns, the order of two dates) are fed the rows of each batch, whatever the
+        # routes do with them.
+        self.row_accumulators: dict[str, list[RowAccumulator]] = {}
+        for dataset, accumulator in row_accumulators:
+            self.row_accumulators.setdefault(dataset, []).append(accumulator)
         # The sets of keys of the objects are counted from the observations of each
         # record, which only a source that hands records has.
         self.structures: dict[str, list[StructureAccumulator]] = {}
         for dataset, structure in structures:
             self.structures.setdefault(dataset, []).append(structure)
-        # Where each member of a matrix is in a row, per dataset; ``None`` for a
+        # Where each member of a row accumulator is in a row, per dataset; ``None`` for a
         # source that hands records and not rows.
-        self._matrix_indexes: dict[str, list[tuple[RowAccumulator, list[int] | None]]] = {}
+        self._row_indexes: dict[str, list[tuple[RowAccumulator, list[int] | None]]] = {}
         self.records_read = 0
         self._columns: dict[str, list[tuple[int, FieldRoute]]] = {}
         self._feed_columns: dict[str, list[tuple[int, Feed]]] = {}
@@ -494,7 +495,7 @@ class Router:
         return (
             fed
             + sum(route.values for fields in self.routes.values() for route in fields.values())
-            + sum(matrix.values for group in self.matrices.values() for matrix in group)
+            + sum(item.values for group in self.row_accumulators.values() for item in group)
             + sum(
                 structure.values for group in self.structures.values() for structure in group
             )
@@ -511,22 +512,22 @@ class Router:
                 self._open(item)
         for dataset in self.pairs:
             self._flush(dataset)
-        for group in self.matrices.values():
-            for matrix in group:
-                self._guarded(matrix, matrix.flush)
+        for group in self.row_accumulators.values():
+            for accumulator in group:
+                self._guarded(accumulator, accumulator.flush)
 
     @staticmethod
     def _guarded(
-        matrix: RowAccumulator | StructureAccumulator, action: Callable[[], None]
+        accumulator: RowAccumulator | StructureAccumulator, action: Callable[[], None]
     ) -> None:
-        """Run a step of a matrix or of the sets of keys: one that raises stops
+        """Run a step of a row accumulator or of the sets of keys: one that raises stops
         counting and fails alone."""
-        if matrix.failure is not None:
+        if accumulator.failure is not None:
             return
         try:
             action()
-        except Exception as exc:  # noqa: BLE001 - one matrix fails alone
-            matrix.failure = type(exc).__name__
+        except Exception as exc:  # noqa: BLE001 - one accumulator fails alone
+            accumulator.failure = type(exc).__name__
 
     def _open(self, item: DatasetOpened) -> None:
         wanted = self.routes.get(item.dataset, {})
@@ -537,11 +538,11 @@ class Router:
         ]
         declared_at = {declared.path: index for index, declared in enumerate(item.fields)}
         located = []
-        for matrix in self.matrices.get(item.dataset, ()):
+        for accumulator in self.row_accumulators.get(item.dataset, ()):
             # A source that declares its fields hands rows; the others, records.
-            found = [declared_at.get(path, -1) for path in matrix.by_path]
-            located.append((matrix, found if found and -1 not in found else None))
-        self._matrix_indexes[item.dataset] = located
+            found = [declared_at.get(path, -1) for path in accumulator.by_path]
+            located.append((accumulator, found if found and -1 not in found else None))
+        self._row_indexes[item.dataset] = located
         feeds = self.feeds.get(item.dataset, {})
         self._feed_columns[item.dataset] = [
             (index, feed)
@@ -551,9 +552,9 @@ class Router:
 
     def _batch(self, batch: RecordBatch) -> None:
         self.records_read += len(batch.rows)
-        for matrix, indexes in self._matrix_indexes.get(batch.dataset, ()):
+        for accumulator, indexes in self._row_indexes.get(batch.dataset, ()):
             if indexes is not None:
-                self._guarded(matrix, partial(matrix.add_rows, batch.rows, indexes))
+                self._guarded(accumulator, partial(accumulator.add_rows, batch.rows, indexes))
         for index, route in self._columns.get(batch.dataset, ()):
             if route.failure is not None:
                 continue
@@ -597,8 +598,8 @@ class Router:
 
     def _record(self, record: Record) -> None:
         self.records_read += 1
-        for matrix in self.matrices.get(record.dataset, ()):
-            self._guarded(matrix, partial(matrix.add_record, record))
+        for accumulator in self.row_accumulators.get(record.dataset, ()):
+            self._guarded(accumulator, partial(accumulator.add_record, record))
         for structure in self.structures.get(record.dataset, ()):
             self._guarded(structure, partial(structure.add_record, record))
         fields = self.routes.get(record.dataset)

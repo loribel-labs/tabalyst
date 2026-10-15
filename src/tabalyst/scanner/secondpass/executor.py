@@ -1283,7 +1283,7 @@ def run_second_pass(
                     feeds,
                     pairs,
                     after_batch=None if pool is None else pool.flush,
-                    matrices=[*matrices.items(), *orders],
+                    row_accumulators=[*matrices.items(), *orders],
                     structures=[(dataset, found) for dataset, found in structures.items()],
                 )
                 consume_started = perf_counter()

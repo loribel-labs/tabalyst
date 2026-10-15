@@ -7,15 +7,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
 
 from tabalyst.scanner.models import DatasetResult, RowSample, SampleRow
+
+# What the rows of an exploration stand for: only the interior rows of a sample (the first and
+# last rows say nothing of the rest), or every row of a complete sample.
+Scope = Literal["interior_rows", "all_rows"]
 
 
 @dataclass(slots=True)
 class UsableSample:
     """The rows of a dataset an exploration may use, and what they stand for."""
 
-    scope: str
+    scope: Scope
     rows: list[SampleRow]
     complete: bool
     sample: RowSample

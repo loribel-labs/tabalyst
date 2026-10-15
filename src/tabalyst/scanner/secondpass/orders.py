@@ -13,8 +13,10 @@ of the same kind. Every count is exact: ``records`` is checked against the Scan.
 from __future__ import annotations
 
 from collections.abc import Sequence
+from datetime import UTC, date, datetime, time, timedelta
 from typing import NamedTuple
 
+from tabalyst.scanner.detectors.base import Classification
 from tabalyst.scanner.detectors.temporal import kind_of
 from tabalyst.scanner.models import DatasetResult, FieldResult
 from tabalyst.scanner.observations import Observation, Record
@@ -41,12 +43,34 @@ _PRIORITY = {_MISSING: 0, _NOT_A_DATE: 1, _AMBIGUOUS: 2}
 _NOT_TEXT = "\x00"
 
 
+_EPOCH = date(1970, 1, 1)
+_EPOCH_NAIVE = datetime(1970, 1, 1)  # noqa: DTZ001 - the origin of the naive instants
+_EPOCH_AWARE = datetime(1970, 1, 1, tzinfo=UTC)
+_MICROSECOND = timedelta(microseconds=1)
+_MICROSECONDS_A_DAY = 86_400_000_000
+
+
+def instant_key(value: date | time) -> int:
+    """The microseconds of a date, an instant or a time of day, from an origin that depends
+    on its kind: two values of the same kind (``kind_of``) are in order as their keys are.
+    An instant with a zone is placed by its offset, so the same instant is the same key; the
+    zone of a time of day is not read."""
+    if isinstance(value, datetime):
+        origin = _EPOCH_NAIVE if value.tzinfo is None else _EPOCH_AWARE
+        return (value - origin) // _MICROSECOND
+    if isinstance(value, date):
+        return (value - _EPOCH).days * _MICROSECONDS_A_DAY
+    return ((value.hour * 60 + value.minute) * 60 + value.second) * 1_000_000 + value.microsecond
+
+
 class DateReading(NamedTuple):
-    """A string read as a date (``value``, of kind ``kind``) or why it is none."""
+    """A string read as a date of kind ``kind``, with its ``key`` (``instant_key``) to put it
+    in order and its ISO 8601 text to list it, or why it is none."""
 
     reason: str | None
     kind: str | None = None
-    value: object = None
+    key: int = 0
+    iso: str = ""
 
 
 class DateSide:
@@ -77,14 +101,16 @@ class DateSide:
         return [memo[raw] for raw in strings]
 
     @staticmethod
-    def _reading(length: int, moment: object) -> DateReading:
+    def _reading(length: int, moment: Classification | None) -> DateReading:
         if length < 0:
             return DateReading(_MISSING)
-        state = getattr(moment, "state", None)
-        if state == "matched":
-            value = moment.value  # type: ignore[attr-defined]
+        state = moment.state if moment is not None else None
+        if state == "matched" and moment is not None:
+            value = moment.value
             kind = kind_of(value)
-            return DateReading(None, kind, value) if kind is not None else DateReading(_NOT_A_DATE)
+            if kind is not None and isinstance(value, date | time):
+                return DateReading(None, kind, instant_key(value), value.isoformat())
+            return DateReading(_NOT_A_DATE)
         if state == "ambiguous":
             return DateReading(_AMBIGUOUS)
         return DateReading(_NOT_A_DATE)
@@ -97,7 +123,7 @@ def comparable(a: DateReading, b: DateReading) -> bool:
 
 def breaks_order(a: DateReading, b: DateReading) -> bool:
     """Whether the first date is after the second."""
-    return comparable(a, b) and a.value > b.value  # type: ignore[operator]
+    return comparable(a, b) and a.key > b.key
 
 
 class OrderAccumulator:
@@ -195,7 +221,7 @@ class OrderAccumulator:
                 excluded[_OTHER_KIND] += 1
                 continue
             self.compared += 1
-            if a.value == b.value:
+            if a.key == b.key:
                 self.equal += 1
             elif breaks_order(a, b):
                 self.broken += 1
@@ -203,8 +229,8 @@ class OrderAccumulator:
                     self.listed.append(
                         DateOrderBreak(
                             record=number,
-                            first=a.value.isoformat(),  # type: ignore[attr-defined]
-                            second=b.value.isoformat(),  # type: ignore[attr-defined]
+                            first=a.iso,
+                            second=b.iso,
                         )
                     )
         self.records += len(firsts)

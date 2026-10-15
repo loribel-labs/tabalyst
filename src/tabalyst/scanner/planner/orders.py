@@ -20,16 +20,16 @@ from itertools import combinations
 from typing import TYPE_CHECKING
 
 from tabalyst.config import DateOrderSettings
-from tabalyst.scanner.detectors.temporal import kind_of
 from tabalyst.scanner.models import DatasetResult, FieldResult, SampleRow
 from tabalyst.scanner.planner.analyzer import PairProposal
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Exploration, ExploredOrders
-from tabalyst.scanner.planner.samplerows import cell_text, usable_rows
+from tabalyst.scanner.planner.samplerows import Scope, cell_text, usable_rows
 
 if TYPE_CHECKING:
     # Imported by the planner when it needs one: the second pass imports the
     # planner, so a module-level import here would be circular.
+    from tabalyst.scanner.secondpass.orders import DateReading
     from tabalyst.scanner.secondpass.replay import CellReader
 
 # The kinds of date that can be put in order; a time of day has no date to compare.
@@ -52,7 +52,7 @@ TOO_FEW_ROWS = "too_few_rows"
 class _Column:
     facts: FieldFacts
     # Per sampled row: the date the cell reads as, or ``None``.
-    dates: list[object | None] = field(default_factory=list)
+    dates: list[DateReading | None] = field(default_factory=list)
     usable: int = 0
 
 
@@ -72,7 +72,7 @@ def column_state(facts: FieldFacts) -> str | None:
 
 def column_dates(
     rows: Sequence[SampleRow], field_result: FieldResult, facts: FieldFacts, reader: CellReader
-) -> list[object | None]:
+) -> list[DateReading | None]:
     """The date each sampled row holds in a field, read as the second pass reads
     it: the ambiguous dates in the order the evidence of the Scan gives the
     column. ``None`` for a row without a date, or whose date stays ambiguous."""
@@ -83,32 +83,32 @@ def column_dates(
     order = facts.temporal.inferred() if facts.temporal is not None else None
     readings = DateSide(reader, order).read(["" if text is None else text for text in texts])
     return [
-        None if text is None or reading.reason is not None else reading.value
+        None if text is None or reading.reason is not None else reading
         for text, reading in zip(texts, readings, strict=True)
     ]
 
 
 def compare(
-    first: Sequence[object | None], second: Sequence[object | None]
+    first: Sequence[DateReading | None], second: Sequence[DateReading | None]
 ) -> tuple[int, int, int]:
     """Over the rows where both columns have a date of the same kind: how many
     there are, how many have the first on or before the second, and how many the
     second on or before the first."""
     rows = before = after = 0
     for a, b in zip(first, second, strict=True):
-        if a is None or b is None or kind_of(a) != kind_of(b):
+        if a is None or b is None or a.kind != b.kind:
             continue
         rows += 1
-        before += a <= b  # type: ignore[operator]
-        after += a >= b  # type: ignore[operator]
+        before += a.key <= b.key
+        after += a.key >= b.key
     return rows, before, after
 
 
 def explore_pair(
-    first: Sequence[object | None],
-    second: Sequence[object | None],
+    first: Sequence[DateReading | None],
+    second: Sequence[DateReading | None],
     settings: DateOrderSettings,
-    scope: str,
+    scope: Scope,
 ) -> tuple[Exploration, bool, bool]:
     """What the rows say of one pair: its exploration, whether the first column is
     the earlier one, and whether both orders hold (the same dates in both columns,
@@ -117,12 +117,12 @@ def explore_pair(
     enough rows have both dates."""
     rows, before, after = compare(first, second)
     if rows < settings.explore_min_pairs:
-        return Exploration(scope=scope, pairs=rows, reason=TOO_FEW_ROWS), True, False  # type: ignore[arg-type]
+        return Exploration(scope=scope, pairs=rows, reason=TOO_FEW_ROWS), True, False
     forward = before >= after
     ordered = before if forward else after
     both = min(before, after) >= settings.min_share * rows
     exploration = Exploration(
-        scope=scope,  # type: ignore[arg-type]
+        scope=scope,
         pairs=rows,
         score=round(ordered / rows, DECIMALS),
     )
@@ -189,7 +189,7 @@ def explore_dataset(
         columns = [c for i, c in enumerate(columns) if i not in dropped]
     block = ExploredOrders(
         dataset=dataset.id,
-        scope=usable.scope,  # type: ignore[arg-type]
+        scope=usable.scope,
         rows=rows,
         dates=len(dated),
         columns=len(columns),
@@ -251,8 +251,8 @@ def explicit_proposal(
     ]
     rows, before, _ = compare(dates[0], dates[1])
     exploration = (
-        Exploration(scope=usable.scope, pairs=rows, score=round(before / rows, DECIMALS))  # type: ignore[arg-type]
+        Exploration(scope=usable.scope, pairs=rows, score=round(before / rows, DECIMALS))
         if rows >= settings.explore_min_pairs
-        else Exploration(scope=usable.scope, pairs=rows, reason=TOO_FEW_ROWS)  # type: ignore[arg-type]
+        else Exploration(scope=usable.scope, pairs=rows, reason=TOO_FEW_ROWS)
     )
     return PairProposal(first, second, exploration, from_samples=usable.complete)

@@ -32,10 +32,7 @@ from tabalyst.scanner.planner.models import (
     Costs,
     CpuClass,
     Exploration,
-    ExploredDataset,
-    ExploredOrders,
-    ExploredStats,
-    ExploredTables,
+    ExploredBlocks,
     Memory,
     State,
     StatsExploration,
@@ -248,10 +245,7 @@ class PairAnalyzer(Analyzer):
         requests: Sequence[AnalysisRequest],
         reader: CellReader,
         lenient: bool,
-    ) -> tuple[
-        list[PairProposal],
-        list[ExploredDataset] | list[ExploredTables] | list[ExploredStats] | list[ExploredOrders],
-    ]:
+    ) -> tuple[list[PairProposal], ExploredBlocks]:
         """The pairs to list: the best the exploration of each dataset found,
         then those a request named that it did not list (REL-06), and the blocks
         that describe the exploration. Reads the row sample of the Scan only."""

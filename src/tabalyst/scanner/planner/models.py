@@ -433,6 +433,13 @@ class ExploredOrders(ScanModel):
         return _omit_none(handler(self), ("scope", "unavailable"))
 
 
+# What an exploration reports for the datasets of a source, by kind of pair: the one type a pair
+# analyzer returns and the planner collects, so a new kind of pair adds a member here only.
+ExploredBlocks = (
+    list[ExploredDataset] | list[ExploredTables] | list[ExploredStats] | list[ExploredOrders]
+)
+
+
 class Relations(ScanModel):
     """What the planner looked at to propose pairs of columns (``datasets``: one
     entry per dataset with at least two numeric columns) and tables of a
