@@ -71,8 +71,11 @@ in lower case, 8 duplicated rows) however many rows you generate, with a
 stops with an error on a file that is too small (about 1,000 rows or more).
 
 Computer offers `dirty_realistic`, `dirty_stress`, `unit_variants` and
-`unit_variants_extended`; the last two mix unit spellings in the measurement
-columns.
+`unit_variants_extended`. `dirty_realistic` and `dirty_stress` also write
+`GB` after a share of the memory, storage and VRAM numbers (`16` becomes `16 GB`),
+so those columns hold a mix of numbers and text. `unit_variants` does only that;
+`unit_variants_extended` does it for 14 measured columns and needs
+`--output-profile extended`.
 
 ## Write an anomaly profile
 

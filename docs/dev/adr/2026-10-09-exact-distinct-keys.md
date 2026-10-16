@@ -14,7 +14,7 @@ and a limit met on the way must never read as a count.
 
 The specification asks for an inline key or an injective encoding (EXACT-01 to
 EXACT-05). In Python without an array library the choices are narrow. Measured
-on one million distinct identifiers (`benchmarks/planner_costs.py`, lot 7b):
+on one million distinct identifiers (`tabalyst-lab/benchmarks/planner_costs.py`, lot 7b):
 
 | Representation | Bytes an entry | Cost of a distinct value |
 | --- | ---: | ---: |

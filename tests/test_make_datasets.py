@@ -75,3 +75,42 @@ def test_update_sha_records_the_digest_then_the_file_is_reused(
 
     monkeypatch.setattr(tool, "_generate", refuse)
     assert tool.ensure(request, root) == paths
+
+
+def test_category_manifest_lists_its_runs_in_order() -> None:
+    manifest = {"id": "pair", "datasets": [
+        {"id": "one", "generate": {"example": "crm", "rows": 12, "seed": 5}, "files": {}},
+        {"id": "two", "generate": {"example": "crm", "rows": 20, "seed": 5}, "files": {}},
+    ]}
+
+    assert [unit["id"] for unit in _tool().units(manifest)] == ["one", "two"]
+
+
+def test_every_committed_request_has_digests_and_known_options() -> None:
+    tool = _tool()
+    for path in tool.requests().values():
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for unit in tool.units(data):
+            assert all(len(spec["sha256"]) == 64 for spec in unit["files"].values())
+            assert set(unit["generate"]) - {"example", "rows", "seed"} <= set(tool.OPTIONS)
+
+
+def test_category_files_are_written_under_the_category_id(tmp_path: Path) -> None:
+    tool = _tool()
+    manifest = tmp_path / "pair.json"
+    manifest.write_text(json.dumps({
+        "id": "pair",
+        "datasets": [{
+            "id": "tiny",
+            "generate": {"example": "crm", "rows": 12, "seed": 5},
+            "files": {"tiny.csv": {"from": "crm-contacts.csv", "sha256": "0" * 64}},
+        }],
+    }), encoding="utf-8")
+    root = tmp_path / "out"
+
+    paths = tool.ensure(manifest, root, update_sha=True)
+
+    assert paths["tiny.csv"] == root / "pair" / "tiny.csv"
+    assert paths["tiny.csv"].is_file()
+    recorded = json.loads(manifest.read_text(encoding="utf-8"))
+    assert recorded["datasets"][0]["files"]["tiny.csv"]["sha256"] == tool.sha256(paths["tiny.csv"])

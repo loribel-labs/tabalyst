@@ -1229,7 +1229,7 @@ Initial single-run measurements, imports excluded, Windows/Python above:
 Reproduce with a fresh stage:
 
 ```console
-python benchmarks/project_storage.py examples/datasets/insurance-customers.csv --stage artifacts/storage-measure-1
+python ../tabalyst-lab/benchmarks/project_storage.py examples/datasets/insurance-customers.csv --stage D:/GIT.test/tabalyst-lab-gen/bench/artifacts/storage-measure-1
 ```
 
 On the insurance input, 64-row buffers took 3.191 s versus 2.603 s at 2,048
@@ -1243,7 +1243,7 @@ loader experiment at 64 MB failed explicitly during precommit validation;
 indexes/non-spillable state can exhaust a low budget. It published nothing
 and made no complete-result claim. Disk/spill errors similarly propagate.
 
-`benchmarks/project_storage.py` records sampled staging/spill disk peaks,
+`tabalyst-lab/benchmarks/project_storage.py` records sampled staging/spill disk peaks,
 process memory, final size, hash and reopen-validation times. Full repeated
 CSV/JSON, wide/deep/long-value, million-record and old+new-generation peak
 disk measurements remain d3. Baseline memberships are complete on disk,
@@ -1252,7 +1252,7 @@ budgets; pagination and exposure-aware value queries remain d3.
 
 ### 10.2 d3 queries, capped storage and resource evidence
 
-`benchmarks/project_queries.py` measures synthetic CSV/JSON sources in a
+`tabalyst-lab/benchmarks/project_queries.py` measures synthetic CSV/JSON sources in a
 fresh child process per repetition, with two publications of the same source.
 Imports and source generation are excluded from timings. Each run records
 loader subphases, hash and full verified-open time, all record pages, field
@@ -1328,11 +1328,11 @@ and is why peak-disk sampling remains necessary alongside configured quotas.
 Reproduce with new roots (the script rejects an existing root):
 
 ```console
-python benchmarks/project_queries.py --case csv --rows 1000000 --root artifacts/d3-csv --query-memory-mib 64 --repeat 2
-python benchmarks/project_queries.py --case json --rows 100000 --root artifacts/d3-json --query-memory-mib 64 --repeat 2
-python benchmarks/project_queries.py --case wide --rows 10000 --root artifacts/d3-wide --query-memory-mib 64 --repeat 2
-python benchmarks/project_queries.py --case deep --rows 10000 --root artifacts/d3-deep --query-memory-mib 64 --repeat 2
-python benchmarks/project_queries.py --case long --rows 4000 --root artifacts/d3-long --repeat 2
+python ../tabalyst-lab/benchmarks/project_queries.py --case csv --rows 1000000 --root D:/GIT.test/tabalyst-lab-gen/bench/artifacts/d3-csv --query-memory-mib 64 --repeat 2
+python ../tabalyst-lab/benchmarks/project_queries.py --case json --rows 100000 --root D:/GIT.test/tabalyst-lab-gen/bench/artifacts/d3-json --query-memory-mib 64 --repeat 2
+python ../tabalyst-lab/benchmarks/project_queries.py --case wide --rows 10000 --root D:/GIT.test/tabalyst-lab-gen/bench/artifacts/d3-wide --query-memory-mib 64 --repeat 2
+python ../tabalyst-lab/benchmarks/project_queries.py --case deep --rows 10000 --root D:/GIT.test/tabalyst-lab-gen/bench/artifacts/d3-deep --query-memory-mib 64 --repeat 2
+python ../tabalyst-lab/benchmarks/project_queries.py --case long --rows 4000 --root D:/GIT.test/tabalyst-lab-gen/bench/artifacts/d3-long --repeat 2
 ```
 
 The million-record CSV has three columns, 500,000 distinct ids and adjacent

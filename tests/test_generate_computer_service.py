@@ -101,7 +101,7 @@ def test_computer_anomalies_preserve_clean_locales_and_audit_cells(
             assert change["cause"] == f"{profile}.operations[{int(change['operation_index']) - 1}]"
             assert change["before"] == originals[row_index][column]
             assert change["after"] == altered[row_index][column]
-            if column == "gpu_vram_gb":
+            if column == "gpu_vram_gb" and change["kind"] == "replace":
                 assert originals[row_index]["gpu_type"] == "dedicated"
                 assert int(originals[row_index][column]) > 0
             if column == "stock_quantity":
@@ -109,7 +109,11 @@ def test_computer_anomalies_preserve_clean_locales_and_audit_cells(
                 assert int(originals[row_index][column]) > 0
         summaries[locale] = summary
         journals[locale] = changes
-    assert journals["en"] == journals["fr"]
+    # The unit suffix is the only localized part of a journal: GB in English, Go in French.
+    def unlocalized(entries: list[dict[str, str]]) -> list[dict[str, str]]:
+        return [{**entry, "after": entry["after"].replace(" Go", " GB")} for entry in entries]
+
+    assert unlocalized(journals["en"]) == unlocalized(journals["fr"])
     assert summaries["en"]["operations"] == summaries["fr"]["operations"]
     metadata = json.loads((dirty_dir / "computers.meta.json").read_text(encoding="utf-8"))
     assert metadata["request"]["anomaly_profile"] == profile

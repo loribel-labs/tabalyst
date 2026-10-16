@@ -8,7 +8,7 @@ same ones. Each has its own page with every option and examples.
 
 | Command | Purpose | Options and examples |
 | --- | --- | --- |
-| `tabalyst report` | HTML report and JSON profile of CSV, JSON, JSONL or Excel files | [tabalyst report](report.md) |
+| `tabalyst report` | HTML report and JSON profile of CSV, JSON, JSONL or Excel files | [tabalyst report](tabalyst/docs/en/reference/cli/report.md) |
 | `tabalyst scan` | Complete JSON description of every field | [tabalyst scan](scan.md) |
 | `tabalyst inspect` | Find how to read a JSON, JSONL or Excel file | [tabalyst inspect](inspect.md) |
 | `tabalyst sample` | Smaller CSV file from a larger one | [tabalyst sample](sample.md) |

@@ -129,7 +129,7 @@ Choose the table to analyze:
 ```
 
 To report every table of a workbook, use
-[`tabalyst report --all-collections`](report.md).
+[`tabalyst report --all-collections`](tabalyst/docs/en/reference/cli/report.md).
 
 ### Reuse in a report
 

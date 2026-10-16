@@ -27,6 +27,9 @@ anomaly_profiles:
          when: {gpu_type: dedicated}}
       - {kind: replace, column: stock_quantity, value: "0", rate: 0.03,
          when: {stock_status: in_stock}}
+      - {kind: format, column: memory_gb, value: unit_gb, rate: 0.08}
+      - {kind: format, column: storage_gb, value: unit_gb, rate: 0.05}
+      - {kind: format, column: gpu_vram_gb, value: unit_gb, rate: 0.03}
   dirty_stress:
     targets: [computers]
     operations:
@@ -39,6 +42,9 @@ anomaly_profiles:
          when: {gpu_type: dedicated}}
       - {kind: replace, column: stock_quantity, value: "0", rate: 0.15,
          when: {stock_status: in_stock}}
+      - {kind: format, column: memory_gb, value: unit_gb, rate: 0.15}
+      - {kind: format, column: storage_gb, value: unit_gb, rate: 0.1}
+      - {kind: format, column: gpu_vram_gb, value: unit_gb, rate: 0.06}
   unit_variants:
     targets: [computers]
     operations:

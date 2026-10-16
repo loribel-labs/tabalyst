@@ -73,7 +73,7 @@ def _hasher(seed: int) -> PriorityFunction:
         # The type is a short ASCII name without NUL, so the NUL separator
         # makes the encoding injective. Lone surrogates survive decoding of
         # some sources and must not raise. One f-string and one encode is the
-        # fastest form measured (benchmarks/bottomk_hash.py).
+        # fastest form measured (tabalyst-lab/benchmarks/bottomk_hash.py).
         state.update(f"{key[0]}\0{key[1]}".encode("utf-8", "surrogatepass"))
         return int.from_bytes(state.digest(), "big")
 

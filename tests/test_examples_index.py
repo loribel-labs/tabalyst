@@ -38,7 +38,7 @@ def test_the_generated_indexes_of_the_readmes_are_up_to_date() -> None:
     assert stale == [], f"run python examples/tools/make_index.py: {[p.name for p in stale]}"
 
 
-def test_every_demo_and_case_folder_is_in_the_tree_of_the_examples_readme() -> None:
+def test_every_demo_folder_is_in_the_tree_of_the_examples_readme() -> None:
     tree = (EXAMPLES / "README.md").read_text(encoding="utf-8")
     folders = [p.parent.name for p in sorted(EXAMPLES.glob("showcase/*/demo.json"))]
 
@@ -81,7 +81,7 @@ def test_a_stale_block_is_seen_and_the_line_endings_are_kept(tmp_path: Path) -> 
     assert tool.render(page.with_name("README.md"), [("x", lambda: "old")]) == page.read_bytes().decode()
 
 
-def test_a_new_case_and_a_new_demo_appear_in_the_lists_without_any_hand_edit(
+def test_a_new_demo_appears_in_the_lists_without_any_hand_edit(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     tool = _tool()
@@ -94,14 +94,6 @@ def test_a_new_case_and_a_new_demo_appear_in_the_lists_without_any_hand_edit(
         {"id": "demo-one", "tool": "report", "datasets": ["data.csv"],
          "publish": {"site": True, "docs": ["a/b.md"]}},
     )
-    _write(
-        tmp_path / "cases" / "case-one" / "case.json",
-        {"id": "case-one", "tool": "sample", "question": "Does it work?",
-         "inputs": {"source": "../../datasets/data.csv"}},
-    )
 
     assert "| `showcase/demo-one/` | `report` | yes | `a/b.md` |" in tool.showcase_table()
-    assert "[`case-one`](cases/case-one/README.md) | `sample` | Does it work? |" in tool.cases_table(
-        "cases/"
-    )
-    assert "| `data.csv` | `showcase/demo-one/`, `cases/case-one/` |" in tool.dataset_users()
+    assert "| `data.csv` | `showcase/demo-one/` |" in tool.dataset_users()

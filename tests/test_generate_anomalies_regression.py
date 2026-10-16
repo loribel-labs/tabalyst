@@ -38,37 +38,37 @@ EXPECTED: dict[str, dict[str, str]] = {
         "computers-en.csv":
             "c68820af90808f9a3c5a0d28d0edde857a414db995f45982090361d1d1e045ae",
         "computers-en.dirty_realistic.changes.csv":
-            "edd76ab07306cd8ac41f903828d4af922af55dec55f13d910c9fc9bd92d6e044",
+            "5951bce86f7bc53566e1e306d254182d0b0899c1e0725664a14e174a240f8f81",
         "computers-en.dirty_realistic.csv":
-            "ae00f39a40d94cb74361b4f3044a1a78ba7269ab07ab5617b037e5ee77932663",
+            "47d1143a8280f39900799da1ca26dd4f5d5b7ede1d68fc27fe90fd64e1cf2567",
         "computers-en.dirty_realistic.summary.json":
-            "3cdd3167c13726015c15ca15e76e2e781a8799c19dff29bb539004e9d5b9af18",
+            "cdb5982cec0e5cb23ec5562ce444bbf031518931b50d3878346eb42cebfebe60",
         "computers-fr.csv":
             "bd7d7082ae3383e8040fba08418a1bcd0c5c11b19dd4d52f0cf378ade5304af4",
         "computers-fr.dirty_realistic.changes.csv":
-            "edd76ab07306cd8ac41f903828d4af922af55dec55f13d910c9fc9bd92d6e044",
+            "838b2fde6eecab11408701bbba4279c3125879b805fe4d80110e1c2261cceb59",
         "computers-fr.dirty_realistic.csv":
-            "413b8f5324a25e7d8b1be79341599bc00e97634654ca7f23ebe88fcf84b0022f",
+            "9d577a40841a3740ccf08e5cccca6d896952d60cc2aa0d624ec60fa1570ce587",
         "computers-fr.dirty_realistic.summary.json":
-            "d3e58754b02b0f8896a270a1fdaaf578161e5925c9b5e6120d19c23511c79a72",
+            "1b160d513232ed260b6661e9113a39a78ce61177840d56f2e9da3a6a5fc008ff",
     },
     "computer-dirty_stress": {
         "computers-en.csv":
             "c68820af90808f9a3c5a0d28d0edde857a414db995f45982090361d1d1e045ae",
         "computers-en.dirty_stress.changes.csv":
-            "e615e822086ba6a01861047307e2bdf5f0f564d098ddb3069613965dd2b3c6dc",
+            "5e9ce0c5b904b8ce515fba3a472d0238e4daf0bfaf0549ff06f5b18a627356a9",
         "computers-en.dirty_stress.csv":
-            "0e167732e901a8b7ade3bdef230300bc29d6e8da6e934e78901a362f2431800d",
+            "ada70056847cccf1edba30078df33ce50c30e7682f3a134771ca70d43872b514",
         "computers-en.dirty_stress.summary.json":
-            "8e3ab1b37d6db0dba9cb5927ef2ac2bd4f882ef5b15b581e34c9a950d2daeab3",
+            "76e1617f2eb8597ff38d5d5f54453385cffd99de4196679e309b523136096bfc",
         "computers-fr.csv":
             "bd7d7082ae3383e8040fba08418a1bcd0c5c11b19dd4d52f0cf378ade5304af4",
         "computers-fr.dirty_stress.changes.csv":
-            "e615e822086ba6a01861047307e2bdf5f0f564d098ddb3069613965dd2b3c6dc",
+            "6edef7a330d10547a8a1119f1bb90a1a104a9c5e14b0608a07b5a120f138bba8",
         "computers-fr.dirty_stress.csv":
-            "bb4a91fcf23973a32e4d657a5e8d112e033386cdaa73df2304f3f699f7028487",
+            "8416d529dce1d959defcf74d2b2f55a70fc4192ba6c4a735abaed263bd2f499e",
         "computers-fr.dirty_stress.summary.json":
-            "4770eed22b0599523868825a5850bc0f5239456a72029328b4df877339be5aaf",
+            "8a41579a21a1d628034e829e8eb9ff3aaf244c62e13cae76c866a941fdacf620",
     },
     "computer-unit_variants": {
         "computers-en.csv":

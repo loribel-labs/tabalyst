@@ -25,11 +25,10 @@ QUOTING = [
     ROOT / "AGENTS.md",
     ROOT / "README.md",
     EXAMPLES / "README.md",
-    EXAMPLES / "cases" / "README.md",
     *sorted((ROOT / "docs" / "en").rglob("*.md")),
     *sorted((ROOT / "docs" / "dev").glob("*.md")),
 ]
-PATH_PATTERN = re.compile(r"examples/(?:datasets|showcase|tools|cases)/[\w./-]*[\w]")
+PATH_PATTERN = re.compile(r"examples/(?:datasets|showcase|tools)/[\w./-]*[\w]")
 RETIRED = ("examples/input/", "examples/output/", "examples/make_sales_workbook")
 
 
@@ -158,7 +157,7 @@ def test_python_code_cites_no_retired_example_folder() -> None:
     retired = re.compile(r"\"examples\"\s*/\s*\"(input|output)\"")
     offenders = [
         str(path.relative_to(ROOT))
-        for folder in ("tests", "benchmarks", "scripts")
+        for folder in ("tests", "scripts")
         for path in (ROOT / folder).rglob("*.py")
         if retired.search(path.read_text(encoding="utf-8"))
     ]

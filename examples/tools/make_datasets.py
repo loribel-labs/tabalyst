@@ -9,11 +9,13 @@
     python examples/tools/make_datasets.py --list
     python examples/tools/make_datasets.py --update-sha     # after a deliberate generator change
 
-A request names a ``tabalyst generate`` run (example, rows, seed, anomaly profile) and, for each
-file it keeps, the file produced by the run and its SHA-256. The files are written under
+A request names a ``tabalyst generate`` run (example, rows, seed and the options listed in
+``OPTIONS``) and, for each file it keeps, the file produced by the run and its SHA-256. A category
+manifest groups several requests under ``"datasets": [...]`` (the recipes of ``tabalyst-lab`` use it); its files are
+written in a folder named after the category. The files are written under
 ``$TABALYST_DATASETS``, by default ``<repository parent>.test/tabalyst/datasets`` (for
-``D:/GIT/tabalyst``: ``D:/GIT.test/tabalyst/datasets``), never in the checkout: the 100,000-row
-base is 27 MB. A file already there with the expected SHA-256 is reused.
+``D:/GIT/tabalyst``: ``D:/GIT.test/tabalyst/datasets``), never in the checkout: generated CSV
+files are not committed. A file already there with the expected SHA-256 is reused.
 """
 
 import argparse
@@ -40,15 +42,27 @@ def default_root() -> Path:
     return external / ROOT.name / "datasets"
 
 
+# Request keys passed to ``tabalyst generate``, with their option.
+OPTIONS = {
+    "anomaly_profile": "--anomaly-profile",
+    "output_profile": "--output-profile",
+    "generation_profile": "--generation-profile",
+    "market": "--market",
+    "locales": "--locales",
+    "unit_style": "--unit-style",
+    "unit_columns": "--unit-columns",
+}
+
+
 def is_request(path: Path) -> bool:
-    """Whether a JSON file of ``examples/datasets`` is a generation request."""
+    """Whether a JSON file of ``examples/datasets`` is a request or a category manifest."""
     if path.suffix != ".json":
         return False
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return False
-    return isinstance(data, dict) and "generate" in data
+    return isinstance(data, dict) and ("generate" in data or "datasets" in data)
 
 
 def requests() -> dict[str, Path]:
@@ -74,30 +88,47 @@ def _generate(spec: dict[str, Any], destination: Path) -> None:
         sys.executable, "-m", "tabalyst", "generate", "--example", spec["example"],
         "--rows", str(spec["rows"]), "--seed", str(spec["seed"]), "-d", str(destination),
     ]
-    if "anomaly_profile" in spec:
-        command += ["--anomaly-profile", spec["anomaly_profile"]]
+    for key, option in OPTIONS.items():
+        if key in spec:
+            command += [option, str(spec[key])]
     done = subprocess.run(command, capture_output=True, text=True, check=False)
     if done.returncode:
         raise RuntimeError(f"tabalyst generate failed:\n{done.stderr}")
 
 
-def ensure(request: Path, root: Path | None = None, update_sha: bool = False) -> dict[str, Path]:
-    """Return the files of a request by name, generating them when missing or changed.
+def units(data: dict[str, Any]) -> list[dict[str, Any]]:
+    """The requests of a file: itself, or the ``datasets`` of a category manifest."""
+    return list(data["datasets"]) if "datasets" in data else [data]
 
-    Raises ``RuntimeError`` when a generated file does not match its SHA-256 and
-    ``update_sha`` is false: the generator changed, or the Python minor version differs
-    (the bytes are only guaranteed for one), and the request must be reviewed.
+
+def ensure(request: Path, root: Path | None = None, update_sha: bool = False) -> dict[str, Path]:
+    """Return the files of a request or a category by name, generating them when missing or changed.
+
+    The files of a category manifest live in ``<root>/<category id>/``. Raises ``RuntimeError``
+    when a generated file does not match its SHA-256 and ``update_sha`` is false: the generator
+    changed, or the Python minor version differs (the bytes are only guaranteed for one), and
+    the request must be reviewed.
     """
     data: dict[str, Any] = json.loads(request.read_text(encoding="utf-8"))
-    target = root or default_root()
-    files: dict[str, dict[str, str]] = data["files"]
+    base = root or default_root()
+    target = base / data["id"] if "datasets" in data else base
+    paths: dict[str, Path] = {}
+    for unit in units(data):
+        paths.update(_ensure_unit(unit, target, update_sha))
+    if update_sha:
+        request.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
+    return paths
+
+
+def _ensure_unit(unit: dict[str, Any], target: Path, update_sha: bool) -> dict[str, Path]:
+    files: dict[str, dict[str, str]] = unit["files"]
     paths = {name: target / name for name in files}
     if all(path.is_file() and sha256(path) == files[name]["sha256"] for name, path in paths.items()):
         return paths
     target.mkdir(parents=True, exist_ok=True)
-    work = Path(tempfile.mkdtemp(prefix=f".{data['id']}-", dir=target))
+    work = Path(tempfile.mkdtemp(prefix=f".{unit['id']}-", dir=target))
     try:
-        _generate(data["generate"], work)
+        _generate(unit["generate"], work)
         for name, spec in files.items():
             produced = work / spec["from"]
             digest = sha256(produced)
@@ -111,8 +142,6 @@ def ensure(request: Path, root: Path | None = None, update_sha: bool = False) ->
             shutil.move(str(produced), paths[name])
     finally:
         shutil.rmtree(work, ignore_errors=True)
-    if update_sha:
-        request.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
     return paths
 
 

@@ -226,4 +226,6 @@ __marimo__/
 /artifacts/
 /examples/generate/output/
 /benchmarks/data/
+.claude/
 .claude/launch.json
+/examples/datasets/generated/

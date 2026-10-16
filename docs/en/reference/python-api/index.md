@@ -17,9 +17,9 @@ batch = tabalyst.generate_reports(["*.csv"], output_dir="reports")
 
 | To do this | Use | Page |
 | --- | --- | --- |
-| Write the report and profile of one CSV file | `tabalyst.analyze()` | [Python API: reports](report.md) |
-| Write reports for CSV, JSON, JSONL or Excel files | `tabalyst.generate_reports()` | [Python API: reports](report.md) |
-| Get a profile or its HTML without writing files | `tabalyst.analyze_csv()`, `tabalyst.analyze_scan()`, `tabalyst.render_report()` | [Python API: reports](report.md) |
+| Write the report and profile of one CSV file | `tabalyst.analyze()` | [Python API: reports](tabalyst/docs/en/reference/python-api/report.md) |
+| Write reports for CSV, JSON, JSONL or Excel files | `tabalyst.generate_reports()` | [Python API: reports](tabalyst/docs/en/reference/python-api/report.md) |
+| Get a profile or its HTML without writing files | `tabalyst.analyze_csv()`, `tabalyst.analyze_scan()`, `tabalyst.render_report()` | [Python API: reports](tabalyst/docs/en/reference/python-api/report.md) |
 | Scan one source in memory | `tabalyst.scan()` | [Python API: scans](scan.md) |
 | Write scan documents | `tabalyst.generate_scans()` | [Python API: scans](scan.md) |
 | Find how to read a JSON, JSONL or Excel file | `tabalyst.inspect()`, `tabalyst.generate_inspections()` | [Python API: Inspect](inspect.md) |

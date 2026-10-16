@@ -22,7 +22,8 @@ support is not yet required. Record format changes in the relevant changelogs.
 - Keep private strategy, personal notes, confidential data and unpublished research in `tabalyst-gb`, not here.
 - The sibling `../tabalyst-gb` is the private starting point for the maintainer's
   AI requests. For work originating there, read `../tabalyst-gb/AGENTS.md` and
-  its relevant `DOCS/` pages for intent and decisions. Verify product behavior
+  `DOCS/README.md` (the five repositories) and its relevant `DOCS/` pages for
+  intent and decisions. Verify product behavior
   against this public repository before changing code or public documentation.
 - Do not commit secrets, credentials or real sensitive datasets.
 - The sibling repository `tabalyst-studio` holds the documentation site
@@ -34,6 +35,18 @@ support is not yet required. Record format changes in the relevant changelogs.
   only advertises features documented in this `README.md`. When a change affects
   the CLI, the public API, the report or the demos, mention the follow-up needed
   in `tabalyst-studio` (see its `AGENTS.md`), but do not edit it unless asked.
+
+## Tabalyst ecosystem
+
+- All Tabalyst Git repositories live in the parent folder `D:\GIT` (also an
+  Obsidian vault). Overview: `../tabalyst-gb/DOCS/README.md` (private, in French).
+- `tabalyst-gb`: starting point for managing the whole ecosystem; private, in
+  French, holding personal notes and reflections, sometimes untidy.
+- `tabalyst`: the only public repository today, English first, source of truth
+  for the product.
+- `tabalyst-studio`, `tabalyst-lab`, `tabalyst-apps`: private, in French, each
+  for a specific need.
+- Point to the repositories' `README.md` files rather than copying their content.
 
 ## Language
 
@@ -153,7 +166,8 @@ present in the working tree. Use `apply_patch` for manual edits and avoid unrela
 refactors.
 
 Every source file (`.py`, `.js`, `.cjs`, `.css` under `src/`, `tests/`,
-`benchmarks/`, `scripts/`) starts with the MPL-2.0 header. Run
+`scripts/`) starts with the MPL-2.0 header. The benchmarks live in the private
+`tabalyst-lab` (`benchmarks/`). Run
 `python scripts/license_headers.py` after adding files; `tests/test_license_headers.py`
 fails when a header is missing.
 
@@ -175,7 +189,7 @@ After every project modification, regenerate the public demos with
 demo are in its `examples/showcase/<id>/demo.json`; see `examples/README.md`). Use the
 `insurance-customers` demo for browser checks.
 
-The lists of demos, cases and dataset users in the `examples/` READMEs are generated from the manifests
+The lists of demos and dataset users in the `examples/` READMEs are generated from the manifests
 (`examples/tools/make_index.py`, run by `regenerate.py`; `--check` fails when one is stale): never edit
 them by hand, add a `demo.json` or a `case.json` instead.
 

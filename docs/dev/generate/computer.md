@@ -324,7 +324,11 @@ zero VRAM on dedicated GPUs (4%), and zero stock with `in_stock` status (3%).
 `dirty_stress` requests the same operations at 12%, 8%, 10%, 6%, 8%, 18%,
 and 15%, respectively. Rates are fractions of all rows; conditional rules
 apply only when their `when` predicate holds, so their applied rates can be
-lower. Each operation's rate and condition live in `dataset.yaml`. The
+lower. Both profiles also end with three `unit_gb` operations on memory,
+storage and GPU VRAM (8%, 5% and 3% in `dirty_realistic`; 15%, 10% and 6% in
+`dirty_stress`), the `unit_variants` operations, so a dirty file always mixes
+numbers and values with a unit. They only use columns of the `compact` profile.
+Each operation's rate and condition live in `dataset.yaml`. The
 reference catalogs, component selections, real model and generation names,
 generation profiles, and segment weights remain clean and unchanged.
 
@@ -576,7 +580,7 @@ weights are not a representative sample of the computer market. The
 `compact`, `standard`, and `extended` projections have 40, 70, and 111 columns,
 respectively, and the tests require strict inclusion in register order.
 
-`benchmarks/computer_corpus.py` audits every declared CSV/YAML resource, its
+`tabalyst-lab/benchmarks/computer_corpus.py` audits every declared CSV/YAML resource, its
 digest in metadata, both localized CSVs, row identity, selected offer invariants,
 distributions, and three synthetic numeric correlations. Its 10,000-row
 thresholds check laptop weight, type coverage, compatibility rules, and expected
@@ -587,8 +591,8 @@ The benchmark mode samples the generation process tree's resident memory with
 environment and an output directory outside the checkout:
 
 ```console
-python benchmarks/computer_corpus.py src/tabalyst/generate_examples/computer EXTERNAL_OUTPUT_DIR --rows 10000
-python benchmarks/computer_corpus.py src/tabalyst/generate_examples/computer EXTERNAL_OUTPUT_DIR --rows 10000 --audit-only
+python ../tabalyst-lab/benchmarks/computer_corpus.py src/tabalyst/generate_examples/computer EXTERNAL_OUTPUT_DIR --rows 10000
+python ../tabalyst-lab/benchmarks/computer_corpus.py src/tabalyst/generate_examples/computer EXTERNAL_OUTPUT_DIR --rows 10000 --audit-only
 ```
 
 Use a fresh output directory for each generation run. Timing includes package

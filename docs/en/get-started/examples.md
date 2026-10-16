@@ -20,7 +20,7 @@ Tabalyst produces before running it on your own files.
 | --- | --- | --- |
 | `basic.csv` | Five rows | A smoke test of the whole workflow |
 | `insurance-customers-100k.json` | The request for 100,000 fictional customers and contracts, 34 columns, with 45 kinds of defect (845 rows in all) | A realistic CSV report, with `--details` column pages, built on a file generated outside the repository |
-| `insurance-customers.csv` | 3,000 fictional customers and contracts, 34 columns | A small file for the walkthroughs and the sample cases |
+| `insurance-customers.csv` | 3,000 fictional customers and contracts, 34 columns | A small file for the walkthroughs and the sample commands |
 | `orders.json` | 60 customers with nested addresses, tags and orders | A JSON report on the one collection `$.customers[]` that Inspect finds |
 | `web-events.jsonl` | 300 events with nested `user` and `device` objects, plus three bad lines | A partial JSONL report: the bad lines are excluded and counted |
 | `sales.xlsx` | A workbook of 120 fictional orders under two title lines, a five-row `Regions` sheet and a note | An Excel report on the sheet `$.Orders` that Inspect selects over `$.Regions` |

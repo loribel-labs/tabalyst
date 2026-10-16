@@ -384,8 +384,8 @@ The Scan and JSON work (bottom-k samplers, Report as a superset of the Scan,
 second pass) is specified in [scan/design.md](scan/design.md) sections 18 to
 21 and mapped to the code in [scan/scan-json-mapping.md](scan/scan-json-mapping.md);
 its baselines are in [scan/benchmarks.md](scan/benchmarks.md) and measured by
-`benchmarks/scan_json_baseline.py`; the matrix of the specification (17.2) is run by
-`benchmarks/final_matrix.py` on the layouts of `benchmarks/matrix_layouts.py` (lot 11). What Explore consumes of these
+`tabalyst-lab/benchmarks/scan_json_baseline.py`; the matrix of the specification (17.2) is run by
+`tabalyst-lab/benchmarks/final_matrix.py` on the layouts of `tabalyst-lab/benchmarks/matrix_layouts.py` (lot 11). What Explore consumes of these
 documents is fixed in design 20.17 and by `tests/scan/test_explore_contract.py`. Its contract tests (`tests/scan/test_contract_*.py`)
 carry `@pytest.mark.scan_json_lot("<lot>")`: a test of a lot missing from
 `ENABLED_LOTS` in `tests/scan/scan_json_gate.py` is a strict expected failure,
@@ -399,7 +399,7 @@ distinct values, a `BottomKSampler` beyond, exposure applied at the end. It
 belongs to `ValueProcessor`, in the scan process or in the worker of the field
 (design 18.3), and the Report ranks an `all` sample with the same hash
 (`report_profile.report_sample`). The choice of its hash is measured by
-`benchmarks/bottomk_hash.py` (design 18.8, [scan/benchmarks.md](scan/benchmarks.md)).
+`tabalyst-lab/benchmarks/bottomk_hash.py` (design 18.8, [scan/benchmarks.md](scan/benchmarks.md)).
 
 `scanner/longtext.py` (lot 2c) is the small bottom-k of the values longer than
 `max_stored_value_length`: preview, lengths and a digest of the whole content
@@ -419,7 +419,7 @@ API. `facts_sha256` lives in `scanner/identity.py` so that the planner does not 
 document loader.
 
 Lot 6b calibrated it (design 20.2, 20.3, 20.6). `costmodel.py` holds every size, budget and CPU
-class, measured by `benchmarks/planner_costs.py` and checked against `tracemalloc` by tests;
+class, measured by `tabalyst-lab/benchmarks/planner_costs.py` and checked against `tracemalloc` by tests;
 an automatic choice stays within 128 MiB and a request or a forced plan within a hard budget of
 512 MiB. `secondpass.py` estimates the time from the first pass, outside the plan so that it
 stays the same on any machine, and says whether a run needs a confirmation (`plan_second_pass`,

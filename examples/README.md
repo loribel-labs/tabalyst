@@ -20,7 +20,6 @@ examples/
 |   |-- orders/
 |   |-- sales/
 |   `-- web-events/
-|-- cases/ (reproducible scenarios with a manifest, see cases/README.md)
 |-- tools/
 |   |-- make_datasets.py (builds the generated datasets outside the checkout)
 |   |-- make_index.py (writes the generated lists of the READMEs)
@@ -117,18 +116,12 @@ second command stores the full one, with `--no-html` because the first already w
 page and a second one would land beside the dataset. Without it, a report made just
 before leaves its smaller automatic second pass there and the plan counts fewer targets.
 
-## Cases
+## What is not here
 
-`cases/` holds reproducible scenarios that test and document a command, each with
-its input, its measured result and a test (see `cases/README.md`). The list is
-generated from the `case.json` manifests:
-
-<!-- index:cases:start -->
-| Case | Tool | Question |
-| --- | --- | --- |
-| [`sample-injected-errors`](cases/sample-injected-errors/README.md) | `sample` | When a file holds a few wrong rows, how often does a sample keep at least one of them? |
-| [`sample-real-errors`](cases/sample-real-errors/README.md) | `sample` | When a 100,000-row file holds defects of 45 kinds, a few rows each, how many kinds does a sample of 3,000 or 300 rows keep? |
-<!-- index:cases:end -->
+Generated datasets in several sizes, the end-to-end tests of the chain, the reproducible cases
+and the demos that are not published live in the private repository `tabalyst-lab`. This
+folder keeps what the website and the documentation publish (decision record
+`docs/dev/adr/2026-10-15-generated-datasets-layout.md`).
 
 Every report demo is independent and contains its own HTML report, canonical JSON
 profile and cumulative `executions.json` history. The insurance example also has

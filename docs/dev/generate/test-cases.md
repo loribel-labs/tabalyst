@@ -1,5 +1,8 @@
 # Generator of test cases (lot G3a)
 
+Note of 2026-10-15: the cases of `examples/cases/` moved to the private repository `tabalyst-lab`
+(`cases/`, `tools/case_truth.py`) with their test; the paths below are those of the time.
+
 Maintenance document, never published. It designs lot G3b: the case
 `sample-injected-errors` stops injecting its errors by hand in `case.py` and takes them,
 with its truth, from the Generate engine. No code changes in G3a.

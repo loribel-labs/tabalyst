@@ -23,7 +23,7 @@ BODY = (
 MARKER = "Mozilla Public"
 LINE_COMMENT = {".py": "# ", ".js": "// ", ".cjs": "// "}
 BLOCK_COMMENT = {".css"}
-ROOTS = ("src", "tests", "benchmarks", "scripts")
+ROOTS = ("src", "tests", "scripts")
 
 
 def header(suffix: str) -> str:

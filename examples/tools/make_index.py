@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Write the indexes of ``examples/`` from the manifests of the demos and the cases.
+"""Write the indexes of ``examples/`` from the manifests of the demos.
 
     python examples/tools/make_index.py            # rewrite the generated blocks
     python examples/tools/make_index.py --check    # change nothing; exit 1 if a block is stale
 
-The lists of demos, cases and dataset users in the READMEs are generated, never written by hand:
+The lists of demos and dataset users in the READMEs are generated, never written by hand:
 each sits between ``<!-- index:NAME:start -->`` and ``<!-- index:NAME:end -->`` and is rebuilt
-from ``showcase/*/demo.json`` and ``cases/*/case.json``. Run it from anywhere; it needs only
+from ``showcase/*/demo.json``. Run it from anywhere; it needs only
 the standard library. ``regenerate.py`` runs it after the demos.
 """
 
@@ -45,28 +45,14 @@ def showcase_table() -> str:
     return "\n".join(rows)
 
 
-def cases_table(root: str) -> str:
-    """Every case with the question it asks; links are relative to ``root`` (``"cases/"`` or ``""``)."""
-    rows = ["| Case | Tool | Question |", "| --- | --- | --- |"]
-    for case in _manifests("cases/*/case.json").values():
-        link = f"[`{case['id']}`]({root}{case['id']}/README.md)"
-        rows.append(f"| {link} | `{case['tool']}` | {case['question']} |")
-    return "\n".join(rows)
-
-
 def dataset_users() -> str:
-    """For each file of ``datasets/``, the demos that read it and the cases that start from it."""
-    demos, cases = _manifests("showcase/*/demo.json"), _manifests("cases/*/case.json")
+    """For each file of ``datasets/``, the demos that read it."""
+    demos = _manifests("showcase/*/demo.json")
     rows = ["| File | Used by |", "| --- | --- |"]
     for path in sorted((EXAMPLES / "datasets").iterdir()):
         if path.suffix == ".md":
             continue
         users = [f"`showcase/{d['id']}/`" for d in demos.values() if path.name in d["datasets"]]
-        users += [
-            f"`cases/{c['id']}/`"
-            for c in cases.values()
-            if Path(c["inputs"]["source"]).name == path.name
-        ]
         rows.append(f"| `{path.name}` | {', '.join(users) or 'none'} |")
     return "\n".join(rows)
 
@@ -74,8 +60,6 @@ def dataset_users() -> str:
 # (file under examples/, block name, renderer)
 BLOCKS: list[tuple[str, str, Callable[[], str]]] = [
     ("README.md", "showcase", showcase_table),
-    ("README.md", "cases", lambda: cases_table("cases/")),
-    ("cases/README.md", "cases", lambda: cases_table("")),
     ("datasets/README.md", "users", dataset_users),
 ]
 

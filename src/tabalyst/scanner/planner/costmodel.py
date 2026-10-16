@@ -5,7 +5,7 @@
 """The calibrated cost model of the planner (design 20.2, lot 6b).
 
 Every constant below stands on a measure made with
-``benchmarks/planner_costs.py`` or on the baselines of ``docs/dev/scan/
+``tabalyst-lab/benchmarks/planner_costs.py`` or on the baselines of ``docs/dev/scan/
 benchmarks.md``; the comment says which. Sizes are payloads of the structures,
 not process memory (specification 11.3). Nothing here depends on the machine
 that plans: the plan uses these constants, never a measured time, so the same
@@ -205,7 +205,7 @@ NS_PER_CELL = {
     "matcher": 100,
     # The validation of the hierarchy of patterns (lot P6): a value is read once in
     # its family, and a lookup in the table of each facet the family reads, whatever
-    # the number of patterns and nodes (`benchmarks/pattern_validation.py`: 1,990,
+    # the number of patterns and nodes (`tabalyst-lab/benchmarks/pattern_validation.py`: 1,990,
     # 2,790 and 2,680 ns a cell for 10, 64 and 256 variants, the last two with the
     # same facets, in an alternation with the flat validation of the lot 7c that
     # costs 1,070 to 1,170 on the same machine and file, 1 million rows of five
