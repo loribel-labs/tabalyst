@@ -4,10 +4,6 @@
   },
   "report": {
     "string_analysis": {
-      "very_short_max_length": 5,
-      "short_max_length": 20,
-      "medium_max_length": 50,
-      "long_max_length": 255,
       "length_distribution_max_length": 50,
       "examples_per_length": 10
     },
@@ -52,6 +48,12 @@
     },
     "types": {
       "minimum_confidence": 0.95
+    },
+    "classification": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255
     },
     "detectors": {
       "date": {

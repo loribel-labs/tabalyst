@@ -19,27 +19,30 @@
       "quantity": 1,
       "uuid": 1,
       "ip_address": 1
+    },
+    "classification": {
+      "catalogue": 1
     }
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-14T18:47:47.358548Z",
-    "duration_seconds": 0.01866,
+    "started_at": "2026-10-16T06:58:12.215242Z",
+    "duration_seconds": 0.018641,
     "timings": {
-      "reading": 0.003158,
-      "analysis": 0.002115,
-      "finalize": 0.008861,
-      "derived": 0.004069,
-      "other": 0.000457
+      "reading": 0.003411,
+      "analysis": 0.002089,
+      "finalize": 0.008477,
+      "derived": 0.004218,
+      "other": 0.000447
     },
     "workers": 1,
-    "peak_memory_bytes": 69484544
+    "peak_memory_bytes": 71847936
   },
   "source": {
     "format": "excel",
     "name": "sales.xlsx",
     "size_bytes": 17717,
-    "modified_at": "2026-10-12T23:30:31.435534Z",
+    "modified_at": "2026-10-16T05:33:33.607029Z",
     "sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
     "encoding": null,
     "shape": {
@@ -155,6 +158,12 @@
     },
     "types": {
       "minimum_confidence": 0.95
+    },
+    "classification": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255
     },
     "detection": {
       "minimum_share": 0.95,
@@ -316,7 +325,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "c7aeb6f8a7ee5b96cb2b567db96d70bcc07c81cf85f4c61a0d008c015867d630",
+  "config_sha256": "76b48c0b010b005e76c4b9d5ed5060a0e09adfa6a3d7bc20f44e8b2991118be4",
   "scope": {
     "collections": null,
     "records_read": 120,
@@ -1899,6 +1908,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -3209,6 +3251,28 @@
               }
             ]
           },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -4338,6 +4402,39 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -5902,6 +5999,39 @@
               }
             ]
           },
+          "classification": {
+            "family": "text",
+            "type": "text_medium",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": true,
           "exposure": "show"
         },
@@ -6697,6 +6827,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -7451,6 +7614,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -7843,6 +8039,28 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "numeric",
+            "type": "integer",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "integer",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -8831,6 +9049,28 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "numeric",
+            "type": "number",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "number",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -9145,6 +9385,28 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "categorical",
+            "type": "boolean",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "boolean",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 107,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -10633,7 +10895,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -10643,8 +10905,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-        "config_sha256": "c7aeb6f8a7ee5b96cb2b567db96d70bcc07c81cf85f4c61a0d008c015867d630",
-        "facts_sha256": "aa8321dad6bd9f47f4ab3967b8582c79b9d9c13104026e2bb7b28f9b1547d155"
+        "config_sha256": "76b48c0b010b005e76c4b9d5ed5060a0e09adfa6a3d7bc20f44e8b2991118be4",
+        "facts_sha256": "1e95fb399cf712b99dfc822f10f6f26905d0aa8f42c4226525259845438a670b"
       },
       "settings": {
         "bins": 100,
@@ -10753,13 +11015,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 17,
-        "plan_id": "5a01e45a84164b61e67374e0e0784762ab3f4a046cbfe367d484896aad805de4",
+        "plan_id": "5b8e91f4fe4dfd7cab73b388e6d8bd471de485bd6a8ae48aae6ba96b238e49df",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-          "config_sha256": "c7aeb6f8a7ee5b96cb2b567db96d70bcc07c81cf85f4c61a0d008c015867d630",
-          "facts_sha256": "aa8321dad6bd9f47f4ab3967b8582c79b9d9c13104026e2bb7b28f9b1547d155"
+          "config_sha256": "76b48c0b010b005e76c4b9d5ed5060a0e09adfa6a3d7bc20f44e8b2991118be4",
+          "facts_sha256": "1e95fb399cf712b99dfc822f10f6f26905d0aa8f42c4226525259845438a670b"
         },
         "objective": {
           "automatic": true,
@@ -16525,21 +16787,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-16T00:04:28.770195Z",
-        "duration_seconds": 0.000153,
+        "started_at": "2026-10-16T06:58:12.270847Z",
+        "duration_seconds": 0.012494,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000153
+          "reading": 0.002348,
+          "analysis": 0.004018,
+          "other": 0.006128
         },
         "workers": 1,
-        "peak_memory_bytes": 72716288,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 10,
+        "peak_memory_bytes": 76357632,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 120,
+        "cells_read": 840,
+        "executed": 10,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -16555,7 +16817,7 @@
             "distinct": 120
           },
           "domain": "analytical",
-          "key": "414bf5fd1851df6d979b561d132e5c9eb10f8d37baef0d534d038bedde332685",
+          "key": "7d0ad960a0bd3e25edf30c804b3f642c26ccc033f581f1c893846714e17ecab3",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -17230,7 +17492,7 @@
             "distinct": 120
           },
           "domain": "analytical",
-          "key": "c07c837614a767b107b6c6504ab10d58554b2a5fb998b8c1d72f5d9fcc05593c",
+          "key": "defafd51932555c8106742cb5612be44ea772339825d419dd7850aea62e965ff",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -17905,7 +18167,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "788cf26602e205341199ed7cf5942c8bc846fc8ad2da3c72a2ccd95828bd3b62",
+          "key": "02d2c79cf8a1c3366764a24369157763b73303c8e6fce9eb2dba98047d20ddb8",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -18530,7 +18792,7 @@
             "domain": 12
           },
           "domain": "analytical",
-          "key": "f4ba691e8a822b08f3600bf6e81cd506ef379fe3aef5dade7043717cd7d72697",
+          "key": "d0ba7e97f4963dafff56480bed04ac49cab971f03a1d173164033f6ff798f44f",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -18639,7 +18901,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "fceb2d89461e973516ba59155b7da2bcc4d79931e786e1028c8eb626b9ae4651",
+          "key": "7a4e80c50f4b76422d9a56d079f984265dc11e34ae033ac9ceff3fe72c475ea6",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -18923,7 +19185,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "cc6f08d6d1c7ae04007339a16617b81c740b9195b4ceae6356a1d6211cea40be",
+          "key": "9337f4d0f7cb2ac0439821523f89091263420ab550ee67b0423db9dbdc8dfd9a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -19056,7 +19318,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "863b5026684ed5f508a1023d1a5988c62e1e26183a83b572c3abb3abededc7e2",
+          "key": "5075db4601f92134b5202cfb8c6c8ddd0456e8e0d7bfca7a54902aa1a611decd",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -19216,7 +19478,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "2ebe5212bcd87a6bfb7a8bf46893a47a3031c655ad0b6e014d6417acc1da09e3",
+          "key": "d2e7ce225a12e0462194e19d2100793441859a35257a23a2747ca6c42f3df4c0",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -19551,7 +19813,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "ccd492415790083524f8b6432f2c36d0ece980b828b77a1ff9c47536d2b4e69d",
+          "key": "a3ce4be4f7b25143a35fab629f697dfc3609de80a101c65b88e71614d901db87",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -19599,7 +19861,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "ec620d5bcd88991466dc632c2e29bd616f147f1101f03c3445901a83362e3eca",
+          "key": "e8aed4e0ec8a299e3bd74026b6bb33fec4aa2caae65d81e1d7e35190b33db6a5",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -20693,18 +20955,14 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-16T00:04:28.812494Z",
+    "generated_at": "2026-10-16T06:58:12.337135Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0837,
+    "processing_seconds": 0.1426,
     "config": {
       "string_analysis": {
-        "very_short_max_length": 5,
-        "short_max_length": 20,
-        "medium_max_length": 50,
-        "long_max_length": 255,
         "length_distribution_max_length": 50,
         "examples_per_length": 10
       },
@@ -20731,8 +20989,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-      "config_sha256": "c7aeb6f8a7ee5b96cb2b567db96d70bcc07c81cf85f4c61a0d008c015867d630",
-      "facts_sha256": "aa8321dad6bd9f47f4ab3967b8582c79b9d9c13104026e2bb7b28f9b1547d155"
+      "config_sha256": "76b48c0b010b005e76c4b9d5ed5060a0e09adfa6a3d7bc20f44e8b2991118be4",
+      "facts_sha256": "1e95fb399cf712b99dfc822f10f6f26905d0aa8f42c4226525259845438a670b"
     },
     "datasets": [
       {

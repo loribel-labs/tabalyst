@@ -11,7 +11,13 @@ where its parent was an object that could have contained it.
 from __future__ import annotations
 
 from collections import Counter
+from typing import Any
 
+from tabalyst.scanner.classify import (
+    PENDING_CLASSIFICATION,
+    ClassifyContext,
+    classify_field,
+)
 from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.diagnostics import DiagnosticCollector
 from tabalyst.scanner.field import FieldState, StringClassifier
@@ -379,28 +385,29 @@ class DatasetState:
         )
         definition = list(config.values.missing)
         missing_count = sum(getattr(components, name) or 0 for name in definition)
-        return FieldResult(
-            id=ids[path],
-            path=path_to_json(path),
-            display=display,
-            name=name,
-            parent=ids.get(path[:-1]) if path else None,
-            collection=self.collections.get(path),
-            first_record=state.first_record,
-            occurrences=state.occurrences,
-            presence=presence,
-            native_types=_ordered_types(state.native_types),
-            strings=StringCategories(
+        # ``Any``: the members of FieldResult, validated when it is built below.
+        facts: dict[str, Any] = {
+            "id": ids[path],
+            "path": path_to_json(path),
+            "display": display,
+            "name": name,
+            "parent": ids.get(path[:-1]) if path else None,
+            "collection": self.collections.get(path),
+            "first_record": state.first_record,
+            "occurrences": state.occurrences,
+            "presence": presence,
+            "native_types": _ordered_types(state.native_types),
+            "strings": StringCategories(
                 count=state.count("string"),
                 empty=state.empty,
                 blank=state.blank,
                 marker=state.marker,
                 content=state.content,
             ),
-            missing=Missing(
+            "missing": Missing(
                 count=missing_count, definition=definition, components=components
             ),
-            arrays=(
+            "arrays": (
                 None
                 if not state.arrays
                 else ArrayStats(
@@ -411,7 +418,7 @@ class DatasetState:
                     total_items=state.array_items,
                 )
             ),
-            values=FieldValues(
+            "values": FieldValues(
                 count=state.value_count,
                 cardinality=blocks["cardinality"],
                 frequencies=blocks["frequencies"],
@@ -419,15 +426,26 @@ class DatasetState:
                 first=blocks["first"],
                 last=blocks["last"],
             ),
-            string_characteristics=blocks["string_characteristics"],
-            string_lengths=blocks["string_lengths"],
-            numeric=blocks["numeric"],
-            booleans=blocks["booleans"],
-            temporal=blocks["temporal"],
-            normalization=blocks["normalization"],
-            technical_type=blocks["technical_type"],
-            detectors=blocks["detectors"],
-            interpretations=blocks["interpretations"],
-            sensitive=blocks["sensitive"],
-            exposure=blocks["exposure"],
+            "string_characteristics": blocks["string_characteristics"],
+            "string_lengths": blocks["string_lengths"],
+            "numeric": blocks["numeric"],
+            "booleans": blocks["booleans"],
+            "temporal": blocks["temporal"],
+            "normalization": blocks["normalization"],
+            "technical_type": blocks["technical_type"],
+            "detectors": blocks["detectors"],
+            "interpretations": blocks["interpretations"],
+            "sensitive": blocks["sensitive"],
+            "exposure": blocks["exposure"],
+        }
+        # The blocks of a field finalized by a worker are plain dicts until the
+        # model validates them, and the classification reads the validated
+        # blocks: build the field with a placeholder, then classify it.
+        field = FieldResult(**facts, classification=PENDING_CLASSIFICATION)
+        return field.model_copy(
+            update={
+                "classification": classify_field(
+                    field, ClassifyContext(config.classification)
+                )
+            }
         )

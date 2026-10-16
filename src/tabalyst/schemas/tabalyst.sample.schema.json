@@ -294,12 +294,20 @@
           },
           "title": "Detectors",
           "type": "object"
+        },
+        "classification": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Classification",
+          "type": "object"
         }
       },
       "required": [
         "version",
         "normalization_version",
-        "detectors"
+        "detectors",
+        "classification"
       ],
       "title": "EngineInfo",
       "type": "object"

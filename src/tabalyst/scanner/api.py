@@ -20,6 +20,7 @@ from tabalyst.progress import (
     emit_progress,
 )
 from tabalyst.scanner.charactermap import derive_characters
+from tabalyst.scanner.classify import version_record
 from tabalyst.scanner.config import ScanConfig, config_sha256, resolve_config_defaults
 from tabalyst.scanner.detectors.registry import (
     DetectorRegistry,
@@ -324,6 +325,7 @@ def scan(
             version=__version__,
             normalization_version=NORMALIZATION_VERSION,
             detectors=detectors.versions(),
+            classification=version_record(),
         ),
         status="partial" if excluded else "complete",
         run=RunInfo(

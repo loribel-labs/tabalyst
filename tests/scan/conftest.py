@@ -14,6 +14,7 @@ updating the design document in the same lot.
 """
 
 import pytest
+from report_gate import ENABLED_LOTS as REPORT_ENABLED_LOTS
 from scan_json_gate import ENABLED_LOTS as SCAN_JSON_ENABLED_LOTS
 
 # Contract tests of the Scan and JSON work (plan 2026-10-06) are gated by
@@ -31,6 +32,13 @@ def pytest_collection_modifyitems(config, items):
                 pytest.mark.xfail(
                     strict=True,
                     reason=f"Scan and JSON lot {sj_marker.args[0]} is not implemented yet",
+                )
+            )
+        report_marker = item.get_closest_marker("report_lot")
+        if report_marker is not None and report_marker.args[0] not in REPORT_ENABLED_LOTS:
+            item.add_marker(
+                pytest.mark.skip(
+                    reason=f"Report overview lot {report_marker.args[0]} is not implemented yet"
                 )
             )
         marker = item.get_closest_marker("lot")

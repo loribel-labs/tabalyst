@@ -10,7 +10,7 @@ contract with three fields:
 {
   "format": "tabalyst.scan",
   "format_version": "0.2.0",
-  "format_revision": 3
+  "format_revision": 4
 }
 ```
 
@@ -135,8 +135,20 @@ Also in revision 2:
 
 ## Version 0.2.0, revision 4 (in preparation)
 
-Revision 4 gathers the changes of the hierarchical pattern discovery; it is not
-final until the release that ships it.
+Revision 4 gathers the changes of the hierarchical pattern discovery and of the
+classification of the fields; it is not final until the release that ships it.
+
+- Every field has a `classification` (`family`, `type`, `basis`, `state`,
+  `traits`, `evidence`, `alternatives`, `rule_version`): see
+  [Classification](format.md#classification). `engine.classification` records
+  the version of the rules that wrote it, and a Scan classified by other rules
+  than the current ones draws a warning that says to scan again.
+- The four bounds of the Text types are the new setting `scan.classification`
+  (`very_short_max_length`, `short_max_length`, `medium_max_length`,
+  `long_max_length`, 5 / 20 / 50 / 255 by default). They replace the keys of
+  `report.string_analysis` of the same names, which are now refused with their new
+  place. They are part of the scan configuration, so changing one changes
+  `config_sha256`.
 
 - The default of `scan.exposure.sensitive_values` becomes `show` (it was `mask`):
   sensitive columns are not handled in this beta, so their values are listed and

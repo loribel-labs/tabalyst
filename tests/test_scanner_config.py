@@ -21,6 +21,7 @@ def test_defaults_serialize_with_the_documented_section_names():
         "limits",
         "records",
         "types",
+        "classification",
         "detection",
         "detectors",
         "patterns",

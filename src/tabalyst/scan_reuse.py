@@ -34,6 +34,7 @@ from pydantic import ValidationError
 from tabalyst._version import __version__
 from tabalyst.config import merge_settings, validation_message
 from tabalyst.errors import ConfigurationError, InputError
+from tabalyst.scanner.classify import version_record
 from tabalyst.scanner.config import (
     config_sha256,
     resolve_config_defaults,
@@ -235,19 +236,26 @@ def check_config(scan_path: Path, result: ScanResult, scan_layer: dict) -> None:
 
 
 def engine_warning(result: ScanResult) -> str | None:
-    """A sentence when the document was written by another engine version, or
-    when its patterns were found by another version of the discovery."""
+    """A sentence when the document was written by another engine version,
+    when its patterns were found by another version of the discovery, or when
+    its fields were classified by other rules."""
     if result.engine.version == __version__:
         found = scan_identity(result).patterns
         current = discovery_versions()
-        if found is None or found == current:
-            return None
-        return (
-            "the patterns of the scan document were found by another version of "
-            f"the discovery (grammar {found[0]}, algorithm {found[1]}), this is "
-            f"grammar {current[0]}, algorithm {current[1]}; scan the source "
-            "again for the current patterns."
-        )
+        if found is not None and found != current:
+            return (
+                "the patterns of the scan document were found by another version "
+                f"of the discovery (grammar {found[0]}, algorithm {found[1]}), "
+                f"this is grammar {current[0]}, algorithm {current[1]}; scan the "
+                "source again for the current patterns."
+            )
+        if result.engine.classification != version_record():
+            return (
+                "the fields of the scan document were classified by other rules "
+                "than these; scan the source again for the current "
+                "classification."
+            )
+        return None
     return (
         f"the scan document was written by Tabalyst {result.engine.version}, "
         f"this is {__version__}; scan the source again for the current "

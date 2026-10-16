@@ -17,7 +17,6 @@ import hashlib
 import json
 from collections.abc import Iterable
 from datetime import date
-from itertools import pairwise
 from pathlib import Path
 from typing import Literal
 
@@ -27,7 +26,6 @@ from pydantic import (
     Field,
     ValidationError,
     field_validator,
-    model_validator,
 )
 
 from tabalyst.errors import ConfigurationError
@@ -85,30 +83,14 @@ class ValueExamplesSettings(BaseModel):
 
 
 class StringAnalysisConfig(BaseModel):
+    """Presentation of the String analysis section. The four length bounds that
+    name its classes live in ``scan.classification``, because the Text type they
+    also decide is persisted in the Scan (``ReportConfig`` checks the two)."""
+
     model_config = ConfigDict(extra="forbid")
 
-    very_short_max_length: int = Field(default=5, ge=1)
-    short_max_length: int = Field(default=20, ge=1)
-    medium_max_length: int = Field(default=50, ge=1)
-    long_max_length: int = Field(default=255, ge=1)
     length_distribution_max_length: int = Field(default=50, ge=1)
     examples_per_length: int = Field(default=10, ge=1)
-
-    @model_validator(mode="after")
-    def length_thresholds_must_increase(self):
-        thresholds = [
-            self.very_short_max_length,
-            self.short_max_length,
-            self.medium_max_length,
-            self.long_max_length,
-        ]
-        if any(left >= right for left, right in pairwise(thresholds)):
-            raise ValueError("String length thresholds must increase")
-        if self.length_distribution_max_length > self.medium_max_length:
-            raise ValueError(
-                "length_distribution_max_length cannot exceed medium_max_length"
-            )
-        return self
 
 
 class RowSampleSettings(BaseModel):
@@ -677,7 +659,16 @@ class SettingsFile(BaseModel):
 # then lot 5 of the Scan and JSON work, when the first records became the start
 # of the row sample);
 # the presentation settings moved to the ``report`` object (revision 2 of the
-# report document). Specific paths come first: the first match is reported.
+# report document); the four length bounds of ``report.string_analysis`` moved to
+# ``scan.classification`` (Report overview lot R1a), since the Text type they
+# decide is persisted in the Scan. Specific paths come first: the first match
+# is reported.
+CLASSIFICATION_BOUNDS = (
+    "very_short_max_length",
+    "short_max_length",
+    "medium_max_length",
+    "long_max_length",
+)
 MOVED_SETTINGS: dict[tuple[str, ...], str] = {
     ("missing_values",): "scan.values.null_markers and scan.values.missing",
     ("normalization",): "scan.normalization",
@@ -687,6 +678,11 @@ MOVED_SETTINGS: dict[tuple[str, ...], str] = {
     ("value_examples", "candidate_sample_size"): "scan.limits.max_samples",
     ("value_examples", "random_seed"): "scan.random_seed",
     ("preview_rows",): "scan.records.sample.edge and report.row_sample",
+    **{
+        (*prefix, "string_analysis", key): f"scan.classification.{key}"
+        for prefix in ((), ("report",))
+        for key in CLASSIFICATION_BOUNDS
+    },
     ("string_analysis",): "report.string_analysis",
     ("value_examples",): "report.value_examples",
 }
@@ -701,7 +697,10 @@ def _moved_setting(document: dict) -> str | None:
             node = node[key]
         else:
             reason = (
-                "the report is built on Tabalyst Scan and reads its analysis "
+                "the length bounds of the Text types are written in the scan, "
+                "so they are scan settings"
+                if target.startswith("scan.classification.")
+                else "the report is built on Tabalyst Scan and reads its analysis "
                 "settings from the scan object"
                 if target.startswith("scan.")
                 else "the presentation settings of the report are in the "

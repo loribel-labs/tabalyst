@@ -17,11 +17,12 @@ the [scan format changelog](format-changelog.md).
 {
   "format": "tabalyst.scan",
   "format_version": "0.2.0",
-  "format_revision": 3,
+  "format_revision": 4,
   "engine": {
     "version": "0.7.0",
     "normalization_version": 1,
-    "detectors": {"number": 1, "date": 1, "email": 1, "...": 1}
+    "detectors": {"number": 1, "date": 1, "email": 1, "...": 1},
+    "classification": {"catalogue": 1}
   },
   "status": "complete",
   "run": {
@@ -293,11 +294,74 @@ a CSV column, a JSON key, or the elements `[]` of an array.
 | `technical_type` | `integer`, `number`, `date`, `boolean`, `text`, `mixed` or `empty`, with `confidence`, `counts` and `outside_count`. |
 | `detectors` | One result per detector, described below. |
 | `interpretations` | `candidates`, the detectors that matched at least 95% of the values, and `primary`, the only candidate when there is exactly one. |
+| `classification` | The family and type of the field, with what decided them: see [Classification](#classification). |
 | `sensitive`, `exposure` | Whether the field holds sensitive values, and how they are exposed: `mask`, `hide`, `show`, or `null` for other fields. |
 
 Values are listed as their text with their native type, for example
 `{"value": "12.50", "type": "string", "count": 1}`. Listings use the analytical
 value: surrounding whitespace is trimmed and repeated spaces are collapsed.
+
+## Classification
+
+Each field has a `classification` that names its family and type. It is decided
+from the blocks of the field alone, in the first pass, so a Scan gives the same
+classification with one or several workers and without the source.
+
+```json
+{
+  "family": "text",
+  "type": "text_short",
+  "basis": "inferred",
+  "state": "established",
+  "traits": [],
+  "evidence": [
+    {"source": "technical_type", "id": "text", "role": "supports",
+     "scope": {"population": "present_values", "of": 3, "partial": false,
+               "accuracy": "exact"}},
+    {"source": "measure", "id": "string_lengths.median_length",
+     "role": "supports",
+     "scope": {"population": "present_values", "of": 3, "partial": false,
+               "accuracy": "exact"}}
+  ],
+  "alternatives": [],
+  "rule_version": 1
+}
+```
+
+| Key | Content |
+| --- | --- |
+| `family`, `type` | Codes in lower snake case: `text` and `text_short`, `numeric` and `integer`. One pair per field; secondary properties are in `traits`. |
+| `basis` | `inferred` when the evidence decided, `fallback` when the technical type or a fallback did, `declared` for a constraint the user declares (not produced yet). |
+| `state` | `established` when the values themselves support the type, `candidate` when it rests on a name plus compatible values, `undetermined` when the evidence did not allow more. |
+| `evidence` | The facts used: `source` (`detector`, `technical_type`, `measure`, `name_rule`, `position`), their `id`, their `role` (`supports`, `contradicts`, `context`) and their `scope` (what population the fact covers, its size, whether it is partial and its accuracy). |
+| `alternatives` | Types considered and not retained, with a `reason`. Never a conclusion. |
+| `rule_version` | The version of the catalogue of rules that decided. |
+
+There is no score and no percentage of confidence: the evidence and the state
+say how firm the result is.
+
+This version decides:
+
+- **Other / Empty** for a field without present value, including a JSON object or
+  array, whose values are not analyzed.
+- **Other / Mixed** for a `mixed` technical type.
+- **Text**, from a `text` technical type, in five lengths: `text_very_short`,
+  `text_short`, `text_medium`, `text_long` and `text_very_long`. The length
+  type is decided on the exact median of the lengths of the present values
+  (`string_lengths`), with the bounds of
+  [`scan.classification`](../reference/configuration.md#text-length-bounds); a
+  median of 5.5 is Short with the defaults. The maximum is never a replacement:
+  when `string_lengths` is not complete the type is `text` alone, `state` is
+  `undetermined` and `alternatives` lists the five lengths with the reason
+  `string_lengths_<status>`.
+- **Numeric, Categorical and Temporal** types from the other technical types:
+  `integer` and `number` give `numeric/integer` and `numeric/number`, `boolean`
+  gives `categorical/boolean`, `date` gives `temporal/date`, with `basis`
+  `fallback`. The detectors do not refine them yet.
+
+The String analysis section of the report names the length of a column from
+its maximum with the same bounds, so a column can be Short as a type and
+`medium` there.
 
 ## Measure envelopes
 

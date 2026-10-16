@@ -19,27 +19,30 @@
       "quantity": 1,
       "uuid": 1,
       "ip_address": 1
+    },
+    "classification": {
+      "catalogue": 1
     }
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-14T18:47:33.423213Z",
-    "duration_seconds": 0.008455,
+    "started_at": "2026-10-16T06:57:19.029726Z",
+    "duration_seconds": 0.005861,
     "timings": {
-      "reading": 0.000808,
-      "analysis": 0.000425,
-      "finalize": 0.004055,
-      "derived": 0.002495,
-      "other": 0.000672
+      "reading": 0.00048,
+      "analysis": 0.000151,
+      "finalize": 0.003143,
+      "derived": 0.001675,
+      "other": 0.000413
     },
     "workers": 1,
-    "peak_memory_bytes": 66973696
+    "peak_memory_bytes": 68190208
   },
   "source": {
     "format": "csv",
     "name": "basic.csv",
     "size_bytes": 280,
-    "modified_at": "2026-09-25T15:16:43.981471Z",
+    "modified_at": "2026-10-16T05:33:33.607029Z",
     "sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
     "encoding": "utf-8-sig",
     "shape": {
@@ -151,6 +154,12 @@
     },
     "types": {
       "minimum_confidence": 0.95
+    },
+    "classification": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255
     },
     "detection": {
       "minimum_share": 0.95,
@@ -312,7 +321,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
+  "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
   "scope": {
     "collections": null,
     "records_read": 5,
@@ -1169,6 +1178,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -1948,6 +1990,39 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -2738,6 +2813,28 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "other",
+            "type": "mixed",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "mixed",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 4,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -3543,6 +3640,28 @@
               }
             ]
           },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -4288,6 +4407,28 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "categorical",
+            "type": "boolean",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "boolean",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -5052,6 +5193,39 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 4,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 4,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -6261,7 +6435,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -6271,8 +6445,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-        "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
-        "facts_sha256": "75e199b820efe8c00219fec780281ecb5b4d57fd0350c0a7642b7ac919966f25"
+        "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+        "facts_sha256": "27ef0712249b4478ed6bc3ab2e67252b87d2368cf5c2ea749aa4b4b390842a04"
       },
       "settings": {
         "bins": 100,
@@ -6381,13 +6555,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 17,
-        "plan_id": "e1d84a36c88194e1876524bdd1ed77130815e11af0b84a0daf768b12c310581f",
+        "plan_id": "e25bd19a44cc723a6b62316454c31dfc0c422eebcfedb9030cdbc95df5912739",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-          "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
-          "facts_sha256": "75e199b820efe8c00219fec780281ecb5b4d57fd0350c0a7642b7ac919966f25"
+          "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+          "facts_sha256": "27ef0712249b4478ed6bc3ab2e67252b87d2368cf5c2ea749aa4b4b390842a04"
         },
         "objective": {
           "automatic": true,
@@ -8261,21 +8435,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-16T00:03:57.349087Z",
-        "duration_seconds": 0.000112,
+        "started_at": "2026-10-16T06:57:19.057874Z",
+        "duration_seconds": 0.003146,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000112
+          "reading": 0.000428,
+          "analysis": 9.3e-05,
+          "other": 0.002626
         },
         "workers": 1,
-        "peak_memory_bytes": 68628480,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 7,
+        "peak_memory_bytes": 70475776,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 5,
+        "cells_read": 5,
+        "executed": 7,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -8298,7 +8472,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "f121514147bdfef1637499fab88c02fc840004ccf47edf2a72c4bb523ed224a1",
+          "key": "c3afe46df003b216ee319bb20fb5a016cccc98bbccbab2c8a831fb13cf5d39dc",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -8362,7 +8536,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "734c66fcb160692e87267d7cf88b7b5f6f5689c700a4f68802d5486d031db435",
+          "key": "ac0322e50492e8f8a57153f2788fcbb126547c73bd78935bb8de7efaddb81ebb",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -8451,7 +8625,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "356a94eecfd4b346c4e9f8bed15816f64f6f75c4679db520b695c193c011ba58",
+          "key": "e68a74071577c0e0ba62a97dbea20926a327c4f94ef29c6960d5281b28e6ef7f",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -8515,7 +8689,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "b4ca4dd83d0de8a394f8b9109a0f358f6769c24bf8a40bf08de89f47333da221",
+          "key": "bc4dabcd7afedf9090aa0dbcc81cb2b726a4f093ff0810513dfc687066829107",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -8609,7 +8783,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "e336930af32a6e60a956517d40f08dfc71ef11369019c503206d7715ba532a61",
+          "key": "5c593d4fc9301b920fe406d65c03946e52a682bc3cef007ea7625d30c7eed1e3",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -8660,7 +8834,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "6b131837e82eada99abf80710dec829ad9076d2eda464cec6885aba166fbcbfe",
+          "key": "78c6ca29e62fa2739055f12386a6d2d33a35ec47177a4623735cf7890bd55418",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -8714,7 +8888,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "bec8a943e922559ae123f881f7b3b3842aab2a2063f0ea686482d62ed626422a",
+          "key": "1cb80ad9773efa09beda127a26906f1d8c3573931a3f578a38f9a3a6e4882ab8",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -8745,18 +8919,14 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-16T00:03:57.350093Z",
+    "generated_at": "2026-10-16T06:57:19.068406Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0289,
+    "processing_seconds": 0.0502,
     "config": {
       "string_analysis": {
-        "very_short_max_length": 5,
-        "short_max_length": 20,
-        "medium_max_length": 50,
-        "long_max_length": 255,
         "length_distribution_max_length": 50,
         "examples_per_length": 10
       },
@@ -8783,8 +8953,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-      "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
-      "facts_sha256": "75e199b820efe8c00219fec780281ecb5b4d57fd0350c0a7642b7ac919966f25"
+      "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+      "facts_sha256": "27ef0712249b4478ed6bc3ab2e67252b87d2368cf5c2ea749aa4b4b390842a04"
     },
     "datasets": [
       {

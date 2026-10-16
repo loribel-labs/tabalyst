@@ -53,7 +53,7 @@ from tabalyst.models import (
     Variant,
     VariantGroup,
 )
-from tabalyst.report_config import ReportConfig
+from tabalyst.report_config import ReportConfig, check_length_distribution
 from tabalyst.report_sections import cardinality_view
 from tabalyst.report_views import (
     DateBreakdownItem,
@@ -404,14 +404,15 @@ def build_string_profile(
         return None
     lengths = measure.value
     settings = config.string_analysis
+    bounds = config.scan.classification
     maximum = lengths.max_length
-    if maximum <= settings.very_short_max_length:
+    if maximum <= bounds.very_short_max_length:
         status = "very_short"
-    elif maximum <= settings.short_max_length:
+    elif maximum <= bounds.short_max_length:
         status = "short"
-    elif maximum <= settings.medium_max_length:
+    elif maximum <= bounds.medium_max_length:
         status = "medium"
-    elif maximum <= settings.long_max_length:
+    elif maximum <= bounds.long_max_length:
         status = "long"
     else:
         status = "very_long"
@@ -772,6 +773,9 @@ def build_profile(
     """The report profile of a scan: one dataset per scan dataset holding at
     least one column. ``config.scan`` must be the configuration of the scan.
     ``analyses`` is what the second pass added, if it was planned."""
+    # The scan of the document carries its own bounds: check them against the
+    # distribution setting here, since the config was only copied onto them.
+    check_length_distribution(config, config.scan)
     header = result.source.header
     if header is not None:
         width = len(header)

@@ -143,7 +143,7 @@ profile uses this measure only for an inferred `text` field.
 | Fixed length | Minimum equals maximum; the shared length is displayed. | Derived in Report, not a claim about the field's meaning. |
 | Length distribution | Exact occurrence count for each observed length. | Scan histogram; Report **Lengths** only when the maximum fits `string_analysis.length_distribution_max_length`. |
 | Distinct lengths | Number of different lengths observed. | Report JSON profile even when the HTML length distribution is omitted. |
-| Length class | `very_short`, `short`, `medium`, `long` or `very_long`, chosen from the maximum length and configured thresholds. | Report **Class**. |
+| Length class | `very_short`, `short`, `medium`, `long` or `very_long`, chosen from the maximum length and the `scan.classification` bounds. The Text type of the Scan `classification` uses the same bounds on the median length. | Report **Class**. |
 
 Length examples come from bounded listed or sampled values. **Distinct** in
 the String analysis table counts values, not lengths. Scan also records string

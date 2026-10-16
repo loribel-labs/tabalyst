@@ -19,21 +19,24 @@
       "quantity": 1,
       "uuid": 1,
       "ip_address": 1
+    },
+    "classification": {
+      "catalogue": 1
     }
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-16T00:04:03.942789Z",
-    "duration_seconds": 2.771824,
+    "started_at": "2026-10-16T06:57:31.581951Z",
+    "duration_seconds": 2.440087,
     "timings": {
-      "reading": 0.397783,
-      "analysis": 0.853772,
-      "finalize": 0.898948,
-      "derived": 0.060336,
-      "other": 0.560985
+      "reading": 0.355642,
+      "analysis": 0.740124,
+      "finalize": 0.771217,
+      "derived": 0.04997,
+      "other": 0.523134
     },
     "workers": 6,
-    "peak_memory_bytes": 161361920
+    "peak_memory_bytes": 162316288
   },
   "source": {
     "format": "csv",
@@ -179,6 +182,12 @@
     },
     "types": {
       "minimum_confidence": 0.95
+    },
+    "classification": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255
     },
     "detection": {
       "minimum_share": 0.95,
@@ -340,7 +349,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
+  "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
   "scope": {
     "collections": null,
     "records_read": 100000,
@@ -3169,6 +3178,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -3915,6 +3957,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -5873,6 +5948,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99993,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99993,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -7781,6 +7889,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99996,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99996,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -9634,6 +9775,28 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99994,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -10369,6 +10532,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -11106,6 +11302,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -12834,6 +13063,28 @@
               }
             ]
           },
+          "classification": {
+            "family": "numeric",
+            "type": "integer",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "integer",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -13919,6 +14170,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -15989,6 +16273,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -16846,6 +17163,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 25102,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 25102,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -18459,6 +18809,28 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "numeric",
+            "type": "integer",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "integer",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 34772,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -20339,6 +20711,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -21377,6 +21782,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99997,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99997,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -22422,6 +22860,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -24776,6 +25247,39 @@
               }
             ]
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -25528,6 +26032,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -29550,6 +30087,39 @@
               }
             ]
           },
+          "classification": {
+            "family": "text",
+            "type": "text_medium",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": true,
           "exposure": "show"
         },
@@ -31111,6 +31681,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": true,
           "exposure": "show"
@@ -32685,6 +33288,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99991,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99991,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -33640,6 +34276,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99998,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99998,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -35208,6 +35877,28 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -36788,6 +37479,28 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 83592,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -37621,6 +38334,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -39529,6 +40275,28 @@
               }
             ]
           },
+          "classification": {
+            "family": "numeric",
+            "type": "number",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "number",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99997,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -40344,6 +41112,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -41253,6 +42054,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -42278,6 +43112,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -43842,6 +44709,28 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -45414,6 +46303,28 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -46963,6 +47874,28 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 14240,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -48871,6 +49804,28 @@
               }
             ]
           },
+          "classification": {
+            "family": "numeric",
+            "type": "number",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "number",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 11683,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -49660,6 +50615,39 @@
               }
             ]
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 14240,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 14240,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -50423,6 +51411,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null

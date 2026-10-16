@@ -1,4 +1,4 @@
-Plan for insurance-customers-100k.csv (plan 986e7d47d156, planner 1).
+Plan for insurance-customers-100k.csv (plan a9db33640c55, planner 1).
 296 candidates: 42 selected, 90 already answered by the scan, 164 left out.
 
 Selected:
@@ -174,20 +174,20 @@ Not applicable:
   10 x the field misses no value and has too many distinct values to follow by position
 
 A second reading of the source is needed (3,400,000 cells, CPU low). Memory: 28.3 MiB to 112.2 MiB, about 56.8 MiB.
-Estimated time: 2 s to 7 s (a guide from the first pass, not a promise).
+Estimated time: 2 s to 8 s (a guide from the first pass, not a promise).
 Running it would not ask for a confirmation.
 
 Smart sample plan for insurance-customers-100k.csv (dataset rows, 100,000 rows)
 
 A smart sample covers diversity and rare cases; its proportions are not those of the population. The targets are those the Scan and the stored second pass know: other cases may exist.
 
-Targets: 1518 (157 mandatory, 1361 optional), 124 left out by the limits of the plan (budget of targets, groups of typos).
+Targets: 1459 (157 mandatory, 1302 optional), 124 left out by the limits of the plan (budget of targets, groups of typos).
   Low cardinality: 922 targets, 157 mandatory
   Structured strings: 47 targets, 0 mandatory
   Numeric: 53 targets, 0 mandatory
   Dates: 70 targets, 0 mandatory
   Quality: 206 targets, 0 mandatory, 124 left out
-  Relations: 220 targets, 0 mandatory
+  Relations: 161 targets, 0 mandatory
 
 Columns whose values are only partly known:
   id_client (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
@@ -213,9 +213,9 @@ Heaviest targets:
   11  code_postal: residual_value (1 row, 0.0010%)
   11  code_postal: residual_value (1 row, 0.0010%)
 
-Size: 3,000 rows asked; 157 rows are enough for the mandatory targets one by one; beyond 1,898 rows only the reserve grows.
+Size: 3,000 rows asked; 157 rows are enough for the mandatory targets one by one; beyond 1,824 rows only the reserve grows.
 Reserve of ordinary rows: 20%, 600 rows.
-Candidate rows kept in memory: up to 3,636, about 976.5 KiB of source text.
+Candidate rows kept in memory: up to 3,518, about 944.8 KiB of source text.
 
 Readings of the source: 1
   scan (not needed): a current Scan is stored: it is not read again

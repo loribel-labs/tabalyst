@@ -16,6 +16,7 @@ import json
 import re
 from collections.abc import Iterable, Sequence
 from fractions import Fraction
+from itertools import pairwise
 from pathlib import Path
 from typing import Literal
 
@@ -420,6 +421,31 @@ class ObservationSettings(_Settings):
     max_items: int = Field(default=1_000, ge=1, le=MAX_OBSERVATION_ITEMS)
 
 
+class ClassificationSettings(_Settings):
+    """Bounds of the Text types, on the exact median length of a column's values
+    (Report overview contract 3.6). The String analysis section of the report
+    reads the same bounds on the maximum length. They are scan settings because
+    the type they decide is written in the Scan: changing one changes
+    ``config_sha256``."""
+
+    very_short_max_length: int = Field(default=5, ge=1)
+    short_max_length: int = Field(default=20, ge=1)
+    medium_max_length: int = Field(default=50, ge=1)
+    long_max_length: int = Field(default=255, ge=1)
+
+    @model_validator(mode="after")
+    def bounds_must_increase(self) -> ClassificationSettings:
+        bounds = [
+            self.very_short_max_length,
+            self.short_max_length,
+            self.medium_max_length,
+            self.long_max_length,
+        ]
+        if any(left >= right for left, right in pairwise(bounds)):
+            raise ValueError("String length thresholds must increase")
+        return self
+
+
 class TypeSettings(_Settings):
     minimum_confidence: float = Field(default=0.95, gt=0.5, le=1)
 
@@ -711,6 +737,9 @@ class ScanConfig(_Settings):
     limits: LimitSettings = Field(default_factory=LimitSettings)
     records: RecordSettings = Field(default_factory=RecordSettings)
     types: TypeSettings = Field(default_factory=TypeSettings)
+    classification: ClassificationSettings = Field(
+        default_factory=ClassificationSettings
+    )
     detection: DetectionSettings = Field(default_factory=DetectionSettings)
     detectors: DetectorSettings = Field(default_factory=DetectorSettings)
     patterns: list[PatternSettings] = Field(

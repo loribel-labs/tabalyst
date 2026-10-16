@@ -10,7 +10,7 @@ contract with two fields:
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 2
+  "format_revision": 4
 }
 ```
 
@@ -105,6 +105,13 @@ fingerprints (`text_profile`, `fingerprint_distinct`) and the masks and classes 
 (`sensitive_forms`), which holds no value of it, and the distinct count of a masked or hidden column.
 
 ## Version 0.2.0, revision 4 (in preparation)
+
+The four length bounds that named the String analysis classes (`very_short_max_length`,
+`short_max_length`, `medium_max_length`, `long_max_length`) are no longer in
+`report.string_analysis`: they are the scan settings `scan.classification`, and the
+report reads the bounds recorded in the scan it presents. The scan base carries a
+`classification` for each field (see the Scan changelog); the report block of a column does
+not carry it yet. `length_distribution_max_length` cannot exceed `scan.classification.medium_max_length`.
 
 The report carries the new result `date_order` of the second pass under `analyses` (the records where the
 first date of a pair of columns is after the second).

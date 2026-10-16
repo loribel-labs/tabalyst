@@ -7,8 +7,8 @@
     "format_revision": 4,
     "engine_version": "0.7.0",
     "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
-    "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
-    "facts_sha256": "c6446493e04e53838db94013c8070295905a97c3616c5a64a25ac04a2f34fb65"
+    "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+    "facts_sha256": "dff40230d87ba52597070a9f05bd69098637c14d4ccfff617b6ec479d89b5362"
   },
   "settings": {
     "bins": 100,
@@ -117,13 +117,13 @@
     "planner_version": 1,
     "utility_version": 1,
     "cost_model_version": 17,
-    "plan_id": "1186b68d5a42f88126dce980debc005aafd0c885a5eb690a3af4b9aa5edb23a7",
+    "plan_id": "c45103444b2fc0a8deb0ccd30642d7e08bef2079aa576244135c7ce770e07340",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
-      "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
-      "facts_sha256": "c6446493e04e53838db94013c8070295905a97c3616c5a64a25ac04a2f34fb65"
+      "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+      "facts_sha256": "dff40230d87ba52597070a9f05bd69098637c14d4ccfff617b6ec479d89b5362"
     },
     "objective": {
       "automatic": true,
@@ -19371,21 +19371,21 @@
     ]
   },
   "run": {
-    "started_at": "2026-10-15T04:59:56.641096Z",
-    "duration_seconds": 7.410442,
+    "started_at": "2026-10-16T06:57:35.257509Z",
+    "duration_seconds": 13.272123,
     "timings": {
-      "reading": 0.457996,
-      "analysis": 6.933427,
-      "other": 0.019019
+      "reading": 0.441417,
+      "analysis": 11.594527,
+      "other": 1.236179
     },
-    "workers": 1,
-    "peak_memory_bytes": 160837632,
+    "workers": 6,
+    "peak_memory_bytes": 286027776,
     "source_read": true,
     "source_verified": true,
     "records_read": 100000,
-    "cells_read": 2400000,
-    "executed": 12,
-    "reused": 150,
+    "cells_read": 10200000,
+    "executed": 162,
+    "reused": 0,
     "skipped": 0
   },
   "analyses": [
@@ -19401,7 +19401,7 @@
         "distinct": 230
       },
       "domain": "analytical",
-      "key": "3147f64d50943430337d3f4a9146ef298b83dffce4c3004de8bf666fe8471a70",
+      "key": "dfd030bac3f3472af96a956157db463ac2cd2538f20b87274729f87e29d68c59",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -20581,7 +20581,7 @@
         "distinct": 223
       },
       "domain": "analytical",
-      "key": "294318dfe7108faf942352d3ecb4dde8a3e9c368cecd8a36c0f890e5b2eb07b7",
+      "key": "be29bb22d4922b4a612ecf82b8a9283c0ed60fc5b05fb077480c89e96f539730",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -21726,7 +21726,7 @@
         "distinct": 177
       },
       "domain": "analytical",
-      "key": "202815af414a0ad182a2d77e0e23d9d72e34c67bb85bb8f2add1d489f67f17de",
+      "key": "b322848fb5f4c40da2f4095a5913fadb7f9d69c4f30082cecf08a7ba83f98e06",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -22641,7 +22641,7 @@
         "distinct": 999
       },
       "domain": "analytical",
-      "key": "c4ed79af1ed4a730d1931c747adea6d5fac26e92a47d47288e297af2b90a52f6",
+      "key": "5147972f471bc26df9dc4690bf229971d8711c55f0d606d9a7d5918f68eded8c",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -27681,7 +27681,7 @@
         "distinct": 133
       },
       "domain": "analytical",
-      "key": "9048d1d766fc63d2e32aa683f69d24139b1d792f5168d8a4ed2b555fe6237762",
+      "key": "5aed75cbb70f8f4a217ef5081cde1dd540addf7b61abe71aa9d8fb6f0a96497e",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -28376,7 +28376,7 @@
         "domain": 9999
       },
       "domain": "analytical",
-      "key": "35cbe5d05f9907841f4f361dee36581e13e3ebb175354770c8bc4953c31a5973",
+      "key": "f047033f3f7f3f69a6d664ec082fc2815c79ec7b5459eb22b73c7c69ff2a9741",
       "status": "complete",
       "result": {
         "kind": "dense_counts",
@@ -68432,7 +68432,7 @@
         "domain": 999
       },
       "domain": "analytical",
-      "key": "5bcb602aab76488f1b6ec7daa85554ebfa7d7f72b5fc418ade6b8aa0df3c6504",
+      "key": "b1f3f08c7b035506a135333bd3e7b47bd54898afd7f420261fa3836db239f28b",
       "status": "complete",
       "result": {
         "kind": "dense_counts",
@@ -72492,7 +72492,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "61f63f7d7460778dd4004d9018ba39bccc6698f11324658b02a06872d7ffc5a5",
+      "key": "4931cf3aebde2bd30ea370988b22a3aa2faf98a92e99ab70654b9d6f21b91562",
       "status": "complete",
       "result": {
         "kind": "bins",
@@ -72770,7 +72770,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "d0721efabd4e33084f8bc715059ecd68ec56eb3a09f220e45af1c5c65239490b",
+      "key": "25d6ed7c2f5be65bd37a337a89ac62a06c5f6eed775897656f5173f6c936fa37",
       "status": "complete",
       "result": {
         "kind": "bins",
@@ -73054,7 +73054,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "52960dffc741b6afeefc95f9c6503e1fd8a6edd3da9404c75419503c4a6f6768",
+      "key": "7df711b347b35aa3922fcac9dcc2ffe03fa78d04153ab59400abe2d33c407484",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -73292,7 +73292,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "2fd24f4dadfa5ec529ba3f8c53ff35bb747c6938c484818a682b626eb5845ddd",
+      "key": "15fc83fc75e64844a44c0d553422a768c94cb0c2f252a367f5ef2bfcb01ea9b6",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -73775,7 +73775,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "365597a5d7f61cd2fc0dd5b59a114dde08d433e126057ef492f8e2707f505fa2",
+      "key": "60d1bf0bec9d4e1cf9eefea5f402035681f836ab19118aae51d34bbd9ce02c0c",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -74108,7 +74108,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "f248d601699117906255606891984c9cf5e525e5a879e515253ae7ef82584532",
+      "key": "a699ba730f7369674d3545b9658cf8310477aad191148f77df42b8afde06881b",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -74603,7 +74603,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "96f2b75f9ddc738ceb62112e7760ba817cba193027b871ad4cdea07ef7a418d5",
+      "key": "2c576c2f85740173bc8ac87ae7c11d82838827e165cd5a61700165daa4111fb6",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -74808,7 +74808,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "1649a4b4978b5af6099bd70dfc1d300124d1a9c47444af54a11842c0a32174d9",
+      "key": "e04b5404eadf91b79ca3f76ea3d5f5f48749e98d7807f7269fdf010bde1f2300",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -75459,7 +75459,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "3d29f07812c6866458feda054e8bf347730db457ef7331324bc0a06e283f2520",
+      "key": "315bf2dd0aedc6b8ecf905c546945fd7a21be3f2753755291f5d8fb83c6ddc3f",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -75758,7 +75758,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "783bd0957f39888d9892f8126089dde2c51ceb55a559d89c81fe27d15c1b142f",
+      "key": "8213bf65afd1cf887d99eef3a263ac734393ab7a041b5815a32dc82eba9a7bef",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -75955,7 +75955,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "7bc96591704c0663654fd449f97a74a2dba22f9744bc60d5f62ecca1a172f4b9",
+      "key": "2339efc526a907bafe5d41c650f37281af91e23d1be17ebf6c40913734c7d8ec",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -76622,7 +76622,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "d9011158f6a24a27ecf693b71710df18cf239dc16e11c36994dfb6f8c8668d97",
+      "key": "89bd92711a23276881a6432f8e1ad4fa549a20b6db8456de0196ea636e40e3e4",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -77209,7 +77209,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "cc34fa9491499e50c98934f1f3f887e038b2b20a8ac3d4663c3906b4161d6f60",
+      "key": "1573f477fe2a947b0e658c61b1689a27ea77010200b859ed2da81c8f4b8fcb27",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -77537,7 +77537,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "da4aeb42f3dabdb4757362c1d5aa8cae1acac94eadd7274e87982b1b1424b902",
+      "key": "a3c98ab46142fbf82fa4887f9415c86dcfc8f9bcfd5029e3e22601bdffbda320",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -78098,7 +78098,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "ace16c1b460fcf9743d880ebc63fe235078a10a49d72d19796b9da3941c75154",
+      "key": "025eebc0ff34b1c4fa725af74cb46f320d7370b0d4d02077f436a7bb0a5d1c15",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -78619,7 +78619,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "5456ce9fa4f858359dbb9d1c1b38f21942d93903e9dc503500178a40fffaab06",
+      "key": "1b8808f2876766dd1a97c40e76421ae62dcc0ba97f28aed3f35175a712b797dd",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -79132,7 +79132,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "9b895cf1b004d05f4bb9b9fc829f91935ac333fe1fd20dd1336f907c54d5f419",
+      "key": "7e1aa68b056fa16bca91dda7346859de3c9f77042c9b8374c36b74e52316b6ac",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -79643,7 +79643,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "79c785bbe4651aadc1a8cd189b0c9b83009b9d159a1888e5392afde53fd27fb5",
+      "key": "ef1a91aefe7011a7c4a3322d093229bb15097cfb2021b247f54d384f122ed75c",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -79759,7 +79759,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "fb4283e32bdd31cb4c08cf5485b61437ebf05a8d73c1cd10d1ce1cf5a5edf58c",
+      "key": "60074f9249b2241bd31de3c12ac122301f7abf64017a7f32a34fc15657b595fd",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -79870,7 +79870,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "59e901d4276bcff8b5dc449c0755f9a79572b996bcfe598acd36fb9ef7af52cc",
+      "key": "16bb42a1789b8d47b806395c1c0b58fe7a42de9c6ba94f475e86d6f814c549d9",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -80081,7 +80081,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "2c80b46cc042b08e6b6102abf24107af38a1a91bbaaf1104c6b5300bb31e36a8",
+      "key": "f629fb12e3d3429cbd632e59911bad0af92720a43eb5049f464693c2253f2891",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -80203,7 +80203,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "f199db580474d2a650e7e3f6a2df5fd1793b9c946ccbeab6e16d7eba7826d807",
+      "key": "0b7ee725562e5d282ed9681cf100c27e9d3022d14249698d8a9f0eead587b37f",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -80256,7 +80256,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "6881bacf8c1ffcc6166c985bec18f059b7d3a5d68aaabe4c2ef93447d7d98a18",
+      "key": "e45e271dd0e30ca722305b431bf9d15c002b6c6ffb559533ac6118b0b4e2da5a",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -80318,7 +80318,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "bd3a12db87bc56680c9b5eae4599efd3fc684ed348980b03b789717d83978f57",
+      "key": "7559858df9c497d76e5fe81cea80022d62d004818f0afb58433aaa53c1ec2968",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -80424,7 +80424,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "5c13b465a8109189b1b6f7fa892f728e5f1c28693756039133eab41beb41d737",
+      "key": "c2191f2679f0ef1ae287fa8d37bcdbc319019d7642fc88263eb6d0d808b60d89",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -80530,7 +80530,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "b746ddb5afee5eb024733e27e601c014f5dfbabf563f19118cec65420af9dfc0",
+      "key": "c4bbdd9c02845ef2aedb9d45302470e0567db465808c0c3c95caa15c28058170",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -80647,7 +80647,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "0cc2489758eab791c9b57f9b26ce6694326ef4f6a38a1681939e6ee48058f38a",
+      "key": "e752083830388227dc030dcdb58a6fe8e9af2f184b5af3688826ad91ddb126ab",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -80758,7 +80758,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "889bde51fb6934b01c20d08f2ede4a6d7f1a6dbe136953223c6c2672a2a6ccb2",
+      "key": "6c47f71dbc5f7750da3b35a008061461dd1be00b4bb603acbaa7471f373429ed",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -80859,7 +80859,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "36941684bca1a6ebde26fe667bf635b6a48ac820dd61b7cc579c3a04fc7d2cfc",
+      "key": "65399f304299560b588862fb0644f9497347984a5bd6fa08a5bca1b82c2f58a9",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -80910,7 +80910,7 @@
         "records": 0
       },
       "domain": "analytical",
-      "key": "d359632c9f703f5c2f91911cc17fc21d91554d1b15f95677f9489cc8ae1065ec",
+      "key": "a8bca49add214e070ffd6e31ae3cd932c3ec89bf4f3a7c292d88025287fcb00b",
       "status": "complete",
       "result": {
         "kind": "duplicates",
@@ -80987,7 +80987,7 @@
         "records": 0
       },
       "domain": "analytical",
-      "key": "000ba9118275c75a20c2feb17f711be0cad177e42fda7759073f35d0801ab47b",
+      "key": "4884e9559ec799a2e600a2e7131b3c2bdf946d5f780c787665882daf443d3028",
       "status": "complete",
       "result": {
         "kind": "duplicates",
@@ -81124,7 +81124,7 @@
         "records": 0
       },
       "domain": "analytical",
-      "key": "8a9205a32fd7932864280a5baa8af3b88f3a67d774807874a138f5dcc699060d",
+      "key": "c187434284d393d4efbebef6004c220e0b9514999ee5bea2aff0050d7fb60b1c",
       "status": "complete",
       "result": {
         "kind": "duplicates",
@@ -81201,7 +81201,7 @@
         "records": 0
       },
       "domain": "analytical",
-      "key": "e8e073f73f83246834169ad35d3236ad27ff3497136c8970bd7569d4fb940792",
+      "key": "f98eada6092e7d7ba9ca5560630e5500d9ace9823133cc89b9f5eb7370a483c2",
       "status": "complete",
       "result": {
         "kind": "duplicates",
@@ -81278,7 +81278,7 @@
         "rank_bins": 64
       },
       "domain": "analytical",
-      "key": "53ed6409086350cc40591271e9ab66def0f99d7e238d8c2937dfd3352e9a1b1f",
+      "key": "a8ca1d8cbbad7aba099529a72740ed4d8a3ee0e3f9eacbca0d7b57c890f7ca99",
       "status": "complete",
       "result": {
         "kind": "pearson",
@@ -81333,7 +81333,7 @@
         "rank_bins": 64
       },
       "domain": "analytical",
-      "key": "d48d6521a67f3e96e68d0534943a7b918fe7a4bc9acb1ec91326d9158f73e1f3",
+      "key": "3b783a7496d253187e4eee02a8c4bd5bef10c6e30c5b59d1fc2cf6ce8fbb8b5d",
       "status": "complete",
       "result": {
         "kind": "pearson",
@@ -81394,7 +81394,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "16de3c3ce49cfa916584a478b4c0f34461f4ef41145966380412f8e965eab01c",
+      "key": "77c71b99338f62c9050d0d34395fdeb2df5e2abac822e6f8b429fc1de9c5f211",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -81590,7 +81590,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "51b9f86ac7ee33ea5de334759b0fb8978b612b5730a9265b1e487c5ae503fc29",
+      "key": "4b468e9ba4bf58635c5ef4f84962ae1b239076710a3c85fb3e43928eef01d985",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -81786,7 +81786,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "fe533bb620e047710cd524c2264151ef14ab1fbaf6cd784210e81980adae2622",
+      "key": "9c5853218d9f9289c9b22d1138a97f619cda82bcd20c44f6d51c92630792e9c6",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -82023,7 +82023,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "7782892cc810e056565229f5c848346169e936098135bd194ab7af5b699002f2",
+      "key": "8ee8ef363c59c274e71ec5f677df5c3bbc93ef52729803e8bc84b88122197939",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -82522,7 +82522,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "f04a1fb35f26f034c228eb8bb8f96fcaee8cbf363edc761edb9cab0150766331",
+      "key": "7a44b14cd148c7e7eded3f2ee8906d0c1c0b12482e2acc64a0853c08e07df6b7",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -83059,7 +83059,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "a5dba518fdfc06e3bff395a7c6431515dcf5272a039d223ccd3435e7bac11733",
+      "key": "7ec2238659310ad319b5ffeecf404d036f0bfa16164d078a38e2622edc182d1f",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -83698,7 +83698,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "e53e68efe2c1db15245aa8658893c3d6133417223af2fc9ca0da2bfe748e4bad",
+      "key": "8eb55c1c50f9670bcd83f573f9da6487719848ff64de553f247f2437ab48e377",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -84337,7 +84337,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "250cbe057fb53950a086769b74495edbbae83c8802add411ed9299ab999087a9",
+      "key": "d8242e13e59eb109eacdea873998e250fa930e35628e30ae72e6acc95f21483d",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -84977,7 +84977,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "e9f0abf7aa93c1f27dbe764e84da2560619d22aeeb6c866c7c533b4fd3246b20",
+      "key": "90915b1d292c16994e9be11fc1cc6553e52ae3a41abaaebf5d6cae895839a818",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -85240,7 +85240,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "f28879d9f5b720a29f5d59105a4a803bb704535c1ff044a4d7b8a124316954c9",
+      "key": "38fff8dba8de9b9e0c1ea3fa08698ead7bd77c16ea87417a71a4182ac4e3940c",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -85503,7 +85503,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "3204da6dca48ec99140c17b15ac83a6cf2bb4f3f0cbf570c5ee72873e91a61e4",
+      "key": "e80adc25313b02f47d12e6672326bdb1ab5ebe66abf18c6d3f1ee4095bebcf1c",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -85761,7 +85761,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "feaa2465a427ddcabde4e0ea2d06314ec790633eaafb49d0f8e44baf3a9cd94a",
+      "key": "c8df9afd6475c9172fa5f4aecf80a3369045718143850c4c34fb28353f6d4dd9",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -86767,7 +86767,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "55ac62ae0cfbbc5402053efd58725e9b54b202739a12fcf78946b914738a3083",
+      "key": "c3855eedcee4775c6bf37512903826644c70b0bd9afd1b1869749e950f58834f",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -87781,7 +87781,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "0f6e54654f9809333a1e4d59692f39135b7f0061ad05b867abc800207b0fc129",
+      "key": "82b479c20fb8f31ed5ae1c89fb28f999e0c30d4b1db43999b006cd8d8154d8a3",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -88795,7 +88795,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "b29ce8cbfb2d7ccf9ad148fa05d8cca7b6553f406506808bf56d1745f8198f7a",
+      "key": "dbdfaba19b444a78c311368ac111588e9ea710c71b18f589ce64a9e6b73dfdda",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -89780,7 +89780,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "13430c0bf4ab29d4ca48cfd558e77b5c71675f3f8c5c07fa1cb473a30dca0bb8",
+      "key": "ceff94def8a1937a539c55be6d988fa00db9856fd94c233d6f570aa97ed3984e",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -90613,7 +90613,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "17bcf676f3ab5b596bfa4d8c27aa371050a3784811b7047777ecdb14453e7991",
+      "key": "c5cb6064960659ec0ced1e14ecb33efaa6668ee31ab070c8d1f438fc4a08ff60",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -91466,7 +91466,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "4c89a3d5b6be1f202311292e3ceae2320d468a8ff095eabbfd07a4c27c74bdea",
+      "key": "0e2b894ce8e7354cd63ddf5ea11cca104743aded6bb696420ba9b4d5c522f0d7",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -92002,7 +92002,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "5422f85f76e73c74849b8ed223180e1359bcaee627ad889c806af86f4edc57f1",
+      "key": "73827327ae65f849f60d9442665a7d39fe8bdeecf4ce7a4b792354bea5aeefbd",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -92916,7 +92916,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "bc19f5bfad3ed5311c0fd7fd019344633430a86eb54cdb2b4f9ce14f7b9d48de",
+      "key": "f5fc1e3379cb89c7a77a91f275c63cbff59993fd322742e9fc7137e0b1839928",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -93560,7 +93560,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "603abf636e25942b1e08bbb8c8434f9a852178917361a4a6325f992431a460a5",
+      "key": "237191cfe5cdfefcc9c337e83fa9615e5024f88d2978dbcd9c03102860e14616",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -94831,7 +94831,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "39eac85cd4a9deeb8420b04981b2c6bb75946dd3f4726c43e058d43d9f832168",
+      "key": "35c5637411ea0301c024deac2ba2958787753e684db1910b360327cdb63958fb",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -96249,7 +96249,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "0a1dd2dbdd5000ae660ab047927a1b797c731fa8cb6aa7c609181ebc2a7d6ec8",
+      "key": "5a4c3a7cade8cd5b29459c52a2f8434e569f5823c0f20ed3f2603ac55f08a42b",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -96983,7 +96983,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "70ae3114a0dfd82d3eaf9ee77c4ab9c2294948d585acebb48227c5a74934e4ee",
+      "key": "0235a05ba69c2f33615500b413b26d12abdf2fa4b85656dc3c9acd47f396f543",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -97847,7 +97847,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "0ec5fde89fed7fa7e9ec7660afbfe2e75aeadabd7b9df678822904650c3ef7ae",
+      "key": "9a05a87530e071fe25cd3cee36a847d3f5f08a50de2c305bef2c539dbbb20c3d",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -101153,7 +101153,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "8103d20e514b76670ca06823dc5a10b5593d4baff8b24d3c664289de4d2cb52c",
+      "key": "26690606d4b84f202bc92f5efa52064782fa990c0c4ac59e71c735c490571928",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -101952,7 +101952,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "5ae1c5465b2ed36b8f14c3015c5e772c48bd1381a1bc10a9f74f693c98125944",
+      "key": "0bce7e6d30870d90f5f986640b4eae7fddd66529039e530abb81bfbbd8b8bfdb",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -105307,7 +105307,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "8ac5db1013f1404d29f0b4e7441df8144697e1acff109eae598fac8b7bba3547",
+      "key": "fb6af6eccb8d296e9142bfd7b66ab6af1b03d067b9dc00044c8a3eb015348a38",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -107702,7 +107702,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "bb8003d7c2de085ee7e9294bcc06544e6f2a9afa76021d63e34473dc30573ab7",
+      "key": "700ef6985adecf91d93c117edab9ba3500de46fc3cb81ba38cbc1d0fdd1d20ae",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -111449,7 +111449,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "c1955e2d001d0bf5d9f31033b4e28ddbf3ae0cae68a896b11f0333913ff7eeaf",
+      "key": "040b3597c88a52fe339413858fdf2f14d713f2b4017f5833b711f4b985140888",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -112639,7 +112639,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "f0f5a8ce03189ce725b1f08ac588c7f35dfbd930ebb18828a4dfef0200c8abef",
+      "key": "ad16a83d79d4dcc51bcfec01a53f4191d0e195a66db82750a6e699bbf1af350b",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -116386,7 +116386,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "b4f4bcb25a8c22c5c10709d8aca08fde54f172ec97228ccc44f215eabd866c6b",
+      "key": "7d77ac1bfc374b4adf2afa7cc83dbfb42478abf96b9c67a0c9c1338cdc680cde",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -117006,7 +117006,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "17e6d79a55c2a55cea110f7a10494878700cf62153e47f37bf74d2e050370a54",
+      "key": "85fbd7618d00a8d78861d1e8ea60e686768b9ac02eec8b8eb7f0190e014459d2",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -118049,7 +118049,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "f88d66aa4a364a8d48122f9ae91b2e78fd2de27e63786e2aca40ec1eca45a98f",
+      "key": "2b48fb2e5b091c6add7720f76409bceed6763e7e8c3be9a5833dfab62ac96acf",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -118555,7 +118555,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "d481fd627a4050b33eed852e91b7591be559b73cc9260ebdf7eb0fcd2d38e268",
+      "key": "4cf4e6b75da81537628019ff5a2e9ae34e9f15afc2eb4c8287725c08f6525b31",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -122302,7 +122302,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "a13a08a264387b4b2d1b41e16394faea3a16b4fb660588f83a6821d7da7f8275",
+      "key": "d03953542d8c994629861f1edd4f0cb5a6ac7f4e33a98554f9e6320fdd78861b",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -123492,7 +123492,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "23920df15057265a9b69e43748471a5e4b26f10d37df700c1fcebf6c5d3f78e7",
+      "key": "02ab938b05163f508681998b6e0abb5921ebbac734b7b619496bc89f5cf9eb9d",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -124714,7 +124714,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "57f0a24f43a1d3264ec63faf2598045fdc8191116df4d681131f75c511abbbf6",
+      "key": "093f7a9f60ba8c262d925451ebc0e400ec567b153da61cd88e05546d6ff788d1",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -128461,7 +128461,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "6d9e6599ef207194c9d3879655858ec5539f51562ce7ec01a943e3ec0979b59d",
+      "key": "0ae1cbcba3f6517d0482a81f66cafa60dd41768e82e9fa7291036590f83f90a8",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -129309,7 +129309,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "b10ef9421077aa931a92ae978cc494da2ffb472f9a339079c3fe53960edae673",
+      "key": "cd673cc2aaa16d83a0780f18d2e6a999cb63a03ae5f6dca9681aeac9772001ee",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -129927,7 +129927,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "929129e94c4f24b034da7abcb7599a055fc1bf3aa3409e5a16b5f1921ad7ac20",
+      "key": "a3a3533f71e88c10047c247598099cadf736c0fd92beee8094814b4a0fac7663",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -130532,7 +130532,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "91c789c936bececac0b6878a6fde82ef4eb1ed383de4347f2b02e86c44413eae",
+      "key": "a202b4435ab9d2ecff27a3fbaa834a3438c864ade4875e95f2986182cc0fe79e",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -131137,7 +131137,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "3247c4f73eb28fb245aa4e8e47e144a178213de54d696911c52b41b1108f39fc",
+      "key": "a305f0def32d02b0c2d351e3b6be3ba98126721ff9d739a939fb14299b5680d6",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -131481,7 +131481,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "f7efa227b4942ef5564ca2fb52a269eec3c8a0166c081950551949844919c86c",
+      "key": "36830eb99b043ad4ef1b0ccdc7af52ed1a263ca939a9b38b0d6adae286dd4f6d",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -131826,7 +131826,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "d5c08df10aef0f452fb3c142772efe8375b02fc91e7bbb4f50a460c062bd5c2a",
+      "key": "bc382d77c8bca3cbbeeebe3dc08f935f584d9f85e1ed482d9ac9300494cbd260",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -141889,7 +141889,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "32eed28924f785dcf721a89f25d025d4f304579e44fad5be9a8798599ae15161",
+      "key": "4b98227e3d0241949861a9ce90c1fe60a6f606e979fa8a3fa7c3b3a8be77b8e9",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -143628,7 +143628,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "7588724b2abeeb3625fdbdc48580fe1cb498256d0417d9e01fd64a099e5cd495",
+      "key": "fd77ad6f4b0f0b5088df5539731f75ce50384422581cd95d74e846ff3ed19bf5",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -145327,7 +145327,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "0e19bfa1a067094e58437f1739b50df262c471364012bc17c56ad67e7347b248",
+      "key": "19f67b74eb80ea0ebd0ca70b2993adc10f7633d01b83be99f8d369b998441ddf",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -147010,7 +147010,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "0a0e8ab31aac2bafc0c81e8523462d0478baf5a87a3269099d49f299030484d3",
+      "key": "2c8d425f1da739fa13a2074c0c0e12df2e1d9150cda8fe2df65e2958c37e5bac",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -148617,7 +148617,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "4ee4f3a8963120f63c178441a3aabe312bb1cbd97d3429d729b784563bc1a8db",
+      "key": "78046d7a96786c095b2206851a3ecb026481cfa54dde194a8b26aed2cc22341f",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -150169,7 +150169,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "e5fdce27f145baddfbd7abab06f0ef1bebc9e8c74d3df325eb211e209a3129bc",
+      "key": "0c98e215feac91185643275331f6fb7c918267dbe9ceaa64630c7a5e4a0062b2",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -150338,7 +150338,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "80375a490a267271e8e42d5b7196bc76cdf2ed9709e1cd25e8427fcf85e8433c",
+      "key": "e506dd9fc4d65e020fdb03502da95e17736981dfd9df025af09d014cec7c162b",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -150436,7 +150436,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "3d4e0f83dd2e8d0091f7801ca0bb1074424b87e40b900868a1efae1cf0e5c3a1",
+      "key": "fbe7675dc574af625c1077525c286ca536683ca204850f12427ffc23f3069ddb",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -150534,7 +150534,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "31b8a17744103bcf22cab81d24673d62e69e4792440108be515dd721b31e5d68",
+      "key": "d816e4d16eaf0635b6860f55e81b2c40850a9d4ed6685781795de2a3ce6cad5d",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -150633,7 +150633,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "a59a04d290ac0dd03e19afcbc34a6ee790b590815a25f70cbe0f6c92fb8eaefd",
+      "key": "503e9d7a55f1ae6585d52b5d5d236b0e1cfa16955b553291565cc2b45fec398e",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -150803,7 +150803,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "a67e4bcc752283f7d877aef7471f86aa3592f7b8217a288d8883fd81cab0f202",
+      "key": "6d0326f6145166230724796ba8662abca39cf9c2d5943ea26075ac360e255ab5",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -150973,7 +150973,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "c9e09877ca1b5cc2cfa4bf0a1be4b652440dcdbb6af242cce4c886b5a58f9e9e",
+      "key": "48e3fb979a3af1e24a8cc5907ea2af4ab26d1af6fc87cfa07cf06b917801b177",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -151323,7 +151323,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "34b4568c45a84ebe7c83d930c659ebfc1d946fadd26acf9427affa93d250deca",
+      "key": "507ee83056eb36da8ec45111caa6f2ae436620228a7fd8a3a3f288c20d2e4d63",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -151605,7 +151605,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "c2bdf596fa46ea579ac950197c3d886f957245c4aeb38fdb5ca488ef51c50724",
+      "key": "9df66df554db0a59eadf052bedd017ab1da29ac2f2ca065e96b5bcfb4a725ac0",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -151704,7 +151704,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "acad2d758cde132678b11248a757c70a101f719ae183018f8e6387f2a0ca3d01",
+      "key": "a825aa2bffb859b8f259e679b909a861f59f2146c8993c15e92bb94bd9b1fe72",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -152059,7 +152059,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "8746f3c6b58964c213a8ba2270728f1fea7932115d8b0326050f9d3f95f9857a",
+      "key": "23d6f321cbb0b5ec89f57f6f32b7e93da882581b9dd72f8d148b346384c60e59",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -152409,7 +152409,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "c87fc1f5859496c35bb488d185476edc94d7fdf4eca1248e8d78e5487b384532",
+      "key": "c536660f477bdd628843dd74563eddf94d4b45d86cb7de583070272ba5ce74ec",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -152578,7 +152578,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "81aa519f9b0ff736847b24a46233f06ec64b34dbbe7cb834b6b86fcc8092fc54",
+      "key": "078575b289af94be89b39a0a13346a900a1d56670ecbc722627e76581c9c3417",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -152677,7 +152677,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "7626ae50828d0d0ac9cddd942210a6b1d3515697a3439ceafdb140adab8292da",
+      "key": "0c4bbfdbf9da6723949ecb4a7998b55827193c8728b6eac09afc9b4e128c439d",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -152995,7 +152995,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "ec098b432857af6d159f7bdea2639a374c2e91cef75d6cd8c5f3bbae26f36594",
+      "key": "e8f5352aa06899cffe7ed9a269b4a068e3bd349ad2b3457b08d4799da1acec4b",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -153094,7 +153094,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "bfa3304302eed7cfc831243b73bffef2634b04362856632c1e423440b7c3311f",
+      "key": "8d75b35bb10fef112da30ad333b776976b51b358933772e883140e989fe197ba",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -153335,7 +153335,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "c29dde39b762d1b539fa1db4666e45340579683ae9b5c056df7224c71ae6c1d7",
+      "key": "d5deb4d623dba3128dd062d719be025cef397fccff576ded672d024bdc263be5",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -153434,7 +153434,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "11ade2723c0bff7dfc2f1e276dd6e48fb75fa2f95d451df4e5c6b6c440eb2fa2",
+      "key": "a4910feb685712ac70aa1c3f6872a13d4e66fd01c6bb3736ff52559d20b1e838",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -153658,7 +153658,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "fd4d1b9034645a9598b3835d7c966ba53c5ac85ab7f3d8ca52abf4fd1ba0d8ca",
+      "key": "95ebcdbaf0856f32fb7d448cd7ad4b8e4e0eef9e51e2e03be0001472409678c1",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -153936,7 +153936,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "9b473b4fbfdbaa6b6c20a5d7aaffd277d4fabd9d225386ec37d44a4447fff0cb",
+      "key": "2050b15e9dada9acaf3ab1b9a0b67c6dd341b74d10433ac018a77b054315a416",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -154285,7 +154285,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "0fe7c73d6b0260ed2c2d71af6b518a1e0d67dfb43b578712ef4d5121085b73c3",
+      "key": "b01171b20ce167ce35e37340352c6071b0690937b593d4fe939d57f57abfc976",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -154383,7 +154383,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "788d709324813e3caaf2f28d97d75277957eeeee86e266e306334daed9eef298",
+      "key": "1b8e10cada079f89d7db170529ecd6388def61e8e77f95ffd507e00d80782fa4",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -154482,7 +154482,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "756569736bdb26fc609eeeaa50633fb86ff7f798638b83f39ad68620d0ff14e8",
+      "key": "38d690e45f8a30042b263c371785cc3edb189997c58fe9054036dab7f27d0fc9",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -154693,7 +154693,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "237e867a30eac7247295b937d00bcb769ba7e47700054503524219a4d288f89a",
+      "key": "6b9cafe5f74ce521ff686745e785ebfd6e6e60cb3afb73362cdbef53f5d5fc20",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -154880,7 +154880,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "d6e4962105ce448d8d5a5785e6d3b5d4191e89bfd0691f804033f5038820f32d",
+      "key": "f0b22ba1e32941cc45c490b95a20662b19955f377c49c56979ef5929f905c855",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -154943,7 +154943,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "12a4d04a665587d08b5d7e547220587a7a7715e7e43078efe68b3dbe08771307",
+      "key": "a40d75830054bdab850f3c3976fd8eec0cb1dc6b2ccac1ce86bda7d10c99298e",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155000,7 +155000,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "8b928650a9886cd47216ae2dcd2fed692b1f5d2b543f8f78ebe72ea581e8bd0a",
+      "key": "29daf02992282ef48cbde8419bc4675d5903588708f96d1629ef32bd9243adab",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155057,7 +155057,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "657a6be229a789a37fcae358b423ba160581392c371d004ea992105d52e3d4d8",
+      "key": "3f2ae18c637cc8b7f7127ae67804e6cdf245560d14fdb5d945036fe660b337a2",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155144,7 +155144,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "62b057051b860033184852dc54c431877feb3b95bd6a66d3c24a12f4d14aa451",
+      "key": "91cc0a56b69df4a0d5fce3e9c1b1c89f1ba53707f6edf7c23e6e488d22b4fa3c",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155231,7 +155231,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "8fd41ba7093a39288fb69149b5b96575d080e66b83155d192475f3ca60d480bd",
+      "key": "115caeb897ee7abd9cb106fbad83b68d13e26d47800a841fe59fd3b240871bd7",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155288,7 +155288,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "289eac665df291b7946aac51b5f522a54636929ad150c9db17d421322e60b686",
+      "key": "2fdd3c4af45c44e2186bea81ef54e4fb786cfa565f81fd19232c4fe0d38090a7",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155345,7 +155345,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "1ebc8acc4ff9900ae975c418caa8a53f2da1ff917fba27b9041384f9834488c5",
+      "key": "f589f7d94a0d4f39db15c02aa56ba2b7d30b4d02d33b3eeb802f58da4dc66929",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155402,7 +155402,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "74c75d5914656f1cb59f4dd8e24ae0bcbed0f03a9addd50ea2facf2e3b305368",
+      "key": "d60eae003a0d0665dc15332dc86ed82624e2f21cf3ccf10cfc5600240761d8a1",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155471,7 +155471,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "48ef28e9cbb2f6283cd3ad2c141027605966169257b305054c108d8a2574114e",
+      "key": "43bd7b1192fdd7f05b3397851c81e2f97b212d548be09c9e0c054842ff32c80f",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155534,7 +155534,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "9744e9fd7ccd3ae0f1373db446f880d82d3ed898246bf070161637f83ea752ad",
+      "key": "4cd78720fe140fd2a8ec143ff428313e5c094e50a285e6091804bb72c0071e73",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155621,7 +155621,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "2fdb971cb7142aad063182a77567d81524952fd99a4174c89f834cfa8ddfc85b",
+      "key": "c206ef3cdee6a255d80889e5f5f77e0957972ce618657c4aeb8ab1a96ecdec5a",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155708,7 +155708,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "5e1e6b39662fb28be5a6c997f89609747421a0526c3f8258bcafb7c9c689b8af",
+      "key": "620bf2ff17c5a4e5b451428c4b24df57112919c8aacd63ddd1fc12f6eeef1e2b",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -155795,7 +155795,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "6bb3eb3b043080d8aeaf70eb04be523c6308086277a7d19be4fa1f3055d8659a",
+      "key": "5a1d0dff2c2190a31f9afb918fcac5a243b0e4d5d2b30881d9cb1df2dbfbc30f",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -155827,7 +155827,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "d41a6240ab0ace7738ae830609053401568fb224d3107607eef2dee2f391ee4d",
+      "key": "f094166ed9310a1108ddefab4d0dac40893704966a3007f811d73291949eade2",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -155859,7 +155859,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "fced6baaec731422e529c61dfd38bb374ffc7a1672e88d9d4ed520eb96ea2857",
+      "key": "d2cd3cb31cbfe1dbf64ce1f6f3c1ed3ada6a9d2b85a753aeb2dcd011598934eb",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -155891,7 +155891,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "0de0ecf86d226ea2bef8e212f74a75123c9bd08f97f0f0115a04eefff74ca5c6",
+      "key": "5f3f91674d77c1842a19c7df0b70318bddc662d9afca913012c06753af9b42dd",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -155923,7 +155923,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "1cab900c9743f430c86bd5ad2f5fe379b66d6006ede3a02a57639e3f8da656a0",
+      "key": "dd01d03b1db8dc77eb09755c62eb623cdad36822f381af54758bde9f374cb0a2",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -155955,7 +155955,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "ca8b2300b560be8024726480e82dcc3d9bc64299278d749a2a6fe2815d4bd199",
+      "key": "efa913553f50f1b5f9e2f11c9d0285f64b687a0a0ad964628745629cd7bed610",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -155987,7 +155987,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "a7ff795605e278c4365bbf85b8033d70f802812920c0d7e3d09b2051b6a4a02b",
+      "key": "54bc39948b03fe200788b81bf4b432520772c2ac87515d46c1b98e7e42c2653a",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -156019,7 +156019,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "763eb853ae24e644746e14250600c5e0fa5da6c3ca2fbbd43bbbc494d5c862e3",
+      "key": "74b7a50c321d4af7cd53aaeb273a1a0bdd6b729520668599d818df928f6cce92",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -156102,7 +156102,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "04f1fe4f3404e185e0d5c8158a6b48ccf9adebb78533747ec046913dfc1bc2f2",
+      "key": "0a429505e298f94f43bd1089be3bfb5cad2b42db44b9d9aaf9634d5d7d3efa01",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -156134,7 +156134,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "78678f784f7eda0bf25683492c95ab91fd3c2b8104208a0ebe18ed69198d4319",
+      "key": "1ae228f83758bf538a78f5e2ac3efbf8086ce17d4fd21f26528d80db54678556",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -156166,7 +156166,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "19418847c8add010f1692c7c26a961f10f9044a7aee2e7e8709d5a611445564f",
+      "key": "c3f037abf39922fc64d42084cfef3a0eb3b8e4b8c4796a5aa3ca6c91775b745d",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -156224,7 +156224,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "540433dc6e8d7a6e7bea8a1ea5496b30d47694984d46e1c73ade67ec646b0629",
+      "key": "3343890ca332e029e161be80509a4cd0fd1c50397d42b1ba8534b3daf363881f",
       "status": "complete",
       "result": {
         "kind": "date_order",
@@ -156279,7 +156279,7 @@
       "method": "text_counters",
       "parameters": {},
       "domain": "analytical",
-      "key": "0497afcb2172b6fb723333aaffade68af49fca8522f71780eba3e4c339a39370",
+      "key": "e2625f68283d74d585633c40eaed1688b3525c8cc205634a6eb0eee22c7b4a5c",
       "status": "complete",
       "result": {
         "kind": "text_profile",
@@ -156361,7 +156361,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "6a7f323fc134fccae2395d879a7b98956631a4aae66397a6febbd96b49a17d57",
+      "key": "2bb39b83b34fb8dddea40ab7a7c1f8a978fea08f385c7e8899945e3cbd9fa9c3",
       "status": "complete",
       "result": {
         "kind": "fingerprint_distinct",
@@ -156431,7 +156431,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "3ca74c285de069151785fbfbfdc962d9152f352b30962975b2f8e21bdd3e4c79",
+      "key": "f4f39f02522a3936034ed4c432694d6a46fec76478512e547618df60622978d7",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -156571,7 +156571,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "8f8b1cad8c813051191cc71dd1a7965116f56851453ae82fddb4365c1e312ecd",
+      "key": "7627e10efdf6959f2bd5d19ac6d7a30ae04bfc5eea6d0b99d3c03f3a010634e2",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -156725,7 +156725,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "551536adf9ba884134f35af5e04089a489e8e9f4a227a8e56a2ce2eaf561db56",
+      "key": "cfd14f5da68a3a666c6a45dfc067200c38b17d4b361ca2dbe151bd84a679fef1",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -156883,7 +156883,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "8d175b54e88424174be9995c49c3b73903c607c0b9c896f47daa0afe7922cddb",
+      "key": "be7d2d1792ac0967a2ffec242feff8267877beeb403e7bdbf46e15931a5b9557",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -156988,7 +156988,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "df87d26c067b780a6b78cd900b188c682a40f1eb9bbe94c2fcab75d200a74929",
+      "key": "1421fc74f33adc07a934a92c80bd736adad61d279ff5da3302050985eb451eb2",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -157075,7 +157075,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "f2d32145a09e93e7a6107afff161e75710cbd223eed3445a320d94917e6f6de4",
+      "key": "200542ee63969b02a56f488fabd85672e5c1d0a03d9d4c5b5282bc875fa9ea04",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -157233,7 +157233,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "eb6bbbe11799a5388715a37f46e1a31da38b5d015ae0f6e1b792ae9d8e650aa7",
+      "key": "0941dd4e4db90ffa60a69f35fba6685a58643d4d24488b873d6c678d6904245e",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -157320,7 +157320,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "aa93c878bf9bf074dc7d6f56602dcfe0d3dbf1a15f5083e3de8077045e332bb5",
+      "key": "63358523f258544b4b5dbbc460d3e6ca52e2fb994578abd83e2b65a3dd404183",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -157482,7 +157482,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "5d787c3daca4ae164fa3ed031be70effcac71e79082fa0b741cbefc26dcae9bd",
+      "key": "d088c12db7d4d69e2536a81d576518ba1948a61c7db22aee170820d19d85c0bf",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -157632,7 +157632,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "7c0daa9d301ceb4a0c302c54e150ff0306111d4635ea15634aba35faa4614f05",
+      "key": "f047eb7490e4c03d01bfa3e529d97eb378e08be2a6906d8ffd94d6762da08053",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -157794,7 +157794,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "21041a264e40dc0cdb034eb1199bd8748715ac73b52a1d9547c047bb65d2c3b4",
+      "key": "5ce9c5785457fbd609d93d260677f1c4fb6a36b8fc08379d25966a251b089b83",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -157908,7 +157908,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "fc5b2f3344031dcb9249294815d5de8da9870125d2ec5c75d766ceae64d3ae0e",
+      "key": "f8666a8d9ef3823323835322e805cabb4bd226a73c0003341dccff0797c35ff7",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -158028,7 +158028,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "745f9c4a4d702e93628c2d903a0a0cdabcdf867e0100730d4b999a6aea00ba13",
+      "key": "a89b27ec247c42c0065fc534e21e43665abb6cbcc155d2ae10006b22d6839694",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -158133,7 +158133,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "ea85286a981fa8428bfa6386a7101c98eaaa83ea073350610670f6dd54039b92",
+      "key": "c4afcbbadf479b735a3c58f3a9fc2ae72de848cc8122ab78d8d0ac44d3c0f718",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -158238,7 +158238,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "43ef771c82c2b2032a69ee21e0f7554f33168f3140aab1e2553e8608992e9259",
+      "key": "9e9507e694e9a7b179a82801be47e403cc7069d84eef693c0ab73da08eff74b8",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -158390,7 +158390,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "f744d638a2b14f3b2a03716fbca3e57e04561bd6920f02b58992423af8e012fa",
+      "key": "aad34f5348e584bd3c8843bbdd80faa104c680c26ebd3df9acf8994e0d99f3c1",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -158495,7 +158495,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "5571b911993a5b870677c4bd98d6a997846837a3fe9afe81affc3547a0089754",
+      "key": "22ed7b7984ed9c1542618023b60f400865dc7d2b590ef57c7ad2451e056a72e7",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -158600,7 +158600,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "a04abbccd492fad7492dcb0d692994eb13f238e7442dd13f4f9df2601e8e03b1",
+      "key": "526c0fd944067eae345d0a928d9f3fa339f47999250eff015a59c9f77d57c013",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -158696,7 +158696,7 @@
         "top": 20
       },
       "domain": "analytical",
-      "key": "9907fc80b3e944dc18b36e6c00b5068465c6e0c1eb42acb7543285c4339c1475",
+      "key": "b49f0471330dac7072bceafaa07b73da42afe683ac1d22042a5a7f5f1c8899e4",
       "status": "complete",
       "result": {
         "basis": "exact",
@@ -158787,3097 +158787,6 @@
         "emoji_sequences": 0,
         "emoji": [],
         "kind": "character_profile"
-      }
-    },
-    {
-      "id": "category_crosstab:rows:column_2>column_6:value",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_2",
-      "partner": "column_6",
-      "display": "civilite and sexe (value)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "value",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30,
-        "max_classes": 12
-      },
-      "domain": "mixed",
-      "key": "1b24eb040d4a2deef1d0b2e76ec169345705fc899f710ce056866db48788379f",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "value",
-          "version": 1
-        },
-        "categories": {
-          "field": "column_2",
-          "display": "civilite",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "M.",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "Mme",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_6",
-          "display": "sexe",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "M",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "F",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 100000,
-        "counted": 100000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            50119,
-            0,
-            0
-          ],
-          [
-            0,
-            49881,
-            0
-          ],
-          [
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          50119,
-          49881,
-          0
-        ],
-        "column_totals": [
-          50119,
-          49881,
-          0
-        ],
-        "by_category": [
-          {
-            "rows": 50119,
-            "classified": 50119,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 50119,
-            "purity": 1.0,
-            "exceptions": 0
-          },
-          {
-            "rows": 49881,
-            "classified": 49881,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 1,
-            "dominant_count": 49881,
-            "purity": 1.0,
-            "exceptions": 0
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 100000,
-            "total": 100000,
-            "value": 1.0
-          },
-          "reverse": {
-            "dominant": 100000,
-            "total": 100000,
-            "value": 1.0
-          },
-          "baseline": 0.50119
-        },
-        "association": {
-          "defined": true,
-          "n": 100000,
-          "effective_categories": 2,
-          "effective_classes": 2,
-          "chi_square": 100000.00000000003,
-          "degrees": 1,
-          "cramers_v": 1.0,
-          "corrected": 1.0,
-          "low_share": 0.0,
-          "stable": true,
-          "sparse": 0
-        },
-        "exceptions": {
-          "count": 0,
-          "cells": 0,
-          "complete": true,
-          "listed": []
-        },
-        "rules": [
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 0,
-            "column": 0,
-            "support": 50119,
-            "confidence": 1.0,
-            "exceptions": 0
-          },
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 1,
-            "column": 1,
-            "support": 49881,
-            "confidence": 1.0,
-            "exceptions": 0
-          }
-        ]
-      }
-    },
-    {
-      "id": "category_crosstab:rows:column_6>column_2:prefix",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_6",
-      "partner": "column_2",
-      "display": "sexe and civilite (prefix)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "prefix",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30,
-        "max_classes": 12,
-        "prefix_length": 2
-      },
-      "domain": "mixed",
-      "key": "80f35a300322e6c80cde86c2760b2aaafbe8808268b0a626a8e339921c89d24e",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "prefix",
-          "version": 1,
-          "prefix_length": 2
-        },
-        "categories": {
-          "field": "column_6",
-          "display": "sexe",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "M",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "F",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_2",
-          "display": "civilite",
-          "domain": "original",
-          "classes": [
-            {
-              "id": "x1",
-              "label": "M.",
-              "kind": "value"
-            },
-            {
-              "id": "x2",
-              "label": "Mm",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 100000,
-        "counted": 100000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            50119,
-            0,
-            0
-          ],
-          [
-            0,
-            49881,
-            0
-          ],
-          [
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          50119,
-          49881,
-          0
-        ],
-        "column_totals": [
-          50119,
-          49881,
-          0
-        ],
-        "by_category": [
-          {
-            "rows": 50119,
-            "classified": 50119,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 50119,
-            "purity": 1.0,
-            "exceptions": 0
-          },
-          {
-            "rows": 49881,
-            "classified": 49881,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 1,
-            "dominant_count": 49881,
-            "purity": 1.0,
-            "exceptions": 0
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 100000,
-            "total": 100000,
-            "value": 1.0
-          },
-          "reverse": {
-            "dominant": 100000,
-            "total": 100000,
-            "value": 1.0
-          },
-          "baseline": 0.50119
-        },
-        "association": {
-          "defined": true,
-          "n": 100000,
-          "effective_categories": 2,
-          "effective_classes": 2,
-          "chi_square": 100000.00000000003,
-          "degrees": 1,
-          "cramers_v": 1.0,
-          "corrected": 1.0,
-          "low_share": 0.0,
-          "stable": true,
-          "sparse": 0
-        },
-        "exceptions": {
-          "count": 0,
-          "cells": 0,
-          "complete": true,
-          "listed": []
-        },
-        "rules": [
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 0,
-            "column": 0,
-            "support": 50119,
-            "confidence": 1.0,
-            "exceptions": 0
-          },
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 1,
-            "column": 1,
-            "support": 49881,
-            "confidence": 1.0,
-            "exceptions": 0
-          }
-        ]
-      }
-    },
-    {
-      "id": "category_crosstab:rows:column_34>column_1:pattern",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_34",
-      "partner": "column_1",
-      "display": "filiale and id_client (pattern)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "pattern",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30
-      },
-      "domain": "mixed",
-      "key": "246cef95f63fe8ed1344fde74694711f723b642d0821441dcb5ccb8d6d5f00d7",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "pattern",
-          "version": 1
-        },
-        "categories": {
-          "field": "column_34",
-          "display": "filiale",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "principal",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "quebec",
-              "kind": "value"
-            },
-            {
-              "id": "c3",
-              "label": "ontario",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_1",
-          "display": "id_client",
-          "domain": "original",
-          "classes": [
-            {
-              "id": "f1.p1",
-              "label": "'CLI-000'99999",
-              "kind": "value"
-            },
-            {
-              "id": "f1.p2",
-              "label": "'CLI-00'99999",
-              "kind": "value"
-            },
-            {
-              "id": "f1.p3",
-              "label": "'CLI--000'99999",
-              "kind": "value"
-            },
-            {
-              "id": "f2.p1",
-              "label": "'ONT000'9999",
-              "kind": "value"
-            },
-            {
-              "id": "f2.p2",
-              "label": "AAA999999",
-              "kind": "value"
-            },
-            {
-              "id": "f3.p1",
-              "label": "'QC-000'9-9999",
-              "kind": "value"
-            },
-            {
-              "id": "f3.p2",
-              "label": "'QC--000'9-9999",
-              "kind": "value"
-            },
-            {
-              "id": "f3.p3",
-              "label": "'QC-000'9-999",
-              "kind": "value"
-            },
-            {
-              "id": "f3.p4",
-              "label": "AA-999-9999",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 100000,
-        "counted": 100000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            72701,
-            14,
-            12,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ],
-          [
-            0,
-            0,
-            0,
-            0,
-            0,
-            18172,
-            5,
-            4,
-            1,
-            0
-          ],
-          [
-            0,
-            0,
-            0,
-            9090,
-            1,
-            0,
-            0,
-            0,
-            0,
-            0
-          ],
-          [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          72727,
-          18182,
-          9091,
-          0
-        ],
-        "column_totals": [
-          72701,
-          14,
-          12,
-          9090,
-          1,
-          18172,
-          5,
-          4,
-          1,
-          0
-        ],
-        "by_category": [
-          {
-            "rows": 72727,
-            "classified": 72727,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 72701,
-            "purity": 0.9996424986593699,
-            "exceptions": 26
-          },
-          {
-            "rows": 18182,
-            "classified": 18182,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 5,
-            "dominant_count": 18172,
-            "purity": 0.999450005499945,
-            "exceptions": 10
-          },
-          {
-            "rows": 9091,
-            "classified": 9091,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 3,
-            "dominant_count": 9090,
-            "purity": 0.999890001099989,
-            "exceptions": 1
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 99963,
-            "total": 100000,
-            "value": 0.99963
-          },
-          "reverse": {
-            "dominant": 100000,
-            "total": 100000,
-            "value": 1.0
-          },
-          "baseline": 0.72701
-        },
-        "association": {
-          "defined": true,
-          "n": 100000,
-          "effective_categories": 3,
-          "effective_classes": 9,
-          "chi_square": 200000.00000000003,
-          "degrees": 16,
-          "cramers_v": 1.0,
-          "corrected": 0.9999699986499326,
-          "low_share": 0.3888888888888889,
-          "stable": false,
-          "sparse": 3
-        },
-        "exceptions": {
-          "count": 37,
-          "cells": 6,
-          "complete": true,
-          "listed": [
-            {
-              "category": 0,
-              "column": 1,
-              "count": 14,
-              "examples": [
-                {
-                  "record": 9125,
-                  "value": "CLI-0009125"
-                },
-                {
-                  "record": 22268,
-                  "value": "CLI-0002268"
-                },
-                {
-                  "record": 27712,
-                  "value": "CLI-0027712"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 2,
-              "count": 12,
-              "examples": [
-                {
-                  "record": 694,
-                  "value": "CLI--00000694"
-                },
-                {
-                  "record": 6111,
-                  "value": "CLI--00006111"
-                },
-                {
-                  "record": 10172,
-                  "value": "CLI--00010172"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 6,
-              "count": 5,
-              "examples": [
-                {
-                  "record": 83544,
-                  "value": "QC--0000-1726"
-                },
-                {
-                  "record": 83952,
-                  "value": "QC--0000-2134"
-                },
-                {
-                  "record": 84451,
-                  "value": "QC--0000-2633"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 7,
-              "count": 4,
-              "examples": [
-                {
-                  "record": 86207,
-                  "value": "QC-0000-389"
-                },
-                {
-                  "record": 93530,
-                  "value": "QC-0001-112"
-                },
-                {
-                  "record": 96021,
-                  "value": "QC-0001-203"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 8,
-              "count": 1,
-              "examples": [
-                {
-                  "record": 95225,
-                  "value": "QC-001-3407"
-                }
-              ]
-            },
-            {
-              "category": 2,
-              "column": 4,
-              "count": 1,
-              "examples": [
-                {
-                  "record": 77842,
-                  "value": "ONT000115"
-                }
-              ]
-            }
-          ]
-        },
-        "rules": [
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 0,
-            "column": 0,
-            "support": 72727,
-            "confidence": 0.9996424986593699,
-            "exceptions": 26
-          },
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 1,
-            "column": 5,
-            "support": 18182,
-            "confidence": 0.999450005499945,
-            "exceptions": 10
-          },
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 2,
-            "column": 3,
-            "support": 9091,
-            "confidence": 0.999890001099989,
-            "exceptions": 1
-          }
-        ]
-      }
-    },
-    {
-      "id": "category_crosstab:rows:column_7>column_9:value",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_7",
-      "partner": "column_9",
-      "display": "langue_preferee and type_voie (value)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "value",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30,
-        "max_classes": 12
-      },
-      "domain": "mixed",
-      "key": "96a4e37d99491b80178b686bbb6bc19ae36b09d27f07ec070c7eaf04e0620ac4",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "value",
-          "version": 1
-        },
-        "categories": {
-          "field": "column_7",
-          "display": "langue_preferee",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "fr",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "en",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_9",
-          "display": "type_voie",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "rue",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "avenue",
-              "kind": "value"
-            },
-            {
-              "id": "c3",
-              "label": "boulevard",
-              "kind": "value"
-            },
-            {
-              "id": "c4",
-              "label": "chemin",
-              "kind": "value"
-            },
-            {
-              "id": "c5",
-              "label": "Street",
-              "kind": "value"
-            },
-            {
-              "id": "c6",
-              "label": "route",
-              "kind": "value"
-            },
-            {
-              "id": "c7",
-              "label": "rang",
-              "kind": "value"
-            },
-            {
-              "id": "c8",
-              "label": "Avenue",
-              "kind": "value"
-            },
-            {
-              "id": "c9",
-              "label": "montée",
-              "kind": "value"
-            },
-            {
-              "id": "c10",
-              "label": "place",
-              "kind": "value"
-            },
-            {
-              "id": "c11",
-              "label": "Boulevard",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 100000,
-        "counted": 100000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            17116,
-            11164,
-            10674,
-            6759,
-            284,
-            4668,
-            3929,
-            190,
-            3188,
-            2865,
-            153,
-            13657
-          ],
-          [
-            427,
-            305,
-            266,
-            180,
-            5228,
-            131,
-            98,
-            3310,
-            70,
-            84,
-            2594,
-            12660
-          ],
-          [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          74647,
-          25353,
-          0
-        ],
-        "column_totals": [
-          17543,
-          11469,
-          10940,
-          6939,
-          5512,
-          4799,
-          4027,
-          3500,
-          3258,
-          2949,
-          2747,
-          26317
-        ],
-        "by_category": [
-          {
-            "rows": 74647,
-            "classified": 74647,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 17116,
-            "purity": 0.22929253687355153,
-            "exceptions": 57531
-          },
-          {
-            "rows": 25353,
-            "classified": 25353,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 11,
-            "dominant_count": 12660,
-            "purity": 0.4993491894450361,
-            "exceptions": 12693
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 29776,
-            "total": 100000,
-            "value": 0.29776
-          },
-          "reverse": {
-            "dominant": 85152,
-            "total": 100000,
-            "value": 0.85152
-          },
-          "baseline": 0.26317
-        },
-        "association": {
-          "defined": true,
-          "n": 100000,
-          "effective_categories": 2,
-          "effective_classes": 12,
-          "chi_square": 54109.78387455058,
-          "degrees": 11,
-          "cramers_v": 0.7355935282107271,
-          "corrected": 0.7355224317667483,
-          "low_share": 0.0,
-          "stable": true,
-          "sparse": 0
-        },
-        "exceptions": {
-          "count": 70224,
-          "cells": 22,
-          "complete": false,
-          "listed": [
-            {
-              "category": 0,
-              "column": 11,
-              "count": 13657,
-              "examples": [
-                {
-                  "record": 1,
-                  "value": "croissant"
-                },
-                {
-                  "record": 3,
-                  "value": "impasse"
-                },
-                {
-                  "record": 6,
-                  "value": "autoroute"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 1,
-              "count": 11164,
-              "examples": [
-                {
-                  "record": 18,
-                  "value": "avenue"
-                },
-                {
-                  "record": 31,
-                  "value": "avenue"
-                },
-                {
-                  "record": 45,
-                  "value": "avenue"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 2,
-              "count": 10674,
-              "examples": [
-                {
-                  "record": 5,
-                  "value": "boulevard"
-                },
-                {
-                  "record": 9,
-                  "value": "boulevard"
-                },
-                {
-                  "record": 15,
-                  "value": "boulevard"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 3,
-              "count": 6759,
-              "examples": [
-                {
-                  "record": 23,
-                  "value": "chemin"
-                },
-                {
-                  "record": 53,
-                  "value": "chemin"
-                },
-                {
-                  "record": 63,
-                  "value": "chemin"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 4,
-              "count": 5228,
-              "examples": [
-                {
-                  "record": 21,
-                  "value": "Street"
-                },
-                {
-                  "record": 32,
-                  "value": "Street"
-                },
-                {
-                  "record": 33,
-                  "value": "Street"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 5,
-              "count": 4668,
-              "examples": [
-                {
-                  "record": 2,
-                  "value": "route"
-                },
-                {
-                  "record": 8,
-                  "value": "route"
-                },
-                {
-                  "record": 121,
-                  "value": "route"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 6,
-              "count": 3929,
-              "examples": [
-                {
-                  "record": 17,
-                  "value": "rang"
-                },
-                {
-                  "record": 37,
-                  "value": "rang"
-                },
-                {
-                  "record": 40,
-                  "value": "rang"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 7,
-              "count": 3310,
-              "examples": [
-                {
-                  "record": 7,
-                  "value": "Avenue"
-                },
-                {
-                  "record": 11,
-                  "value": "Avenue"
-                },
-                {
-                  "record": 26,
-                  "value": "Avenue"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 8,
-              "count": 3188,
-              "examples": [
-                {
-                  "record": 10,
-                  "value": "montée"
-                },
-                {
-                  "record": 72,
-                  "value": "montée"
-                },
-                {
-                  "record": 147,
-                  "value": "montée"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 9,
-              "count": 2865,
-              "examples": [
-                {
-                  "record": 27,
-                  "value": "place"
-                },
-                {
-                  "record": 35,
-                  "value": "place"
-                },
-                {
-                  "record": 39,
-                  "value": "place"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 10,
-              "count": 2594,
-              "examples": [
-                {
-                  "record": 112,
-                  "value": "Boulevard"
-                },
-                {
-                  "record": 136,
-                  "value": "Boulevard"
-                },
-                {
-                  "record": 250,
-                  "value": "Boulevard"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 0,
-              "count": 427,
-              "examples": [
-                {
-                  "record": 72783,
-                  "value": "rue"
-                },
-                {
-                  "record": 72815,
-                  "value": "rue"
-                },
-                {
-                  "record": 72819,
-                  "value": "rue"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 1,
-              "count": 305,
-              "examples": [
-                {
-                  "record": 72795,
-                  "value": "avenue"
-                },
-                {
-                  "record": 72827,
-                  "value": "avenue"
-                },
-                {
-                  "record": 72865,
-                  "value": "avenue"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 4,
-              "count": 284,
-              "examples": [
-                {
-                  "record": 72759,
-                  "value": "Street"
-                },
-                {
-                  "record": 72777,
-                  "value": "Street"
-                },
-                {
-                  "record": 72793,
-                  "value": "Street"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 2,
-              "count": 266,
-              "examples": [
-                {
-                  "record": 72798,
-                  "value": "boulevard"
-                },
-                {
-                  "record": 72804,
-                  "value": "boulevard"
-                },
-                {
-                  "record": 72818,
-                  "value": "boulevard"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 7,
-              "count": 190,
-              "examples": [
-                {
-                  "record": 72741,
-                  "value": "Avenue"
-                },
-                {
-                  "record": 72749,
-                  "value": "Avenue"
-                },
-                {
-                  "record": 72763,
-                  "value": "Avenue"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 3,
-              "count": 180,
-              "examples": [
-                {
-                  "record": 72742,
-                  "value": "chemin"
-                },
-                {
-                  "record": 72808,
-                  "value": "chemin"
-                },
-                {
-                  "record": 72812,
-                  "value": "chemin"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 10,
-              "count": 153,
-              "examples": [
-                {
-                  "record": 72737,
-                  "value": "Boulevard"
-                },
-                {
-                  "record": 72751,
-                  "value": "Boulevard"
-                },
-                {
-                  "record": 72756,
-                  "value": "Boulevard"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 5,
-              "count": 131,
-              "examples": [
-                {
-                  "record": 72764,
-                  "value": "route"
-                },
-                {
-                  "record": 72788,
-                  "value": "route"
-                },
-                {
-                  "record": 72859,
-                  "value": "route"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 6,
-              "count": 98,
-              "examples": [
-                {
-                  "record": 72891,
-                  "value": "rang"
-                },
-                {
-                  "record": 72919,
-                  "value": "rang"
-                },
-                {
-                  "record": 72962,
-                  "value": "rang"
-                }
-              ]
-            }
-          ]
-        },
-        "rules": []
-      }
-    },
-    {
-      "id": "category_crosstab:rows:column_34>column_1:length",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_34",
-      "partner": "column_1",
-      "display": "filiale and id_client (length)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "length",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30,
-        "max_classes": 12
-      },
-      "domain": "mixed",
-      "key": "3fe04077837548235507e4b143b86a9c5471add0b714371b0e2b69dc1d3c5e2e",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "length",
-          "version": 1
-        },
-        "categories": {
-          "field": "column_34",
-          "display": "filiale",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "principal",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "quebec",
-              "kind": "value"
-            },
-            {
-              "id": "c3",
-              "label": "ontario",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_1",
-          "display": "id_client",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "l9",
-              "label": "9",
-              "kind": "value"
-            },
-            {
-              "id": "l10",
-              "label": "10",
-              "kind": "value"
-            },
-            {
-              "id": "l11",
-              "label": "11",
-              "kind": "value"
-            },
-            {
-              "id": "l12",
-              "label": "12",
-              "kind": "value"
-            },
-            {
-              "id": "l13",
-              "label": "13",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 100000,
-        "counted": 100000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            0,
-            0,
-            14,
-            72701,
-            12,
-            0
-          ],
-          [
-            0,
-            0,
-            5,
-            18172,
-            5,
-            0
-          ],
-          [
-            1,
-            9090,
-            0,
-            0,
-            0,
-            0
-          ],
-          [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          72727,
-          18182,
-          9091,
-          0
-        ],
-        "column_totals": [
-          1,
-          9090,
-          19,
-          90873,
-          17,
-          0
-        ],
-        "by_category": [
-          {
-            "rows": 72727,
-            "classified": 72727,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 3,
-            "dominant_count": 72701,
-            "purity": 0.9996424986593699,
-            "exceptions": 26
-          },
-          {
-            "rows": 18182,
-            "classified": 18182,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 3,
-            "dominant_count": 18172,
-            "purity": 0.999450005499945,
-            "exceptions": 10
-          },
-          {
-            "rows": 9091,
-            "classified": 9091,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 1,
-            "dominant_count": 9090,
-            "purity": 0.999890001099989,
-            "exceptions": 1
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 99963,
-            "total": 100000,
-            "value": 0.99963
-          },
-          "reverse": {
-            "dominant": 81818,
-            "total": 100000,
-            "value": 0.81818
-          },
-          "baseline": 0.90873
-        },
-        "association": {
-          "defined": true,
-          "n": 100000,
-          "effective_categories": 3,
-          "effective_classes": 5,
-          "chi_square": 100001.55684386518,
-          "degrees": 8,
-          "cramers_v": 0.7071122854393961,
-          "corrected": 0.7070910715565484,
-          "low_share": 0.3333333333333333,
-          "stable": false,
-          "sparse": 1
-        },
-        "exceptions": {
-          "count": 37,
-          "cells": 5,
-          "complete": true,
-          "listed": [
-            {
-              "category": 0,
-              "column": 2,
-              "count": 14,
-              "examples": [
-                {
-                  "record": 9125,
-                  "value": "CLI-0009125"
-                },
-                {
-                  "record": 22268,
-                  "value": "CLI-0002268"
-                },
-                {
-                  "record": 27712,
-                  "value": "CLI-0027712"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 4,
-              "count": 12,
-              "examples": [
-                {
-                  "record": 694,
-                  "value": "CLI--00000694"
-                },
-                {
-                  "record": 6111,
-                  "value": "CLI--00006111"
-                },
-                {
-                  "record": 10172,
-                  "value": "CLI--00010172"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 2,
-              "count": 5,
-              "examples": [
-                {
-                  "record": 86207,
-                  "value": "QC-0000-389"
-                },
-                {
-                  "record": 93530,
-                  "value": "QC-0001-112"
-                },
-                {
-                  "record": 95225,
-                  "value": "QC-001-3407"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 4,
-              "count": 5,
-              "examples": [
-                {
-                  "record": 83544,
-                  "value": "QC--0000-1726"
-                },
-                {
-                  "record": 83952,
-                  "value": "QC--0000-2134"
-                },
-                {
-                  "record": 84451,
-                  "value": "QC--0000-2633"
-                }
-              ]
-            },
-            {
-              "category": 2,
-              "column": 0,
-              "count": 1,
-              "examples": [
-                {
-                  "record": 77842,
-                  "value": "ONT000115"
-                }
-              ]
-            }
-          ]
-        },
-        "rules": [
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 0,
-            "column": 3,
-            "support": 72727,
-            "confidence": 0.9996424986593699,
-            "exceptions": 26
-          },
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 1,
-            "column": 3,
-            "support": 18182,
-            "confidence": 0.999450005499945,
-            "exceptions": 10
-          },
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 2,
-            "column": 1,
-            "support": 9091,
-            "confidence": 0.999890001099989,
-            "exceptions": 1
-          }
-        ]
-      }
-    },
-    {
-      "id": "category_crosstab:rows:column_7>column_34:prefix",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_7",
-      "partner": "column_34",
-      "display": "langue_preferee and filiale (prefix)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "prefix",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30,
-        "max_classes": 12,
-        "prefix_length": 2
-      },
-      "domain": "mixed",
-      "key": "5651e2282958b4484a082d4393c23412ae5bc11c9f7830a023e88d8c5798d72a",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "prefix",
-          "version": 1,
-          "prefix_length": 2
-        },
-        "categories": {
-          "field": "column_7",
-          "display": "langue_preferee",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "fr",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "en",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_34",
-          "display": "filiale",
-          "domain": "original",
-          "classes": [
-            {
-              "id": "x1",
-              "label": "pr",
-              "kind": "value"
-            },
-            {
-              "id": "x2",
-              "label": "qu",
-              "kind": "value"
-            },
-            {
-              "id": "x3",
-              "label": "on",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 100000,
-        "counted": 100000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            57602,
-            15202,
-            1843,
-            0
-          ],
-          [
-            15125,
-            2980,
-            7248,
-            0
-          ],
-          [
-            0,
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          74647,
-          25353,
-          0
-        ],
-        "column_totals": [
-          72727,
-          18182,
-          9091,
-          0
-        ],
-        "by_category": [
-          {
-            "rows": 74647,
-            "classified": 74647,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 57602,
-            "purity": 0.7716586065079641,
-            "exceptions": 17045
-          },
-          {
-            "rows": 25353,
-            "classified": 25353,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 15125,
-            "purity": 0.5965763420502505,
-            "exceptions": 10228
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 72727,
-            "total": 100000,
-            "value": 0.72727
-          },
-          "reverse": {
-            "dominant": 80052,
-            "total": 100000,
-            "value": 0.80052
-          },
-          "baseline": 0.72727
-        },
-        "association": {
-          "defined": true,
-          "n": 100000,
-          "effective_categories": 2,
-          "effective_classes": 3,
-          "chi_square": 15771.718748232517,
-          "degrees": 2,
-          "cramers_v": 0.39713623290040556,
-          "corrected": 0.3971130371641506,
-          "low_share": 0.0,
-          "stable": true,
-          "sparse": 0
-        },
-        "exceptions": {
-          "count": 27273,
-          "cells": 4,
-          "complete": true,
-          "listed": [
-            {
-              "category": 0,
-              "column": 1,
-              "count": 15202,
-              "examples": [
-                {
-                  "record": 81819,
-                  "value": "quebec"
-                },
-                {
-                  "record": 81820,
-                  "value": "quebec"
-                },
-                {
-                  "record": 81821,
-                  "value": "quebec"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 2,
-              "count": 7248,
-              "examples": [
-                {
-                  "record": 72729,
-                  "value": "ontario"
-                },
-                {
-                  "record": 72730,
-                  "value": "ontario"
-                },
-                {
-                  "record": 72731,
-                  "value": "ontario"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 1,
-              "count": 2980,
-              "examples": [
-                {
-                  "record": 81827,
-                  "value": "quebec"
-                },
-                {
-                  "record": 81838,
-                  "value": "quebec"
-                },
-                {
-                  "record": 81847,
-                  "value": "quebec"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 2,
-              "count": 1843,
-              "examples": [
-                {
-                  "record": 72728,
-                  "value": "ontario"
-                },
-                {
-                  "record": 72735,
-                  "value": "ontario"
-                },
-                {
-                  "record": 72737,
-                  "value": "ontario"
-                }
-              ]
-            }
-          ]
-        },
-        "rules": []
-      }
-    },
-    {
-      "id": "category_crosstab:rows:column_7>column_34:value",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_7",
-      "partner": "column_34",
-      "display": "langue_preferee and filiale (value)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "value",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30,
-        "max_classes": 12
-      },
-      "domain": "mixed",
-      "key": "476d1710a066d70f51898667918bfddb244d8c608d152fb261704e2c874bb3b6",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "value",
-          "version": 1
-        },
-        "categories": {
-          "field": "column_7",
-          "display": "langue_preferee",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "fr",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "en",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_34",
-          "display": "filiale",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "principal",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "quebec",
-              "kind": "value"
-            },
-            {
-              "id": "c3",
-              "label": "ontario",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 100000,
-        "counted": 100000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            57602,
-            15202,
-            1843,
-            0
-          ],
-          [
-            15125,
-            2980,
-            7248,
-            0
-          ],
-          [
-            0,
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          74647,
-          25353,
-          0
-        ],
-        "column_totals": [
-          72727,
-          18182,
-          9091,
-          0
-        ],
-        "by_category": [
-          {
-            "rows": 74647,
-            "classified": 74647,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 57602,
-            "purity": 0.7716586065079641,
-            "exceptions": 17045
-          },
-          {
-            "rows": 25353,
-            "classified": 25353,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 15125,
-            "purity": 0.5965763420502505,
-            "exceptions": 10228
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 72727,
-            "total": 100000,
-            "value": 0.72727
-          },
-          "reverse": {
-            "dominant": 80052,
-            "total": 100000,
-            "value": 0.80052
-          },
-          "baseline": 0.72727
-        },
-        "association": {
-          "defined": true,
-          "n": 100000,
-          "effective_categories": 2,
-          "effective_classes": 3,
-          "chi_square": 15771.718748232517,
-          "degrees": 2,
-          "cramers_v": 0.39713623290040556,
-          "corrected": 0.3971130371641506,
-          "low_share": 0.0,
-          "stable": true,
-          "sparse": 0
-        },
-        "exceptions": {
-          "count": 27273,
-          "cells": 4,
-          "complete": true,
-          "listed": [
-            {
-              "category": 0,
-              "column": 1,
-              "count": 15202,
-              "examples": [
-                {
-                  "record": 81819,
-                  "value": "quebec"
-                },
-                {
-                  "record": 81820,
-                  "value": "quebec"
-                },
-                {
-                  "record": 81821,
-                  "value": "quebec"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 2,
-              "count": 7248,
-              "examples": [
-                {
-                  "record": 72729,
-                  "value": "ontario"
-                },
-                {
-                  "record": 72730,
-                  "value": "ontario"
-                },
-                {
-                  "record": 72731,
-                  "value": "ontario"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 1,
-              "count": 2980,
-              "examples": [
-                {
-                  "record": 81827,
-                  "value": "quebec"
-                },
-                {
-                  "record": 81838,
-                  "value": "quebec"
-                },
-                {
-                  "record": 81847,
-                  "value": "quebec"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 2,
-              "count": 1843,
-              "examples": [
-                {
-                  "record": 72728,
-                  "value": "ontario"
-                },
-                {
-                  "record": 72735,
-                  "value": "ontario"
-                },
-                {
-                  "record": 72737,
-                  "value": "ontario"
-                }
-              ]
-            }
-          ]
-        },
-        "rules": []
-      }
-    },
-    {
-      "id": "category_crosstab:rows:column_7>column_1:pattern",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_7",
-      "partner": "column_1",
-      "display": "langue_preferee and id_client (pattern)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "pattern",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30
-      },
-      "domain": "mixed",
-      "key": "d8237da81aad4ad6ec2192e151a5ab1f4273fbc08d9e1ef781a5c5f6c3645dbd",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "pattern",
-          "version": 1
-        },
-        "categories": {
-          "field": "column_7",
-          "display": "langue_preferee",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "fr",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "en",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_1",
-          "display": "id_client",
-          "domain": "original",
-          "classes": [
-            {
-              "id": "f1.p1",
-              "label": "'CLI-000'99999",
-              "kind": "value"
-            },
-            {
-              "id": "f1.p2",
-              "label": "'CLI-00'99999",
-              "kind": "value"
-            },
-            {
-              "id": "f1.p3",
-              "label": "'CLI--000'99999",
-              "kind": "value"
-            },
-            {
-              "id": "f2.p1",
-              "label": "'ONT000'9999",
-              "kind": "value"
-            },
-            {
-              "id": "f2.p2",
-              "label": "AAA999999",
-              "kind": "value"
-            },
-            {
-              "id": "f3.p1",
-              "label": "'QC-000'9-9999",
-              "kind": "value"
-            },
-            {
-              "id": "f3.p2",
-              "label": "'QC--000'9-9999",
-              "kind": "value"
-            },
-            {
-              "id": "f3.p3",
-              "label": "'QC-000'9-999",
-              "kind": "value"
-            },
-            {
-              "id": "f3.p4",
-              "label": "AA-999-9999",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 100000,
-        "counted": 100000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            57583,
-            12,
-            7,
-            1843,
-            0,
-            15194,
-            5,
-            2,
-            1,
-            0
-          ],
-          [
-            15118,
-            2,
-            5,
-            7247,
-            1,
-            2978,
-            0,
-            2,
-            0,
-            0
-          ],
-          [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          74647,
-          25353,
-          0
-        ],
-        "column_totals": [
-          72701,
-          14,
-          12,
-          9090,
-          1,
-          18172,
-          5,
-          4,
-          1,
-          0
-        ],
-        "by_category": [
-          {
-            "rows": 74647,
-            "classified": 74647,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 57583,
-            "purity": 0.7714040751805163,
-            "exceptions": 17064
-          },
-          {
-            "rows": 25353,
-            "classified": 25353,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 15118,
-            "purity": 0.59630024060269,
-            "exceptions": 10235
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 72701,
-            "total": 100000,
-            "value": 0.72701
-          },
-          "reverse": {
-            "dominant": 80052,
-            "total": 100000,
-            "value": 0.80052
-          },
-          "baseline": 0.72701
-        },
-        "association": {
-          "defined": true,
-          "n": 100000,
-          "effective_categories": 2,
-          "effective_classes": 9,
-          "chi_square": 15778.250693166332,
-          "degrees": 8,
-          "cramers_v": 0.3972184624758312,
-          "corrected": 0.3971197340705417,
-          "low_share": 0.3333333333333333,
-          "stable": false,
-          "sparse": 3
-        },
-        "exceptions": {
-          "count": 27299,
-          "cells": 13,
-          "complete": true,
-          "listed": [
-            {
-              "category": 0,
-              "column": 5,
-              "count": 15194,
-              "examples": [
-                {
-                  "record": 81819,
-                  "value": "QC-0000-0001"
-                },
-                {
-                  "record": 81820,
-                  "value": "QC-0000-0002"
-                },
-                {
-                  "record": 81821,
-                  "value": "QC-0000-0003"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 3,
-              "count": 7247,
-              "examples": [
-                {
-                  "record": 72729,
-                  "value": "ONT0000002"
-                },
-                {
-                  "record": 72730,
-                  "value": "ONT0000003"
-                },
-                {
-                  "record": 72731,
-                  "value": "ONT0000004"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 5,
-              "count": 2978,
-              "examples": [
-                {
-                  "record": 81827,
-                  "value": "QC-0000-0009"
-                },
-                {
-                  "record": 81838,
-                  "value": "QC-0000-0020"
-                },
-                {
-                  "record": 81847,
-                  "value": "QC-0000-0029"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 3,
-              "count": 1843,
-              "examples": [
-                {
-                  "record": 72728,
-                  "value": "ONT0000001"
-                },
-                {
-                  "record": 72735,
-                  "value": "ONT0000008"
-                },
-                {
-                  "record": 72737,
-                  "value": "ONT0000010"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 1,
-              "count": 12,
-              "examples": [
-                {
-                  "record": 9125,
-                  "value": "CLI-0009125"
-                },
-                {
-                  "record": 22268,
-                  "value": "CLI-0002268"
-                },
-                {
-                  "record": 27712,
-                  "value": "CLI-0027712"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 2,
-              "count": 7,
-              "examples": [
-                {
-                  "record": 6111,
-                  "value": "CLI--00006111"
-                },
-                {
-                  "record": 10172,
-                  "value": "CLI--00010172"
-                },
-                {
-                  "record": 11595,
-                  "value": "CLI--00011595"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 6,
-              "count": 5,
-              "examples": [
-                {
-                  "record": 83544,
-                  "value": "QC--0000-1726"
-                },
-                {
-                  "record": 83952,
-                  "value": "QC--0000-2134"
-                },
-                {
-                  "record": 84451,
-                  "value": "QC--0000-2633"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 2,
-              "count": 5,
-              "examples": [
-                {
-                  "record": 694,
-                  "value": "CLI--00000694"
-                },
-                {
-                  "record": 27922,
-                  "value": "CLI--00027922"
-                },
-                {
-                  "record": 33054,
-                  "value": "CLI--00033054"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 7,
-              "count": 2,
-              "examples": [
-                {
-                  "record": 86207,
-                  "value": "QC-0000-389"
-                },
-                {
-                  "record": 96021,
-                  "value": "QC-0001-203"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 1,
-              "count": 2,
-              "examples": [
-                {
-                  "record": 60558,
-                  "value": "CLI-0006558"
-                },
-                {
-                  "record": 66344,
-                  "value": "CLI-0006634"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 7,
-              "count": 2,
-              "examples": [
-                {
-                  "record": 93530,
-                  "value": "QC-0001-112"
-                },
-                {
-                  "record": 97682,
-                  "value": "QC-0001-584"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 8,
-              "count": 1,
-              "examples": [
-                {
-                  "record": 95225,
-                  "value": "QC-001-3407"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 4,
-              "count": 1,
-              "examples": [
-                {
-                  "record": 77842,
-                  "value": "ONT000115"
-                }
-              ]
-            }
-          ]
-        },
-        "rules": []
-      }
-    },
-    {
-      "id": "category_crosstab:rows:column_7>column_1:length",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_7",
-      "partner": "column_1",
-      "display": "langue_preferee and id_client (length)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "length",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30,
-        "max_classes": 12
-      },
-      "domain": "mixed",
-      "key": "90947b6a621fea598573b039e9600309f15fffceba5dcc97ca2fd8dce5d93125",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "length",
-          "version": 1
-        },
-        "categories": {
-          "field": "column_7",
-          "display": "langue_preferee",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "fr",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "en",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_1",
-          "display": "id_client",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "l9",
-              "label": "9",
-              "kind": "value"
-            },
-            {
-              "id": "l10",
-              "label": "10",
-              "kind": "value"
-            },
-            {
-              "id": "l11",
-              "label": "11",
-              "kind": "value"
-            },
-            {
-              "id": "l12",
-              "label": "12",
-              "kind": "value"
-            },
-            {
-              "id": "l13",
-              "label": "13",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 100000,
-        "counted": 100000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            0,
-            1843,
-            15,
-            72777,
-            12,
-            0
-          ],
-          [
-            1,
-            7247,
-            4,
-            18096,
-            5,
-            0
-          ],
-          [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          74647,
-          25353,
-          0
-        ],
-        "column_totals": [
-          1,
-          9090,
-          19,
-          90873,
-          17,
-          0
-        ],
-        "by_category": [
-          {
-            "rows": 74647,
-            "classified": 74647,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 3,
-            "dominant_count": 72777,
-            "purity": 0.9749487588248691,
-            "exceptions": 1870
-          },
-          {
-            "rows": 25353,
-            "classified": 25353,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 3,
-            "dominant_count": 18096,
-            "purity": 0.7137616850076914,
-            "exceptions": 7257
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 90873,
-            "total": 100000,
-            "value": 0.90873
-          },
-          "reverse": {
-            "dominant": 80052,
-            "total": 100000,
-            "value": 0.80052
-          },
-          "baseline": 0.90873
-        },
-        "association": {
-          "defined": true,
-          "n": 100000,
-          "effective_categories": 2,
-          "effective_classes": 5,
-          "chi_square": 15623.480450963238,
-          "degrees": 4,
-          "cramers_v": 0.3952654861098201,
-          "corrected": 0.39521685957067804,
-          "low_share": 0.25,
-          "stable": false,
-          "sparse": 1
-        },
-        "exceptions": {
-          "count": 9127,
-          "cells": 7,
-          "complete": true,
-          "listed": [
-            {
-              "category": 1,
-              "column": 1,
-              "count": 7247,
-              "examples": [
-                {
-                  "record": 72729,
-                  "value": "ONT0000002"
-                },
-                {
-                  "record": 72730,
-                  "value": "ONT0000003"
-                },
-                {
-                  "record": 72731,
-                  "value": "ONT0000004"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 1,
-              "count": 1843,
-              "examples": [
-                {
-                  "record": 72728,
-                  "value": "ONT0000001"
-                },
-                {
-                  "record": 72735,
-                  "value": "ONT0000008"
-                },
-                {
-                  "record": 72737,
-                  "value": "ONT0000010"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 2,
-              "count": 15,
-              "examples": [
-                {
-                  "record": 9125,
-                  "value": "CLI-0009125"
-                },
-                {
-                  "record": 22268,
-                  "value": "CLI-0002268"
-                },
-                {
-                  "record": 27712,
-                  "value": "CLI-0027712"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 4,
-              "count": 12,
-              "examples": [
-                {
-                  "record": 6111,
-                  "value": "CLI--00006111"
-                },
-                {
-                  "record": 10172,
-                  "value": "CLI--00010172"
-                },
-                {
-                  "record": 11595,
-                  "value": "CLI--00011595"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 4,
-              "count": 5,
-              "examples": [
-                {
-                  "record": 694,
-                  "value": "CLI--00000694"
-                },
-                {
-                  "record": 27922,
-                  "value": "CLI--00027922"
-                },
-                {
-                  "record": 33054,
-                  "value": "CLI--00033054"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 2,
-              "count": 4,
-              "examples": [
-                {
-                  "record": 60558,
-                  "value": "CLI-0006558"
-                },
-                {
-                  "record": 66344,
-                  "value": "CLI-0006634"
-                },
-                {
-                  "record": 93530,
-                  "value": "QC-0001-112"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 0,
-              "count": 1,
-              "examples": [
-                {
-                  "record": 77842,
-                  "value": "ONT000115"
-                }
-              ]
-            }
-          ]
-        },
-        "rules": [
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 0,
-            "column": 3,
-            "support": 74647,
-            "confidence": 0.9749487588248691,
-            "exceptions": 1870
-          }
-        ]
       }
     }
   ]

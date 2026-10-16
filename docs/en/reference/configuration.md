@@ -47,10 +47,6 @@ presentation: changing them never scans the source again.
 {
   "report": {
     "string_analysis": {
-      "very_short_max_length": 5,
-      "short_max_length": 20,
-      "medium_max_length": 50,
-      "long_max_length": 255,
       "length_distribution_max_length": 50,
       "examples_per_length": 10
     },
@@ -85,13 +81,19 @@ columns are masked or hidden as in the rest of the report (see
 ### String analysis
 
 Present values in `text` columns are classified from their maximum length as
-`very_short`, `short`, `medium`, `long` or `very_long`. A fixed length is
+`very_short`, `short`, `medium`, `long` or `very_long`, with the bounds of
+[`scan.classification`](#text-length-bounds) (5, 20, 50 and 255 characters by
+default). The Text type of a column is decided on the same bounds, but on the
+median length: a column can be Short as a type and `medium` in this section when
+a few values are long. A fixed length is
 recorded separately when minimum and maximum match. Missing values do not
 contribute to lengths. Mean and median length are calculated for every text
 column; the report leaves them blank when the fixed length already conveys the
 same information.
 
-When the column maximum is at most `length_distribution_max_length`, JSON also
+`length_distribution_max_length` cannot exceed `scan.classification.medium_max_length`;
+the two settings are in different objects, so the report stops with an error
+when they disagree. When the column maximum is at most `length_distribution_max_length`, JSON also
 contains the exact occurrence count of every observed length. Each length lists
 up to `examples_per_length` example values, taken from the most frequent values
 of the column, then from its sampled values. `distinct_length_count` remains
@@ -203,6 +205,7 @@ The analysis settings moved to `scan`, the presentation settings to `report`:
 | `value_examples.random_seed` | `scan.random_seed` |
 | `preview_rows` | `scan.records.sample.edge` and `report.row_sample` |
 | `string_analysis` | `report.string_analysis` |
+| `report.string_analysis.very_short_max_length`, `short_max_length`, `medium_max_length` and `long_max_length` | `scan.classification.<same key>`: the Text type they decide is written in the scan |
 | `value_examples` (other than the two below) | `report.value_examples` |
 
 ## Output settings
@@ -395,6 +398,10 @@ object of each configuration file. The complete object with its defaults is:
       }
     },
     "types": {"minimum_confidence": 0.95},
+    "classification": {
+      "very_short_max_length": 5, "short_max_length": 20,
+      "medium_max_length": 50, "long_max_length": 255
+    },
     "detection": {
       "minimum_share": 0.95, "warmup_values": 10000, "probe_interval": 100,
       "rare_share": 0.001
@@ -615,6 +622,22 @@ A detector skipped after the warm-up may miss rare values that appear later
 in the file, including sensitive ones such as an email address in a comment
 column: such a value would not be masked. Set `detection.warmup_values` to
 `0` when every sensitive value must be found.
+
+### Text length bounds
+
+`classification` holds the four bounds that name the Text types of a column:
+Very short up to `very_short_max_length` characters, Short up to
+`short_max_length`, Medium up to `medium_max_length`, Long up to
+`long_max_length` and Very long above. The type is decided on the exact median
+of the lengths of the present values, not on the maximum. The bounds must be
+whole numbers of at least 1 and strictly increasing.
+
+The `report.string_analysis` section reads the same bounds on the maximum
+length (see [String analysis](#string-analysis)). They are scan settings because
+the Text type is written in the scan document: changing one changes the scan
+configuration, so a stored scan is stale and the source is scanned again. They
+were `report.string_analysis` settings before; the old keys are refused with
+their new place (see [Settings that moved](#settings-that-moved)).
 
 ### Detectors
 

@@ -164,7 +164,7 @@ Insights cards are derived from `analyses` when the HTML is rendered; they are n
 | `generated_at` | UTC date and time of the report (ISO 8601) |
 | `generator` | `name` (`tabalyst`) and `version` of the Tabalyst that wrote the report |
 | `processing_seconds` | Scan and profile time, in seconds; for a report built from a scan document with `--scan`, the scan duration recorded in the document plus the time to read it and build the profile |
-| `config` | The presentation settings: `string_analysis`, `value_examples` and `row_sample`. The analysis settings are the root `config`. See the [configuration](../reference/configuration.md) |
+| `config` | The presentation settings: `string_analysis` (`length_distribution_max_length` and `examples_per_length`; the length bounds are in the root `config.classification`), `value_examples` and `row_sample`. The analysis settings are the root `config`. See the [configuration](../reference/configuration.md) |
 | `base_scan` | The identity of the scan base the report holds (see below) |
 | `datasets` | One projection per dataset shown, identified by the dataset `id` (see below) |
 

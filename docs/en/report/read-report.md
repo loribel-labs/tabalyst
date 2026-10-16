@@ -188,7 +188,7 @@ do not contribute to lengths.
 
 | Report column | Meaning | What to check |
 | --- | --- | --- |
-| Class | `very_short`, `short`, `medium`, `long` or `very_long`, based on the maximum observed length and configured thresholds. | This is a length class, not a semantic type. |
+| Class | `very_short`, `short`, `medium`, `long` or `very_long`, based on the maximum observed length and the `scan.classification` bounds. | This is a length class, not a semantic type. The Text type of the Scan [classification](../scan/format.md#classification) uses the same bounds on the median length, so the two can differ. |
 | Fixed | One length when minimum and maximum agree. | A fixed width alone does not prove a field is an identifier. |
 | Min, Max, Mean, Median | Length statistics for present text. | These cells are blank for a fixed-length field because **Fixed** already conveys its length. |
 | Lengths | Frequency of each length, when the maximum fits the configured distribution limit. | The tooltip includes bounded examples per length. |

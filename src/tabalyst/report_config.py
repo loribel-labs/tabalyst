@@ -25,6 +25,22 @@ from tabalyst.errors import ConfigurationError
 from tabalyst.scanner.config import ScanConfig, scan_config_from_layer
 
 
+def check_length_distribution(
+    presentation: PresentationSettings, scan: ScanConfig
+) -> None:
+    """Raise ``ConfigurationError`` when the exact length distribution would go
+    beyond the medium bound: the two values live in different objects, so
+    neither can check the other alone."""
+    distribution = presentation.string_analysis.length_distribution_max_length
+    medium = scan.classification.medium_max_length
+    if distribution > medium:
+        raise ConfigurationError(
+            "Invalid configuration: report.string_analysis."
+            f"length_distribution_max_length ({distribution}) cannot exceed "
+            f"scan.classification.medium_max_length ({medium})."
+        )
+
+
 class ReportConfig(PresentationSettings):
     """The settings of one report: its presentation, then the scan it stands
     on. Flat, unlike the configuration file, which has a ``report`` object."""
@@ -36,6 +52,7 @@ class ReportConfig(PresentationSettings):
         cls, presentation: PresentationSettings, scan: ScanConfig
     ) -> "ReportConfig":
         """The presentation settings, then the scan configuration they go with."""
+        check_length_distribution(presentation, scan)
         return cls(**presentation.model_dump(), scan=scan)
 
     @classmethod

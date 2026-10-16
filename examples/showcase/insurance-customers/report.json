@@ -19,21 +19,24 @@
       "quantity": 1,
       "uuid": 1,
       "ip_address": 1
+    },
+    "classification": {
+      "catalogue": 1
     }
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-14T22:56:54.636607Z",
-    "duration_seconds": 2.450991,
+    "started_at": "2026-10-16T06:57:20.185326Z",
+    "duration_seconds": 2.425081,
     "timings": {
-      "reading": 0.318784,
-      "analysis": 0.734477,
-      "finalize": 0.852749,
-      "derived": 0.053295,
-      "other": 0.491686
+      "reading": 0.352857,
+      "analysis": 0.714872,
+      "finalize": 0.781376,
+      "derived": 0.051688,
+      "other": 0.524288
     },
     "workers": 6,
-    "peak_memory_bytes": 163172352
+    "peak_memory_bytes": 163962880
   },
   "source": {
     "format": "csv",
@@ -179,6 +182,12 @@
     },
     "types": {
       "minimum_confidence": 0.95
+    },
+    "classification": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255
     },
     "detection": {
       "minimum_share": 0.95,
@@ -340,7 +349,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
+  "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
   "scope": {
     "collections": null,
     "records_read": 100000,
@@ -2061,6 +2070,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -2807,6 +2849,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -4634,6 +4709,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99993,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99993,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -6417,6 +6525,39 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99996,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99996,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -8271,6 +8412,28 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99994,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -9006,6 +9169,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -9743,6 +9939,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -11271,6 +11500,28 @@
               }
             ]
           },
+          "classification": {
+            "family": "numeric",
+            "type": "integer",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "integer",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -12356,6 +12607,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -14340,6 +14624,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -15197,6 +15514,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 25102,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 25102,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -16710,6 +17060,28 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "numeric",
+            "type": "integer",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "integer",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 34772,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -18556,6 +18928,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -19594,6 +19999,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99997,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99997,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -20639,6 +21077,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -22917,6 +23388,39 @@
               }
             ]
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -23669,6 +24173,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -25637,6 +26174,39 @@
               }
             ]
           },
+          "classification": {
+            "family": "text",
+            "type": "text_medium",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": true,
           "exposure": "show"
         },
@@ -27161,6 +27731,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": true,
           "exposure": "show"
@@ -28698,6 +29301,39 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99991,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99991,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -29653,6 +30289,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99998,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99998,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -31221,6 +31890,28 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -32801,6 +33492,28 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 83592,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -33634,6 +34347,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -35310,6 +36056,28 @@
               }
             ]
           },
+          "classification": {
+            "family": "numeric",
+            "type": "number",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "number",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 99997,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -36125,6 +36893,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -37034,6 +37835,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -38059,6 +38893,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -39623,6 +40490,28 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -41195,6 +42084,28 @@
             "primary": null,
             "candidates": []
           },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -42744,6 +43655,28 @@
           "interpretations": {
             "primary": null,
             "candidates": []
+          },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 14240,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -44350,6 +45283,28 @@
               }
             ]
           },
+          "classification": {
+            "family": "numeric",
+            "type": "number",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "number",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 11683,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -45139,6 +46094,39 @@
               }
             ]
           },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 14240,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 14240,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
+          },
           "sensitive": false,
           "exposure": null
         },
@@ -45902,6 +46890,39 @@
                 "share_eligible": 1.0
               }
             ]
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 100000,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 1
           },
           "sensitive": false,
           "exposure": null
@@ -64984,7 +66005,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -64994,8 +66015,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
-        "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
-        "facts_sha256": "c6446493e04e53838db94013c8070295905a97c3616c5a64a25ac04a2f34fb65"
+        "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+        "facts_sha256": "dff40230d87ba52597070a9f05bd69098637c14d4ccfff617b6ec479d89b5362"
       },
       "settings": {
         "bins": 100,
@@ -65104,13 +66125,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 17,
-        "plan_id": "986e7d47d156c349eedd0e4d4f4d7ef473b0a7433f6a60288570caba43a7f76c",
+        "plan_id": "a9db33640c559fe0bff98a3d947fe8e2a66b462542b4c09c065e8b7a5d6f7aa2",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
-          "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
-          "facts_sha256": "c6446493e04e53838db94013c8070295905a97c3616c5a64a25ac04a2f34fb65"
+          "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+          "facts_sha256": "dff40230d87ba52597070a9f05bd69098637c14d4ccfff617b6ec479d89b5362"
         },
         "objective": {
           "automatic": true,
@@ -84355,21 +85376,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-16T00:03:58.769569Z",
-        "duration_seconds": 0.000648,
+        "started_at": "2026-10-16T06:57:23.128639Z",
+        "duration_seconds": 3.812524,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000648
+          "reading": 0.398552,
+          "analysis": 2.468776,
+          "other": 0.945197
         },
-        "workers": 1,
-        "peak_memory_bytes": 115302400,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 42,
+        "workers": 6,
+        "peak_memory_bytes": 178253824,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 100000,
+        "cells_read": 3400000,
+        "executed": 42,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -84385,7 +85406,7 @@
             "distinct": 230
           },
           "domain": "analytical",
-          "key": "3147f64d50943430337d3f4a9146ef298b83dffce4c3004de8bf666fe8471a70",
+          "key": "dfd030bac3f3472af96a956157db463ac2cd2538f20b87274729f87e29d68c59",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -85565,7 +86586,7 @@
             "distinct": 223
           },
           "domain": "analytical",
-          "key": "294318dfe7108faf942352d3ecb4dde8a3e9c368cecd8a36c0f890e5b2eb07b7",
+          "key": "be29bb22d4922b4a612ecf82b8a9283c0ed60fc5b05fb077480c89e96f539730",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -86710,7 +87731,7 @@
             "distinct": 177
           },
           "domain": "analytical",
-          "key": "202815af414a0ad182a2d77e0e23d9d72e34c67bb85bb8f2add1d489f67f17de",
+          "key": "b322848fb5f4c40da2f4095a5913fadb7f9d69c4f30082cecf08a7ba83f98e06",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -87625,7 +88646,7 @@
             "distinct": 999
           },
           "domain": "analytical",
-          "key": "c4ed79af1ed4a730d1931c747adea6d5fac26e92a47d47288e297af2b90a52f6",
+          "key": "5147972f471bc26df9dc4690bf229971d8711c55f0d606d9a7d5918f68eded8c",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -92665,7 +93686,7 @@
             "distinct": 133
           },
           "domain": "analytical",
-          "key": "9048d1d766fc63d2e32aa683f69d24139b1d792f5168d8a4ed2b555fe6237762",
+          "key": "5aed75cbb70f8f4a217ef5081cde1dd540addf7b61abe71aa9d8fb6f0a96497e",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -93360,7 +94381,7 @@
             "domain": 9999
           },
           "domain": "analytical",
-          "key": "35cbe5d05f9907841f4f361dee36581e13e3ebb175354770c8bc4953c31a5973",
+          "key": "f047033f3f7f3f69a6d664ec082fc2815c79ec7b5459eb22b73c7c69ff2a9741",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -133416,7 +134437,7 @@
             "domain": 999
           },
           "domain": "analytical",
-          "key": "5bcb602aab76488f1b6ec7daa85554ebfa7d7f72b5fc418ade6b8aa0df3c6504",
+          "key": "b1f3f08c7b035506a135333bd3e7b47bd54898afd7f420261fa3836db239f28b",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -137476,7 +138497,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "61f63f7d7460778dd4004d9018ba39bccc6698f11324658b02a06872d7ffc5a5",
+          "key": "4931cf3aebde2bd30ea370988b22a3aa2faf98a92e99ab70654b9d6f21b91562",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -137754,7 +138775,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "d0721efabd4e33084f8bc715059ecd68ec56eb3a09f220e45af1c5c65239490b",
+          "key": "25d6ed7c2f5be65bd37a337a89ac62a06c5f6eed775897656f5173f6c936fa37",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -138038,7 +139059,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "52960dffc741b6afeefc95f9c6503e1fd8a6edd3da9404c75419503c4a6f6768",
+          "key": "7df711b347b35aa3922fcac9dcc2ffe03fa78d04153ab59400abe2d33c407484",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -138276,7 +139297,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "2fd24f4dadfa5ec529ba3f8c53ff35bb747c6938c484818a682b626eb5845ddd",
+          "key": "15fc83fc75e64844a44c0d553422a768c94cb0c2f252a367f5ef2bfcb01ea9b6",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -138759,7 +139780,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "365597a5d7f61cd2fc0dd5b59a114dde08d433e126057ef492f8e2707f505fa2",
+          "key": "60d1bf0bec9d4e1cf9eefea5f402035681f836ab19118aae51d34bbd9ce02c0c",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -139092,7 +140113,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "f248d601699117906255606891984c9cf5e525e5a879e515253ae7ef82584532",
+          "key": "a699ba730f7369674d3545b9658cf8310477aad191148f77df42b8afde06881b",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -139587,7 +140608,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "96f2b75f9ddc738ceb62112e7760ba817cba193027b871ad4cdea07ef7a418d5",
+          "key": "2c576c2f85740173bc8ac87ae7c11d82838827e165cd5a61700165daa4111fb6",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -139792,7 +140813,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "1649a4b4978b5af6099bd70dfc1d300124d1a9c47444af54a11842c0a32174d9",
+          "key": "e04b5404eadf91b79ca3f76ea3d5f5f48749e98d7807f7269fdf010bde1f2300",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -140443,7 +141464,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "3d29f07812c6866458feda054e8bf347730db457ef7331324bc0a06e283f2520",
+          "key": "315bf2dd0aedc6b8ecf905c546945fd7a21be3f2753755291f5d8fb83c6ddc3f",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -140742,7 +141763,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "783bd0957f39888d9892f8126089dde2c51ceb55a559d89c81fe27d15c1b142f",
+          "key": "8213bf65afd1cf887d99eef3a263ac734393ab7a041b5815a32dc82eba9a7bef",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -140939,7 +141960,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "7bc96591704c0663654fd449f97a74a2dba22f9744bc60d5f62ecca1a172f4b9",
+          "key": "2339efc526a907bafe5d41c650f37281af91e23d1be17ebf6c40913734c7d8ec",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -141606,7 +142627,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "d9011158f6a24a27ecf693b71710df18cf239dc16e11c36994dfb6f8c8668d97",
+          "key": "89bd92711a23276881a6432f8e1ad4fa549a20b6db8456de0196ea636e40e3e4",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -142193,7 +143214,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "cc34fa9491499e50c98934f1f3f887e038b2b20a8ac3d4663c3906b4161d6f60",
+          "key": "1573f477fe2a947b0e658c61b1689a27ea77010200b859ed2da81c8f4b8fcb27",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -142521,7 +143542,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "da4aeb42f3dabdb4757362c1d5aa8cae1acac94eadd7274e87982b1b1424b902",
+          "key": "a3c98ab46142fbf82fa4887f9415c86dcfc8f9bcfd5029e3e22601bdffbda320",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -143082,7 +144103,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "ace16c1b460fcf9743d880ebc63fe235078a10a49d72d19796b9da3941c75154",
+          "key": "025eebc0ff34b1c4fa725af74cb46f320d7370b0d4d02077f436a7bb0a5d1c15",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -143603,7 +144624,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "5456ce9fa4f858359dbb9d1c1b38f21942d93903e9dc503500178a40fffaab06",
+          "key": "1b8808f2876766dd1a97c40e76421ae62dcc0ba97f28aed3f35175a712b797dd",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -144116,7 +145137,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "9b895cf1b004d05f4bb9b9fc829f91935ac333fe1fd20dd1336f907c54d5f419",
+          "key": "7e1aa68b056fa16bca91dda7346859de3c9f77042c9b8374c36b74e52316b6ac",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -144627,7 +145648,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "f199db580474d2a650e7e3f6a2df5fd1793b9c946ccbeab6e16d7eba7826d807",
+          "key": "0b7ee725562e5d282ed9681cf100c27e9d3022d14249698d8a9f0eead587b37f",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -144680,7 +145701,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "bd3a12db87bc56680c9b5eae4599efd3fc684ed348980b03b789717d83978f57",
+          "key": "7559858df9c497d76e5fe81cea80022d62d004818f0afb58433aaa53c1ec2968",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -144786,7 +145807,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "5c13b465a8109189b1b6f7fa892f728e5f1c28693756039133eab41beb41d737",
+          "key": "c2191f2679f0ef1ae287fa8d37bcdbc319019d7642fc88263eb6d0d808b60d89",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -144892,7 +145913,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "0cc2489758eab791c9b57f9b26ce6694326ef4f6a38a1681939e6ee48058f38a",
+          "key": "e752083830388227dc030dcdb58a6fe8e9af2f184b5af3688826ad91ddb126ab",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -145003,7 +146024,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "889bde51fb6934b01c20d08f2ede4a6d7f1a6dbe136953223c6c2672a2a6ccb2",
+          "key": "6c47f71dbc5f7750da3b35a008061461dd1be00b4bb603acbaa7471f373429ed",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -145104,7 +146125,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "36941684bca1a6ebde26fe667bf635b6a48ac820dd61b7cc579c3a04fc7d2cfc",
+          "key": "65399f304299560b588862fb0644f9497347984a5bd6fa08a5bca1b82c2f58a9",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -145155,7 +146176,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "d359632c9f703f5c2f91911cc17fc21d91554d1b15f95677f9489cc8ae1065ec",
+          "key": "a8bca49add214e070ffd6e31ae3cd932c3ec89bf4f3a7c292d88025287fcb00b",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -145232,7 +146253,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "000ba9118275c75a20c2feb17f711be0cad177e42fda7759073f35d0801ab47b",
+          "key": "4884e9559ec799a2e600a2e7131b3c2bdf946d5f780c787665882daf443d3028",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -145375,7 +146396,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "16de3c3ce49cfa916584a478b4c0f34461f4ef41145966380412f8e965eab01c",
+          "key": "77c71b99338f62c9050d0d34395fdeb2df5e2abac822e6f8b429fc1de9c5f211",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -145571,7 +146592,7 @@
             "max_classes": 12
           },
           "domain": "mixed",
-          "key": "51b9f86ac7ee33ea5de334759b0fb8978b612b5730a9265b1e487c5ae503fc29",
+          "key": "4b468e9ba4bf58635c5ef4f84962ae1b239076710a3c85fb3e43928eef01d985",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -145767,7 +146788,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "fe533bb620e047710cd524c2264151ef14ab1fbaf6cd784210e81980adae2622",
+          "key": "9c5853218d9f9289c9b22d1138a97f619cda82bcd20c44f6d51c92630792e9c6",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -146005,7 +147026,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "feaa2465a427ddcabde4e0ea2d06314ec790633eaafb49d0f8e44baf3a9cd94a",
+          "key": "c8df9afd6475c9172fa5f4aecf80a3369045718143850c4c34fb28353f6d4dd9",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -147011,7 +148032,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "55ac62ae0cfbbc5402053efd58725e9b54b202739a12fcf78946b914738a3083",
+          "key": "c3855eedcee4775c6bf37512903826644c70b0bd9afd1b1869749e950f58834f",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -148025,7 +149046,7 @@
             "max_classes": 12
           },
           "domain": "mixed",
-          "key": "0f6e54654f9809333a1e4d59692f39135b7f0061ad05b867abc800207b0fc129",
+          "key": "82b479c20fb8f31ed5ae1c89fb28f999e0c30d4b1db43999b006cd8d8154d8a3",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -149039,7 +150060,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "b29ce8cbfb2d7ccf9ad148fa05d8cca7b6553f406506808bf56d1745f8198f7a",
+          "key": "dbdfaba19b444a78c311368ac111588e9ea710c71b18f589ce64a9e6b73dfdda",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -150024,7 +151045,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "13430c0bf4ab29d4ca48cfd558e77b5c71675f3f8c5c07fa1cb473a30dca0bb8",
+          "key": "ceff94def8a1937a539c55be6d988fa00db9856fd94c233d6f570aa97ed3984e",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -150852,7 +151873,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "603abf636e25942b1e08bbb8c8434f9a852178917361a4a6325f992431a460a5",
+          "key": "237191cfe5cdfefcc9c337e83fa9615e5024f88d2978dbcd9c03102860e14616",
           "status": "complete",
           "result": {
             "kind": "category_stats",
@@ -152123,7 +153144,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "39eac85cd4a9deeb8420b04981b2c6bb75946dd3f4726c43e058d43d9f832168",
+          "key": "35c5637411ea0301c024deac2ba2958787753e684db1910b360327cdb63958fb",
           "status": "complete",
           "result": {
             "kind": "category_stats",
@@ -153530,18 +154551,14 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-16T00:03:59.361154Z",
+    "generated_at": "2026-10-16T06:57:27.580956Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 3.1749,
+    "processing_seconds": 9.6526,
     "config": {
       "string_analysis": {
-        "very_short_max_length": 5,
-        "short_max_length": 20,
-        "medium_max_length": 50,
-        "long_max_length": 255,
         "length_distribution_max_length": 50,
         "examples_per_length": 10
       },
@@ -153568,8 +154585,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
-      "config_sha256": "a381ccd3a0fd4a1f2774ca6942b790c4042a287ca39789d30624031ed1c45f9f",
-      "facts_sha256": "c6446493e04e53838db94013c8070295905a97c3616c5a64a25ac04a2f34fb65"
+      "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+      "facts_sha256": "dff40230d87ba52597070a9f05bd69098637c14d4ccfff617b6ec479d89b5362"
     },
     "datasets": [
       {

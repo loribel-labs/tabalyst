@@ -598,6 +598,223 @@
       "title": "CharacterMap",
       "type": "object"
     },
+    "Classification": {
+      "additionalProperties": false,
+      "description": "The family and type of a field. ``basis`` says how it was decided,\n``state`` how firmly; ``rule_version`` is the version of the catalogue that\ndecided (see ``classification_versions``).",
+      "properties": {
+        "family": {
+          "title": "Family",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "basis": {
+          "enum": [
+            "declared",
+            "inferred",
+            "fallback"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "established",
+            "candidate",
+            "undetermined"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "traits": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Traits",
+          "type": "array"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/ClassificationEvidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "alternatives": {
+          "items": {
+            "$ref": "#/$defs/ClassificationAlternative"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "rule_version": {
+          "title": "Rule Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "family",
+        "type",
+        "basis",
+        "state",
+        "traits",
+        "evidence",
+        "alternatives",
+        "rule_version"
+      ],
+      "title": "Classification",
+      "type": "object"
+    },
+    "ClassificationAlternative": {
+      "additionalProperties": false,
+      "description": "A candidate that was not retained, with the reason. Never a conclusion.",
+      "properties": {
+        "family": {
+          "title": "Family",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "family",
+        "type",
+        "reason"
+      ],
+      "title": "ClassificationAlternative",
+      "type": "object"
+    },
+    "ClassificationEvidence": {
+      "additionalProperties": false,
+      "description": "A fact that supports, contradicts or frames the classification: a\ndetector id, a measure name (``string_lengths.median_length``), the\ntechnical type or a name rule id.",
+      "properties": {
+        "source": {
+          "enum": [
+            "detector",
+            "technical_type",
+            "measure",
+            "name_rule",
+            "position"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "supports",
+            "contradicts",
+            "context"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "#/$defs/ClassificationScope"
+        }
+      },
+      "required": [
+        "source",
+        "id",
+        "role",
+        "scope"
+      ],
+      "title": "ClassificationEvidence",
+      "type": "object"
+    },
+    "ClassificationScope": {
+      "additionalProperties": false,
+      "description": "What a fact covers: ``of`` is the size of its population, ``null`` when\nunknown; ``partial`` says the fact covers only part of that population (a\nlimited measure, an adaptive detector).",
+      "properties": {
+        "population": {
+          "enum": [
+            "positions",
+            "present_values",
+            "eligible",
+            "tested",
+            "records"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "of": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Of"
+        },
+        "partial": {
+          "title": "Partial",
+          "type": "boolean"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "lower_bound",
+            "sample",
+            "estimated"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "population",
+        "of",
+        "partial",
+        "accuracy"
+      ],
+      "title": "ClassificationScope",
+      "type": "object"
+    },
+    "ClassificationSettings": {
+      "additionalProperties": false,
+      "description": "Bounds of the Text types, on the exact median length of a column's values\n(Report overview contract 3.6). The String analysis section of the report\nreads the same bounds on the maximum length. They are scan settings because\nthe type they decide is written in the Scan: changing one changes\n``config_sha256``.",
+      "properties": {
+        "very_short_max_length": {
+          "default": 5,
+          "minimum": 1,
+          "title": "Very Short Max Length",
+          "type": "integer"
+        },
+        "short_max_length": {
+          "default": 20,
+          "minimum": 1,
+          "title": "Short Max Length",
+          "type": "integer"
+        },
+        "medium_max_length": {
+          "default": 50,
+          "minimum": 1,
+          "title": "Medium Max Length",
+          "type": "integer"
+        },
+        "long_max_length": {
+          "default": 255,
+          "minimum": 1,
+          "title": "Long Max Length",
+          "type": "integer"
+        }
+      },
+      "title": "ClassificationSettings",
+      "type": "object"
+    },
     "CollectionScope": {
       "additionalProperties": false,
       "properties": {
@@ -1748,12 +1965,20 @@
           },
           "title": "Detectors",
           "type": "object"
+        },
+        "classification": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Classification",
+          "type": "object"
         }
       },
       "required": [
         "version",
         "normalization_version",
-        "detectors"
+        "detectors",
+        "classification"
       ],
       "title": "EngineInfo",
       "type": "object"
@@ -2584,6 +2809,9 @@
         "interpretations": {
           "$ref": "#/$defs/Interpretations"
         },
+        "classification": {
+          "$ref": "#/$defs/Classification"
+        },
         "sensitive": {
           "title": "Sensitive",
           "type": "boolean"
@@ -2629,6 +2857,7 @@
         "technical_type",
         "detectors",
         "interpretations",
+        "classification",
         "sensitive",
         "exposure"
       ],
@@ -5903,6 +6132,9 @@
         },
         "types": {
           "$ref": "#/$defs/TypeSettings"
+        },
+        "classification": {
+          "$ref": "#/$defs/ClassificationSettings"
         },
         "detection": {
           "$ref": "#/$defs/DetectionSettings"

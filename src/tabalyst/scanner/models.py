@@ -15,6 +15,7 @@ from typing import Annotated, Any, Generic, Literal, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_serializer
 
+from tabalyst.scanner.classify.models import Classification
 from tabalyst.scanner.config import MissingCategory, ScalarType, ScanConfig
 from tabalyst.scanner.observations import DatasetKind, NativeType
 
@@ -772,6 +773,9 @@ class FieldResult(ScanModel):
     technical_type: TechnicalType
     detectors: list[DetectorResult]
     interpretations: Interpretations
+    # Family and type of the field, decided from the blocks above (contract
+    # docs/dev/report/summary-table.md 3).
+    classification: Classification
     sensitive: bool
     # The exposure applied to the values of a sensitive field (design 12.8).
     exposure: Literal["mask", "hide", "show"] | None
@@ -943,6 +947,8 @@ class EngineInfo(ScanModel):
     version: str
     normalization_version: int
     detectors: dict[str, int]
+    # Versions of the rules that classify the fields, by name.
+    classification: dict[str, int]
 
 
 class CsvSourceInfo(ScanModel):
