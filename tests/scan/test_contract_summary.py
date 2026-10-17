@@ -495,41 +495,98 @@ def test_unique_id_publishes_its_scope_in_the_evidence(tmp_path):
 # --- R4: refinement by the second pass ------------------------------------------
 
 
+def _limited_id(directory):
+    """The Scan of a column named ``customer_id`` whose 300 distinct values the
+    scan stopped counting at 50, and the forced second pass that counts them."""
+    from second_pass_helpers import deep_csv
+
+    from tabalyst.models import AnalysesBlock
+
+    rows = [f"C{n:05d},x" for n in range(300)]
+    result, _, outcome = deep_csv(
+        directory, "customer_id,label", rows, limits={"max_distinct_per_field": 50}
+    )
+    analyses = AnalysesBlock(mode="forced", outcome="ran", deep=outcome.document)
+    return result.datasets[0].fields[0], analyses
+
+
 @pytest.mark.report_lot("R4")
 def test_the_second_pass_turns_a_limited_id_into_a_unique_id(tmp_path):
-    from tabalyst.report_classification import refine  # noqa: F401
+    from tabalyst.report_classification import refine
 
-    pytest.fail("Contract: refine(field, analyses) uses exact_distinct (section 4).")
+    field_, analyses = _limited_id(tmp_path)
+
+    first = field_.classification
+    refined = refine(field_, analyses)
+
+    assert (first.family, first.type) == ("identifier", "id")
+    assert (refined.family, refined.type) == ("identifier", "unique_id")
+    assert refined.state == "candidate"
+    assert {"exact_distinct.distinct", "missing.count"} <= {
+        item.id for item in refined.evidence
+    }
 
 
 @pytest.mark.report_lot("R4")
-def test_without_a_valid_second_pass_the_scan_classification_is_unchanged():
-    from tabalyst.report_classification import refine  # noqa: F401
+def test_without_a_valid_second_pass_the_scan_classification_is_unchanged(tmp_path):
+    from tabalyst.models import AnalysesBlock
+    from tabalyst.report_classification import refine
 
-    pytest.fail("Contract: absent, stale or failed analyses invent nothing.")
+    field_, analyses = _limited_id(tmp_path)
+    failed = AnalysesBlock(mode="auto", outcome="failed", reason="source changed")
+    stale = analyses.deep.model_copy(
+        update={
+            "base": analyses.deep.base.model_copy(update={"facts_sha256": "0" * 64})
+        }
+    )
+
+    # Absent, failed, or standing on another Scan: nothing is invented.
+    assert refine(field_, None) == field_.classification
+    assert refine(field_, failed) == field_.classification
+    assert (
+        refine(
+            field_,
+            analyses.model_copy(update={"deep": stale}),
+            base=analyses.deep.base,
+        )
+        == field_.classification
+    )
 
 
 @pytest.mark.report_lot("R4")
 def test_CA20_the_classification_renders_without_the_source(tmp_path):
     from tabalyst import analyze_csv
+    from tabalyst.json_text import dump_json
+    from tabalyst.reporting import load_profile, render_report
 
     source = _csv(tmp_path, "note", ["alpha", "beta", "gamma"] * 10)
     profile = analyze_csv(source)
+    document = write_text(
+        tmp_path, "report.json", dump_json(profile.model_dump(mode="json"))
+    )
+    fresh = render_report(profile)
     source.unlink()
 
-    column = profile.report.datasets[0].columns[0]
+    again = load_profile(document)
+    column = again.report.datasets[0].columns[0]
     assert column.classification.family == "text"
+    assert column.classification == profile.report.datasets[0].columns[0].classification
     assert not hasattr(column, "semantic_type")
+    assert render_report(again) == fresh
 
 
 # --- R5, R6a, R6b: findings -----------------------------------------------------
 
 
 def _column_view(directory, header, values, **settings):
+    """The view of the first column of a CSV. A second column of row numbers lets
+    the first one hold empty cells: a line with no field at all is not a record."""
     from tabalyst import analyze_csv
     from tabalyst.reporting import dataset_views
 
-    profile = analyze_csv(_csv(directory, header, values))
+    lines = [f"{header},row"] + [f"{value},{n}" for n, value in enumerate(values)]
+    source = write_text(directory, "data.csv", "\n".join(lines) + "\n")
+    profile = analyze_csv(source)
     return dataset_views(profile)[0].columns[0]
 
 
@@ -613,12 +670,23 @@ def test_a_share_over_a_zero_population_is_unavailable_not_nan():
 
 @pytest.mark.report_lot("R5")
 def test_CA26_equal_counts_without_proven_overlap_are_not_merged():
-    from tabalyst.report_findings import merge_proven
+    from tabalyst.report_findings import Finding, Population, merge_proven
 
-    first = {"code": "pattern.minority", "count": 36, "overlaps": []}
-    second = {"code": "length.minority", "count": 36, "overlaps": []}
+    def finding(code):
+        return Finding(
+            code=code,
+            cls="issue",
+            field="f1",
+            count=36,
+            unit="occurrences",
+            population=Population(kind="content_strings", size=100),
+            accuracy="exact",
+        )
 
-    assert len(merge_proven([first, second])) == 2
+    assert (
+        len(merge_proven([finding("pattern.minority"), finding("length.minority")]))
+        == 2
+    )
 
 
 @pytest.mark.report_lot("R5")
@@ -633,7 +701,7 @@ def test_CA29_a_recommended_finding_is_never_reported():
 
 
 @pytest.mark.report_lot("R6a")
-def test_CA11_an_impossible_calendar_date_is_an_error_and_an_ambiguous_one_an_issue(
+def test_CA11_an_impossible_calendar_date_is_an_error_and_an_ambiguous_one_is_not(
     tmp_path,
 ):
     from tabalyst.report_findings import column_findings
@@ -642,8 +710,20 @@ def test_CA11_an_impossible_calendar_date_is_an_error_and_an_ambiguous_one_an_is
 
     findings = column_findings(_column_view(tmp_path, "signed", values))
 
-    assert any(item.code == "temporal.invalid_calendar" for item in findings.errors.items)
+    assert any(
+        item.code == "temporal.invalid_calendar" for item in findings.errors.items
+    )
     assert all(item.code != "temporal.ambiguous_date" for item in findings.errors.items)
+
+
+@pytest.mark.report_lot("R6b")
+def test_CA11_an_ambiguous_date_is_an_issue(tmp_path):
+    from tabalyst.report_findings import column_findings
+
+    values = ["2025-01-15"] * 30 + ["2025-02-30", "03/04/2025"]
+
+    findings = column_findings(_column_view(tmp_path, "signed", values))
+
     assert any(item.code == "temporal.ambiguous_date" for item in findings.issues.items)
 
 
@@ -670,21 +750,36 @@ def test_an_error_needs_an_established_classification(tmp_path):
 
 
 @pytest.mark.report_lot("R6a")
-def test_CA21_json_occurrences_are_not_reported_as_rows():
-    from tabalyst.report_findings import Finding
+def test_CA21_json_occurrences_are_not_reported_as_rows(tmp_path):
+    from scan_helpers import write_json
 
-    assert "occurrences" in Finding.model_fields["unit"].annotation.__args__
+    from tabalyst import analyze_csv
+    from tabalyst.report_findings import column_findings
+    from tabalyst.reporting import dataset_views
+
+    records = [{"emails": ["a@x.org", "b@x.org", "c@x.org"]} for _ in range(100)]
+    records[0]["emails"].append("a b@x.org")
+    records[1]["emails"].append("c d@x.org")
+    profile = analyze_csv(write_json(tmp_path, "data.json", records))
+    column = next(
+        item for item in dataset_views(profile)[0].columns if item.path == "emails[]"
+    )
+
+    error = column_findings(column).errors.items[0]
+
+    assert (error.unit, error.count) == ("occurrences", 2)
+    assert error.population.size == 302
 
 
-@pytest.mark.report_lot("R6b")
+@pytest.mark.report_lot("R5")
 def test_CA14_three_categories_and_twenty_occurrences_are_distinct_figures():
     from tabalyst.report_findings import label_for
 
     assert label_for("categorical.case_variants", 3, "groups") == (
-        "3 case-variant groups"
+        "3 spelling-variant groups"
     )
     assert label_for("categorical.case_variants", 1, "groups") == (
-        "1 case-variant group"
+        "1 spelling-variant group"
     )
 
 
@@ -717,10 +812,28 @@ def test_CA25_an_overview_over_several_patterns_names_no_subsidiary(tmp_path):
 
 
 @pytest.mark.report_lot("R7")
-def test_an_overview_never_says_exact_for_a_limited_measure():
-    from tabalyst.report_overview import overview_text  # noqa: F401
+def test_an_overview_never_says_exact_for_a_limited_measure(tmp_path):
+    from tabalyst.report_overview import overview_for
 
-    pytest.fail("Contract: figures carry their accuracy (section 7.1).")
+    values = [f"C{n:05d}" for n in range(100)] + ["C00001"]
+    lines = ["customer_id,row"] + [f"{v},{n}" for n, v in enumerate(values)]
+    source = write_text(tmp_path, "data.csv", "\n".join(lines) + "\n")
+    from tabalyst import analyze_csv
+    from tabalyst.report_config import ReportConfig
+    from tabalyst.reporting import dataset_views
+    from tabalyst.scanner import ScanConfig
+
+    config = ReportConfig(
+        scan=ScanConfig.model_validate({"limits": {"max_distinct_per_field": 50}})
+    )
+    column = dataset_views(analyze_csv(source, config))[0].columns[0]
+
+    overview = overview_for(column)
+
+    assert {fact.accuracy for fact in overview.facts if fact.name == "distinct"} == {
+        "lower_bound"
+    }
+    assert overview.text.lower().startswith("at least")
 
 
 @pytest.mark.report_lot("R8")

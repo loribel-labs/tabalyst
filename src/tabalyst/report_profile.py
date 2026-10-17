@@ -53,6 +53,7 @@ from tabalyst.models import (
     Variant,
     VariantGroup,
 )
+from tabalyst.report_classification import refine
 from tabalyst.report_config import ReportConfig, check_length_distribution
 from tabalyst.report_sections import cardinality_view
 from tabalyst.report_views import (
@@ -66,6 +67,7 @@ from tabalyst.report_views import (
 )
 from tabalyst.scan_document import facts_sha256
 from tabalyst.scanner.bottomk import BottomKSampler
+from tabalyst.scanner.classify.models import Classification
 from tabalyst.scanner.models import (
     ByLength,
     Complete,
@@ -79,11 +81,11 @@ from tabalyst.scanner.models import (
     ScanResult,
     ValueCount,
 )
+from tabalyst.scanner.planner.models import PlanBase
+from tabalyst.scanner.planner.planner import plan_base
 from tabalyst.scanner.rowsample import RowPriority
 
 CONTAINER_TYPES = frozenset({"object", "array"})
-# Interpretations that repeat the technical type.
-TECHNICAL_INTERPRETATIONS = frozenset({"number", "boolean"})
 DATE_ORDERS = frozenset({"YMD", "MDY", "DMY"})
 NUMERIC_DATE_FORMAT = re.compile(
     r"(?P<a>YYYY|MM?|DD?)(?P<s>[^A-Za-z0-9])(?P<b>MM?|DD?)(?P=s)(?P<c>YYYY|DD?)"
@@ -489,15 +491,6 @@ def build_numeric(field: FieldResult, inferred_type: str) -> NumericStats | None
     )
 
 
-def semantic_type(field: FieldResult) -> str | None:
-    """``date`` for date columns, else the primary interpretation of the scan
-    when it adds to the technical type."""
-    if field.technical_type.type == "date":
-        return "date"
-    primary = field.interpretations.primary
-    return None if primary in TECHNICAL_INTERPRETATIONS else primary
-
-
 def _stage_changes(field: FieldResult, name: str) -> int:
     for stage in field.normalization.stages:
         if stage.stage == name:
@@ -638,7 +631,12 @@ def build_views(
 
 
 def build_column(
-    field: FieldResult, *, position: int, name: str, config: ReportConfig
+    field: FieldResult,
+    *,
+    position: int,
+    name: str,
+    config: ReportConfig,
+    classification: Classification,
 ) -> tuple[ColumnProfile, ColumnViews]:
     row_count = value_slots(field)
     technical = field.technical_type
@@ -681,7 +679,7 @@ def build_column(
             for item in value_profile.values[: config.value_examples.inline_display_size]
         ],
         value_profile=value_profile,
-        semantic_type=semantic_type(field),
+        classification=classification,
         exposure=field.exposure,
         detectors=build_detectors(field),
     )
@@ -793,6 +791,14 @@ def build_profile(
     if not any(fields for _, fields in selected):
         # A source without scalar values still shows its first dataset.
         selected = selected[:1]
+    # The digest hashes the whole document: computed once for the second pass's
+    # base and the base scan.
+    facts = facts_sha256(result)
+    refinement = Refinement(
+        analyses=analyses,
+        base=plan_base(result, facts) if analyses is not None else None,
+        excluded_records=result.scope.records_excluded,
+    )
     for dataset, fields in selected:
         if fields or header is not None or len(selected) == 1:
             datasets.append(
@@ -801,6 +807,7 @@ def build_profile(
                     dataset,
                     fields,
                     config,
+                    refinement,
                 )
             )
     base = report_base(
@@ -833,7 +840,7 @@ def build_profile(
                 engine_version=base.engine.version,
                 source_sha256=base.source.sha256,
                 config_sha256=base.config_sha256,
-                facts_sha256=facts_sha256(result),
+                facts_sha256=facts,
             ),
             datasets=datasets,
         ),
@@ -914,12 +921,25 @@ def report_base(
     return result.model_copy(update={"datasets": datasets})
 
 
+@dataclass(frozen=True)
+class Refinement:
+    """What the classification of the columns is refined with: the second pass
+    of the Report and the Scan it must stand on (``report_classification``)."""
+
+    analyses: AnalysesBlock | None = None
+    base: PlanBase | None = None
+    # Records the scan left out, scan-wide: the datasets are not told apart.
+    excluded_records: int = 0
+
+
 def build_dataset(
     result: ScanResult,
     dataset: DatasetResult,
     fields: list[FieldResult],
     config: ReportConfig,
+    refinement: Refinement | None = None,
 ) -> DatasetProfile:
+    refinement = refinement or Refinement()
     tabular = result.source.header is not None
     row_count = dataset.record_count
     built = [
@@ -928,6 +948,13 @@ def build_dataset(
             position=field.path[0].column if tabular else position,
             name=field.name if tabular else field.display,
             config=config,
+            classification=refine(
+                field,
+                refinement.analyses,
+                dataset=dataset.id,
+                base=refinement.base,
+                excluded_records=refinement.excluded_records,
+            ),
         )
         for position, field in enumerate(fields, start=1)
     ]
@@ -951,7 +978,11 @@ def build_dataset(
     string_columns = [view for view in views if view.string_profile is not None]
     date_profiles = [profile for _, profile in date_pairs]
     inferred_type_counts = Counter(column.inferred_type for column in columns)
-    semantic_type_counts = Counter(column.semantic_type or "none" for column in columns)
+    type_family_counts = Counter(column.classification.family for column in columns)
+    type_counts = Counter(
+        f"{column.classification.family}/{column.classification.type}"
+        for column in columns
+    )
     date_present_count = sum(profile.present_count for profile in date_profiles)
     date_ambiguous_count = sum(profile.ambiguous_count for profile in date_profiles)
     maximum_column_ambiguous_count = max(
@@ -993,10 +1024,15 @@ def build_dataset(
                 name: percent(count, len(columns))
                 for name, count in inferred_type_counts.items()
             },
-            semantic_type_counts=dict(semantic_type_counts),
-            semantic_type_percents={
+            type_family_counts=dict(type_family_counts),
+            type_family_percents={
                 name: percent(count, len(columns))
-                for name, count in semantic_type_counts.items()
+                for name, count in type_family_counts.items()
+            },
+            type_counts=dict(type_counts),
+            type_percents={
+                name: percent(count, len(columns))
+                for name, count in type_counts.items()
             },
         ),
         date_summary=(

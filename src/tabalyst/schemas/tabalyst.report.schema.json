@@ -2292,17 +2292,8 @@
         "value_profile": {
           "$ref": "#/$defs/ValueProfile"
         },
-        "semantic_type": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Semantic Type"
+        "classification": {
+          "$ref": "#/$defs/Classification"
         },
         "exposure": {
           "anyOf": [
@@ -2345,7 +2336,8 @@
         "normalization",
         "distinct_count",
         "examples",
-        "value_profile"
+        "value_profile",
+        "classification"
       ],
       "title": "ColumnProfile",
       "type": "object"
@@ -3591,18 +3583,32 @@
           "title": "Inferred Type Percents",
           "type": "object"
         },
-        "semantic_type_counts": {
+        "type_family_counts": {
           "additionalProperties": {
             "type": "integer"
           },
-          "title": "Semantic Type Counts",
+          "title": "Type Family Counts",
           "type": "object"
         },
-        "semantic_type_percents": {
+        "type_family_percents": {
           "additionalProperties": {
             "type": "number"
           },
-          "title": "Semantic Type Percents",
+          "title": "Type Family Percents",
+          "type": "object"
+        },
+        "type_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Type Counts",
+          "type": "object"
+        },
+        "type_percents": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Type Percents",
           "type": "object"
         }
       },
@@ -3624,8 +3630,10 @@
         "string_column_count",
         "inferred_type_counts",
         "inferred_type_percents",
-        "semantic_type_counts",
-        "semantic_type_percents"
+        "type_family_counts",
+        "type_family_percents",
+        "type_counts",
+        "type_percents"
       ],
       "title": "DatasetSummary",
       "type": "object"

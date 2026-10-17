@@ -30015,15 +30015,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-17T01:42:28.270684Z",
-        "duration_seconds": 0.000193,
+        "started_at": "2026-10-17T05:49:19.096526Z",
+        "duration_seconds": 0.00022,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000193
+          "other": 0.00022
         },
         "workers": 1,
-        "peak_memory_bytes": 75915264,
+        "peak_memory_bytes": 75497472,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -33514,12 +33514,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-17T01:42:28.342749Z",
+    "generated_at": "2026-10-17T05:49:19.167530Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1292,
+    "processing_seconds": 0.1304,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -33585,17 +33585,35 @@
             "boolean": 5.88,
             "number": 11.76
           },
-          "semantic_type_counts": {
-            "none": 13,
-            "email": 1,
-            "phone": 1,
-            "date": 2
+          "type_family_counts": {
+            "text": 10,
+            "numeric": 4,
+            "temporal": 2,
+            "categorical": 1
           },
-          "semantic_type_percents": {
-            "none": 76.47,
-            "email": 5.88,
-            "phone": 5.88,
-            "date": 11.76
+          "type_family_percents": {
+            "text": 58.82,
+            "numeric": 23.53,
+            "temporal": 11.76,
+            "categorical": 5.88
+          },
+          "type_counts": {
+            "text/text_very_short": 3,
+            "text/text_short": 6,
+            "text/text_medium": 1,
+            "numeric/integer": 2,
+            "temporal/date": 2,
+            "categorical/boolean": 1,
+            "numeric/number": 2
+          },
+          "type_percents": {
+            "text/text_very_short": 17.65,
+            "text/text_short": 35.29,
+            "text/text_medium": 5.88,
+            "numeric/integer": 11.76,
+            "temporal/date": 11.76,
+            "categorical/boolean": 5.88,
+            "numeric/number": 11.76
           }
         },
         "date_summary": {
@@ -33795,7 +33813,39 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "text",
+              "type": "text_very_short",
+              "basis": "inferred",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 60,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "string_lengths.median_length",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 60,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -33985,7 +34035,39 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "text",
+              "type": "text_short",
+              "basis": "inferred",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 60,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "string_lengths.median_length",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 60,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -34175,7 +34257,39 @@
                 }
               ]
             },
-            "semantic_type": "email",
+            "classification": {
+              "family": "text",
+              "type": "text_medium",
+              "basis": "inferred",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 56,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "string_lengths.median_length",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 56,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": "show",
             "detectors": [
               {
@@ -34546,7 +34660,39 @@
                 }
               ]
             },
-            "semantic_type": "phone",
+            "classification": {
+              "family": "text",
+              "type": "text_short",
+              "basis": "inferred",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 40,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "string_lengths.median_length",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 40,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": "show",
             "detectors": [
               {
@@ -34742,7 +34888,39 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "text",
+              "type": "text_very_short",
+              "basis": "inferred",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 60,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "string_lengths.median_length",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 60,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -34857,7 +35035,28 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "numeric",
+              "type": "integer",
+              "basis": "fallback",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "integer",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 51,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": [
               {
@@ -35210,7 +35409,28 @@
                 }
               ]
             },
-            "semantic_type": "date",
+            "classification": {
+              "family": "temporal",
+              "type": "date",
+              "basis": "fallback",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "date",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 60,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": [
               {
@@ -35367,7 +35587,28 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "categorical",
+              "type": "boolean",
+              "basis": "fallback",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "boolean",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 56,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -35482,7 +35723,39 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "text",
+              "type": "text_short",
+              "basis": "inferred",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 70,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "string_lengths.median_length",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 70,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -35672,7 +35945,39 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "text",
+              "type": "text_short",
+              "basis": "inferred",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "string_lengths.median_length",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -35862,7 +36167,28 @@
                 }
               ]
             },
-            "semantic_type": "date",
+            "classification": {
+              "family": "temporal",
+              "type": "date",
+              "basis": "fallback",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "date",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": [
               {
@@ -36025,7 +36351,39 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "text",
+              "type": "text_short",
+              "basis": "inferred",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "string_lengths.median_length",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -36140,7 +36498,39 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "text",
+              "type": "text_short",
+              "basis": "inferred",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "string_lengths.median_length",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -36245,7 +36635,28 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "numeric",
+              "type": "integer",
+              "basis": "fallback",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "integer",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -36360,7 +36771,28 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "numeric",
+              "type": "number",
+              "basis": "fallback",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "number",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -36525,7 +36957,28 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "numeric",
+              "type": "number",
+              "basis": "fallback",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "number",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 108,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           },
@@ -36618,7 +37071,39 @@
                 }
               ]
             },
-            "semantic_type": null,
+            "classification": {
+              "family": "text",
+              "type": "text_very_short",
+              "basis": "inferred",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "string_lengths.median_length",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 1
+            },
             "exposure": null,
             "detectors": []
           }

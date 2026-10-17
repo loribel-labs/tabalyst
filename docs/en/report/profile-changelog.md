@@ -110,8 +110,15 @@ The four length bounds that named the String analysis classes (`very_short_max_l
 `short_max_length`, `medium_max_length`, `long_max_length`) are no longer in
 `report.string_analysis`: they are the scan settings `scan.classification`, and the
 report reads the bounds recorded in the scan it presents. The scan base carries a
-`classification` for each field (see the Scan changelog); the report block of a column does
-not carry it yet. `length_distribution_max_length` cannot exceed `scan.classification.medium_max_length`.
+`classification` for each field (see the Scan changelog). Each column of the report carries its
+`classification`, the one of the scan field refined by the second pass: an `identifier/id` whose
+distinct count the scan could not complete becomes `identifier/unique_id` when `exact_distinct`
+proves it, and a second pass that is absent, stale or incomplete changes nothing. It replaces
+`columns[].semantic_type`. `summary.semantic_type_counts` and `summary.semantic_type_percents` are
+replaced by `summary.type_family_counts`, `summary.type_family_percents`, `summary.type_counts` and
+`summary.type_percents`, keyed by `family` and `family/type`. `inferred_type` and its counts stay.
+The Columns table and the Column types card of the HTML report show the classification instead of
+the primary interpretation. `length_distribution_max_length` cannot exceed `scan.classification.medium_max_length`.
 
 The report carries the new result `date_order` of the second pass under `analyses` (the records where the
 first date of a pair of columns is after the second).

@@ -30,9 +30,11 @@ from tabalyst.report_labels import (
     ACCURACY_TITLES,
     ACCURACY_WORDS,
     DEEP_REASONS,
+    FAMILY_LABELS,
     MODE_WORDS,
     ORIGIN_WORDS,
     OUTCOME_WORDS,
+    format_number,
 )
 from tabalyst.report_profile import build_views
 from tabalyst.report_relations import relations_view
@@ -59,17 +61,6 @@ from tabalyst.scan_document import load_report
 from tabalyst.scan_reuse import read_json_document
 from tabalyst.scanner.models import FieldResult
 from tabalyst.scanner.secondpass.models import DistinctCount
-
-
-def format_number(number: float) -> str:
-    """Keep ordinary values readable and compact only genuinely large magnitudes.
-    An integer is always written with all its digits (F06); only a float, which
-    already is an approximation, is shortened."""
-    if isinstance(number, int):
-        return f"{number:,}"
-    if abs(number) > 10**10:
-        return f"{number:.4e}"
-    return f"{number:,.4f}".rstrip("0").rstrip(".")
 
 
 def cell_text(values: list[str | None]) -> str:
@@ -183,6 +174,13 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
                         column.exposure,
                     ),
                     quality=findings.get(column.id, []),
+                    observations_state=(
+                        "unavailable"
+                        if not quality.available
+                        else "truncated"
+                        if quality.truncated
+                        else "complete"
+                    ),
                     limits=bounded.get(column.id, []),
                     characters=character_view(
                         maps.get((projection.id, column.id)), results.characters
@@ -367,10 +365,15 @@ def render_report(
         "empty": "var(--line-strong)",
         "complex": "var(--text-3)",
     }
-    # Other interpretations (email, phone, patterns...) share one color.
-    semantic_colors = defaultdict(
+    family_colors = defaultdict(
         lambda: "var(--ok)",
-        {"enumeration": "var(--d2)", "date": "var(--d1)", "none": "var(--d3)"},
+        {
+            "identifier": "var(--d1)",
+            "categorical": "var(--d2)",
+            "numeric": "var(--d3)",
+            "text": "var(--d2)",
+            "other": "var(--attn)",
+        },
     )
     datasets = views if views is not None else dataset_views(profile)
     several = len(datasets) > 1
@@ -387,7 +390,8 @@ def render_report(
         source_stem=Path(profile.source.name).stem,
         source_suffix=Path(profile.source.name).suffix,
         type_colors=type_colors,
-        semantic_colors=semantic_colors,
+        family_colors=family_colors,
+        family_labels=FAMILY_LABELS,
         **_labels(),
         theme_css=resources.joinpath("static/theme.css").read_text(encoding="utf-8"),
         report_js=resources.joinpath("static/report.js").read_text(encoding="utf-8"),

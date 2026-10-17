@@ -1039,6 +1039,20 @@ not the number of values that appear more than once. `unique` is true when every
 value is distinct. A field is only an identifier if `unique` is true; a name such
 as `id` proves nothing.
 
+The Report reads this result to settle a [classification](format.md#identifiers).
+A column with an identifier name whose distinct values the scan could not count
+to the end is `identifier/id`. When this analysis completes and proves that every
+present value is different (`unique` is true and `values` is the number of present
+values of the field), and the field has no missing position and is not under a JSON
+array, the Report classifies it `identifier/unique_id` and lists the count in
+`evidence` as `exact_distinct.distinct`. The count is of the original values, so it
+settles the question only when the cleaning stages (`nfc`, `trim` and
+`collapse_whitespace`) changed none of them: `"A"` and `" A "` are two values here and
+one after the trim, so the column then stays `identifier/id` and the count is kept
+as context. A second pass that is absent, was made for another scan, ended
+`limited` or `failed` changes nothing: the Report keeps the classification of the
+scan, and the Scan document never changes.
+
 The count has to fit in memory. Tabalyst plans the memory of each field from the
 scan, and counts a field's values in sets of the compact integers of the digit
 strings and of the strings themselves. If a field needs more than the plan gave

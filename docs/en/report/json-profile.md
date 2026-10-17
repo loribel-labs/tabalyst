@@ -94,7 +94,28 @@ A shortened profile for a five-row `orders.csv`:
             "missing_percent": 20.0,
             "distinct_count": 3,
             "examples": ["25.00", "12.50", "not available"],
-            "semantic_type": null,
+            "classification": {
+              "family": "other",
+              "type": "mixed",
+              "basis": "fallback",
+              "state": "established",
+              "traits": [],
+              "evidence": [
+                {
+                  "source": "technical_type",
+                  "id": "mixed",
+                  "role": "supports",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 4,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                }
+              ],
+              "alternatives": [],
+              "rule_version": 4002
+            },
             "detectors": []
           }
         ],
@@ -256,7 +277,9 @@ Counts over the whole dataset:
 - column families: `numeric_column_count`, `date_column_count`,
   `string_column_count`;
 - type distributions: `inferred_type_counts`, `inferred_type_percents`,
-  `semantic_type_counts`, `semantic_type_percents`.
+  and, by classification, `type_family_counts`, `type_family_percents`,
+  `type_counts` and `type_percents`: columns by family (key `identifier`)
+  and by type (key `identifier/unique_id`).
 
 Percentages are numbers from 0 to 100.
 
@@ -279,7 +302,7 @@ Each column profile always contains:
 | `distinct_count` | Number of distinct values after normalization, even for a masked column; `null` when a scan limit stopped the count |
 | `examples` | A few representative values |
 | `value_profile` | Value occurrences, complete or sampled (see `selection`) |
-| `semantic_type` | `date` for date columns, otherwise the id of the scan's primary interpretation, such as `enumeration`, `email`, `phone` or `postal_code`, or `null` |
+| `classification` | The family and type of the column, with `basis`, `state`, `traits`, `evidence`, `alternatives` and `rule_version`. It is the `classification` of the scan field (see [Classification](../scan/format.md#classification)), refined by the second pass when it supplies a fact the scan lacked: an `identifier/id` whose distinct count the scan could not complete becomes `identifier/unique_id` when the exact distinct count proves it (see [Exact distinct count](../scan/deep.md#exact-distinct-count)). A report without a usable second pass carries the classification of the scan |
 | `exposure` | `mask`, `hide` or `show` for a sensitive column, the way its values appear in `examples`, `value_profile` and the rows of the data sample; `null` otherwise |
 | `detectors` | The detectors that recognized values of the column, in scan order (see below); empty when none did |
 
@@ -343,7 +366,7 @@ as well as failed ones.
 | --- | --- |
 | `id` | Detector id, such as `email`, `date` or `pattern:order_id` |
 | `status` | `complete`, or `failed` when the detector stopped with an error |
-| `primary` | `true` for the scan's primary interpretation, shown as `semantic_type` |
+| `primary` | `true` for the scan's primary interpretation, the only detector that reached `scan.detection.minimum_share` |
 | `eligible_count` | Values the detector could examine |
 | `matched_count`, `matched_percent` | Values recognized, and their share of the eligible values |
 | `ambiguous_count` | Values with more than one reading, such as `01/02/2026` |

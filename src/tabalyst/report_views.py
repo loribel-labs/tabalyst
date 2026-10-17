@@ -15,6 +15,7 @@ from typing import Literal
 from pydantic import Field, FiniteFloat
 
 from tabalyst.models import ColumnProfile, DatasetProfile, ResultModel
+from tabalyst.report_labels import family_type_label
 from tabalyst.scanner.models import (
     CharacterMap,
     FieldPatternsComplete,
@@ -700,11 +701,19 @@ class ColumnView(ColumnProfile):
     string_profile: StringProfile | None
     distinct: CardinalityView
     quality: list[QualityItem] = Field(default_factory=list)
+    # Whether ``quality`` lists every observation of the Scan: an absent
+    # observation proves nothing when the list was cut or never computed (R6b).
+    observations_state: Literal["complete", "truncated", "unavailable"] = "complete"
     limits: list[LimitView] = Field(default_factory=list)
     patterns: PatternView
     characters: CharacterMapView
     deep: ColumnAnalyses = Field(default_factory=ColumnAnalyses)
     insights: list[InsightCard] = Field(default_factory=list)
+
+    @property
+    def type_label(self) -> str:
+        """The type of the column in words, for the pages that show one cell."""
+        return family_type_label(self.classification.family, self.classification.type)
 
     @property
     def has_quality_issues(self) -> bool:

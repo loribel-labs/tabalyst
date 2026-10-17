@@ -114,8 +114,8 @@ CSV reports have no structure section: every row has the same columns.
 The **Detectors** section lists, for each column of CSV and JSON reports, what
 the scan detectors recognized: emails, phone numbers, dates, numbers and the
 other built-in detectors, with the share of values they matched and the
-formats they found. The detector marked **primary** gives the column its
-semantic type.
+formats they found. The detector marked **primary** is the interpretation the
+column's classification starts from.
 
 The structure of the profile is described in the
 [JSON profile reference](json-profile.md).

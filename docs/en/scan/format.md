@@ -453,7 +453,9 @@ on a name, not on the values alone.
 - the number of distinct analytical values is exact and complete, and equals the
   number of present values. The analytical values follow the NFC, trim and
   whitespace stages, so `A` and ` A ` are the same value. A limited or estimated
-  cardinality never gives a Unique ID.
+  cardinality never gives a Unique ID in the Scan. The Report can refine an ID whose
+  cardinality was limited with the exact distinct count of the
+  [second pass](deep.md#exact-distinct-count).
 
 The evidence of a Unique ID adds the measures `values.cardinality` and
 `missing.count`, with the scope they cover: the present values and the positions

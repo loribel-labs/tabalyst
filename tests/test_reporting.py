@@ -291,7 +291,7 @@ def test_enumeration_keeps_all_values_above_general_display_limit(tmp_path):
 
     column = analyze_csv(source, config).report.datasets[0].columns[0]
 
-    assert column.semantic_type == "enumeration"
+    assert column.classification.type == "enum"
     assert column.value_profile.selection == "complete"
     assert {item.value: item.count for item in column.value_profile.values} == {
         "open": 2,

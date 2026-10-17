@@ -5,9 +5,10 @@ description: Define every source, inferred and semantic type and how Tabalyst Sc
 
 **Tabalyst Scan** records each field's native types, infers a technical type
 from present values and chooses a primary interpretation only when one
-detector qualifies. **Tabalyst Report** calls the technical type the
-**inferred type** and displays the optional **semantic type** in its
-[Columns table](../../report/read-report.md#columns).
+detector qualifies, then classifies the field in a family and a type
+([classification](../../scan/format.md#classification)). **Tabalyst Report**
+calls the technical type the **inferred type** and displays the type of the
+classification in its [Columns table](../../report/read-report.md#columns).
 
 ## Native source types
 
@@ -51,15 +52,23 @@ accepts integers), `date`, `boolean`, then `text`. Otherwise it chooses
 type. Missing values are excluded from its denominator. `mixed` reports the
 largest family as confidence but has no type error count.
 
+## Classification
+
+Each field also has a family and a type, such as `Identifier / Unique ID`,
+`Categorical / Enum`, `Contact / Email` or `Text / Short`. They start from the
+technical type and the interpretations below, add the length of a text and the
+name of the column, and are described with their evidence in the
+[Scan format](../../scan/format.md#classification). The Report refines an
+identifier with the exact distinct count of the
+[second pass](../../scan/deep.md#exact-distinct-count) when it holds one.
+
 ## Semantic types
 
 Detectors become candidate interpretations when their matched share of
 eligible values reaches `scan.detection.minimum_share`. A field gets a
 **primary** interpretation only when exactly one detector qualifies. The
-report shows `date` for an inferred date field; otherwise it shows the unique
-primary detector ID when it adds meaning beyond a technical type. Technical
-`number` and `boolean` are not repeated as semantic types. A dash in the
-report means no single qualifying meaning, even when detectors have matches.
+classification reads every qualifying detector, not only the primary one.
+Technical `number` and `boolean` are not repeated as semantic types.
 
 | Semantic type | Meaning | Scope or condition |
 | --- | --- | --- |

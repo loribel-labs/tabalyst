@@ -146,7 +146,7 @@ def test_sensitive_values_are_masked_by_default(tmp_path):
     profile_report, profile = _dataset(_contacts(tmp_path))
 
     email = profile.columns[0]
-    assert email.semantic_type == "email"
+    assert email.classification.type == "email"
     assert email.exposure == "mask"
     assert email.distinct_count == 3
     assert all("@" in value and "user" not in value for value in email.examples)

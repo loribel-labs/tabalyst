@@ -124,23 +124,35 @@ def _scope(
     )
 
 
-def _is_unique(field: FieldResult) -> bool:
-    """The conditions of Unique ID other than the role itself (3.8)."""
+def positions_complete(field: FieldResult) -> bool:
+    """The conditions of Unique ID about the positions of the field (3.8): not
+    under a JSON array and every position of the scanned scope holds a value."""
     return (
         not _under_array(field)
         and field.missing.count == 0
         # A record without the field is a missing position even when the
         # configuration does not count ``absent`` as missing.
         and field.presence.absent in (0, None)
-        and observed_unique(field)
     )
 
 
-def _unique_evidence(field: FieldResult, excluded: int) -> list[ClassificationEvidence]:
+def _is_unique(field: FieldResult) -> bool:
+    """The conditions of Unique ID other than the role itself (3.8)."""
+    return positions_complete(field) and observed_unique(field)
+
+
+def unique_evidence(
+    field: FieldResult, excluded: int, cardinality: str = "values.cardinality"
+) -> list[ClassificationEvidence]:
+    """The two measures that prove a Unique ID, with the scope they cover.
+
+    ``cardinality`` names the measure of the distinct count: the Scan's, or the
+    second pass's when the Report refines the classification.
+    """
     return [
         ClassificationEvidence(
             source="measure",
-            id="values.cardinality",
+            id=cardinality,
             role="supports",
             scope=_scope(field, "present_values", excluded),
         ),
@@ -198,7 +210,7 @@ def with_role(
         name_evidence(supports, "supports"),
     ]
     if pair == UNIQUE_ID:
-        evidence += _unique_evidence(field, excluded)
+        evidence += unique_evidence(field, excluded)
     alternatives = list(result.alternatives)
     if (result.family, result.type) not in {
         (item.family, item.type) for item in alternatives
@@ -218,4 +230,13 @@ def with_role(
     )
 
 
-__all__ = ["ID", "UNIQUE_ID", "field_traits", "observed_unique", "with_role"]
+__all__ = [
+    "ID",
+    "MINIMUM_VALUES",
+    "UNIQUE_ID",
+    "field_traits",
+    "observed_unique",
+    "positions_complete",
+    "unique_evidence",
+    "with_role",
+]

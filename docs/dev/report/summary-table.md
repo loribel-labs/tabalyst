@@ -379,7 +379,7 @@ complete measure; R3 adds the excluded records and the limited scan.
 | Step | Module | Input | Output |
 | --- | --- | --- | --- |
 | First pass | `scanner/classify/` called after the field blocks are built | the `FieldResult` blocks, the dataset context | `fields[].classification` |
-| Refinement | `report_classification.py` (R4), pure function `classify(field, analyses)` | the Scan classification, `analyses.deep` when present and valid | `columns[].classification` (final) |
+| Refinement | `report_classification.py` (R4), pure function `refine(field, analyses, *, dataset, base, excluded_records)` | the Scan classification, `analyses.deep` when present and valid | `columns[].classification` (final) |
 
 - The Scan always carries a classification. The Report starts from it and
   refines only where `analyses.deep` supplies a fact the first pass lacked
@@ -391,6 +391,37 @@ complete measure; R3 adds the excluded records and the limited scan.
   turn an `ID` into a `Unique ID` and list the fact that did it in `evidence`.
 - The function is pure and reads only the document. The Report rendering from a
   JSON alone (no source) gets the same classification (CA-20).
+
+R4 (`report_classification.refine`, called by `report_profile.build_dataset`), precisions
+answered by the maintainer and decided while building:
+
+- Signature `refine(field, analyses, *, dataset=None, base=None, excluded_records=0)`: the
+  two-argument call of 6.7 stays valid. `base` is the `PlanBase` of the Scan; when given, a
+  second pass whose `base` differs is stale and changes nothing, and `build_profile` always
+  gives it (computed once with the digest of `base_scan`). `base=None` skips the check for a
+  caller that vouches for the document. `dataset` picks the analysis among the datasets that
+  share a field id; without it the field id must appear in one dataset only.
+  `excluded_records` is `scope.records_excluded` of the whole scan (the document does not
+  count them per dataset), so the scope of a refined Unique ID is `partial` as soon as any
+  record was left out: conservative, never the other way.
+- The only refinement is `identifier/id` to `identifier/unique_id`, for a field without
+  `observed_unique` whose analytical distinct count is not exact (`analytical_distinct` is
+  `None`). `exact_distinct` must be `complete` with a `DistinctCount` (a `DistinctLimited` is a
+  lower bound), `unique` true, and `values` equal to the present values of the field; the
+  conditions of 3.8 other than the cardinality still hold (`positions_complete`: not under a
+  JSON array, `missing.count == 0`, `presence.absent` 0 or unknown) with at least two values.
+- `exact_distinct` counts the **original** values, Unique ID is judged on the **analytical**
+  ones. An original count proves analytical uniqueness only when no enabled analytical stage
+  (`nfc`, `trim`, `collapse_whitespace`) changed a value (`changed == 0`). Otherwise the field
+  stays `identifier/id` and the count is added as `context` evidence (`exact_distinct.distinct`):
+  `"A"` and `" A "` are two original values and one analytical value (CA-06).
+- The refined result keeps `state = candidate`, `basis = inferred`, `rule_version`, the
+  alternatives and every evidence of the first pass, and adds the trait `observed_unique` and the
+  two `supports` measures of 3.8 (`exact_distinct.distinct` in place of `values.cardinality`,
+  and `missing.count`), with the scope of the excluded records.
+- Absent, `disabled`, `failed` or stale second pass, an analysis that is not `complete`, or a
+  count of other values than the field has: the Scan classification, unchanged.
+  No other refinement exists yet (exact frequencies for Enum edge cases remain open).
 
 ## 5. Name engine
 
@@ -586,20 +617,40 @@ Finding
   count       int | None    None when the count is not defined
   unit        occurrences | distinct_values | categories | patterns | groups
               | positions | records | formats
-  population  Population    what the count is out of (6.3)
-  share       Share | None  numerator, denominator and percentage, or None
+  population  Population    kind and size of what the count is out of (6.3)
+  share       Share | None  numerator, denominator and percent, or None
   accuracy    exact | lower_bound | sample | estimated | unavailable
   status      detected | none_detected | not_assessed | partial | not_applicable | failed
   basis       list[str]     ids of the observations, detectors or analyses used
-  examples    list[Example] already exposed (mask, hide, show)
+  examples    list[Example] already exposed (mask, hide, show); filled by lot R8
   overlaps    list[str]     codes whose set is proven to overlap, else empty
 ```
 
-Catalogue entries (in `catalog.py`) have `code`, `cls`, `status`
-(`active` or `recommended`), `unit`, `population kind`, `algorithm reference`,
-`prerequisites`. A `recommended` entry produces nothing in a real report
-(CA-29). No rule without an algorithm and a threshold is activated (B.1 of the
-specification).
+Catalogue entries (`FindingCode` in `scanner/classify/catalog.py`, listed in
+`FINDINGS`) have `code`, `cls`, `status` (`active` or `recommended`), `unit`,
+`population` (kind), `algorithm` (the Scan fact or section it reads),
+`prerequisites` and `downgrades_to_issue`. A `recommended` entry produces
+nothing in a real report (CA-29): `column_findings` only runs active codes. No
+rule without an algorithm and a threshold is activated (B.1 of the specification).
+The catalogue of findings is not part of any document, so a change to it does not
+change `CATALOGUE_VERSION` (which identifies the rules that write a
+classification into a Scan).
+
+Population kinds: `positions`, `present_values`, `content_strings`,
+`occurrences`, `distinct_values`, `groups`, `records`, `eligible_values`
+(`coverage.eligible` of a detector). An observation's `population` becomes a unit
+and a kind by one table (`value_slots` gives positions, `content_strings` gives
+occurrences out of text values); `finding_from_observation` states an observation
+as it is and recomputes nothing.
+
+Active codes in R5 (the checks come with R6a and R6b): Error `temporal.invalid_calendar`,
+`semantic.invalid` (one code for every semantic detector, the detector in `basis`),
+`type.outside_family`; Issue `temporal.ambiguous_date`, `number.ambiguous`,
+`categorical.case_variants`, `pattern.minority`, `length.minority`, `type.mixed`,
+`identifier.repetition`, `text.surrounding_whitespace`, `text.repeated_whitespace`;
+Information `presence.empty_column`, `values.constant_column`. Recommended
+(documented, never produced): `categorical.rare`, `pattern.rare`, `format.rare`,
+the single-column controls of backlog L1c and the declared constraints of L2.
 
 ### 6.3 Populations, counts and shares
 
@@ -619,7 +670,11 @@ Reference counts for a field (specification 7.6): `P` positions, `M` missing,
   or infinity (RF-22).
 - A JSON field repeated inside a record: occurrences are not rows. A finding on
   3 occurrences is not shown as 3 affected rows (CA-21); the unit says
-  `occurrences`.
+  `occurrences`. The same holds for Missing: its unit is `positions`, and
+  `occurrences` for a field under a JSON array (maintainer, R5).
+- `share(count, population)` gives `percent = None` and accuracy `unavailable`
+  for a zero or negative population or a count the population cannot hold; the
+  percentage is 0 to 100, never a share over 100 %.
 
 ### 6.4 Evaluation states
 
@@ -638,10 +693,37 @@ that tests 100 of 1,000 eligible values and finds nothing is `partial`, never
 `none_detected` (CA-17). Null, disabled and failed stay distinguishable (CA-18).
 The dash is not used in Errors and Issues (RF-23).
 
-The mapping from the Scan: detector `state` `complete` with no invalid gives
-`none_detected` when `tested == eligible`, else `partial`; `disabled` gives
-`not_assessed`; `not_applicable` gives `not_applicable`; `failed` gives `failed`.
-`adaptive` with `not_tested > 0` gives `partial`.
+The mapping from the Scan (`evaluation_state(detector_state, eligible, tested,
+found)`), in this order:
+
+| Detector `state` | Coverage | State |
+| --- | --- | --- |
+| `failed` | any, whatever it counted | `failed` |
+| `disabled` | | `not_assessed` |
+| `not_applicable` | | `not_applicable` |
+| `complete` | `found > 0` | `detected` |
+| `complete` | `eligible == 0` | `not_applicable` |
+| `complete` | `tested == 0` | `not_assessed` |
+| `complete` | `tested < eligible` (adaptive: `not_tested > 0`) | `partial` |
+| `complete` | `tested == eligible` | `none_detected` |
+
+The count of a check that tested part of the values is a lower bound
+(`assess_detector`). A code with no check behind it has not run: its state is
+`not_assessed` with the reason `no_check`, never `none_detected`; this is the
+state of a code whose check is not registered in `report_findings.CHECKS`; the three
+Errors have theirs since lot R6a and the nine Issues since lot R6b.
+
+State of a whole list (`FindingList.state`, `list_state`): `detected` when it holds
+findings; otherwise the checks that apply (those not `not_applicable`) decide: all
+in one state give that state; a mix that includes a check that completed or went
+part of the way is `partial`; a mix of `failed` and `not_assessed` is `failed`; no
+check that applies is `not_applicable`. An Error code that downgrades to an Issue
+counts, in the Issues list, as a check of that list too; a finding of such a check
+that went to the other list does not make the first list `detected`.
+
+Missing has its own state: `detected` when `count > 0`, `none_detected` when it
+is 0, `not_applicable` for a field with no position. It is always exact: the Scan
+counts every position.
 
 ### 6.5 Deduplication
 
@@ -651,17 +733,26 @@ that carries the covered record indices (RF-24, CA-26). Two counts of 36 prove
 nothing. No deduplicated total is fabricated. `overlaps` stays empty without
 proof.
 
+`merge_proven(findings)` groups for presentation only: two findings share a
+`FindingGroup` when one names the other in `overlaps` (closed by transitivity);
+the group keeps each count (`counts`) and has no total, and the findings are not
+changed. `records_overlap(first, second)` is the proof an observation can give: both
+list every record they count (the list length is the count), both are exact and
+the lists meet. `prove_overlaps` (R6b, called by `column_findings`) sets `overlaps` from it,
+between Issues of different codes only; no field observation of the Scan lists its records
+today, so in a real report `overlaps` stays empty and nothing is merged.
+
 ### 6.6 L0 findings, from existing facts only
 
 | Class | Findings | Existing source |
 | --- | --- | --- |
 | Missing | the five components `absent`, `null`, `empty`, `blank`, `marker` | `missing.components` |
-| Error | impossible calendar dates in an established Temporal field | `date` detector `invalid`, `temporal` |
-| Error | `invalid` of a detector whose semantics is established (Email, Phone, Postal code, URL, IP address, UUID) | `detectors[].coverage.invalid` |
-| Error | values outside the family of an established technical type | `technical_type.outside_count` (re-qualifies `type_error_count`, section 9) |
+| Error | invalid dates in a Temporal field | `date` detector `invalid`, every reason (6.8) |
+| Error | `invalid` of the detector that gives the field its type (Email, Phone, Postal code, URL, IP address, UUID) | `detectors[].coverage.invalid` |
+| Error | values outside the family of an Integer or a Number | `technical_type.outside_count` (re-qualifies `type_error_count`, section 9) |
 | Issue | ambiguous dates | observation `ambiguous_dates` |
 | Issue | ambiguous numbers | `number` detector `ambiguous` |
-| Issue | case variants | observation `variant_groups` |
+| Issue | spelling variants (case, accents or spacing) | observation `variant_groups` |
 | Issue | minority patterns and lengths | observations `minority_pattern`, `minority_length` |
 | Issue | mixed types | observation `mixed_types` |
 | Issue | repetition in an identifier | `D`, `N`, cardinality exact (ID and Unique-ID candidates) |
@@ -676,6 +767,129 @@ An Error requires a field with `state = established` (RF-13); on a `candidate`
 or `undetermined` classification the same fact is an Issue. This changes the
 meaning of today's `type_error_count`, as the plan noted.
 
+### 6.8 Errors (lot R6a)
+
+The checks are `invalid_dates`, `invalid_semantic_values` and
+`values_outside_family` of `report_findings.py`, registered in `CHECKS` under the
+three codes. Each reads the Scan's facts and the classification of the column
+(`ColumnView.classification`, refined by the second pass when it ran) and nothing
+else: no source, no `analyses` of its own, so an absent, stale or failed second pass
+invents nothing. A check answers `not_applicable` (reason `not_temporal`,
+`not_semantic_type`, `not_numeric_type`) for a column its code does not concern.
+A Text, Enum, ID or Boolean field therefore has the Errors list `not_applicable`: no
+deterministic rule applies to it.
+
+- **`temporal.invalid_calendar`**: classification family `temporal` (Date, Datetime,
+  Time) and the `date` detector. Count `coverage.invalid`, unit `occurrences`,
+  population `eligible_values` (`coverage.eligible`). The detector does not split
+  its `invalid` by reason, so every one is counted: an impossible calendar date
+  (`2025-02-30`), an impossible time (`25:00`) or offset, mixed separators
+  (`2025/01-15`) and a malformed component width. The label says `invalid date`.
+  A value that is not date-shaped is `not_matched` and is not counted (CA-13).
+  Known limit: a narrowed `detectors.date.orders` makes a date of an order left out
+  invalid (`unsupported_order`); the check does not see the configuration.
+- **`semantic.invalid`**: the classification is one of Email, Phone, Postal code,
+  URL, IP address or UUID, and only the detector of that type answers (its id is
+  in `basis`). Count `coverage.invalid`, unit `occurrences`, population
+  `eligible_values`. A detector of another type that finds some values in a field
+  of a different type is not a constraint on it (RF-14). A `not_matched` value is
+  not counted (CA-13). A purely numeric value is never `invalid` for Phone (the
+  detector leaves identifiers alone), so an unformatted phone column has no
+  `invalid`.
+- **`type.outside_family`**: the classification is `numeric/integer` or
+  `numeric/number` and the technical type is the same. Count
+  `technical_type.outside_count` (less the decimals of an Integer: they are numbers),
+  exact over the values the Scan read, unit
+  `occurrences`, population `present_values` (`values.count`). Date and Boolean
+  are not covered: a `yes` is a Boolean for the detector and a datetime in a Date
+  field is a format, not an invalidity; the impossible dates have their own code.
+  A `Text` field has no family to fall outside of (maintainer, R6a).
+- **Accuracy and states.** `assess_detector` gives the state and the accuracy of a
+  detector: a detector that tested part of the eligible values gives a lower bound
+  and, without a finding, `Partially assessed` (CA-17); a `failed` detector gives
+  `Assessment failed` whatever it counted (CA-30); a `disabled` one `Not assessed`.
+  A detector missing from the field is `not_assessed` with the reason
+  `detector_missing`.
+- **Overlap.** The three checks apply to disjoint classifications (Temporal, one
+  of the six semantic types, Integer or Number), so a field never has two of
+  them and `overlaps` stays empty.
+
+Audit of the detectors (R6a, real Scans): the six semantic detectors each produce a
+real `invalid` for a value with the shape of the type that fails its syntax, and a
+`not_matched` for a value without that shape. Email: a space in the local part,
+a leading hyphen or a double dot in the domain. Phone: an area or exchange code that
+no number has (`(014) 555-1234`), in a formatted number. Postal code: a Canadian
+code that starts with or contains a letter Canada Post does not use (`D1A 0B1`).
+URL: a space, a port above 65,535, an unclosed bracket. IP address: an octet above
+255, a leading zero. UUID: a non-hexadecimal digit in the layout. `a@x`,
+`bad address` (Email), `call me`, `K1A 0B` and `123e4567e89b` are `not_matched`.
+The detectors check syntax only (a code is never looked up), so an `invalid` is a
+proof of invalidity of the value and not a likelihood.
+
+### 6.9 Issues (lot R6b)
+
+The checks are `ambiguous_dates`, `ambiguous_numbers`, `case_variants`,
+`minority_patterns`, `minority_lengths`, `mixed_types`, `identifier_repetition`,
+`surrounding_whitespace` and `repeated_whitespace` of `report_findings.py`,
+registered in `CHECKS` under the nine codes of the Issues. An Issue needs no
+established classification (RF-13 is about Errors): it states what the Scan found on
+whatever column it found it, so an ambiguous date in a Text or Other / Mixed column is
+an Issue (maintainer, R6b). The facts are read, never recomputed: seven checks state
+an observation of the Scan as it is (count, `of`, accuracy, in the unit of the
+observation, `finding_from_observation`; the population kind is the catalogue's, which
+only changes `type.mixed`, `present_values` instead of `occurrences`), one reads a
+detector and one the cardinality.
+
+| Code | Source | Count, unit, population |
+| --- | --- | --- |
+| `temporal.ambiguous_date` | observation `ambiguous_dates`; the `date` detector gives the state | ambiguous dates, `occurrences`, out of the date values |
+| `number.ambiguous` | `number` detector, `coverage.ambiguous` | `occurrences`, `eligible_values` |
+| `categorical.case_variants` | observation `variant_groups` | groups of values that differ by case, accents or spacing (label "spelling-variant groups"), never the occurrences in them (CA-14); no population size, so no share |
+| `pattern.minority` | observation `minority_pattern` | distinct values in the minority patterns (maintainer, R6b), `distinct_values`; the pattern ids follow the observation id in `basis`; accuracy `sample` when the discovery read a sample |
+| `length.minority` | observation `minority_length` | `occurrences`, `content_strings` |
+| `type.mixed` | observation `mixed_types` (technical type `mixed`) | values outside the closest type, `occurrences`, `present_values` |
+| `identifier.repetition` | classification `identifier` and the exact analytical `D` | `N - D` (contract 6.3), `occurrences`, `present_values`; never duplicated groups or occurrences (CA-15) |
+| `text.surrounding_whitespace`, `text.repeated_whitespace` | observations `trimmed_cells`, `collapsed_whitespace` | values the stage changed, `occurrences`, `content_strings` |
+
+What an absent observation means. An observation that exists is a finding. Without one
+(`ColumnView.observations_state` says whether the list of the Scan is `complete`,
+`truncated` by `scan.observations.max_items` or `unavailable`), the measure behind the
+rule decides, and `None detected` needs a measure that completed:
+
+- `not_applicable` when the rule has no meaning (no text value, no value, fewer than
+  `MINORITY_LENGTH_MIN_VALUES` strings, no length that holds `DOMINANT_LENGTH_MIN_SHARE` of
+  them (reason `no_dominant_length`: two legitimate lengths leave the Scan's rule without
+  meaning, which is not the same as finding nothing), a field that is not an identifier, a
+  pattern discovery that does not apply); `failed` when the measure failed (CA-30); `not_assessed`
+  when it was turned off or never ran (a normalization stage off, a detector missing,
+  no pattern discovery in the document).
+- A measure that is itself a count (the variant groups, the changes of a stage, the
+  ambiguous values of a detector, the technical type) proves an absence when it is zero,
+  whatever the list of observations. Rules with a threshold the Scan alone evaluated
+  (`minority_pattern`, `minority_length`) cannot be told from the facts: a `truncated`
+  list gives `Partially assessed` (reason `observations_truncated`) and an `unavailable`
+  one `Not assessed` (reason `observations_unavailable`). A measure that holds a count
+  with no observation behind it is `Partially assessed` for the same reason.
+- A detector that tested part of the eligible values (CA-17) or a pattern discovery
+  that read a sample or hit a limit gives `Partially assessed`, and the count of an
+  observation behind a partly tested detector is a `lower_bound`.
+- `identifier.repetition`: `D` must be exact. Not exact, the check is `Not assessed`
+  (reason `cardinality_not_exact`); R6b does not read `analyses.deep`. A Unique ID, or
+  an ID with the trait `observed_unique` (refined by R4), has proved its uniqueness:
+  `None detected`.
+
+Overlap. `prove_overlaps` sets `overlaps` between two Issues of different codes only when
+`records_overlap` holds for the observations they rest on (both list every record they
+count, both exact, the lists meet). Two counts of 36 prove nothing (CA-26); the findings
+are never changed beyond `overlaps`, and `merge_proven` keeps each count.
+
+Known gaps, for gate B. `type_outliers` on a Date or Boolean field (and any other
+technical type that is neither Integer nor Number) is an observation of the Scan that no
+active finding states (R6a excluded those fields from `type.outside_family`). The
+rareness of categories and patterns stays in the backlog (L1b). On the demo the
+`pattern.minority` check is `Partially assessed` on the columns whose pattern discovery
+read a sample (high cardinality).
+
 ### 6.7 Entry points
 
 Fixed here so the contract tests can target them (R5 may add helpers, not
@@ -684,11 +898,21 @@ rename these):
 - `tabalyst.report_findings.column_findings(column: ColumnView) -> ColumnFindings`
   where `ColumnFindings` has `missing: MissingFinding`, `errors: FindingList` and
   `issues: FindingList`. A `FindingList` has `items: list[Finding]` and `state`
-  (the evaluation state of 6.4, `detected` when `items` is not empty).
+  (the evaluation state of 6.4, `detected` when `items` is not empty) and
+  `assessments`, the check behind each code. `MissingFinding` has `count`,
+  `unit`, `population`, `share`, `accuracy`, `state`, `definition` and
+  `components` (the five of the Scan). `column_findings(column, checks=None)`
+  takes the registry `CHECKS` by default; R6a and R6b registered their checks there.
+  A check answers only for its own code and class: another code or class is a
+  `ValueError`, and an Error finding on a classification that is not `established`
+  is turned into an Issue by `column_findings` itself (RF-13), not left to each check.
+- Helpers (R5): `evaluation_state`, `assess_detector`, `detector_of`, `list_state`,
+  `share`, `repetition_figures`, `repetition_from_counts`, `finding_from_observation`,
+  `records_overlap`, `merge_proven`, `label_for` (the nouns are in `report_labels.py`).
 - `tabalyst.scanner.classify.classify_field(field, context) -> Classification`
   (first pass) and `classification_versions() -> tuple[int, ...]`.
-- `tabalyst.report_classification.refine(field, analyses) -> Classification`
-  (R4).
+- `tabalyst.report_classification.refine(field, analyses, *, dataset=None, base=None,
+  excluded_records=0) -> Classification` (R4, section 4).
 
 ## 7. Views
 
@@ -708,6 +932,35 @@ the classification and from the measures already computed at render time
   Issue.
 - No test freezes a wording still open (specification 10.2); tests check the
   facts the sentence uses.
+
+Implementation (lot R7). `overview_for(column)` returns an `Overview` (`text`
+and `facts`, each `OverviewFact` with `name`, `value` and `accuracy` `exact` or
+`lower_bound`); `overview_text(column)` returns the sentence. The words are in
+`report_labels.py` (`OVERVIEW_*`). Nothing is serialized and no HTML reads it
+before R9a.
+
+- Unique ID, ID: distinct values (`at least` when the cardinality is limited) and
+  the recurring formats of the patterns (`at least` when the discovery read a
+  sample or left values outside the patterns). Unique ID adds "in the records the
+  scan accepted" when its evidence is partial.
+- Enum, Boolean: the number of categories and the share of the most frequent one.
+  The frequency listing is ranked by count, so the share is exact even when the
+  table is cut. No threshold of dominance; Boolean does not name its states. A
+  share that rounds to 100.0% without being 1 is worded "more than 99.9%".
+- Constant: the number of present positions, never the value.
+- Numeric: range and median (median left out when limited), no mean. Currency
+  and Quantity add the dominant marker or unit, only from the detector that
+  classified the column and only when the exposure of the column is `show`.
+- Temporal: one range per kind, never a common range. The Scan excludes ambiguous
+  dates from the range, including those whose day and month are equal
+  (`05-05-2020`), so the sentence says "ambiguous dates left out of the range"
+  without their number (an Issue says it).
+- Email, Phone, Postal code, URL, IP address, UUID: "shaped" like the kind and the
+  recognized formats of the detector, never an address or a domain (exposure is
+  Details, R8).
+- Text: class, median length (exact) and distinct values. Other: Mixed lists the
+  representations it combines, Empty says there is no present value, Unknown says
+  that no type is established.
 
 ### 7.2 Details
 
@@ -751,7 +1004,7 @@ measurement (RT-12, O-21).
 ## 9. Persistence and format
 
 - Scan: `fields[].classification` (R1a), in revision 4, still in preparation.
-- Report: `columns[].classification`, the final version (R4), in revision 4.
+- Report: `columns[].classification`, the final version (R4, done), in revision 4.
 - Removed from the Report: `columns[].semantic_type`,
   `summary.semantic_type_counts`, `summary.semantic_type_percents`. Added
   `summary.type_family_counts` and `summary.type_counts`, keyed by the codes
@@ -873,14 +1126,14 @@ Verified in code on 2026-10-16 (`main`, `9013373`).
 
 | Consumer | Reads | Lot | Action |
 | --- | --- | --- | --- |
-| `report_profile.py:491` `semantic_type()`, `:683`, `:950` to `:995` | builds the value and the counts | R4 | replace by the classification block and counts |
-| `models.py:151`, `:178`, `:179` | `ColumnProfile.semantic_type`, `DatasetSummary.semantic_type_counts`, `semantic_type_percents` | R4 | remove, add the classification and counts |
+| `report_profile.py:491` `semantic_type()`, `:683`, `:950` to `:995` | builds the value and the counts | R4 | replace by the classification block and counts (done in R4) |
+| `models.py:151`, `:178`, `:179` | `ColumnProfile.semantic_type`, `DatasetSummary.semantic_type_counts`, `semantic_type_percents` | R4 | remove, add the classification and counts (done in R4) |
 | `reporting.py:370` | `semantic_colors` palette | R9a | replace by family colours inside the existing themes |
-| `templates/report.html` (columns table, dashboard card, filters, `data-pill`) | Semantic type column and filter | R9a | eight columns |
-| `templates/column.html:50`, `:51`, `:57` | Interpretation card shows the semantic type and detector rows | R10 | show family, type and evidence |
-| `schemas/tabalyst.report.schema.json` | generated | R4 | regenerate |
-| `docs/en/report/json-profile.md`, `read-report.md`, `reference/types-and-patterns/types.md`, `patterns.md`, `report/index.md`, `scan/index.md`, `reference/glossary.md` | wording and tables | R4, R11 | rewrite |
-| `tests/test_reporting.py:294`, `tests/scan/test_scan_report.py` | `column.semantic_type == "enumeration"` | R4 | replace by classification assertions |
+| `templates/report.html` (columns table, dashboard card, filters, `data-pill`) | Semantic type column and filter | R9a | eight columns (R4: the column and the card read `type_label` and the family counts, `ColumnView.type_label`) |
+| `templates/column.html:50`, `:51`, `:57` | Interpretation card shows the semantic type and detector rows | R10 | show family, type and evidence (R4: shows `type_label`, the enumeration list reads `classification.type`) |
+| `schemas/tabalyst.report.schema.json` | generated | R4 | regenerate (done in R4) |
+| `docs/en/report/json-profile.md`, `read-report.md`, `reference/types-and-patterns/types.md`, `patterns.md`, `report/index.md`, `scan/index.md`, `reference/glossary.md` | wording and tables | R4, R11 | rewrite (R4: json-profile, read-report, types, configuration, deep; the rest in R11) |
+| `tests/test_reporting.py:294`, `tests/scan/test_scan_report.py` | `column.semantic_type == "enumeration"` | R4 | replace by classification assertions (done in R4) |
 | `examples/showcase/*/report.json` and `report.html` | generated | each lot | regenerated by `regenerate.py --fresh` |
 | `projects/_queries.py`, `projects/_schema.py` | nothing (their `semantics_version` is the record semantics) | none | no action; R10 only re-checks |
 | `generate_columns_package.py` | nothing (the word is in a docstring) | none | no action |
@@ -898,11 +1151,12 @@ reads `candidates` and does not replace them.
 | R1b | 3.3, 3.4, 3.5 | CA-10, M/F stays Enum, two credible candidates (five digits: `number` and `postal_code`), no bare-number Currency or Percentage; `tests/scan/test_classification_types.py` (one test per type, conflicts, traits) |
 | R2 | 5 | CA-12, CA-22, CA-23, units of the dictionary, no substring, name alone never established |
 | R3 | 3.7, 3.8 | CA-04, CA-05, CA-06, CA-07, partial scan, JSON array |
-| R4 | 4, 9 | refinement, absent or stale Deep, rendering without the source |
-| R5 | 6 | CA-14, CA-16, CA-17, CA-18, CA-26, CA-29, CA-30, A,A,A,B |
-| R6a | 6.6 | CA-11, CA-13, CA-21, CA-30 |
-| R6b | 6.6 | CA-14, CA-15, CA-26 |
-| R7, R8 | 7.1, 7.2 | CA-25, CA-19, CA-28 |
+| R4 | 4, 9 | refinement, absent or stale Deep, rendering without the source; `tests/scan/test_classification_refinement.py` |
+| R5 | 6 | CA-14 (the nouns), CA-16, CA-17, CA-18, CA-26, CA-29, CA-30, A,A,A,B; `tests/scan/test_report_findings.py` (Missing, states, shares, merging, words) |
+| R6a | 6.6, 6.8 | CA-11 (Error half; the Issue half is R6b), CA-12, CA-13, CA-21, CA-30; `tests/scan/test_report_errors.py` (each semantic detector, each invalid reason of the date detector, Integer and Number, no Error on Boolean, Date, Text, ID, candidate and undetermined turned into Issues, failed, disabled and partly tested detectors, repeated JSON field) |
+| R6b | 6.6, 6.9 | CA-11 (the Issue half), CA-14 (the figures), CA-15, CA-26; `tests/scan/test_report_issues.py` (each of the nine checks, three groups over twenty occurrences, `A, A, A, B`, two observations of 36 without proof, states of an absent observation: disabled, cut, stage off, partly tested detector, failed detector, limited cardinality) |
+| R7 | 7.1 | CA-25, a limited measure never said exact; `tests/scan/test_report_overview.py` (facts and accuracy per profile, no mean, no value of a constant or an address, ambiguous dates left out, no Missing, Error or Issue figure repeated) |
+| R8 | 7.2 | CA-19, CA-28 |
 | R9a, R9b | 7.3, 7.4 | CA-01, CA-02, CA-03, CA-20, CA-27 |
 
 Gating: the marker `report_lot("Rn")` and `tests/scan/report_gate.py`

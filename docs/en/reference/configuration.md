@@ -145,7 +145,7 @@ the tooltip lists masked values.
 | Normalization counts, distinct values and variant groups | `scan.normalization`: `nfc`, `trim`, `collapse_whitespace`, `casefold`, `strip_accents` |
 | Inferred types | `scan.types.minimum_confidence`, with the `number` and `date` detectors |
 | Date analysis | `scan.detectors.date` |
-| Semantic types | `scan.detection.minimum_share` and every detector |
+| Column types | `scan.detection.minimum_share`, every detector and `scan.classification` |
 | Masked values | `scan.exposure.sensitive_values` |
 | Row sample (first, middle and last rows) | `scan.records.sample` for the rows the scan keeps, `report.row_sample` for the rows the report shows |
 | Duplicate rows | `scan.records.duplicates` and `scan.limits.max_tracked_records` |
@@ -157,11 +157,10 @@ the tooltip lists masked values.
   as ambiguous, shows how many unambiguous values use each order and, when only
   one order appears, suggests setting `scan.detectors.date.ambiguous_order`.
   The `ambiguous_dates` issue counts them.
-- **Semantic types.** `date` for date columns, otherwise the scan's primary
-  interpretation: the only detector matching at least
-  `scan.detection.minimum_share` of the present values, such as `enumeration`,
-  `email`, `phone` or `postal_code`. `number` and `boolean` are not repeated as
-  semantic types.
+- **Column types.** The classification of the scan field: a detector matching at
+  least `scan.detection.minimum_share` of the present values (such as `email`,
+  `phone` or `postal_code`), the technical type, the length of a text, and the name
+  of the column for an identifier. The second pass can refine an identifier.
 - **Sensitive values.** Sensitive columns are not handled in this beta: by
   default every value is shown, including in examples, value profiles and the
   data sample. Set `scan.exposure.sensitive_values` to `mask` to replace the

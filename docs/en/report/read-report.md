@@ -50,7 +50,7 @@ The **Quality observations** card groups the findings of the scan by rule, each
 with its status: a *confirmed issue* is a defect of the source by its structure,
 a *candidate anomaly* is worth a look and never proof of an error, and a
 *remark* may be perfectly valid, such as a constant column. **Column types**
-counts columns by inferred type and semantic type, not individual cells. The
+counts columns by inferred type and by type family, not individual cells. The
 date card sums ambiguous values across date columns, so one record can
 contribute more than once. See [Findings](json-profile.md#findings).
 
@@ -87,14 +87,14 @@ fields that only have remarks, such as missing values.
 | Missing | Missing positions as a count and percentage of this field's positions. Absent JSON members count in the denominator. | Check whether the missing markers in **Analysis settings** match your data. |
 | Distinct | Different present values after analytical normalization (Unicode composition, trim and whitespace collapse when enabled). | Exact unless marked. `≥ 51` is a proven minimum after a scan limit, with its estimate below it when the scan made one (`≈ 2,031 est.`); `limited` means counting stopped and proved nothing. |
 | Inferred type | Value family inferred from present values, such as `number`, `date` or `mixed`. | A `mixed` field did not meet the configured confidence threshold. See [all inferred types](../reference/types-and-patterns/types.md#inferred-types). |
-| Semantic type | One primary detected meaning, such as `email` or `postal_code`. | A dash means there is no unique qualifying interpretation. Other detectors may still have matched. See [semantic types](../reference/types-and-patterns/types.md#semantic-types). |
+| Type | The type of the column in the [classification](../scan/format.md#classification), such as `Unique ID`, `Enum`, `Email` or `Text / Short`. | An identifier type is a candidate that rests on a name and the values, and the JSON profile gives the `state` and the `evidence` of every type. See [Types](../reference/types-and-patterns/types.md#classification). |
 | Error | Count and percentage of present values outside the inferred type. | This is type disagreement, not malformed records or detector failures. It is unavailable for `mixed`. |
 | Issues | Confirmed issues and candidate anomalies about this field, with the number of remarks below. | Open the column page or **Observations** for the detail. |
 | Examples | A few retained values; the tooltip gives more values and counts. | A distribution can be complete or a bounded sample. Sensitive values can be masked or hidden. |
 
 Missing values do not lower type confidence. For example, `not available` can
 disagree with a numeric type if it was not configured as a missing marker. An
-email field can have inferred type `text` and semantic type `email`: these
+email field can have inferred type `text` and type `Email`: these
 answer different questions. Add `--details` to link each column to its own
 page with scan evidence and value counts:
 
@@ -188,7 +188,7 @@ do not contribute to lengths.
 
 | Report column | Meaning | What to check |
 | --- | --- | --- |
-| Class | `very_short`, `short`, `medium`, `long` or `very_long`, based on the maximum observed length and the `scan.classification` bounds. | This is a length class, not a semantic type. The Text type of the Scan [classification](../scan/format.md#classification) uses the same bounds on the median length, so the two can differ. |
+| Class | `very_short`, `short`, `medium`, `long` or `very_long`, based on the maximum observed length and the `scan.classification` bounds. | This is a length class, not the Text type of the column. The Text type of the Scan [classification](../scan/format.md#classification) uses the same bounds on the median length, so the two can differ. |
 | Fixed | One length when minimum and maximum agree. | A fixed width alone does not prove a field is an identifier. |
 | Min, Max, Mean, Median | Length statistics for present text. | These cells are blank for a fixed-length field because **Fixed** already conveys its length. |
 | Lengths | Frequency of each length, when the maximum fits the configured distribution limit. | The tooltip includes bounded examples per length. |
@@ -212,14 +212,14 @@ A masked or hidden column has no character map. A map that passed its bounds say
 
 ## Detectors and formats
 
-**Purpose:** inspect the evidence behind a possible semantic type. Each row
+**Purpose:** inspect the evidence behind the type of a column. Each row
 pairs one column with a detector that found evidence or failed. See
 [Recognized patterns](../reference/types-and-patterns/patterns.md#built-in-detectors) for
 the complete detector catalog.
 
 | Report column | Meaning | What to check |
 | --- | --- | --- |
-| Column, Detector | Field and detector ID. `primary` marks the interpretation shown as semantic type in **Columns**. | Several detectors may appear for one field. |
+| Column, Detector | Field and detector ID. `primary` marks the interpretation the classification starts from. | Several detectors may appear for one field. |
 | Matched | Recognized values as a count and percentage of eligible values. | A match checks the detector's rules, not real-world existence. |
 | Ambiguous, Invalid | Values with multiple readings or a recognized shape with invalid content. | These are separate from **Matched** and from column type errors. |
 | Formats | Recognized forms with counts and percentages in the tooltip. | Formats describe syntax; their set varies by detector and configuration. |

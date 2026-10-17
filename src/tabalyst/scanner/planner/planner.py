@@ -180,15 +180,16 @@ class _Ledger:
         self.reading = self.reading or reads_source
 
 
-def plan_base(scan: ScanResult) -> PlanBase:
+def plan_base(scan: ScanResult, facts: str | None = None) -> PlanBase:
     """The identity of the Scan a plan stands on (design 19.5): a plan is only
-    valid for the Scan whose base it carries."""
+    valid for the Scan whose base it carries. ``facts`` is the digest of the
+    facts when the caller already computed it: it hashes the whole document."""
     return PlanBase(
         format_revision=scan.format_revision,
         engine_version=scan.engine.version,
         source_sha256=scan.source.sha256,
         config_sha256=scan.config_sha256,
-        facts_sha256=facts_sha256(scan),
+        facts_sha256=facts if facts is not None else facts_sha256(scan),
     )
 
 

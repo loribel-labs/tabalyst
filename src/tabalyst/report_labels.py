@@ -340,3 +340,248 @@ CHARACTER_REASONS = {
     "no_values": "The column has no text value.",
     "failed": "The scan could not map its characters.",
 }
+
+
+# The words of the classification (contract docs/dev/report/summary-table.md 3.3):
+# the Scan carries the codes, the Report the words.
+FAMILY_LABELS = {
+    "identifier": "Identifier",
+    "categorical": "Categorical",
+    "numeric": "Numeric",
+    "temporal": "Temporal",
+    "contact": "Contact",
+    "geographic": "Geographic",
+    "web_network": "Web / Network",
+    "text": "Text",
+    "other": "Other",
+}
+# By ``family/type``. The five lengths of a Text read as their own words under
+# the family Text; ``text/text`` is a Text whose length is not determined.
+TYPE_LABELS = {
+    "identifier/id": "ID",
+    "identifier/unique_id": "Unique ID",
+    "categorical/enum": "Enum",
+    "categorical/boolean": "Boolean",
+    "categorical/constant": "Constant",
+    "numeric/integer": "Integer",
+    "numeric/number": "Number",
+    "numeric/currency": "Currency",
+    "numeric/percentage": "Percentage",
+    "numeric/quantity": "Quantity",
+    "temporal/date": "Date",
+    "temporal/datetime": "Datetime",
+    "temporal/time": "Time",
+    "contact/email": "Email",
+    "contact/phone": "Phone",
+    "geographic/postal_code": "Postal code",
+    "web_network/url": "URL",
+    "web_network/ip_address": "IP address",
+    "web_network/uuid": "UUID",
+    "text/text_very_short": "Very short",
+    "text/text_short": "Short",
+    "text/text_medium": "Medium",
+    "text/text_long": "Long",
+    "text/text_very_long": "Very long",
+    "text/text": "Text",
+    "other/mixed": "Mixed",
+    "other/empty": "Empty",
+    "other/unknown": "Unknown",
+}
+# The states of a classification, as a reader reads them.
+STATE_LABELS = {
+    "established": "Established",
+    "candidate": "Candidate",
+    "undetermined": "Undetermined",
+}
+
+
+def type_label(family: str, type_: str) -> str:
+    """The name of a type alone: ``Unique ID``, ``Short``, ``Mixed``."""
+    return TYPE_LABELS[f"{family}/{type_}"]
+
+
+def family_type_label(family: str, type_: str) -> str:
+    """The name of a type with its family where the type alone is not enough:
+    ``Unique ID``, ``Text / Short``, ``Other / Mixed``."""
+    name = type_label(family, type_)
+    if family in ("text", "other") and name != FAMILY_LABELS[family]:
+        return f"{FAMILY_LABELS[family]} / {name}"
+    return name
+
+
+# The words of the findings (contract summary-table.md 6): the Scan and the catalogue
+# carry codes, the Report the words. The five states of an evaluation are the
+# wording of decision 6; ``detected`` has no label of its own, the count with the
+# finding's name says it. The dash is not used in Errors and Issues.
+ASSESSMENT_LABELS = {
+    "none_detected": "None detected",
+    "not_assessed": "Not assessed",
+    "partial": "Partially assessed",
+    "not_applicable": "Not applicable",
+    "failed": "Assessment failed",
+}
+ASSESSMENT_TITLES = {
+    "none_detected": "The check ran on every eligible value and found nothing",
+    "not_assessed": "The check was turned off or has not run",
+    "partial": "The check covered only part of the eligible values",
+    "not_applicable": "The check has no meaning for this column",
+    "failed": "The check raised a diagnostic, so nothing is known",
+}
+
+# What a finding counts, singular and plural.
+UNIT_NOUNS = {
+    "occurrences": ("occurrence", "occurrences"),
+    "distinct_values": ("distinct value", "distinct values"),
+    "categories": ("category", "categories"),
+    "patterns": ("pattern", "patterns"),
+    "groups": ("group", "groups"),
+    "positions": ("position", "positions"),
+    "records": ("record", "records"),
+    "formats": ("format", "formats"),
+}
+# What each denominator is, to read a share ("of 100 positions").
+POPULATION_PHRASES = {
+    "positions": ("position", "positions"),
+    "present_values": ("present value", "present values"),
+    "content_strings": ("text value", "text values"),
+    "occurrences": ("occurrence", "occurrences"),
+    "distinct_values": ("distinct value", "distinct values"),
+    "groups": ("group", "groups"),
+    "records": ("record", "records"),
+    "eligible_values": ("eligible value", "eligible values"),
+}
+# The name of a finding by the unit its count is in: the label follows the metric
+# the Scan really has (``N - D`` repetitions are not duplicated groups, CA-15).
+FINDING_NOUNS: dict[str, dict[str, tuple[str, str]]] = {
+    "temporal.invalid_calendar": {
+        "occurrences": ("invalid date", "invalid dates"),
+    },
+    "semantic.invalid": {"occurrences": ("invalid value", "invalid values")},
+    "type.outside_family": {
+        "occurrences": (
+            "value outside the type of the column",
+            "values outside the type of the column",
+        ),
+    },
+    "temporal.ambiguous_date": {
+        "occurrences": ("ambiguous date", "ambiguous dates"),
+    },
+    "number.ambiguous": {"occurrences": ("ambiguous number", "ambiguous numbers")},
+    "categorical.case_variants": {
+        "groups": ("spelling-variant group", "spelling-variant groups"),
+    },
+    "pattern.minority": {
+        "distinct_values": (
+            "distinct value in a minority pattern",
+            "distinct values in minority patterns",
+        ),
+        "patterns": ("minority pattern", "minority patterns"),
+    },
+    "length.minority": {
+        "occurrences": ("value of a minority length", "values of a minority length"),
+    },
+    "type.mixed": {
+        "occurrences": (
+            "value outside the closest type",
+            "values outside the closest type",
+        ),
+    },
+    "identifier.repetition": {
+        "occurrences": (
+            "repetition beyond the first",
+            "repetitions beyond the first",
+        ),
+        "groups": ("repeated identifier", "repeated identifiers"),
+    },
+    "text.surrounding_whitespace": {
+        "occurrences": (
+            "value with surrounding whitespace",
+            "values with surrounding whitespace",
+        ),
+    },
+    "text.repeated_whitespace": {
+        "occurrences": (
+            "value with repeated whitespace",
+            "values with repeated whitespace",
+        ),
+    },
+    "presence.empty_column": {"positions": ("empty position", "empty positions")},
+    "values.constant_column": {
+        "positions": ("position with the one value", "positions with the one value"),
+    },
+}
+
+
+def plural(count: int, one: str, many: str) -> str:
+    """``count`` with the noun that agrees with its real quantity: ``1 group``,
+    ``0 groups``, ``1,200 groups``. Integers are never rounded."""
+    return f"{count:,} {one if count == 1 else many}"
+
+
+def finding_label(code: str, count: int, unit: str) -> str:
+    """A count with the name of its finding: ``3 spelling-variant groups``. A code or
+    a unit without a name of its own is worded by its unit alone, never hidden."""
+    one, many = FINDING_NOUNS.get(code, {}).get(unit) or UNIT_NOUNS[unit]
+    return plural(count, one, many)
+
+
+def population_phrase(kind: str, size: int) -> str:
+    """What a share is out of: ``100 positions``."""
+    one, many = POPULATION_PHRASES[kind]
+    return plural(size, one, many)
+
+
+# Overview (contract 7.1): the nouns of a profile. Facts only: a detector type is
+# "shaped" like its kind, never said to be one.
+OVERVIEW_NUMERIC = {
+    "integer": "Whole numbers",
+    "number": "Numbers",
+    "currency": "Amounts with a currency marker",
+    "percentage": "Percentages",
+    "quantity": "Quantities with a unit",
+}
+OVERVIEW_TEMPORAL = {
+    "date": "Dates",
+    "datetime": "Date-times",
+    "time": "Times",
+}
+OVERVIEW_KINDS = {
+    "date": "Dates",
+    "datetime_naive": "Date-times without a time zone",
+    "datetime_aware": "Date-times with a time zone",
+    "time": "Times",
+}
+OVERVIEW_SHAPED = {
+    "email": "Email-shaped values",
+    "phone": "Phone-shaped values",
+    "postal_code": "Postal-code-shaped values",
+    "url": "URL-shaped values",
+    "ip_address": "IP-address-shaped values",
+    "uuid": "UUID-shaped values",
+}
+OVERVIEW_TEXT = {
+    "text_very_short": "Very short text",
+    "text_short": "Short text",
+    "text_medium": "Medium-length text",
+    "text_long": "Long text",
+    "text_very_long": "Very long text",
+}
+# The kinds of value that a mixed column holds, as one word each.
+OVERVIEW_COMPOSITION = {
+    "integer": "numeric",
+    "number": "numeric",
+    "boolean": "boolean",
+    "date": "date",
+    "text": "text",
+}
+
+
+def format_number(number: float) -> str:
+    """Keep ordinary values readable and compact only genuinely large magnitudes.
+    An integer is always written with all its digits (F06); only a float, which
+    already is an approximation, is shortened."""
+    if isinstance(number, int):
+        return f"{number:,}"
+    if abs(number) > 10**10:
+        return f"{number:.4e}"
+    return f"{number:,.4f}".rstrip("0").rstrip(".")

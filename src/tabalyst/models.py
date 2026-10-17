@@ -17,6 +17,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, FiniteFloat, model_serializer
 
 from tabalyst.config import PresentationSettings
+from tabalyst.scanner.classify.models import Classification
 from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.models import (
     Adaptive,
@@ -148,7 +149,9 @@ class ColumnProfile(ResultModel):
     distinct_count: int | None
     examples: list[str]
     value_profile: ValueProfile
-    semantic_type: str | None = None
+    # Family and type of the column: the Scan's classification refined by the
+    # second pass (``report_classification.refine``).
+    classification: Classification
     # How the values of a sensitive column are exposed, null otherwise.
     exposure: Literal["mask", "hide", "show"] | None = None
     # Detectors that recognized values, in scan order; failed ones included.
@@ -175,8 +178,11 @@ class DatasetSummary(ResultModel):
     string_column_count: int
     inferred_type_counts: dict[str, int]
     inferred_type_percents: dict[str, float]
-    semantic_type_counts: dict[str, int]
-    semantic_type_percents: dict[str, float]
+    # Columns by family (key ``family``) and by type (key ``family/type``).
+    type_family_counts: dict[str, int]
+    type_family_percents: dict[str, float]
+    type_counts: dict[str, int]
+    type_percents: dict[str, float]
 
 
 class DatasetDateColumnSummary(ResultModel):
