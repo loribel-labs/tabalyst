@@ -837,22 +837,42 @@ def test_an_overview_never_says_exact_for_a_limited_measure(tmp_path):
 
 
 @pytest.mark.report_lot("R8")
-def test_CA19_masked_and_hidden_values_leave_no_raw_example(tmp_path):
+@pytest.mark.parametrize("mode", ["mask", "hide"])
+def test_CA19_masked_and_hidden_values_leave_no_raw_example(tmp_path, mode):
+    from tabalyst import analyze_csv
+    from tabalyst.report_config import ReportConfig
     from tabalyst.report_details import details_for
+    from tabalyst.report_overview import overview_for
+    from tabalyst.reporting import dataset_views
+    from tabalyst.scanner import ScanConfig
 
     values = [f"user{n}@example.com" for n in range(30)]
-    column = _column_view(
-        tmp_path, "contact", values, exposure={"sensitive_values": "hide"}
+    lines = ["contact,row"] + [f"{v},{n}" for n, v in enumerate(values)]
+    source = write_text(tmp_path, "data.csv", "\n".join(lines) + "\n")
+    config = ReportConfig(
+        scan=ScanConfig.model_validate({"exposure": {"sensitive_values": mode}})
     )
+    column = dataset_views(analyze_csv(source, config))[0].columns[0]
 
-    assert "@example.com" not in repr(details_for(column))
+    assert column.exposure == mode
+    assert "user" not in details_for(column).model_dump_json()
+    assert "user" not in repr(details_for(column))
+    assert "user" not in overview_for(column).model_dump_json()
 
 
 @pytest.mark.report_lot("R8")
-def test_CA28_a_report_without_details_links_to_no_missing_page():
-    from tabalyst.report_details import details_link  # noqa: F401
+def test_CA28_a_report_without_details_links_to_no_missing_page(tmp_path):
+    import re
 
-    pytest.fail("Contract: no link when the page does not exist (section 7.2).")
+    from tabalyst import analyze
+
+    source = write_text(tmp_path, "data.csv", "name\nAlice\nBob\n")
+    for details in (False, True):
+        output = tmp_path / f"report-{details}.html"
+        analyze(source, output, details=details)
+        hrefs = re.findall(r'class="column-link" href="([^"]+)"', output.read_text("utf-8"))
+        assert bool(hrefs) is details
+        assert all((tmp_path / href).is_file() for href in hrefs)
 
 
 # --- R9a, R9b: table ------------------------------------------------------------

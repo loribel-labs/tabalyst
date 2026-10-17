@@ -971,6 +971,32 @@ the embedded data (RF-19, CA-19). A limited list is never said exhaustive. Links
 to `--details` pages only when the page exists (CA-28). Values are escaped
 (RT-14).
 
+Implementation (lot R8). `details_for(column)` returns `Details` (`state`
+`shown`, `masked` or `hidden`, `examples`, `exhaustive`, `total`, `total_accuracy`,
+`note`, `measures`); `details_link(column_links, dataset_id, column_id)` returns the
+page of a column or `None`. Nothing is serialized and no HTML reads it before R9a.
+The words are in `report_labels.py` (`DETAILS_*`).
+
+- Exposure, same rule as the Overview: `column.exposure` is `None` or `show` to
+  write a value of the source. The gate (`ExposureGate`) is applied again to the
+  examples even though the Scan already exposed them: `mask` merges equal masks
+  (not distinct original values, so `total` is `None`), `hide` leaves no example.
+- Examples: the first values of `value_profile`, as many as `ColumnProfile.examples`,
+  each with its count and its share of the present values. `exhaustive` only when
+  the selection is `complete`, the distinct count is exact and every distinct value is
+  listed; otherwise the note says how many are listed, `at least` when the count is a
+  lower bound.
+- Measures: numeric mean; Temporal recognized formats and the resolved order; Text
+  lengths (or the fixed length); Mixed representations; detector types the share
+  recognized, the formats and, only for a shown column, the first keys the detector
+  published (`KEYS_LISTED`). A detector that tested part of the values gives
+  `lower_bound`. Identifiers, codes, Enum, Boolean and Constant have no measure of
+  their own: their listing is the example list.
+- Escape: the model keeps the value as text; the Jinja environment of the Report
+  (autoescape) escapes it at render (RT-14). A formula is never evaluated.
+- Links: `details_link` answers from `column_links`, which `--details` fills with the
+  pages it wrote.
+
 ### 7.3 Table and filters
 
 R9a. Eight columns in the order above. A row is identified by dataset id and
@@ -1156,7 +1182,7 @@ reads `candidates` and does not replace them.
 | R6a | 6.6, 6.8 | CA-11 (Error half; the Issue half is R6b), CA-12, CA-13, CA-21, CA-30; `tests/scan/test_report_errors.py` (each semantic detector, each invalid reason of the date detector, Integer and Number, no Error on Boolean, Date, Text, ID, candidate and undetermined turned into Issues, failed, disabled and partly tested detectors, repeated JSON field) |
 | R6b | 6.6, 6.9 | CA-11 (the Issue half), CA-14 (the figures), CA-15, CA-26; `tests/scan/test_report_issues.py` (each of the nine checks, three groups over twenty occurrences, `A, A, A, B`, two observations of 36 without proof, states of an absent observation: disabled, cut, stage off, partly tested detector, failed detector, limited cardinality) |
 | R7 | 7.1 | CA-25, a limited measure never said exact; `tests/scan/test_report_overview.py` (facts and accuracy per profile, no mean, no value of a constant or an address, ambiguous dates left out, no Missing, Error or Issue figure repeated) |
-| R8 | 7.2 | CA-19, CA-28 |
+| R8 | 7.2 | CA-19 (mask and hide, no raw value in `repr` or JSON), CA-28 (links with and without `--details`); `tests/scan/test_report_details.py` (exposure gate applied again, limited lists, keys, measures per profile, markup and formula values) |
 | R9a, R9b | 7.3, 7.4 | CA-01, CA-02, CA-03, CA-20, CA-27 |
 
 Gating: the marker `report_lot("Rn")` and `tests/scan/report_gate.py`

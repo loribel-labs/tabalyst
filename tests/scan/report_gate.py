@@ -11,7 +11,7 @@ creates. A lot adds its name here when it starts. The contract is
 ``docs/dev/report/summary-table.md``.
 """
 
-ENABLED_LOTS: set[str] = {"R1a", "R1b", "R2", "R3", "R4", "R5", "R6a", "R6b", "R7"}
+ENABLED_LOTS: set[str] = {"R1a", "R1b", "R2", "R3", "R4", "R5", "R6a", "R6b", "R7", "R8"}
 
 KNOWN_LOTS = frozenset(
     {"R1a", "R1b", "R2", "R3", "R4", "R5", "R6a", "R6b", "R7", "R8", "R9a", "R9b"}

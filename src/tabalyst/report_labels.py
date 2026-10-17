@@ -585,3 +585,26 @@ def format_number(number: float) -> str:
     if abs(number) > 10**10:
         return f"{number:.4e}"
     return f"{number:,.4f}".rstrip("0").rstrip(".")
+
+
+# Details (contract 7.2): the names of the complementary measures and the notes on
+# the examples. A measure that lists a format, a key or a representation is named
+# by that text.
+DETAILS_MEASURES = {
+    "mean": "Mean",
+    "minimum_length": "Shortest value, in characters",
+    "maximum_length": "Longest value, in characters",
+    "mean_length": "Mean length, in characters",
+    "fixed_length": "Fixed length, in characters",
+    "matched_percent": "Share recognized by the detector",
+    "resolved_order": "Day and month order",
+}
+DETAILS_NOTES = {
+    "hidden": "The values are withheld by the exposure setting of the column.",
+    "masked": (
+        "The values are masked by the exposure setting of the column; equal masks "
+        "are merged and are not distinct original values."
+    ),
+    "none": "No value is listed.",
+    "sample": "A sample of the values; the list is not exhaustive.",
+}
