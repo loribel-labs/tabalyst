@@ -35,6 +35,9 @@
   --text:#F4F6FB; --text-2:#C9D3E6; --text-3:#8FA6CB;
   --d1:#C9D3E6; --d2:#8FA6CB; --d3:#4E6490; --attn:#F98510; --ok:#0E9F8E;
   --attn-text:#F98510;
+  --err:#F0474B; --err-text:#FF6B6B; --info-text:#9DB7E8;
+  --fam-identifier:#4E6490; --fam-categorical:#8FA6CB; --fam-numeric:#C9D3E6; --fam-temporal:#0E9F8E; --fam-contact:#9B87D6;
+  --fam-geographic:#5B9E4D; --fam-web_network:#4A9BD1; --fam-text:#A58B5C; --fam-other:#F98510;
   --canvas:var(--s0);
   --g-panel:linear-gradient(180deg,#0E1434 0%,#0A0F2A 100%);
   --g-card:linear-gradient(180deg,#141D47 0%,#10183C 100%);
@@ -52,7 +55,7 @@
   --s0:#FFFFFF; --s1:#F6F8FC; --s2:#FFFFFF; --s3:#EEF1F8;
   --text:#050032; --text-2:#3B4058; --text-3:#4E6490;
   --line:#D2DBEA; --line-strong:#B9C6DC;
-  --attn-text:#B85200;
+  --attn-text:#B85200; --err:#D32F34; --err-text:#C0262B; --info-text:#2F4C8C;
   --canvas:#F6F8FC;
   --g-panel:linear-gradient(180deg,#FFFFFF 0%,#F6F8FC 100%);
   --g-card:linear-gradient(180deg,#FFFFFF 0%,#F6F8FC 100%);
@@ -175,7 +178,8 @@ h1 .ext{font-weight:400;color:var(--text-3)}
 .metric.attn{border-color:rgba(249,133,16,.45);background:var(--g-attn),var(--g-card)}
 .metric.attn .v{color:var(--attn-text)}
 
-.ov-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr);gap:var(--joint);margin-top:var(--joint)}
+.ov-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--joint);margin-top:var(--joint)}
+.ov-grid .types{grid-column:2;grid-row:1 / span 2}
 .rcard{border:1px solid var(--line);border-radius:var(--r-md);background:var(--g-card);box-shadow:var(--hl);padding:16px 16px 14px;min-width:0}
 .rcard-title{font-weight:600;font-size:14px;margin:0 0 10px;color:var(--text)}
 .findings{list-style:none;margin:0;padding:0}
@@ -347,7 +351,7 @@ tr.dx[hidden]{display:none}
 .foot-meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px;padding-top:16px;border-top:1px solid var(--line);font:400 12px/1.4 var(--f-mono);color:var(--text-3)}
 
 /* ---- responsive ---- */
-@media (max-width:1280px){.ov-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.ov-grid .focus{grid-column:1/-1}}
+@media (max-width:1080px){.ov-grid{grid-template-columns:minmax(0,1fr)}.ov-grid .types{grid-column:auto;grid-row:auto}}
 @media (max-width:1080px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:860px){
   .shell{flex-direction:column}
@@ -385,7 +389,7 @@ tr.dx[hidden]{display:none}
 /* ---- print (11.6) ---- */
 @media print{
   :root,:root[data-theme]{--s0:#FFFFFF;--s1:#F6F8FC;--s2:#FFFFFF;--s3:#EEF1F8;
-    --text:#050032;--text-2:#3B4058;--text-3:#4E6490;--line:#D2DBEA;--line-strong:#B9C6DC;--attn-text:#B85200;--canvas:#FFFFFF;
+    --text:#050032;--text-2:#3B4058;--text-3:#4E6490;--line:#D2DBEA;--line-strong:#B9C6DC;--attn-text:#B85200;--err:#D32F34;--err-text:#C0262B;--info-text:#2F4C8C;--canvas:#FFFFFF;
     --g-panel:none;--g-card:none;--g-deep:none;--hl:none;color-scheme:light}
   body{font-size:12px}
   .side,.collapse,.toolbar,.more,.copy,.skip{display:none!important}
@@ -659,6 +663,147 @@ td.ex .tip.show{display:block}
 .cm-c b{margin-right:12px}
 .cm-tile b{margin-top:2px}
 @media (max-width:640px){.cm-list li{grid-template-columns:minmax(0,1fr) auto}.cm-list .cm-b{display:none}}
+
+/* ---- Columns table (R9a): Overview, findings, Details ---- */
+.ctable td{white-space:normal;vertical-align:top;padding-top:9px;padding-bottom:9px;height:auto}
+.ctable tbody th[scope="row"]{vertical-align:top;padding-top:9px;height:auto}
+.ctable .cname small{margin-right:6px}
+.ctable .cpath{display:block;font:400 11px/1.3 var(--f-mono);color:var(--text-3);overflow-wrap:anywhere}
+.ctable .c-ov{min-width:260px;max-width:380px;line-height:1.45}
+.ctable .c-fl{min-width:170px;max-width:260px}
+.ctable .c-dt{min-width:190px;max-width:280px}
+.fl-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.fl-list li{display:flex;gap:7px;align-items:baseline;line-height:1.35}
+.fl-list li::before{content:"";width:7px;height:7px;flex:none;border-radius:50%;transform:translateY(-1px)}
+.fl-error li{color:var(--err-text)}
+.fl-error li::before{background:var(--err)}
+.fl-issue li{color:var(--attn-text)}
+.fl-issue li::before{background:var(--attn)}
+.fl-more{color:var(--text-3)}
+.fl-more::before{display:none}
+.fl-state{color:var(--text-3)}
+.fl-caveat{display:block;margin-top:4px;font-size:11.5px;line-height:1.35;color:var(--text-3)}
+.dt-state{font:500 11px/1 var(--f-mono);color:var(--text-3);text-transform:uppercase;letter-spacing:.06em}
+.ctable td.ex .exs{flex-wrap:wrap}
+.legend.types{margin-top:10px}
+.ctable .exv{white-space:nowrap}
+.rcard-sub{margin:0;font:500 12px/1.4 var(--f-body);color:var(--text-3)}
+.sem.first{margin-top:0;padding-top:0;border-top:0}
+.legend.fam{grid-template-columns:1fr;gap:6px}
+.legend .sub{padding-left:16px;color:var(--text-3)}
+.legend .sub::before{background:transparent;border:1.5px solid var(--c)}
+.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ---- overview cards (signals, validation) and finding details ---- */
+.vdet{white-space:normal;min-width:220px;max-width:420px}
+.vgroups{list-style:none;margin:0 0 4px;padding:0;display:grid;gap:6px}
+.vgroups li{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline}
+.vsp{display:inline-flex;gap:4px;align-items:baseline;padding:2px 6px;border:1px solid var(--line);border-radius:var(--r-xs);background:var(--s1)}
+.vsp.top{border-color:var(--line-strong)}
+.vsp small{color:var(--text-3)}
+
+/* Details cells: two lines at most, the hover holds the rest */
+.ctable td.ex .exs{max-height:66px;overflow:hidden;align-content:flex-start}
+.ctable .c-vd{max-width:260px}
+.vpre{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.vpre .exs{max-height:32px;overflow:hidden}
+.tip.tip-wide{overflow-y:auto}
+.tip-s{padding:10px 12px 2px}
+.tip-t{margin:0 0 6px;font:600 12px/1.2 var(--f-body);color:var(--text)}
+.tip-t small{margin-left:6px;font:400 11.5px/1 var(--f-body);color:var(--text-3)}
+.tip-f{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:12.5px}
+.tip-f li{color:var(--text-2)}
+.tip-err li{color:var(--err-text)}
+.tip-issue li{color:var(--attn-text)}
+.tip .vgroups{list-style:none;margin:0;padding:0}
+.tip .vgroups li+li{margin-top:8px}
+.tip .vgroups li.vgroup{display:flex;flex-wrap:wrap}
+
+/* ---- overview as KPIs (R9a): quality bar, signal tiles, popovers ---- */
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0 14px}
+.kpi{display:flex;flex-direction:column;gap:3px;align-items:flex-start;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left}
+button.kpi{cursor:pointer;border-radius:var(--r-sm)}
+button.kpi:hover .kpi-n,button.kpi:focus-visible .kpi-n{text-decoration:underline;text-underline-offset:5px}
+button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
+.kpi-n{font:600 30px/1.1 var(--f-display);letter-spacing:-.01em;color:var(--text);font-variant-numeric:tabular-nums}
+.kpi-error .kpi-n{color:var(--err-text)}
+.kpi-issue .kpi-n{color:var(--attn-text)}
+.kpi-l{font-weight:600;font-size:12.5px;color:var(--text)}
+.kpi-p{font-size:12px;color:var(--text-3)}
+.kpi-zero .kpi-n{color:var(--text-3)}
+.qbar{display:flex;height:10px;gap:2px}
+.qbar span{border-radius:3px;min-width:0}
+.qbar .q-error{background:var(--err)}
+.qbar .q-issue{background:var(--attn)}
+.qbar .q-clean{background:var(--d2)}
+.qobs{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.qobs-t{margin:0;font:600 13.5px/1.2 var(--f-body);color:var(--text)}
+.qobs-v{margin:6px 0 0;font-size:12.5px;color:var(--text-2)}
+.signals{min-width:0}
+.sig-k{margin:0 0 10px;font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--text-3)}
+.sig-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sig-more{margin:12px 0 0;font-size:12.5px;color:var(--text-3)}
+.sig-more a,.qobs .link{color:var(--text-2)}
+.pop-btn{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:0;border:0;border-bottom:1px solid var(--line-strong);background:none;color:var(--text-2);font:inherit;font-size:12.5px;cursor:pointer}
+.pop-btn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6}
+.pop-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.pop-btn:hover{color:var(--text);border-color:var(--orange)}
+.pop-btn:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
+.pop-help{margin:0 0 0 6px;width:18px;height:18px;justify-content:center;border:1px solid var(--line-strong);border-radius:50%;font-size:11px;line-height:1}
+.pop{position:fixed;z-index:70;width:min(420px,calc(100vw - 32px));max-height:min(460px,calc(100dvh - 32px));overflow:auto;padding:12px 14px;border:1px solid var(--line-strong);border-radius:var(--r-md);background:var(--s2);box-shadow:var(--hl),0 18px 40px rgba(0,0,0,.4);color:var(--text-2);font-size:12.5px}
+.pop[hidden]{display:none}
+:root[data-theme="light"] .pop{background:#FFFFFF;box-shadow:var(--hl),0 18px 40px rgba(5,0,50,.14)}
+.pop-h{margin:0 0 6px;font:600 13.5px/1.3 var(--f-body);color:var(--text)}
+.pop-h small{margin-left:6px;font:400 12px/1 var(--f-body);color:var(--text-3)}
+.pop-n{margin:0 0 8px;font-size:12px;line-height:1.45;color:var(--text-3)}
+.pop-cols{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:7px}
+.pop-cols li{display:grid;grid-template-columns:minmax(0,1fr) 70px auto;gap:4px 10px;align-items:center}
+.pop-cols li:not(:has(.t)){grid-template-columns:minmax(0,1fr)}
+.pop-cols .pc-name{font:500 12.5px/1.3 var(--f-mono);color:var(--text);overflow-wrap:anywhere}
+.pop-cols .t{display:block;height:6px;border-radius:3px;background:var(--line)}
+.pop-cols .t span{display:block;height:100%;border-radius:3px;background:var(--attn)}
+.pop-cols b{font:500 12px/1 var(--f-mono);color:var(--text)}
+.pop-cols .pc-d{grid-column:1 / -1;font-size:12px;color:var(--text-3);overflow-wrap:anywhere}
+.pop-def{margin:0;display:grid;gap:4px 12px;grid-template-columns:max-content minmax(0,1fr)}
+.pop-def dt{font-weight:600;color:var(--text)}
+.pop-def dd{margin:0}
+.pop .link{font-size:12.5px}
+@media (max-width:640px){.kpis{grid-template-columns:minmax(0,1fr)}.sig-grid{grid-template-columns:minmax(0,1fr)}.qobs{flex-direction:column;align-items:flex-start}}
+@media print{.pop,.pop-btn svg{display:none!important}}
+/* Signal tiles: three colours only, vertical gradients like the metric cards. Issue is the Missing cells style, Error the same with a red border and figure, Info is blue. */
+.sig{display:flex;flex-direction:column;gap:6px;min-width:0;padding:14px 14px 13px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--g-card);box-shadow:var(--hl)}
+.sig-error{border-color:rgba(240,71,75,.6);background:var(--g-attn),var(--g-card)}
+.sig-issue{border-color:rgba(249,133,16,.45);background:var(--g-attn),var(--g-card)}
+.sig-information{border-color:rgba(143,166,203,.45);background:linear-gradient(180deg,rgba(78,100,144,.36) 0%,rgba(78,100,144,.06) 100%),var(--g-card)}
+.sig-t{margin:0;font-weight:600;font-size:14px;color:var(--text)}
+.sig-row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.sig-n{margin:0;font:600 30px/1.1 var(--f-display);letter-spacing:-.01em;color:var(--text);font-variant-numeric:tabular-nums}
+.sig-n small{font-size:20px;font-weight:500}
+.sig-error .sig-n{color:var(--err-text)}
+.sig-issue .sig-n{color:var(--attn-text)}
+.sig-information .sig-n{color:var(--info-text)}
+.sig-s{margin:0;font-size:12px;color:var(--text-2)}
+.sig .sig-cols{margin:0 0 4px;white-space:nowrap}
+.sig-error .pop-cols .t span{background:var(--err)}
+.sig-information .pop-cols .t span{background:var(--info-text)}
+.sig-c{margin-right:8px;font:500 10.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+.sig-error .sig-c{color:var(--err-text)}
+.sig-issue .sig-c{color:var(--attn-text)}
+.sig-information .sig-c{color:var(--info-text)}
+
+/* Findings table: air between the two lines of a finding; hovers: spacing before rules */
+.otable td,.otable tbody th{padding-top:10px;padding-bottom:10px;height:auto}
+.otable .sub-n{margin-top:6px}
+.tip-wide .tip-l > div{padding:3px 12px}
+.tip-wide .tip-l > div + div{border-top:0}
+.tip-wide .tip-l{padding:6px 0}
+.tip-wide .tip-s .tip-l{padding:0}
+.tip-wide .tip-s .tip-l > div{padding:2px 0}
+.tip-h + .tip-n{border-bottom:0;padding-bottom:2px}
+.tip > .vgroups{padding:10px 12px 4px}
+.tip > .tip-n:last-child{padding-bottom:10px}
+.tip .tip-s:last-child{padding-bottom:10px}
+
 </style>
 </head>
 <body>
@@ -939,6 +1084,9 @@ td.ex .tip.show{display:block}
     const filters = new Map();
     let sort = null;
     const cellVal = (r, idx) => { const c = r.cells[idx]; return c.dataset.v !== undefined ? c.dataset.v : c.textContent.trim(); };
+    /* a cell may carry a code to filter on (data-v), the words to show (data-l) and a key to sort on (data-s) */
+    const cellLab = (r, idx) => { const c = r.cells[idx]; return c.dataset.l !== undefined ? c.dataset.l : cellVal(r, idx); };
+    const cellKey = (r, idx) => { const c = r.cells[idx]; return c.dataset.s !== undefined ? c.dataset.s : cellLab(r, idx); };
     /* paged tables show pageSize rows at a time; filters and sorting see every row */
     const pageSize = Number(table.dataset.pageSize) || 0;
     const more = document.querySelector('[data-more="' + table.id + '"]');
@@ -959,7 +1107,7 @@ td.ex .tip.show{display:block}
         let order = rows.slice();
         if (sort) {
           const num = heads[sort.idx].dataset.kind === 'num';
-          const key = (r) => { const v = cellVal(r, sort.idx); return num ? (v === '' ? null : v) : v.toLowerCase(); };
+          const key = (r) => { const v = cellKey(r, sort.idx); return num ? (v === '' ? null : v) : v.toLowerCase(); };
           order.sort((a, b) => {
             const x = key(a), y = key(b);
             if (x === null && y === null) return a.dataset.i - b.dataset.i;
@@ -1003,7 +1151,8 @@ td.ex .tip.show{display:block}
 
     const buildList = (idx, th, body, setTitleClear) => {
       const counts = new Map();
-      rows.forEach((r) => { const v = cellVal(r, idx); counts.set(v, (counts.get(v) || 0) + 1); });
+      const words = new Map();
+      rows.forEach((r) => { const v = cellVal(r, idx); counts.set(v, (counts.get(v) || 0) + 1); words.set(v, cellLab(r, idx)); });
       const values = Array.from(counts.keys());
       const cur = filters.get(idx);
       const selected = new Set(cur ? cur.values : values);
@@ -1013,7 +1162,7 @@ td.ex .tip.show{display:block}
         '<div class="fm-ctl"><button type="button" data-all>Select all</button><button type="button" data-none>Select none</button></div>' +
         '<div class="fm-list" role="group" aria-label="Values">' +
         values.map((v) => {
-          const lab = pillLike ? '<span class="pill' + (v === 'mixed' ? ' attn' : '') + '">' + esc(v.replace(/_/g, ' ')) + '</span>' : '<span class="fm-v">' + esc(v === '' ? '(empty)' : v) + '</span>';
+          const lab = pillLike ? '<span class="pill' + (v === 'mixed' ? ' attn' : '') + '">' + esc(words.get(v).replace(/_/g, ' ')) + '</span>' : '<span class="fm-v">' + esc(v === '' ? '(empty)' : words.get(v)) + '</span>';
           return '<button type="button" role="checkbox" class="fm-opt" data-v="' + esc(v) + '" aria-checked="' + selected.has(v) + '"><i aria-hidden="true"></i>' + lab + '<small>(' + counts.get(v) + ')</small></button>';
         }).join('') + '</div>';
       const opts = $$('.fm-opt', body);
@@ -1029,7 +1178,7 @@ td.ex .tip.show{display:block}
       $('[data-none]', body).addEventListener('click', () => { opts.forEach((o) => { if (!o.hidden) o.setAttribute('aria-checked', 'false'); }); commit(); });
       $('.fm-search', body).addEventListener('input', (e) => {
         const q = e.target.value.trim().toLowerCase();
-        opts.forEach((o) => { o.hidden = q !== '' && !o.dataset.v.toLowerCase().includes(q); });
+        opts.forEach((o) => { o.hidden = q !== '' && !(o.dataset.v + ' ' + o.textContent).toLowerCase().includes(q); });
       });
     };
 
@@ -1230,6 +1379,53 @@ td.ex .tip.show{display:block}
   window.addEventListener('resize', () => hideTip());
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
   document.addEventListener('pointerdown', (e) => { if (tipCell && !tipCell.contains(e.target)) hideTip(); });
+
+  /* popovers: the columns and details behind a figure. A button with data-pop opens the
+     dialog it controls next to itself; Escape, a click outside or the button again closes it,
+     and the focus goes back to the button. The dialog moves to the body while open so that no
+     ancestor clips it. */
+  let openPop = null;
+  const placePop = (panel, btn) => {
+    const a = btn.getBoundingClientRect();
+    const left = Math.max(EDGE / 2, Math.min(a.left, innerWidth - panel.offsetWidth - EDGE / 2));
+    const below = a.bottom + 8;
+    const top = below + panel.offsetHeight <= innerHeight - EDGE / 2 ? below : a.top - panel.offsetHeight - 8;
+    panel.style.left = left + 'px';
+    panel.style.top = Math.max(EDGE / 2, Math.min(top, innerHeight - panel.offsetHeight - EDGE / 2)) + 'px';
+  };
+  const closePop = (focusBack) => {
+    if (!openPop) return;
+    const { panel, btn, home } = openPop;
+    panel.hidden = true;
+    home.appendChild(panel);
+    btn.setAttribute('aria-expanded', 'false');
+    openPop = null;
+    if (focusBack) btn.focus();
+  };
+  $$('[data-pop]').forEach((btn) => btn.addEventListener('click', () => {
+    const panel = document.getElementById(btn.getAttribute('aria-controls'));
+    if (!panel) return;
+    const same = openPop && openPop.btn === btn;
+    closePop(false);
+    if (same) return;
+    const home = panel.parentElement;
+    document.body.appendChild(panel);
+    panel.hidden = false;
+    panel.tabIndex = -1;
+    btn.setAttribute('aria-expanded', 'true');
+    openPop = { panel, btn, home };
+    placePop(panel, btn);
+    panel.focus({ preventScroll: true });
+  }));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePop(true); });
+  document.addEventListener('pointerdown', (e) => {
+    if (openPop && !openPop.panel.contains(e.target) && !openPop.btn.contains(e.target)) closePop(false);
+  });
+  document.addEventListener('scroll', (e) => {
+    if (openPop && !openPop.panel.contains(e.target)) placePop(openPop.panel, openPop.btn);
+  }, { capture: true, passive: true });
+  window.addEventListener('resize', () => { if (openPop) placePop(openPop.panel, openPop.btn); });
+  window.addEventListener('beforeprint', () => closePop(false));
 
   /* copy hash */
   $$('[data-copy]').forEach((b) => b.addEventListener('click', async () => {

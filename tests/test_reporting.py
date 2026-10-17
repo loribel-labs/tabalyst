@@ -123,7 +123,7 @@ def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
     assert '<section class="panel" id="columns"' in html
     assert '<section class="panel" id="sample"' in html
     assert 'Numeric analysis' in html
-    assert html.count('class="rep-tab"') == 10
+    assert html.count('class="rep-tab"') == 11
     for section in ("overview", "observations", "columns", "transformations", "numeric", "dates", "strings", "detectors", "sample", "settings"):
         assert f'href="#{section}"' in html
 

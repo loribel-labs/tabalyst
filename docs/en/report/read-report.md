@@ -46,13 +46,33 @@ investigating individual fields.
 | Missing cells | Missing positions divided by all analyzed cell positions, with the count below. Empty or whitespace-only values, configured markers and absent JSON members can count as missing. | Check the affected columns and the effective missing-value rules. |
 | Duplicate rows | Records equal to an earlier record by exact raw values across columns, excluding the first occurrence. | `≥` is a lower bound after the tracking limit; `–` means the check was disabled. |
 
-The **Quality observations** card groups the findings of the scan by rule, each
-with its status: a *confirmed issue* is a defect of the source by its structure,
-a *candidate anomaly* is worth a look and never proof of an error, and a
-*remark* may be perfectly valid, such as a constant column. **Column types**
-counts columns by inferred type and by type family, not individual cells. The
-date card sums ambiguous values across date columns, so one record can
-contribute more than once. See [Findings](json-profile.md#findings).
+Three cards sum what the checks found and how far they went, as KPIs. They add up
+the findings of the [column summary](#column-summary), column by column, and never
+guess: a sum only joins findings of one kind counted in one unit. Every figure that
+stands for columns opens a popover (click, Enter or Space; Escape closes it and gives
+the focus back) with the columns behind it.
+
+- **Column quality** shows how many columns have Errors, Issues only, or no finding,
+  as figures, percentages of the columns and one bar. A column with Errors counts under
+  Errors even when it also has Issues, so the three figures add up to the columns. Each
+  figure opens the columns of its group with their findings. A line counts the
+  observations of the scan by status (*confirmed issue*: a defect by the structure of the
+  source; *candidate anomaly*: worth a look and never proof of an error; *remark*: may be
+  perfectly valid, such as a constant column), with the meaning in its `?` popover.
+- **Signals** gives one tile per kind of finding present, with a large figure, a title
+  and a line that says what it counts: type mismatches, invalid values, spelling
+  variants, ambiguous dates, repeated whitespace, minority lengths... Errors come first
+  in a red tile, then Issues, each ordered by the columns touched. `≥` marks a sum with
+  a lower bound. The **N columns** button opens the columns with their figure and, by
+  case, their details: the largest group of spelling variants of each column, or the
+  note that Tabalyst does not guess the order of an ambiguous date. Six tiles are shown;
+  the others are counted.
+- **Column types** counts columns twice, not cells: by family and type of the
+  classification, then by technical type.
+
+The overview, the column summary and the findings answer different questions: how
+much and how far, which column, and what exactly. See
+[Findings](json-profile.md#findings).
 
 ## Observations
 
@@ -67,11 +87,38 @@ was made on a sample of the distinct values.
 | Finding, Column | The rule and the column it concerns; a finding about the dataset has no column. | Filter by status to start with the issues. |
 | Count, Out of | What was found, out of what: values, records, distinct values or columns. | Do not compare counts of different populations. |
 | Accuracy | exact, at least or sample. | An *at least* count is a proven minimum, not an estimate. |
-| Detail | The first record numbers, the patterns and the limits behind the finding. | Use the record numbers to find the rows in the source. |
+| Detail | The first record numbers, the patterns and the limits behind the finding. For spelling variants, the largest groups with their spellings and counts, the most frequent first. | Use the record numbers to find the rows in the source. In a group of variants, the most frequent spelling is the likely target of a correction; the others are the candidates to review. A masked column shows merged masks, a hidden one nothing. |
 
 The table shows 25 findings at a time and up to 500; the JSON profile lists
 them all. Without observations (`scan.observations.enabled` is `false`) the
 section says that they are not computed.
+
+## Column summary
+
+**Purpose:** read each field in one row: its classification, a factual sentence
+about it, its completeness and its findings. The classic **Columns** table, with
+the technical type, sits right after it. Each row is one field, identified by its dataset and
+its field `id`, never by its name alone. **Quality issues** filters to fields
+with an Error or an Issue in the table; **With observations** keeps the fields
+the scan has an observation about, remarks included.
+
+| Report column | Meaning | What to check |
+| --- | --- | --- |
+| Column | Name and source position. JSON paths identify nested fields; names in a table may be blank or repeated. | Use position, the path under the name or the JSON profile's stable `id` when a name is ambiguous. |
+| Type family | The family of the [classification](../scan/format.md#classification): `Identifier`, `Categorical`, `Numeric`, `Temporal`, `Contact`, `Geographic`, `Web / Network`, `Text` or `Other`. | Filter and sort here to see every field of a family; the filter is independent of **Type**. |
+| Type | The type inside the family, such as `Unique ID`, `Enum`, `Email` or `Short` (a `Text` length). | An identifier type is a candidate that rests on a name and the values; the JSON profile gives the `state` and the `evidence` of every type. See [Types](../reference/types-and-patterns/types.md#classification). |
+| Overview | One factual sentence about the field: distinct values, range, recognized formats, median length. | It states no business meaning and never repeats an Error or an Issue. `at least` marks a figure that is a lower bound. |
+| Missing | Missing positions as a count and percentage of this field's positions. Absent JSON members count in the denominator. | A missing value is never an Error or an Issue by itself. Check the missing markers in **Analysis settings**. |
+| Errors | Values a deterministic rule proves invalid, such as an impossible date or a malformed email, in a field whose type is established. | Each label gives its count in its own unit. `None detected` means the checks ran everywhere; a dash (`-`) means `Not applicable`: no rule exists for this type. |
+| Issues | Ambiguities and deviations to inspect, such as ambiguous dates, spelling variants or a minority length. | A rare value is not an invalid one. Under a list, a line such as `1 check partially assessed` names a check that did not cover every value. |
+| Details | A few values of the field on two lines at most. The hover (or focus, or a tap) holds the whole story: the values with their counts and shares, every Error and Issue label of the column, the groups of spelling variants with their spellings (the most frequent first) and the complementary measures. | A list can be complete or bounded. Sensitive values can be masked or hidden. |
+
+The states of Errors and Issues are written: `None detected`, `Not assessed`,
+`Partially assessed`, `Not applicable` and `Assessment failed`. The only dash is
+the `Not applicable` of an Errors cell, which keeps its word in the filter and for
+a screen reader. Two labels are shown in a cell, then `+N more`. The technical
+type of the field (`inferred_type`) is not a column of this table; it stays in
+the **Columns** table, in the JSON profile and on the column page.
 
 ## Columns
 

@@ -352,7 +352,9 @@ $env:TABALYST_ARTIFACTS_DIR = 'D:\GIT.test\tabalyst\artifacts'
 Choose a fresh `--basetemp` path for each run: pytest clears that exact
 directory when reusing it. Put benchmark `--root`/`--stage` paths under the
 same external artifact directory. The environment setting affects browser
-screenshots; pytest receives its path explicitly. Checks cover JSON-backed issue
+screenshots; pytest receives its path explicitly. Checks run at desktop, tablet and mobile
+sizes in both themes and cover the Summary table against the JSON (row identity,
+independent Type family and Type filters, sorts, segment) and JSON-backed issue
 filtering, numeric ordering and filtering, percentage/count alignment,
 date-format tooltips, theme persistence, collapsible panels and desktop/mobile
 popup layout. Filtering never recalculates dataset metrics.

@@ -22,3 +22,13 @@ used in Errors and Issues. The mapping from detector and measure states is in
 - A technical `failed` is never counted as an invalid value.
 - Labels live in `report_labels.py` and may be reworded later; the state codes
   do not change.
+
+## Amendment (2026-10-17, lot R9a)
+
+The maintainer asked that an Errors cell whose state is `Not applicable` show a dash
+(`-`) instead of the words: 21 of the 34 columns of the demo have no deterministic
+rule and the repeated words weigh on the table. The word stays in the filter, in the
+tooltip and as a visually hidden text, so the state is still told to a screen reader
+and the dash cannot be mistaken for zero (`None detected`) or a failure. Issues keep
+their words.
+

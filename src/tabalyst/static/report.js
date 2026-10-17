@@ -199,6 +199,9 @@
     const filters = new Map();
     let sort = null;
     const cellVal = (r, idx) => { const c = r.cells[idx]; return c.dataset.v !== undefined ? c.dataset.v : c.textContent.trim(); };
+    /* a cell may carry a code to filter on (data-v), the words to show (data-l) and a key to sort on (data-s) */
+    const cellLab = (r, idx) => { const c = r.cells[idx]; return c.dataset.l !== undefined ? c.dataset.l : cellVal(r, idx); };
+    const cellKey = (r, idx) => { const c = r.cells[idx]; return c.dataset.s !== undefined ? c.dataset.s : cellLab(r, idx); };
     /* paged tables show pageSize rows at a time; filters and sorting see every row */
     const pageSize = Number(table.dataset.pageSize) || 0;
     const more = document.querySelector('[data-more="' + table.id + '"]');
@@ -219,7 +222,7 @@
         let order = rows.slice();
         if (sort) {
           const num = heads[sort.idx].dataset.kind === 'num';
-          const key = (r) => { const v = cellVal(r, sort.idx); return num ? (v === '' ? null : v) : v.toLowerCase(); };
+          const key = (r) => { const v = cellKey(r, sort.idx); return num ? (v === '' ? null : v) : v.toLowerCase(); };
           order.sort((a, b) => {
             const x = key(a), y = key(b);
             if (x === null && y === null) return a.dataset.i - b.dataset.i;
@@ -263,7 +266,8 @@
 
     const buildList = (idx, th, body, setTitleClear) => {
       const counts = new Map();
-      rows.forEach((r) => { const v = cellVal(r, idx); counts.set(v, (counts.get(v) || 0) + 1); });
+      const words = new Map();
+      rows.forEach((r) => { const v = cellVal(r, idx); counts.set(v, (counts.get(v) || 0) + 1); words.set(v, cellLab(r, idx)); });
       const values = Array.from(counts.keys());
       const cur = filters.get(idx);
       const selected = new Set(cur ? cur.values : values);
@@ -273,7 +277,7 @@
         '<div class="fm-ctl"><button type="button" data-all>Select all</button><button type="button" data-none>Select none</button></div>' +
         '<div class="fm-list" role="group" aria-label="Values">' +
         values.map((v) => {
-          const lab = pillLike ? '<span class="pill' + (v === 'mixed' ? ' attn' : '') + '">' + esc(v.replace(/_/g, ' ')) + '</span>' : '<span class="fm-v">' + esc(v === '' ? '(empty)' : v) + '</span>';
+          const lab = pillLike ? '<span class="pill' + (v === 'mixed' ? ' attn' : '') + '">' + esc(words.get(v).replace(/_/g, ' ')) + '</span>' : '<span class="fm-v">' + esc(v === '' ? '(empty)' : words.get(v)) + '</span>';
           return '<button type="button" role="checkbox" class="fm-opt" data-v="' + esc(v) + '" aria-checked="' + selected.has(v) + '"><i aria-hidden="true"></i>' + lab + '<small>(' + counts.get(v) + ')</small></button>';
         }).join('') + '</div>';
       const opts = $$('.fm-opt', body);
@@ -289,7 +293,7 @@
       $('[data-none]', body).addEventListener('click', () => { opts.forEach((o) => { if (!o.hidden) o.setAttribute('aria-checked', 'false'); }); commit(); });
       $('.fm-search', body).addEventListener('input', (e) => {
         const q = e.target.value.trim().toLowerCase();
-        opts.forEach((o) => { o.hidden = q !== '' && !o.dataset.v.toLowerCase().includes(q); });
+        opts.forEach((o) => { o.hidden = q !== '' && !(o.dataset.v + ' ' + o.textContent).toLowerCase().includes(q); });
       });
     };
 
@@ -490,6 +494,53 @@
   window.addEventListener('resize', () => hideTip());
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
   document.addEventListener('pointerdown', (e) => { if (tipCell && !tipCell.contains(e.target)) hideTip(); });
+
+  /* popovers: the columns and details behind a figure. A button with data-pop opens the
+     dialog it controls next to itself; Escape, a click outside or the button again closes it,
+     and the focus goes back to the button. The dialog moves to the body while open so that no
+     ancestor clips it. */
+  let openPop = null;
+  const placePop = (panel, btn) => {
+    const a = btn.getBoundingClientRect();
+    const left = Math.max(EDGE / 2, Math.min(a.left, innerWidth - panel.offsetWidth - EDGE / 2));
+    const below = a.bottom + 8;
+    const top = below + panel.offsetHeight <= innerHeight - EDGE / 2 ? below : a.top - panel.offsetHeight - 8;
+    panel.style.left = left + 'px';
+    panel.style.top = Math.max(EDGE / 2, Math.min(top, innerHeight - panel.offsetHeight - EDGE / 2)) + 'px';
+  };
+  const closePop = (focusBack) => {
+    if (!openPop) return;
+    const { panel, btn, home } = openPop;
+    panel.hidden = true;
+    home.appendChild(panel);
+    btn.setAttribute('aria-expanded', 'false');
+    openPop = null;
+    if (focusBack) btn.focus();
+  };
+  $$('[data-pop]').forEach((btn) => btn.addEventListener('click', () => {
+    const panel = document.getElementById(btn.getAttribute('aria-controls'));
+    if (!panel) return;
+    const same = openPop && openPop.btn === btn;
+    closePop(false);
+    if (same) return;
+    const home = panel.parentElement;
+    document.body.appendChild(panel);
+    panel.hidden = false;
+    panel.tabIndex = -1;
+    btn.setAttribute('aria-expanded', 'true');
+    openPop = { panel, btn, home };
+    placePop(panel, btn);
+    panel.focus({ preventScroll: true });
+  }));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePop(true); });
+  document.addEventListener('pointerdown', (e) => {
+    if (openPop && !openPop.panel.contains(e.target) && !openPop.btn.contains(e.target)) closePop(false);
+  });
+  document.addEventListener('scroll', (e) => {
+    if (openPop && !openPop.panel.contains(e.target)) placePop(openPop.panel, openPop.btn);
+  }, { capture: true, passive: true });
+  window.addEventListener('resize', () => { if (openPop) placePop(openPop.panel, openPop.btn); });
+  window.addEventListener('beforeprint', () => closePop(false));
 
   /* copy hash */
   $$('[data-copy]').forEach((b) => b.addEventListener('click', async () => {

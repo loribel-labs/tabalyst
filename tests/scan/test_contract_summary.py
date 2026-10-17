@@ -870,7 +870,7 @@ def test_CA28_a_report_without_details_links_to_no_missing_page(tmp_path):
     for details in (False, True):
         output = tmp_path / f"report-{details}.html"
         analyze(source, output, details=details)
-        hrefs = re.findall(r'class="column-link" href="([^"]+)"', output.read_text("utf-8"))
+        hrefs = re.findall(r'class="column-link[^"]*" href="([^"]+)"', output.read_text("utf-8"))
         assert bool(hrefs) is details
         assert all((tmp_path / href).is_file() for href in hrefs)
 
@@ -880,20 +880,70 @@ def test_CA28_a_report_without_details_links_to_no_missing_page(tmp_path):
 
 @pytest.mark.report_lot("R9a")
 def test_CA01_the_table_has_the_eight_columns_in_order(tmp_path):
-    pytest.fail(
-        "Contract: Column, Type family, Type, Overview, Missing, Errors, "
-        "Issues, Details (section 7.3)."
-    )
+    from columns_table_helpers import columns_table
+
+    from tabalyst import analyze_csv
+    from tabalyst.reporting import render_report
+
+    source = write_text(tmp_path, "data.csv", "name,amount\nAlice,1\nBob,2\n")
+
+    headers = columns_table(render_report(analyze_csv(source))).headers
+
+    assert headers == [
+        "Column",
+        "Type family",
+        "Type",
+        "Overview",
+        "Missing",
+        "Errors",
+        "Issues",
+        "Details",
+    ]
 
 
 @pytest.mark.report_lot("R9a")
-def test_CA02_a_family_filter_does_not_select_a_homonymous_type():
-    pytest.fail("Contract: independent filters keyed by family and type (7.3).")
+def test_CA02_a_family_filter_does_not_select_a_homonymous_type(tmp_path):
+    from columns_table_helpers import columns_table
+
+    from tabalyst import analyze_csv
+    from tabalyst.report_labels import FAMILY_LABELS, TYPE_LABELS
+    from tabalyst.reporting import render_report
+
+    lines = ["email,phone,note"] + [
+        f"user{n}@example.com,(514) 555-{n:04d},free text number {n} here"
+        for n in range(40)
+    ]
+    source = write_text(tmp_path, "data.csv", "\n".join(lines) + "\n")
+
+    rows = columns_table(render_report(analyze_csv(source))).rows
+
+    contact = [r for r in rows if r.cells[1]["data-v"] == "contact"]
+    assert {r.cells[0]["data-v"] for r in contact} == {"email", "phone"}
+    assert {r.cells[2]["data-v"] for r in contact} == {"contact/email", "contact/phone"}
+    # A family code is never the code of a type: the two filters cannot meet.
+    assert not set(TYPE_LABELS) & set(FAMILY_LABELS)
 
 
 @pytest.mark.report_lot("R9a")
 def test_CA03_two_columns_with_the_same_name_keep_their_own_identity(tmp_path):
-    pytest.fail("Contract: row identity is dataset id plus field id (RF-02).")
+    from columns_table_helpers import columns_table
+
+    from tabalyst import analyze_csv
+    from tabalyst.reporting import dataset_views, render_report
+
+    source = write_text(tmp_path, "data.csv", "name,name\n1,a\n2,b\n")
+    profile = analyze_csv(source)
+    links = {
+        (profile.report.datasets[0].id, c.id): f"{c.id}.html"
+        for c in profile.report.datasets[0].columns
+    }
+
+    html = render_report(profile, column_links=links, views=dataset_views(profile))
+
+    rows = columns_table(html).rows
+    assert [r.attrs["data-field"] for r in rows] == ["column_1", "column_2"]
+    for row in rows:
+        assert f"{row.attrs['data-field']}.html" in html
 
 
 @pytest.mark.report_lot("R9b")

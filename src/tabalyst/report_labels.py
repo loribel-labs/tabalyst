@@ -608,3 +608,82 @@ DETAILS_NOTES = {
     "none": "No value is listed.",
     "sample": "A sample of the values; the list is not exhaustive.",
 }
+
+
+# The Columns table (contract summary-table.md 7.3). ``detected`` has no label in the
+# cells (the findings are written out); the filter of a list needs a word for it.
+LIST_STATE_LABELS = {"detected": "Detected", **ASSESSMENT_LABELS}
+LIST_STATE_TITLES = {
+    "detected": "The checks found something",
+    **ASSESSMENT_TITLES,
+}
+# The checks of a list that found something but did not look everywhere: "2 checks
+# partially assessed". Keyed by the evaluation state of the check.
+CAVEAT_STATES = {
+    "partial": "partially assessed",
+    "not_assessed": "not assessed",
+    "failed": "failed",
+}
+TABLE_MORE = "more"
+TABLE_AT_LEAST = "at least"
+# By the state of the Details of a column (``shown`` writes no chip).
+DETAILS_STATES = {"masked": "masked", "hidden": "hidden"}
+DETAILS_TITLES = {"shown": "Values", "masked": "Masked values", "hidden": "Hidden values"}
+
+
+def finding_name(code: str, unit: str) -> str:
+    """The plural name of a finding without a count (``invalid dates``), for a
+    finding whose count is not defined."""
+    return (FINDING_NOUNS.get(code, {}).get(unit) or UNIT_NOUNS[unit])[1]
+
+
+def finding_noun(code: str, unit: str, count: int) -> str:
+    """The name of a finding that agrees with ``count``, without the number
+    (``ambiguous dates``), for a tile that prints the figure apart."""
+    one, many = FINDING_NOUNS.get(code, {}).get(unit) or UNIT_NOUNS[unit]
+    return one if count == 1 else many
+
+
+# The overview tiles (contract 7.5). A note is a fact about the reading of a signal; the
+# target is the section that explains it better than Findings does.
+SIGNAL_NOTES = {
+    "temporal.ambiguous_date": (
+        "Values that match more than one configured date order. "
+        "Tabalyst does not guess the order."
+    ),
+}
+SIGNAL_TARGETS = {
+    "temporal.ambiguous_date": "dates",
+    "categorical.case_variants": "transformations",
+    "text.surrounding_whitespace": "transformations",
+    "text.repeated_whitespace": "transformations",
+}
+
+# The title and the line under the figure of a signal tile, by finding code.
+SIGNAL_TITLES = {
+    "temporal.invalid_calendar": ("Invalid dates", "Dates that do not exist in the calendar"),
+    "semantic.invalid": ("Invalid values", "Values failing a validation check"),
+    "type.outside_family": ("Type mismatches", "Values outside the inferred column type"),
+    "temporal.ambiguous_date": ("Ambiguous dates", "Values matching multiple date orders"),
+    "number.ambiguous": ("Ambiguous numbers", "Values that read in more than one way"),
+    "categorical.case_variants": ("Spelling variants", "Groups of different spellings"),
+    "pattern.minority": ("Minority patterns", "Distinct values in less-common patterns"),
+    "length.minority": ("Minority lengths", "Values with less-common lengths"),
+    "type.mixed": ("Mixed types", "Values outside the closest type"),
+    "identifier.repetition": ("ID repetitions", "Repetitions beyond the first occurrence"),
+    "text.surrounding_whitespace": (
+        "Surrounding whitespace",
+        "Values with leading or trailing whitespace",
+    ),
+    "text.repeated_whitespace": ("Repeated whitespace", "Values with repeated whitespace"),
+}
+# What the three statuses of the observations of the scan mean (the quality KPI).
+OBSERVATION_STATUS_HELP = (
+    ("Confirmed issue", "a defect by the structure of the source"),
+    ("Candidate anomaly", "worth a look and never proof of an error"),
+    ("Remark", "may be perfectly valid, such as a constant column"),
+)
+
+# The class of a signal tile, written before its title so that the colour is never the only cue.
+SIGNAL_CLASS_WORDS = {"error": "Error", "issue": "Issue", "information": "Info"}
+

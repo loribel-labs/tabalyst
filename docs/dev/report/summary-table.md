@@ -49,7 +49,7 @@ lot R0. Decisions 13 to 15 were R0 proposals, confirmed at gate 0.
 | 3 | A specific, supported hint wins over a generic one. A persisting conflict gives the explicit fallback, never the first by accidental order (O-04, RF-29). | 3.5 |
 | 4 | A credible identifier role needs an identifier name rule and compatible values. A nameless column stays outside ID. First position and strong uniqueness are traits (`first_column`, `observed_unique`), never proof (O-07, O-08, RF-29). | 3.7 |
 | 5 | Unique ID is reserved for a field that is not under a JSON array. The scope (partial scan, excluded records) is published in the evidence (RF-07, O-19). | 3.8 |
-| 6 | Evaluation states: `None detected`, `Not assessed`, `Partially assessed`, `Not applicable`, `Assessment failed`. The dash is no longer used in Errors and Issues (RF-23, O-12). | 6.4 |
+| 6 | Evaluation states: `None detected`, `Not assessed`, `Partially assessed`, `Not applicable`, `Assessment failed`. The dash is no longer used in Errors and Issues (RF-23, O-12), except the `Not applicable` of an Errors cell (maintainer, R9a, 7.3). | 6.4 |
 | 7 | Interface: two visible labels then `+N more`, two examples in the preview. Errors red, Issues amber, information grey, contrasts checked (O-13, O-20). | 7.4 |
 | 8 | `ColumnProfile.semantic_type` and `DatasetSummary.semantic_type_*` are replaced by `classification` and its counts. `inferred_type` stays. Breaking change accepted in beta, noted in the changelogs. | 9 |
 | 9 | One revision bump per published version (rule P3, design section 20). Revision 4 of the Scan and of the Report is still in preparation (the last tag, `v0.6.2`, ships revision 3): the classification joins revision 4 and no revision 5 is created. Amended by the maintainer at the start of lot R1a; the gate 0 wording was "4 to 5". | 9 |
@@ -691,7 +691,9 @@ The five labels are the wording of decision 6; the code values are the table's
 first column. `None detected` appears only after a complete check. A detector
 that tests 100 of 1,000 eligible values and finds nothing is `partial`, never
 `none_detected` (CA-17). Null, disabled and failed stay distinguishable (CA-18).
-The dash is not used in Errors and Issues (RF-23).
+The dash is not used in Errors and Issues (RF-23). One exception, decided by the
+maintainer in R9a: an Errors cell whose state is `not_applicable` shows `-` (the
+word stays in the filter, the tooltip and a visually hidden text).
 
 The mapping from the Scan (`evaluation_state(detector_state, eligible, tested,
 found)`), in this order:
@@ -999,13 +1001,16 @@ The words are in `report_labels.py` (`DETAILS_*`).
 
 ### 7.3 Table and filters
 
-R9a. Eight columns in the order above. A row is identified by dataset id and
+R9a. The table is the **Summary** panel (`id="summary"`, table `summary-table`), placed
+before the previous **Columns** panel, which is kept unchanged with its technical
+type (maintainer, R9a); the outline of the report is renumbered (03 Summary, 04 Columns).
+Eight columns in the order above. A row is identified by dataset id and
 field id, never by the displayed name alone (RF-02, CA-03). Type family and Type
 have independent filters and sorts; a family filter cannot select a type of the
 same name in another family; options come from the classifications present
 (RF-03, CA-02). The "All / Quality issues / With observations" segment reads the
-new Errors and Issues. Distinct, Inferred type and Examples leave the table; the
-technical type stays in the JSON and the column page (O-11).
+new Errors and Issues. Distinct, Inferred type and Examples are not columns of the Summary table; the
+technical type stays in the Columns table, the JSON and the column page (O-11).
 
 ### 7.4 Previews and styling
 
@@ -1207,3 +1212,90 @@ ADRs written in R0 (`docs/dev/adr/`):
   with the label in the Type filter (R9a).
 - Backlog: L1a types, L1b rarity, L1c single-column controls, L2 declared
   constraints (`basis = declared`), L3 history and drift.
+
+## 15. Summary table, as built (lot R9a)
+
+- `report_table.py` assembles one `ColumnRow` per column at render time (`column_table`):
+  identity (`dataset_id`, `field_id`), `family` and `type_key` (`family/type`) as filter
+  codes with their words, `overview_text`, `column_findings` (Missing, Errors, Issues),
+  `details_for` and `details_link`, and the flags of the segment. The template prints
+  the row and recomputes nothing.
+- The cells carry three things: `data-v` the code to filter on, `data-l` the words, `data-s`
+  the key to sort on (`report.js`). The family filter acts on `data-v` of its own column,
+  so it cannot select a type of the same name in another family (CA-02); the Type options
+  are those of the classifications present.
+- Errors and Issues: two labels, then `+N more` as text (the preview is lot R9b). A list
+  that is `Detected` and holds a check that was partial, not assessed or failed adds a
+  line (`1 check partially assessed`) with the codes in its title. The sort key is the
+  number of findings, the filter is the state of the list.
+- Missing: the share of `MissingFinding`, rounded to two decimals like
+  `ColumnProfile.missing_percent`.
+- Segment: `Quality issues` is a column with an Error or an Issue detected; `With
+  observations` stays the observations of the Scan.
+- Details: examples from `details_for` only; the cell and its tooltip never read
+  `column.examples` or `value_profile`. The Numeric section still reads `column.examples`
+  (existing table, outside R9a): to review with the exposure of the other sections (R9b/R10).
+- Dashboard card: two captioned lists, the classification (each family followed by its
+  types) and the technical types.
+- Browser check: `tests/browser/report.cjs` checks the Summary table against the JSON at
+  desktop, tablet and mobile sizes in both themes, and keeps the checks of the Columns table.
+
+## 16. Overview cards and finding details (lot R9a, follow-up)
+
+Requested by the maintainer after the first browser review. The three blocks are
+complementary: the overview is the quantitative synthesis (how much, how far), the
+Summary table is the reading by column, Findings is the evidence rule by rule. The
+Summary panel is now 02 and Findings 03.
+
+- **7.5 Signals** (`report_signals.py`, `signals_view`). One `Signal` per `(class, code,
+  unit)` found in `column_findings` of any column: `total` is the sum of the counts (a
+  sum never joins two codes or two units), `columns` the terms with their share of the
+  largest, `lower_bound` when one term is. Order: Errors first, then the Issues, each by
+  the number of columns, then the total, then the code (no threshold, no measured time).
+  Six tiles are shown (`SIGNALS_SHOWN`), the rest is counted. A finding without a count
+  is left out. `SIGNAL_NOTES` and `SIGNAL_TARGETS` (`report_labels.py`) carry the note of
+  the ambiguous dates and the section that explains a signal better than Findings.
+  `incomplete_columns` counts the columns whose Errors or Issues list is partial, not
+  assessed or failed.
+- **7.5 Validation** (`validation_view`). The card Quality observations: columns with
+  Errors, with Issues and with no finding, and for each list the number of columns in each
+  evaluation state (every column is in exactly one). The observations of the Scan stay as
+  three counters by status; the rule-by-rule list lives in Findings.
+- **7.6 Finding details** (`report_finding_details.py`, `variant_details`). The Detail
+  cell of a `variant_groups` observation lists the first `GROUPS_SHOWN` groups of the
+  column, each with up to `SPELLINGS_SHOWN` spellings sorted by count, the most frequent
+  marked, and counts what is left (`more_spellings`, `more_groups`). The values go through
+  `ExposureGate` again: hidden gives none, masked gives merged masks and drops a group
+  whose masks all merged. The other rules (formats of dates, minority patterns and lengths,
+  whitespace) are the next candidates; none is built yet.
+
+### 16.1 Details cells, hover (maintainer, after the second review)
+
+- The Details cell of the Summary table prints **no link to a column page** (`details_link` stays
+  in `report_details.py`, used by no table cell; the Columns table keeps its links) and holds two
+  lines at most (the chips are clipped, the hover has the rest).
+- Its hover is structured in sections: Values (examples with counts and shares, the note), Errors
+  and Issues (every label, not only the two of the cell), Spelling variants (every group the
+  scan listed, up to `GROUPS_SHOWN` = 20, each with up to `SPELLINGS_SHOWN` = 6 spellings) and
+  Measures. `ColumnRow.variants` carries the groups. The hover opens on pointer, focus and tap.
+- The Detail cell of Findings follows the same rule for `variant_groups`: a preview of the first
+  two spellings and the number of groups, and the same list in the hover.
+
+## 17. Overview as KPIs and popovers (lot R9a, third review)
+
+- The overview keeps its four metrics, then Column quality and Signals (two thirds) beside
+  Column types (one third). The two cards are KPIs, from the maquette of the maintainer.
+- **Column quality** (`report_signals.quality_view`, `QualityView`): each column is in exactly one
+  group, Errors (any Error), Issues (no Error, at least one Issue) or no finding, so the
+  figures add up to the columns; percentages and one bar. Each group carries its columns with the
+  labels of their findings. `errors` and `issues` (`ValidationList`) still hold the count of columns
+  by evaluation state, a column with both being in both; the page does not print them.
+- **Signals** (`Signal.title`, `subtitle` from `SIGNAL_TITLES`): the tile of an Error is red, the
+  figure of an Issue is orange. `SignalColumn.spellings` carries, for the spelling variants, the largest
+  group of the column through the exposure (`variant_details`).
+- **Popover** (`report.js`, `[data-pop]` and `.pop`): a button controls a `role="dialog"`; it opens
+  next to the button, moves to the body while open so that no ancestor clips it, closes on Escape, on a
+  click outside or on the button again, gives the focus back, and is placed inside the screen. It is the
+  first component of this kind in the report; lot R9b reuses it for the previews of Errors and Issues.
+  The statuses of the observations are explained in one (`OBSERVATION_STATUS_HELP`).
+

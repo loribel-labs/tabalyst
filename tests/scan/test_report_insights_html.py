@@ -109,12 +109,12 @@ def test_the_insights_panel_is_rendered_from_the_json_alone(rich):
 
     html = render_report(load_profile(path))
 
-    assert 'id="insights"' in html and "12 / Insights" in html
+    assert 'id="insights"' in html and "13 / Insights" in html
     assert "Numbers by category" in html and "Shape of the numbers" in html
     assert "Values left out" in html and "Repeated values" in html
     assert "Parts of the dates" in html and "Values with a unit" in html
     assert re.search(r'class="acc acc-estimated"', html)
-    assert "13 / Second pass" in html and "16 / Method" in html
+    assert "14 / Second pass" in html and "17 / Method" in html
 
 
 def test_values_of_the_data_are_escaped_in_every_card(rich):

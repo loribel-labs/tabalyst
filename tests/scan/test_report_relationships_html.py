@@ -45,7 +45,7 @@ def test_the_section_shows_the_counts_and_the_conditional_percentages_before_the
 
     html = render_report(profile)
 
-    assert 'id="relationships"' in html and "11 / Relationships" in html
+    assert 'id="relationships"' in html and "12 / Relationships" in html
     assert html.index('id="relationships"') < html.index('id="second-pass"')
     section = html.split('id="relationships"')[1].split('id="second-pass"')[0]
     # The table of counts comes before the exceptions and the rules.
@@ -188,7 +188,7 @@ def test_a_report_without_relations_has_no_section_and_no_tab(tmp_path):
     assert not _view(profile).available
     assert 'id="relationships"' not in html and ">Relationships<" not in html
     # The sections that follow keep their numbers.
-    assert "13 / Second pass" in html and "15 / Raw values" in html
+    assert "14 / Second pass" in html and "16 / Raw values" in html
 
 
 def test_a_report_of_an_earlier_build_without_analyses_has_no_relationships(tmp_path):

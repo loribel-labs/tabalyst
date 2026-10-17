@@ -6,7 +6,6 @@
 
 import re
 import unicodedata
-from collections import defaultdict
 from functools import cache
 from importlib.resources import files
 from pathlib import Path
@@ -19,6 +18,7 @@ from tabalyst.errors import InputError
 from tabalyst.models import ReportProfile
 from tabalyst.report_config import ReportConfig
 from tabalyst.report_deep import column_analyses, second_pass_view
+from tabalyst.report_finding_details import variant_details
 from tabalyst.report_insights import (
     FAMILY_ORDER,
     dataset_insights,
@@ -30,10 +30,17 @@ from tabalyst.report_labels import (
     ACCURACY_TITLES,
     ACCURACY_WORDS,
     DEEP_REASONS,
+    DETAILS_STATES,
+    DETAILS_TITLES,
     FAMILY_LABELS,
     MODE_WORDS,
+    OBSERVATION_STATUS_HELP,
     ORIGIN_WORDS,
     OUTCOME_WORDS,
+    SIGNAL_CLASS_WORDS,
+    TABLE_AT_LEAST,
+    TABLE_MORE,
+    TYPE_LABELS,
     format_number,
 )
 from tabalyst.report_profile import build_views
@@ -48,6 +55,7 @@ from tabalyst.report_sections import (
     quality_view,
     rows_view,
 )
+from tabalyst.report_table import column_table
 from tabalyst.report_views import (
     ColumnAnalyses,
     ColumnView,
@@ -87,6 +95,9 @@ def format_size(size_bytes: int) -> str:
 
 
 # Separators after which a long name may break: snake case, paths and dates.
+# One theme token per family (theme.css), so that the bar of the dashboard card and
+# its legend read the same colour in both themes.
+FAMILY_COLORS = {family: f"var(--fam-{family})" for family in FAMILY_LABELS}
 _BREAKS = re.compile(r"(?<=[_./-])")
 
 
@@ -276,6 +287,13 @@ def _labels() -> dict[str, object]:
         "outcome_words": OUTCOME_WORDS,
         "deep_reasons": DEEP_REASONS,
         "family_titles": {family: family_title(family) for family in FAMILY_ORDER},
+        "type_labels": TYPE_LABELS,
+        "table_more": TABLE_MORE,
+        "observation_status_help": OBSERVATION_STATUS_HELP,
+        "signal_class_words": SIGNAL_CLASS_WORDS,
+        "table_at_least": TABLE_AT_LEAST,
+        "details_states": DETAILS_STATES,
+        "details_titles": DETAILS_TITLES,
     }
 
 
@@ -296,7 +314,12 @@ def _pattern_rows(
     return rows
 
 
-def _page_view(dataset: DatasetView, prefix: str, grammar: str) -> dict[str, object]:
+def _page_view(
+    dataset: DatasetView,
+    prefix: str,
+    grammar: str,
+    column_links: dict[tuple[str, str], str],
+) -> dict[str, object]:
     """What the report template reads about one dataset besides the view."""
     pattern_rows = _pattern_rows(dataset)
     pattern_columns = [c for c in dataset.columns if c.patterns.status == "complete"]
@@ -309,6 +332,12 @@ def _page_view(dataset: DatasetView, prefix: str, grammar: str) -> dict[str, obj
         sections.add("dates")
     return {
         "ds": dataset,
+        "table": column_table(dataset),
+        "finding_details": {
+            (column.id, "variant_groups"): details
+            for column in dataset.columns
+            if (details := variant_details(column)) is not None
+        },
         "insight_cards": shown_cards(dataset.insights, DISPLAY_LIMITS["insights"]),
         # Element ids are prefixed only when the report shows several
         # datasets, so single-dataset reports keep their anchors.
@@ -365,22 +394,14 @@ def render_report(
         "empty": "var(--line-strong)",
         "complex": "var(--text-3)",
     }
-    family_colors = defaultdict(
-        lambda: "var(--ok)",
-        {
-            "identifier": "var(--d1)",
-            "categorical": "var(--d2)",
-            "numeric": "var(--d3)",
-            "text": "var(--d2)",
-            "other": "var(--attn)",
-        },
-    )
+    family_colors = dict(FAMILY_COLORS)
     datasets = views if views is not None else dataset_views(profile)
     several = len(datasets) > 1
+    links = column_links or {}
     patterns = profile.derived.patterns if profile.derived else None
     grammar = f"v{patterns.grammar.version}" if patterns else "–"
     pages = [
-        _page_view(dataset, f"d{index}-" if several else "", grammar)
+        _page_view(dataset, f"d{index}-" if several else "", grammar, links)
         for index, dataset in enumerate(datasets, start=1)
     ]
     return template.render(
@@ -395,7 +416,7 @@ def render_report(
         **_labels(),
         theme_css=resources.joinpath("static/theme.css").read_text(encoding="utf-8"),
         report_js=resources.joinpath("static/report.js").read_text(encoding="utf-8"),
-        column_links=column_links or {},
+        column_links=links,
     )
 
 
