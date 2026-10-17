@@ -11,47 +11,19 @@ the document holds (contract summary-table.md 7.6).
 
 from __future__ import annotations
 
-from typing import Literal
-
-from tabalyst.models import ResultModel
 from tabalyst.report_views import ColumnView
+from tabalyst.result_model import ResultModel
 from tabalyst.scanner.exposure import ExposureGate, ExposureMode
+from tabalyst.summary_models import (
+    Spelling,
+    VariantDetails,
+    VariantGroupDetail,
+    VariantState,
+)
 
 # Groups and spellings written in the hover; the rest is counted.
 GROUPS_SHOWN = 20
 SPELLINGS_SHOWN = 6
-
-VariantState = Literal["shown", "masked", "hidden"]
-
-
-class Spelling(ResultModel):
-    value: str
-    count: int
-    # The most frequent spelling of its group: the likely target of a correction.
-    most_frequent: bool
-
-
-class VariantGroupDetail(ResultModel):
-    """The spellings of one comparison key, the most frequent first."""
-
-    spellings: list[Spelling]
-    # Spellings the group has beyond those listed (never negative).
-    more_spellings: int
-
-
-class VariantDetails(ResultModel):
-    """The groups of spelling variants of a column that a reader would correct."""
-
-    state: VariantState
-    groups: list[VariantGroupDetail]
-    # Groups the scan found beyond those written here; ``None`` when unknown.
-    more_groups: int | None
-
-    @property
-    def total_groups(self) -> int | None:
-        """The groups of the column, listed or not; ``None`` when unknown."""
-        return None if self.more_groups is None else len(self.groups) + self.more_groups
-
 
 def variant_details(column: ColumnView) -> VariantDetails | None:
     """The variants of a column, or ``None`` when it has no group to show.

@@ -1044,7 +1044,7 @@ measurement (RT-12, O-21).
 - Kept: `inferred_type`, `type_counts`, `type_confidence`, `type_error_count`
   (its meaning is re-qualified: it counts values outside the technical family;
   the Error of the table is derived from the findings, not from this field).
-- Findings, Overview, Details, labels: not persisted, no new JSON member
+- Findings, Overview, Details, labels: persisted as codes and numbers since lot R10b (section 20; ADR 2026-10-17), no sentence. Earlier text: not persisted, no new JSON member
   (design 18.14, 19.3).
 - Changelogs updated by the lot that changes the format: R1a for the Scan
   (`docs/en/scan/format-changelog.md`, whose example showed revision 3 and was
@@ -1374,3 +1374,136 @@ one dialog per finding, and the states without finding explain themselves check 
   `analyze_scan()`, `generate_reports()` and `render_report()` are pinned by
   `tests/scan/test_report_column_page.py`.
 - **Tests.** `tests/scan/test_report_column_page.py`, `test_report_table.py`.
+
+## 20. A Report that renders without computing (lot R10b)
+
+Maintainer decision of 2026-10-17: the HTML of a Report no longer derives findings,
+Overview, Details, previews, Signals or quality from the Scan. They are computed once,
+when the Report document is built, and the page prints them. This reverses the ADR
+`2026-10-16-findings-computed-at-render` and the rule "the Report holds the Scan base"
+for the members listed below (design 19.3 amended; ADR
+`2026-10-17-report-summary-built-with-the-document`).
+
+### 20.1 Goals
+
+1. `scan.json` to `report.json` produces everything the report reads: one block per
+   column and one per dataset, with codes, numbers, units, accuracy, populations,
+   evaluation states, traits and examples already exposed, and no sentence.
+2. The exposure (`mask`, `hide`, `show`) is applied once, at that construction. The
+   render holds no gate of its own: what the document contains, the page may print.
+3. The rule "the Report contains the essential of the Scan" is dropped for what no
+   page reads (20.5).
+4. Words are templates per language in `report_labels.py`, chosen by code and
+   parameters. No sentence is stored in the JSON or composed in the logic.
+5. One dialogue per page for the previews, filled when it opens (20.6).
+
+### 20.2 Members
+
+Added to the column projection of `report.datasets[].columns[]`, under `summary`:
+
+| Member | Content |
+| --- | --- |
+| `overview` | Facts of the Overview (7.1): list of `{code, params, accuracy}`, no text |
+| `details` | Measures and exposed examples (7.2): `exposure`, `state`, `examples`, `measures`, `exhaustive` |
+| `errors`, `issues` | A `FindingList` (6.2): `state`, `reason`, `items` (code, class, unit, count, population, share, accuracy, basis, exposed examples, limit code), `assessments` |
+| `missing` | `MissingFinding` (6.3) |
+| `variants` | Groups of spelling variants kept after exposure (16, lot R9a) |
+
+Added to `report.datasets[]`: `signals` (one entry per code and unit: count of
+columns, column ids, class, the largest group shown) and `quality` (the three groups
+of columns, the states of each list, the counts of observations by status).
+
+Rules:
+
+- A member holds codes and numbers. A word is looked up at render time by
+  `report_labels` from the code (`FINDING_NATURES`, `FINDING_LIMITS`,
+  `ASSESSMENT_REASONS`, `SIGNAL_TITLES`, `OVERVIEW_*`, `DETAILS_*`) with the
+  parameters of the member. Plurals, word order and separators belong to the
+  template, not to the member.
+- Every example in a member passed the exposure gate when it was written. `hide`
+  writes no example and a `state` that says why; `mask` writes the masks.
+- A member is a function of the Scan, `analyses`, the classification and the
+  exposure at the build, never of the page.
+- Names stay stable once documented (AGENTS.md). Revision: the Report revision 4 is
+  still in preparation (last tag `v0.6.2`, revision 3), so there is no revision 5;
+  the revision 4 entry of `docs/en/report/profile-changelog.md` holds the change.
+
+### 20.3 Construction
+
+- `report_profile.build_profile` builds the members through the existing modules
+  (`report_findings`, `report_overview`, `report_details`, `report_signals`,
+  `report_preview`, `report_finding_details`), which keep their rules and tests.
+  What changes is where they run, not what they decide.
+- `column_findings` runs once per column. The members of one column come from one
+  call, so Summary, Findings, previews and the column page agree.
+- `tabalyst report --scan` (18.14) renders a Scan alone: it builds the same members
+  in memory from the Scan, then renders. The renderer has one path.
+- Public signatures of `scan()`, `generate_scans()`, `analyze_scan()`,
+  `generate_reports()` and `render_report()` do not change.
+
+### 20.4 Render
+
+- Templates and `reporting.py` read the stored members. No rule runs at render:
+  `column_findings`, `overview_for`, `details_for`, `variant_details`, `signals_view`,
+  `quality_view` and `expose_examples` are called by `report_summary` only. A test
+  patches them to fail during a render (`tests/scan/test_report_summary.py`).
+- Writing words from a member is not computing: `overview_sentence(overview)`,
+  `preview_of(finding, assessments)`, `finding_text`, the properties `Signal.title`
+  and `StateCount.label` take codes and numbers and return text through
+  `report_labels`. None of them reads the Scan.
+- A document written without its summaries (a hand-made profile, a file of an
+  earlier build) gets them once at the start of `render_report`
+  (`attach_summaries`), through the exposure its columns declare. It is the same
+  function the build calls.
+- `exposed_values` still gates the values of the Columns and Numeric tables at
+  render: their members (`ColumnProfile.examples`, `value_profile`) are projections
+  of the Report, not of the summary, and are cleaned by the pruning of 20.5.
+- Rendering needs the Report document alone; the Scan is not opened.
+
+### 20.5 Pruning (decided after measurement)
+
+The Report no longer promises to contain the Scan. What leaves is decided on the demo
+`insurance-customers` by measuring the size of each member, then written here before
+it is removed. Constraints:
+
+- Members that `check_scan`, `load_document`, `load_base` and the contract of Explore
+  (design 20.17, EXPLORE-05) read stay until that contract is amended explicitly in
+  the same change. "A Report is autonomous" is kept as: the Report alone renders
+  every page and answers the facets of 20.17 from `analyses` and the kept members.
+- For a column exposed as `mask` or `hide`, raw values leave the document:
+  `value_profile.values`, samples, evidence, the `details` of detectors and the row
+  sample cells of that column. `exposure` records why.
+- Identity (`source_sha256`, `config_sha256`, `facts_sha256`) is unchanged.
+- First candidates, to measure: members of `datasets[].fields` no page reads, the
+  second copy of a figure in `derived`, the reduced sample beyond the Values list.
+
+### 20.6 One dialogue
+
+The previews of a page share one `role=dialog` element. The cell keeps a button with
+`data-pop` and the member id; `report.js` fills the dialogue from a `<template>` or a
+JSON island keyed by that id when it opens. Focus, Escape, Tab at the edges, the
+bottom sheet under 640 px and the 24 px targets (18) stay.
+
+### 20.7 Languages
+
+`report_labels.py` maps a code and its parameters to a template per language. Only
+English is shipped; the structure leaves room for French. No report option is added
+in this lot (maintainer decision, plan R10b). `docs/fr/` stays one page.
+
+### 20.8 Tests
+
+- The HTML renders from the Report document alone: a loader that raises on any access
+  to the Scan.
+- The document of a `mask` or `hide` column contains no raw value: the JSON is
+  searched for values taken from the source (CA-19 extended to the file).
+- The Summary of a column in the page equals the member (no second computation); the
+  tests of the existing modules pass on the same inputs.
+- Size before and after (JSON, HTML) on `insurance-customers`, same parameters,
+  recorded in the plan.
+- Schema regenerated (`scripts/scan_schema.py`), changelogs, `json-profile.md`.
+
+### 20.9 Open points
+
+- Which Scan members to prune (20.5), after the measurement.
+- `report --scan`: proposed in memory only, no change of command.
+- French templates: written now or with a language option later.

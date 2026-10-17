@@ -49,7 +49,11 @@ def _page(tmp_path, content, name, mode="show", forced=None):
     if forced is not None:
         document = profile.model_dump(mode="json")
         for dataset in document["report"]["datasets"]:
+            # A document written before its summaries: they are built at the render,
+            # through the exposure the document now declares.
+            dataset["table"] = None
             for column in dataset["columns"]:
+                column["summary"] = None
                 if column["name"] == name:
                     column["exposure"] = forced
         profile = load_profile(write_text(tmp_path, "report.json", dump_json(document)))

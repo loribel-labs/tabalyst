@@ -23,7 +23,17 @@ def _datasets(name: str, **limits) -> list[dict]:
     scan = {"limits": limits, "exposure": {"sensitive_values": "show"}}
     config = ReportConfig.model_validate({"scan": scan})
     profile = analyze_csv(INPUT / name, config=config, workers=1)
-    return profile.model_dump(mode="json")["report"]["datasets"]
+    datasets = profile.model_dump(mode="json")["report"]["datasets"]
+    # The findings and the quality counts read the observations of the Scan, which
+    # discovers the minority patterns on its sample: they depend on the sample size.
+    # So do the formats of the Overview (patterns on a sample). The examples and the
+    # Details do not.
+    for dataset in datasets:
+        dataset["table"] = None
+        for column in dataset["columns"]:
+            column["summary"]["findings"] = None
+            column["summary"]["overview"] = None
+    return datasets
 
 
 def test_the_report_keeps_one_hundred_sample_values_per_column_by_default():

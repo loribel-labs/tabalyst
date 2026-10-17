@@ -4,19 +4,17 @@
 
 """Details of a column: representative values and complementary measures.
 
-Computed at render time from the column view (contract summary-table.md 7.2).
-Every value of the source goes through the exposure of the column, here again
-whatever the document holds; nothing is serialized.
+Built with the Report from the column view (contract summary-table.md 7.2, 20) and
+stored in the column summary. Every value of the source goes through the exposure
+of the column, here again whatever the document holds.
 """
 
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Literal
 
 from pydantic import Field
 
-from tabalyst.models import ResultModel
 from tabalyst.report_labels import (
     DETAILS_MEASURES,
     DETAILS_NOTES,
@@ -24,49 +22,20 @@ from tabalyst.report_labels import (
     plural,
 )
 from tabalyst.report_views import ColumnView
+from tabalyst.result_model import ResultModel
 from tabalyst.scanner.exposure import ExposureGate, ExposureMode
+from tabalyst.summary_models import (
+    DetailExample,
+    DetailMeasure,
+    Details,
+    DetailsAccuracy,
+    DetailsState,
+)
 
-DetailsState = Literal["shown", "masked", "hidden"]
-DetailsAccuracy = Literal["exact", "lower_bound"]
 # Detector keys listed at most (domains, area codes): a short reading aid.
 KEYS_LISTED = 5
 STATES: dict[ExposureMode, DetailsState] = {"show": "shown", "mask": "masked", "hide": "hidden"}
 SHAPED_TYPES = ("email", "phone", "postal_code", "url", "ip_address", "uuid")
-
-
-class DetailExample(ResultModel):
-    """A value of the source, already through the exposure, with its count."""
-
-    value: str
-    count: int
-    share: float | None = None
-    # The value was cut at the length the scan stores: not the whole value.
-    truncated: bool = False
-
-
-class DetailMeasure(ResultModel):
-    """A complementary measure. ``label`` is the words, or the text listed (a
-    format, a key) when the measure is a count of it."""
-
-    name: str
-    label: str
-    value: int | float | str
-    accuracy: DetailsAccuracy = "exact"
-
-
-class Details(ResultModel):
-    """What the Details cell of a column holds."""
-
-    state: DetailsState
-    examples: list[DetailExample]
-    # Whether the examples are every distinct value of the column. A masked or
-    # hidden list is never exhaustive: its forms are not the original values.
-    exhaustive: bool
-    # Distinct values the examples are taken from, when known and meaningful.
-    total: int | None = None
-    total_accuracy: DetailsAccuracy = "exact"
-    note: str | None = None
-    measures: list[DetailMeasure]
 
 
 def details_link(

@@ -14,9 +14,10 @@ read from the base, never copied into the projections.
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, FiniteFloat, model_serializer
+from pydantic import ConfigDict, Field, FiniteFloat, model_serializer
 
 from tabalyst.config import PresentationSettings
+from tabalyst.result_model import ResultModel
 from tabalyst.scanner.classify.models import Classification
 from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.models import (
@@ -33,14 +34,11 @@ from tabalyst.scanner.models import (
 )
 from tabalyst.scanner.models import SourceInfo as ScanSource
 from tabalyst.scanner.secondpass.models import DeepResult
+from tabalyst.summary_models import ColumnSummary, TableSummary
 
 FORMAT = "tabalyst.report"
 FORMAT_VERSION = "0.2.0"
 FORMAT_REVISION = 4
-
-
-class ResultModel(BaseModel):
-    model_config = ConfigDict(extra="forbid")
 
 
 MeasureStatus = Literal["complete", "limited", "not_applicable", "disabled", "failed"]
@@ -124,7 +122,7 @@ class DetectorProfile(ResultModel):
     formats: list[DetectorFormat]
     coverage: Coverage | None = None
     evidence: Evidence | None = None
-    details: dict[str, Any] = {}
+    details: dict[str, Any] = Field(default_factory=dict)
     adaptive: Adaptive | None = None
 
 
@@ -155,7 +153,10 @@ class ColumnProfile(ResultModel):
     # How the values of a sensitive column are exposed, null otherwise.
     exposure: Literal["mask", "hide", "show"] | None = None
     # Detectors that recognized values, in scan order; failed ones included.
-    detectors: list[DetectorProfile] = []
+    detectors: list[DetectorProfile] = Field(default_factory=list)
+    # What the Summary table and the previews say, built with the document
+    # (contract summary-table.md 20); ``None`` until ``report_summary`` fills it.
+    summary: ColumnSummary | None = None
 
 
 class DatasetSummary(ResultModel):
@@ -259,6 +260,9 @@ class DatasetProfile(ResultModel):
     date_summary: DatasetDateSummary | None = None
     columns: list[ColumnProfile]
     structure: DatasetStructure | None = None
+    # The counts and KPIs above the Summary table (contract 20); ``None`` until
+    # ``report_summary`` fills it.
+    table: TableSummary | None = None
 
 
 class ReportGenerator(ResultModel):

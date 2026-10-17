@@ -30015,15 +30015,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-17T20:21:48.619697Z",
-        "duration_seconds": 0.000177,
+        "started_at": "2026-10-17T22:31:56.652084Z",
+        "duration_seconds": 0.000172,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000177
+          "other": 0.000172
         },
         "workers": 1,
-        "peak_memory_bytes": 77242368,
+        "peak_memory_bytes": 77037568,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -33514,12 +33514,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-17T20:21:48.698504Z",
+    "generated_at": "2026-10-17T22:31:56.729622Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1259,
+    "processing_seconds": 0.1325,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -33847,7 +33847,228 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f1",
+                "missing": {
+                  "field": "f1",
+                  "count": 0,
+                  "unit": "positions",
+                  "population": {
+                    "kind": "positions",
+                    "size": 60
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 60,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "text",
+                "type": "text_very_short",
+                "facts": [
+                  {
+                    "name": "median_length",
+                    "value": 5.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "distinct",
+                    "value": 60,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "C0001",
+                    "count": 1,
+                    "share": 0.016666666666666666,
+                    "truncated": false
+                  },
+                  {
+                    "value": "C0002",
+                    "count": 1,
+                    "share": 0.016666666666666666,
+                    "truncated": false
+                  },
+                  {
+                    "value": "C0003",
+                    "count": 1,
+                    "share": 0.016666666666666666,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 60,
+                "total_accuracy": "exact",
+                "note": "3 values of 60 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "fixed_length",
+                    "label": "Fixed length, in characters",
+                    "value": 5,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f2",
@@ -34069,7 +34290,240 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f2",
+                "missing": {
+                  "field": "f2",
+                  "count": 0,
+                  "unit": "positions",
+                  "population": {
+                    "kind": "positions",
+                    "size": 60
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 60,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "many_fixed_lengths"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_dominant_length"
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "text",
+                "type": "text_short",
+                "facts": [
+                  {
+                    "name": "median_length",
+                    "value": 12.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "distinct",
+                    "value": 56,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "David Dubois",
+                    "count": 2,
+                    "share": 0.03333333333333333,
+                    "truncated": false
+                  },
+                  {
+                    "value": "Farid Dubois",
+                    "count": 2,
+                    "share": 0.03333333333333333,
+                    "truncated": false
+                  },
+                  {
+                    "value": "Inès Laurent",
+                    "count": 2,
+                    "share": 0.03333333333333333,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 56,
+                "total_accuracy": "exact",
+                "note": "3 values of 56 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "minimum_length",
+                    "label": "Shortest value, in characters",
+                    "value": 10,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "maximum_length",
+                    "label": "Longest value, in characters",
+                    "value": 15,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "mean_length",
+                    "label": "Mean length, in characters",
+                    "value": 12.23,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f3",
@@ -34372,7 +34826,242 @@
                 },
                 "adaptive": null
               }
-            ]
+            ],
+            "summary": {
+              "findings": {
+                "field": "f3",
+                "missing": {
+                  "field": "f3",
+                  "count": 4,
+                  "unit": "positions",
+                  "population": {
+                    "kind": "positions",
+                    "size": 60
+                  },
+                  "share": {
+                    "numerator": 4,
+                    "denominator": 60,
+                    "percent": 6.666666666666667,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 4,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 56,
+                      "tested": 56,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 56,
+                      "tested": 56,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "many_fixed_lengths"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_dominant_length"
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "text",
+                "type": "text_medium",
+                "facts": [
+                  {
+                    "name": "median_length",
+                    "value": 27.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "distinct",
+                    "value": 56,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "bruno.bernard54@shop.example",
+                    "count": 1,
+                    "share": 0.017857142857142856,
+                    "truncated": false
+                  },
+                  {
+                    "value": "bruno.dubois22@shop.example",
+                    "count": 1,
+                    "share": 0.017857142857142856,
+                    "truncated": false
+                  },
+                  {
+                    "value": "bruno.leroy19@shop.example",
+                    "count": 1,
+                    "share": 0.017857142857142856,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 56,
+                "total_accuracy": "exact",
+                "note": "3 values of 56 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "minimum_length",
+                    "label": "Shortest value, in characters",
+                    "value": 24,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "maximum_length",
+                    "label": "Longest value, in characters",
+                    "value": 30,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "mean_length",
+                    "label": "Mean length, in characters",
+                    "value": 27.04,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": [
+                "obs"
+              ]
+            }
           },
           {
             "id": "f4",
@@ -34770,7 +35459,230 @@
                 },
                 "adaptive": null
               }
-            ]
+            ],
+            "summary": {
+              "findings": {
+                "field": "f4",
+                "missing": {
+                  "field": "f4",
+                  "count": 20,
+                  "unit": "positions",
+                  "population": {
+                    "kind": "positions",
+                    "size": 60
+                  },
+                  "share": {
+                    "numerator": 20,
+                    "denominator": 60,
+                    "percent": 33.333333333333336,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 20,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 40,
+                      "tested": 40,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 40,
+                      "tested": 40,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "text",
+                "type": "text_short",
+                "facts": [
+                  {
+                    "name": "median_length",
+                    "value": 17.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "distinct",
+                    "value": 40,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "+33 6 10 46 93 26",
+                    "count": 1,
+                    "share": 0.025,
+                    "truncated": false
+                  },
+                  {
+                    "value": "+33 6 11 67 15 33",
+                    "count": 1,
+                    "share": 0.025,
+                    "truncated": false
+                  },
+                  {
+                    "value": "+33 6 11 70 76 20",
+                    "count": 1,
+                    "share": 0.025,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 40,
+                "total_accuracy": "exact",
+                "note": "3 values of 40 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "fixed_length",
+                    "label": "Fixed length, in characters",
+                    "value": 17,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": [
+                "obs"
+              ]
+            }
           },
           {
             "id": "f6",
@@ -34922,7 +35834,240 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f6",
+                "missing": {
+                  "field": "f6",
+                  "count": 0,
+                  "unit": "positions",
+                  "population": {
+                    "kind": "positions",
+                    "size": 60
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 60,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_structural_marks"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_dominant_length"
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "text",
+                "type": "text_very_short",
+                "facts": [
+                  {
+                    "name": "median_length",
+                    "value": 5.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "distinct",
+                    "value": 6,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "Lyon",
+                    "count": 15,
+                    "share": 0.25,
+                    "truncated": false
+                  },
+                  {
+                    "value": "Lille",
+                    "count": 14,
+                    "share": 0.23333333333333334,
+                    "truncated": false
+                  },
+                  {
+                    "value": "Paris",
+                    "count": 10,
+                    "share": 0.16666666666666666,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 6,
+                "total_accuracy": "exact",
+                "note": "3 values of 6 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "minimum_length",
+                    "label": "Shortest value, in characters",
+                    "value": 4,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "maximum_length",
+                    "label": "Longest value, in characters",
+                    "value": 8,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "mean_length",
+                    "label": "Mean length, in characters",
+                    "value": 5.53,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f7",
@@ -35221,7 +36366,212 @@
                 },
                 "adaptive": null
               }
-            ]
+            ],
+            "summary": {
+              "findings": {
+                "field": "f7",
+                "missing": {
+                  "field": "f7",
+                  "count": 9,
+                  "unit": "positions",
+                  "population": {
+                    "kind": "positions",
+                    "size": 60
+                  },
+                  "share": {
+                    "numerator": 9,
+                    "denominator": 60,
+                    "percent": 15.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 9,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 51,
+                      "tested": 51,
+                      "reason": null
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 51,
+                      "tested": 51,
+                      "reason": null
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 51,
+                      "tested": 51,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 51,
+                      "tested": 51,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "numeric",
+                "type": "integer",
+                "facts": []
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "69003",
+                    "count": 15,
+                    "share": 0.29411764705882354,
+                    "truncated": false
+                  },
+                  {
+                    "value": "59000",
+                    "count": 11,
+                    "share": 0.21568627450980393,
+                    "truncated": false
+                  },
+                  {
+                    "value": "75011",
+                    "count": 10,
+                    "share": 0.19607843137254902,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 5,
+                "total_accuracy": "exact",
+                "note": "3 values of 5 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": []
+              },
+              "variants": null,
+              "flags": [
+                "obs"
+              ]
+            }
           },
           {
             "id": "f8",
@@ -35490,7 +36840,233 @@
                 },
                 "adaptive": null
               }
-            ]
+            ],
+            "summary": {
+              "findings": {
+                "field": "f8",
+                "missing": {
+                  "field": "f8",
+                  "count": 0,
+                  "unit": "positions",
+                  "population": {
+                    "kind": "positions",
+                    "size": 60
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 60,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "temporal",
+                "type": "date",
+                "facts": [
+                  {
+                    "name": "date_minimum",
+                    "value": "2025-01-01",
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "date_maximum",
+                    "value": "2025-12-25",
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "formats",
+                    "value": 1,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "2025-01-04",
+                    "count": 2,
+                    "share": 0.03333333333333333,
+                    "truncated": false
+                  },
+                  {
+                    "value": "2025-12-07",
+                    "count": 2,
+                    "share": 0.03333333333333333,
+                    "truncated": false
+                  },
+                  {
+                    "value": "2025-01-01",
+                    "count": 1,
+                    "share": 0.016666666666666666,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 58,
+                "total_accuracy": "exact",
+                "note": "3 values of 58 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "format",
+                    "label": "YYYY-MM-DD",
+                    "value": 60,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f9",
@@ -35610,7 +37186,212 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f9",
+                "missing": {
+                  "field": "f9",
+                  "count": 4,
+                  "unit": "positions",
+                  "population": {
+                    "kind": "positions",
+                    "size": 60
+                  },
+                  "share": {
+                    "numerator": 4,
+                    "denominator": 60,
+                    "percent": 6.666666666666667,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 4,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "booleans_only"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_text"
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_text"
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "boolean",
+                "type": "boolean",
+                "facts": [
+                  {
+                    "name": "top_share",
+                    "value": 0.5178571428571429,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "false",
+                    "count": 29,
+                    "share": 0.5178571428571429,
+                    "truncated": false
+                  },
+                  {
+                    "value": "true",
+                    "count": 27,
+                    "share": 0.48214285714285715,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": true,
+                "total": 2,
+                "total_accuracy": "exact",
+                "note": null,
+                "measures": []
+              },
+              "variants": null,
+              "flags": [
+                "obs"
+              ]
+            }
           },
           {
             "id": "f11",
@@ -35757,7 +37538,240 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f11",
+                "missing": {
+                  "field": "f11",
+                  "count": 0,
+                  "unit": "occurrences",
+                  "population": {
+                    "kind": "positions",
+                    "size": 70
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 70,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": null,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 70,
+                      "tested": 70,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 70,
+                      "tested": 70,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_structural_marks"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_dominant_length"
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "text",
+                "type": "text_short",
+                "facts": [
+                  {
+                    "name": "median_length",
+                    "value": 7.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "distinct",
+                    "value": 5,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "returning",
+                    "count": 20,
+                    "share": 0.2857142857142857,
+                    "truncated": false
+                  },
+                  {
+                    "value": "b2b",
+                    "count": 15,
+                    "share": 0.21428571428571427,
+                    "truncated": false
+                  },
+                  {
+                    "value": "newsletter",
+                    "count": 13,
+                    "share": 0.18571428571428572,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 5,
+                "total_accuracy": "exact",
+                "note": "3 values of 5 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "minimum_length",
+                    "label": "Shortest value, in characters",
+                    "value": 3,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "maximum_length",
+                    "label": "Longest value, in characters",
+                    "value": 10,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "mean_length",
+                    "label": "Mean length, in characters",
+                    "value": 6.59,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f14",
@@ -35979,7 +37993,228 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f14",
+                "missing": {
+                  "field": "f14",
+                  "count": 0,
+                  "unit": "occurrences",
+                  "population": {
+                    "kind": "positions",
+                    "size": 119
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 119,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "partial",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "partial",
+                      "accuracy": "sample",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "patterns_sample"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "text",
+                "type": "text_short",
+                "facts": [
+                  {
+                    "name": "median_length",
+                    "value": 7.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "distinct",
+                    "value": 119,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "O0002-1",
+                    "count": 1,
+                    "share": 0.008403361344537815,
+                    "truncated": false
+                  },
+                  {
+                    "value": "O0003-1",
+                    "count": 1,
+                    "share": 0.008403361344537815,
+                    "truncated": false
+                  },
+                  {
+                    "value": "O0003-2",
+                    "count": 1,
+                    "share": 0.008403361344537815,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 119,
+                "total_accuracy": "exact",
+                "note": "3 values of 119 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "fixed_length",
+                    "label": "Fixed length, in characters",
+                    "value": 7,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f15",
@@ -36248,7 +38483,233 @@
                 },
                 "adaptive": null
               }
-            ]
+            ],
+            "summary": {
+              "findings": {
+                "field": "f15",
+                "missing": {
+                  "field": "f15",
+                  "count": 0,
+                  "unit": "occurrences",
+                  "population": {
+                    "kind": "positions",
+                    "size": 119
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 119,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "temporal",
+                "type": "date",
+                "facts": [
+                  {
+                    "name": "date_minimum",
+                    "value": "2026-01-01",
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "date_maximum",
+                    "value": "2026-08-28",
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "formats",
+                    "value": 1,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "2026-01-07",
+                    "count": 4,
+                    "share": 0.03361344537815126,
+                    "truncated": false
+                  },
+                  {
+                    "value": "2026-01-18",
+                    "count": 3,
+                    "share": 0.025210084033613446,
+                    "truncated": false
+                  },
+                  {
+                    "value": "2026-01-22",
+                    "count": 2,
+                    "share": 0.01680672268907563,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 92,
+                "total_accuracy": "exact",
+                "note": "3 values of 92 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "format",
+                    "label": "YYYY-MM-DD",
+                    "value": 119,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f16",
@@ -36385,7 +38846,240 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f16",
+                "missing": {
+                  "field": "f16",
+                  "count": 0,
+                  "unit": "occurrences",
+                  "population": {
+                    "kind": "positions",
+                    "size": 119
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 119,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_structural_marks"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_dominant_length"
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "text",
+                "type": "text_short",
+                "facts": [
+                  {
+                    "name": "median_length",
+                    "value": 9.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "distinct",
+                    "value": 3,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "delivered",
+                    "count": 74,
+                    "share": 0.6218487394957983,
+                    "truncated": false
+                  },
+                  {
+                    "value": "shipped",
+                    "count": 24,
+                    "share": 0.20168067226890757,
+                    "truncated": false
+                  },
+                  {
+                    "value": "cancelled",
+                    "count": 21,
+                    "share": 0.17647058823529413,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": true,
+                "total": 3,
+                "total_accuracy": "exact",
+                "note": null,
+                "measures": [
+                  {
+                    "name": "minimum_length",
+                    "label": "Shortest value, in characters",
+                    "value": 7,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "maximum_length",
+                    "label": "Longest value, in characters",
+                    "value": 9,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "mean_length",
+                    "label": "Mean length, in characters",
+                    "value": 8.6,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f19",
@@ -36532,7 +39226,240 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f19",
+                "missing": {
+                  "field": "f19",
+                  "count": 0,
+                  "unit": "occurrences",
+                  "population": {
+                    "kind": "positions",
+                    "size": 119
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 119,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_structural_marks"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_dominant_length"
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "text",
+                "type": "text_short",
+                "facts": [
+                  {
+                    "name": "median_length",
+                    "value": 8.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "distinct",
+                    "value": 5,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "Notebook",
+                    "count": 26,
+                    "share": 0.2184873949579832,
+                    "truncated": false
+                  },
+                  {
+                    "value": "Headphones",
+                    "count": 25,
+                    "share": 0.21008403361344538,
+                    "truncated": false
+                  },
+                  {
+                    "value": "Desk lamp",
+                    "count": 24,
+                    "share": 0.20168067226890757,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 5,
+                "total_accuracy": "exact",
+                "note": "3 values of 5 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "minimum_length",
+                    "label": "Shortest value, in characters",
+                    "value": 3,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "maximum_length",
+                    "label": "Longest value, in characters",
+                    "value": 10,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "mean_length",
+                    "label": "Mean length, in characters",
+                    "value": 7.74,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f20",
@@ -36658,7 +39585,233 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f20",
+                "missing": {
+                  "field": "f20",
+                  "count": 0,
+                  "unit": "occurrences",
+                  "population": {
+                    "kind": "positions",
+                    "size": 119
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 119,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "small_integers"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_text"
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_text"
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "numeric",
+                "type": "integer",
+                "facts": [
+                  {
+                    "name": "minimum",
+                    "value": 1,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "maximum",
+                    "value": 3,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "median",
+                    "value": 2,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "3",
+                    "count": 41,
+                    "share": 0.3445378151260504,
+                    "truncated": false
+                  },
+                  {
+                    "value": "1",
+                    "count": 40,
+                    "share": 0.33613445378151263,
+                    "truncated": false
+                  },
+                  {
+                    "value": "2",
+                    "count": 38,
+                    "share": 0.31932773109243695,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": true,
+                "total": 3,
+                "total_accuracy": "exact",
+                "note": null,
+                "measures": [
+                  {
+                    "name": "mean",
+                    "label": "Mean",
+                    "value": 2.008403361344538,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f21",
@@ -36794,7 +39947,233 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f21",
+                "missing": {
+                  "field": "f21",
+                  "count": 0,
+                  "unit": "occurrences",
+                  "population": {
+                    "kind": "positions",
+                    "size": 119
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 119,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_text"
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_text"
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "numeric",
+                "type": "number",
+                "facts": [
+                  {
+                    "name": "minimum",
+                    "value": 4.5,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "maximum",
+                    "value": 89,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "median",
+                    "value": 29.9,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "4.5",
+                    "count": 26,
+                    "share": 0.2184873949579832,
+                    "truncated": false
+                  },
+                  {
+                    "value": "89.0",
+                    "count": 25,
+                    "share": 0.21008403361344538,
+                    "truncated": false
+                  },
+                  {
+                    "value": "29.9",
+                    "count": 24,
+                    "share": 0.20168067226890757,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 5,
+                "total_accuracy": "exact",
+                "note": "3 values of 5 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "mean",
+                    "label": "Mean",
+                    "value": 37.55966386554622,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": []
+            }
           },
           {
             "id": "f22",
@@ -36980,7 +40359,235 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f22",
+                "missing": {
+                  "field": "f22",
+                  "count": 11,
+                  "unit": "occurrences",
+                  "population": {
+                    "kind": "positions",
+                    "size": 119
+                  },
+                  "share": {
+                    "numerator": 11,
+                    "denominator": 119,
+                    "percent": 9.243697478991596,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 11,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 108,
+                      "tested": 108,
+                      "reason": null
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 108,
+                      "tested": 108,
+                      "reason": null
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_values"
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_text"
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "no_text"
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "numeric",
+                "type": "number",
+                "facts": [
+                  {
+                    "name": "minimum",
+                    "value": 4.5,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "maximum",
+                    "value": 267,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "median",
+                    "value": 54,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "13.5",
+                    "count": 10,
+                    "share": 0.09259259259259259,
+                    "truncated": false
+                  },
+                  {
+                    "value": "178.0",
+                    "count": 10,
+                    "share": 0.09259259259259259,
+                    "truncated": false
+                  },
+                  {
+                    "value": "9.0",
+                    "count": 10,
+                    "share": 0.09259259259259259,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": false,
+                "total": 15,
+                "total_accuracy": "exact",
+                "note": "3 values of 15 distinct values; A sample of the values; the list is not exhaustive.",
+                "measures": [
+                  {
+                    "name": "mean",
+                    "label": "Mean",
+                    "value": 69.15648148148148,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": [
+                "obs"
+              ]
+            }
           },
           {
             "id": "f23",
@@ -37105,7 +40712,218 @@
               "rule_version": 1
             },
             "exposure": null,
-            "detectors": []
+            "detectors": [],
+            "summary": {
+              "findings": {
+                "field": "f23",
+                "missing": {
+                  "field": "f23",
+                  "count": 0,
+                  "unit": "occurrences",
+                  "population": {
+                    "kind": "positions",
+                    "size": 119
+                  },
+                  "share": {
+                    "numerator": 0,
+                    "denominator": 119,
+                    "percent": 0.0,
+                    "accuracy": "exact"
+                  },
+                  "accuracy": "exact",
+                  "state": "none_detected",
+                  "definition": [
+                    "absent",
+                    "null",
+                    "empty",
+                    "blank",
+                    "marker"
+                  ],
+                  "components": {
+                    "absent": 0,
+                    "null": 0,
+                    "empty": 0,
+                    "blank": 0,
+                    "marker": 0
+                  }
+                },
+                "errors": {
+                  "items": [],
+                  "state": "not_applicable",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    }
+                  ]
+                },
+                "issues": {
+                  "items": [],
+                  "state": "none_detected",
+                  "assessments": [
+                    {
+                      "code": "temporal.invalid_calendar",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_temporal"
+                    },
+                    {
+                      "code": "semantic.invalid",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_semantic_type"
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
+                    },
+                    {
+                      "code": "temporal.ambiguous_date",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "number.ambiguous",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
+                    },
+                    {
+                      "code": "categorical.case_variants",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "pattern.minority",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "too_few_distinct"
+                    },
+                    {
+                      "code": "length.minority",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "type.mixed",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "identifier.repetition",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_identifier"
+                    },
+                    {
+                      "code": "text.surrounding_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    },
+                    {
+                      "code": "text.repeated_whitespace",
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": null
+                    }
+                  ]
+                }
+              },
+              "overview": {
+                "kind": "text",
+                "type": "text_very_short",
+                "facts": [
+                  {
+                    "name": "median_length",
+                    "value": 3.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "distinct",
+                    "value": 1,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "details": {
+                "state": "shown",
+                "examples": [
+                  {
+                    "value": "EUR",
+                    "count": 119,
+                    "share": 1.0,
+                    "truncated": false
+                  }
+                ],
+                "exhaustive": true,
+                "total": 1,
+                "total_accuracy": "exact",
+                "note": null,
+                "measures": [
+                  {
+                    "name": "fixed_length",
+                    "label": "Fixed length, in characters",
+                    "value": 3,
+                    "accuracy": "exact"
+                  }
+                ]
+              },
+              "variants": null,
+              "flags": [
+                "obs"
+              ]
+            }
           }
         ],
         "structure": {
@@ -37554,6 +41372,142 @@
               "column": true
             }
           ]
+        },
+        "table": {
+          "error_count": 0,
+          "issue_count": 0,
+          "observation_count": 6,
+          "signals": {
+            "shown": [],
+            "more": 0,
+            "incomplete_columns": 1
+          },
+          "quality": {
+            "columns": 17,
+            "with_errors": 0,
+            "with_issues": 0,
+            "no_finding": 17,
+            "errors_percent": 0.0,
+            "issues_percent": 0.0,
+            "clean_percent": 100.0,
+            "error_columns": [],
+            "issue_columns": [],
+            "clean_columns": [
+              {
+                "field_id": "f1",
+                "name": "id",
+                "findings": []
+              },
+              {
+                "field_id": "f2",
+                "name": "name",
+                "findings": []
+              },
+              {
+                "field_id": "f3",
+                "name": "email",
+                "findings": []
+              },
+              {
+                "field_id": "f4",
+                "name": "phone",
+                "findings": []
+              },
+              {
+                "field_id": "f6",
+                "name": "address.city",
+                "findings": []
+              },
+              {
+                "field_id": "f7",
+                "name": "address.postal_code",
+                "findings": []
+              },
+              {
+                "field_id": "f8",
+                "name": "signup_date",
+                "findings": []
+              },
+              {
+                "field_id": "f9",
+                "name": "newsletter",
+                "findings": []
+              },
+              {
+                "field_id": "f11",
+                "name": "tags[]",
+                "findings": []
+              },
+              {
+                "field_id": "f14",
+                "name": "orders[].order_id",
+                "findings": []
+              },
+              {
+                "field_id": "f15",
+                "name": "orders[].ordered_at",
+                "findings": []
+              },
+              {
+                "field_id": "f16",
+                "name": "orders[].status",
+                "findings": []
+              },
+              {
+                "field_id": "f19",
+                "name": "orders[].items[].product",
+                "findings": []
+              },
+              {
+                "field_id": "f20",
+                "name": "orders[].items[].quantity",
+                "findings": []
+              },
+              {
+                "field_id": "f21",
+                "name": "orders[].items[].unit_price",
+                "findings": []
+              },
+              {
+                "field_id": "f22",
+                "name": "orders[].total",
+                "findings": []
+              },
+              {
+                "field_id": "f23",
+                "name": "orders[].currency",
+                "findings": []
+              }
+            ],
+            "errors": {
+              "name": "Errors",
+              "with_findings": 0,
+              "states": [
+                {
+                  "state": "none_detected",
+                  "columns": 6
+                },
+                {
+                  "state": "not_applicable",
+                  "columns": 11
+                }
+              ]
+            },
+            "issues": {
+              "name": "Issues",
+              "with_findings": 0,
+              "states": [
+                {
+                  "state": "none_detected",
+                  "columns": 16
+                },
+                {
+                  "state": "partial",
+                  "columns": 1
+                }
+              ]
+            }
+          }
         }
       }
     ]

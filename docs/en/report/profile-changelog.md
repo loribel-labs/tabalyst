@@ -120,6 +120,12 @@ replaced by `summary.type_family_counts`, `summary.type_family_percents`, `summa
 The Columns table and the Column types card of the HTML report show the classification instead of
 the primary interpretation. `length_distribution_max_length` cannot exceed `scan.classification.medium_max_length`.
 
+Each column of the report carries a `summary` and each dataset a `table`: the findings (Missing,
+Errors and Issues with their evaluation states), the facts of the Overview, the Details, the spelling
+variants, the signals and the quality counts, built once with the document and already through the
+exposure. They hold codes and numbers; the HTML writes the words from them when it renders, and
+computes none of them.
+
 The report carries the new result `date_order` of the second pass under `analyses` (the records where the
 first date of a pair of columns is after the second).
 The report follows the scan base at revision 4 (see the

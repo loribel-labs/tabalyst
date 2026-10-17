@@ -2,11 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Findings of a column (Missing, Errors, Issues) as views computed at render time.
+"""Findings of a column (Missing, Errors, Issues): the checks that produce them.
 
-Never serialized, built from the document alone (contract summary-table.md 6).
-The checks of the Errors (lot R6a) and of the Issues (lot R6b) are registered in
-``CHECKS``.
+Built from the document alone (contract summary-table.md 6) when the Report is
+built, then stored in the column summary (section 20). The models are in
+``summary_models``; the checks of the Errors (lot R6a) and of the Issues (lot R6b)
+are registered in ``CHECKS``.
 """
 
 from __future__ import annotations
@@ -18,19 +19,17 @@ from typing import Literal
 
 from pydantic import Field
 
-from tabalyst.models import ResultModel
 from tabalyst.report_labels import finding_label
 from tabalyst.report_views import ColumnView
+from tabalyst.result_model import ResultModel
 from tabalyst.scanner.classify.candidates import DETECTOR_TYPES
 from tabalyst.scanner.classify.catalog import (
     FINDING_CODES,
     FINDINGS,
-    FindingClass,
     FindingCode,
     FindingUnit,
     PopulationKind,
 )
-from tabalyst.scanner.config import MissingCategory
 from tabalyst.scanner.models import (
     Complete,
     DetectorComplete,
@@ -40,7 +39,6 @@ from tabalyst.scanner.models import (
     FieldResult,
     ItemsSegment,
     Limited,
-    MissingComponents,
     NotApplicable,
     Observation,
 )
@@ -50,112 +48,20 @@ from tabalyst.scanner.quality import (
     analytical_distinct,
     value_slots,
 )
+from tabalyst.summary_models import (  # noqa: F401  (re-exported for the checks)
+    Accuracy,
+    Assessment,
+    AssessmentState,
+    ColumnFindings,
+    Example,
+    Finding,
+    FindingList,
+    MissingFinding,
+    Population,
+    Share,
+)
 
-# The state of a check (contract 6.4). ``detected`` is the state of a list that
-# holds findings; the five others are the vocabulary of decision 6.
-AssessmentState = Literal[
-    "detected", "none_detected", "not_assessed", "partial", "not_applicable", "failed"
-]
-# The accuracy of a count: the Scan's three (``exact``, ``lower_bound``,
-# ``sample``), an estimate, and ``unavailable`` where no figure can be told.
-Accuracy = Literal["exact", "lower_bound", "sample", "estimated", "unavailable"]
 DetectorState = Literal["complete", "disabled", "not_applicable", "failed"]
-
-
-class Population(ResultModel):
-    """What a count is out of. ``size`` is ``None`` when the population has no
-    known size (a number of groups has no denominator)."""
-
-    kind: PopulationKind
-    size: int | None = None
-
-
-class Share(ResultModel):
-    """``numerator`` out of ``denominator``, with the percentage. ``percent`` is
-    ``None`` and ``accuracy`` ``unavailable`` when the share is not defined: a
-    zero population, or a count the population cannot hold (RF-22)."""
-
-    numerator: int
-    denominator: int
-    percent: float | None
-    accuracy: Accuracy
-
-
-class Example(ResultModel):
-    """A value that illustrates a finding, already through the exposure of its
-    column (``mask``, ``hide``, ``show``). The checks leave it empty: the preview
-    (``report_preview``) draws its examples from the evidence the Scan keeps."""
-
-    value: str
-    count: int | None = None
-
-
-class Finding(ResultModel):
-    """One finding of a column: a count of a unit, out of a population, with the
-    accuracy of the count and the facts it rests on."""
-
-    code: str
-    cls: FindingClass
-    field: str
-    count: int | None
-    unit: FindingUnit
-    population: Population
-    share: Share | None = None
-    accuracy: Accuracy
-    status: AssessmentState = "detected"
-    # Ids of the observations, detectors or analyses the count comes from.
-    basis: list[str] = Field(default_factory=list)
-    examples: list[Example] = Field(default_factory=list)
-    # Codes whose set is proven to overlap this one; empty without proof (RF-24).
-    overlaps: list[str] = Field(default_factory=list)
-
-
-class Assessment(ResultModel):
-    """How far a check of one code went on a column, whether or not it found
-    anything. ``reason`` is a code, not a sentence."""
-
-    code: str
-    state: AssessmentState
-    accuracy: Accuracy = "unavailable"
-    eligible: int | None = None
-    tested: int | None = None
-    reason: str | None = None
-
-
-class FindingList(ResultModel):
-    """The Errors or the Issues of a column: the findings and the state of the
-    whole list (``detected`` when it holds findings), with the check behind each
-    code so that a reader can tell what was and was not looked at."""
-
-    items: list[Finding] = Field(default_factory=list)
-    state: AssessmentState
-    assessments: list[Assessment] = Field(default_factory=list)
-
-
-class MissingFinding(ResultModel):
-    """Positions with no present value (RF-12), apart from Errors and Issues: an
-    absence is never an error by itself (CA-16). ``definition`` lists the
-    components that count as missing in this document; ``components`` shows the
-    five anyway."""
-
-    field: str
-    count: int
-    unit: FindingUnit
-    population: Population
-    share: Share
-    accuracy: Accuracy = "exact"
-    state: AssessmentState
-    definition: list[MissingCategory]
-    components: MissingComponents
-
-
-class ColumnFindings(ResultModel):
-    """Everything the table says about a column besides its type."""
-
-    field: str
-    missing: MissingFinding
-    errors: FindingList
-    issues: FindingList
 
 
 class CheckResult(ResultModel):

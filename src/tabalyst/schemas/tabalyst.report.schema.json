@@ -672,6 +672,82 @@
       "title": "ArrayStats",
       "type": "object"
     },
+    "Assessment": {
+      "additionalProperties": false,
+      "description": "How far a check of one code went on a column, whether or not it found\nanything. ``reason`` is a code, not a sentence.",
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "detected",
+            "none_detected",
+            "not_assessed",
+            "partial",
+            "not_applicable",
+            "failed"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "accuracy": {
+          "default": "unavailable",
+          "enum": [
+            "exact",
+            "lower_bound",
+            "sample",
+            "estimated",
+            "unavailable"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "eligible": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Eligible"
+        },
+        "tested": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tested"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "code",
+        "state"
+      ],
+      "title": "Assessment",
+      "type": "object"
+    },
     "BaseScan": {
       "additionalProperties": false,
       "description": "The base a Report stands on (design 19.5): the identity of the Scan it\nholds, so that the base can be recognized, compared and extracted.",
@@ -2187,6 +2263,33 @@
       "title": "ColumnAdvice",
       "type": "object"
     },
+    "ColumnFindings": {
+      "additionalProperties": false,
+      "description": "Everything the table says about a column besides its type.",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "missing": {
+          "$ref": "#/$defs/MissingFinding"
+        },
+        "errors": {
+          "$ref": "#/$defs/FindingList"
+        },
+        "issues": {
+          "$ref": "#/$defs/FindingList"
+        }
+      },
+      "required": [
+        "field",
+        "missing",
+        "errors",
+        "issues"
+      ],
+      "title": "ColumnFindings",
+      "type": "object"
+    },
     "ColumnProfile": {
       "additionalProperties": false,
       "properties": {
@@ -2313,12 +2416,22 @@
           "title": "Exposure"
         },
         "detectors": {
-          "default": [],
           "items": {
             "$ref": "#/$defs/DetectorProfile"
           },
           "title": "Detectors",
           "type": "array"
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ColumnSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -2354,6 +2467,52 @@
         "column"
       ],
       "title": "ColumnSegment",
+      "type": "object"
+    },
+    "ColumnSummary": {
+      "additionalProperties": false,
+      "description": "What the Summary table, the previews and the column page say about a column,\ncomputed once when the Report is built, the exposure already applied.",
+      "properties": {
+        "findings": {
+          "$ref": "#/$defs/ColumnFindings"
+        },
+        "overview": {
+          "$ref": "#/$defs/Overview"
+        },
+        "details": {
+          "$ref": "#/$defs/Details"
+        },
+        "variants": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantDetails"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "flags": {
+          "items": {
+            "enum": [
+              "error",
+              "issue",
+              "obs"
+            ],
+            "type": "string"
+          },
+          "title": "Flags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "findings",
+        "overview",
+        "details",
+        "variants",
+        "flags"
+      ],
+      "title": "ColumnSummary",
       "type": "object"
     },
     "CombinationAdvice": {
@@ -3336,6 +3495,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/DatasetStructure"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "table": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TableSummary"
             },
             {
               "type": "null"
@@ -4369,6 +4539,161 @@
       "title": "DerivedPatterns",
       "type": "object"
     },
+    "DetailExample": {
+      "additionalProperties": false,
+      "description": "A value of the source, already through the exposure, with its count.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Share"
+        },
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "value",
+        "count"
+      ],
+      "title": "DetailExample",
+      "type": "object"
+    },
+    "DetailMeasure": {
+      "additionalProperties": false,
+      "description": "A complementary measure. ``label`` is the words, or the text listed (a\nformat, a key) when the measure is a count of it.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Value"
+        },
+        "accuracy": {
+          "default": "exact",
+          "enum": [
+            "exact",
+            "lower_bound"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "value"
+      ],
+      "title": "DetailMeasure",
+      "type": "object"
+    },
+    "Details": {
+      "additionalProperties": false,
+      "description": "What the Details cell of a column holds.",
+      "properties": {
+        "state": {
+          "enum": [
+            "shown",
+            "masked",
+            "hidden"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "examples": {
+          "items": {
+            "$ref": "#/$defs/DetailExample"
+          },
+          "title": "Examples",
+          "type": "array"
+        },
+        "exhaustive": {
+          "title": "Exhaustive",
+          "type": "boolean"
+        },
+        "total": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total"
+        },
+        "total_accuracy": {
+          "default": "exact",
+          "enum": [
+            "exact",
+            "lower_bound"
+          ],
+          "title": "Total Accuracy",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "measures": {
+          "items": {
+            "$ref": "#/$defs/DetailMeasure"
+          },
+          "title": "Measures",
+          "type": "array"
+        }
+      },
+      "required": [
+        "state",
+        "examples",
+        "exhaustive",
+        "measures"
+      ],
+      "title": "Details",
+      "type": "object"
+    },
     "DetectionSettings": {
       "additionalProperties": false,
       "properties": {
@@ -4652,7 +4977,6 @@
         },
         "details": {
           "additionalProperties": true,
-          "default": {},
           "title": "Details",
           "type": "object"
         },
@@ -5555,6 +5879,33 @@
         "not_matched"
       ],
       "title": "Evidence",
+      "type": "object"
+    },
+    "Example": {
+      "additionalProperties": false,
+      "description": "A value that illustrates a finding, already through the exposure of its\ncolumn (``mask``, ``hide``, ``show``). The checks leave it empty: the summary\nbuilder fills it from the evidence the Scan keeps (``report_preview``).",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Count"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Example",
       "type": "object"
     },
     "ExcelSettings": {
@@ -6995,6 +7346,234 @@
         "last"
       ],
       "title": "FieldValues",
+      "type": "object"
+    },
+    "Finding": {
+      "additionalProperties": false,
+      "description": "One finding of a column: a count of a unit, out of a population, with the\naccuracy of the count and the facts it rests on.",
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "cls": {
+          "enum": [
+            "error",
+            "issue",
+            "information"
+          ],
+          "title": "Cls",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Count"
+        },
+        "unit": {
+          "enum": [
+            "occurrences",
+            "distinct_values",
+            "categories",
+            "patterns",
+            "groups",
+            "positions",
+            "records",
+            "formats"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "population": {
+          "$ref": "#/$defs/Population"
+        },
+        "share": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Share"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "lower_bound",
+            "sample",
+            "estimated",
+            "unavailable"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "status": {
+          "default": "detected",
+          "enum": [
+            "detected",
+            "none_detected",
+            "not_assessed",
+            "partial",
+            "not_applicable",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "basis": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Basis",
+          "type": "array"
+        },
+        "examples": {
+          "items": {
+            "$ref": "#/$defs/Example"
+          },
+          "title": "Examples",
+          "type": "array"
+        },
+        "examples_state": {
+          "anyOf": [
+            {
+              "enum": [
+                "shown",
+                "masked",
+                "hidden",
+                "none"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Examples State"
+        },
+        "overlaps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Overlaps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "cls",
+        "field",
+        "count",
+        "unit",
+        "population",
+        "accuracy",
+        "status"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "FindingList": {
+      "additionalProperties": false,
+      "description": "The Errors or the Issues of a column: the findings and the state of the\nwhole list (``detected`` when it holds findings), with the check behind each\ncode so that a reader can tell what was and was not looked at.",
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "state": {
+          "enum": [
+            "detected",
+            "none_detected",
+            "not_assessed",
+            "partial",
+            "not_applicable",
+            "failed"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "assessments": {
+          "items": {
+            "$ref": "#/$defs/Assessment"
+          },
+          "title": "Assessments",
+          "type": "array"
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "title": "FindingList",
+      "type": "object"
+    },
+    "FindingRef": {
+      "additionalProperties": false,
+      "description": "The words of a finding need only these four members.",
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Count"
+        },
+        "unit": {
+          "enum": [
+            "occurrences",
+            "distinct_values",
+            "categories",
+            "patterns",
+            "groups",
+            "positions",
+            "records",
+            "formats"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "lower_bound",
+            "sample",
+            "estimated",
+            "unavailable"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "count",
+        "unit",
+        "accuracy"
+      ],
+      "title": "FindingRef",
       "type": "object"
     },
     "FingerprintResult": {
@@ -8764,6 +9343,93 @@
       "title": "MissingComponents",
       "type": "object"
     },
+    "MissingFinding": {
+      "additionalProperties": false,
+      "description": "Positions with no present value (RF-12), apart from Errors and Issues: an\nabsence is never an error by itself (CA-16). ``definition`` lists the\ncomponents that count as missing in this document; ``components`` shows the\nfive anyway.",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "unit": {
+          "enum": [
+            "occurrences",
+            "distinct_values",
+            "categories",
+            "patterns",
+            "groups",
+            "positions",
+            "records",
+            "formats"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "population": {
+          "$ref": "#/$defs/Population"
+        },
+        "share": {
+          "$ref": "#/$defs/Share"
+        },
+        "accuracy": {
+          "default": "exact",
+          "enum": [
+            "exact",
+            "lower_bound",
+            "sample",
+            "estimated",
+            "unavailable"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "detected",
+            "none_detected",
+            "not_assessed",
+            "partial",
+            "not_applicable",
+            "failed"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "definition": {
+          "items": {
+            "enum": [
+              "absent",
+              "null",
+              "empty",
+              "blank",
+              "marker"
+            ],
+            "type": "string"
+          },
+          "title": "Definition",
+          "type": "array"
+        },
+        "components": {
+          "$ref": "#/$defs/MissingComponents"
+        }
+      },
+      "required": [
+        "field",
+        "count",
+        "unit",
+        "population",
+        "share",
+        "state",
+        "definition",
+        "components"
+      ],
+      "title": "MissingFinding",
+      "type": "object"
+    },
     "MissingMatrixResult": {
       "additionalProperties": false,
       "description": "The columns that lack a value together with one column (design 20.31).\n\n``records`` of the dataset have no value for the column in ``missing`` cases;\namong the ``columns`` of the dataset that miss a value, ``partners`` lack one in\nat least one of the same records. They are listed by the share of the records\nthat lack a value in either where both do (Jaccard, the most together first),\n``max_listed`` at most; ``truncated`` says that more exist. The counts are\nexact for every pair, listed or not. It shows that values go missing together,\nnot why.",
@@ -9559,6 +10225,73 @@
         "above"
       ],
       "title": "OutsideBins",
+      "type": "object"
+    },
+    "Overview": {
+      "additionalProperties": false,
+      "description": "The profile of a column and the facts behind its sentence. ``kind`` picks the\ntemplate and ``type`` the classification type it is worded for; the sentence is\n``text``, written from them when asked.",
+      "properties": {
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "facts": {
+          "items": {
+            "$ref": "#/$defs/OverviewFact"
+          },
+          "title": "Facts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "type",
+        "facts"
+      ],
+      "title": "Overview",
+      "type": "object"
+    },
+    "OverviewFact": {
+      "additionalProperties": false,
+      "description": "A figure the sentence uses, with the accuracy it is worded with.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Value"
+        },
+        "accuracy": {
+          "default": "exact",
+          "enum": [
+            "exact",
+            "lower_bound"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "title": "OverviewFact",
       "type": "object"
     },
     "PartCount": {
@@ -11335,6 +12068,43 @@
       "title": "PlanBase",
       "type": "object"
     },
+    "Population": {
+      "additionalProperties": false,
+      "description": "What a count is out of. ``size`` is ``None`` when the population has no\nknown size (a number of groups has no denominator).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "positions",
+            "present_values",
+            "content_strings",
+            "occurrences",
+            "distinct_values",
+            "groups",
+            "records",
+            "eligible_values"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Population",
+      "type": "object"
+    },
     "PositionDriftResult": {
       "additionalProperties": false,
       "description": "A field followed by position in the file (design 20.30): the records cut in\nten slices of the same size, in file order, and for each the records, the\nvalues and the missing ones, exactly. ``missing_association`` is Cramér's V of\nthe slice against the presence of a value: it is what tells a column that is\nmissing more in one part of the file from a constant share. ``followed`` holds\nthe values themselves when the field has few enough distinct ones; without it\nonly the presence is followed. It shows that a column changes along the file,\nnot why.",
@@ -11601,6 +12371,34 @@
       "title": "PurityFigure",
       "type": "object"
     },
+    "QualityColumn": {
+      "additionalProperties": false,
+      "description": "A column of a quality figure, with the findings that put it there.",
+      "properties": {
+        "field_id": {
+          "title": "Field Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/FindingRef"
+          },
+          "title": "Findings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "field_id",
+        "name",
+        "findings"
+      ],
+      "title": "QualityColumn",
+      "type": "object"
+    },
     "QualitySummary": {
       "additionalProperties": false,
       "description": "What was found, whole scan (``dataset`` absent) or one dataset, counted\nbefore ``scan.observations.max_items`` cuts the lists. ``has_observations``\nis any observation, ``has_quality_issues`` a candidate anomaly or a\nconfirmed issue, ``has_limits`` any limit; they stand for the counts.",
@@ -11656,6 +12454,83 @@
         "has_limits"
       ],
       "title": "QualitySummary",
+      "type": "object"
+    },
+    "QualityView": {
+      "additionalProperties": false,
+      "description": "The quality of the columns: each column is in exactly one of three groups.\n\nA column with Errors counts under Errors even when it also has Issues, so the\nthree figures add up to the columns.",
+      "properties": {
+        "columns": {
+          "title": "Columns",
+          "type": "integer"
+        },
+        "with_errors": {
+          "title": "With Errors",
+          "type": "integer"
+        },
+        "with_issues": {
+          "title": "With Issues",
+          "type": "integer"
+        },
+        "no_finding": {
+          "title": "No Finding",
+          "type": "integer"
+        },
+        "errors_percent": {
+          "title": "Errors Percent",
+          "type": "number"
+        },
+        "issues_percent": {
+          "title": "Issues Percent",
+          "type": "number"
+        },
+        "clean_percent": {
+          "title": "Clean Percent",
+          "type": "number"
+        },
+        "error_columns": {
+          "items": {
+            "$ref": "#/$defs/QualityColumn"
+          },
+          "title": "Error Columns",
+          "type": "array"
+        },
+        "issue_columns": {
+          "items": {
+            "$ref": "#/$defs/QualityColumn"
+          },
+          "title": "Issue Columns",
+          "type": "array"
+        },
+        "clean_columns": {
+          "items": {
+            "$ref": "#/$defs/QualityColumn"
+          },
+          "title": "Clean Columns",
+          "type": "array"
+        },
+        "errors": {
+          "$ref": "#/$defs/ValidationList"
+        },
+        "issues": {
+          "$ref": "#/$defs/ValidationList"
+        }
+      },
+      "required": [
+        "columns",
+        "with_errors",
+        "with_issues",
+        "no_finding",
+        "errors_percent",
+        "issues_percent",
+        "clean_percent",
+        "error_columns",
+        "issue_columns",
+        "clean_columns",
+        "errors",
+        "issues"
+      ],
+      "title": "QualityView",
       "type": "object"
     },
     "Quantile": {
@@ -13507,6 +14382,159 @@
       "title": "ShapeSettings",
       "type": "object"
     },
+    "Share": {
+      "additionalProperties": false,
+      "description": "``numerator`` out of ``denominator``, with the percentage. ``percent`` is\n``None`` and ``accuracy`` ``unavailable`` when the share is not defined: a\nzero population, or a count the population cannot hold (RF-22).",
+      "properties": {
+        "numerator": {
+          "title": "Numerator",
+          "type": "integer"
+        },
+        "denominator": {
+          "title": "Denominator",
+          "type": "integer"
+        },
+        "percent": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Percent"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "lower_bound",
+            "sample",
+            "estimated",
+            "unavailable"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "numerator",
+        "denominator",
+        "percent",
+        "accuracy"
+      ],
+      "title": "Share",
+      "type": "object"
+    },
+    "Signal": {
+      "additionalProperties": false,
+      "description": "The findings of one code summed over the columns that have it. A sum only\njoins findings of one code counted in one unit.",
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "cls": {
+          "title": "Cls",
+          "type": "string"
+        },
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "lower_bound": {
+          "title": "Lower Bound",
+          "type": "boolean"
+        },
+        "columns": {
+          "items": {
+            "$ref": "#/$defs/SignalColumn"
+          },
+          "title": "Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "cls",
+        "total",
+        "unit",
+        "lower_bound",
+        "columns"
+      ],
+      "title": "Signal",
+      "type": "object"
+    },
+    "SignalColumn": {
+      "additionalProperties": false,
+      "description": "One column behind a signal, with its figure and its share of the largest.",
+      "properties": {
+        "field_id": {
+          "title": "Field Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "relative_percent": {
+          "title": "Relative Percent",
+          "type": "number"
+        },
+        "spellings": {
+          "items": {
+            "$ref": "#/$defs/Spelling"
+          },
+          "title": "Spellings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "field_id",
+        "name",
+        "count",
+        "relative_percent",
+        "spellings"
+      ],
+      "title": "SignalColumn",
+      "type": "object"
+    },
+    "SignalsView": {
+      "additionalProperties": false,
+      "description": "The signals of a dataset, the tiles shown first and what is left.",
+      "properties": {
+        "shown": {
+          "items": {
+            "$ref": "#/$defs/Signal"
+          },
+          "title": "Shown",
+          "type": "array"
+        },
+        "more": {
+          "title": "More",
+          "type": "integer"
+        },
+        "incomplete_columns": {
+          "title": "Incomplete Columns",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "shown",
+        "more",
+        "incomplete_columns"
+      ],
+      "title": "SignalsView",
+      "type": "object"
+    },
     "SourceInfo": {
       "additionalProperties": false,
       "properties": {
@@ -13736,6 +14764,30 @@
       "title": "SpecialCharacters",
       "type": "object"
     },
+    "Spelling": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "most_frequent": {
+          "title": "Most Frequent",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "value",
+        "count",
+        "most_frequent"
+      ],
+      "title": "Spelling",
+      "type": "object"
+    },
     "State": {
       "additionalProperties": false,
       "description": "A piece of memory an analysis needs. Two candidates with the same ``key``\nshare it, and the plan counts it once (PLAN-04).",
@@ -13753,6 +14805,25 @@
         "memory"
       ],
       "title": "State",
+      "type": "object"
+    },
+    "StateCount": {
+      "additionalProperties": false,
+      "properties": {
+        "state": {
+          "title": "State",
+          "type": "string"
+        },
+        "columns": {
+          "title": "Columns",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "state",
+        "columns"
+      ],
+      "title": "StateCount",
       "type": "object"
     },
     "StatsAssociation": {
@@ -15587,6 +16658,39 @@
       "title": "TablePurity",
       "type": "object"
     },
+    "TableSummary": {
+      "additionalProperties": false,
+      "description": "The counts above the Summary table and the KPIs of the overview of a dataset.",
+      "properties": {
+        "error_count": {
+          "title": "Error Count",
+          "type": "integer"
+        },
+        "issue_count": {
+          "title": "Issue Count",
+          "type": "integer"
+        },
+        "observation_count": {
+          "title": "Observation Count",
+          "type": "integer"
+        },
+        "signals": {
+          "$ref": "#/$defs/SignalsView"
+        },
+        "quality": {
+          "$ref": "#/$defs/QualityView"
+        }
+      },
+      "required": [
+        "error_count",
+        "issue_count",
+        "observation_count",
+        "signals",
+        "quality"
+      ],
+      "title": "TableSummary",
+      "type": "object"
+    },
     "TechnicalType": {
       "additionalProperties": false,
       "description": "Port of the current type inference (design 9.7): ``confidence`` is the\naccepted share, ``null`` without values; ``outside_count`` is ``null`` for\n``mixed``.",
@@ -16120,6 +17224,34 @@
       "title": "UuidSettings",
       "type": "object"
     },
+    "ValidationList": {
+      "additionalProperties": false,
+      "description": "How many columns are in each state of the Errors or of the Issues.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "with_findings": {
+          "title": "With Findings",
+          "type": "integer"
+        },
+        "states": {
+          "items": {
+            "$ref": "#/$defs/StateCount"
+          },
+          "title": "States",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "with_findings",
+        "states"
+      ],
+      "title": "ValidationList",
+      "type": "object"
+    },
     "ValueAt": {
       "additionalProperties": false,
       "properties": {
@@ -16350,6 +17482,69 @@
         }
       },
       "title": "ValueSettings",
+      "type": "object"
+    },
+    "VariantDetails": {
+      "additionalProperties": false,
+      "description": "The groups of spelling variants of a column that a reader would correct.",
+      "properties": {
+        "state": {
+          "enum": [
+            "shown",
+            "masked",
+            "hidden"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "groups": {
+          "items": {
+            "$ref": "#/$defs/VariantGroupDetail"
+          },
+          "title": "Groups",
+          "type": "array"
+        },
+        "more_groups": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "More Groups"
+        }
+      },
+      "required": [
+        "state",
+        "groups",
+        "more_groups"
+      ],
+      "title": "VariantDetails",
+      "type": "object"
+    },
+    "VariantGroupDetail": {
+      "additionalProperties": false,
+      "description": "The spellings of one comparison key, the most frequent first.",
+      "properties": {
+        "spellings": {
+          "items": {
+            "$ref": "#/$defs/Spelling"
+          },
+          "title": "Spellings",
+          "type": "array"
+        },
+        "more_spellings": {
+          "title": "More Spellings",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "spellings",
+        "more_spellings"
+      ],
+      "title": "VariantGroupDetail",
       "type": "object"
     },
     "VariantGroups": {

@@ -57,6 +57,7 @@ from tabalyst.report_sections import (
     quality_view,
     rows_view,
 )
+from tabalyst.report_summary import attach_summaries, has_summaries
 from tabalyst.report_table import column_table, page_findings
 from tabalyst.report_views import (
     ColumnAnalyses,
@@ -121,7 +122,15 @@ def load_profile(path: str | Path) -> ReportProfile:
 def dataset_views(profile: ReportProfile) -> list[DatasetView]:
     """The projections of a report with the facts of their fields, the figures
     derived from them and the findings of the scan, all read from the document
-    (``report_views``, ``report_sections``)."""
+    (``report_views``, ``report_sections``). A document written without its
+    summaries gets them first, once (contract summary-table.md 20.4)."""
+    if not has_summaries(profile):
+        attach_summaries(profile)
+    return build_dataset_views(profile)
+
+
+def build_dataset_views(profile: ReportProfile) -> list[DatasetView]:
+    """The views of ``dataset_views`` without the check of the summaries."""
     config = ReportConfig.from_presentation(profile.report.config, profile.config)
     datasets = {dataset.id: dataset for dataset in profile.datasets}
     entries = pattern_entries(profile.derived)

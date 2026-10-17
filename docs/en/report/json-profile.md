@@ -252,6 +252,7 @@ built by the commands have no `$` dataset for the rest of the document. See the
 | `date_summary` | object or `null` | Dataset-level date counts, when at least one column contains date values |
 | `columns` | array | One profile per column, in file order for CSV and in order of discovery for JSON |
 | `structure` | object or `null` | Paths of a JSON dataset, containers included (see below); `null` for CSV files |
+| `table` | object | What the Summary table and the overview cards print for the dataset: `error_count`, `issue_count`, `observation_count` (columns by flag), `signals` (one entry per finding code and unit, with the columns behind its total) and `quality` (columns with Errors, with Issues only and with no finding) |
 
 In a JSON dataset, a column is a field that holds strings, numbers, booleans
 or nulls, named by its path: `email`, `address.city`, `orders[].total`.
@@ -303,6 +304,7 @@ Each column profile always contains:
 | `examples` | A few representative values |
 | `value_profile` | Value occurrences, complete or sampled (see `selection`) |
 | `classification` | The family and type of the column, with `basis`, `state`, `traits`, `evidence`, `alternatives` and `rule_version`. It is the `classification` of the scan field (see [Classification](../scan/format.md#classification)), refined by the second pass when it supplies a fact the scan lacked: an `identifier/id` whose distinct count the scan could not complete becomes `identifier/unique_id` when the exact distinct count proves it (see [Exact distinct count](../scan/deep.md#exact-distinct-count)). A report without a usable second pass carries the classification of the scan |
+| `summary` | What the Summary table and the previews say about the column, built with the report and holding codes and numbers, never a sentence: `findings` (`missing`, `errors` and `issues`, each finding with its code, class, count, unit, population, share, accuracy and examples already through the exposure, and each list with its evaluation state and the checks behind it), `overview` (the profile and the facts of its sentence), `details` (representative values and measures), `variants` (groups of spelling variants) and `flags`. The words are written when the report is rendered |
 | `exposure` | `mask`, `hide` or `show` for a sensitive column, the way its values appear in `examples`, `value_profile` and the rows of the data sample; `null` otherwise |
 | `detectors` | The detectors that recognized values of the column, in scan order (see below); empty when none did |
 

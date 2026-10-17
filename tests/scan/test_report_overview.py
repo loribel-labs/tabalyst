@@ -251,11 +251,12 @@ def test_one_distinct_value_is_singular(tmp_path):
 
 
 def test_a_lower_bound_of_one_keeps_the_singular_noun():
-    from tabalyst.report_overview import _Builder
+    from tabalyst.report_overview import _counted
+    from tabalyst.summary_models import OverviewFact
 
-    assert _Builder().counted("formats", 1, "lower_bound", "format", "formats") == (
-        "at least 1 format"
-    )
+    fact = OverviewFact(name="formats", value=1, accuracy="lower_bound")
+
+    assert _counted(fact, "format", "formats") == "at least 1 format"
 
 
 def test_a_mixed_column_names_only_the_representations_it_holds(tmp_path):

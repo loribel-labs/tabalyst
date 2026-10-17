@@ -320,7 +320,7 @@ def test_a_cell_shows_two_labels_then_previews_the_others(tmp_path):
     items = [_finding(code, n + 1) for n, code in enumerate(ACTIVE_ISSUES[: LABELS_SHOWN + 2])]
     listing = FindingList(items=items, state="detected", assessments=[])
 
-    cell = _cell(_a_column(tmp_path), listing)
+    cell = _cell(listing)
 
     assert len(cell.shown) == LABELS_SHOWN
     assert len(cell.rest) == 2
@@ -340,7 +340,7 @@ def test_a_list_that_found_something_names_the_checks_that_went_part_way(tmp_pat
     ]
     listing = FindingList(items=items, state="detected", assessments=assessments)
 
-    cell = _cell(_a_column(tmp_path), listing)
+    cell = _cell(listing)
 
     assert cell.caveat == "1 check partially assessed, 1 check not assessed"
     assert {line.code for line in cell.caveat_checks} == {
@@ -354,7 +354,7 @@ def test_a_list_that_found_something_names_the_checks_that_went_part_way(tmp_pat
 def test_a_list_without_finding_has_no_caveat_and_a_count_label(tmp_path):
     listing = FindingList(items=[], state="partial", assessments=[])
 
-    cell = _cell(_a_column(tmp_path), listing)
+    cell = _cell(listing)
 
     assert cell.caveat is None and cell.state_label == "Partially assessed"
     assert cell.labels == [] and cell.order == 0
@@ -364,10 +364,7 @@ def test_a_lower_bound_is_never_worded_exact(tmp_path):
     item = _finding("temporal.invalid_calendar", 4, "error")
     item = item.model_copy(update={"accuracy": "lower_bound"})
 
-    cell = _cell(
-        _a_column(tmp_path),
-        FindingList(items=[item], state="detected", assessments=[]),
-    )
+    cell = _cell(FindingList(items=[item], state="detected", assessments=[]))
 
     assert cell.labels[0].startswith("at least ")
 

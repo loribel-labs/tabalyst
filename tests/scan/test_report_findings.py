@@ -10,8 +10,6 @@ builders come with lots R6a and R6b; here the machinery is tested with checks
 written for the test, and with the facts of real scans.
 """
 
-import json
-
 import pytest
 from scan_helpers import write_json, write_text
 
@@ -520,14 +518,16 @@ def test_an_issue_check_that_reports_detected_without_a_finding_is_not_detected(
     assert findings.issues.state == "none_detected"
 
 
-def test_findings_are_deterministic_and_never_a_member_of_the_document(tmp_path):
+def test_findings_are_deterministic_and_stored_only_in_the_column_summary(tmp_path):
     column = _csv(tmp_path, "note", ["x", "y", "z"])
 
     assert column_findings(column) == column_findings(column)
     assert "findings" not in ColumnProfile.model_fields
     assert "errors" not in ColumnProfile.model_fields
     profile = analyze_csv(write_text(tmp_path, "b.csv", "a,b\n1,2\n"))
-    assert '"findings"' not in json.dumps(profile.model_dump(mode="json"))
+    column = profile.model_dump(mode="json")["report"]["datasets"][0]["columns"][0]
+    assert set(column["summary"]["findings"]) == {"field", "missing", "errors", "issues"}
+    assert "findings" not in column
 
 
 # --- Catalogue ----------------------------------------------------------------------

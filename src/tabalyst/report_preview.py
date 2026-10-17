@@ -4,17 +4,16 @@
 
 """Previews of the findings of a cell: what a finding is, what it counts, its examples.
 
-Computed at render time from a finding and the document alone, never serialized
-(contract summary-table.md 18). Examples go through the exposure of their column
-again, whatever the document holds, and an absent piece of information is left
-out, never invented (RF-17).
+The examples go through the exposure of their column when the Report is built
+(``expose_examples``) and are stored with the finding; the preview is written from
+the finding alone when a page is rendered (contract summary-table.md 18, 20). An
+absent piece of information is left out, never invented (RF-17).
 """
 
 from __future__ import annotations
 
 from typing import Literal
 
-from tabalyst.models import ResultModel
 from tabalyst.report_details import exposed_evidence
 from tabalyst.report_finding_details import variant_details
 from tabalyst.report_findings import (
@@ -39,14 +38,14 @@ from tabalyst.report_labels import (
     population_phrase,
 )
 from tabalyst.report_views import ColumnView
+from tabalyst.result_model import ResultModel
 from tabalyst.scanner.classify.catalog import FINDING_CODES
 from tabalyst.scanner.exposure import ExposureMode
 from tabalyst.scanner.models import DetectorComplete
+from tabalyst.summary_models import Example, ExamplesState
 
 # Examples written in a preview (RF-17: two or three, a recommendation of the interface).
 EXAMPLES_SHOWN = 2
-
-ExamplesState = Literal["shown", "masked", "hidden", "none"]
 
 # The detector and the state whose evidence illustrates a finding. ``semantic.invalid``
 # reads the detector that is in ``basis``.
@@ -156,11 +155,29 @@ def _assessment_of(finding: Finding, assessments: list[Assessment]) -> Assessmen
     return next((item for item in assessments if item.code == finding.code), None)
 
 
+def expose_examples(column: ColumnView, finding: Finding) -> Finding:
+    """The finding with the examples its preview shows, through the exposure of its
+    column, and how they were exposed. Done once, when the Report is built."""
+    values, state = preview_examples(column, finding)
+    return finding.model_copy(
+        update={
+            "examples": [Example(value=value) for value in values],
+            "examples_state": state,
+        }
+    )
+
+
 def finding_preview(
     column: ColumnView, finding: Finding, assessments: list[Assessment]
 ) -> FindingPreview:
     """The preview of a finding of a column. ``assessments`` are the checks of the
     list the finding is in, to say how much of the eligible values were covered."""
+    return preview_of(expose_examples(column, finding), assessments)
+
+
+def preview_of(finding: Finding, assessments: list[Assessment]) -> FindingPreview:
+    """The preview of a finding whose examples were exposed when the Report was
+    built; nothing is read but the finding and its checks."""
     unit = finding.unit
     accuracy_word, accuracy_note = PREVIEW_ACCURACY[finding.accuracy]
     if finding.count is None:
@@ -182,7 +199,8 @@ def finding_preview(
             f"{percent_text(finding.share.percent)} "
             f"({finding.share.numerator:,} of {denominator})"
         )
-    examples, state = preview_examples(column, finding)
+    examples = [item.value for item in finding.examples]
+    state: ExamplesState = finding.examples_state or "none"
     limits: list[str] = []
     if finding.code in FINDING_LIMITS:
         limits.append(FINDING_LIMITS[finding.code])

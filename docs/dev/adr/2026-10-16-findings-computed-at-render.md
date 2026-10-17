@@ -2,6 +2,9 @@
 
 Date: 2026-10-16 (lot R0 of the Report overview work)
 
+Status: superseded on 2026-10-17 by `2026-10-17-report-summary-built-with-the-document.md`
+(lot R10b): the members are built with the document, not at render time.
+
 ## Context
 
 Errors, Issues and Missing must be quantified, explainable and consistent with

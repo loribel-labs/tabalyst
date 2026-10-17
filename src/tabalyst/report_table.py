@@ -2,26 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Rows of the Columns table: what each of the eight cells prints.
+"""Rows of the Summary table: what each of the eight cells prints.
 
-Assembles the views of the other modules (classification, Overview, findings,
-Details) at render time; the template prints a row and computes nothing
-(contract summary-table.md 7.3). Nothing is serialized.
+Assembles the summary stored with each column (classification, Overview, findings,
+Details) into the cells; the template prints a row and computes nothing (contract
+summary-table.md 7.3, 20). The words of a cell are written here from the stored
+codes and numbers; the rows themselves are not serialized.
 """
 
 from __future__ import annotations
 
-from typing import Literal
-
-from tabalyst.models import ResultModel
-from tabalyst.report_details import Details, details_for
-from tabalyst.report_finding_details import VariantDetails, variant_details
-from tabalyst.report_findings import (
-    ColumnFindings,
-    FindingList,
-    MissingFinding,
-    column_findings,
-)
 from tabalyst.report_labels import (
     CAVEAT_STATES,
     FAMILY_LABELS,
@@ -30,28 +20,29 @@ from tabalyst.report_labels import (
     plural,
     type_label,
 )
-from tabalyst.report_overview import overview_text
 from tabalyst.report_preview import (
     CheckLine,
     FindingPreview,
     check_lines,
-    finding_preview,
-)
-from tabalyst.report_signals import (
-    QualityView,
-    SignalsView,
-    finding_text,
-    quality_view,
-    signals_view,
+    preview_of,
 )
 from tabalyst.report_views import ColumnView, DatasetView
+from tabalyst.result_model import ResultModel
+from tabalyst.summary_models import (
+    ColumnSummary,
+    Details,
+    FindingList,
+    Flag,
+    MissingFinding,
+    QualityView,
+    SignalsView,
+    VariantDetails,
+    finding_text,
+)
 
 # Finding labels written in a cell; the rest is in the preview of "+3 more"
 # (decision 7, lot R9b).
 LABELS_SHOWN = 2
-
-Flag = Literal["error", "issue", "obs"]
-
 
 class FindingsCell(ResultModel):
     """The Errors or the Issues of a row: the state of the list, the labels of its
@@ -155,7 +146,7 @@ def _caveat(listing: FindingList) -> tuple[str | None, list[CheckLine]]:
     return ", ".join(words), lines
 
 
-def _cell(column: ColumnView, listing: FindingList) -> FindingsCell:
+def _cell(listing: FindingList) -> FindingsCell:
     labels = [finding_text(item) for item in listing.items]
     caveat, caveat_checks = _caveat(listing)
     return FindingsCell(
@@ -163,9 +154,7 @@ def _cell(column: ColumnView, listing: FindingList) -> FindingsCell:
         state_label=LIST_STATE_LABELS[listing.state],
         state_title=LIST_STATE_TITLES[listing.state],
         labels=labels,
-        previews=[
-            finding_preview(column, item, listing.assessments) for item in listing.items
-        ],
+        previews=[preview_of(item, listing.assessments) for item in listing.items],
         caveat=caveat,
         caveat_checks=caveat_checks,
         checks=[] if listing.items else check_lines(listing),
@@ -183,21 +172,18 @@ def _missing(missing: MissingFinding) -> MissingCell:
     )
 
 
-def column_row(
-    column: ColumnView,
-    dataset_id: str,
-    findings: ColumnFindings | None = None,
-) -> ColumnRow:
-    """The row of a column. ``findings`` replaces ``column_findings(column)``."""
-    found = findings or column_findings(column)
+def _summary(column: ColumnView) -> ColumnSummary:
+    if column.summary is None:
+        raise ValueError(
+            f"Column {column.id!r} has no summary: build the Report with its summaries."
+        )
+    return column.summary
+
+
+def column_row(column: ColumnView, dataset_id: str) -> ColumnRow:
+    """The row of a column, written from its stored summary."""
+    summary = _summary(column)
     classification = column.classification
-    flags: list[Flag] = []
-    if found.errors.items:
-        flags.append("error")
-    if found.errors.items or found.issues.items:
-        flags.append("issue")
-    if column.has_observations:
-        flags.append("obs")
     return ColumnRow(
         dataset_id=dataset_id,
         field_id=column.id,
@@ -208,35 +194,35 @@ def column_row(
         family_label=FAMILY_LABELS[classification.family],
         type_key=f"{classification.family}/{classification.type}",
         type_label=type_label(classification.family, classification.type),
-        overview=overview_text(column),
-        missing=_missing(found.missing),
-        errors=_cell(column, found.errors),
-        issues=_cell(column, found.issues),
-        details=details_for(column),
-        variants=variant_details(column),
-        flags=flags,
+        overview=summary.overview.text,
+        missing=_missing(summary.findings.missing),
+        errors=_cell(summary.findings.errors),
+        issues=_cell(summary.findings.issues),
+        details=summary.details,
+        variants=summary.variants,
+        flags=list(summary.flags),
     )
 
 
 def page_findings(column: ColumnView) -> tuple[FindingsCell, FindingsCell]:
     """The Errors and the Issues of one column for its own page, with the previews
     the table prints."""
-    found = column_findings(column)
-    return _cell(column, found.errors), _cell(column, found.issues)
+    found = _summary(column).findings
+    return _cell(found.errors), _cell(found.issues)
 
 
 def column_table(dataset: DatasetView) -> ColumnTable:
     """The table of a dataset, one row per column in the order of the report."""
-    findings = [column_findings(column) for column in dataset.columns]
-    rows = [
-        column_row(column, dataset.id, found)
-        for column, found in zip(dataset.columns, findings, strict=True)
-    ]
+    table = dataset.table
+    if table is None:
+        raise ValueError(
+            f"Dataset {dataset.id!r} has no table summary: build the Report with its summaries."
+        )
     return ColumnTable(
-        rows=rows,
-        error_count=sum("error" in row.flags for row in rows),
-        issue_count=sum("issue" in row.flags for row in rows),
-        observation_count=sum("obs" in row.flags for row in rows),
-        signals=signals_view(dataset.columns, findings),
-        quality=quality_view(dataset.columns, findings),
+        rows=[column_row(column, dataset.id) for column in dataset.columns],
+        error_count=table.error_count,
+        issue_count=table.issue_count,
+        observation_count=table.observation_count,
+        signals=table.signals,
+        quality=table.quality,
     )

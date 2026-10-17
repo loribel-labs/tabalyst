@@ -56,6 +56,7 @@ from tabalyst.models import (
 from tabalyst.report_classification import refine
 from tabalyst.report_config import ReportConfig, check_length_distribution
 from tabalyst.report_sections import cardinality_view
+from tabalyst.report_summary import attach_summaries
 from tabalyst.report_views import (
     DateBreakdownItem,
     DateFormatCount,
@@ -813,7 +814,7 @@ def build_profile(
     base = report_base(
         result, config.value_examples.kept_per_column, config.row_sample
     )
-    return ReportProfile(
+    profile = ReportProfile(
         engine=base.engine,
         status=base.status,
         run=base.run,
@@ -845,6 +846,9 @@ def build_profile(
             datasets=datasets,
         ),
     )
+    # The summaries are part of the document (contract summary-table.md 20): the
+    # pages print them and compute nothing.
+    return attach_summaries(profile)
 
 
 def _without_members(block: ByLength) -> ByLength:
