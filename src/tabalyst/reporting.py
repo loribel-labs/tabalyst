@@ -19,7 +19,7 @@ from tabalyst.models import ReportProfile
 from tabalyst.report_config import ReportConfig
 from tabalyst.report_deep import column_analyses, second_pass_view
 from tabalyst.report_details import details_withheld, exposed_evidence, exposed_values
-from tabalyst.report_finding_details import variant_details
+from tabalyst.report_finding_details import exposed_variant_groups, variant_details
 from tabalyst.report_insights import (
     FAMILY_ORDER,
     dataset_insights,
@@ -293,6 +293,7 @@ def _labels() -> dict[str, object]:
         "table_more": TABLE_MORE,
         "exposed_values": exposed_values,
         "exposed_evidence": exposed_evidence,
+        "exposed_variant_groups": exposed_variant_groups,
         "details_withheld": details_withheld,
         "preview_checks_title": PREVIEW_CHECKS_TITLE,
         "observation_status_help": OBSERVATION_STATUS_HELP,

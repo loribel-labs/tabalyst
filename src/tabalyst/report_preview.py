@@ -15,6 +15,7 @@ from __future__ import annotations
 from typing import Literal
 
 from tabalyst.models import ResultModel
+from tabalyst.report_details import exposed_evidence
 from tabalyst.report_finding_details import variant_details
 from tabalyst.report_findings import (
     Assessment,
@@ -39,7 +40,7 @@ from tabalyst.report_labels import (
 )
 from tabalyst.report_views import ColumnView
 from tabalyst.scanner.classify.catalog import FINDING_CODES
-from tabalyst.scanner.exposure import ExposureGate, ExposureMode
+from tabalyst.scanner.exposure import ExposureMode
 from tabalyst.scanner.models import DetectorComplete
 
 # Examples written in a preview (RF-17: two or three, a recommendation of the interface).
@@ -145,7 +146,7 @@ def preview_examples(
     # A hidden column's Scan keeps no evidence at all: the absence is the exposure's.
     if mode == "hide":
         return [], "hidden"
-    shown = ExposureGate(mode).examples(values)[:EXAMPLES_SHOWN]
+    shown = exposed_evidence(column, values)[:EXAMPLES_SHOWN]
     if not shown:
         return [], "none"
     return shown, "masked" if mode == "mask" else "shown"

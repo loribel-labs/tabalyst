@@ -14,6 +14,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Literal
 
+from pydantic import Field
+
 from tabalyst.models import ResultModel
 from tabalyst.report_labels import (
     DETAILS_MEASURES,
@@ -108,6 +110,8 @@ class ExposedValues(ResultModel):
 
     examples: list[str]
     values: list[tuple[str, int]]
+    # Exposed values the Scan cut at its stored length: not the whole value.
+    cut: list[str] = Field(default_factory=list)
 
 
 def exposed_values(column: ColumnView) -> ExposedValues:
@@ -123,6 +127,11 @@ def exposed_values(column: ColumnView) -> ExposedValues:
     return ExposedValues(
         examples=gate.examples(list(column.examples)),
         values=list(counts.items()),
+        cut=[
+            exposed
+            for item in column.value_profile.values
+            if item.truncated and (exposed := gate.value(item.value)) is not None
+        ],
     )
 
 

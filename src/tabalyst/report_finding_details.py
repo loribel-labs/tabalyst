@@ -94,3 +94,31 @@ def variant_details(column: ColumnView) -> VariantDetails | None:
         groups=groups,
         more_groups=None if total is None else max(0, total - len(groups)),
     )
+
+
+class ExposedVariantGroup(ResultModel):
+    """A stored group of spelling variants as the column page lists it, through the
+    exposure: the key and the spellings are masks for a masked column."""
+
+    key: str
+    count: int
+    truncated: bool
+    variants: list[tuple[str, int]]
+
+
+def exposed_variant_groups(column: ColumnView) -> list[ExposedVariantGroup]:
+    """Every stored variant group of a column through its exposure (CA-19): nothing
+    for a hidden column, merged masks for a masked one."""
+    mode: ExposureMode = column.exposure or "show"
+    if mode == "hide":
+        return []
+    gate = ExposureGate(mode)
+    return [
+        ExposedVariantGroup(
+            key=gate.value(group.key) or "",
+            count=group.count,
+            truncated=group.truncated,
+            variants=list(gate.counts((v.value, v.count) for v in group.variants).items()),
+        )
+        for group in column.normalization.variant_groups
+    ]

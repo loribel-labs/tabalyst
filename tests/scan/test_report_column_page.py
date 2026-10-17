@@ -97,7 +97,7 @@ def test_the_page_shows_the_classification_and_the_findings(tmp_path):
     html = _page(tmp_path, _contacts(), "contact")
 
     assert "Technical type confidence" in html
-    assert "<dt>Errors</dt>" in html and "<dt>Issues</dt>" in html
+    assert "<dt>Kinds of error</dt>" in html and "<dt>Kinds of issue</dt>" in html
     assert "Type errors" not in html
 
 
@@ -121,3 +121,15 @@ def test_the_public_signatures_did_not_change(name):
     parameters = list(inspect.signature(getattr(tabalyst, name)).parameters)
 
     assert parameters == PUBLIC_PARAMETERS[name].split()
+
+
+@pytest.mark.parametrize("mode", ["mask", "hide"])
+def test_the_variant_groups_of_a_raw_document_go_through_the_exposure(tmp_path, mode):
+    cells = ["ZzAlpha"] * 5 + ["zzalpha"] * 4 + ["ZZALPHA"] * 3 + ["zzbeta"] * 4 + ["ZzBeta"] * 3
+    content = "tag,row\n" + "\n".join(f"{v},{n}" for n, v in enumerate(cells)) + "\n"
+
+    html = _page(tmp_path, content, "tag", forced=mode)
+
+    assert "ZzAlpha" not in _gated(html) and "zzbeta" not in _gated(html)
+    shown = _page(tmp_path, content, "tag")
+    assert "ZzAlpha" in shown
