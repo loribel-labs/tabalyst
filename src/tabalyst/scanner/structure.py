@@ -72,6 +72,7 @@ class DatasetState:
         "collections",
         "depth_limit_location",
         "depth_truncated",
+        "excluded",
         "field_limit_location",
         "fields",
         "id",
@@ -102,6 +103,9 @@ class DatasetState:
         self.collection_path = collection_path
         self.max_fields = max_fields
         self.record_count = 0
+        # Records of this dataset left out of the analysis: the classification
+        # publishes it as the partial scope of a Unique ID.
+        self.excluded = 0
         self.record_types: Counter[str] = Counter()
         self.records = RecordFacts(records, tuple(item.path for item in declared))
         # Fields whose arrays hold the records of another dataset.
@@ -445,7 +449,7 @@ class DatasetState:
         return field.model_copy(
             update={
                 "classification": classify_field(
-                    field, ClassifyContext(config.classification)
+                    field, ClassifyContext(config.classification, self.excluded)
                 )
             }
         )

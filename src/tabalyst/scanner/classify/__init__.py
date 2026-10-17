@@ -14,6 +14,7 @@ from tabalyst.scanner.classify.rules import (
     classification_versions,
     classify_field,
     version_record,
+    with_pattern_traits,
 )
 
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     "classification_versions",
     "classify_field",
     "version_record",
+    "with_pattern_traits",
 ]

@@ -149,6 +149,35 @@ classification of the fields; it is not final until the release that ships it.
   `report.string_analysis` of the same names, which are now refused with their new
   place. They are part of the scan configuration, so changing one changes
   `config_sha256`.
+- The classification now reads the detectors: Enum, Boolean, Constant, Currency,
+  Percentage, Quantity, Datetime, Time, Email, Phone, Postal code, URL, IP address
+  and UUID join Integer, Number, Date and Text. Two credible types that cannot be
+  told apart give a fallback with `state` `undetermined` and both in
+  `alternatives`. The traits `single_pattern`, `multiple_patterns` and `constant`
+  are emitted. `engine.classification` is `{"catalogue": 2}`. Still revision 4:
+  the classification is not published yet.
+- The classification reads the name of the field with a versioned set of rules in
+  French and English: see [Names](format.md#names). A name reinforces a type the
+  values support (evidence with the role `supports`), breaks a tie between
+  supported types (the result is then a `candidate` and the other types are
+  `outranked_by_name` or `weakened_by_name` in `alternatives`), or weakens one
+  (evidence with the role `contradicts`). A type only the name suggests is a
+  `name_only` alternative, never the result. `engine.classification` becomes
+  `{"catalogue": 3, "names": 1}` and `rule_version` combines both
+  (`catalogue * 1000 + names`, 3001 here). Still revision 4.
+- The classification reads the identifier names: `identifier/id` and
+  `identifier/unique_id` (see [Identifiers](format.md#identifiers)). A name rule
+  of the identifier group plus compatible values (a text or whole-number column
+  with at least two present values, none outside its family) gives an ID; it
+  replaces a Text or a plain Integer, and the replaced type is an alternative with
+  the reason `replaced_by_role`. A Unique ID also has no missing position, is not
+  under a JSON array and has an exact analytical distinct count equal to the
+  present values; its evidence carries the measures `values.cardinality` and
+  `missing.count` with their scope, `partial` when the scan excluded records. The
+  state of both is `candidate`. A UUID keeps its type with the alternative
+  `uuid_name`. New traits `observed_unique` and `first_column`; `high_cardinality`
+  stays unused. `engine.classification` becomes `{"catalogue": 4, "names": 2}`
+  (`rule_version` 4002). Still revision 4.
 
 - The default of `scan.exposure.sensitive_values` becomes `show` (it was `mask`):
   sensitive columns are not handled in this beta, so their values are listed and

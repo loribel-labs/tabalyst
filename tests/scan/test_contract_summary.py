@@ -230,7 +230,9 @@ def test_CA24_secondary_properties_do_not_add_displayed_types(tmp_path):
 
 @pytest.mark.report_lot("R1b")
 def test_CA10_long_emails_stay_email_and_do_not_become_text(tmp_path):
-    values = [f"{'x' * 70}{n}@example.com" for n in range(40)]
+    # 55 to 57 letters in the local part (the detector accepts 64) make a median
+    # length above the Medium bound: by length alone this column would be Text.
+    values = [f"{'x' * 55}{n}@example.com" for n in range(40)]
 
     classification = _classify(tmp_path, "contact", values)
 
@@ -255,11 +257,16 @@ def test_bare_numbers_are_neither_currency_nor_percentage(tmp_path):
 
 @pytest.mark.report_lot("R1b")
 def test_two_credible_candidates_give_the_explicit_fallback(tmp_path):
-    # Values that two detectors read equally: no choice by registry order.
-    classification = _classify(tmp_path, "code", ["12345", "K1A 0B1"] * 30)
+    # Five digits are read by ``number`` and by ``postal_code`` alike: no choice
+    # by registry order, and the technical type is not silently preferred.
+    values = ["12345", "90210", "10001", "60601"] * 10
+    classification = _classify(tmp_path, "code", values)
 
     assert classification["state"] == "undetermined"
-    assert len(classification["alternatives"]) >= 2
+    assert {item["type"] for item in classification["alternatives"]} == {
+        "integer",
+        "postal_code",
+    }
 
 
 # --- R2: name engine ------------------------------------------------------------
@@ -325,6 +332,10 @@ def test_CA12_an_email_name_over_free_text_is_not_established(tmp_path):
     assert classification["state"] != "established" or classification["family"] == (
         "text"
     )
+    # The name is kept as a suggestion the values do not support.
+    assert ("email", "name_only") in {
+        (item["type"], item["reason"]) for item in classification["alternatives"]
+    }
 
 
 @pytest.mark.report_lot("R2")
@@ -363,10 +374,22 @@ def test_CA04_a_complete_exact_unique_identifier_is_unique_id(tmp_path):
 def test_CA05_a_missing_or_repeated_value_keeps_the_field_an_id(tmp_path, breaker):
     values = [f"C{n:05d}" for n in range(1000)]
     values[10] = "" if breaker == "missing" else values[11]
+    # A second column keeps the empty cell a cell: in a one-column CSV an empty
+    # value is a blank line, which the reader refuses.
+    source = write_text(
+        tmp_path,
+        "data.csv",
+        "customer_id,label\n" + "\n".join(f"{value},x" for value in values) + "\n",
+    )
 
-    classification = _classify(tmp_path, "customer_id", values)
+    result = run_scan(source)
+    classification = field(result["datasets"][0], "customer_id")["classification"]
 
     assert _pair(classification) == ("identifier", "id")
+    assert classification["state"] == "candidate"
+    # The present values stay all distinct when a value is missing: it is the
+    # missing position, not the uniqueness, that keeps the field an ID.
+    assert ("observed_unique" in classification["traits"]) == (breaker == "missing")
 
 
 @pytest.mark.report_lot("R3")
@@ -390,20 +413,32 @@ def test_CA06_values_equal_after_trim_are_not_unique(tmp_path):
 
 
 @pytest.mark.report_lot("R3")
-def test_CA07_a_first_column_of_distinct_dates_is_not_an_identifier(tmp_path):
-    values = [f"2024-{n % 12 + 1:02d}-{n % 28 + 1:02d}" for n in range(10)]
+@pytest.mark.parametrize(
+    ("header", "values", "expected"),
+    [
+        (
+            "timestamp",
+            [f"2024-{n % 12 + 1:02d}-{n % 28 + 1:02d}" for n in range(40)],
+            ("temporal", "date"),
+        ),
+        ("price", [f"{10 + n}.{n % 100:02d}" for n in range(40)], ("numeric", "number")),
+    ],
+)
+def test_CA07_a_distinct_first_column_of_dates_or_amounts_is_not_an_identifier(
+    tmp_path, header, values, expected
+):
+    # The column is first and all distinct: both are traits, never a role.
     source = write_text(
         tmp_path,
         "data.csv",
-        "stamp,x\n" + "\n".join(f"{v},{i}" for i, v in enumerate(values)) + "\n",
+        f"{header},label\n" + "\n".join(f"{v},x{i}" for i, v in enumerate(values)) + "\n",
     )
 
     result = run_scan(source)
-    classification = field(result["datasets"][0], "stamp")["classification"]
+    classification = field(result["datasets"][0], header)["classification"]
 
-    assert classification["family"] == "temporal"
-    assert classification["type"] == "date"
-    assert classification["family"] != "identifier"
+    assert _pair(classification) == expected
+    assert {"first_column", "observed_unique"} <= set(classification["traits"])
 
 
 @pytest.mark.report_lot("R3")
@@ -425,12 +460,14 @@ def test_a_field_under_a_json_array_is_never_unique_id(tmp_path):
 
     result = run_scan(source)
     types = {
-        item["classification"]["type"]
+        item["name"]: item["classification"]["type"]
         for item in result["datasets"][0]["fields"]
-        if item["display"].endswith("id")
+        if item["name"] == "id"
     }
 
-    assert "unique_id" not in types
+    # Sixty distinct values, an identifier name, no missing: only the array
+    # above the field keeps it from being a Unique ID.
+    assert types == {"id": "id"}
 
 
 @pytest.mark.report_lot("R3")
@@ -439,8 +476,20 @@ def test_unique_id_publishes_its_scope_in_the_evidence(tmp_path):
         tmp_path, "customer_id", [f"C{n:05d}" for n in range(200)]
     )
 
-    scopes = [item["scope"] for item in classification["evidence"] if "scope" in item]
-    assert scopes and {"population", "of", "partial", "accuracy"} <= set(scopes[0])
+    assert _pair(classification) == ("identifier", "unique_id")
+    measures = {
+        item["id"]: item["scope"]
+        for item in classification["evidence"]
+        if item["source"] == "measure"
+    }
+    assert measures["values.cardinality"] == {
+        "population": "present_values",
+        "of": 200,
+        "partial": False,
+        "accuracy": "exact",
+    }
+    assert measures["missing.count"]["population"] == "positions"
+    assert measures["missing.count"]["of"] == 200
 
 
 # --- R4: refinement by the second pass ------------------------------------------

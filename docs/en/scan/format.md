@@ -22,7 +22,7 @@ the [scan format changelog](format-changelog.md).
     "version": "0.7.0",
     "normalization_version": 1,
     "detectors": {"number": 1, "date": 1, "email": 1, "...": 1},
-    "classification": {"catalogue": 1}
+    "classification": {"catalogue": 4, "names": 2}
   },
   "status": "complete",
   "run": {
@@ -324,7 +324,7 @@ classification with one or several workers and without the source.
                "accuracy": "exact"}}
   ],
   "alternatives": [],
-  "rule_version": 1
+  "rule_version": 4002
 }
 ```
 
@@ -333,9 +333,10 @@ classification with one or several workers and without the source.
 | `family`, `type` | Codes in lower snake case: `text` and `text_short`, `numeric` and `integer`. One pair per field; secondary properties are in `traits`. |
 | `basis` | `inferred` when the evidence decided, `fallback` when the technical type or a fallback did, `declared` for a constraint the user declares (not produced yet). |
 | `state` | `established` when the values themselves support the type, `candidate` when it rests on a name plus compatible values, `undetermined` when the evidence did not allow more. |
-| `evidence` | The facts used: `source` (`detector`, `technical_type`, `measure`, `name_rule`, `position`), their `id`, their `role` (`supports`, `contradicts`, `context`) and their `scope` (what population the fact covers, its size, whether it is partial and its accuracy). |
+| `evidence` | The facts used: `source` (`detector`, `technical_type`, `measure`, `name_rule`, `position`), their `id` (a detector id, a measure name or a name rule id), their `role` (`supports`, `contradicts`, `context`) and their `scope` (what population the fact covers, its size, whether it is partial and its accuracy). |
 | `alternatives` | Types considered and not retained, with a `reason`. Never a conclusion. |
-| `rule_version` | The version of the catalogue of rules that decided. |
+| `traits` | Secondary properties that never change the pair: `single_pattern` or `multiple_patterns` (from [Inferred patterns](#inferred-patterns)), `constant` (one distinct value on a typed column), `observed_unique` (the exact count of distinct values equals the present values) and `first_column` (first column of a CSV or Excel table). The last two are facts about the column and never prove a role. |
+| `rule_version` | The version of the rules that decided, as one integer: the catalogue version times 1,000 plus the version of the name rules (4002 is catalogue 4, name rules 2). `engine.classification` records both separately. |
 
 There is no score and no percentage of confidence: the evidence and the state
 say how firm the result is.
@@ -344,7 +345,30 @@ This version decides:
 
 - **Other / Empty** for a field without present value, including a JSON object or
   array, whose values are not analyzed.
-- **Other / Mixed** for a `mixed` technical type.
+- **Types carried by a detector**, when it reaches `detection.minimum_share` of
+  its eligible values (any detector listed in `interpretations.candidates`, not
+  only the primary interpretation): `numeric/currency`, `numeric/percentage` and
+  `numeric/quantity`; `contact/email` and `contact/phone`; `geographic/postal_code`;
+  `web_network/url`, `web_network/ip_address` and `web_network/uuid`. A detector
+  type outranks Enum, Text and the numeric types, so a column of long email
+  addresses stays `contact/email`. A bare number is never `currency` or
+  `percentage`: only their detector, which needs the symbol or the `%`, gives
+  them.
+- **Categorical**: `categorical/boolean` from the `boolean` detector or a
+  `boolean` technical type (two categories such as `M` and `F` never make a
+  Boolean); `categorical/enum` from the `enumeration` detector over a text
+  field; `categorical/constant` for a text field with a single exact analytical
+  value in at least two present occurrences.
+- **Temporal**: `temporal/date` from a `date` technical type; `temporal/datetime`
+  (with or without a time zone) and `temporal/time` from the `date` detector and
+  the kinds of `temporal`. A column that mixes natures keeps the one with the most
+  values and lists the others in `alternatives` with the reason `minority_kind`.
+- **Numeric**: `numeric/integer` and `numeric/number` from the technical type
+  when no detector type competes (`basis` `fallback`). An Enum candidate over a
+  numeric column is an alternative with the reason `numeric_type_kept`.
+- **Identifier**, from a name and compatible values: `identifier/id` and
+  `identifier/unique_id`, always `candidate` (see [Identifiers](#identifiers)).
+- **Other / Mixed** for a `mixed` technical type that no detector refines.
 - **Text**, from a `text` technical type, in five lengths: `text_very_short`,
   `text_short`, `text_medium`, `text_long` and `text_very_long`. The length
   type is decided on the exact median of the lengths of the present values
@@ -354,14 +378,94 @@ This version decides:
   when `string_lengths` is not complete the type is `text` alone, `state` is
   `undetermined` and `alternatives` lists the five lengths with the reason
   `string_lengths_<status>`.
-- **Numeric, Categorical and Temporal** types from the other technical types:
-  `integer` and `number` give `numeric/integer` and `numeric/number`, `boolean`
-  gives `categorical/boolean`, `date` gives `temporal/date`, with `basis`
-  `fallback`. The detectors do not refine them yet.
+
+When two credible types cannot be told apart, the result is an explicit
+fallback and never the first one in the order of the detectors: `state` is
+`undetermined`, both candidates are in `alternatives` with the reason
+`conflicting_candidates` and their evidence has the role `context`. Two
+detector types, or two kinds of dates of the same weight, give `other/unknown`.
+A detector type that reads a numeric column as well, such as `postal_code` or
+`phone` over whole numbers of five or ten digits, keeps `numeric/integer`
+undetermined: the values cannot say whether the digits are a code or a quantity.
+
+### Names
+
+The name of a field is read after its values, by versioned rules in French and
+English (`email`, `courriel`, `code_postal`, `date_naissance`, `is_active`...).
+A name never creates a type. It can only:
+
+- **Reinforce** a type the values already support: the rule is added to
+  `evidence` with the role `supports`. The type and the `state` do not change.
+- **Break a tie** between types the values support equally. Five-digit whole
+  numbers named `postal_code` become `geographic/postal_code`, and the same
+  numbers named `postal_code_status` stay `numeric/integer`. A conflict settled
+  by a name has `state` `candidate`, because the result rests on a name plus
+  compatible values; the other type is in `alternatives` with the reason
+  `outranked_by_name` or `weakened_by_name`.
+- **Weaken** a type: a name such as `email_status` or `customer_id_length`
+  describes a property of the thing it names, not the thing. If the values
+  still support the type, it is kept and the rule `name.derived_measure` is
+  added with the role `contradicts`.
+
+A type that only the name suggests is listed in `alternatives` with the reason
+`name_only` when the technical type allows it, and is never the result: a column
+named `email` that holds free text is Text.
+
+Names are compared as whole words, never as pieces of words, after Unicode
+normalization, the split of CamelCase and acronyms (`CustomerID`, `ZIPCode`),
+the removal of accents and the harmonization of separators, so `CustomerID`,
+`customer_id` and `CUSTOMER-ID` read alike. The header or the key is not
+changed. For a JSON field the key of the field is the name, and the keys above it
+are only context: `postal.code` as one key is a postal code, `postal` containing
+`code` is not. The identifier names (`id`, `customer_id`, `id_client`, `order_ref`...)
+give the [identifier role](#identifiers).
 
 The String analysis section of the report names the length of a column from
 its maximum with the same bounds, so a column can be Short as a type and
 `medium` there.
+
+### Identifiers
+
+`identifier/id` is the one type a name and the values create together. It needs:
+
+- an identifier name rule (`id`, `identifiant`, a name that starts or ends with
+  `id`, ends with `ref` or `key`, or has `customer` or `order` with `id`) and no
+  weakening of it: `customer_id_length` and `order_id_status` describe a property
+  of an identifier, not an identifier;
+- compatible values: a `text` or `integer` technical type with no present value
+  outside its family, and at least two present values.
+
+The role replaces a Text of any length or a plain Integer, and nothing else. The
+replaced type stays in `alternatives` with the reason `replaced_by_role`. An
+Integer that `postal_code` or `phone` also reads (five or ten digits) is
+undetermined and the identifier name settles it. A detector type, Enum, Constant,
+Number, a date or time type, Boolean and Other keep their type: an identifier
+never overrides a more specific type, and the role is then an alternative with
+the reason `name_only`. A UUID keeps `web_network/uuid` and lists the role with the
+reason `uuid_name`. The state is `candidate`, never `established`: the role rests
+on a name, not on the values alone.
+
+`identifier/unique_id` is an ID for which all of these hold:
+
+- the field is not under a JSON array;
+- no position is missing (`missing.count` is 0, and no record lacks the field,
+  even if `values.missing` does not count `absent`);
+- the number of distinct analytical values is exact and complete, and equals the
+  number of present values. The analytical values follow the NFC, trim and
+  whitespace stages, so `A` and ` A ` are the same value. A limited or estimated
+  cardinality never gives a Unique ID.
+
+The evidence of a Unique ID adds the measures `values.cardinality` and
+`missing.count`, with the scope they cover: the present values and the positions
+of the dataset, and `partial` set when the scan excluded records of that dataset.
+A uniqueness seen in the scanned scope does not guarantee a business key,
+uniqueness in the future or uniqueness in the records the scan excluded.
+
+A column without an identifier name stays outside Identifier whatever its
+position or its uniqueness: a first column of distinct dates, timestamps or
+amounts keeps its type with the traits `first_column` and `observed_unique`.
+`observed_unique` needs at least two present values. The trait `high_cardinality`
+is not emitted: no threshold comes from the limits the Scan tracks.
 
 ## Measure envelopes
 

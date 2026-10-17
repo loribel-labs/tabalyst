@@ -20,7 +20,7 @@ from tabalyst.progress import (
     emit_progress,
 )
 from tabalyst.scanner.charactermap import derive_characters
-from tabalyst.scanner.classify import version_record
+from tabalyst.scanner.classify import version_record, with_pattern_traits
 from tabalyst.scanner.config import ScanConfig, config_sha256, resolve_config_defaults
 from tabalyst.scanner.detectors.registry import (
     DetectorRegistry,
@@ -241,6 +241,8 @@ def scan(
         patterns = infer_patterns(
             datasets, config.pattern_inference, engine.diagnostics
         )
+        # The discovery runs after the fields are classified: its traits join them.
+        datasets = with_pattern_traits(datasets, patterns)
         characters = derive_characters(
             datasets, config.limits.max_top_characters, engine.diagnostics
         )

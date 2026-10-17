@@ -54,7 +54,7 @@ def test_a_mixed_column_is_other_mixed(tmp_path):
 
 
 def test_a_text_cites_the_median_as_its_evidence(tmp_path):
-    classification = _classification(tmp_path, "note", ["alpha", "beta", "gamma"])
+    classification = _classification(tmp_path, "word", ["alpha", "beta", "gamma"])
 
     assert classification["basis"] == "inferred"
     assert [item["id"] for item in classification["evidence"]] == [
@@ -173,9 +173,16 @@ def test_the_scan_records_the_version_of_the_rules_and_warns_when_it_differs(
 def test_the_versions_of_the_rules_are_read_through_a_function(monkeypatch):
     from tabalyst.scanner.classify import rules
 
-    assert classification_versions() == (rules.CATALOGUE_VERSION,)
+    assert classification_versions() == (
+        rules.CATALOGUE_VERSION,
+        rules.NAME_RULES_VERSION,
+    )
     monkeypatch.setattr(rules, "CATALOGUE_VERSION", rules.CATALOGUE_VERSION + 1)
-    assert classification_versions() == (rules.CATALOGUE_VERSION,)
+    monkeypatch.setattr(rules, "NAME_RULES_VERSION", rules.NAME_RULES_VERSION + 1)
+    assert classification_versions() == (
+        rules.CATALOGUE_VERSION,
+        rules.NAME_RULES_VERSION,
+    )
 
 
 def test_a_json_container_field_has_no_present_value_and_is_other_empty(tmp_path):

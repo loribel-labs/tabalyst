@@ -57,7 +57,7 @@ lot R0. Decisions 13 to 15 were R0 proposals, confirmed at gate 0.
 | 11 | The identity of the classification rules is recorded in every classification and compared by `engine_warning`. | 10 |
 | 12 | The four Text bounds are one setting, `scan.classification.very_short_max_length`, `short_max_length`, `medium_max_length`, `long_max_length`, with defaults 5 / 20 / 50 / 255 (maintainer, during R0). They replace the specification defaults 10 / 50 / 255 / 1,000 (D-07). | 3.6, 11 |
 | 13 | Identifier types have `state = candidate`, never `established`: the role rests on a name and compatible values, not on the values alone. Unique ID adds a proven uniqueness trait. Errors never derive from a candidate (RF-13). | 3.2 |
-| 14 | A name alone never creates a type or a state. In L0 a name rule can only reinforce a type the values already support, break a tie between supported types, or weaken one (`negative_match`). | 5.4 |
+| 14 | A name alone never creates a type or a state. In L0 a name rule can only reinforce a type the values already support, break a tie between supported types, or weaken one (`negative_match`). A conflict settled by a name has `state = candidate`; a weakened sole type is kept with a `contradicts` evidence (maintainer, R2). | 5.4 |
 | 15 | Contract tests of a lot not delivered are skipped with the reason `Report overview lot Rn is not implemented yet`, through the marker `report_lot("Rn")` and `tests/scan/report_gate.py`. | 13 |
 
 ## 3. Classification
@@ -159,10 +159,31 @@ Mapping rules (checked in R1b against the detector ids of
 - Date, Datetime, Time: the technical type `date` plus the parts the Scan
   already carries; a column that mixes date and datetime forms keeps the
   dominant nature and lists the other as an alternative.
-- Constant: one distinct analytical value among the present ones. It is a
-  type, and the trait `constant` is not added to it.
+- Constant: one exact distinct analytical value among at least two present
+  occurrences (the threshold of the `constant_column` observation). It is the
+  type of a column nothing else types: a constant text is Constant, while a
+  constant Email, Integer or Date keeps its type and takes the trait `constant`
+  (R1b, maintainer's answer). A limited or estimated cardinality never proves a
+  constant.
+- Enum is the `enumeration` detector over a `text` technical type. A numeric,
+  boolean or date technical type keeps its type and lists Enum in `alternatives`
+  with the reason `numeric_type_kept` or `outranked_by_<type>` (R1b, maintainer's
+  answer). There is no cardinality threshold of the Scan's own: the detector
+  already has its configured `minimum_values` and `maximum_distinct`.
 - Detector types win over Enum when the detector covers the field (an email
-  column of few addresses stays Email).
+  column of few addresses stays Email). "Covers" means the detector is in
+  `interpretations.candidates` (share of the eligible values at or above
+  `detection.minimum_share`), not that it is the `primary` interpretation.
+- A numeric technical type (`integer`, `number`) that a detector type also
+  reads, as `postal_code` or `phone` over whole numbers of five or ten digits, is
+  one more contender, not a loser: the result is the technical pair with
+  `state = undetermined` and both in `alternatives` (R1b, maintainer's answer).
+  Only the names (R2) can tell them apart.
+- Date, Datetime, Time: a `date` technical type gives Date. Otherwise a credible
+  `date` detector reads the kinds of `temporal` (`datetime_naive` and
+  `datetime_aware` are both Datetime); the type with the most values is kept and
+  the others are `alternatives` with the reason `minority_kind`. A tie leaves two
+  contenders (a conflict, 3.5).
 
 ### 3.4 Traits
 
@@ -170,11 +191,11 @@ Traits are secondary, never shown as a type. L0 emits only:
 
 | Trait | Emitted when |
 | --- | --- |
-| `single_pattern`, `multiple_patterns` | `derived.patterns` of the field lists one or several patterns |
-| `constant` | one distinct value, on a type other than Constant |
-| `high_cardinality` | cardinality known and exact, close to the present values (no threshold is fixed in R0; R3 defines it from the tracked limits, never a percentage of the spec) |
-| `observed_unique` | exact analytical distinct count equals the present values |
-| `first_column` | first position of a table dataset |
+| `single_pattern`, `multiple_patterns` | `derived.patterns` of the field is complete and lists one pattern with no value outside it, or several patterns (R1b: added by `with_pattern_traits` after the discovery, which runs after the fields) |
+| `constant` | one distinct value, on a type other than Constant (R1b) |
+| `high_cardinality` | not emitted (R3, maintainer's answer): "close to the present values" needs a percentage, and no threshold comes from the tracked limits. The entry stays in `TRAITS` for a later lot |
+| `observed_unique` | exact analytical distinct count equals the present values, with at least two present values (R3: one value is not uniqueness) |
+| `first_column` | first column of a table dataset: the path starts with `ColumnSegment` 1 (CSV and Excel number their columns from 1; a JSON field never has it) (R3) |
 | `fixed_length` | all analytical lengths equal |
 
 `observed_unique`, `first_column` and `high_cardinality` never prove a role
@@ -204,6 +225,26 @@ this order, the first that decides ends the procedure:
    in `alternatives`. Never the first in registry order.
 7. No candidate: the fallback from the technical type (Integer, Number,
    Boolean, Date, Text, Other / Mixed).
+
+   R1b implements steps 3 to 6 (`classify/candidates.py` gathers, `rules.py`
+   ranks). The contenders are the credible detector types, the Boolean, the
+   temporal types and, when one of those exists, the numeric technical type.
+   One contender is the result (`established`, `basis = inferred` unless the
+   technical type alone decided, in which case `fallback`). Several contenders
+   are a conflict: the numeric technical pair if it is among them, otherwise
+   `other/unknown`, `state = undetermined`, every contender in `alternatives`
+   with the reason `conflicting_candidates` and its evidence with the role
+   `context`; the contenders are sorted by (family, type), never by registry
+   order. Without a contender: the numeric technical type, then Constant, then
+   Enum, then Text, then `other/mixed`.
+
+   R2 adds the name side (steps 3 and 4, section 5.4): `classify_field` reads
+   the hints of the name once, settles the conflicts of step 6 with
+   `names.break_tie` (a supported contender wins, a weakened one is removed while
+   another stays; the result is `candidate`, `basis = inferred`, the others are
+   `outranked_by_name` or `weakened_by_name`), and annotates the result with the
+   name evidence and the `name_only` alternatives. A name that settles nothing
+   leaves the conflict of R1b unchanged.
 
    R1a implements steps 1, 2 and 7: the technical types `integer`, `number`,
    `boolean` and `date` give `numeric/integer`, `numeric/number`,
@@ -266,6 +307,25 @@ outside Identifier even when it is the first column and unique: those are
 traits (decision 4). A `uuid` column keeps UUID; the role is then an
 `alternatives` entry (`ID`, reason `uuid_name`), per the specification C.4.
 
+R3 (`scanner/classify/identifiers.py`, `with_role`, run after the types of the
+values and before the name evidence), precisions answered by the maintainer:
+
+- "Compatible values" is a technical type `text` or `integer` with
+  `outside_count == 0` and at least two present values.
+- The role replaces a Text of any length and a plain Integer, and nothing else:
+  Enum, Constant (and an Integer with the trait `constant`), Number, every
+  detector type, Temporal, Boolean, Other keep their type (3.5 step 5). An Integer
+  left `undetermined` against `postal_code` or `phone` is replaceable: the
+  identifier name settles it (decision 14), the contenders stay in `alternatives`.
+- The replaced type is an `alternatives` entry with the reason `replaced_by_role`
+  (unless the conflict already listed it). Its measures become evidence with the
+  role `context`; the technical type stays `supports`; the name rule is one
+  `supports` evidence.
+- A role the values or a more specific type do not allow is a `name_only`
+  alternative when the identifier rule's technical types (`text`, `integer`) allow
+  it; a date, a number or a boolean named `*_id` lists nothing.
+- A weakening hint (`name.derived_measure`, `customer_id_length`) removes the role.
+
 ### 3.8 Unique ID
 
 Identifier / Unique ID is an ID (3.7) for which all of the following hold
@@ -279,6 +339,10 @@ Identifier / Unique ID is an ID (3.7) for which all of the following hold
    estimated, sampled or failed);
 5. that count equals the number of present occurrences.
 
+R3 precision: "no missing position" also requires `presence.absent` to be 0 or
+unknown, so a record that lacks the field is a missing position even when the
+configuration (`values.missing`) does not count `absent`.
+
 The analytical values follow the configured NFC, trim and internal whitespace
 stages. Raw `"A"` and `" A "` that become equal under trim are not unique
 (CA-06). A comparison by case or accent is not substituted implicitly.
@@ -288,7 +352,12 @@ distinct count (`analyses.deep` with `exact_distinct`), the Report refines the
 classification (section 4). Otherwise the field stays ID.
 
 The evidence of Unique ID lists a `scope` (3.9): the dataset, the number of
-present occurrences, the excluded records and whether the scan is partial. A
+present occurrences, the excluded records and whether the scan is partial. R3: two
+`measure` evidence items with the role `supports`, `values.cardinality` (scope
+`present_values`, `of` = present values) and `missing.count` (scope `positions`,
+`of` = `presence.parent_count`), both `accuracy = exact` and `partial = true` when
+the scan excluded records of the dataset (`ClassifyContext.excluded_records`,
+counted per dataset by the engine on each `RecordExcluded`). A
 uniqueness seen in the analysed scope does not guarantee a business key, future
 uniqueness, or uniqueness in excluded records. The documentation says so.
 
@@ -329,11 +398,18 @@ Lot R2. Module `scanner/classify/names.py`, rules in the catalogue.
 
 ### 5.1 Inputs and outputs
 
-Input: the display name, the path segments (JSON) and the dataset context (the
-names of the sibling fields, for supporting context). Output: a list of
-`NameHint` entries, each `{rule, version, candidate (family, type) or trait,
-strength: exact | token | sequence | affix, polarity: supports | weakens}`. The
-hints feed 3.5 steps 3 and 4. They never carry a score.
+Input: the name of the field (the header, or the key segments of the JSON path)
+as `NameParts`: the original untouched, the segments, the tokens of the last
+segment and the tokens of the segments before it as context. The names of the
+sibling fields are not read in L0 (they belong to the backlog L1a rules).
+Output: a tuple of `NameHint` entries `{rule, family, type, strength, polarity,
+technical, via}`: `type` is `None` for a whole family (Text, whose length is the
+median's), `strength` is `exact | sequence | affix | token`, `polarity` is
+`supports | weakens`, `technical` the technical types a name-only alternative is
+worth listing for, `via` the rule whose support a derived-measure token turned
+into a weakening. The hints feed 3.5 steps 3 and 4. They never carry a score. A
+hint has no per-rule version in R2: the registry has one, `NAME_RULES_VERSION`.
+No rule produces a trait in L0.
 
 ### 5.2 Normalisation
 
@@ -353,6 +429,9 @@ this order (tested, because the order matters):
 `CustomerID`, `customer_id` and `CUSTOMER-ID` give the same tokens
 (`customer`, `id`), hence equivalent hints (CA-22). Names are never changed in
 the document.
+
+Implemented by `names.segment_tokens`, `name_parts`, `name_tokens` and
+`field_name_parts` (the key segments of a JSON path, else the header).
 
 For JSON, the comparison runs on the last path segment, and the preceding
 segments are kept as context tokens (`billing.address.city` keeps `city` as the
@@ -374,6 +453,16 @@ a dot is not confused with a nested path: the Scan path segments decide (O-18).
 
 The `regex` operator of the specification is not added: nothing in L0 needs it.
 
+`negative_match` is the function `names.negative_match(tokens)`: true when the
+name ends with a token of `DERIVED_MEASURE_TOKENS` (`status`, `statut`,
+`length`, `longueur`, `count`, `format`, `type`, `valid`, `error`, `flag`...)
+after at least another token. Then every match of the operators `starts_with`,
+`contains_token`, `contains_sequence` and `tokens_all` that does not use that
+last token gives a weakening under the rule `name.derived_measure` (`via` names
+the rule) instead of support: `email_status`, `customer_id_length`,
+`postal_code_status`, `date_format`. The Boolean prefix and flag rules opt out
+(`is_valid` is a Boolean).
+
 "Contains" always means a whole token, never an arbitrary substring.
 
 ### 5.4 Role of a name in L0
@@ -389,7 +478,25 @@ not create types (decision 14):
 - A name that contradicts a value-supported type is an evidence item with
   `role = contradicts`; the type stays.
 - Two name hints for the same candidate are one piece of evidence, not two
-  (correlated hints are not added, specification C.6).
+  (correlated hints are not added, specification C.6): the most specific
+  strength is kept, ties by rule id, so the order of the registry changes
+  nothing.
+- Roles in the result (`rules._with_names`): a hint for the result is evidence
+  `supports` (or `contradicts` for a weakening) and changes neither type nor
+  state; a hint for a type listed in `alternatives` is evidence `context`; a
+  supported type that is neither, when the technical type is in the hint's
+  `technical`, becomes the alternative `name_only`. A `other/empty` result is
+  not annotated. The evidence of a name has the source `name_rule`, the rule id
+  as `id`, and the scope `{population: positions, of: null, partial: false,
+  accuracy: exact}`: the name belongs to the whole field.
+- A conflict (3.5 step 6) is settled by `names.break_tie`. A weakened contender is
+  removed only while another stays. If exactly one of the rest is supported by the
+  name it wins; with none supported, a sole survivor wins; otherwise the conflict
+  goes on among the supported contenders, or the survivors. The winner is
+  `candidate` with `basis = inferred`; the facts of the others stay as `context`.
+- The identifier rules are evaluated by `name_hints` and read by
+  `identifiers.with_role` (R3), which turns them into the ID role (3.7). Their
+  `technical` types are `text` and `integer` (name rules version 2).
 
 ### 5.5 Rules of L0
 
@@ -416,6 +523,17 @@ exclusions.
 | `name.text` | `exact_any`: `description`, `commentaire`, `comments`, `notes` | Text (length by median) |
 | `name.amount`, `name.quantity`, `name.percentage_suffix` | amount and quantity expressions | trait or reinforcement of Number, Currency, Quantity, Percentage only when values already support them |
 
+The registry `names.NAME_RULES` (version 1) is the reference for the exact
+expressions. Beyond the table: `name.date` (the exact name `date`),
+`name.time_suffix` (`time`, `heure`), `name.flag_suffix` (`*_flag`, Boolean),
+`tokens.postal_code` (`postal` and `code`, correlated with `name.postal`),
+`tokens.birth_date`, and `name.calendar_part`, a purely negative rule: a name
+with the token `year`, `annee`, `month`, `mois`, `day` or `jour` weakens
+Date, Datetime and Time, so `birth_year` is no generic Date. The rule `name.sex_category`
+supports Enum and weakens Boolean. Amount, quantity and percentage names have
+Currency, Quantity and Percentage as candidates: with bare numbers they are
+`name_only` alternatives, never the result.
+
 The year, house number, unit number, status, count, age, score, person name,
 organization name and similar rules of annex C are backlog L1a: they would
 create types that are not active in L0.
@@ -432,8 +550,11 @@ is not an Identifier.
 
 ### 5.7 Versioning
 
-The registry has an integer `NAME_RULES_VERSION`, part of `rule_version`
-(section 10). Adding or changing a rule increases it.
+The registry has an integer `NAME_RULES_VERSION` (`names.py`), part of
+`rule_version` (section 10). Adding or changing a rule, an expression, an
+operator or the list of derived-measure tokens increases it. The tests of the
+dictionary (`tests/scan/test_classification_names.py`) give every rule its
+examples and the adverse names of 5.6.
 
 ## 6. Findings
 
@@ -663,7 +784,10 @@ Findings of the inventory (R0, verified in code):
 Decision 11:
 
 - `Classification.rule_version` is an integer built from the catalogue version
-  and `NAME_RULES_VERSION`: a function `classification_versions()` in
+  and `NAME_RULES_VERSION` as `CATALOGUE_VERSION * 1000 + NAME_RULES_VERSION` (R2:
+  3001 is catalogue 3, name rules 1; decodable, strictly increasing, no collision
+  while the name rules stay below 1000 versions; R3: 4002 is catalogue 4, name
+  rules 2): a function `classification_versions()` in
   `scanner/classify/` returns the tuple, read through a function and not
   imported as constants, like `discovery_versions()`, so the cache identity, the
   identity of a Scan and the stored results see one value.
@@ -676,11 +800,11 @@ Decision 11:
   (`scan_identity`) and the key of the second pass do not change, because the
   second pass does not read the classification.
 - `EngineInfo.classification` is a dict of versions by name next to `detectors`
-  (R1a: `{"catalogue": 1}`; R2 adds `"names"`), so the value is in the Scan
-  document and not only in each classification. `classification_versions()`
-  returns the tuple in the order of `catalog.VERSION_NAMES`, `version_record()`
-  the dict. `Classification.rule_version` is the catalogue version in R1a; R2
-  decides how the name rules version combines with it.
+  (R2: `{"catalogue": 3, "names": 1}`; R3: `{"catalogue": 4, "names": 2}`), so the value is in the Scan document and
+  not only in each classification. `classification_versions()` returns the tuple
+  in the order of `catalog.VERSION_NAMES` (`catalogue`, `names`), `version_record()`
+  the dict. `CATALOGUE_VERSION` rose to 3 in R2 because the decision of
+  `classify_field` changed; the catalogue entries did not.
 
 ## 11. Settings
 
@@ -771,7 +895,7 @@ reads `candidates` and does not replace them.
 | Lot | Contract sections | Tests of `test_contract_summary.py` it enables |
 | --- | --- | --- |
 | R1a | 3.1, 3.6, 9, 11 | CA-08, CA-09, CA-24, median unavailable, empty column, determinism |
-| R1b | 3.3, 3.5 | CA-10, M/F stays Enum, two credible candidates, no bare-number Currency or Percentage |
+| R1b | 3.3, 3.4, 3.5 | CA-10, M/F stays Enum, two credible candidates (five digits: `number` and `postal_code`), no bare-number Currency or Percentage; `tests/scan/test_classification_types.py` (one test per type, conflicts, traits) |
 | R2 | 5 | CA-12, CA-22, CA-23, units of the dictionary, no substring, name alone never established |
 | R3 | 3.7, 3.8 | CA-04, CA-05, CA-06, CA-07, partial scan, JSON array |
 | R4 | 4, 9 | refinement, absent or stale Deep, rendering without the source |
@@ -796,8 +920,9 @@ ADRs written in R0 (`docs/dev/adr/`):
 
 ## 14. Open points carried forward
 
-- Thresholds for the trait `high_cardinality`: defined in R3 from the tracked
-  limits.
+- The trait `high_cardinality`: not emitted (R3). A later lot may define it from a
+  tracked limit (for instance a cardinality limited by `distinct_limit`); it needs
+  a decision because 3.4 says "exact".
 - Exact `type` code for the Text with an undetermined length (`text`): confirm
   with the label in the Type filter (R9a).
 - Backlog: L1a types, L1b rarity, L1c single-column controls, L2 declared

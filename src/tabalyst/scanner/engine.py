@@ -109,6 +109,8 @@ class ScanEngine:
                     datasets[holder].collections[path] = item.dataset
             elif type(item) is RecordExcluded:
                 self.exclusions[item.reason] += 1
+                if item.dataset in datasets:
+                    datasets[item.dataset].excluded += 1
                 self.diagnostics.add(
                     item.code,
                     "error",

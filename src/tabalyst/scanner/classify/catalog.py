@@ -13,10 +13,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-CATALOGUE_VERSION = 1
-# Names of the versions ``classification_versions()`` returns, in order. The
-# name engine adds its own version here when it arrives.
-VERSION_NAMES = ("catalogue",)
+CATALOGUE_VERSION = 4
+# Names of the versions ``classification_versions()`` returns, in order:
+# ``names`` is ``names.NAME_RULES_VERSION``, the registry of the name rules.
+VERSION_NAMES = ("catalogue", "names")
 
 
 @dataclass(frozen=True, slots=True)
