@@ -35,8 +35,8 @@
   --text:#F4F6FB; --text-2:#C9D3E6; --text-3:#8FA6CB;
   --d1:#C9D3E6; --d2:#8FA6CB; --d3:#4E6490; --attn:#F98510; --ok:#0E9F8E;
   --attn-text:#F98510;
-  --err:#F0474B; --err-text:#FF6B6B; --info-text:#9DB7E8;
-  --fam-identifier:#4E6490; --fam-categorical:#8FA6CB; --fam-numeric:#C9D3E6; --fam-temporal:#0E9F8E; --fam-contact:#9B87D6;
+  --err:#F0474B; --err-text:#FF6B6B; --info-text:#9DB7E8; --issue:#F98510;
+  --fam-identifier:#5A709C; --fam-categorical:#8FA6CB; --fam-numeric:#C9D3E6; --fam-temporal:#0E9F8E; --fam-contact:#9B87D6;
   --fam-geographic:#5B9E4D; --fam-web_network:#4A9BD1; --fam-text:#A58B5C; --fam-other:#F98510;
   --canvas:var(--s0);
   --g-panel:linear-gradient(180deg,#0E1434 0%,#0A0F2A 100%);
@@ -55,7 +55,9 @@
   --s0:#FFFFFF; --s1:#F6F8FC; --s2:#FFFFFF; --s3:#EEF1F8;
   --text:#050032; --text-2:#3B4058; --text-3:#4E6490;
   --line:#D2DBEA; --line-strong:#B9C6DC;
-  --attn-text:#B85200; --err:#D32F34; --err-text:#C0262B; --info-text:#2F4C8C;
+  --attn-text:#B05000; --err:#D32F34; --err-text:#C0262B; --info-text:#2F4C8C; --issue:#D06500;
+  --fam-identifier:#4E6490; --fam-categorical:#5B78A8; --fam-numeric:#7C879E; --fam-temporal:#0B7F72; --fam-contact:#7357C4;
+  --fam-geographic:#3F7D33; --fam-web_network:#1F74AD; --fam-text:#8A6D3B; --fam-other:#B85200;
   --canvas:#F6F8FC;
   --g-panel:linear-gradient(180deg,#FFFFFF 0%,#F6F8FC 100%);
   --g-card:linear-gradient(180deg,#FFFFFF 0%,#F6F8FC 100%);
@@ -389,7 +391,7 @@ tr.dx[hidden]{display:none}
 /* ---- print (11.6) ---- */
 @media print{
   :root,:root[data-theme]{--s0:#FFFFFF;--s1:#F6F8FC;--s2:#FFFFFF;--s3:#EEF1F8;
-    --text:#050032;--text-2:#3B4058;--text-3:#4E6490;--line:#D2DBEA;--line-strong:#B9C6DC;--attn-text:#B85200;--err:#D32F34;--err-text:#C0262B;--info-text:#2F4C8C;--canvas:#FFFFFF;
+    --text:#050032;--text-2:#3B4058;--text-3:#4E6490;--line:#D2DBEA;--line-strong:#B9C6DC;--attn-text:#B05000;--err:#D32F34;--err-text:#C0262B;--info-text:#2F4C8C;--issue:#D06500;--fam-identifier:#4E6490;--fam-categorical:#5B78A8;--fam-numeric:#7C879E;--fam-temporal:#0B7F72;--fam-contact:#7357C4;--fam-geographic:#3F7D33;--fam-web_network:#1F74AD;--fam-text:#8A6D3B;--fam-other:#B85200;--canvas:#FFFFFF;
     --g-panel:none;--g-card:none;--g-deep:none;--hl:none;color-scheme:light}
   body{font-size:12px}
   .side,.collapse,.toolbar,.more,.copy,.skip{display:none!important}
@@ -674,11 +676,11 @@ td.ex .tip.show{display:block}
 .ctable .c-dt{min-width:190px;max-width:280px}
 .fl-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
 .fl-list li{display:flex;gap:7px;align-items:baseline;line-height:1.35}
-.fl-list li::before{content:"";width:7px;height:7px;flex:none;border-radius:50%;transform:translateY(-1px)}
+.fl-list li::before{content:"";width:8px;height:8px;flex:none;transform:translateY(-1px)}
 .fl-error li{color:var(--err-text)}
-.fl-error li::before{background:var(--err)}
+.fl-error li::before{background:var(--err);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
 .fl-issue li{color:var(--attn-text)}
-.fl-issue li::before{background:var(--attn)}
+.fl-issue li::before{background:var(--issue);clip-path:polygon(50% 0,100% 100%,0 100%)}
 .fl-more{color:var(--text-3)}
 .fl-more::before{display:none}
 .fl-state{color:var(--text-3)}
@@ -734,7 +736,7 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 .qbar{display:flex;height:10px;gap:2px}
 .qbar span{border-radius:3px;min-width:0}
 .qbar .q-error{background:var(--err)}
-.qbar .q-issue{background:var(--attn)}
+.qbar .q-issue{background:var(--issue)}
 .qbar .q-clean{background:var(--d2)}
 .qobs{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .qobs-t{margin:0;font:600 13.5px/1.2 var(--f-body);color:var(--text)}
@@ -761,7 +763,7 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 .pop-cols li:not(:has(.t)){grid-template-columns:minmax(0,1fr)}
 .pop-cols .pc-name{font:500 12.5px/1.3 var(--f-mono);color:var(--text);overflow-wrap:anywhere}
 .pop-cols .t{display:block;height:6px;border-radius:3px;background:var(--line)}
-.pop-cols .t span{display:block;height:100%;border-radius:3px;background:var(--attn)}
+.pop-cols .t span{display:block;height:100%;border-radius:3px;background:var(--issue)}
 .pop-cols b{font:500 12px/1 var(--f-mono);color:var(--text)}
 .pop-cols .pc-d{grid-column:1 / -1;font-size:12px;color:var(--text-3);overflow-wrap:anywhere}
 .pop-def{margin:0;display:grid;gap:4px 12px;grid-template-columns:max-content minmax(0,1fr)}
@@ -804,6 +806,28 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 .tip > .tip-n:last-child{padding-bottom:10px}
 .tip .tip-s:last-child{padding-bottom:10px}
 
+/* ---- Previews of the findings (R9b): buttons in the cells, one dialog each ---- */
+.fl-btn{display:inline;min-height:24px;padding:2px 0;border:0;border-bottom:1px dotted currentColor;background:none;color:inherit;font:inherit;line-height:1.35;text-align:left;cursor:pointer}
+.fl-btn:hover,.fl-btn[aria-expanded="true"]{border-bottom-style:solid}
+.fl-btn:focus-visible,.pop-x:focus-visible{outline:2px solid var(--orange);outline-offset:2px;border-radius:2px}
+.pop-btn.fl-caveat,.pop-btn.fl-state-btn{margin-top:4px;min-height:24px;font-size:11.5px;line-height:1.35;color:var(--text-3);text-align:left}
+.pop-btn.fl-state-btn{font-size:inherit}
+.pv + .pv{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.pv-c{margin-right:8px;font:500 10.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase}
+.pv-error .pv-c{color:var(--err-text)}
+.pv-issue .pv-c{color:var(--attn-text)}
+.pv .pop-def dd{overflow-wrap:anywhere}
+.pv-n,.pv-l{display:block}
+.pv-n{color:var(--text-3)}
+.pv-l + .pv-l{margin-top:4px}
+.pv-checks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.pv-checks li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px}
+.pv-checks b{font-weight:500;color:var(--text)}
+.pv-s{font:500 11px/1.3 var(--f-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
+.pv-checks small{grid-column:1 / -1;font-size:12px;color:var(--text-3)}
+.pop-x{float:right;margin:-4px -6px 6px 10px;min-height:24px;padding:2px 8px;border:1px solid var(--line-strong);border-radius:6px;background:none;color:var(--text-2);font:500 12px/1.2 var(--f-body);cursor:pointer}
+.pop-x:hover{border-color:var(--text-3);color:var(--text)}
+@media (max-width:640px){.pop{left:12px!important;right:12px;top:auto!important;bottom:12px;width:auto;max-height:70dvh}}
 </style>
 </head>
 <body>
@@ -841,11 +865,12 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 <header class="rhead"><div class="wrap"><p class="eyebrow">Column report · insurance-customers-100k.csv</p><div class="rhead-top"><div><h1>appartement</h1><ul class="facts"><li><b>Column 12</b> of 34</li><li><code>appartement</code></li><li>100,000 rows</li></ul></div><a class="btn" href="../report.html">← Full report</a></div></div></header>
 <main id="content" class="wrap content" tabindex="-1">
 <section class="panel" id="overview" aria-labelledby="overview-h"><div class="phead"><div><p class="eyebrow">01 / Overview</p><h2 id="overview-h">Column overview</h2><p>Profile, values and formats at a glance.</p></div></div><div class="pbody">
-  <dl class="metrics"><div class="metric"><dt>Analyzable values</dt><dd><span class="v">34,772</span><span class="s">in 100,000 rows</span></dd></div><div class="metric attn"><dt>Missing</dt><dd><span class="v">65.23<small>%</small></span><span class="s">65,228 values</span></dd></div><div class="metric"><dt>Distinct</dt><dd><span class="v">999</span><span class="s"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · random sample</span></dd></div><div class="metric"><dt>Type errors</dt><dd><span class="v">0</span><span class="s">0.0%</span></dd></div></dl>
-  <div class="column-grid"><div class="rcard"><p class="rcard-title">Interpretation</p><dl class="schema"><dt>Inferred type</dt><dd><span class="pill">integer</span></dd><dt>Type</dt><dd><span class="pill">Integer</span></dd><dt>Confidence</dt><dd>100.0%</dd><dt>Exposure</dt><dd>Normal</dd></dl></div>
+  <dl class="metrics"><div class="metric"><dt>Analyzable values</dt><dd><span class="v">34,772</span><span class="s">in 100,000 rows</span></dd></div><div class="metric attn"><dt>Missing</dt><dd><span class="v">65.23<small>%</small></span><span class="s">65,228 values</span></dd></div><div class="metric"><dt>Distinct</dt><dd><span class="v">999</span><span class="s"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · random sample</span></dd></div><div class="metric"><dt>Errors</dt><dd><span class="v">None detected</span><span class="s">The check ran on every eligible value and found nothing</span></dd></div><div class="metric"><dt>Issues</dt><dd><span class="v">None detected</span><span class="s">The check ran on every eligible value and found nothing</span></dd></div></dl>
+  <div class="column-grid"><div class="rcard"><p class="rcard-title">Interpretation</p><dl class="schema"><dt>Inferred type</dt><dd><span class="pill">integer</span></dd><dt>Type</dt><dd><span class="pill">Integer</span> <small class="sub-n">established · fallback</small></dd><dt>Evidence</dt><dd><code>integer</code> <small class="sub-n">supports</small></dd><dt>Technical type confidence</dt><dd>100.0%</dd><dt>Exposure</dt><dd>Normal</dd></dl></div>
   <div class="rcard"><p class="rcard-title">Value coverage</p><p class="muted">100 stored distinct values · random sample.</p><p class="muted">The full value list appears below.</p></div>
   <div class="rcard"><p class="rcard-title">Detected formats</p><p><span class="pill">number</span> 34,772 matched</p><div class="column-line"><code>0</code><b>34,772 · 100.0%</b></div></div>
   <div class="rcard"><p class="rcard-title">Type counts</p><div class="column-line"><span>integer</span><b>34,772</b></div><p class="rcard-title">Native types</p><div class="column-line"><span>string</span><b>100,000</b></div></div>
+
   <div class="rcard"><p class="rcard-title">Observations</p><div class="column-line"><span><span class="st st-info" title="A finding that may be perfectly valid"><i aria-hidden="true"></i>Remark</span> Missing values<small class="sub-n"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · values out of 100,000</small></span><b>65,228</b></div></div></div>
 </div></section>
 <section class="panel" id="values" aria-labelledby="values-h"><div class="phead"><div><p class="eyebrow">02 / Distribution</p><h2 id="values-h">Values<span class="n">(20)</span></h2><p>A random sample from 999 distinct values. Each count is the exact frequency of that value in the analyzed column.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><code>144</code><b>53</b></div><div class="column-line"><code>267</code><b>53</b></div><div class="column-line"><code>277</code><b>53</b></div><div class="column-line"><code>329</code><b>47</b></div><div class="column-line"><code>714</code><b>45</b></div><div class="column-line"><code>454</code><b>38</b></div><div class="column-line"><code>966</code><b>38</b></div><div class="column-line"><code>285</code><b>37</b></div><div class="column-line"><code>582</code><b>36</b></div><div class="column-line"><code>589</code><b>35</b></div><div class="column-line"><code>400</code><b>34</b></div><div class="column-line"><code>338</code><b>33</b></div><div class="column-line"><code>346</code><b>33</b></div><div class="column-line"><code>166</code><b>32</b></div><div class="column-line"><code>54</code><b>32</b></div><div class="column-line"><code>390</code><b>30</b></div><div class="column-line"><code>599</code><b>30</b></div><div class="column-line"><code>749</code><b>30</b></div><div class="column-line"><code>710</code><b>29</b></div><div class="column-line"><code>538</code><b>26</b></div></div></div></section>
@@ -1380,9 +1405,12 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
   document.addEventListener('pointerdown', (e) => { if (tipCell && !tipCell.contains(e.target)) hideTip(); });
 
   /* popovers: the columns and details behind a figure. A button with data-pop opens the
-     dialog it controls next to itself; Escape, a click outside or the button again closes it,
-     and the focus goes back to the button. The dialog moves to the body while open so that no
-     ancestor clips it. */
+     dialog it controls next to itself; Escape, a click outside, the Close button or the button
+     again closes it, and the focus goes back to the button. Tab past either end of the dialog
+     closes it and carries on from the button, since the dialog sits at the end of the body while
+     open and would otherwise lead the focus out of the page. The dialog moves to the body while
+     open so that no ancestor clips it. Nothing depends on hover, so touch and keyboard reach it. */
+  const FOCUSABLE = 'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])';
   let openPop = null;
   const placePop = (panel, btn) => {
     const a = btn.getBoundingClientRect();
@@ -1401,6 +1429,14 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
     openPop = null;
     if (focusBack) btn.focus();
   };
+  $$('.pop').forEach((panel) => {
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'pop-x';
+    close.textContent = 'Close';
+    close.addEventListener('click', () => closePop(true));
+    panel.insertBefore(close, panel.firstChild);
+  });
   $$('[data-pop]').forEach((btn) => btn.addEventListener('click', () => {
     const panel = document.getElementById(btn.getAttribute('aria-controls'));
     if (!panel) return;
@@ -1416,7 +1452,14 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
     placePop(panel, btn);
     panel.focus({ preventScroll: true });
   }));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePop(true); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closePop(true); return; }
+    if (e.key !== 'Tab' || !openPop || !openPop.panel.contains(document.activeElement)) return;
+    const items = $$(FOCUSABLE, openPop.panel).filter((el) => el.offsetParent !== null);
+    const edge = e.shiftKey ? [openPop.panel, items[0]] : [items[items.length - 1]];
+    // the focus lands on the button before the browser moves it, so the default action goes on from there
+    if (!items.length || edge.includes(document.activeElement)) closePop(true);
+  });
   document.addEventListener('pointerdown', (e) => {
     if (openPop && !openPop.panel.contains(e.target) && !openPop.btn.contains(e.target)) closePop(false);
   });

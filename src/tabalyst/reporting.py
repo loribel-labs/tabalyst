@@ -18,6 +18,7 @@ from tabalyst.errors import InputError
 from tabalyst.models import ReportProfile
 from tabalyst.report_config import ReportConfig
 from tabalyst.report_deep import column_analyses, second_pass_view
+from tabalyst.report_details import details_withheld, exposed_evidence, exposed_values
 from tabalyst.report_finding_details import variant_details
 from tabalyst.report_insights import (
     FAMILY_ORDER,
@@ -37,6 +38,7 @@ from tabalyst.report_labels import (
     OBSERVATION_STATUS_HELP,
     ORIGIN_WORDS,
     OUTCOME_WORDS,
+    PREVIEW_CHECKS_TITLE,
     SIGNAL_CLASS_WORDS,
     TABLE_AT_LEAST,
     TABLE_MORE,
@@ -55,7 +57,7 @@ from tabalyst.report_sections import (
     quality_view,
     rows_view,
 )
-from tabalyst.report_table import column_table
+from tabalyst.report_table import column_table, page_findings
 from tabalyst.report_views import (
     ColumnAnalyses,
     ColumnView,
@@ -289,6 +291,10 @@ def _labels() -> dict[str, object]:
         "family_titles": {family: family_title(family) for family in FAMILY_ORDER},
         "type_labels": TYPE_LABELS,
         "table_more": TABLE_MORE,
+        "exposed_values": exposed_values,
+        "exposed_evidence": exposed_evidence,
+        "details_withheld": details_withheld,
+        "preview_checks_title": PREVIEW_CHECKS_TITLE,
         "observation_status_help": OBSERVATION_STATUS_HELP,
         "signal_class_words": SIGNAL_CLASS_WORDS,
         "table_at_least": TABLE_AT_LEAST,
@@ -431,10 +437,13 @@ def render_column_report(
     template = _environment().from_string(
         resources.joinpath("templates/column.html").read_text(encoding="utf-8")
     )
+    errors_cell, issues_cell = page_findings(column)
     rendered = template.render(
         report=profile,
         ds=dataset,
         column=column,
+        errors_cell=errors_cell,
+        issues_cell=issues_cell,
         report_href=report_href,
         tabalyst_version=get_version(),
         diagnostics=[

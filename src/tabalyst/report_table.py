@@ -31,6 +31,12 @@ from tabalyst.report_labels import (
     type_label,
 )
 from tabalyst.report_overview import overview_text
+from tabalyst.report_preview import (
+    CheckLine,
+    FindingPreview,
+    check_lines,
+    finding_preview,
+)
 from tabalyst.report_signals import (
     QualityView,
     SignalsView,
@@ -40,11 +46,11 @@ from tabalyst.report_signals import (
 )
 from tabalyst.report_views import ColumnView, DatasetView
 
-# Finding labels written in a cell; the rest is counted ("+3 more"). The preview
-# that lists them all is lot R9b (decision 7).
+# Finding labels written in a cell; the rest is in the preview of "+3 more"
+# (decision 7, lot R9b).
 LABELS_SHOWN = 2
 
-Flag = Literal["issue", "obs"]
+Flag = Literal["error", "issue", "obs"]
 
 
 class FindingsCell(ResultModel):
@@ -55,14 +61,26 @@ class FindingsCell(ResultModel):
     state_label: str
     state_title: str
     labels: list[str]
-    shown: list[str]
-    more: int
+    # The preview of every finding of the list, in the order of the labels: the
+    # first ``LABELS_SHOWN`` are written in the cell, the others behind "+N more".
+    previews: list[FindingPreview]
     # "1 check partially assessed": only on a list that found something, whose
     # state would otherwise hide a check that did not cover everything.
     caveat: str | None
-    caveat_title: str | None
+    # The checks it speaks of, and (for a list that found nothing) every check
+    # that applies, so that its state can be explained.
+    caveat_checks: list[CheckLine]
+    checks: list[CheckLine]
     # Sort key: the number of findings.
     order: int
+
+    @property
+    def shown(self) -> list[FindingPreview]:
+        return self.previews[:LABELS_SHOWN]
+
+    @property
+    def rest(self) -> list[FindingPreview]:
+        return self.previews[LABELS_SHOWN:]
 
 
 class MissingCell(ResultModel):
@@ -105,16 +123,17 @@ class ColumnTable(ResultModel):
     """The rows of a dataset and the counts of the segment above them."""
 
     rows: list[ColumnRow]
+    error_count: int
     issue_count: int
     observation_count: int
     signals: SignalsView
     quality: QualityView
 
 
-def _caveat(listing: FindingList) -> tuple[str | None, str | None]:
+def _caveat(listing: FindingList) -> tuple[str | None, list[CheckLine]]:
     """The checks of a list that found something but did not complete."""
     if listing.state != "detected":
-        return None, None
+        return None, []
     found = {item.code for item in listing.items}
     incomplete = [
         item
@@ -122,28 +141,34 @@ def _caveat(listing: FindingList) -> tuple[str | None, str | None]:
         if item.state in CAVEAT_STATES and item.code not in found
     ]
     if not incomplete:
-        return None, None
+        return None, []
     words = []
     for state, phrase in CAVEAT_STATES.items():
         count = sum(item.state == state for item in incomplete)
         if count:
             words.append(f"{plural(count, 'check', 'checks')} {phrase}")
-    codes = ", ".join(sorted({item.code for item in incomplete}))
-    return ", ".join(words), codes
+    lines = [
+        line
+        for line in check_lines(listing, incomplete_only=True)
+        if line.code not in found
+    ]
+    return ", ".join(words), lines
 
 
-def _cell(listing: FindingList) -> FindingsCell:
+def _cell(column: ColumnView, listing: FindingList) -> FindingsCell:
     labels = [finding_text(item) for item in listing.items]
-    caveat, title = _caveat(listing)
+    caveat, caveat_checks = _caveat(listing)
     return FindingsCell(
         state=listing.state,
         state_label=LIST_STATE_LABELS[listing.state],
         state_title=LIST_STATE_TITLES[listing.state],
         labels=labels,
-        shown=labels[:LABELS_SHOWN],
-        more=max(0, len(labels) - LABELS_SHOWN),
+        previews=[
+            finding_preview(column, item, listing.assessments) for item in listing.items
+        ],
         caveat=caveat,
-        caveat_title=title,
+        caveat_checks=caveat_checks,
+        checks=[] if listing.items else check_lines(listing),
         order=len(labels),
     )
 
@@ -167,6 +192,8 @@ def column_row(
     found = findings or column_findings(column)
     classification = column.classification
     flags: list[Flag] = []
+    if found.errors.items:
+        flags.append("error")
     if found.errors.items or found.issues.items:
         flags.append("issue")
     if column.has_observations:
@@ -183,12 +210,19 @@ def column_row(
         type_label=type_label(classification.family, classification.type),
         overview=overview_text(column),
         missing=_missing(found.missing),
-        errors=_cell(found.errors),
-        issues=_cell(found.issues),
+        errors=_cell(column, found.errors),
+        issues=_cell(column, found.issues),
         details=details_for(column),
         variants=variant_details(column),
         flags=flags,
     )
+
+
+def page_findings(column: ColumnView) -> tuple[FindingsCell, FindingsCell]:
+    """The Errors and the Issues of one column for its own page, with the previews
+    the table prints."""
+    found = column_findings(column)
+    return _cell(column, found.errors), _cell(column, found.issues)
 
 
 def column_table(dataset: DatasetView) -> ColumnTable:
@@ -200,6 +234,7 @@ def column_table(dataset: DatasetView) -> ColumnTable:
     ]
     return ColumnTable(
         rows=rows,
+        error_count=sum("error" in row.flags for row in rows),
         issue_count=sum("issue" in row.flags for row in rows),
         observation_count=sum("obs" in row.flags for row in rows),
         signals=signals_view(dataset.columns, findings),

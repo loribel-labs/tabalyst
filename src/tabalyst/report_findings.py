@@ -83,7 +83,8 @@ class Share(ResultModel):
 
 class Example(ResultModel):
     """A value that illustrates a finding, already through the exposure of its
-    column (``mask``, ``hide``, ``show``). Lot R8 fills it."""
+    column (``mask``, ``hide``, ``show``). The checks leave it empty: the preview
+    (``report_preview``) draws its examples from the evidence the Scan keeps."""
 
     value: str
     count: int | None = None

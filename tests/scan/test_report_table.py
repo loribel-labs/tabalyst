@@ -66,6 +66,23 @@ def _finding(code, count, cls="issue"):
     )
 
 
+ACTIVE_ISSUES = (
+    "temporal.ambiguous_date",
+    "number.ambiguous",
+    "categorical.case_variants",
+    "pattern.minority",
+    "length.minority",
+    "type.mixed",
+)
+
+
+def _a_column(tmp_path):
+    """A real column view: the preview of a finding reads the exposure and the
+    detectors of its column."""
+    profile, _ = _render(tmp_path, "name,amount\nAlice,1\nBob,2\n")
+    return dataset_views(profile)[0].columns[0]
+
+
 def test_the_table_has_the_eight_columns_in_order_and_no_removed_column(tmp_path):
     _, html = _render(tmp_path, "name,amount\nAlice,1\nBob,2\n")
 
@@ -259,6 +276,19 @@ def test_a_proven_invalid_value_is_an_error_and_flags_the_row_as_an_issue(tmp_pa
     assert "issue" in email.attrs["data-flags"].split()
 
 
+def test_the_segment_offers_the_columns_with_errors(tmp_path):
+    lines = ["email,note"] + [f"user{n}@example.com,n{n}" for n in range(40)]
+    lines.append("bad address@example.com,n40")
+    profile, html = _render(tmp_path, "\n".join(lines) + "\n", sensitive_values="show")
+
+    table = columns_table(html)
+
+    assert "error" in row_for(table, "email").attrs["data-flags"].split()
+    assert "error" not in row_for(table, "note").attrs["data-flags"].split()
+    assert column_table(dataset_views(profile)[0]).error_count == 1
+    assert 'data-mode="error"' in html or ">With errors<" in html
+
+
 def test_the_segment_counts_the_rows_with_errors_or_issues_not_missing_values(tmp_path):
     lines = ["a,b"] + [f"{n}," + ("" if n % 2 else "x") for n in range(40)]
     profile, html = _render(tmp_path, "\n".join(lines) + "\n")
@@ -286,19 +316,21 @@ def test_missing_is_the_figure_of_the_profile(tmp_path):
     assert cell["data-v"] == str(column.missing_percent)
 
 
-def test_a_cell_shows_two_labels_then_counts_the_others():
-    items = [_finding(f"code.{n}", n + 1) for n in range(LABELS_SHOWN + 2)]
+def test_a_cell_shows_two_labels_then_previews_the_others(tmp_path):
+    items = [_finding(code, n + 1) for n, code in enumerate(ACTIVE_ISSUES[: LABELS_SHOWN + 2])]
     listing = FindingList(items=items, state="detected", assessments=[])
 
-    cell = _cell(listing)
+    cell = _cell(_a_column(tmp_path), listing)
 
     assert len(cell.shown) == LABELS_SHOWN
-    assert cell.more == 2
+    assert len(cell.rest) == 2
     assert cell.order == len(items)
-    assert cell.labels[: LABELS_SHOWN] == cell.shown
+    assert [preview.code for preview in cell.shown + cell.rest] == [
+        item.code for item in items
+    ]
 
 
-def test_a_list_that_found_something_names_the_checks_that_went_part_way():
+def test_a_list_that_found_something_names_the_checks_that_went_part_way(tmp_path):
     items = [_finding("categorical.case_variants", 3)]
     assessments = [
         Assessment(code="categorical.case_variants", state="detected"),
@@ -308,26 +340,34 @@ def test_a_list_that_found_something_names_the_checks_that_went_part_way():
     ]
     listing = FindingList(items=items, state="detected", assessments=assessments)
 
-    cell = _cell(listing)
+    cell = _cell(_a_column(tmp_path), listing)
 
     assert cell.caveat == "1 check partially assessed, 1 check not assessed"
-    assert cell.caveat_title == "length.minority, pattern.minority"
+    assert {line.code for line in cell.caveat_checks} == {
+        "length.minority",
+        "pattern.minority",
+    }
+    # The words, not the internal codes, tell what each check covered.
+    assert all(line.name and "." not in line.name for line in cell.caveat_checks)
 
 
-def test_a_list_without_finding_has_no_caveat_and_a_count_label():
+def test_a_list_without_finding_has_no_caveat_and_a_count_label(tmp_path):
     listing = FindingList(items=[], state="partial", assessments=[])
 
-    cell = _cell(listing)
+    cell = _cell(_a_column(tmp_path), listing)
 
     assert cell.caveat is None and cell.state_label == "Partially assessed"
     assert cell.labels == [] and cell.order == 0
 
 
-def test_a_lower_bound_is_never_worded_exact():
+def test_a_lower_bound_is_never_worded_exact(tmp_path):
     item = _finding("temporal.invalid_calendar", 4, "error")
     item = item.model_copy(update={"accuracy": "lower_bound"})
 
-    cell = _cell(FindingList(items=[item], state="detected", assessments=[]))
+    cell = _cell(
+        _a_column(tmp_path),
+        FindingList(items=[item], state="detected", assessments=[]),
+    )
 
     assert cell.labels[0].startswith("at least ")
 

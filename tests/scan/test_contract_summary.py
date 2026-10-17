@@ -947,5 +947,27 @@ def test_CA03_two_columns_with_the_same_name_keep_their_own_identity(tmp_path):
 
 
 @pytest.mark.report_lot("R9b")
-def test_CA27_previews_are_reachable_without_hover_or_color():
-    pytest.fail("Contract: keyboard, touch, text state labels (section 7.4).")
+def test_CA27_previews_are_reachable_without_hover_or_color(tmp_path):
+    from columns_table_helpers import columns_table
+
+    from tabalyst import analyze_csv
+    from tabalyst.reporting import render_report
+
+    rows = ["city"] + ["Paris"] * 5 + ["PARIS"] * 2 + ["paris"] * 2
+    source = write_text(tmp_path, "data.csv", "\n".join(rows) + "\n")
+
+    table = columns_table(render_report(analyze_csv(source)))
+
+    row = table.rows[0]
+    for index in (5, 6):  # Errors, Issues: a label or a state, never a title alone
+        cell = row.cells[index]
+        assert "title" not in cell.attrs
+        for attrs, _ in cell.buttons:
+            # a button, not a hover: it names the dialog it opens and its state
+            assert attrs["type"] == "button" and attrs["aria-haspopup"] == "dialog"
+            assert attrs["aria-expanded"] == "false" and attrs["aria-controls"]
+    issues = row.cells[6]
+    assert issues.buttons and issues.pops
+    # the class is written (hidden text in the label, a word in the dialog)
+    assert "Issue" in issues.pops[0].text
+    assert any("Issue: " in text for text in issues.button_texts())

@@ -7,17 +7,38 @@
 from html.parser import HTMLParser
 
 
-class Cell:
-    """One th or td: its attributes and its text."""
+class Pop:
+    """A dialog of a cell (``div.pop``): its attributes and its text."""
 
-    def __init__(self, tag: str, attrs: dict[str, str | None]) -> None:
-        self.tag = tag
+    def __init__(self, attrs: dict[str, str | None]) -> None:
         self.attrs = attrs
         self.parts: list[str] = []
 
     @property
     def text(self) -> str:
         return " ".join("".join(self.parts).split())
+
+
+class Cell:
+    """One th or td: its attributes and its text.
+
+    ``text`` is what the cell prints; the dialogs it holds (``pops``) and the buttons
+    that open them (``buttons``, as attributes and text) are apart.
+    """
+
+    def __init__(self, tag: str, attrs: dict[str, str | None]) -> None:
+        self.tag = tag
+        self.attrs = attrs
+        self.parts: list[str] = []
+        self.pops: list[Pop] = []
+        self.buttons: list[tuple[dict[str, str | None], list[str]]] = []
+
+    @property
+    def text(self) -> str:
+        return " ".join("".join(self.parts).split())
+
+    def button_texts(self) -> list[str]:
+        return [" ".join("".join(parts).split()) for _, parts in self.buttons]
 
     def __getitem__(self, name: str) -> str:
         return str(self.attrs[name])
@@ -45,6 +66,9 @@ class _TableParser(HTMLParser):
         self._in_ht = False
         self._head_text: list[str] = []
         self._in_body = False
+        self._pop: Pop | None = None
+        self._pop_depth = 0
+        self._button: list[str] | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = dict(attrs)
@@ -54,6 +78,15 @@ class _TableParser(HTMLParser):
             return
         if not self.inside:
             return
+        if self._pop is not None and tag == "div":
+            self._pop_depth += 1
+        elif tag == "div" and self._cell is not None and "pop" in (values.get("class") or "").split():
+            self._pop = Pop(values)
+            self._pop_depth = 1
+            self._cell.pops.append(self._pop)
+        elif tag == "button" and self._cell is not None and self._pop is None:
+            self._button = []
+            self._cell.buttons.append((values, self._button))
         if tag == "thead":
             self._in_head = True
         elif tag == "tbody":
@@ -74,6 +107,12 @@ class _TableParser(HTMLParser):
             self._in_head = False
         elif tag == "tbody":
             self._in_body = False
+        elif tag == "div" and self._pop is not None:
+            self._pop_depth -= 1
+            if not self._pop_depth:
+                self._pop = None
+        elif tag == "button":
+            self._button = None
         elif tag in {"td", "th"}:
             self._cell = None
         elif tag == "span" and self._in_ht:
@@ -83,8 +122,12 @@ class _TableParser(HTMLParser):
     def handle_data(self, data: str) -> None:
         if self._in_ht:
             self._head_text.append(data)
-        if self._cell is not None:
+        if self._pop is not None:
+            self._pop.parts.append(data)
+        elif self._cell is not None:
             self._cell.parts.append(data)
+            if self._button is not None:
+                self._button.append(data)
 
 
 def columns_table(html: str, table_id: str = "summary-table") -> _TableParser:

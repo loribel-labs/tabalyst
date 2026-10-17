@@ -622,7 +622,8 @@ Finding
   accuracy    exact | lower_bound | sample | estimated | unavailable
   status      detected | none_detected | not_assessed | partial | not_applicable | failed
   basis       list[str]     ids of the observations, detectors or analyses used
-  examples    list[Example] already exposed (mask, hide, show); filled by lot R8
+  examples    list[Example] already exposed (mask, hide, show); left empty by the checks,
+              the preview draws its examples from the Scan's evidence (section 18)
   overlaps    list[str]     codes whose set is proven to overlap, else empty
 ```
 
@@ -1014,7 +1015,7 @@ technical type stays in the Columns table, the JSON and the column page (O-11).
 
 ### 7.4 Previews and styling
 
-R9b. Two labels then `+N more`; the preview gives nature, unit, count,
+R9b (as built: section 18). Two labels then `+N more`; the preview gives nature, unit, count,
 population, share with denominator, exposed examples (two) and the limit of the
 reading (RF-17). Errors red, Issues amber, information grey, within the existing
 themes; the state is never carried by colour alone; keyboard, touch, focus,
@@ -1161,7 +1162,7 @@ Verified in code on 2026-10-16 (`main`, `9013373`).
 | `models.py:151`, `:178`, `:179` | `ColumnProfile.semantic_type`, `DatasetSummary.semantic_type_counts`, `semantic_type_percents` | R4 | remove, add the classification and counts (done in R4) |
 | `reporting.py:370` | `semantic_colors` palette | R9a | replace by family colours inside the existing themes |
 | `templates/report.html` (columns table, dashboard card, filters, `data-pill`) | Semantic type column and filter | R9a | eight columns (R4: the column and the card read `type_label` and the family counts, `ColumnView.type_label`) |
-| `templates/column.html:50`, `:51`, `:57` | Interpretation card shows the semantic type and detector rows | R10 | show family, type and evidence (R4: shows `type_label`, the enumeration list reads `classification.type`) |
+| `templates/column.html:50`, `:51`, `:57` | Interpretation card shows the semantic type and detector rows | R10 (done, section 19) | show family, type and evidence (R4: shows `type_label`, the enumeration list reads `classification.type`) |
 | `schemas/tabalyst.report.schema.json` | generated | R4 | regenerate (done in R4) |
 | `docs/en/report/json-profile.md`, `read-report.md`, `reference/types-and-patterns/types.md`, `patterns.md`, `report/index.md`, `scan/index.md`, `reference/glossary.md` | wording and tables | R4, R11 | rewrite (R4: json-profile, read-report, types, configuration, deep; the rest in R11) |
 | `tests/test_reporting.py:294`, `tests/scan/test_scan_report.py` | `column.semantic_type == "enumeration"` | R4 | replace by classification assertions (done in R4) |
@@ -1224,17 +1225,17 @@ ADRs written in R0 (`docs/dev/adr/`):
   the key to sort on (`report.js`). The family filter acts on `data-v` of its own column,
   so it cannot select a type of the same name in another family (CA-02); the Type options
   are those of the classifications present.
-- Errors and Issues: two labels, then `+N more` as text (the preview is lot R9b). A list
+- Errors and Issues: two labels, then `+N more` (lot R9b turned both into buttons, section 18). A list
   that is `Detected` and holds a check that was partial, not assessed or failed adds a
-  line (`1 check partially assessed`) with the codes in its title. The sort key is the
+  button (`1 check partially assessed`) that opens those checks. The sort key is the
   number of findings, the filter is the state of the list.
 - Missing: the share of `MissingFinding`, rounded to two decimals like
   `ColumnProfile.missing_percent`.
 - Segment: `Quality issues` is a column with an Error or an Issue detected; `With
   observations` stays the observations of the Scan.
 - Details: examples from `details_for` only; the cell and its tooltip never read
-  `column.examples` or `value_profile`. The Numeric section still reads `column.examples`
-  (existing table, outside R9a): to review with the exposure of the other sections (R9b/R10).
+  `column.examples` or `value_profile`. The Numeric and Columns tables read them through
+  `exposed_values` since lot R9b (section 18).
 - Dashboard card: two captioned lists, the classification (each family followed by its
   types) and the technical types.
 - Browser check: `tests/browser/report.cjs` checks the Summary table against the JSON at
@@ -1299,3 +1300,77 @@ Summary panel is now 02 and Findings 03.
   first component of this kind in the report; lot R9b reuses it for the previews of Errors and Issues.
   The statuses of the observations are explained in one (`OBSERVATION_STATUS_HELP`).
 
+## 18. Previews of Errors and Issues (lot R9b)
+
+Requested by RF-17, RT-16, O-13, O-20 and CA-19, CA-27. Decisions of the maintainer (R9b):
+one dialog per finding, and the states without finding explain themselves check by check.
+
+- **Model** (`report_preview.py`, computed at render time, never serialized). `FindingPreview`
+  per finding: `title` (the label of the cell), `nature` and `limits` (sentences by code in
+  `FINDING_NATURES` and `FINDING_LIMITS` of `report_labels.py`; a code without a sentence prints
+  none), `unit`, `count_text` (`at least` for a lower bound), `population` and `share` (percentage
+  with numerator and denominator; a share without a defined percentage is left out), `accuracy`,
+  `examples` with their `examples_state`. A finding that `_settle` turned from an Error into an
+  Issue (RF-13) carries the limit `PREVIEW_DOWNGRADED`. A check that tested part of the eligible
+  values adds "The check covered N of M eligible values" to the limits. `percent_text` never rounds
+  a positive share to 0.
+- **Examples** (`EXAMPLES_SHOWN` = 2). Sources that exist in the Scan: the evidence of the detector
+  behind the finding (`temporal.invalid_calendar` and `temporal.ambiguous_date` read `date`,
+  `number.ambiguous` reads `number`, `semantic.invalid` the detector in `basis`; the first
+  distinct analytical values of `invalid` or `ambiguous`) and the spellings of the largest group
+  of `categorical.case_variants`. No other finding has a value in the Scan (values outside a
+  number type, minority patterns and lengths, mixed types, whitespace, identifier repetitions):
+  `examples_state` is `none` and the preview says nothing about examples. The exposure of the
+  column is applied again: `mask` gives merged masks and says so, `hide` gives none and says so
+  (the Scan of a hidden column keeps no evidence, so the state comes from the exposure and not
+  from the empty list). A document that holds raw values whatever its field announces leaks none (CA-19).
+- **Cells** (`report.html`, macro `finding_cell`; `FindingsCell.previews`, `.shown`, `.rest`).
+  Each of the first `LABELS_SHOWN` labels is a `button.fl-btn` with `data-pop`, `aria-haspopup="dialog"`,
+  `aria-expanded` and `aria-controls` towards its own `div.pop` (`role="dialog"`, `aria-label`,
+  `hidden`). `+N more` opens one dialog that holds the remaining previews, so every finding is
+  written once. `1 check partially assessed` is a button whose dialog lists `caveat_checks`. A list
+  without finding and a state that applies is a button whose dialog lists `checks` (`CheckLine`:
+  name, state, and in words how many values were covered or why the check did not run, from
+  `ASSESSMENT_REASONS`; a reason the table does not know is spelled out). `Not applicable` stays
+  a plain dash with its hidden word. No state lives in a `title` attribute any more.
+- **Component** (`report.js`, `theme.css`). The popover of R9a, plus: a **Close** button added to
+  every `.pop`; Tab past either end of the dialog (Shift+Tab before the first element or on the
+  dialog) closes it and carries on from the button, because an open dialog sits at the end of the
+  body; a dialog under 640 px is a sheet at the bottom of the screen; targets are at least 24 px
+  (WCAG 2.2, 2.5.8). Nothing depends on hover.
+- **Not by colour alone.** The marker of an Error is a diamond and that of an Issue a triangle, the
+  hidden text of a label starts with `Error:` or `Issue:`, and the dialog writes the class.
+- **Contrast** (`tests/test_report_contrast.py` reads `theme.css`). Text 4.5:1 and shapes 3:1 on
+  every surface and on both ends of the card gradient, in both themes. Fixed in R9b: `--fam-*` had
+  no light-theme value (they fell back to the dark ones: `numeric` was 1.4:1 on white), dark
+  `--fam-identifier` was 2.74:1 on the cards, light `--attn-text` was 4.38:1 on `--s3`, and the
+  Issue marker and bars used `--attn` (2.5:1 on white): they use the new `--issue` token (`--attn` in
+  the dark theme, `#D06500` in the light one). `--err-text` and `--info-text` already passed.
+- **CA-19.** `report_details.exposed_values(column)` replaces `column.examples` and
+  `column.value_profile.values` in the macro `value_examples`, which the Numeric and Columns tables
+  use. The column page is gated since lot R10 (section 19).
+- **Tests.** `tests/scan/test_report_preview.py`, CA-27 in `test_contract_summary.py`,
+  `tests/test_report_contrast.py`, and `tests/browser/report.cjs` (keyboard: Enter, Space, Tab,
+  Shift+Tab, Escape; Close and outside click; touch on a phone context; contrast as rendered; a
+  200 % zoom size (720 px); the dialog inside the screen at every size and in both themes).
+
+## 19. Column page and consumers (lot R10)
+
+- **Exposure.** The column page reads the values of the column only through
+  `report_details.exposed_values` (tab counter, Value coverage list, Values panel) and the
+  detector examples through `exposed_evidence`; the free-form `details` JSON of a detector
+  is printed only for a column shown as it is (`details_withheld`). The ellipsis of a value
+  cut by the Scan is no longer drawn in the Values panel. The panels the Scan already
+  exposes at the source (String analysis, Patterns, Scan evidence, Data sample) are not
+  gated again; a test with a raw document forced to `mask` or `hide` covers the others.
+- **Interpretation card.** Type with its state and basis, traits, alternatives, evidence
+  (id and role), and the technical type confidence under its own name (no classification
+  percentage, O-05). The "Type errors" metric is replaced by Errors and Issues (labels of
+  `page_findings`, the same findings as the Summary table) and a card per list with the
+  previews (title, population, share, accuracy, nature, limits, exposed examples).
+- **Summary segment.** A new "With errors" segment (`error` flag on the row, `error_count`).
+- **Consumers.** Re-checked: nothing in `projects/` or `generate_columns_package.py` reads
+  `semantic_type`; no source or test does. Public signatures of `scan()`, `generate_scans()`,
+  `analyze_scan()`, `generate_reports()` and `render_report()` are pinned by
+  `tests/scan/test_report_column_page.py`.
+- **Tests.** `tests/scan/test_report_column_page.py`, `test_report_table.py`.

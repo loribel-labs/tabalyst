@@ -630,6 +630,115 @@ TABLE_AT_LEAST = "at least"
 DETAILS_STATES = {"masked": "masked", "hidden": "hidden"}
 DETAILS_TITLES = {"shown": "Values", "masked": "Masked values", "hidden": "Hidden values"}
 
+# The preview of a finding (lot R9b, contract summary-table.md 18): what the finding is,
+# in a sentence that states a fact and never a verdict, and what its reading does not
+# say. A code without an entry has no sentence and prints none.
+FINDING_NATURES = {
+    "temporal.invalid_calendar": (
+        "Values the date detector reads as a date and rejects: an impossible day or "
+        "month, an impossible time or offset, mixed separators or a component of the "
+        "wrong width."
+    ),
+    "semantic.invalid": (
+        "Values that have the shape of the type of the column and fail its syntax."
+    ),
+    "type.outside_family": (
+        "Values that are not numbers in a column whose type is a number: a word, a "
+        "symbol or a currency code."
+    ),
+    "temporal.ambiguous_date": (
+        "Dates that two configured day and month orders both read as valid."
+    ),
+    "number.ambiguous": (
+        "Numbers whose separators allow more than one reading, such as 1,234."
+    ),
+    "categorical.case_variants": (
+        "Groups of values that differ only by case, accents or spacing."
+    ),
+    "pattern.minority": "Distinct values written in a pattern that few values share.",
+    "length.minority": (
+        "Values whose length differs from the one that nearly all the values share."
+    ),
+    "type.mixed": "Values that do not have the closest technical type of the column.",
+    "identifier.repetition": (
+        "Occurrences of an identifier beyond the first one: the values present minus "
+        "the distinct values."
+    ),
+    "text.surrounding_whitespace": "Values with whitespace before or after the text.",
+    "text.repeated_whitespace": "Values with whitespace repeated inside the text.",
+}
+FINDING_LIMITS = {
+    "temporal.invalid_calendar": (
+        "The Scan counts the invalid values without splitting them by reason. A date "
+        "that passes can still be wrong."
+    ),
+    "semantic.invalid": (
+        "Checks the syntax of the type only. A value of valid syntax can still be "
+        "wrong."
+    ),
+    "type.outside_family": (
+        "Says which values are not numbers, not what they should have been."
+    ),
+    "temporal.ambiguous_date": (
+        "An ambiguous date is not wrong. Tabalyst does not guess the order."
+    ),
+    "number.ambiguous": "An ambiguous number is not wrong. Tabalyst does not guess.",
+    "categorical.case_variants": (
+        "Variants are groups of spellings of one text; they do not prove that the "
+        "spellings mean the same thing."
+    ),
+    "pattern.minority": "A rare pattern is a deviation to inspect, not a constraint.",
+    "length.minority": "A minority length may be legitimate.",
+    "type.mixed": "A value of another type may be legitimate.",
+    "identifier.repetition": (
+        "Counts repetitions beyond the first, not the duplicated occurrences nor the "
+        "number of identifiers that repeat."
+    ),
+    "text.surrounding_whitespace": (
+        "Whitespace is often invisible and says nothing about what the value means."
+    ),
+    "text.repeated_whitespace": (
+        "Whitespace is often invisible and says nothing about what the value means."
+    ),
+}
+PREVIEW_DOWNGRADED = (
+    "Counted as an Issue, not as an Error: the type of the column is not established."
+)
+PREVIEW_ACCURACY = {
+    "exact": ("Exact", "every value the Scan read was counted"),
+    "lower_bound": ("At least", "a limit or a partial check stopped the count"),
+    "sample": ("Sample", "counted on a sample of the values"),
+    "estimated": ("Estimate", "the figure is an estimate"),
+    "unavailable": ("Unavailable", "no figure can be told"),
+}
+PREVIEW_EXAMPLES_NOTES = {
+    "masked": "Masked by the exposure setting of the column; equal masks are merged.",
+    "hidden": "Withheld by the exposure setting of the column.",
+}
+PREVIEW_CHECKS_TITLE = "Checks that did not look everywhere"
+# Why a check did not run or did not cover everything, in words
+# (``Assessment.reason``). A reason the table does not know is shown spelled out.
+ASSESSMENT_REASONS = {
+    "no_check": "no check is registered for this finding",
+    "disabled": "the check or the detector behind it is turned off",
+    "detector_missing": "the detector was not run on this column",
+    "not_temporal": "the column is not a date or a time",
+    "not_semantic_type": "the column has no type whose syntax can be checked",
+    "not_numeric_type": "the column is not a whole number or a number",
+    "not_identifier": "the column is not an identifier",
+    "cardinality_not_exact": "the count of distinct values is not exact",
+    "observations_unavailable": "the scan has no observations",
+    "observations_truncated": "the list of observations was cut",
+    "observation_not_listed": "the observation is not in the list",
+    "patterns_unavailable": "the patterns were not inferred",
+    "patterns_sample": "the patterns were inferred on a sample",
+    "too_few_values": "there are too few values",
+    "no_dominant_length": "no length is shared by nearly all the values",
+    "no_values": "the column has no value",
+    "no_text": "the column has no text",
+    "stage_disabled": "the analytic step behind it is turned off",
+}
+
 
 def finding_name(code: str, unit: str) -> str:
     """The plural name of a finding without a count (``invalid dates``), for a

@@ -98,7 +98,7 @@ section says that they are not computed.
 **Purpose:** read each field in one row: its classification, a factual sentence
 about it, its completeness and its findings. The classic **Columns** table, with
 the technical type, sits right after it. Each row is one field, identified by its dataset and
-its field `id`, never by its name alone. **Quality issues** filters to fields
+its field `id`, never by its name alone. **With errors** keeps the fields with an Error; **Quality issues** filters to fields
 with an Error or an Issue in the table; **With observations** keeps the fields
 the scan has an observation about, remarks included.
 
@@ -109,8 +109,8 @@ the scan has an observation about, remarks included.
 | Type | The type inside the family, such as `Unique ID`, `Enum`, `Email` or `Short` (a `Text` length). | An identifier type is a candidate that rests on a name and the values; the JSON profile gives the `state` and the `evidence` of every type. See [Types](../reference/types-and-patterns/types.md#classification). |
 | Overview | One factual sentence about the field: distinct values, range, recognized formats, median length. | It states no business meaning and never repeats an Error or an Issue. `at least` marks a figure that is a lower bound. |
 | Missing | Missing positions as a count and percentage of this field's positions. Absent JSON members count in the denominator. | A missing value is never an Error or an Issue by itself. Check the missing markers in **Analysis settings**. |
-| Errors | Values a deterministic rule proves invalid, such as an impossible date or a malformed email, in a field whose type is established. | Each label gives its count in its own unit. `None detected` means the checks ran everywhere; a dash (`-`) means `Not applicable`: no rule exists for this type. |
-| Issues | Ambiguities and deviations to inspect, such as ambiguous dates, spelling variants or a minority length. | A rare value is not an invalid one. Under a list, a line such as `1 check partially assessed` names a check that did not cover every value. |
+| Errors | Values a deterministic rule proves invalid, such as an impossible date or a malformed email, in a field whose type is established. | Each label gives its count in its own unit and opens its preview. `None detected` means the checks ran everywhere; a dash (`-`) means `Not applicable`: no rule exists for this type. |
+| Issues | Ambiguities and deviations to inspect, such as ambiguous dates, spelling variants or a minority length. | A rare value is not an invalid one. Under a list, a button such as `1 check partially assessed` opens the checks that did not cover every value. |
 | Details | A few values of the field on two lines at most. The hover (or focus, or a tap) holds the whole story: the values with their counts and shares, every Error and Issue label of the column, the groups of spelling variants with their spellings (the most frequent first) and the complementary measures. | A list can be complete or bounded. Sensitive values can be masked or hidden. |
 
 The states of Errors and Issues are written: `None detected`, `Not assessed`,
@@ -119,6 +119,36 @@ the `Not applicable` of an Errors cell, which keeps its word in the filter and f
 a screen reader. Two labels are shown in a cell, then `+N more`. The technical
 type of the field (`inferred_type`) is not a column of this table; it stays in
 the **Columns** table, in the JSON profile and on the column page.
+
+### Previews of Errors and Issues
+
+Each label of the Errors and Issues cells is a button. Click it, or focus it and
+press `Enter` or `Space`, to open the preview of that finding; `+N more` opens the
+previews of the other findings of the cell. A state without finding, such as
+`Partially assessed`, opens the list of the checks behind it, with what each one
+covered or why it did not run. The preview is also the way to read a finding on a
+touch screen: nothing depends on hover.
+
+A preview states, when the Scan knows it:
+
+| Line | Meaning |
+| --- | --- |
+| What it is | The kind of value the finding counts, as a fact and never as a verdict. |
+| Counted in | The unit of the count: occurrences, groups, distinct values, positions. |
+| Count | The number, written `at least` when it is a lower bound. |
+| Out of | The population the count is taken from, such as `100,000 eligible values`. |
+| Share | The percentage with its numerator and its denominator. A share below 0.01 % is written `<0.01%`, never `0%`. |
+| Accuracy | `Exact`, `At least` (a limit or a partial check stopped the count), `Sample` or `Estimate`. |
+| Examples | At most two values the finding rests on. They go through the exposure of the column: masked values are marked, hidden values are not listed. Findings for which the Scan keeps no value (values outside a number type, minority lengths, whitespace) list none. |
+| Limit | What the reading does not say, for example that an ambiguous date is not wrong. An Error counted as an Issue because the type of the column is not established says so. |
+
+`Escape`, the **Close** button, a click or tap outside, or `Tab` past either end of
+the preview closes it and gives the focus back to the button that opened it. On a
+screen narrower than 640 px the preview opens as a sheet at the bottom of the
+screen. Errors and Issues carry different marks (a diamond and a triangle) as well
+as different colours, and the hidden text of each label starts with the class
+(`Error:` or `Issue:`). Tabalyst aims at WCAG 2.2 AA for these controls without
+claiming a certification.
 
 ## Columns
 

@@ -496,9 +496,12 @@
   document.addEventListener('pointerdown', (e) => { if (tipCell && !tipCell.contains(e.target)) hideTip(); });
 
   /* popovers: the columns and details behind a figure. A button with data-pop opens the
-     dialog it controls next to itself; Escape, a click outside or the button again closes it,
-     and the focus goes back to the button. The dialog moves to the body while open so that no
-     ancestor clips it. */
+     dialog it controls next to itself; Escape, a click outside, the Close button or the button
+     again closes it, and the focus goes back to the button. Tab past either end of the dialog
+     closes it and carries on from the button, since the dialog sits at the end of the body while
+     open and would otherwise lead the focus out of the page. The dialog moves to the body while
+     open so that no ancestor clips it. Nothing depends on hover, so touch and keyboard reach it. */
+  const FOCUSABLE = 'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])';
   let openPop = null;
   const placePop = (panel, btn) => {
     const a = btn.getBoundingClientRect();
@@ -517,6 +520,14 @@
     openPop = null;
     if (focusBack) btn.focus();
   };
+  $$('.pop').forEach((panel) => {
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'pop-x';
+    close.textContent = 'Close';
+    close.addEventListener('click', () => closePop(true));
+    panel.insertBefore(close, panel.firstChild);
+  });
   $$('[data-pop]').forEach((btn) => btn.addEventListener('click', () => {
     const panel = document.getElementById(btn.getAttribute('aria-controls'));
     if (!panel) return;
@@ -532,7 +543,14 @@
     placePop(panel, btn);
     panel.focus({ preventScroll: true });
   }));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePop(true); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closePop(true); return; }
+    if (e.key !== 'Tab' || !openPop || !openPop.panel.contains(document.activeElement)) return;
+    const items = $$(FOCUSABLE, openPop.panel).filter((el) => el.offsetParent !== null);
+    const edge = e.shiftKey ? [openPop.panel, items[0]] : [items[items.length - 1]];
+    // the focus lands on the button before the browser moves it, so the default action goes on from there
+    if (!items.length || edge.includes(document.activeElement)) closePop(true);
+  });
   document.addEventListener('pointerdown', (e) => {
     if (openPop && !openPop.panel.contains(e.target) && !openPop.btn.contains(e.target)) closePop(false);
   });

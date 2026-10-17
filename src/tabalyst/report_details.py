@@ -101,6 +101,43 @@ def _examples(column: ColumnView, gate: ExposureGate) -> list[DetailExample]:
     ]
 
 
+class ExposedValues(ResultModel):
+    """The values of a column the tables list in a cell and in its hover, through the
+    exposure of the column (CA-19): ``examples`` are the inline chips, ``values`` the
+    value and its count of the hover, both empty when the column is hidden."""
+
+    examples: list[str]
+    values: list[tuple[str, int]]
+
+
+def exposed_values(column: ColumnView) -> ExposedValues:
+    """The examples and the values of ``column.value_profile`` as the Columns and the
+    Numeric tables may print them.
+
+    The gate is applied again on purpose: a document may hold raw values whatever
+    the exposure its field announces, and no table reads ``column.examples`` or
+    ``column.value_profile`` directly.
+    """
+    gate = _gate(column)
+    counts = gate.counts((item.value, item.count) for item in column.value_profile.values)
+    return ExposedValues(
+        examples=gate.examples(list(column.examples)),
+        values=list(counts.items()),
+    )
+
+
+def exposed_evidence(column: ColumnView, values: list[str]) -> list[str]:
+    """The examples of a detector outcome (matched, invalid...) through the exposure
+    of the column, here again whatever the document holds (CA-19)."""
+    return _gate(column).examples(list(values))
+
+
+def details_withheld(column: ColumnView) -> bool:
+    """Whether the free-form details of a detector stay off the column page: they may
+    hold values of the source, so only a column shown as it is lists them."""
+    return (column.exposure or "show") != "show"
+
+
 def _measure(
     name: str,
     value: float | str,

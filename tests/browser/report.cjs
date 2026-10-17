@@ -140,6 +140,136 @@ async function tableChecks(page, profile, observedFields, label) {
   assert.equal(await card.locator('.rcard-sub').count(), 2, label + ': each list says what it counts');
 }
 
+// The previews of the Errors and the Issues (R9b): reachable by keyboard and touch, never by
+// hover or colour alone, readable in both themes, and kept inside the screen.
+async function previewChecks(page, label, width, height) {
+  const table = '#summary-table tbody';
+  assert.equal(await page.locator(table + ' td.c-fl[title], ' + table + ' td.c-fl [title]').count(), 0, label + ': no state lives in a title');
+  const buttons = page.locator(table + ' .fl-btn');
+  assert.ok(await buttons.count() > 0, label + ': findings are buttons');
+  const first = buttons.first();
+  await first.scrollIntoViewIfNeeded();
+  const closed = await first.evaluate(button => document.getElementById(button.getAttribute('aria-controls')).hidden);
+  assert.equal(closed, true, label + ': the dialog starts closed');
+  assert.ok(await first.locator('.vh').count(), label + ': the class is written, not only coloured');
+
+  // Keyboard: Enter opens, the focus moves into the dialog, Tab walks it and leaves it at the end.
+  await first.focus();
+  await page.keyboard.press('Enter');
+  const dialog = page.locator('.pop:not([hidden])');
+  await dialog.waitFor({ state: 'visible' });
+  assert.equal(await first.getAttribute('aria-expanded'), 'true', label);
+  assert.equal(await dialog.getAttribute('role'), 'dialog', label);
+  assert.ok(await dialog.evaluate(el => el === document.activeElement), label + ': focus enters the dialog');
+  const text = await dialog.innerText();
+  for (const word of ['Counted in', 'Accuracy']) assert.ok(text.includes(word), label + ': ' + word);
+  const box = await dialog.boundingBox();
+  assert.ok(box.x >= 0 && box.x + box.width <= width + 1, label + ': dialog inside the width ' + JSON.stringify(box));
+  assert.ok(box.y >= 0 && box.y + box.height <= height + 1, label + ': dialog inside the height ' + JSON.stringify(box));
+  await page.keyboard.press('Tab');
+  assert.ok(await page.evaluate(() => document.activeElement.classList.contains('pop-x')), label + ': Tab reaches Close');
+  for (let step = 0; step < 40 && (await page.locator('.pop:not([hidden])').count()); step += 1) await page.keyboard.press('Tab');
+  assert.equal(await page.locator('.pop:not([hidden])').count(), 0, label + ': Tab past the end closes the dialog');
+  assert.equal(await first.getAttribute('aria-expanded'), 'false', label);
+  // the focus carries on from the page, it is not lost
+  assert.ok(await page.evaluate(() => document.activeElement !== document.body), label + ': focus is kept');
+
+  // Escape closes and gives the focus back.
+  await first.focus();
+  await page.keyboard.press('Space');
+  await page.locator('.pop:not([hidden])').waitFor({ state: 'visible' });
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('.pop:not([hidden])').count(), 0, label);
+  assert.ok(await first.evaluate(el => el === document.activeElement), label + ': Escape gives the focus back');
+
+  // Shift+Tab out of the dialog closes it too.
+  await first.focus();
+  await page.keyboard.press('Enter');
+  await page.locator('.pop:not([hidden])').waitFor({ state: 'visible' });
+  await page.keyboard.press('Shift+Tab');
+  assert.equal(await page.locator('.pop:not([hidden])').count(), 0, label + ': Shift+Tab out closes');
+
+  // Close button and click outside.
+  await first.click();
+  await page.locator('.pop:not([hidden]) .pop-x').click();
+  assert.equal(await page.locator('.pop:not([hidden])').count(), 0, label + ': Close closes');
+  await first.click();
+  await page.mouse.click(2, 2);
+  assert.equal(await page.locator('.pop:not([hidden])').count(), 0, label + ': a click outside closes');
+
+  // A state without finding explains itself check by check; "+N more" holds the other findings.
+  const state = page.locator(table + ' .fl-state-btn').first();
+  if (await state.count()) {
+    await state.scrollIntoViewIfNeeded();
+    await state.click();
+    assert.ok(await page.locator('.pop:not([hidden]) .pv-checks li').count() > 0, label + ': the state lists its checks');
+    await page.keyboard.press('Escape');
+  }
+  const more = page.locator(table + ' .fl-more .fl-btn').first();
+  if (await more.count()) {
+    await more.scrollIntoViewIfNeeded();
+    const wanted = Number((await more.innerText()).replace(/[^0-9]/g, ''));
+    await more.click();
+    assert.equal(await page.locator('.pop:not([hidden]) .pv').count(), wanted, label + ': +N more previews N findings');
+    await page.keyboard.press('Escape');
+  }
+
+  // Contrast of the words the cells print (WCAG AA, 4.5:1; 3:1 for a large figure), as rendered.
+  const ratios = await page.evaluate(() => {
+    const channels = text => text.match(/[\d.]+/g).map(Number);
+    const linear = value => { const c = value / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+    const lum = ([r, g, b]) => 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+    const backdrop = el => {
+      for (let node = el; node; node = node.parentElement) {
+        const [r, g, b, a = 1] = channels(getComputedStyle(node).backgroundColor);
+        if (a > 0.9) return [r, g, b];
+      }
+      return [255, 255, 255];
+    };
+    const ratio = el => {
+      const fore = lum(channels(getComputedStyle(el).color));
+      const back = lum(backdrop(el));
+      return (Math.max(fore, back) + 0.05) / (Math.min(fore, back) + 0.05);
+    };
+    const selectors = ['#summary-table .fl-error .fl-btn', '#summary-table .fl-issue .fl-btn', '#summary-table .fl-more .fl-btn',
+      '#summary-table .fl-caveat', '#summary-table .fl-state-btn', '#summary-table .fl-state', '.signals .sig-n', '.signals .sig-c'];
+    return selectors.map(selector => [selector, document.querySelector(selector)])
+      .filter(([, el]) => el)
+      .map(([selector, el]) => [selector, Math.round(ratio(el) * 100) / 100]);
+  });
+  assert.ok(ratios.length >= 3, label + ': the contrast probes found their elements');
+  for (const [selector, ratio] of ratios) {
+    assert.ok(ratio >= (selector.endsWith('.sig-n') ? 3 : 4.5), label + ': contrast of ' + selector + ' is ' + ratio);
+  }
+}
+
+// Touch: a tap opens the dialog, which sits inside the screen; a tap on Close or outside shuts it.
+async function touchChecks(browser, file, label, width, height) {
+  const context = await browser.newContext({ viewport: { width, height }, hasTouch: true, isMobile: true, colorScheme: 'dark' });
+  const page = await context.newPage();
+  await page.goto(pathToFileURL(path.resolve(file)).href, { waitUntil: 'load' });
+  const button = page.locator('#summary-table tbody .fl-btn').first();
+  await button.scrollIntoViewIfNeeded();
+  await button.tap();
+  const dialog = page.locator('.pop:not([hidden])');
+  await dialog.waitFor({ state: 'visible' });
+  const box = await dialog.boundingBox();
+  assert.ok(box.x >= 0 && box.x + box.width <= width + 1, label + ': dialog inside the width ' + JSON.stringify(box));
+  assert.ok(box.y >= 0 && box.y + box.height <= height + 1, label + ': dialog inside the height ' + JSON.stringify(box));
+  const target = await page.locator('.pop:not([hidden]) .pop-x').boundingBox();
+  assert.ok(target.height >= 24 && target.width >= 24, label + ': Close is at least 24 by 24 px');
+  await page.locator('.pop:not([hidden]) .pop-x').tap();
+  assert.equal(await page.locator('.pop:not([hidden])').count(), 0, label + ': a tap on Close closes');
+  await page.locator('#summary-table tbody .fl-btn').first().scrollIntoViewIfNeeded();
+  const small = await button.boundingBox();
+  assert.ok(small.height >= 24, label + ': the label is a target of at least 24 px');
+  await button.tap();
+  await page.locator('.pop:not([hidden])').waitFor({ state: 'visible' });
+  await page.touchscreen.tap(width - 4, 4);
+  assert.equal(await page.locator('.pop:not([hidden])').count(), 0, label + ': a tap outside closes');
+  await context.close();
+}
+
 async function openFilter(page, table, index) {
   await page.keyboard.press('Escape');
   await page.locator('#' + table + ' thead th').nth(index).locator('.hb-f').click();
@@ -177,6 +307,7 @@ async function openFilter(page, table, index) {
   try {
     for (const [name, width, height] of [
       ['desktop', 1440, 1050],
+      ['zoom200', 720, 525],
       ['tablet', 820, 1180],
       ['mobile', 390, 844],
     ]) {
@@ -211,6 +342,7 @@ async function openFilter(page, table, index) {
       );
 
       await tableChecks(page, profile, observedFields, name + ' dark');
+      await previewChecks(page, name + ' dark', width, height);
 
       // Overview layout: Quality observations over Signals on two thirds, Column types beside them.
       const boxes = await page.evaluate(() => {
@@ -371,6 +503,7 @@ async function openFilter(page, table, index) {
       );
       assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
       await tableChecks(page, profile, observedFields, name + ' light');
+      await previewChecks(page, name + ' light', width, height);
       await fs.mkdir(artifactsDirectory, { recursive: true });
       await page.locator('#summary').screenshot({
         path: path.join(artifactsDirectory, 'report-summary-' + name + '-light.png'),
@@ -401,7 +534,8 @@ async function openFilter(page, table, index) {
       await page.locator('#summary').screenshot({
         path: path.join(artifactsDirectory, 'report-summary-' + name + '-dark.png'),
       });
-      console.log(name + ': layout, Summary table (identity, filters, sorts), Columns table and both themes passed');
+      if (name === 'mobile') await touchChecks(browser, process.argv[2], name, width, height);
+      console.log(name + ': layout, Summary table (identity, filters, sorts), previews (keyboard, touch, contrast), Columns table and both themes passed');
       await page.close();
     }
     assert.deepEqual(errors, []);
