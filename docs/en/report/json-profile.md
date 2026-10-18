@@ -151,7 +151,7 @@ and cheap, and `--deep` forces it. This member says what happened and holds the
 | `mode` | Who decided: `auto` (the planner), `forced` (`--deep`, or `deep.mode` set to `force`) or `off` (`deep.mode` set to `off`) |
 | `outcome` | `ran` (analyses were computed), `reused` (the stored results of an earlier run were enough), `nothing_selected`, `disabled`, `unavailable` (analyses that need the source could not read it) or `failed` (an automatic second pass met an error and the report goes without it) |
 | `reason` | Why, for `disabled`, `unavailable` and `failed`; a sentence |
-| `deep` | The second pass document: its `plan` lists every candidate analysis with the decision on it and its reason (kept, already answered by the scan, or left out), and `analyses` holds the results, each with its `status` and `reason` |
+| `deep` | The second pass document: its `plan` lists every candidate analysis with the decision on it and its reason (kept, already answered by the scan, or left out), and `analyses` holds the results, each with its `status` and `reason`. A candidate of the plan holds `id`, `analyzer`, `dataset`, `field`, `display`, `partner` (for a pair of columns), `applicability` and `selection`; its costs, execution and parameters are in the second pass document written beside the scan. `plan_id` is the identity of that whole plan |
 
 The results include the correlation of the pairs of numeric columns that the plan kept
 (`pearson_correlation`, see [Correlation between two columns](../scan/deep.md#correlation-between-two-columns)):

@@ -1538,3 +1538,99 @@ in this lot (maintainer decision, plan R10b). `docs/fr/` stays one page.
 - Which Scan members to prune (20.5), after the measurement.
 - `report --scan`: proposed in memory only, no change of command.
 - French templates: written now or with a language option later.
+
+
+## 21. What a Report keeps of the Scan (lot R11b, draft to validate)
+
+Status: proposed on 2026-10-17, revised the same day after the maintainer's answers.
+Nothing in this section is implemented. It continues 20.5 (pruning).
+
+### 21.1 Decisions of the maintainer
+
+1. **`datasets[].fields` stays.** The Report is also the detailed report of each field,
+   and the Report stays loadable as a Scan base (`load_document`, `load_base`,
+   `check_scan`, Explore 20.17). The views of a column are therefore not moved into the
+   document: the render keeps building them from the base, and the first version of this
+   section (a Report that renders without `fields`) is dropped.
+2. **The form of `patterns` and `characters` does not change.**
+3. **Only what a report does not need leaves.** `string_characteristics` and any other
+   member leaves only if no part of it is useful in a report. What is useful stays.
+4. **Sensitive values are not hidden for now** (the project default is
+   `exposure.sensitive_values: "show"`, project default since 2026-10-14). No new masking work in
+   this lot; `mask` and `hide` stay available and tested as they are.
+
+### 21.2 What the lot does
+
+An audit, then a short list of removals, each one measured and approved:
+
+| Candidate | Size (compact) | To establish |
+| --- | --- | --- |
+| `fields[].string_characteristics` | 29 KB | What of it a report can use (counts of classes of characters?), and what `scanner/validation.py` requires of it |
+| `fields[].values.samples` | 247 KB | The entries the page lists; the rest of the sample (kept for the smart sample) |
+| `fields[].values.frequencies` | 105 KB | How much of the listing the pages and Explore read |
+| `fields[].detectors` | 233 KB | Evidence and details beyond what the column page prints |
+| `fields[].normalization` | 41 KB | Against `columns[].normalization` (50 KB, an enriched copy of it) |
+| `derived.patterns`, `derived.characters` | 131 KB, 40 KB | Entries no page prints |
+| `analyses.deep.plan.candidates` | 276 KB | Read by `report_deep.py`: which candidates the page prints |
+| `observations` | 9 KB | Nothing to remove |
+
+For each: who reads it (render, the Scan contract and `check_scan`, Explore, the smart
+sample), whether the Scan model allows it to be absent or limited (a measure with a
+status such as `limited`, not a missing member), and the saving. A member the Scan
+requires is not removed from the Report's base: it is shortened with the status the
+Scan already has for that case, or it stays.
+
+Result expected from the audit: a table with a verdict per row (keep, shorten, remove)
+for the maintainer. No removal before the verdict.
+
+### 21.3 Not done in this lot
+
+- Views of a column stored in the document, removal of `fields`, a Report that renders
+  without the Scan base (the first draft of this section).
+- Any change to the exposure of sensitive values.
+- Any change to how patterns and characters are stored.
+
+### 21.4 Tests
+
+- The loaders (`load_document`, `load_base`, `check_scan`) and the Explore contract
+  tests pass on the shortened base.
+- The HTML of every demo is unchanged unless a removal is a member the page printed;
+  then the difference is listed.
+- Sizes before and after in the plan (RT-12).
+
+### 21.5 Audit of 2026-10-17 (lot R11b)
+
+Applied the same day, with the maintainer's approval: the embedded plan is shortened
+(`report_plan.py`: `ReportCandidate`, `ReportPlan`, `ReportDeep`; `AnalysesBlock.deep`
+accepts a whole `DeepResult` and shortens it). Nothing else of the table below is removed.
+
+Method: the demo documents were loaded and every attribute read on a member of
+`datasets[].fields`, `derived`, `analyses` and the column projections was recorded while
+`render_report` and every column page were rendered (a one-off script; the five
+`examples/showcase/*/report.json`). Sizes are compact JSON on `insurance-customers`.
+"Unread" means unread by the render; the other readers come from the code: the Scan
+tools (planner, second pass, smart sample, `scanner/validation.py`) read the same base
+whenever a Report is given as a Scan source (`load_document`).
+
+| Member | Size | Render | Other readers | Verdict |
+| --- | --- | --- | --- | --- |
+| `analyses.deep.plan.candidates` | 276 KB | `applicability` 11 KB and `selection` 34 KB | none found outside the planner | **Shorten**: keep `id`, `field`, `analyzer`, `display`, `applicability`, `selection`; drop `costs` (85 KB), `execution` (29 KB), `outputs`, `parameters`, `exploration`, `utility`, `method` (about 200 KB, 10 % of the JSON). Needs a Report model of the candidate: the second-pass model requires them. |
+| `fields[].values.samples`, `frequencies` | 247 KB, 105 KB | listed values and counts | planner, smart sample, validation, Explore | **Keep** (`type`, `count_accuracy`, `identity_accuracy` of each entry are unread, 100 KB, but required by the entry model) |
+| `fields[].detectors[].evidence` | 71 KB | unread | `DetectorComplete.evidence` is required | **Keep** (changing the Scan model would be needed) |
+| `fields[].detectors` (`coverage`, `details`, `formats`, `id`) | 120 KB | read | smart sample, planner | **Keep** |
+| `fields[].normalization.variant_groups` | 17 KB | unread (the page reads the column copy) | smart targets, validation | **Keep** |
+| `fields[].normalization.stages` | 22 KB | read | classification refinement | **Keep** |
+| `fields[].classification` | 13 KB | unread (the page reads `columns[].classification`, refined) | `refine` at build, validation | **Keep** |
+| `fields[].string_characteristics` | 29 KB | `special_characters`, `distinct_characters` read | smart targets, validation | **Keep**: what a report uses is read; the rest is required by the model (at most 20 KB) |
+| `fields[].interpretations`, `technical_type` | 5 KB | unread | smart sample, planner | **Keep** (small) |
+| `columns[].normalization` | 50 KB | read | none | **Keep** (a copy the page reads; the field's copy serves the Scan tools) |
+| `columns[].detectors`, `classification` | 24 KB, 13 KB | read | none | **Keep** |
+| `derived.patterns`, `derived.characters` | 131 KB, 40 KB | read | second pass | **Keep** (maintainer, 21.1) |
+| `observations` | 9 KB | read | validation | **Keep** |
+
+Conclusion: while the Report stays loadable as a Scan base, the only substantial removal
+that does not change a Scan model is the shortening of the embedded plan (about 10 %). The
+other members the page does not read (about 200 KB more: `evidence`, `classification`,
+`variant_groups`, the unread attributes of each sample entry) are required by the Scan
+models; they could go only with a "report profile" of the base whose members are
+optional, which is a change of contract, not a pruning.

@@ -14,10 +14,11 @@ read from the base, never copied into the projections.
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import ConfigDict, Field, FiniteFloat, model_serializer
+from pydantic import ConfigDict, Field, FiniteFloat, field_validator, model_serializer
 from pydantic.json_schema import SkipJsonSchema
 
 from tabalyst.config import PresentationSettings
+from tabalyst.report_plan import ReportDeep, shorten_deep
 from tabalyst.result_model import ResultModel
 from tabalyst.scanner.classify.models import Classification
 from tabalyst.scanner.config import ScanConfig
@@ -331,7 +332,15 @@ class AnalysesBlock(ResultModel):
     mode: AnalysesMode
     outcome: AnalysesOutcome
     reason: str | None = None
-    deep: DeepResult | None = None
+    deep: ReportDeep | None = None
+
+    @field_validator("deep", mode="before")
+    @classmethod
+    def _shorten(cls, value: object) -> object:
+        """A whole second-pass document is stored without the costs of its plan."""
+        if isinstance(value, DeepResult) and not isinstance(value, ReportDeep):
+            return shorten_deep(value)
+        return value
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:

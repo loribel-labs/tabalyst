@@ -152,7 +152,7 @@
         "deep": {
           "anyOf": [
             {
-              "$ref": "#/$defs/DeepResult"
+              "$ref": "#/$defs/ReportDeep"
             },
             {
               "type": "null"
@@ -166,91 +166,6 @@
         "outcome"
       ],
       "title": "AnalysesBlock",
-      "type": "object"
-    },
-    "AnalysisPlan": {
-      "additionalProperties": false,
-      "description": "What to add to a Scan, why, and at what cost.\n\n``plan_id`` is the SHA-256 of the rest of the plan. ``executable`` is false\nwhile a selected analysis has no implementation in this version.",
-      "properties": {
-        "planner": {
-          "default": "tabalyst.planner",
-          "title": "Planner",
-          "type": "string"
-        },
-        "planner_version": {
-          "default": 1,
-          "title": "Planner Version",
-          "type": "integer"
-        },
-        "utility_version": {
-          "title": "Utility Version",
-          "type": "integer"
-        },
-        "cost_model_version": {
-          "title": "Cost Model Version",
-          "type": "integer"
-        },
-        "plan_id": {
-          "title": "Plan Id",
-          "type": "string"
-        },
-        "base": {
-          "$ref": "#/$defs/PlanBase"
-        },
-        "objective": {
-          "$ref": "#/$defs/Objective"
-        },
-        "budgets": {
-          "$ref": "#/$defs/Budgets"
-        },
-        "common": {
-          "$ref": "#/$defs/CommonCost"
-        },
-        "summary": {
-          "$ref": "#/$defs/Summary"
-        },
-        "relations": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Relations"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "stratification": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Stratification"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "candidates": {
-          "items": {
-            "$ref": "#/$defs/Candidate"
-          },
-          "title": "Candidates",
-          "type": "array"
-        }
-      },
-      "required": [
-        "utility_version",
-        "cost_model_version",
-        "plan_id",
-        "base",
-        "objective",
-        "budgets",
-        "common",
-        "summary",
-        "candidates"
-      ],
-      "title": "AnalysisPlan",
       "type": "object"
     },
     "AnalysisResult": {
@@ -1125,144 +1040,6 @@
         "listed"
       ],
       "title": "ByLength",
-      "type": "object"
-    },
-    "Candidate": {
-      "additionalProperties": false,
-      "description": "One analysis of one field with its decision. ``method`` and ``parameters``\nare absent for an analysis that does not apply; ``costs`` too. An analysis\nof a pair of fields names the second one in ``partner`` (and ``display``\nnames both) and carries the ``exploration`` that proposed it.",
-      "properties": {
-        "id": {
-          "title": "Id",
-          "type": "string"
-        },
-        "analyzer": {
-          "title": "Analyzer",
-          "type": "string"
-        },
-        "analyzer_version": {
-          "title": "Analyzer Version",
-          "type": "integer"
-        },
-        "dataset": {
-          "title": "Dataset",
-          "type": "string"
-        },
-        "field": {
-          "title": "Field",
-          "type": "string"
-        },
-        "display": {
-          "title": "Display",
-          "type": "string"
-        },
-        "method": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Method"
-        },
-        "parameters": {
-          "additionalProperties": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          },
-          "title": "Parameters",
-          "type": "object"
-        },
-        "outputs": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Outputs",
-          "type": "array"
-        },
-        "applicability": {
-          "$ref": "#/$defs/Applicability"
-        },
-        "utility": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Utility"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "costs": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Costs"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "selection": {
-          "$ref": "#/$defs/Selection"
-        },
-        "execution": {
-          "$ref": "#/$defs/Execution"
-        },
-        "partner": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Partner"
-        },
-        "exploration": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Exploration"
-            },
-            {
-              "$ref": "#/$defs/TableExploration"
-            },
-            {
-              "$ref": "#/$defs/StatsExploration"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Exploration"
-        }
-      },
-      "required": [
-        "id",
-        "analyzer",
-        "analyzer_version",
-        "dataset",
-        "field",
-        "display",
-        "outputs",
-        "applicability",
-        "selection",
-        "execution"
-      ],
-      "title": "Candidate",
       "type": "object"
     },
     "CandidateRule": {
@@ -2969,44 +2746,6 @@
       "title": "Complete[int]",
       "type": "object"
     },
-    "Costs": {
-      "additionalProperties": false,
-      "description": "What one analysis adds to the common reading (COST-01): its states and\nits CPU class.",
-      "properties": {
-        "memory": {
-          "$ref": "#/$defs/Memory"
-        },
-        "cpu": {
-          "enum": [
-            "very_low",
-            "low",
-            "moderate",
-            "high"
-          ],
-          "title": "Cpu",
-          "type": "string"
-        },
-        "cell_ns": {
-          "title": "Cell Ns",
-          "type": "integer"
-        },
-        "states": {
-          "items": {
-            "$ref": "#/$defs/State"
-          },
-          "title": "States",
-          "type": "array"
-        }
-      },
-      "required": [
-        "memory",
-        "cpu",
-        "cell_ns",
-        "states"
-      ],
-      "title": "Costs",
-      "type": "object"
-    },
     "Coverage": {
       "additionalProperties": false,
       "description": "Design 12.2: ``tested = eligible - not_tested`` and ``tested = matched +\nambiguous + invalid + not_matched``. ``share_tested`` is ``null`` when no\nvalue was tested.",
@@ -4178,74 +3917,6 @@
         "mixed"
       ],
       "title": "DecimalScale",
-      "type": "object"
-    },
-    "DeepResult": {
-      "additionalProperties": false,
-      "description": "The second-pass document. It is ``complete`` when every analysis of the\nplan that can run has a complete result, ``partial`` otherwise.",
-      "properties": {
-        "format": {
-          "const": "tabalyst.scan.deep",
-          "default": "tabalyst.scan.deep",
-          "title": "Format",
-          "type": "string"
-        },
-        "format_version": {
-          "const": "0.2.0",
-          "default": "0.2.0",
-          "title": "Format Version",
-          "type": "string"
-        },
-        "format_revision": {
-          "default": 3,
-          "title": "Format Revision",
-          "type": "integer"
-        },
-        "status": {
-          "enum": [
-            "complete",
-            "partial"
-          ],
-          "title": "Status",
-          "type": "string"
-        },
-        "base": {
-          "$ref": "#/$defs/PlanBase"
-        },
-        "settings": {
-          "$ref": "#/$defs/DeepSettings"
-        },
-        "settings_sha256": {
-          "title": "Settings Sha256",
-          "type": "string"
-        },
-        "plan": {
-          "$ref": "#/$defs/AnalysisPlan"
-        },
-        "run": {
-          "$ref": "#/$defs/DeepRun"
-        },
-        "analyses": {
-          "items": {
-            "$ref": "#/$defs/AnalysisResult"
-          },
-          "title": "Analyses",
-          "type": "array"
-        }
-      },
-      "required": [
-        "status",
-        "base",
-        "settings",
-        "settings_sha256",
-        "plan",
-        "run",
-        "analyses",
-        "format",
-        "format_version",
-        "format_revision"
-      ],
-      "title": "DeepResult",
       "type": "object"
     },
     "DeepRun": {
@@ -6092,174 +5763,6 @@
         "value"
       ],
       "title": "ExceptionExample",
-      "type": "object"
-    },
-    "Execution": {
-      "additionalProperties": false,
-      "description": "How the analysis would run. A refusal to select never means the analysis\nis impossible (PLAN-06). ``on_limit`` is the policy when a limit is met\nwhile running (D08): the result is ``limited`` with its reason, and the\ncount of what was read so far is never presented as complete.",
-      "properties": {
-        "requires_source": {
-          "title": "Requires Source",
-          "type": "boolean"
-        },
-        "available": {
-          "title": "Available",
-          "type": "boolean"
-        },
-        "deterministic": {
-          "title": "Deterministic",
-          "type": "boolean"
-        },
-        "reusable": {
-          "title": "Reusable",
-          "type": "boolean"
-        },
-        "on_limit": {
-          "const": "limited",
-          "default": "limited",
-          "title": "On Limit",
-          "type": "string"
-        }
-      },
-      "required": [
-        "requires_source",
-        "available",
-        "deterministic",
-        "reusable"
-      ],
-      "title": "Execution",
-      "type": "object"
-    },
-    "Exploration": {
-      "additionalProperties": false,
-      "description": "What the row sample says of a pair of numeric columns (design 20.12,\nREL-05): the rows both columns have a number in (``pairs``), the\ncoefficient over them and its interval, or the ``reason`` it is not defined.\nIt is an exploration of ``scope`` rows and says nothing of the population\nbeyond them: a pair not detected here may still hold elsewhere. The figures\nare rounded to six decimals, which keeps the plan the same on any machine.\n``score`` is the lower bound of the absolute coefficient that the planner\nranks by. The ``rank_*`` members are the same for the Spearman coefficient\nof the sample (design 20.22): a monotone relation that is not a line has a\nlow ``score`` and a high ``rank_score``, and the pair is rated by the larger\nof the two.",
-      "properties": {
-        "scope": {
-          "enum": [
-            "interior_rows",
-            "all_rows"
-          ],
-          "title": "Scope",
-          "type": "string"
-        },
-        "pairs": {
-          "title": "Pairs",
-          "type": "integer"
-        },
-        "coefficient": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Coefficient"
-        },
-        "lower": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Lower"
-        },
-        "upper": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Upper"
-        },
-        "score": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Score"
-        },
-        "reason": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Reason"
-        },
-        "rank_coefficient": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Rank Coefficient"
-        },
-        "rank_lower": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Rank Lower"
-        },
-        "rank_upper": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Rank Upper"
-        },
-        "rank_score": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Rank Score"
-        }
-      },
-      "required": [
-        "scope",
-        "pairs"
-      ],
-      "title": "Exploration",
       "type": "object"
     },
     "ExploredDataset": {
@@ -13109,6 +12612,129 @@
       "title": "ReportBlock",
       "type": "object"
     },
+    "ReportCandidate": {
+      "additionalProperties": false,
+      "description": "One analysis of one field with its decision: what a page prints of a candidate.\n\n``partner`` names the second field of an analysis of a pair, and ``display`` both.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "analyzer": {
+          "title": "Analyzer",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "display": {
+          "title": "Display",
+          "type": "string"
+        },
+        "partner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Partner"
+        },
+        "applicability": {
+          "$ref": "#/$defs/Applicability"
+        },
+        "selection": {
+          "$ref": "#/$defs/Selection"
+        }
+      },
+      "required": [
+        "id",
+        "analyzer",
+        "dataset",
+        "field",
+        "display",
+        "applicability",
+        "selection"
+      ],
+      "title": "ReportCandidate",
+      "type": "object"
+    },
+    "ReportDeep": {
+      "additionalProperties": false,
+      "description": "The second-pass document of a Report: the results as the second pass wrote them,\nand the plan without the costs of its candidates.",
+      "properties": {
+        "format": {
+          "const": "tabalyst.scan.deep",
+          "default": "tabalyst.scan.deep",
+          "title": "Format",
+          "type": "string"
+        },
+        "format_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Format Version",
+          "type": "string"
+        },
+        "format_revision": {
+          "default": 3,
+          "title": "Format Revision",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "partial"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "base": {
+          "$ref": "#/$defs/PlanBase"
+        },
+        "settings": {
+          "$ref": "#/$defs/DeepSettings"
+        },
+        "settings_sha256": {
+          "title": "Settings Sha256",
+          "type": "string"
+        },
+        "plan": {
+          "$ref": "#/$defs/ReportPlan"
+        },
+        "run": {
+          "$ref": "#/$defs/DeepRun"
+        },
+        "analyses": {
+          "items": {
+            "$ref": "#/$defs/AnalysisResult"
+          },
+          "title": "Analyses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "status",
+        "base",
+        "settings",
+        "settings_sha256",
+        "plan",
+        "run",
+        "analyses",
+        "format",
+        "format_version",
+        "format_revision"
+      ],
+      "title": "ReportDeep",
+      "type": "object"
+    },
     "ReportGenerator": {
       "additionalProperties": false,
       "properties": {
@@ -13127,6 +12753,91 @@
         "version"
       ],
       "title": "ReportGenerator",
+      "type": "object"
+    },
+    "ReportPlan": {
+      "additionalProperties": false,
+      "description": "The plan of a Report. ``plan_id`` is still the one of the whole plan, which the\nsecond-pass document keeps: it is not the hash of the shortened candidates.",
+      "properties": {
+        "planner": {
+          "default": "tabalyst.planner",
+          "title": "Planner",
+          "type": "string"
+        },
+        "planner_version": {
+          "default": 1,
+          "title": "Planner Version",
+          "type": "integer"
+        },
+        "utility_version": {
+          "title": "Utility Version",
+          "type": "integer"
+        },
+        "cost_model_version": {
+          "title": "Cost Model Version",
+          "type": "integer"
+        },
+        "plan_id": {
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "base": {
+          "$ref": "#/$defs/PlanBase"
+        },
+        "objective": {
+          "$ref": "#/$defs/Objective"
+        },
+        "budgets": {
+          "$ref": "#/$defs/Budgets"
+        },
+        "common": {
+          "$ref": "#/$defs/CommonCost"
+        },
+        "summary": {
+          "$ref": "#/$defs/Summary"
+        },
+        "relations": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Relations"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "stratification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stratification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/ReportCandidate"
+          },
+          "title": "Candidates",
+          "type": "array"
+        }
+      },
+      "required": [
+        "utility_version",
+        "cost_model_version",
+        "plan_id",
+        "base",
+        "objective",
+        "budgets",
+        "common",
+        "summary",
+        "candidates"
+      ],
+      "title": "ReportPlan",
       "type": "object"
     },
     "RequestedAnalysis": {
@@ -14863,25 +14574,6 @@
       "title": "Spelling",
       "type": "object"
     },
-    "State": {
-      "additionalProperties": false,
-      "description": "A piece of memory an analysis needs. Two candidates with the same ``key``\nshare it, and the plan counts it once (PLAN-04).",
-      "properties": {
-        "key": {
-          "title": "Key",
-          "type": "string"
-        },
-        "memory": {
-          "$ref": "#/$defs/Memory"
-        }
-      },
-      "required": [
-        "key",
-        "memory"
-      ],
-      "title": "State",
-      "type": "object"
-    },
     "StateCount": {
       "additionalProperties": false,
       "properties": {
@@ -15062,83 +14754,6 @@
         "both_missing"
       ],
       "title": "StatsExclusions",
-      "type": "object"
-    },
-    "StatsExploration": {
-      "additionalProperties": false,
-      "description": "What the row sample says of the numbers of a column by category (design\n20.23, REL-05): the ``rows`` that have a category and a number, the effective\n``groups`` (categories with a row) and the correlation ratio ``eta_squared``,\nits corrected ``epsilon_squared`` and the ``score`` the planner ranks by\n(its square root), or the ``reason`` there is none. It says nothing of the\npopulation beyond the ``scope`` rows. Figures are rounded to six decimals.",
-      "properties": {
-        "scope": {
-          "enum": [
-            "interior_rows",
-            "all_rows"
-          ],
-          "title": "Scope",
-          "type": "string"
-        },
-        "rows": {
-          "title": "Rows",
-          "type": "integer"
-        },
-        "groups": {
-          "title": "Groups",
-          "type": "integer"
-        },
-        "eta_squared": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Eta Squared"
-        },
-        "epsilon_squared": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Epsilon Squared"
-        },
-        "score": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Score"
-        },
-        "reason": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Reason"
-        }
-      },
-      "required": [
-        "scope",
-        "rows",
-        "groups"
-      ],
-      "title": "StatsExploration",
       "type": "object"
     },
     "StatsGroup": {
@@ -16571,100 +16186,6 @@
       "title": "TableExclusions",
       "type": "object"
     },
-    "TableExploration": {
-      "additionalProperties": false,
-      "description": "What the row sample says of a table of a category against a feature of\nanother column (design 20.13, REL-05): the ``rows`` classified in both\naxes, the effective ``categories`` and ``classes`` (axes with a count), and\nthe association, or the ``reason`` it is not defined. It says nothing of\nthe population beyond the ``scope`` rows: a relation not detected here may\nstill hold elsewhere. ``score`` is the bias-corrected Cramér's V the planner\nranks by, and ``stable`` says whether the sample has the counts to trust it (a\ntable that is not is still listed: the whole file may have them). Figures are\nrounded to six decimals.",
-      "properties": {
-        "scope": {
-          "enum": [
-            "interior_rows",
-            "all_rows"
-          ],
-          "title": "Scope",
-          "type": "string"
-        },
-        "rows": {
-          "title": "Rows",
-          "type": "integer"
-        },
-        "categories": {
-          "default": 0,
-          "title": "Categories",
-          "type": "integer"
-        },
-        "classes": {
-          "default": 0,
-          "title": "Classes",
-          "type": "integer"
-        },
-        "purity": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Purity"
-        },
-        "cramers_v": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Cramers V"
-        },
-        "score": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Score"
-        },
-        "stable": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stable"
-        },
-        "reason": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Reason"
-        }
-      },
-      "required": [
-        "scope",
-        "rows"
-      ],
-      "title": "TableExploration",
-      "type": "object"
-    },
     "TableFeature": {
       "additionalProperties": false,
       "description": "The feature of the second column that makes the classes (REL-01):\n``prefix_length`` is the number of characters of a prefix.",
@@ -17262,29 +16783,6 @@
         }
       },
       "title": "UrlSettings",
-      "type": "object"
-    },
-    "Utility": {
-      "additionalProperties": false,
-      "description": "A versioned heuristic from 0 to 100 with its reasons. It orders the\ncandidates; it is not a measure of the data.",
-      "properties": {
-        "score": {
-          "title": "Score",
-          "type": "integer"
-        },
-        "reasons": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Reasons",
-          "type": "array"
-        }
-      },
-      "required": [
-        "score",
-        "reasons"
-      ],
-      "title": "Utility",
       "type": "object"
     },
     "UuidSettings": {

@@ -6624,644 +6624,320 @@
           {
             "id": "exact_frequencies:rows:column_1",
             "analyzer": "exact_frequencies",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_1",
             "display": "id",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "frequencies",
-              "mode",
-              "proportions"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "counts_complete",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_1/values/frequencies"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_frequencies:rows:column_2",
             "analyzer": "exact_frequencies",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_2",
             "display": "name",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "frequencies",
-              "mode",
-              "proportions"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "counts_complete",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_2/values/frequencies"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_frequencies:rows:column_3",
             "analyzer": "exact_frequencies",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_3",
             "display": "amount",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "frequencies",
-              "mode",
-              "proportions"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "counts_complete",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_3/values/frequencies"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_frequencies:rows:column_4",
             "analyzer": "exact_frequencies",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_4",
             "display": "joined",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "frequencies",
-              "mode",
-              "proportions"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "counts_complete",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_4/values/frequencies"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_frequencies:rows:column_5",
             "analyzer": "exact_frequencies",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_5",
             "display": "active",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "frequencies",
-              "mode",
-              "proportions"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "counts_complete",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_5/values/frequencies"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_frequencies:rows:column_6",
             "analyzer": "exact_frequencies",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_6",
             "display": "notes",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "frequencies",
-              "mode",
-              "proportions"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "counts_complete",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_6/values/frequencies"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "numeric_histogram:rows:column_3",
             "analyzer": "numeric_histogram",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_3",
             "display": "amount",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "histogram",
-              "quantiles",
-              "median_estimate"
-            ],
             "applicability": {
               "state": "not_applicable",
               "reasons": [
                 "unreliable_type"
               ]
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "rejected",
               "reason": "not_applicable",
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "length_distribution:rows:column_1",
             "analyzer": "length_distribution",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_1",
             "display": "id",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "length_histogram"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "lengths_complete",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_1/string_lengths"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "length_distribution:rows:column_2",
             "analyzer": "length_distribution",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_2",
             "display": "name",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "length_histogram"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "lengths_complete",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_2/string_lengths"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "length_distribution:rows:column_3",
             "analyzer": "length_distribution",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_3",
             "display": "amount",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "length_histogram"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "lengths_complete",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_3/string_lengths"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "length_distribution:rows:column_6",
             "analyzer": "length_distribution",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_6",
             "display": "notes",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "length_histogram"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "lengths_complete",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_6/string_lengths"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_distinct:rows:column_1",
             "analyzer": "exact_distinct",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_1",
             "display": "id",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "distinct_count",
-              "uniqueness"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "distinct_exact",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_1/values/cardinality"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_distinct:rows:column_2",
             "analyzer": "exact_distinct",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_2",
             "display": "name",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "distinct_count",
-              "uniqueness"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "distinct_exact",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_2/values/cardinality"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_distinct:rows:column_3",
             "analyzer": "exact_distinct",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_3",
             "display": "amount",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "distinct_count",
-              "uniqueness"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "distinct_exact",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_3/values/cardinality"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_distinct:rows:column_4",
             "analyzer": "exact_distinct",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_4",
             "display": "joined",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "distinct_count",
-              "uniqueness"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "distinct_exact",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_4/values/cardinality"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_distinct:rows:column_5",
             "analyzer": "exact_distinct",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_5",
             "display": "active",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "distinct_count",
-              "uniqueness"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "distinct_exact",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_5/values/cardinality"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "exact_distinct:rows:column_6",
             "analyzer": "exact_distinct",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_6",
             "display": "notes",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "distinct_count",
-              "uniqueness"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "distinct_exact",
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/rows/fields/column_6/values/cardinality"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "pattern_validation:rows:column_1",
             "analyzer": "pattern_validation",
-            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_1",
             "display": "id",
-            "method": "family_recognizer",
-            "parameters": {
-              "patterns": 1,
-              "nodes": 1,
-              "facets": 0,
-              "table_bytes": 65536,
-              "distinct_bytes": 1048576,
-              "grammar_version": 2,
-              "algorithm_version": 1,
-              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
-            },
-            "outputs": [
-              "pattern_counts",
-              "unmatched"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
-            },
-            "utility": {
-              "score": 50,
-              "reasons": [
-                "derivable_from_samples"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 2080,
-                "expected": 2080,
-                "max": 2080
-              },
-              "cpu": "moderate",
-              "cell_ns": 1300,
-              "states": [
-                {
-                  "key": "patterns:datasets/rows/fields/column_1",
-                  "memory": {
-                    "min": 1056,
-                    "expected": 1056,
-                    "max": 1056
-                  }
-                },
-                {
-                  "key": "result:pattern_validation:datasets/rows/fields/column_1",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
             },
             "selection": {
               "state": "selected",
@@ -7269,109 +6945,37 @@
               "requested": false,
               "priority": 3,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "pattern_validation:rows:column_2",
             "analyzer": "pattern_validation",
-            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_2",
             "display": "name",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "pattern_counts",
-              "unmatched"
-            ],
             "applicability": {
               "state": "not_applicable",
               "reasons": [
                 "not_eligible"
               ]
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "rejected",
               "reason": "not_applicable",
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "pattern_validation:rows:column_3",
             "analyzer": "pattern_validation",
-            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_3",
             "display": "amount",
-            "method": "family_recognizer",
-            "parameters": {
-              "patterns": 2,
-              "nodes": 2,
-              "facets": 0,
-              "table_bytes": 65536,
-              "distinct_bytes": 1048576,
-              "grammar_version": 2,
-              "algorithm_version": 1,
-              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
-            },
-            "outputs": [
-              "pattern_counts",
-              "unmatched"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
-            },
-            "utility": {
-              "score": 50,
-              "reasons": [
-                "derivable_from_samples"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 3128,
-                "expected": 3128,
-                "max": 3128
-              },
-              "cpu": "moderate",
-              "cell_ns": 1300,
-              "states": [
-                {
-                  "key": "patterns:datasets/rows/fields/column_3",
-                  "memory": {
-                    "min": 2104,
-                    "expected": 2104,
-                    "max": 2104
-                  }
-                },
-                {
-                  "key": "result:pattern_validation:datasets/rows/fields/column_3",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
             },
             "selection": {
               "state": "selected",
@@ -7379,73 +6983,17 @@
               "requested": false,
               "priority": 5,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "pattern_validation:rows:column_4",
             "analyzer": "pattern_validation",
-            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_4",
             "display": "joined",
-            "method": "family_recognizer",
-            "parameters": {
-              "patterns": 1,
-              "nodes": 1,
-              "facets": 0,
-              "table_bytes": 65536,
-              "distinct_bytes": 1048576,
-              "grammar_version": 2,
-              "algorithm_version": 1,
-              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
-            },
-            "outputs": [
-              "pattern_counts",
-              "unmatched"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
-            },
-            "utility": {
-              "score": 50,
-              "reasons": [
-                "derivable_from_samples"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 2080,
-                "expected": 2080,
-                "max": 2080
-              },
-              "cpu": "moderate",
-              "cell_ns": 1300,
-              "states": [
-                {
-                  "key": "patterns:datasets/rows/fields/column_4",
-                  "memory": {
-                    "min": 1056,
-                    "expected": 1056,
-                    "max": 1056
-                  }
-                },
-                {
-                  "key": "result:pattern_validation:datasets/rows/fields/column_4",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
             },
             "selection": {
               "state": "selected",
@@ -7453,73 +7001,17 @@
               "requested": false,
               "priority": 4,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "pattern_validation:rows:column_6",
             "analyzer": "pattern_validation",
-            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_6",
             "display": "notes",
-            "method": "family_recognizer",
-            "parameters": {
-              "patterns": 3,
-              "nodes": 3,
-              "facets": 0,
-              "table_bytes": 65536,
-              "distinct_bytes": 1048576,
-              "grammar_version": 2,
-              "algorithm_version": 1,
-              "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
-            },
-            "outputs": [
-              "pattern_counts",
-              "unmatched"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
-            },
-            "utility": {
-              "score": 50,
-              "reasons": [
-                "derivable_from_samples"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 4176,
-                "expected": 4176,
-                "max": 4176
-              },
-              "cpu": "moderate",
-              "cell_ns": 1300,
-              "states": [
-                {
-                  "key": "patterns:datasets/rows/fields/column_6",
-                  "memory": {
-                    "min": 3152,
-                    "expected": 3152,
-                    "max": 3152
-                  }
-                },
-                {
-                  "key": "result:pattern_validation:datasets/rows/fields/column_6",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
             },
             "selection": {
               "state": "selected",
@@ -7527,75 +7019,17 @@
               "requested": false,
               "priority": 7,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "temporal_distribution:rows:column_4",
             "analyzer": "temporal_distribution",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_4",
             "display": "joined",
-            "method": "period_counts",
-            "parameters": {
-              "granularity": "day",
-              "periods": 91,
-              "date_order": ""
-            },
-            "outputs": [
-              "period_counts"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
-            },
-            "utility": {
-              "score": 50,
-              "reasons": [
-                "temporal_distribution"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 1752,
-                "expected": 2172,
-                "max": 3432
-              },
-              "cpu": "moderate",
-              "cell_ns": 800,
-              "states": [
-                {
-                  "key": "periods:datasets/rows/fields/column_4",
-                  "memory": {
-                    "min": 728,
-                    "expected": 728,
-                    "max": 728
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_4",
-                  "memory": {
-                    "min": 0,
-                    "expected": 420,
-                    "max": 1680
-                  }
-                },
-                {
-                  "key": "result:temporal_distribution:datasets/rows/fields/column_4",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
             },
             "selection": {
               "state": "selected",
@@ -7603,79 +7037,17 @@
               "requested": false,
               "priority": 6,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "residual_values:rows:column_3",
             "analyzer": "residual_values",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_3",
             "display": "amount",
-            "method": "residual_table",
-            "parameters": {
-              "sources": "number",
-              "max_listed": 20,
-              "max_tracked": 10000,
-              "max_value_length": 100,
-              "records": 0
-            },
-            "outputs": [
-              "residual_values",
-              "pattern_profile"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
-            },
-            "utility": {
-              "score": 60,
-              "reasons": [
-                "values_left_out",
-                "derivable_from_samples"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 1774,
-                "expected": 1933,
-                "max": 3052
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "residuals:datasets/rows/fields/column_3",
-                  "memory": {
-                    "min": 0,
-                    "expected": 159,
-                    "max": 1278
-                  }
-                },
-                {
-                  "key": "result:residual_values:datasets/rows/fields/column_3",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "residual_memo:datasets/rows/fields/column_3",
-                  "memory": {
-                    "min": 750,
-                    "expected": 750,
-                    "max": 750
-                  }
-                }
-              ]
             },
             "selection": {
               "state": "selected",
@@ -7683,70 +7055,17 @@
               "requested": false,
               "priority": 1,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "duplicates_report:rows:column_1",
             "analyzer": "duplicates_report",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_1",
             "display": "id",
-            "method": "digest_table",
-            "parameters": {
-              "max_listed": 20,
-              "max_tracked": 10000,
-              "records": 0
-            },
-            "outputs": [
-              "duplicates",
-              "uniqueness"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
-            },
-            "utility": {
-              "score": 60,
-              "reasons": [
-                "repeated_identifier",
-                "identifier_name",
-                "derivable_from_samples"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 1024,
-                "expected": 1150,
-                "max": 2039
-              },
-              "cpu": "moderate",
-              "cell_ns": 1100,
-              "states": [
-                {
-                  "key": "duplicates:datasets/rows/fields/column_1",
-                  "memory": {
-                    "min": 0,
-                    "expected": 126,
-                    "max": 1015
-                  }
-                },
-                {
-                  "key": "result:duplicates_report:datasets/rows/fields/column_1",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
             },
             "selection": {
               "state": "selected",
@@ -7754,114 +7073,37 @@
               "requested": false,
               "priority": 2,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "numeric_shape:rows:column_3",
             "analyzer": "numeric_shape",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_3",
             "display": "amount",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "moments",
-              "outliers",
-              "decimals",
-              "histogram"
-            ],
             "applicability": {
               "state": "not_applicable",
               "reasons": [
                 "unreliable_type"
               ]
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "rejected",
               "reason": "not_applicable",
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "datetime_parts:rows:column_4",
             "analyzer": "datetime_parts",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_4",
             "display": "joined",
-            "method": "calendar_parts",
-            "parameters": {
-              "as_of": "",
-              "date_order": ""
-            },
-            "outputs": [
-              "calendar_parts",
-              "ambiguity",
-              "invalid_reasons"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
-            },
-            "utility": {
-              "score": 40,
-              "reasons": [
-                "calendar_parts"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 33792,
-                "expected": 34812,
-                "max": 36672
-              },
-              "cpu": "low",
-              "cell_ns": 600,
-              "states": [
-                {
-                  "key": "parts:datasets/rows/fields/column_4",
-                  "memory": {
-                    "min": 32768,
-                    "expected": 33368,
-                    "max": 33968
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_4",
-                  "memory": {
-                    "min": 0,
-                    "expected": 420,
-                    "max": 1680
-                  }
-                },
-                {
-                  "key": "result:datetime_parts:datasets/rows/fields/column_4",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
             },
             "selection": {
               "state": "rejected",
@@ -7869,288 +7111,137 @@
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "position_drift:rows:column_1",
             "analyzer": "position_drift",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_1",
             "display": "id",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "missing_by_position",
-              "values_by_position",
-              "new_values"
-            ],
             "applicability": {
               "state": "not_applicable",
               "reasons": [
                 "too_few_records"
               ]
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "rejected",
               "reason": "not_applicable",
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "position_drift:rows:column_2",
             "analyzer": "position_drift",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_2",
             "display": "name",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "missing_by_position",
-              "values_by_position",
-              "new_values"
-            ],
             "applicability": {
               "state": "not_applicable",
               "reasons": [
                 "too_few_records"
               ]
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "rejected",
               "reason": "not_applicable",
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "position_drift:rows:column_3",
             "analyzer": "position_drift",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_3",
             "display": "amount",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "missing_by_position",
-              "values_by_position",
-              "new_values"
-            ],
             "applicability": {
               "state": "not_applicable",
               "reasons": [
                 "too_few_records"
               ]
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "rejected",
               "reason": "not_applicable",
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "position_drift:rows:column_4",
             "analyzer": "position_drift",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_4",
             "display": "joined",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "missing_by_position",
-              "values_by_position",
-              "new_values"
-            ],
             "applicability": {
               "state": "not_applicable",
               "reasons": [
                 "too_few_records"
               ]
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "rejected",
               "reason": "not_applicable",
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "position_drift:rows:column_5",
             "analyzer": "position_drift",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_5",
             "display": "active",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "missing_by_position",
-              "values_by_position",
-              "new_values"
-            ],
             "applicability": {
               "state": "not_applicable",
               "reasons": [
                 "too_few_records"
               ]
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "rejected",
               "reason": "not_applicable",
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "position_drift:rows:column_6",
             "analyzer": "position_drift",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_6",
             "display": "notes",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "missing_by_position",
-              "values_by_position",
-              "new_values"
-            ],
             "applicability": {
               "state": "not_applicable",
               "reasons": [
                 "too_few_records"
               ]
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "rejected",
               "reason": "not_applicable",
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "missing_matrix:rows:column_3",
             "analyzer": "missing_matrix",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_3",
             "display": "amount",
-            "method": "bit_sets",
-            "parameters": {
-              "columns": 2,
-              "max_listed": 10
-            },
-            "outputs": [
-              "missing_together"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
-            },
-            "utility": {
-              "score": 40,
-              "reasons": [
-                "missing_together"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 70656,
-                "expected": 70696,
-                "max": 70816
-              },
-              "cpu": "low",
-              "cell_ns": 200,
-              "states": [
-                {
-                  "key": "matrix:rows",
-                  "memory": {
-                    "min": 69632,
-                    "expected": 69672,
-                    "max": 69792
-                  }
-                },
-                {
-                  "key": "result:missing_matrix:datasets/rows/fields/column_3",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
             },
             "selection": {
               "state": "rejected",
@@ -8158,66 +7249,17 @@
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "missing_matrix:rows:column_6",
             "analyzer": "missing_matrix",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_6",
             "display": "notes",
-            "method": "bit_sets",
-            "parameters": {
-              "columns": 2,
-              "max_listed": 10
-            },
-            "outputs": [
-              "missing_together"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
-            },
-            "utility": {
-              "score": 40,
-              "reasons": [
-                "missing_together"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 70656,
-                "expected": 70696,
-                "max": 70816
-              },
-              "cpu": "low",
-              "cell_ns": 200,
-              "states": [
-                {
-                  "key": "matrix:rows",
-                  "memory": {
-                    "min": 69632,
-                    "expected": 69672,
-                    "max": 69792
-                  }
-                },
-                {
-                  "key": "result:missing_matrix:datasets/rows/fields/column_6",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
             },
             "selection": {
               "state": "rejected",
@@ -8225,225 +7267,128 @@
               "requested": false,
               "priority": null,
               "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "character_profile:rows:column_1",
             "analyzer": "character_profile",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_1",
             "display": "id",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "character_map"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "map_in_samples",
               "requested": false,
               "priority": null,
               "satisfied_by": "derived/characters/rows/column_1"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "character_profile:rows:column_2",
             "analyzer": "character_profile",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_2",
             "display": "name",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "character_map"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "map_in_samples",
               "requested": false,
               "priority": null,
               "satisfied_by": "derived/characters/rows/column_2"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "character_profile:rows:column_3",
             "analyzer": "character_profile",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_3",
             "display": "amount",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "character_map"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "map_in_samples",
               "requested": false,
               "priority": null,
               "satisfied_by": "derived/characters/rows/column_3"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "character_profile:rows:column_4",
             "analyzer": "character_profile",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_4",
             "display": "joined",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "character_map"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "map_in_samples",
               "requested": false,
               "priority": null,
               "satisfied_by": "derived/characters/rows/column_4"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "character_profile:rows:column_5",
             "analyzer": "character_profile",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_5",
             "display": "active",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "character_map"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "map_in_samples",
               "requested": false,
               "priority": null,
               "satisfied_by": "derived/characters/rows/column_5"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           },
           {
             "id": "character_profile:rows:column_6",
             "analyzer": "character_profile",
-            "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_6",
             "display": "notes",
-            "method": null,
-            "parameters": {},
-            "outputs": [
-              "character_map"
-            ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
-            "utility": null,
-            "costs": null,
             "selection": {
               "state": "already_satisfied",
               "reason": "map_in_samples",
               "requested": false,
               "priority": null,
               "satisfied_by": "derived/characters/rows/column_6"
-            },
-            "execution": {
-              "requires_source": false,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
             }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-18T03:35:19.453935Z",
-        "duration_seconds": 0.000106,
+        "started_at": "2026-10-18T03:08:15.658512Z",
+        "duration_seconds": 0.000107,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000106
+          "other": 0.000107
         },
         "workers": 1,
-        "peak_memory_bytes": 71307264,
+        "peak_memory_bytes": 71192576,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -8919,12 +7864,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T03:35:19.453935Z",
+    "generated_at": "2026-10-18T03:08:15.661511Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0249,
+    "processing_seconds": 0.0219,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,

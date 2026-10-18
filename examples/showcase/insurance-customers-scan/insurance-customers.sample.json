@@ -103,14 +103,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-18T03:35:38.994458Z",
-    "duration_seconds": 7.429115,
+    "started_at": "2026-10-18T03:08:34.645996Z",
+    "duration_seconds": 7.594017,
     "timings": {
-      "reading": 7.311895,
-      "selection": 0.057572,
-      "other": 0.059648
+      "reading": 7.497222,
+      "selection": 0.045873,
+      "other": 0.050922
     },
-    "peak_memory_bytes": 167567360,
+    "peak_memory_bytes": 169058304,
     "records_read": 100000,
     "cells_read": 3400000,
     "source_verified": true,

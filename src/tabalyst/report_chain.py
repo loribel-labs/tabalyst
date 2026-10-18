@@ -21,6 +21,7 @@ from tabalyst.deep_store import ConfirmationRequired, write_deep
 from tabalyst.errors import TabalystError
 from tabalyst.models import AnalysesBlock, AnalysesMode
 from tabalyst.progress import ProgressCallback, ProgressPhase, emit_progress
+from tabalyst.report_plan import shorten_deep
 from tabalyst.scanner.models import ScanResult
 from tabalyst.scanner.planner import (
     Confirmation,
@@ -238,5 +239,5 @@ def run_chain(
         mode=chain.mode,
         outcome=_outcome_of(outcome),  # type: ignore[arg-type]
         reason=reason,
-        deep=outcome.document,
+        deep=None if outcome.document is None else shorten_deep(outcome.document),
     )

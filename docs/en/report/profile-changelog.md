@@ -130,6 +130,11 @@ exposed as `mask` or `hide` has no raw value in its projection. `columns[].examp
 `columns[].value_profile` are no longer written. The `overview` of a column holds its `kind`, `type`,
 `facts` and `notes` (`partial_scope`, `ambiguous_left_out`), not the sentence.
 
+The plan of `analyses.deep` lists, for each candidate, only `id`, `analyzer`, `dataset`, `field`,
+`display`, `partner`, `applicability` and `selection`. The `method`, `parameters`, `outputs`,
+`utility`, `costs`, `execution`, `exploration` and `analyzer_version` of a candidate stay in the
+second pass document written beside the scan, which keeps the whole plan.
+
 The report carries the new result `date_order` of the second pass under `analyses` (the records where the
 first date of a pair of columns is after the second).
 The report follows the scan base at revision 4 (see the
