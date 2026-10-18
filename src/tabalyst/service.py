@@ -49,6 +49,7 @@ from tabalyst.report_chain import (
 from tabalyst.report_config import ReportConfig, resolve_report_config
 from tabalyst.report_profile import build_profile
 from tabalyst.reporting import (
+    column_neighbours,
     column_pages,
     dataset_views,
     render_column_report,
@@ -518,11 +519,16 @@ def _write_report(
             for page, dataset, column in pages
         }
         html = render_report(profile, column_links=links, views=views)
+        neighbours = column_neighbours(pages)
         column_html = [
             (
                 page,
                 render_column_report(
-                    profile, dataset, column, f"../{quote(report.name)}"
+                    profile,
+                    dataset,
+                    column,
+                    f"../{quote(report.name)}",
+                    *neighbours[(dataset.id, column.id)],
                 ),
             )
             for page, dataset, column in pages

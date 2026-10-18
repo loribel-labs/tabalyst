@@ -145,7 +145,7 @@ def test_the_page_of_a_column_shows_its_cards_and_what_the_scan_derives(rich, tm
 
     dataset, size = by_name["size"]
     page = render_column_report(profile, dataset, size, "rich.html")
-    assert 'id="insights"' in page and "Quantities with a unit" in page
+    assert 'id="shape"' in page and "Quantities with a unit" in page
     assert f"{BIG:,}" in page
     # A pair concerns both of its columns.
     _, price = by_name["price"]

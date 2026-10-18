@@ -587,31 +587,35 @@ def _lengths_view(detail: LengthDetail) -> FindingDetailView:
     )
 
 
+def column_finding_views(column: ColumnView) -> dict[str, FindingDetailView]:
+    """The details of one column that are not spelling variants, by observation rule."""
+    views: dict[str, FindingDetailView] = {}
+    if column.summary is None:
+        return views
+    details = column.summary.finding_details
+    if details.dates is not None:
+        views["ambiguous_dates"] = _dates_view(details.dates)
+    if details.patterns is not None:
+        views["minority_pattern"] = _patterns_view(details.patterns)
+    if details.lengths is not None:
+        views["minority_length"] = _lengths_view(details.lengths)
+    if details.types is not None:
+        views["mixed_types"] = _types_view(details.types)
+    if details.whitespace is not None:
+        for change in details.whitespace.stages:
+            rule = {"trim": "trimmed_cells", "collapse_whitespace": "collapsed_whitespace"}[change.stage]
+            views[rule] = _whitespace_view(details.whitespace, rule)
+    return views
+
+
 def finding_detail_views(dataset: DatasetView) -> dict[tuple[str, str], FindingDetailView]:
     """The details of a dataset's Findings table that are not spelling variants, by
     column id and observation rule."""
-    views: dict[tuple[str, str], FindingDetailView] = {}
-    for column in dataset.columns:
-        if column.summary is None:
-            continue
-        dates = column.summary.finding_details.dates
-        if dates is not None:
-            views[(column.id, "ambiguous_dates")] = _dates_view(dates)
-        patterns = column.summary.finding_details.patterns
-        if patterns is not None:
-            views[(column.id, "minority_pattern")] = _patterns_view(patterns)
-        lengths = column.summary.finding_details.lengths
-        if lengths is not None:
-            views[(column.id, "minority_length")] = _lengths_view(lengths)
-        types = column.summary.finding_details.types
-        if types is not None:
-            views[(column.id, "mixed_types")] = _types_view(types)
-        whitespace = column.summary.finding_details.whitespace
-        if whitespace is not None:
-            for change in whitespace.stages:
-                rule = {"trim": "trimmed_cells", "collapse_whitespace": "collapsed_whitespace"}[change.stage]
-                views[(column.id, rule)] = _whitespace_view(whitespace, rule)
-    return views
+    return {
+        (column.id, rule): view
+        for column in dataset.columns
+        for rule, view in column_finding_views(column).items()
+    }
 
 
 def column_table(dataset: DatasetView) -> ColumnTable:

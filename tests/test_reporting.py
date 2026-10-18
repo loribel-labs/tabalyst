@@ -119,7 +119,7 @@ def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
 
     assert 'class="side"' in html
     assert 'rel="icon" type="image/svg+xml"' in html
-    assert '<section class="panel" id="overview"' in html
+    assert '<section class="panel" id="summary"' in html
     assert '<section class="panel" id="columns"' in html
     assert '<section class="panel" id="sample"' in html
     assert 'Numeric analysis' in html
@@ -189,7 +189,7 @@ def test_column_reports_are_independent_and_linked(tmp_path):
         assert 'href="../report.html"' in html
         assert 'class="side"' in html
         assert '<style>' in html and '<script>' in html
-        assert '<section class="panel" id="overview"' in html
+        assert '<section class="panel" id="summary"' in html
     assert "open" in pages[0].read_text(encoding="utf-8")
 
     with pytest.raises(ReportError):

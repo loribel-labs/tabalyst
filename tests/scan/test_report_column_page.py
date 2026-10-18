@@ -18,6 +18,7 @@ from scan_helpers import write_text
 import tabalyst
 from tabalyst import analyze_csv
 from tabalyst.json_text import dump_json
+from tabalyst.report_column_page import Neighbour
 from tabalyst.report_config import ReportConfig
 from tabalyst.reporting import dataset_views, load_profile, render_column_report
 from tabalyst.scanner import ScanConfig
@@ -32,7 +33,7 @@ def _contacts():
 
 # Panels the Scan exposes at the source (strings, patterns, evidence, sample): a raw
 # document forced to another exposure is checked on the panels the page gates itself.
-SCAN_EXPOSED = ("strings", "patterns", "scan-evidence", "sample")
+SCAN_EXPOSED = ("shape", "formats", "scan-evidence", "sample")
 
 
 def _gated(html):
@@ -100,9 +101,81 @@ def test_a_shown_column_page_lists_its_values(tmp_path):
 def test_the_page_shows_the_classification_and_the_findings(tmp_path):
     html = _page(tmp_path, _contacts(), "contact")
 
-    assert "Technical type confidence" in html
-    assert "<dt>Kinds of error</dt>" in html and "<dt>Kinds of issue</dt>" in html
-    assert "Type errors" not in html
+    assert "Technical type" in html and "% confidence" in html
+    assert 'id="findings"' in html and "Type errors" not in html
+
+
+def _dates():
+    cells = [f"2026-01-{n % 28 + 1:02d}" for n in range(60)]
+    cells += ["03/04/2026", "05/06/2026", "07/08/2026", "11/12/2026"]
+    return "when,row\n" + "\n".join(f"{c},{n}" for n, c in enumerate(cells)) + "\n"
+
+
+def _sections(html):
+    return re.findall(r'<section class="panel" id="([\w-]+)"', html)
+
+
+def test_the_blocks_come_in_the_order_of_the_questions_a_reader_asks(tmp_path):
+    html = _page(tmp_path, _dates(), "when")
+
+    expected = ["summary", "findings", "values", "shape", "formats", "cleaning", "limits", "scan-evidence"]
+    assert [i for i in _sections(html) if i in expected] == expected
+
+
+def test_a_column_with_nothing_to_report_says_so(tmp_path):
+    content = "status,row\n" + "\n".join(f"{w},{n}" for n, w in enumerate(["open", "closed"] * 5)) + "\n"
+
+    html = _page(tmp_path, content, "status")
+
+    assert "Nothing was found in this column." in html
+    assert "No measure of this column was limited." in html
+
+
+def test_an_error_has_its_own_card_in_the_class_colour(tmp_path):
+    content = "amount,row\n" + "\n".join(f"{n * 3},{n}" for n in range(60)) + "\nabc,60\nxyz,61\n"
+
+    html = _page(tmp_path, content, "amount")
+
+    assert 'class="fnd fnd-error"' in html and "fcls-error" in html
+
+
+def test_the_detail_of_a_finding_is_printed_in_its_card_from_the_stored_member(tmp_path):
+    html = _page(tmp_path, _dates(), "when")
+
+    card = re.search(r'<article class="fnd fnd-issue".*?</article>', html, flags=re.DOTALL).group(0)
+    assert "Formats that fit the same values" in card
+    assert "DD/MM/YYYY or MM/DD/YYYY" in card
+
+
+def test_a_format_is_printed_once_and_the_detector_json_is_not_printed(tmp_path):
+    html = _page(tmp_path, _dates(), "when")
+
+    assert html.count("<code>YYYY-MM-DD</code>") == 1
+    assert '<pre class="column-json"' not in html and "Detector details" not in html
+
+
+def test_the_whitespace_observation_is_told_by_its_issue_and_not_listed_again_as_a_remark(tmp_path):
+    cells = ["alpha beta"] * 40 + ["alpha  beta"] * 3
+    content = "text,row\n" + "\n".join(f"{c},{n}" for n, c in enumerate(cells)) + "\n"
+
+    html = _page(tmp_path, content, "text")
+
+    assert "Cells changed by collapsing repeated internal whitespace" not in html
+    assert "Repeated whitespace" in html
+
+
+def test_the_page_links_its_neighbours_when_they_exist(tmp_path):
+    source = write_text(tmp_path, "data.csv", "a,b,c\n1,x,2\n2,y,3\n")
+    profile = analyze_csv(source, ReportConfig())
+    dataset = dataset_views(profile)[0]
+    column = dataset.columns[1]
+    previous, following = Neighbour(name="a", href="col-01-a.html"), Neighbour(name="c", href="col-03-c.html")
+
+    html = render_column_report(profile, dataset, column, "report.html", previous, following)
+    alone = render_column_report(profile, dataset, column, "report.html")
+
+    assert 'rel="prev"' in html and 'href="col-03-c.html"' in html
+    assert 'rel="prev"' not in alone and 'rel="next"' not in alone
 
 
 PUBLIC_PARAMETERS = {
