@@ -70,6 +70,35 @@ the focus back) with the columns behind it.
 - **Column types** counts columns twice, not cells: by family and type of the
   classification, then by technical type.
 
+### Signal tiles
+
+Twelve kinds of finding produce a tile. The title and the line under it are the ones
+below; the figure is the sum of the finding over the columns that have it, counted in
+one unit.
+
+| Tile | Class | What it counts | Counted in | Where it comes from |
+| --- | --- | --- | --- | --- |
+| Invalid dates | Error | Dates that do not exist in the calendar | values | The date detector, on a column established as dates |
+| Invalid values | Error | Values failing a validation check | values | The email, phone, postal code, URL, IP address and UUID detectors |
+| Type mismatches | Error | Values outside the inferred column type | values | A column typed Integer or Number |
+| Ambiguous dates | Issue | Values matching multiple date orders | values | Dates that read as day-month or month-day; the order is never guessed |
+| Ambiguous numbers | Issue | Values that read in more than one way | values | The number detector (decimal comma or point) |
+| Spelling variants | Issue | Groups of different spellings | groups | Values that differ only by case, accents or spaces |
+| Minority patterns | Issue | Distinct values in less-common patterns | distinct values | The patterns of a column |
+| Minority lengths | Issue | Values with less-common lengths | values | The string lengths of a column |
+| Mixed types | Issue | Values outside the closest type | values | A column whose values fit more than one type |
+| ID repetitions | Issue | Repetitions beyond the first occurrence | values | An identifier whose distinct count is exact |
+| Surrounding whitespace | Issue | Values with leading or trailing whitespace | values | The scan observation of trimmed cells |
+| Repeated whitespace | Issue | Values with repeated whitespace | values | The scan observation of collapsed whitespace |
+
+The class is written before the title, so the colour is never the only cue. Tabalyst
+has two classes of finding to act on, Error and Issue; it has no Warning class.
+
+Two information findings, an empty column and a constant column, have no tile: a
+signal points at what to look at, and these say what a column is. They are in the
+Overview of the column and, as remarks, in the count of the observations of Column
+quality.
+
 The overview, the column summary and the findings answer different questions: how
 much and how far, which column, and what exactly. See
 [Findings](json-profile.md#findings).

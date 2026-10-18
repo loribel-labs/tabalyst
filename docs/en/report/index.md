@@ -32,7 +32,11 @@ modified or sent anywhere.
 ## What the report shows
 
 - Dataset dimensions, missing cells, duplicates and quality observations.
-- Physical and semantic types, with confidence and error rates.
+- A family and a type for each column (identifier, text, date, boolean...),
+  with the evidence behind them, and the technical type with its error rates.
+- A summary table with one row per column: its type, a sentence about its
+  values, the missing share, its Errors and Issues with a preview of each, and
+  its details; above it, the Column quality and Signals cards.
 - Numeric, date and string-length analysis, normalization and value
   distributions.
 - Distinct values, representative examples, date formats and detected meanings

@@ -52,7 +52,7 @@ lot R0. Decisions 13 to 15 were R0 proposals, confirmed at gate 0.
 | 6 | Evaluation states: `None detected`, `Not assessed`, `Partially assessed`, `Not applicable`, `Assessment failed`. The dash is no longer used in Errors and Issues (RF-23, O-12), except the `Not applicable` of an Errors cell (maintainer, R9a, 7.3). | 6.4 |
 | 7 | Interface: two visible labels then `+N more`, two examples in the preview. Errors red, Issues amber, information grey, contrasts checked (O-13, O-20). | 7.4 |
 | 8 | `ColumnProfile.semantic_type` and `DatasetSummary.semantic_type_*` are replaced by `classification` and its counts. `inferred_type` stays. Breaking change accepted in beta, noted in the changelogs. | 9 |
-| 9 | One revision bump per published version (rule P3, design section 20). Revision 4 of the Scan and of the Report is still in preparation (the last tag, `v0.6.2`, ships revision 3): the classification joins revision 4 and no revision 5 is created. Amended by the maintainer at the start of lot R1a; the gate 0 wording was "4 to 5". | 9 |
+| 9 | One revision bump per published version (rule P3, design section 20). Revision 4 of the Scan and of the Report is still in preparation (the last tag, `v0.6.2`, ships revision 1; revisions 2 and 3 were never published): the classification joins revision 4 and no revision 5 is created. Amended by the maintainer at the start of lot R1a; the gate 0 wording was "4 to 5". | 9 |
 | 10 | No new CLI option and no new analyzer. The second pass is decided as today by `report_chain` (`auto`, `forced`, `off`) and only `scan --deep` runs it. | 8 |
 | 11 | The identity of the classification rules is recorded in every classification and compared by `engine_warning`. | 10 |
 | 12 | The four Text bounds are one setting, `scan.classification.very_short_max_length`, `short_max_length`, `medium_max_length`, `long_max_length`, with defaults 5 / 20 / 50 / 255 (maintainer, during R0). They replace the specification defaults 10 / 50 / 255 / 1,000 (D-07). | 3.6, 11 |
@@ -1425,7 +1425,7 @@ Rules:
 - A member is a function of the Scan, `analyses`, the classification and the
   exposure at the build, never of the page.
 - Names stay stable once documented (AGENTS.md). Revision: the Report revision 4 is
-  still in preparation (last tag `v0.6.2`, revision 3), so there is no revision 5;
+  still in preparation (last tag `v0.6.2`, revision 1), so there is no revision 5;
   the revision 4 entry of `docs/en/report/profile-changelog.md` holds the change.
 
 ### 20.3 Construction

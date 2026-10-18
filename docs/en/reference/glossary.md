@@ -29,6 +29,12 @@ Keep these exactly as written in every language:
 | dataset | jeu de données | The tabular data being analyzed |
 | source file | fichier source | The CSV file given to Tabalyst |
 | dataset overview | vue d'ensemble du jeu de données | The report section summarizing the whole dataset |
+| finding | constat | What a rule found in a column: a count of one unit, out of a population, with its accuracy. An Error, an Issue or an Info |
+| Error | erreur | A finding that a rule proves invalid, such as a date that does not exist in the calendar |
+| Issue | point d'attention | A finding that is an ambiguity or a deviation worth a look, never proof of an error. The report has no Warning class |
+| signal | signal | A tile of the dataset overview that sums one kind of finding over the columns that have it |
+| classification | classification | The family and the type of a column (for example Identifier / ID, Text / Short), decided from the evidence of the scan and refined by the second pass |
+| Unique ID | identifiant unique | An identifier column with no missing value and an exact count proving that every value is distinct |
 | data sample | échantillon de données | The rows of the row sample shown in the report: the start, sampled rows and the end |
 | raw values | valeurs brutes | Source values before normalization |
 | missing value | valeur manquante | An empty value or a configured missing marker |

@@ -103,7 +103,11 @@ Details: [Tabalyst Report](https://docs.tabalyst.com/report/),
 ### What the report analyzes
 
 - Dataset dimensions, missing cells, duplicates, and quality observations.
-- Physical and semantic types with confidence and error rates.
+- A family and a type for each column (identifier, text, date, boolean...),
+  with the evidence behind them, and the technical type with its error rates.
+- A summary table with one row per column: its type, a sentence about its
+  values, the missing share, its Errors and Issues with a preview of each, and
+  its details; above it, the Column quality and Signals cards.
 - Numeric, date, string-length, normalization, and value distributions.
 - Distinct values, representative examples, date formats, and semantic types
   such as enumerations, email addresses, phone numbers, and postal codes.

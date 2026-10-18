@@ -281,3 +281,28 @@ def test_a_shown_sensitive_column_lists_its_variants(tmp_path):
         "Marie@example.com",
         "marie@example.com",
     }
+
+
+def test_the_documented_signal_tiles_are_the_ones_the_report_can_draw():
+    import re
+    from pathlib import Path
+
+    from tabalyst.report_labels import SIGNAL_TITLES
+    from tabalyst.scanner.classify.catalog import FINDINGS
+
+    page = Path(__file__).resolve().parents[2] / "docs" / "en" / "report" / "read-report.md"
+    text = page.read_text(encoding="utf-8").replace("\r\n", "\n")
+    section = re.split(r"\n#{2,3} ", text.split("### Signal tiles")[1])[0]
+    rows = [
+        [cell.strip() for cell in line.strip("|").split("|")]
+        for line in section.splitlines()
+        if line.startswith("| ") and not line.startswith("| Tile") and "---" not in line
+    ]
+    documented = {row[0]: (row[1], row[2]) for row in rows}
+    classes = {item.code: item.cls for item in FINDINGS}
+
+    expected = {
+        title: (classes[code].capitalize(), subtitle)
+        for code, (title, subtitle) in SIGNAL_TITLES.items()
+    }
+    assert documented == expected

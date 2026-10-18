@@ -40,7 +40,11 @@ Tabalyst prints a summary and the location of the report:
 ```text
 Analyzed 5 rows and 6 columns.
 Report: C:\work\orders.html
+Second pass (automatic): 7 analyses, 7 computed, 0 reused.
 ```
+
+The second pass is an extra step that Tabalyst runs by itself when it finds an
+analysis useful and cheap. The line says what it did.
 
 Three files now sit beside `orders.csv`:
 
@@ -70,28 +74,60 @@ your data: share them accordingly.
 
 ## 4. Read what Tabalyst found
 
-The report is organized in sections: **Dataset overview**, **Columns**,
-**Transformations**, **Numeric analysis**, **Date analysis**,
-**String analysis**, **Detectors and formats**, **Data sample** and
-**Analysis settings**. A **Limits and diagnostics** section appears when the
-scan stopped a measure at a limit or recorded a diagnostic.
+The report is organized in numbered sections, listed in the bar at the top:
+**Overview**, **Summary**, **Observations**, **Columns**, **Transformations**,
+**Dates**, **Strings**, **Detectors**, **Patterns**, **Insights**, **Second pass**,
+**Data sample** and **Analysis settings**. A section appears only when the data
+has something to show: a file with a numeric column also gets **Numeric**, and a
+**Limits** section appears when the scan stopped a measure at a limit.
 
-In **Dataset overview**, the **Quality observations** card lists the problems in
-`orders.csv`. Warnings come first; the two whitespace observations are
-informational and are always listed, here with a count of 0.
+### Overview
 
-| Problem | Where | Why |
+The **Overview** section sums up the file: 5 rows, 6 columns, 2 missing cells
+(6.67 %) and 1 duplicate row. Under it:
+
+- **Column quality** counts the columns by what Tabalyst found in them: 0 with
+  errors, 2 with issues, 4 with no finding. A column with errors counts under
+  errors even when it also has issues.
+- **Signals** has one tile per kind of finding. Here there are two, both Issues:
+  **ID repetitions** (1 value repeated beyond its first occurrence, in `id`) and
+  **Mixed types** (1 value outside the closest type, in `amount`). The
+  [tile catalogue](../report/read-report.md#signal-tiles) lists the others.
+- **Column types** counts the columns by family and type.
+
+An **Error** is a value that a rule proves invalid, such as a date that does not
+exist. An **Issue** is an ambiguity or a deviation worth a look. Nothing here is an
+Error: no rule proves a value invalid in this file.
+
+### Summary
+
+The **Summary** table has one row per column, with its type, a sentence about its
+values, the missing share and its **Errors** and **Issues**. In `orders.csv`:
+
+| Column | Type | What the row says |
 | --- | --- | --- |
-| 1 duplicate row | Record 4 | It repeats record 3 exactly |
-| 2 missing cells | `amount` and `notes`, record 2 | The cells are empty |
-| 1 column with mixed types | `amount` | Three numbers and the text `not available` |
+| `id` | Identifier, ID | 4 distinct values; an Issue: 1 repetition beyond the first (`003`) |
+| `name` | Text, Very short | Median length of 5 characters, no finding |
+| `amount` | Other, Mixed | Numbers and text together; an Issue: 1 value outside the closest type (`not available`); 1 missing |
+| `joined` | Temporal, Date | Dates from 2026-01-01 to 2026-04-01, in one format |
+| `active` | Categorical, Boolean | `true` holds 80 % of the values |
+| `notes` | Text, Short | Median length of 17 characters; 1 missing |
 
-Look at the columns too:
+Click an Issue to see what it counts, out of how many values, how exact the count
+is and a few examples.
 
-- `id` is detected as **text**, not integer: values such as `001` have leading
-  zeros, so Tabalyst keeps them as text.
-- `joined` is detected as a **date** in the `YYYY-MM-DD` format.
-- `active` is detected as a **boolean** (`true` / `false`).
+### Observations
+
+**Observations** lists what the scan found from its facts: the repeated row
+(record 4 repeats record 3 exactly), the mixed column `amount`, and the two empty
+cells (`amount` and `notes`, record 2), which are remarks and not problems.
+
+Look at the types too:
+
+- `id` is an **identifier**, not an integer: values such as `001` have leading
+  zeros, so Tabalyst keeps them as text and reads the column as an ID.
+- `joined` is a **date** in the `YYYY-MM-DD` format.
+- `active` is a **boolean** (`true` / `false`).
 
 Types are descriptive hints: Tabalyst never modifies your CSV file.
 
