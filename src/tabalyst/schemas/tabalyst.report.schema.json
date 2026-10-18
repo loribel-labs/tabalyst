@@ -2250,15 +2250,8 @@
         "values": {
           "$ref": "#/$defs/ColumnValues"
         },
-        "variants": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/VariantDetails"
-            },
-            {
-              "type": "null"
-            }
-          ]
+        "finding_details": {
+          "$ref": "#/$defs/FindingDetails"
         },
         "flags": {
           "items": {
@@ -2278,7 +2271,7 @@
         "overview",
         "details",
         "values",
-        "variants",
+        "finding_details",
         "flags"
       ],
       "title": "ColumnSummary",
@@ -3597,6 +3590,115 @@
       "title": "DatasetSummary",
       "type": "object"
     },
+    "DateCandidate": {
+      "additionalProperties": false,
+      "description": "The formats that fit a set of ambiguous values at once (``DD-MM-YYYY`` and\n``MM-DD-YYYY``), with the number of occurrences that fit them.",
+      "properties": {
+        "formats": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Formats",
+          "type": "array"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "formats",
+        "count"
+      ],
+      "title": "DateCandidate",
+      "type": "object"
+    },
+    "DateDetail": {
+      "additionalProperties": false,
+      "description": "What makes the dates of a column ambiguous: the pairs of formats that fit the\nsame values, the evidence of each order and the formats read without doubt.\n\nA format is a shape, not a value of the source: nothing here goes through the\nexposure. The detail exists only while the values stay ambiguous: when the\nconfiguration chose an order (``detectors.date.ambiguous_order``) the Scan raises no\nobservation, and the report never resolves an ambiguity itself.",
+      "properties": {
+        "ambiguous_count": {
+          "title": "Ambiguous Count",
+          "type": "integer"
+        },
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/DateCandidate"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "more_candidates": {
+          "title": "More Candidates",
+          "type": "integer"
+        },
+        "readings": {
+          "items": {
+            "$ref": "#/$defs/DateReading"
+          },
+          "title": "Readings",
+          "type": "array"
+        },
+        "formats": {
+          "items": {
+            "$ref": "#/$defs/DateFormat"
+          },
+          "title": "Formats",
+          "type": "array"
+        },
+        "more_formats": {
+          "title": "More Formats",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ambiguous_count",
+        "candidates",
+        "more_candidates",
+        "readings",
+        "formats",
+        "more_formats"
+      ],
+      "title": "DateDetail",
+      "type": "object"
+    },
+    "DateFormat": {
+      "additionalProperties": false,
+      "description": "A date format the column holds without doubt, with its occurrences.",
+      "properties": {
+        "format": {
+          "title": "Format",
+          "type": "string"
+        },
+        "order": {
+          "anyOf": [
+            {
+              "enum": [
+                "YMD",
+                "MDY",
+                "DMY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Order"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "format",
+        "order",
+        "count"
+      ],
+      "title": "DateFormat",
+      "type": "object"
+    },
     "DateOrderBreak": {
       "additionalProperties": false,
       "description": "A record where the first date is after the second: its number (the first\nrecord is 1) and the two dates, written as ISO 8601 by the reading that\ncompared them.",
@@ -3762,6 +3864,30 @@
         }
       },
       "title": "DateOrderSettings",
+      "type": "object"
+    },
+    "DateReading": {
+      "additionalProperties": false,
+      "description": "The unambiguous values of the column that are written in one day-month order:\nthe evidence for or against that reading, never applied.",
+      "properties": {
+        "order": {
+          "enum": [
+            "DMY",
+            "MDY"
+          ],
+          "title": "Order",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "order",
+        "count"
+      ],
+      "title": "DateReading",
       "type": "object"
     },
     "DateResolution": {
@@ -4968,6 +5094,46 @@
         "lower_bound"
       ],
       "title": "DistinctLimited",
+      "type": "object"
+    },
+    "DominantLength": {
+      "additionalProperties": false,
+      "description": "The length nearly every text of the column has.",
+      "properties": {
+        "length": {
+          "title": "Length",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "length",
+        "count"
+      ],
+      "title": "DominantLength",
+      "type": "object"
+    },
+    "DominantPattern": {
+      "additionalProperties": false,
+      "description": "The pattern most distinct values share, which the minority ones are compared to.",
+      "properties": {
+        "render": {
+          "title": "Render",
+          "type": "string"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "render",
+        "distinct"
+      ],
+      "title": "DominantPattern",
       "type": "object"
     },
     "DriftCategory": {
@@ -7038,6 +7204,112 @@
       "title": "Finding",
       "type": "object"
     },
+    "FindingDetails": {
+      "additionalProperties": false,
+      "description": "The evidence behind the Issues of a column, one member per observation rule\n(contract summary-table.md 22). A member is ``None`` when the column has no\nobservation of its rule.",
+      "properties": {
+        "variants": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantDetails"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "dates": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateDetail"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "patterns": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PatternDetail"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "lengths": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LengthDetail"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "whitespace": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WhitespaceDetail"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "types": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TypeDetail"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "FindingDetails",
+      "type": "object"
+    },
+    "FindingExample": {
+      "additionalProperties": false,
+      "description": "A value that illustrates a detail, with its occurrences in the sample it was\ntaken from. A detail with examples exists only for a column shown as it is.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Count"
+        },
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "FindingExample",
+      "type": "object"
+    },
     "FindingList": {
       "additionalProperties": false,
       "description": "The Errors or the Issues of a column: the findings and the state of the\nwhole list (``detected`` when it holds findings), with the check behind each\ncode so that a reader can tell what was and was not looked at.",
@@ -7624,6 +7896,57 @@
         "count"
       ],
       "title": "LengthCount",
+      "type": "object"
+    },
+    "LengthDetail": {
+      "additionalProperties": false,
+      "description": "The lengths behind a ``length.minority`` finding: the dominant length and every\nother length of the exact histogram, the most frequent first.\n\nLengths are those of the analytical text, in characters, as ``string_lengths`` counts\nthem. A length and its count are numbers and stay whatever the exposure; the examples\nare values and go through it (``state``).",
+      "properties": {
+        "state": {
+          "enum": [
+            "shown",
+            "masked",
+            "hidden"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "examples_from": {
+          "enum": [
+            "sample",
+            "none"
+          ],
+          "title": "Examples From",
+          "type": "string"
+        },
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        },
+        "dominant": {
+          "$ref": "#/$defs/DominantLength"
+        },
+        "lengths": {
+          "items": {
+            "$ref": "#/$defs/MinorityLength"
+          },
+          "title": "Lengths",
+          "type": "array"
+        },
+        "more_lengths": {
+          "title": "More Lengths",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "state",
+        "examples_from",
+        "total",
+        "dominant",
+        "lengths",
+        "more_lengths"
+      ],
+      "title": "LengthDetail",
       "type": "object"
     },
     "LengthDistribution": {
@@ -8820,6 +9143,67 @@
         "max"
       ],
       "title": "Memory",
+      "type": "object"
+    },
+    "MinorityLength": {
+      "additionalProperties": false,
+      "description": "A length few texts have, with examples of those texts.",
+      "properties": {
+        "length": {
+          "title": "Length",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "examples": {
+          "items": {
+            "$ref": "#/$defs/FindingExample"
+          },
+          "title": "Examples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "length",
+        "count",
+        "examples"
+      ],
+      "title": "MinorityLength",
+      "type": "object"
+    },
+    "MinorityPattern": {
+      "additionalProperties": false,
+      "description": "A pattern few of the distinct values share, with examples of those values.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "render": {
+          "title": "Render",
+          "type": "string"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "examples": {
+          "items": {
+            "$ref": "#/$defs/FindingExample"
+          },
+          "title": "Examples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "render",
+        "distinct",
+        "examples"
+      ],
+      "title": "MinorityPattern",
       "type": "object"
     },
     "Missing": {
@@ -10207,6 +10591,52 @@
         "excluded"
       ],
       "title": "PatternCounts",
+      "type": "object"
+    },
+    "PatternDetail": {
+      "additionalProperties": false,
+      "description": "The patterns behind a ``pattern.minority`` finding: the dominant one and the\nminority ones the Scan named, the largest first, each with examples.\n\nA render can hold the literal text its values share, so the detail exists only for a\ncolumn exposed as ``show``. ``population`` is the number of distinct values the patterns were inferred on, and\n``population_complete`` is false when that was a sample of them.",
+      "properties": {
+        "examples_from": {
+          "enum": [
+            "sample",
+            "none"
+          ],
+          "title": "Examples From",
+          "type": "string"
+        },
+        "population": {
+          "title": "Population",
+          "type": "integer"
+        },
+        "population_complete": {
+          "title": "Population Complete",
+          "type": "boolean"
+        },
+        "dominant": {
+          "$ref": "#/$defs/DominantPattern"
+        },
+        "patterns": {
+          "items": {
+            "$ref": "#/$defs/MinorityPattern"
+          },
+          "title": "Patterns",
+          "type": "array"
+        },
+        "more_patterns": {
+          "title": "More Patterns",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "examples_from",
+        "population",
+        "population_complete",
+        "dominant",
+        "patterns",
+        "more_patterns"
+      ],
+      "title": "PatternDetail",
       "type": "object"
     },
     "PatternDistinct": {
@@ -16733,6 +17163,58 @@
       "title": "TukeyFence",
       "type": "object"
     },
+    "TypeCount": {
+      "additionalProperties": false,
+      "description": "The values the scan recognized as one technical type.",
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "count"
+      ],
+      "title": "TypeCount",
+      "type": "object"
+    },
+    "TypeDetail": {
+      "additionalProperties": false,
+      "description": "The composition of a column with no dominant technical type, behind a\n``type.mixed`` finding.\n\n``types`` lists every type the scan counted, the most frequent first; ``closest`` is the\nfamily that comes closest to a technical type for the column (the one the finding counts\nthe values outside of) and ``outside`` the values it does not hold. The scan counts\ntypes, not values, so there is no example, and nothing here goes through the exposure.",
+      "properties": {
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        },
+        "types": {
+          "items": {
+            "$ref": "#/$defs/TypeCount"
+          },
+          "title": "Types",
+          "type": "array"
+        },
+        "closest": {
+          "$ref": "#/$defs/TypeCount"
+        },
+        "outside": {
+          "title": "Outside",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "types",
+        "closest",
+        "outside"
+      ],
+      "title": "TypeDetail",
+      "type": "object"
+    },
     "TypeSettings": {
       "additionalProperties": false,
       "properties": {
@@ -17089,6 +17571,117 @@
         "truncated"
       ],
       "title": "VariantGroups",
+      "type": "object"
+    },
+    "WhitespaceChange": {
+      "additionalProperties": false,
+      "description": "How many texts a stage changed (the count of the observation of its rule).",
+      "properties": {
+        "stage": {
+          "enum": [
+            "trim",
+            "collapse_whitespace"
+          ],
+          "title": "Stage",
+          "type": "string"
+        },
+        "changed": {
+          "title": "Changed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "stage",
+        "changed"
+      ],
+      "title": "WhitespaceChange",
+      "type": "object"
+    },
+    "WhitespaceDetail": {
+      "additionalProperties": false,
+      "description": "The whitespace behind the ``trimmed_cells`` and ``collapsed_whitespace`` findings.\n\nThe Scan counts the texts a stage changed, not which kind of whitespace each had, so the\ncounts are per stage and the kind exists only on the examples, which are original values\nof the sample (the analytical text has no whitespace to show). A value that both stages\nchanged is an example of each, with the kind of its stage. The examples go through the\nexposure (``state``).",
+      "properties": {
+        "state": {
+          "enum": [
+            "shown",
+            "masked",
+            "hidden"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "examples_from": {
+          "enum": [
+            "sample",
+            "none"
+          ],
+          "title": "Examples From",
+          "type": "string"
+        },
+        "stages": {
+          "items": {
+            "$ref": "#/$defs/WhitespaceChange"
+          },
+          "title": "Stages",
+          "type": "array"
+        },
+        "examples": {
+          "items": {
+            "$ref": "#/$defs/WhitespaceExample"
+          },
+          "title": "Examples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "state",
+        "examples_from",
+        "stages",
+        "examples"
+      ],
+      "title": "WhitespaceDetail",
+      "type": "object"
+    },
+    "WhitespaceExample": {
+      "additionalProperties": false,
+      "description": "A value of the sample that a stage changed, and why.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Count"
+        },
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "leading",
+            "trailing",
+            "repeated"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "kind"
+      ],
+      "title": "WhitespaceExample",
       "type": "object"
     },
     "YearCount": {

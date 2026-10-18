@@ -12,41 +12,84 @@ codes and numbers; the rows themselves are not serialized.
 
 from __future__ import annotations
 
+from pydantic import Field
+
 from tabalyst.report_labels import (
     CAVEAT_STATES,
+    DATES_CANDIDATES,
+    DATES_FORMATS,
+    DATES_JOINER,
+    DATES_ORDERS,
+    DATES_READINGS,
+    DATES_TITLE,
+    DATES_UNRESOLVED,
+    EXAMPLES_HIDDEN,
+    EXAMPLES_MASKED,
     FAMILY_LABELS,
+    LENGTHS_ANALYTICAL,
+    LENGTHS_DOMINANT,
+    LENGTHS_MINORITY,
+    LENGTHS_NO_EXAMPLES,
+    LENGTHS_SAMPLE_EXAMPLES,
+    LENGTHS_TITLE,
+    LENGTHS_UNIT,
     LIST_STATE_LABELS,
     LIST_STATE_TITLES,
+    PATTERNS_DOMINANT,
+    PATTERNS_MINORITY,
+    PATTERNS_NO_EXAMPLES,
+    PATTERNS_SAMPLE_EXAMPLES,
+    PATTERNS_SAMPLE_POPULATION,
+    PATTERNS_TITLE,
     SIGNAL_NOTES,
     SIGNAL_TARGETS,
     SIGNAL_TITLES,
+    TYPES_CLOSEST,
+    TYPES_COMPOSITION,
+    TYPES_NOTE,
+    TYPES_OUTSIDE,
+    TYPES_TITLE,
+    TYPES_WORDS,
+    WHITESPACE_KIND_TITLES,
+    WHITESPACE_NO_EXAMPLES,
+    WHITESPACE_NOTE,
+    WHITESPACE_SAMPLE_EXAMPLES,
+    WHITESPACE_TITLES,
     finding_noun,
     finding_text,
     plural,
+    spoken_whitespace,
     type_label,
+    visible_whitespace,
 )
 from tabalyst.report_overview import overview_sentence
 from tabalyst.report_preview import (
     CheckLine,
     FindingPreview,
     check_lines,
+    percent_text,
     preview_of,
 )
 from tabalyst.report_views import ColumnView, DatasetView
 from tabalyst.result_model import ResultModel
 from tabalyst.summary_models import (
     ColumnSummary,
+    DateDetail,
     Details,
     FindingList,
     Flag,
+    LengthDetail,
     MissingFinding,
+    PatternDetail,
     QualityColumn,
     QualityView,
     Signal,
     SignalsView,
     StateCount,
+    TypeDetail,
     ValidationList,
     VariantDetails,
+    WhitespaceDetail,
 )
 
 # Finding labels written in a cell; the rest is in the preview of "+3 more"
@@ -309,7 +352,7 @@ def column_row(column: ColumnView, dataset_id: str) -> ColumnRow:
         errors=_cell(summary.findings.errors),
         issues=_cell(summary.findings.issues),
         details=summary.details,
-        variants=summary.variants,
+        variants=summary.finding_details.variants,
         flags=list(summary.flags),
     )
 
@@ -319,6 +362,256 @@ def page_findings(column: ColumnView) -> tuple[FindingsCell, FindingsCell]:
     the table prints."""
     found = _summary(column).findings
     return _cell(found.errors), _cell(found.issues)
+
+
+class DetailRow(ResultModel):
+    """A line of a detail: a label (words or a format), its figure, a note and the
+    example values under it."""
+
+    label: str
+    figure: int | None = None
+    note: str | None = None
+    values: list[str] = Field(default_factory=list)
+    # What a screen reader adds to the label (the marks of whitespace are not words).
+    spoken: str | None = None
+
+
+class DetailSection(ResultModel):
+    title: str
+    rows: list[DetailRow]
+
+
+class FindingDetailView(ResultModel):
+    """A detail of the Findings table with its words: one line of preview for the cell
+    and the sections of the hover. Never serialized."""
+
+    title: str
+    # The chips of the cell: the formats of the largest pair, one chip each.
+    preview: list[str]
+    preview_figure: int | None
+    # Items of the first list that the preview leaves out.
+    preview_more: int
+    notes: list[str]
+    sections: list[DetailSection]
+    # What the lists leave out, in words ("+2 more patterns").
+    footer: list[str] = Field(default_factory=list)
+    # The words behind each chip of the preview, when the chip is not read as words.
+    preview_spoken: list[str] = Field(default_factory=list)
+
+
+def _omitted(count: int, one: str, many: str) -> list[str]:
+    """The line that counts what a bounded list leaves out; none when it left nothing."""
+    return [f"+{count:,} more {one if count == 1 else many}"] if count else []
+
+
+def _dates_view(detail: DateDetail) -> FindingDetailView:
+    candidates = [
+        DetailRow(label=DATES_JOINER.join(item.formats), figure=item.count)
+        for item in detail.candidates
+    ]
+    sections = [DetailSection(title=DATES_CANDIDATES, rows=candidates)]
+    if detail.readings:
+        sections.append(
+            DetailSection(
+                title=DATES_READINGS,
+                rows=[
+                    DetailRow(label=DATES_ORDERS[item.order], figure=item.count)
+                    for item in detail.readings
+                ],
+            )
+        )
+    if detail.formats:
+        sections.append(
+            DetailSection(
+                title=DATES_FORMATS,
+                rows=[
+                    DetailRow(label=item.format, figure=item.count) for item in detail.formats
+                ],
+            )
+        )
+    notes = [DATES_UNRESOLVED]
+    return FindingDetailView(
+        title=DATES_TITLE,
+        preview=list(detail.candidates[0].formats) if detail.candidates else [],
+        preview_figure=candidates[0].figure if candidates else None,
+        preview_more=max(0, len(candidates) - 1) + detail.more_candidates,
+        notes=notes,
+        sections=sections,
+        footer=_omitted(detail.more_candidates, "pair of formats", "pairs of formats")
+        + _omitted(detail.more_formats, "format", "formats"),
+    )
+
+
+def _patterns_view(detail: PatternDetail) -> FindingDetailView:
+    rows = [
+        DetailRow(
+            label=item.render,
+            figure=item.distinct,
+            note=percent_text(100 * item.distinct / detail.population)
+            if detail.population
+            else None,
+            values=[example.value for example in item.examples],
+        )
+        for item in detail.patterns
+    ]
+    notes = [
+        PATTERNS_NO_EXAMPLES
+        if detail.examples_from == "none"
+        else PATTERNS_SAMPLE_EXAMPLES
+    ]
+    if not detail.population_complete:
+        notes.append(PATTERNS_SAMPLE_POPULATION)
+    dominant = detail.dominant
+    sections = [
+        DetailSection(
+            title=PATTERNS_DOMINANT,
+            rows=[DetailRow(label=dominant.render, figure=dominant.distinct)],
+        ),
+        DetailSection(title=PATTERNS_MINORITY, rows=rows),
+    ]
+    return FindingDetailView(
+        title=PATTERNS_TITLE,
+        preview=[item.render for item in detail.patterns[:2]],
+        preview_figure=None,
+        preview_more=max(0, len(detail.patterns) - 2) + detail.more_patterns,
+        notes=notes,
+        sections=sections,
+        footer=_omitted(detail.more_patterns, "pattern", "patterns"),
+    )
+
+
+def _whitespace_view(detail: WhitespaceDetail, rule: str) -> FindingDetailView:
+    kinds = ("leading", "trailing") if rule == "trimmed_cells" else ("repeated",)
+    examples = [item for item in detail.examples if item.kind in kinds]
+    sections = [
+        DetailSection(
+            title=WHITESPACE_KIND_TITLES[kind],
+            rows=[
+                DetailRow(
+                    label=visible_whitespace(item.value),
+                    spoken=spoken_whitespace(kind, item.value),
+                )
+                for item in examples
+                if item.kind == kind
+            ],
+        )
+        for kind in kinds
+        if any(item.kind == kind for item in examples)
+    ]
+    if detail.state == "masked":
+        example_note = EXAMPLES_MASKED
+    elif detail.state == "hidden":
+        example_note = EXAMPLES_HIDDEN
+    elif not examples:
+        example_note = WHITESPACE_NO_EXAMPLES
+    else:
+        example_note = WHITESPACE_SAMPLE_EXAMPLES
+    shown = examples[:2]
+    return FindingDetailView(
+        title=WHITESPACE_TITLES[rule],
+        preview=[visible_whitespace(item.value) for item in shown],
+        preview_figure=None,
+        preview_more=max(0, len(examples) - len(shown)),
+        notes=[example_note, WHITESPACE_NOTE] if examples else [example_note],
+        sections=sections,
+        preview_spoken=[spoken_whitespace(item.kind, item.value) for item in shown],
+    )
+
+
+def _types_view(detail: TypeDetail) -> FindingDetailView:
+    def word(kind: str) -> str:
+        return TYPES_WORDS.get(kind, kind)
+
+    def share(count: int) -> str:
+        return percent_text(100 * count / detail.total)
+
+    rows = [
+        DetailRow(label=word(item.type), figure=item.count, note=share(item.count))
+        for item in detail.types
+    ]
+    closest = detail.closest
+    one, many = TYPES_OUTSIDE
+    return FindingDetailView(
+        title=TYPES_TITLE,
+        preview=[f"{word(item.type)} {share(item.count)}" for item in detail.types[:2]],
+        preview_figure=None,
+        preview_more=max(0, len(detail.types) - 2),
+        notes=[f"{detail.outside:,} {one if detail.outside == 1 else many}.", TYPES_NOTE],
+        sections=[
+            DetailSection(title=TYPES_COMPOSITION, rows=rows),
+            DetailSection(
+                title=TYPES_CLOSEST,
+                rows=[DetailRow(label=word(closest.type), figure=closest.count, note=share(closest.count))],
+            ),
+        ],
+    )
+
+
+def _characters(length: int) -> str:
+    return f"{length:,} {LENGTHS_UNIT[0] if length == 1 else LENGTHS_UNIT[1]}"
+
+
+def _lengths_view(detail: LengthDetail) -> FindingDetailView:
+    rows = [
+        DetailRow(
+            label=_characters(item.length),
+            figure=item.count,
+            note=percent_text(100 * item.count / detail.total) if detail.total else None,
+            values=[example.value for example in item.examples],
+        )
+        for item in detail.lengths
+    ]
+    if detail.state == "masked":
+        example_note = EXAMPLES_MASKED
+    elif detail.state == "hidden":
+        example_note = EXAMPLES_HIDDEN
+    elif detail.examples_from == "none":
+        example_note = LENGTHS_NO_EXAMPLES
+    else:
+        example_note = LENGTHS_SAMPLE_EXAMPLES
+    dominant = detail.dominant
+    return FindingDetailView(
+        title=LENGTHS_TITLE,
+        preview=[_characters(item.length) for item in detail.lengths[:2]],
+        preview_figure=None,
+        preview_more=max(0, len(detail.lengths) - 2) + detail.more_lengths,
+        notes=[example_note, LENGTHS_ANALYTICAL],
+        sections=[
+            DetailSection(
+                title=LENGTHS_DOMINANT,
+                rows=[DetailRow(label=_characters(dominant.length), figure=dominant.count)],
+            ),
+            DetailSection(title=LENGTHS_MINORITY, rows=rows),
+        ],
+        footer=_omitted(detail.more_lengths, "length", "lengths"),
+    )
+
+
+def finding_detail_views(dataset: DatasetView) -> dict[tuple[str, str], FindingDetailView]:
+    """The details of a dataset's Findings table that are not spelling variants, by
+    column id and observation rule."""
+    views: dict[tuple[str, str], FindingDetailView] = {}
+    for column in dataset.columns:
+        if column.summary is None:
+            continue
+        dates = column.summary.finding_details.dates
+        if dates is not None:
+            views[(column.id, "ambiguous_dates")] = _dates_view(dates)
+        patterns = column.summary.finding_details.patterns
+        if patterns is not None:
+            views[(column.id, "minority_pattern")] = _patterns_view(patterns)
+        lengths = column.summary.finding_details.lengths
+        if lengths is not None:
+            views[(column.id, "minority_length")] = _lengths_view(lengths)
+        types = column.summary.finding_details.types
+        if types is not None:
+            views[(column.id, "mixed_types")] = _types_view(types)
+        whitespace = column.summary.finding_details.whitespace
+        if whitespace is not None:
+            for change in whitespace.stages:
+                rule = {"trim": "trimmed_cells", "collapse_whitespace": "collapsed_whitespace"}[change.stage]
+                views[(column.id, rule)] = _whitespace_view(whitespace, rule)
+    return views
 
 
 def column_table(dataset: DatasetView) -> ColumnTable:

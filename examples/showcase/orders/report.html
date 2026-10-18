@@ -719,6 +719,8 @@ td.ex .tip.show{display:block}
 .tip .vgroups{list-style:none;margin:0;padding:0}
 .tip .vgroups li+li{margin-top:8px}
 .tip .vgroups li.vgroup{display:flex;flex-wrap:wrap}
+.tip .vex{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tip .vex code{padding:1px 6px;border:1px solid var(--line);border-radius:var(--r-xs);background:var(--s1);font-size:11.5px;color:var(--text-2)}
 
 /* ---- overview as KPIs (R9a): quality bar, signal tiles, popovers ---- */
 .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0 14px}
@@ -853,6 +855,8 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 
 
 
+
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-menu" viewBox="0 0 14 14"><path d="M2 3h10M4 7h6M6 11h2"/></symbol>
 <symbol id="i-none" viewBox="0 0 14 14"><path d="m4 5 3-3 3 3M10 9l-3 3-3-3"/></symbol>
@@ -897,7 +901,7 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
   <div class="main">
     
     <div class="ds" data-ds="0">
-    <header class="rhead"><div class="wrap"><p class="eyebrow">Dataset report</p><div class="rhead-top"><div><h1>orders<span class="ext">.json</span></h1><ul class="facts"><li><b>JSON</b></li><li>Dataset <code>$.customers[]</code></li><li><b>60</b> records</li><li><b>17</b> fields</li><li>59.3 KB</li><li>utf-8</li></ul></div><div class="gen"><span class="badge"><i aria-hidden="true"></i>Analysis complete · 0.13 s</span><time datetime="2026-10-18T03:08:43.372990+00:00">2026-10-18 03:08 UTC</time></div></div></div></header>
+    <header class="rhead"><div class="wrap"><p class="eyebrow">Dataset report</p><div class="rhead-top"><div><h1>orders<span class="ext">.json</span></h1><ul class="facts"><li><b>JSON</b></li><li>Dataset <code>$.customers[]</code></li><li><b>60</b> records</li><li><b>17</b> fields</li><li>59.3 KB</li><li>utf-8</li></ul></div><div class="gen"><span class="badge"><i aria-hidden="true"></i>Analysis complete · 0.13 s</span><time datetime="2026-10-18T18:07:13.224187+00:00">2026-10-18 18:07 UTC</time></div></div></div></header>
     <main id="content" class="wrap content" tabindex="-1">
 <section class="panel" id="overview" aria-labelledby="overview-h"><div class="phead"><div><p class="eyebrow">01 / Overview</p><h2 id="overview-h">Dataset overview</h2><p>Size, completeness and the main signal to check first.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="overview-b" aria-label="Collapse Dataset overview" data-name="Dataset overview"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="overview-b">
 <dl class="metrics"><div class="metric"><dt>Rows</dt><dd><span class="v">60</span><span class="s">No empty rows</span></dd></div><div class="metric"><dt>Columns</dt><dd><span class="v">17</span><span class="s">1,502 cells analyzed</span></dd></div><div class="metric attn"><dt>Missing cells</dt><dd><span class="v">3.2<small>%</small></span><span class="s">48 cells</span></dd></div><div class="metric"><dt>Duplicate rows</dt><dd><span class="v">0</span><span class="s">Beyond the first occurrence</span></dd></div></dl>

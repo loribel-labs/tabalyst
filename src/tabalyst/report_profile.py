@@ -848,7 +848,7 @@ def build_profile(
     )
     # The summaries are part of the document (contract summary-table.md 20): the
     # pages print them and compute nothing.
-    return attach_summaries(profile)
+    return attach_summaries(profile, result)
 
 
 def _without_members(block: ByLength) -> ByLength:

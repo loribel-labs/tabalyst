@@ -18064,15 +18064,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T03:08:47.109645Z",
-        "duration_seconds": 0.000135,
+        "started_at": "2026-10-18T18:07:16.996085Z",
+        "duration_seconds": 0.000167,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000135
+          "other": 0.000167
         },
         "workers": 1,
-        "peak_memory_bytes": 77365248,
+        "peak_memory_bytes": 77848576,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -22558,12 +22558,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T03:08:47.378397Z",
+    "generated_at": "2026-10-18T18:07:17.251705Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.3211,
+    "processing_seconds": 0.3153,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -23084,7 +23084,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -23567,7 +23574,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -23944,7 +23958,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -24363,7 +24384,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -24730,7 +24758,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -25101,7 +25136,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -25478,7 +25520,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -25801,7 +25850,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -26190,7 +26246,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -26567,7 +26630,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -26990,7 +27060,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -27327,7 +27404,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -27680,7 +27764,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -28028,7 +28119,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]

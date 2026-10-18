@@ -277,6 +277,222 @@ class VariantDetails(ResultModel):
         return None if self.more_groups is None else len(self.groups) + self.more_groups
 
 
+# Ambiguous dates ------------------------------------------------------------
+
+# The two day-month orders a numeric date can be read in.
+DateOrder = Literal["DMY", "MDY"]
+DateFormatOrder = Literal["YMD", "MDY", "DMY"]
+
+
+class DateCandidate(ResultModel):
+    """The formats that fit a set of ambiguous values at once (``DD-MM-YYYY`` and
+    ``MM-DD-YYYY``), with the number of occurrences that fit them."""
+
+    formats: list[str]
+    count: int
+
+
+class DateReading(ResultModel):
+    """The unambiguous values of the column that are written in one day-month order:
+    the evidence for or against that reading, never applied."""
+
+    order: DateOrder
+    count: int
+
+
+class DateFormat(ResultModel):
+    """A date format the column holds without doubt, with its occurrences."""
+
+    format: str
+    # ``None`` for formats that are not numeric dates (month names, times).
+    order: DateFormatOrder | None
+    count: int
+
+
+class DateDetail(ResultModel):
+    """What makes the dates of a column ambiguous: the pairs of formats that fit the
+    same values, the evidence of each order and the formats read without doubt.
+
+    A format is a shape, not a value of the source: nothing here goes through the
+    exposure. The detail exists only while the values stay ambiguous: when the
+    configuration chose an order (``detectors.date.ambiguous_order``) the Scan raises no
+    observation, and the report never resolves an ambiguity itself.
+    """
+
+    ambiguous_count: int
+    candidates: list[DateCandidate]
+    more_candidates: int
+    readings: list[DateReading]
+    formats: list[DateFormat]
+    more_formats: int
+
+
+# Minority patterns ----------------------------------------------------------
+
+# Where the examples of a detail come from (contract summary-table.md 22.2): a value of the
+# sample the Scan holds, or nowhere (the sample kept none of them).
+ExamplesFrom = Literal["sample", "none"]
+
+
+class FindingExample(ResultModel):
+    """A value that illustrates a detail, with its occurrences in the sample it was
+    taken from. A detail with examples exists only for a column shown as it is."""
+
+    value: str
+    count: int | None = None
+    # The value was cut: not the whole value.
+    truncated: bool = False
+
+
+class MinorityPattern(ResultModel):
+    """A pattern few of the distinct values share, with examples of those values."""
+
+    id: str
+    # The pattern as the Patterns section writes it: a symbol per class of characters,
+    # a literal text between quotes.
+    render: str
+    distinct: int
+    examples: list[FindingExample]
+
+
+class DominantPattern(ResultModel):
+    """The pattern most distinct values share, which the minority ones are compared to."""
+
+    render: str
+    distinct: int
+
+
+class PatternDetail(ResultModel):
+    """The patterns behind a ``pattern.minority`` finding: the dominant one and the
+    minority ones the Scan named, the largest first, each with examples.
+
+    A render can hold the literal text its values share, so the detail exists only for a
+    column exposed as ``show``. ``population`` is the number of distinct values the patterns were inferred on, and
+    ``population_complete`` is false when that was a sample of them.
+    """
+
+    examples_from: ExamplesFrom
+    population: int
+    population_complete: bool
+    dominant: DominantPattern
+    patterns: list[MinorityPattern]
+    # Patterns the finding names beyond those listed, or that the document no longer holds.
+    more_patterns: int
+
+
+# Minority lengths -----------------------------------------------------------
+
+
+class DominantLength(ResultModel):
+    """The length nearly every text of the column has."""
+
+    length: int
+    count: int
+
+
+class MinorityLength(ResultModel):
+    """A length few texts have, with examples of those texts."""
+
+    length: int
+    count: int
+    examples: list[FindingExample]
+
+
+class LengthDetail(ResultModel):
+    """The lengths behind a ``length.minority`` finding: the dominant length and every
+    other length of the exact histogram, the most frequent first.
+
+    Lengths are those of the analytical text, in characters, as ``string_lengths`` counts
+    them. A length and its count are numbers and stay whatever the exposure; the examples
+    are values and go through it (``state``).
+    """
+
+    state: DetailsState
+    examples_from: ExamplesFrom
+    # The texts the histogram counts.
+    total: int
+    dominant: DominantLength
+    lengths: list[MinorityLength]
+    # Lengths of the histogram beyond those listed.
+    more_lengths: int
+
+
+# Whitespace ------------------------------------------------------------------
+
+# The two stages of the normalization that change a text by its whitespace.
+WhitespaceStage = Literal["trim", "collapse_whitespace"]
+# What an example shows: whitespace before the text, after it, or repeated inside it.
+WhitespaceKind = Literal["leading", "trailing", "repeated"]
+
+
+class WhitespaceChange(ResultModel):
+    """How many texts a stage changed (the count of the observation of its rule)."""
+
+    stage: WhitespaceStage
+    changed: int
+
+
+class WhitespaceExample(FindingExample):
+    """A value of the sample that a stage changed, and why."""
+
+    kind: WhitespaceKind
+
+
+class WhitespaceDetail(ResultModel):
+    """The whitespace behind the ``trimmed_cells`` and ``collapsed_whitespace`` findings.
+
+    The Scan counts the texts a stage changed, not which kind of whitespace each had, so the
+    counts are per stage and the kind exists only on the examples, which are original values
+    of the sample (the analytical text has no whitespace to show). A value that both stages
+    changed is an example of each, with the kind of its stage. The examples go through the
+    exposure (``state``).
+    """
+
+    state: DetailsState
+    examples_from: ExamplesFrom
+    stages: list[WhitespaceChange]
+    examples: list[WhitespaceExample]
+
+
+# Mixed types ------------------------------------------------------------------
+
+
+class TypeCount(ResultModel):
+    """The values the scan recognized as one technical type."""
+
+    type: str
+    count: int
+
+
+class TypeDetail(ResultModel):
+    """The composition of a column with no dominant technical type, behind a
+    ``type.mixed`` finding.
+
+    ``types`` lists every type the scan counted, the most frequent first; ``closest`` is the
+    family that comes closest to a technical type for the column (the one the finding counts
+    the values outside of) and ``outside`` the values it does not hold. The scan counts
+    types, not values, so there is no example, and nothing here goes through the exposure.
+    """
+
+    total: int
+    types: list[TypeCount]
+    closest: TypeCount
+    outside: int
+
+
+class FindingDetails(ResultModel):
+    """The evidence behind the Issues of a column, one member per observation rule
+    (contract summary-table.md 22). A member is ``None`` when the column has no
+    observation of its rule."""
+
+    variants: VariantDetails | None = None
+    dates: DateDetail | None = None
+    patterns: PatternDetail | None = None
+    lengths: LengthDetail | None = None
+    whitespace: WhitespaceDetail | None = None
+    types: TypeDetail | None = None
+
+
 # Column ---------------------------------------------------------------------
 
 # The flags of the Summary table segments. They overlap on purpose: ``issue`` is every
@@ -293,8 +509,8 @@ class ColumnSummary(ResultModel):
     overview: Overview
     details: Details
     values: ColumnValues
-    # The groups of spelling variants behind the Issue of the same name, for the hover.
-    variants: VariantDetails | None
+    # The evidence behind the Issues of the Findings table (spelling variants, dates...).
+    finding_details: FindingDetails
     flags: list[Flag]
 
 

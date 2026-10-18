@@ -24447,15 +24447,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T03:08:43.296330Z",
-        "duration_seconds": 0.000216,
+        "started_at": "2026-10-18T18:07:13.151177Z",
+        "duration_seconds": 0.000218,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000216
+          "other": 0.000218
         },
         "workers": 1,
-        "peak_memory_bytes": 77029376,
+        "peak_memory_bytes": 79040512,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -27946,12 +27946,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T03:08:43.372990Z",
+    "generated_at": "2026-10-18T18:07:13.224187Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1271,
+    "processing_seconds": 0.1335,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -28480,7 +28480,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -28917,7 +28924,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -29435,7 +29449,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -30018,7 +30039,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -30401,7 +30429,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -30900,7 +30935,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -31379,7 +31421,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -31702,7 +31751,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -32081,7 +32137,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -32506,7 +32569,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -32983,7 +33053,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -33352,7 +33429,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -33729,7 +33813,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -34080,7 +34171,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -34439,7 +34537,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -34838,7 +34943,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -35175,7 +35287,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]

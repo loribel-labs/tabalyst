@@ -26,13 +26,14 @@ def _datasets(name: str, **limits) -> list[dict]:
     datasets = profile.model_dump(mode="json")["report"]["datasets"]
     # The findings and the quality counts read the observations of the Scan, which
     # discovers the minority patterns on its sample: they depend on the sample size.
-    # So do the formats of the Overview (patterns on a sample). The examples and the
-    # Details do not.
+    # So do the formats of the Overview (patterns on a sample) and the detail of the
+    # minority patterns, which names them. The examples and the Details do not.
     for dataset in datasets:
         dataset["table"] = None
         for column in dataset["columns"]:
             column["summary"]["findings"] = None
             column["summary"]["overview"] = None
+            column["summary"]["finding_details"]["patterns"] = None
     return datasets
 
 

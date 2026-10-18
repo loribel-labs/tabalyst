@@ -58,7 +58,7 @@ from tabalyst.report_sections import (
     rows_view,
 )
 from tabalyst.report_summary import attach_summaries, has_summaries
-from tabalyst.report_table import column_table, page_findings
+from tabalyst.report_table import column_table, finding_detail_views, page_findings
 from tabalyst.report_views import (
     ColumnAnalyses,
     ColumnView,
@@ -349,10 +349,12 @@ def _page_view(
         "ds": dataset,
         "table": column_table(dataset),
         "finding_details": {
-            (column.id, "variant_groups"): column.summary.variants
+            (column.id, "variant_groups"): column.summary.finding_details.variants
             for column in dataset.columns
-            if column.summary is not None and column.summary.variants is not None
+            if column.summary is not None
+            and column.summary.finding_details.variants is not None
         },
+        "finding_views": finding_detail_views(dataset),
         "insight_cards": shown_cards(dataset.insights, DISPLAY_LIMITS["insights"]),
         # Element ids are prefixed only when the report shows several
         # datasets, so single-dataset reports keep their anchors.

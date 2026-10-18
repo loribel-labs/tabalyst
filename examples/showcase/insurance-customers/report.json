@@ -71706,15 +71706,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T03:08:17.616796Z",
-        "duration_seconds": 0.00053,
+        "started_at": "2026-10-18T18:06:50.511163Z",
+        "duration_seconds": 0.000479,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.00053
+          "other": 0.000479
         },
         "workers": 1,
-        "peak_memory_bytes": 117817344,
+        "peak_memory_bytes": 117919744,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -140881,12 +140881,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T03:08:18.150073Z",
+    "generated_at": "2026-10-18T18:06:51.039890Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 3.1661,
+    "processing_seconds": 3.1534,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -141505,7 +141505,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "issue"
               ]
@@ -141874,7 +141881,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -142579,211 +142593,247 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "André",
-                        "count": 1092,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Andre",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Sylvie",
-                        "count": 1034,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "sylvie",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "François",
-                        "count": 888,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "françois",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Éric",
-                        "count": 877,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "éric",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Valérie",
-                        "count": 841,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Valerie",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Léo",
-                        "count": 516,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Leo",
-                        "count": 320,
-                        "most_frequent": false
-                      },
-                      {
-                        "value": "léo",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Camille",
-                        "count": 733,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "camille",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Stéphanie",
-                        "count": 693,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Stephanie",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Noémie",
-                        "count": 633,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "noémie",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Rémi",
-                        "count": 579,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Remi",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Zoé",
-                        "count": 402,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Zoe",
-                        "count": 150,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Noah",
-                        "count": 539,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "noah",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Emily",
-                        "count": 394,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "emily",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "André",
+                          "count": 1092,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Andre",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Sylvie",
+                          "count": 1034,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "sylvie",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "François",
+                          "count": 888,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "françois",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Éric",
+                          "count": 877,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "éric",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Valérie",
+                          "count": 841,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Valerie",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Léo",
+                          "count": 516,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Leo",
+                          "count": 320,
+                          "most_frequent": false
+                        },
+                        {
+                          "value": "léo",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Camille",
+                          "count": 733,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "camille",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Stéphanie",
+                          "count": 693,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Stephanie",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Noémie",
+                          "count": 633,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "noémie",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Rémi",
+                          "count": 579,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Remi",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Zoé",
+                          "count": 402,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Zoe",
+                          "count": 150,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Noah",
+                          "count": 539,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "noah",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Emily",
+                          "count": 394,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "emily",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 0
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": {
+                  "state": "shown",
+                  "examples_from": "sample",
+                  "stages": [
+                    {
+                      "stage": "collapse_whitespace",
+                      "changed": 6
+                    }
+                  ],
+                  "examples": [
+                    {
+                      "value": "Alai  n",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    },
+                    {
+                      "value": "Ashe  r",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    },
+                    {
+                      "value": "Di  ane",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    }
+                  ]
+                },
+                "types": null
               },
               "flags": [
                 "issue",
@@ -143496,216 +143546,252 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "Tremblay",
-                        "count": 2783,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "tremblay",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Gagnon",
-                        "count": 2443,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "gagnon",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Côté",
-                        "count": 2277,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Cote",
-                        "count": 1,
-                        "most_frequent": false
-                      },
-                      {
-                        "value": "côté",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Gagné",
-                        "count": 2001,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Gagne",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Lévesque",
-                        "count": 1817,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Levesque",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Girard",
-                        "count": 1475,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "girard",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Boucher",
-                        "count": 1371,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "boucher",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Cloutier",
-                        "count": 1278,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "cloutier",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Dubé",
-                        "count": 1149,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Dube",
-                        "count": 1,
-                        "most_frequent": false
-                      },
-                      {
-                        "value": "dubé",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Campbell",
-                        "count": 1087,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "campbell",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Nadeau",
-                        "count": 608,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "nadeau",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Renaud",
-                        "count": 468,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "renaud",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Collins",
-                        "count": 332,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "collins",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "Tremblay",
+                          "count": 2783,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "tremblay",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Gagnon",
+                          "count": 2443,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "gagnon",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Côté",
+                          "count": 2277,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Cote",
+                          "count": 1,
+                          "most_frequent": false
+                        },
+                        {
+                          "value": "côté",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Gagné",
+                          "count": 2001,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Gagne",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Lévesque",
+                          "count": 1817,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Levesque",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Girard",
+                          "count": 1475,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "girard",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Boucher",
+                          "count": 1371,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "boucher",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Cloutier",
+                          "count": 1278,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "cloutier",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Dubé",
+                          "count": 1149,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Dube",
+                          "count": 1,
+                          "most_frequent": false
+                        },
+                        {
+                          "value": "dubé",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Campbell",
+                          "count": 1087,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "campbell",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Nadeau",
+                          "count": 608,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "nadeau",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Renaud",
+                          "count": 468,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "renaud",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Collins",
+                          "count": 332,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "collins",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 0
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": {
+                  "state": "shown",
+                  "examples_from": "sample",
+                  "stages": [
+                    {
+                      "stage": "collapse_whitespace",
+                      "changed": 5
+                    }
+                  ],
+                  "examples": [
+                    {
+                      "value": "Campbel  l",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    },
+                    {
+                      "value": "G  agnon",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    },
+                    {
+                      "value": "Gag  né",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    }
+                  ]
+                },
+                "types": null
               },
               "flags": [
                 "issue",
@@ -144306,7 +144392,71 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": {
+                  "ambiguous_count": 10857,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 10856
+                    },
+                    {
+                      "formats": [
+                        "DD/MM/YYYY",
+                        "MM/DD/YYYY"
+                      ],
+                      "count": 1
+                    }
+                  ],
+                  "more_candidates": 0,
+                  "readings": [
+                    {
+                      "order": "DMY",
+                      "count": 10937
+                    },
+                    {
+                      "order": "MDY",
+                      "count": 5483
+                    }
+                  ],
+                  "formats": [
+                    {
+                      "format": "YYYY-MM-DD",
+                      "order": "YMD",
+                      "count": 72710
+                    },
+                    {
+                      "format": "DD-MM-YYYY",
+                      "order": "DMY",
+                      "count": 10937
+                    },
+                    {
+                      "format": "MM-DD-YYYY",
+                      "order": "MDY",
+                      "count": 5482
+                    },
+                    {
+                      "format": "YYYY/MM/DD",
+                      "order": "YMD",
+                      "count": 7
+                    },
+                    {
+                      "format": "MM/DD/YYYY",
+                      "order": "MDY",
+                      "count": 1
+                    }
+                  ],
+                  "more_formats": 0
+                },
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "issue",
                 "obs"
@@ -144687,7 +144837,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -145054,7 +145211,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -145531,7 +145695,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -146108,56 +146279,63 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "avenue",
-                        "count": 11469,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Avenue",
-                        "count": 3500,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "boulevard",
-                        "count": 10940,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Boulevard",
-                        "count": 2747,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "place",
-                        "count": 2949,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Place",
-                        "count": 676,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "avenue",
+                          "count": 11469,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Avenue",
+                          "count": 3500,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "boulevard",
+                          "count": 10940,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Boulevard",
+                          "count": 2747,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "place",
+                          "count": 2949,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Place",
+                          "count": 676,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 0
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
               },
               "flags": [
                 "issue",
@@ -146991,306 +147169,352 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "du Ruisseau",
-                        "count": 2759,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "du ruisseau",
-                        "count": 2,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Pins",
-                        "count": 2485,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des  Pins",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Bouleaux",
-                        "count": 2431,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des bouleaux",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Cèdres",
-                        "count": 2318,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des Cedres",
-                        "count": 3,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Peupliers",
-                        "count": 2316,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des  Peupliers",
-                        "count": 1,
-                        "most_frequent": false
-                      },
-                      {
-                        "value": "des peupliers",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "du Moulin",
-                        "count": 2202,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "du moulin",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "du Belvédère",
-                        "count": 2110,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "du Belvedere",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "de la Rivière",
-                        "count": 2066,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "de la Riviere",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Sommets",
-                        "count": 1813,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des  Sommets",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Vents",
-                        "count": 1776,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des vents",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Pionniers",
-                        "count": 1679,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des  Pionniers",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "de la Clairière",
-                        "count": 1625,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "de  la Clairière",
-                        "count": 1,
-                        "most_frequent": false
-                      },
-                      {
-                        "value": "de la clairière",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Hirondelles",
-                        "count": 1275,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des hirondelles",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "du Marais",
-                        "count": 1259,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "du  Marais",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Tulipes",
-                        "count": 1056,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des  Tulipes",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Chênes",
-                        "count": 925,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des Chenes",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Épinettes",
-                        "count": 823,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des épinettes",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Eastwood",
-                        "count": 508,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "eastwood",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "des Deux-Rivières",
-                        "count": 283,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "des  Deux-Rivières",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "du Ruisseau",
+                          "count": 2759,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "du ruisseau",
+                          "count": 2,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Pins",
+                          "count": 2485,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des  Pins",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Bouleaux",
+                          "count": 2431,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des bouleaux",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Cèdres",
+                          "count": 2318,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des Cedres",
+                          "count": 3,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Peupliers",
+                          "count": 2316,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des  Peupliers",
+                          "count": 1,
+                          "most_frequent": false
+                        },
+                        {
+                          "value": "des peupliers",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "du Moulin",
+                          "count": 2202,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "du moulin",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "du Belvédère",
+                          "count": 2110,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "du Belvedere",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "de la Rivière",
+                          "count": 2066,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "de la Riviere",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Sommets",
+                          "count": 1813,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des  Sommets",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Vents",
+                          "count": 1776,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des vents",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Pionniers",
+                          "count": 1679,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des  Pionniers",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "de la Clairière",
+                          "count": 1625,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "de  la Clairière",
+                          "count": 1,
+                          "most_frequent": false
+                        },
+                        {
+                          "value": "de la clairière",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Hirondelles",
+                          "count": 1275,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des hirondelles",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "du Marais",
+                          "count": 1259,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "du  Marais",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Tulipes",
+                          "count": 1056,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des  Tulipes",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Chênes",
+                          "count": 925,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des Chenes",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Épinettes",
+                          "count": 823,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des épinettes",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Eastwood",
+                          "count": 508,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "eastwood",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "des Deux-Rivières",
+                          "count": 283,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "des  Deux-Rivières",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 0
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": {
+                  "state": "shown",
+                  "examples_from": "sample",
+                  "stages": [
+                    {
+                      "stage": "trim",
+                      "changed": 2
+                    },
+                    {
+                      "stage": "collapse_whitespace",
+                      "changed": 8
+                    }
+                  ],
+                  "examples": [
+                    {
+                      "value": "…s tres longues rues sans fin chemin des tres longues rues sans ",
+                      "count": 2,
+                      "truncated": true,
+                      "kind": "trailing"
+                    },
+                    {
+                      "value": "de  la Clairière",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    },
+                    {
+                      "value": "des  Deux-Rivières",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    },
+                    {
+                      "value": "des  Peupliers",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    }
+                  ]
+                },
+                "types": null
               },
               "flags": [
                 "issue",
@@ -147698,7 +147922,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -148177,7 +148408,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -148807,161 +149045,168 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "Montréal",
-                        "count": 11259,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Montreal",
-                        "count": 3,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Québec",
-                        "count": 7198,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Quebec",
-                        "count": 5,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Gatineau",
-                        "count": 3788,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "gatineau",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Toronto",
-                        "count": 3743,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "toronto",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Lévis",
-                        "count": 2922,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Levis",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Brossard",
-                        "count": 2028,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "brossard",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Blainville",
-                        "count": 1408,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "blainville",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Calgary",
-                        "count": 1126,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "calgary",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Joliette",
-                        "count": 824,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "joliette",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Gaspé",
-                        "count": 531,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Gaspe",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "Montréal",
+                          "count": 11259,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Montreal",
+                          "count": 3,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Québec",
+                          "count": 7198,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Quebec",
+                          "count": 5,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Gatineau",
+                          "count": 3788,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "gatineau",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Toronto",
+                          "count": 3743,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "toronto",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Lévis",
+                          "count": 2922,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Levis",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Brossard",
+                          "count": 2028,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "brossard",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Blainville",
+                          "count": 1408,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "blainville",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Calgary",
+                          "count": 1126,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "calgary",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Joliette",
+                          "count": 824,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "joliette",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Gaspé",
+                          "count": 531,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Gaspe",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 0
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
               },
               "flags": [
                 "issue",
@@ -149542,101 +149787,108 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "QC",
-                        "count": 75256,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "qc",
-                        "count": 16,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "ON",
-                        "count": 14161,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "on",
-                        "count": 2,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "AB",
-                        "count": 2615,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "ab",
-                        "count": 2,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "NB",
-                        "count": 1740,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "nb",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "NS",
-                        "count": 912,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "ns",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "NL",
-                        "count": 355,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "nl",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "QC",
+                          "count": 75256,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "qc",
+                          "count": 16,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "ON",
+                          "count": 14161,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "on",
+                          "count": 2,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "AB",
+                          "count": 2615,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "ab",
+                          "count": 2,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "NB",
+                          "count": 1740,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "nb",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "NS",
+                          "count": 912,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "ns",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "NL",
+                          "count": 355,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "nl",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 0
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
               },
               "flags": [
                 "issue",
@@ -150173,61 +150425,68 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "Québec",
-                        "count": 72788,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "Quebec",
-                        "count": 2480,
-                        "most_frequent": false
-                      },
-                      {
-                        "value": "quebec",
-                        "count": 10,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "Ontario",
-                        "count": 14159,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "ontario",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "British Columbia",
-                        "count": 2621,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "british columbia",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "Québec",
+                          "count": 72788,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "Quebec",
+                          "count": 2480,
+                          "most_frequent": false
+                        },
+                        {
+                          "value": "quebec",
+                          "count": 10,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "Ontario",
+                          "count": 14159,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "ontario",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "British Columbia",
+                          "count": 2621,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "british columbia",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 0
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
               },
               "flags": [
                 "issue",
@@ -151580,311 +151839,379 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0A 0V8",
-                        "count": 9,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0A  0V8",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0A 0V8",
+                          "count": 9,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0A  0V8",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0A 4R1",
+                          "count": 7,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0A  4R1",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0A 5V1",
+                          "count": 7,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0A  5V1",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0A 4C0",
+                          "count": 6,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0A  4C0",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0A 4K2",
+                          "count": 6,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0A  4K2",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0A 4L5",
+                          "count": 6,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0A  4L5",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0A 5K1",
+                          "count": 6,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0A  5K1",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0A 9A1",
+                          "count": 4,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0A  9A1",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0B 2T8",
+                          "count": 4,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0B  2T8",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0C 8J2",
+                          "count": 4,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0C  8J2",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0G 7L1",
+                          "count": 4,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0G  7L1",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0A 6R6",
+                          "count": 3,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0A  6R6",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0H 1W3",
+                          "count": 3,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0H  1W3",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0A 3P3",
+                          "count": 2,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0A  3P3",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0C 8J7",
+                          "count": 2,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0C  8J7",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0E 1K2",
+                          "count": 2,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0E  1K2",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0E 4X3",
+                          "count": 2,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0E  4X3",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0H 0T0",
+                          "count": 2,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0H  0T0",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H0P 1S6",
+                          "count": 2,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H0P  1S6",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "H1L 4Y2",
+                          "count": 2,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "H1L  4Y2",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 14
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": {
+                  "state": "shown",
+                  "examples_from": "sample",
+                  "total": 100000,
+                  "dominant": {
+                    "length": 7,
+                    "count": 99979
                   },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0A 4R1",
-                        "count": 7,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0A  4R1",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0A 5V1",
-                        "count": 7,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0A  5V1",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0A 4C0",
-                        "count": 6,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0A  4C0",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0A 4K2",
-                        "count": 6,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0A  4K2",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0A 4L5",
-                        "count": 6,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0A  4L5",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0A 5K1",
-                        "count": 6,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0A  5K1",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0A 9A1",
-                        "count": 4,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0A  9A1",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0B 2T8",
-                        "count": 4,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0B  2T8",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0C 8J2",
-                        "count": 4,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0C  8J2",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0G 7L1",
-                        "count": 4,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0G  7L1",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0A 6R6",
-                        "count": 3,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0A  6R6",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0H 1W3",
-                        "count": 3,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0H  1W3",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0A 3P3",
-                        "count": 2,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0A  3P3",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0C 8J7",
-                        "count": 2,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0C  8J7",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0E 1K2",
-                        "count": 2,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0E  1K2",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0E 4X3",
-                        "count": 2,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0E  4X3",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0H 0T0",
-                        "count": 2,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0H  0T0",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H0P 1S6",
-                        "count": 2,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H0P  1S6",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "H1L 4Y2",
-                        "count": 2,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "H1L  4Y2",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 14
+                  "lengths": [
+                    {
+                      "length": 6,
+                      "count": 21,
+                      "examples": [
+                        {
+                          "value": "0A 6P3",
+                          "count": 1,
+                          "truncated": false
+                        },
+                        {
+                          "value": "0B 8N5",
+                          "count": 1,
+                          "truncated": false
+                        },
+                        {
+                          "value": "0L 7T7",
+                          "count": 1,
+                          "truncated": false
+                        }
+                      ]
+                    }
+                  ],
+                  "more_lengths": 0
+                },
+                "whitespace": {
+                  "state": "shown",
+                  "examples_from": "sample",
+                  "stages": [
+                    {
+                      "stage": "collapse_whitespace",
+                      "changed": 54
+                    }
+                  ],
+                  "examples": [
+                    {
+                      "value": "A0A  1R0",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    },
+                    {
+                      "value": "B0A  9P5",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    },
+                    {
+                      "value": "E0B  0B1",
+                      "count": 1,
+                      "truncated": false,
+                      "kind": "repeated"
+                    }
+                  ]
+                },
+                "types": null
               },
               "flags": [
                 "issue",
@@ -152302,26 +152629,33 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "CA",
-                        "count": 99978,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "ca",
-                        "count": 22,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "CA",
+                          "count": 99978,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "ca",
+                          "count": 22,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 0
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
               },
               "flags": [
                 "issue",
@@ -152933,7 +153267,14 @@
                   "isabelle_bouchard@hotmail.exam..."
                 ]
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "error",
                 "issue"
@@ -153499,7 +153840,43 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": {
+                  "state": "shown",
+                  "examples_from": "sample",
+                  "stages": [
+                    {
+                      "stage": "collapse_whitespace",
+                      "changed": 42
+                    }
+                  ],
+                  "examples": [
+                    {
+                      "value": "+1  200-555-0131",
+                      "count": 3,
+                      "truncated": false,
+                      "kind": "repeated"
+                    },
+                    {
+                      "value": "+1  200-555-0160",
+                      "count": 2,
+                      "truncated": false,
+                      "kind": "repeated"
+                    },
+                    {
+                      "value": "+1  200-555-0186",
+                      "count": 2,
+                      "truncated": false,
+                      "kind": "repeated"
+                    }
+                  ]
+                },
+                "types": null
+              },
               "flags": [
                 "issue",
                 "obs"
@@ -153990,7 +154367,67 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": {
+                  "state": "shown",
+                  "examples_from": "sample",
+                  "total": 99991,
+                  "dominant": {
+                    "length": 14,
+                    "count": 99955
+                  },
+                  "lengths": [
+                    {
+                      "length": 13,
+                      "count": 22,
+                      "examples": [
+                        {
+                          "value": "CTR-000007221",
+                          "count": 1,
+                          "truncated": false
+                        },
+                        {
+                          "value": "CTR-000054142",
+                          "count": 1,
+                          "truncated": false
+                        },
+                        {
+                          "value": "CTR-100000584",
+                          "count": 1,
+                          "truncated": false
+                        }
+                      ]
+                    },
+                    {
+                      "length": 15,
+                      "count": 14,
+                      "examples": [
+                        {
+                          "value": "CTR--1000009580",
+                          "count": 1,
+                          "truncated": false
+                        },
+                        {
+                          "value": "CTR--1000011532",
+                          "count": 1,
+                          "truncated": false
+                        },
+                        {
+                          "value": "CTR--1000021662",
+                          "count": 1,
+                          "truncated": false
+                        }
+                      ]
+                    }
+                  ],
+                  "more_lengths": 0
+                },
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "issue",
                 "obs"
@@ -154499,46 +154936,70 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "auto",
-                        "count": 40779,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "AUTO",
-                        "count": 2,
-                        "most_frequent": false
-                      },
-                      {
-                        "value": "auto ",
-                        "count": 2,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "habitation",
-                        "count": 30199,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "HABITATION",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "auto",
+                          "count": 40779,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "AUTO",
+                          "count": 2,
+                          "most_frequent": false
+                        },
+                        {
+                          "value": "auto ",
+                          "count": 2,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "habitation",
+                          "count": 30199,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "HABITATION",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 0
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": {
+                  "state": "shown",
+                  "examples_from": "sample",
+                  "stages": [
+                    {
+                      "stage": "trim",
+                      "changed": 2
+                    }
+                  ],
+                  "examples": [
+                    {
+                      "value": "auto ",
+                      "count": 2,
+                      "truncated": false,
+                      "kind": "trailing"
+                    }
+                  ]
+                },
+                "types": null
               },
               "flags": [
                 "issue",
@@ -155132,7 +155593,64 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": {
+                  "ambiguous_count": 10764,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 10764
+                    }
+                  ],
+                  "more_candidates": 0,
+                  "readings": [
+                    {
+                      "order": "DMY",
+                      "count": 11037
+                    },
+                    {
+                      "order": "MDY",
+                      "count": 5476
+                    }
+                  ],
+                  "formats": [
+                    {
+                      "format": "YYYY-MM-DD",
+                      "order": "YMD",
+                      "count": 72717
+                    },
+                    {
+                      "format": "DD-MM-YYYY",
+                      "order": "DMY",
+                      "count": 11035
+                    },
+                    {
+                      "format": "MM-DD-YYYY",
+                      "order": "MDY",
+                      "count": 5476
+                    },
+                    {
+                      "format": "YYYY/MM/DD",
+                      "order": "YMD",
+                      "count": 6
+                    },
+                    {
+                      "format": "DD/MM/YYYY",
+                      "order": "DMY",
+                      "count": 2
+                    }
+                  ],
+                  "more_formats": 0
+                },
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "issue",
                 "obs"
@@ -155732,7 +156250,71 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": {
+                  "ambiguous_count": 8956,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 8955
+                    },
+                    {
+                      "formats": [
+                        "DD/MM/YYYY",
+                        "MM/DD/YYYY"
+                      ],
+                      "count": 1
+                    }
+                  ],
+                  "more_candidates": 0,
+                  "readings": [
+                    {
+                      "order": "DMY",
+                      "count": 9271
+                    },
+                    {
+                      "order": "MDY",
+                      "count": 4598
+                    }
+                  ],
+                  "formats": [
+                    {
+                      "format": "YYYY-MM-DD",
+                      "order": "YMD",
+                      "count": 60762
+                    },
+                    {
+                      "format": "DD-MM-YYYY",
+                      "order": "DMY",
+                      "count": 9269
+                    },
+                    {
+                      "format": "MM-DD-YYYY",
+                      "order": "MDY",
+                      "count": 4598
+                    },
+                    {
+                      "format": "YYYY/MM/DD",
+                      "order": "YMD",
+                      "count": 5
+                    },
+                    {
+                      "format": "DD/MM/YYYY",
+                      "order": "DMY",
+                      "count": 2
+                    }
+                  ],
+                  "more_formats": 0
+                },
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "issue",
                 "obs"
@@ -156129,7 +156711,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -156711,7 +157300,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "error",
                 "issue",
@@ -157104,7 +157700,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           },
@@ -157571,41 +158174,48 @@
                 ],
                 "cut": []
               },
-              "variants": {
-                "state": "shown",
-                "groups": [
-                  {
-                    "spellings": [
-                      {
-                        "value": "prélèvement",
-                        "count": 55134,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "prelevement",
-                        "count": 16,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  },
-                  {
-                    "spellings": [
-                      {
-                        "value": "chèque",
-                        "count": 5030,
-                        "most_frequent": true
-                      },
-                      {
-                        "value": "cheque",
-                        "count": 1,
-                        "most_frequent": false
-                      }
-                    ],
-                    "more_spellings": 0
-                  }
-                ],
-                "more_groups": 0
+              "finding_details": {
+                "variants": {
+                  "state": "shown",
+                  "groups": [
+                    {
+                      "spellings": [
+                        {
+                          "value": "prélèvement",
+                          "count": 55134,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "prelevement",
+                          "count": 16,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    },
+                    {
+                      "spellings": [
+                        {
+                          "value": "chèque",
+                          "count": 5030,
+                          "most_frequent": true
+                        },
+                        {
+                          "value": "cheque",
+                          "count": 1,
+                          "most_frequent": false
+                        }
+                      ],
+                      "more_spellings": 0
+                    }
+                  ],
+                  "more_groups": 0
+                },
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
               },
               "flags": [
                 "issue",
@@ -158135,7 +158745,46 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": {
+                  "state": "shown",
+                  "examples_from": "sample",
+                  "total": 100000,
+                  "dominant": {
+                    "length": 9,
+                    "count": 99984
+                  },
+                  "lengths": [
+                    {
+                      "length": 10,
+                      "count": 16,
+                      "examples": [
+                        {
+                          "value": "AG--QC-001",
+                          "count": 3,
+                          "truncated": false
+                        },
+                        {
+                          "value": "AG--PR-001",
+                          "count": 2,
+                          "truncated": false
+                        },
+                        {
+                          "value": "AG--PR-002",
+                          "count": 2,
+                          "truncated": false
+                        }
+                      ]
+                    }
+                  ],
+                  "more_lengths": 0
+                },
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "issue",
                 "obs"
@@ -158728,7 +159377,64 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": {
+                  "ambiguous_count": 10638,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 10638
+                    }
+                  ],
+                  "more_candidates": 0,
+                  "readings": [
+                    {
+                      "order": "DMY",
+                      "count": 11138
+                    },
+                    {
+                      "order": "MDY",
+                      "count": 5501
+                    }
+                  ],
+                  "formats": [
+                    {
+                      "format": "YYYY-MM-DD",
+                      "order": "YMD",
+                      "count": 72716
+                    },
+                    {
+                      "format": "DD-MM-YYYY",
+                      "order": "DMY",
+                      "count": 11138
+                    },
+                    {
+                      "format": "MM-DD-YYYY",
+                      "order": "MDY",
+                      "count": 5499
+                    },
+                    {
+                      "format": "YYYY/MM/DD",
+                      "order": "YMD",
+                      "count": 7
+                    },
+                    {
+                      "format": "MM/DD/YYYY",
+                      "order": "MDY",
+                      "count": 2
+                    }
+                  ],
+                  "more_formats": 0
+                },
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "issue",
                 "obs"
@@ -159328,7 +160034,71 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": {
+                  "ambiguous_count": 10944,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 10943
+                    },
+                    {
+                      "formats": [
+                        "DD/MM/YYYY",
+                        "MM/DD/YYYY"
+                      ],
+                      "count": 1
+                    }
+                  ],
+                  "more_candidates": 0,
+                  "readings": [
+                    {
+                      "order": "DMY",
+                      "count": 10998
+                    },
+                    {
+                      "order": "MDY",
+                      "count": 5335
+                    }
+                  ],
+                  "formats": [
+                    {
+                      "format": "YYYY-MM-DD",
+                      "order": "YMD",
+                      "count": 72718
+                    },
+                    {
+                      "format": "DD-MM-YYYY",
+                      "order": "DMY",
+                      "count": 10997
+                    },
+                    {
+                      "format": "MM-DD-YYYY",
+                      "order": "MDY",
+                      "count": 5335
+                    },
+                    {
+                      "format": "YYYY/MM/DD",
+                      "order": "YMD",
+                      "count": 5
+                    },
+                    {
+                      "format": "DD/MM/YYYY",
+                      "order": "DMY",
+                      "count": 1
+                    }
+                  ],
+                  "more_formats": 0
+                },
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "issue",
                 "obs"
@@ -159899,7 +160669,54 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": {
+                  "ambiguous_count": 1570,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 1570
+                    }
+                  ],
+                  "more_candidates": 0,
+                  "readings": [
+                    {
+                      "order": "DMY",
+                      "count": 1590
+                    },
+                    {
+                      "order": "MDY",
+                      "count": 755
+                    }
+                  ],
+                  "formats": [
+                    {
+                      "format": "YYYY-MM-DD",
+                      "order": "YMD",
+                      "count": 10325
+                    },
+                    {
+                      "format": "DD-MM-YYYY",
+                      "order": "DMY",
+                      "count": 1590
+                    },
+                    {
+                      "format": "MM-DD-YYYY",
+                      "order": "MDY",
+                      "count": 755
+                    }
+                  ],
+                  "more_formats": 0
+                },
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "issue",
                 "obs"
@@ -160385,7 +161202,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -160771,7 +161595,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": [
                 "obs"
               ]
@@ -161152,7 +161983,14 @@
                 ],
                 "cut": []
               },
-              "variants": null,
+              "finding_details": {
+                "variants": null,
+                "dates": null,
+                "patterns": null,
+                "lengths": null,
+                "whitespace": null,
+                "types": null
+              },
               "flags": []
             }
           }

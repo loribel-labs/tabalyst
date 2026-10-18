@@ -625,6 +625,58 @@ CAVEAT_STATES = {
     "not_assessed": "not assessed",
     "failed": "failed",
 }
+# The details of the Findings table (contract summary-table.md 22): titles, orders and
+# notes by code. The formats listed come from the data; the words are these.
+DATES_TITLE = "Ambiguous dates"
+DATES_CANDIDATES = "Formats that fit the same values"
+DATES_READINGS = "Other values, by day-month order"
+DATES_FORMATS = "Formats read without doubt"
+DATES_ORDERS = {"DMY": "Day first (DD/MM)", "MDY": "Month first (MM/DD)"}
+DATES_UNRESOLVED = "No order was chosen: these values stay ambiguous."
+DATES_JOINER = " or "
+PATTERNS_TITLE = "Minority patterns"
+PATTERNS_DOMINANT = "Dominant pattern"
+PATTERNS_MINORITY = "Patterns that few distinct values share"
+PATTERNS_SAMPLE_POPULATION = "The patterns were inferred on a sample of the distinct values."
+PATTERNS_SAMPLE_EXAMPLES = "Examples are values of a sample, not every value of a pattern."
+PATTERNS_NO_EXAMPLES = "The scan kept no example of these patterns."
+LENGTHS_TITLE = "Minority lengths"
+LENGTHS_DOMINANT = "Dominant length"
+LENGTHS_MINORITY = "Lengths that few texts have"
+LENGTHS_UNIT = ("character", "characters")
+LENGTHS_ANALYTICAL = "Lengths count the characters of the text after normalization."
+LENGTHS_SAMPLE_EXAMPLES = "Examples are texts of a sample, not every text of a length."
+LENGTHS_NO_EXAMPLES = "The scan kept no example of these lengths."
+EXAMPLES_MASKED = "Masked values: equal masks are merged."
+EXAMPLES_HIDDEN = "Values hidden by the exposure setting of the column."
+# Whitespace is made visible in an example (contract summary-table.md 22.6): the stored value
+# is the raw one, these marks are written when the page is rendered.
+WHITESPACE_MARKS = {" ": "\u00b7", "\t": "\u2192", "\n": "\u21b5", "\r": "\u21b5"}
+WHITESPACE_OTHER_MARK = "\u2423"
+WHITESPACE_TITLES = {
+    "trimmed_cells": "Surrounding whitespace",
+    "collapsed_whitespace": "Repeated whitespace",
+}
+WHITESPACE_KIND_TITLES = {
+    "leading": "Whitespace before the text",
+    "trailing": "Whitespace after the text",
+    "repeated": "Whitespace repeated inside the text",
+}
+WHITESPACE_NOTE = "Marks show the whitespace: \u00b7 a space, \u2192 a tab, \u21b5 a line break."
+WHITESPACE_SAMPLE_EXAMPLES = "Examples are values of a sample, not every changed text."
+WHITESPACE_NO_EXAMPLES = "The sample holds no example of these texts."
+TYPES_TITLE = "Mixed types"
+TYPES_COMPOSITION = "Values by technical type"
+TYPES_CLOSEST = "Closest type"
+TYPES_WORDS = {
+    "integer": "Integers",
+    "number": "Numbers",
+    "date": "Dates",
+    "boolean": "Booleans",
+    "text": "Text",
+}
+TYPES_NOTE = "Each value is read as the types it can be; a value of another type may be legitimate."
+TYPES_OUTSIDE = ("value is outside the closest type", "values are outside the closest type")
 TABLE_MORE = "more"
 TABLE_AT_LEAST = "at least"
 # By the state of the Details of a column (``shown`` writes no chip).
@@ -807,3 +859,19 @@ OBSERVATION_STATUS_HELP = (
 # The class of a signal tile, written before its title so that the colour is never the only cue.
 SIGNAL_CLASS_WORDS = {"error": "Error", "issue": "Issue", "information": "Info"}
 
+
+def visible_whitespace(text: str) -> str:
+    """``text`` with its whitespace characters written as visible marks."""
+    return "".join(
+        WHITESPACE_MARKS.get(char, WHITESPACE_OTHER_MARK if char.isspace() else char)
+        for char in text
+    )
+
+
+def spoken_whitespace(kind: str, text: str) -> str:
+    """What a screen reader says for an example of whitespace, in words."""
+    if kind == "leading":
+        return plural(len(text) - len(text.lstrip()), "leading whitespace character", "leading whitespace characters")
+    if kind == "trailing":
+        return plural(len(text) - len(text.rstrip()), "trailing whitespace character", "trailing whitespace characters")
+    return "whitespace repeated inside the text"

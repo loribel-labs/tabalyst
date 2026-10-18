@@ -152,6 +152,80 @@ async function tableChecks(page, profile, observedFields, label) {
   assert.equal(await card.locator('.rcard-sub').count(), 2, label + ': each list says what it counts');
 }
 
+// The detail of a Findings row (R12): reachable by keyboard focus, printed from the stored member,
+// and kept inside the screen. `expect` gives the chips of the cell and the figures the hover holds.
+async function findingDetailCheck(page, label, width, column, rule, expect) {
+  // The table shows 25 findings at a time: filter to the column so that its row is on the page.
+  const filter = page.locator('#observations input[placeholder="Filter findings"]');
+  await filter.fill(column.name);
+  const row = page.locator('#observations tbody tr', { has: page.locator('code', { hasText: new RegExp('^' + column.name + '$') }) })
+    .filter({ hasText: rule });
+  const cell = row.locator('td.c-vd');
+  await cell.scrollIntoViewIfNeeded();
+  assert.deepEqual(await cell.locator('.vpre .exv').evaluateAll(els => els.map(el => el.firstChild.textContent)), expect.chips, label + ': ' + rule + ' previews its first items');
+  // Reached by the Tab key: the popup opens on :focus-visible, which a script focus does not give.
+  await cell.focus();
+  await page.keyboard.press('Shift+Tab');
+  for (let step = 0; step < 3 && !(await cell.evaluate(el => el === document.activeElement)); step++) await page.keyboard.press('Tab');
+  assert.ok(await cell.evaluate(el => el === document.activeElement), label + ': the Tab key reaches the ' + rule + ' cell');
+  const tip = cell.locator('.tip');
+  await tip.waitFor({ state: 'visible' });
+  const box = await tip.boundingBox();
+  const text = await tip.evaluate(el => el.textContent);
+  for (const part of expect.text) assert.ok(text.includes(part), label + ': the ' + rule + ' hover holds "' + part + '"');
+  assert.ok(box && box.x >= -1 && box.x + box.width <= width + 1, label + ': the ' + rule + ' hover stays inside the screen');
+  await page.keyboard.press('Tab');
+  await filter.fill('');
+}
+
+async function findingDetailChecks(page, profile, label, width) {
+  const count = number => number.toLocaleString('en-US');
+  const visible = text => text.replace(/ /g, '\u00b7').replace(/\t/g, '\u2192');
+  const withDates = profile.columns.find(item => item.summary.finding_details.dates);
+  if (withDates) {
+    const dates = withDates.summary.finding_details.dates;
+    const first = dates.candidates[0];
+    await findingDetailCheck(page, label, width, withDates, 'ambiguous_dates', {
+      chips: first.formats,
+      text: [first.formats.join(' or '), count(first.count), ...dates.readings.map(item => count(item.count)), 'No order was chosen'],
+    });
+  }
+  const withLengths = profile.columns.find(item => item.summary.finding_details.lengths);
+  if (withLengths) {
+    const lengths = withLengths.summary.finding_details.lengths;
+    const words = item => item.length + (item.length === 1 ? ' character' : ' characters');
+    await findingDetailCheck(page, label, width, withLengths, 'minority_length', {
+      chips: lengths.lengths.slice(0, 2).map(words),
+      text: [
+        words(lengths.dominant), count(lengths.dominant.count),
+        ...lengths.lengths.flatMap(item => [words(item), count(item.count), ...item.examples.map(example => example.value)]),
+      ],
+    });
+  }
+  const withTypes = profile.columns.find(item => item.summary.finding_details.types);
+  if (withTypes) {
+    const types = withTypes.summary.finding_details.types;
+    const words = { integer: 'Integers', number: 'Numbers', date: 'Dates', boolean: 'Booleans', text: 'Text' };
+    const share = item => (Math.round(10000 * item.count / types.total) / 100).toString() + '%';
+    await findingDetailCheck(page, label, width, withTypes, 'mixed_types', {
+      chips: types.types.slice(0, 2).map(item => (words[item.type] || item.type) + ' ' + share(item)),
+      text: ['Values by technical type', 'Closest type', ...types.types.map(item => count(item.count))],
+    });
+  }
+  // Whitespace: the marks are written at the render, the stored value is the raw one.
+  const withSpaces = profile.columns.find(item => {
+    const detail = item.summary.finding_details.whitespace;
+    return detail && detail.stages.some(stage => stage.stage === 'trim') && detail.examples.some(example => example.kind !== 'repeated');
+  });
+  if (withSpaces) {
+    const examples = withSpaces.summary.finding_details.whitespace.examples.filter(example => example.kind !== 'repeated');
+    await findingDetailCheck(page, label, width, withSpaces, 'trimmed_cells', {
+      chips: examples.slice(0, 2).map(example => visible(example.value)),
+      text: ['Surrounding whitespace', 'Marks show the whitespace', ...examples.map(example => visible(example.value))],
+    });
+  }
+}
+
 // The previews of the Errors and the Issues (R9b): reachable by keyboard and touch, never by
 // hover or colour alone, readable in both themes, and kept inside the screen.
 async function previewChecks(page, label, width, height) {
@@ -358,6 +432,7 @@ async function openFilter(page, table, index) {
 
       await tableChecks(page, profile, observedFields, name + ' dark');
       await previewChecks(page, name + ' dark', width, height);
+      await findingDetailChecks(page, profile, name + ' dark', width);
 
       // Overview layout: Quality observations over Signals on two thirds, Column types beside them.
       const boxes = await page.evaluate(() => {

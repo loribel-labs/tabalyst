@@ -4,26 +4,67 @@
 
 """Details of a finding of the Findings table: the evidence behind a count.
 
-Today the spelling variants (``variant_groups``): the groups to correct, each
-with its spellings. Values go through the exposure of their column, whatever
-the document holds (contract summary-table.md 7.6).
+The spelling variants (``variant_groups``): the groups to correct, each with its
+spellings; the ambiguous dates (``ambiguous_dates``): the formats that fit the same
+values. Values go through the exposure of their column, whatever the document holds
+(contract summary-table.md 7.6 and 22).
 """
 
 from __future__ import annotations
 
+import re
+from collections.abc import Collection
+from typing import NamedTuple
+
+from tabalyst.report_details import STATES
+from tabalyst.report_findings import detector_of
 from tabalyst.report_views import ColumnView
 from tabalyst.result_model import ResultModel
 from tabalyst.scanner.exposure import ExposureGate, ExposureMode
+from tabalyst.scanner.models import DetectorComplete, FieldResult, SampleEntry
+from tabalyst.scanner.normalization import Normalizer
 from tabalyst.summary_models import (
+    DateCandidate,
+    DateDetail,
+    DateFormat,
+    DateOrder,
+    DateReading,
+    DominantLength,
+    DominantPattern,
+    FindingDetails,
+    FindingExample,
+    LengthDetail,
+    MinorityLength,
+    MinorityPattern,
+    PatternDetail,
     Spelling,
+    TypeCount,
+    TypeDetail,
     VariantDetails,
     VariantGroupDetail,
     VariantState,
+    WhitespaceChange,
+    WhitespaceDetail,
+    WhitespaceExample,
+    WhitespaceKind,
+    WhitespaceStage,
 )
 
 # Groups and spellings written in the hover; the rest is counted.
 GROUPS_SHOWN = 20
 SPELLINGS_SHOWN = 6
+# Pairs of formats and formats read without doubt written for ambiguous dates.
+DATE_FORMATS_SHOWN = 6
+DATE_ORDERS: tuple[DateOrder, ...] = ("DMY", "MDY")
+# Minority patterns written, and the examples of each (contract summary-table.md 22.3).
+PATTERNS_SHOWN = 5
+LENGTHS_SHOWN = 5
+EXAMPLES_PER_ITEM = 3
+EXAMPLES_PER_KIND = 3
+# An example is cut here, whatever length the Scan stored: a column of long texts must not
+# weigh on the document.
+EXAMPLE_MAX_CHARS = 64
+
 
 def variant_details(column: ColumnView) -> VariantDetails | None:
     """The variants of a column, or ``None`` when it has no group to show.
@@ -94,3 +135,360 @@ def exposed_variant_groups(column: ColumnView) -> list[ExposedVariantGroup]:
         )
         for group in column.normalization.variant_groups
     ]
+
+
+def date_details(column: ColumnView) -> DateDetail | None:
+    """What makes the dates of a column ambiguous, or ``None`` when the column has no
+    ``ambiguous_dates`` observation or the date detector kept no account of it.
+
+    Everything comes from the detector's account of the ambiguity and from the date
+    profile of the column; the ambiguity is never resolved here. Formats are shapes, so
+    the exposure of the column changes nothing (contract summary-table.md 22.4).
+    """
+    if not any(item.observation.rule == "ambiguous_dates" for item in column.quality):
+        return None
+    detector = detector_of(column.field, "date")
+    if not isinstance(detector, DetectorComplete):
+        return None
+    ambiguity = detector.details.get("ambiguity") or {}
+    if not ambiguity.get("count"):
+        return None
+    candidates = sorted(
+        (
+            DateCandidate(formats=list(item["formats"]), count=item["count"])
+            for item in ambiguity.get("candidates", [])
+        ),
+        key=lambda item: (-item.count, item.formats),
+    )
+    evidence = ambiguity.get("evidence", {})
+    readings = sorted(
+        (
+            DateReading(order=order, count=evidence[order])
+            for order in DATE_ORDERS
+            if evidence.get(order)
+        ),
+        key=lambda item: (-item.count, item.order),
+    )
+    known = sorted(
+        (
+            DateFormat(format=item.format, order=item.order, count=item.count)
+            for item in (column.date_profile.formats if column.date_profile else [])
+        ),
+        key=lambda item: (-item.count, item.format),
+    )
+    return DateDetail(
+        ambiguous_count=ambiguity["count"],
+        candidates=candidates[:DATE_FORMATS_SHOWN],
+        more_candidates=max(0, len(candidates) - DATE_FORMATS_SHOWN),
+        readings=readings,
+        formats=known[:DATE_FORMATS_SHOWN],
+        more_formats=max(0, len(known) - DATE_FORMATS_SHOWN),
+    )
+
+
+class ExampleSource(NamedTuple):
+    """Where the examples of the details are read (contract summary-table.md 22.5).
+
+    ``field`` holds the whole sample of the Scan, ``None`` when it is not at hand (a
+    document attached at render: the base of the column is used); ``normalizer`` turns an
+    original value into the analytical text the lengths are counted on.
+    """
+
+    field: FieldResult | None
+    normalizer: Normalizer
+
+
+def sample_entries(field: FieldResult) -> dict[int, SampleEntry]:
+    """The sampled original values this field holds, by entry id: the sample and the
+    samples by length."""
+    samples = field.values.samples
+    entries = {entry.id: entry for entry in samples.listed}
+    if samples.by_length is not None:
+        entries.update((entry.id, entry) for entry in samples.by_length.listed)
+    return entries
+
+
+def _examples(ids: list[int], entries: dict[int, SampleEntry]) -> list[FindingExample]:
+    """The first ``EXAMPLES_PER_ITEM`` values the ids point to that the sample holds."""
+    taken = [entries[item] for item in ids if item in entries][:EXAMPLES_PER_ITEM]
+    return [
+        FindingExample(
+            value=entry.value[:EXAMPLE_MAX_CHARS],
+            count=entry.count,
+            truncated=len(entry.value) > EXAMPLE_MAX_CHARS,
+        )
+        for entry in taken
+    ]
+
+
+def _field(column: ColumnView, source: ExampleSource | None) -> FieldResult:
+    return source.field if source is not None and source.field is not None else column.field
+
+
+def pattern_details(
+    column: ColumnView, source: ExampleSource | None = None
+) -> PatternDetail | None:
+    """The patterns behind the ``minority_pattern`` observation of a column, or ``None``
+    when it has none or the document holds no pattern entry for it.
+
+    A pattern writes the literal text its values share (a prefix, a domain), so its render
+    is a value of the source: for a ``mask`` or ``hide`` column there is no detail, as the
+    Scan itself discovers no pattern there (``excluded: exposure``), whatever the document
+    holds (CA-19, contract summary-table.md 22.4).
+
+    ``source`` is the field with the sample the Scan held before the Report reduced it
+    (22.5); without it the examples come from the field of the column, which may no longer
+    hold the entries the patterns point to.
+    """
+    if column.exposure in ("mask", "hide"):
+        return None
+    observation = next(
+        (
+            item.observation
+            for item in column.quality
+            if item.observation.rule == "minority_pattern"
+        ),
+        None,
+    )
+    entry = column.patterns.entry
+    if observation is None or entry is None:
+        return None
+    every = entry.all_patterns()
+    by_id = {pattern.id: pattern for pattern in every}
+    named = sorted(
+        (by_id[item] for item in observation.patterns if item in by_id),
+        key=lambda pattern: (-pattern.d, pattern.id),
+    )
+    if not named:
+        return None
+    entries = sample_entries(_field(column, source))
+    listed = [
+        MinorityPattern(
+            id=pattern.id,
+            render=pattern.render,
+            distinct=pattern.d,
+            examples=_examples(pattern.examples, entries),
+        )
+        for pattern in named[:PATTERNS_SHOWN]
+    ]
+    dominant = max(every, key=lambda pattern: pattern.d)
+    return PatternDetail(
+        examples_from="sample" if any(item.examples for item in listed) else "none",
+        population=entry.population.distinct,
+        population_complete=entry.population.complete,
+        dominant=DominantPattern(render=dominant.render, distinct=dominant.d),
+        patterns=listed,
+        more_patterns=len(observation.patterns) - len(listed),
+    )
+
+
+def _length_pool(field: FieldResult, normalizer: Normalizer) -> dict[str, int]:
+    """The analytical texts the field lists with their occurrences: the listed
+    frequencies (exact) first, then the sampled originals normalized as the Scan did."""
+    frequencies = field.values.frequencies
+    pool = (
+        {item.value: item.count for item in frequencies.value.listed}
+        if frequencies.status == "complete"
+        else {}
+    )
+    for entry in sample_entries(field).values():
+        pool.setdefault(normalizer.analytical(entry.value), entry.count)
+    return pool
+
+
+def length_details(
+    column: ColumnView, source: ExampleSource | None = None
+) -> LengthDetail | None:
+    """The lengths behind the ``minority_length`` observation of a column, or ``None``
+    when it has none or the exact histogram is not at hand.
+
+    The minority lengths are every length of the histogram but the dominant one: the Scan
+    raises the observation only when the dominant length holds nearly every text, and the
+    detail never re-decides the rule. Examples are analytical texts of the length, taken from
+    the listed frequencies and the sample (``source``, 22.5), through the exposure.
+    """
+    if not any(item.observation.rule == "minority_length" for item in column.quality):
+        return None
+    measure = column.field.string_lengths
+    if measure.status != "complete" or not measure.value.length_histogram:
+        return None
+    histogram = sorted(
+        measure.value.length_histogram, key=lambda item: (-item.count, item.length)
+    )
+    dominant, others = histogram[0], histogram[1:]
+    if not others:
+        return None
+    mode: ExposureMode = column.exposure or "show"
+    gate = ExposureGate(mode)
+    listed = others[:LENGTHS_SHOWN]
+    wanted = {item.length for item in listed}
+    found: dict[int, list[tuple[str, int]]] = {length: [] for length in wanted}
+    if source is not None and mode != "hide":
+        pool = _length_pool(_field(column, source), source.normalizer)
+        for text, count in sorted(pool.items(), key=lambda item: (-item[1], item[0])):
+            bucket = found.get(len(text))
+            if bucket is not None and len(bucket) < EXAMPLES_PER_ITEM:
+                bucket.append((text, count))
+    minority = [
+        MinorityLength(
+            length=item.length,
+            count=item.count,
+            examples=[
+                FindingExample(
+                    value=value[:EXAMPLE_MAX_CHARS],
+                    count=count,
+                    truncated=len(value) > EXAMPLE_MAX_CHARS,
+                )
+                for value, count in gate.counts(found[item.length]).items()
+            ],
+        )
+        for item in listed
+    ]
+    return LengthDetail(
+        state=STATES[mode],
+        examples_from="sample" if any(item.examples for item in minority) else "none",
+        total=measure.value.count,
+        dominant=DominantLength(length=dominant.length, count=dominant.count),
+        lengths=minority,
+        more_lengths=len(others) - len(listed),
+    )
+
+
+# The rule of the Scan behind each stage, the bit of ``Normalizer.run`` that says the stage
+# changed a text, and the kinds of its examples.
+WHITESPACE_RULES: dict[WhitespaceStage, str] = {"trim": "trimmed_cells", "collapse_whitespace": "collapsed_whitespace"}
+_TRIM_BIT, _COLLAPSE_BIT = 2, 4
+KIND_ORDER: tuple[WhitespaceKind, ...] = ("leading", "trailing", "repeated")
+
+
+ELLIPSIS = "\u2026"
+# The first run of whitespace the ``collapse_whitespace`` stage rewrites.
+_RUN = re.compile("[^\\S\r\n]{2,}|[^\\S \r\n]")
+
+
+def whitespace_window(kind: WhitespaceKind, value: str) -> tuple[str, bool]:
+    """The part of a long value that shows its whitespace, with an ellipsis on each cut
+    side, and whether it was cut. A text cut at its head would hide trailing whitespace, so
+    each kind keeps its own end (contract summary-table.md 22.4)."""
+    if len(value) <= EXAMPLE_MAX_CHARS:
+        return value, False
+    room = EXAMPLE_MAX_CHARS - 1
+    if kind == "trailing":
+        return ELLIPSIS + value[-room:], True
+    if kind == "leading":
+        return value[:room] + ELLIPSIS, True
+    found = _RUN.search(value)
+    start = max(0, (found.start() if found else 0) - 20)
+    window = value[start : start + EXAMPLE_MAX_CHARS - 2]
+    return (ELLIPSIS if start else "") + window + ELLIPSIS, True
+
+
+def _whitespace_kinds(
+    value: str, changes: int, stages: Collection[str]
+) -> list[WhitespaceKind]:
+    """The kinds a value is an example of: one per observed stage that changed it."""
+    kinds: list[WhitespaceKind] = []
+    if "trim" in stages and changes & _TRIM_BIT:
+        kinds.append("leading" if value.lstrip() != value else "trailing")
+    if "collapse_whitespace" in stages and changes & _COLLAPSE_BIT:
+        kinds.append("repeated")
+    return kinds
+
+
+def whitespace_details(
+    column: ColumnView, source: ExampleSource | None = None
+) -> WhitespaceDetail | None:
+    """The whitespace behind the ``trimmed_cells`` and ``collapsed_whitespace``
+    observations of a column, or ``None`` when it has neither.
+
+    The stages are those the Scan ran and that changed texts. The examples are original
+    values of the sample (``source``, contract summary-table.md 22.5) that the Scan's own
+    ``Normalizer`` says a stage changed, the most frequent first, at most
+    ``EXAMPLES_PER_KIND`` of each kind, through the exposure. The sample of a rare case is
+    often empty: ``examples_from`` then says ``none``.
+    """
+    observed = {
+        stage
+        for stage, rule in WHITESPACE_RULES.items()
+        if any(item.observation.rule == rule for item in column.quality)
+    }
+    changes = [
+        WhitespaceChange(stage=stage, changed=item.changed)
+        for stage in WHITESPACE_RULES
+        if stage in observed
+        for item in column.field.normalization.stages
+        if item.stage == stage and item.changed
+    ]
+    if not changes:
+        return None
+    mode: ExposureMode = column.exposure or "show"
+    gate = ExposureGate(mode)
+    found: dict[WhitespaceKind, list[tuple[str, int]]] = {kind: [] for kind in KIND_ORDER}
+    if source is not None and mode != "hide":
+        stages = {item.stage for item in changes}
+        for entry in sample_entries(_field(column, source)).values():
+            outcome = source.normalizer.run(entry.value)[1]
+            for kind in _whitespace_kinds(entry.value, outcome, stages):
+                found[kind].append((entry.value, entry.count))
+    examples = []
+    for kind in KIND_ORDER:
+        ranked = sorted(found[kind], key=lambda item: (-item[1], item[0]))
+        for value, count in gate.counts(ranked[:EXAMPLES_PER_KIND]).items():
+            text, cut = whitespace_window(kind, value)
+            examples.append(WhitespaceExample(kind=kind, value=text, count=count, truncated=cut))
+    return WhitespaceDetail(
+        state=STATES[mode],
+        examples_from="sample" if examples else "none",
+        stages=changes,
+        examples=examples,
+    )
+
+
+def type_details(column: ColumnView) -> TypeDetail | None:
+    """The composition by technical type behind the ``mixed_types`` observation of a column,
+    or ``None`` when it has none or the scan counted no type.
+
+    The closest family is chosen as the Scan does when it counts the values outside it
+    (``quality._best_family_count``): the integers, the integers and the other numbers
+    together, the dates, the booleans or the text, whichever holds the most. A tie goes to the
+    first of that order, so the figure is stable.
+    """
+    if not any(item.observation.rule == "mixed_types" for item in column.quality):
+        return None
+    counts = {kind: count for kind, count in column.field.technical_type.counts.items() if count}
+    if not counts:
+        return None
+    total = sum(counts.values())
+    integers = counts.get("integer", 0)
+    families = [
+        ("integer", integers),
+        ("number", integers + counts.get("number", 0)),
+        ("date", counts.get("date", 0)),
+        ("boolean", counts.get("boolean", 0)),
+        ("text", counts.get("text", 0)),
+    ]
+    kind, held = max(families, key=lambda item: item[1])
+    return TypeDetail(
+        total=total,
+        types=[
+            TypeCount(type=name, count=count)
+            for name, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+        ],
+        closest=TypeCount(type=kind, count=held),
+        outside=total - held,
+    )
+
+
+def finding_details(
+    column: ColumnView, source: ExampleSource | None = None
+) -> FindingDetails:
+    """Every detail of the Findings table for a column, through its exposure. ``source``
+    gives the examples their sample and the normalization of the lengths."""
+    return FindingDetails(
+        variants=variant_details(column),
+        dates=date_details(column),
+        patterns=pattern_details(column, source),
+        lengths=length_details(column, source),
+        whitespace=whitespace_details(column, source),
+        types=type_details(column),
+    )

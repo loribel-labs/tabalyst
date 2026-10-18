@@ -5,7 +5,7 @@
 """Builds the summary of each column and the table summary of each dataset.
 
 Runs once when the Report document is built (contract summary-table.md 20): the
-findings, the Overview, the Details and the spelling variants of a column, with
+findings, the Overview, the Details and the finding details of a column, with
 the exposure applied, then the signals and the quality of the dataset. The pages
 only read what is stored.
 """
@@ -16,12 +16,14 @@ from collections.abc import Sequence
 
 from tabalyst.models import ColumnProfile, ReportProfile
 from tabalyst.report_details import STATES, details_for, exposed_values
-from tabalyst.report_finding_details import variant_details
+from tabalyst.report_finding_details import ExampleSource, finding_details
 from tabalyst.report_findings import column_findings
 from tabalyst.report_overview import overview_for
 from tabalyst.report_preview import expose_examples
 from tabalyst.report_signals import quality_view, signals_view
 from tabalyst.report_views import ColumnView
+from tabalyst.scanner.models import ScanResult
+from tabalyst.scanner.normalization import Normalizer
 from tabalyst.summary_models import (
     ColumnFindings,
     ColumnSummary,
@@ -37,8 +39,13 @@ def _exposed(column: ColumnView, listing: FindingList) -> FindingList:
     )
 
 
-def column_summary(column: ColumnView) -> ColumnSummary:
-    """Everything the Summary table and the previews say about a column."""
+def column_summary(
+    column: ColumnView, source: ExampleSource | None = None
+) -> ColumnSummary:
+    """Everything the Summary table and the previews say about a column. ``source`` is
+    where the examples of the finding details are taken: the whole sample of the Scan and
+    its normalization (contract summary-table.md 22.5). Without it the details that need an
+    example or a normalized text have none."""
     found = column_findings(column)
     findings = ColumnFindings(
         field=found.field,
@@ -58,7 +65,7 @@ def column_summary(column: ColumnView) -> ColumnSummary:
         overview=overview_for(column),
         details=details_for(column),
         values=exposed_values(column),
-        variants=variant_details(column),
+        finding_details=finding_details(column, source),
         flags=flags,
     )
 
@@ -96,16 +103,34 @@ def has_summaries(profile: ReportProfile) -> bool:
     )
 
 
-def attach_summaries(profile: ReportProfile) -> ReportProfile:
+def attach_summaries(
+    profile: ReportProfile, scan: ScanResult | None = None
+) -> ReportProfile:
     """Fill the summary of every column and the table summary of every dataset of
-    ``profile``, in place, from the views of the document, and return it."""
+    ``profile``, in place, from the views of the document, and return it.
+
+    ``scan`` is the Scan the Report is built from. Its samples are whole, where the base the
+    Report keeps holds fewer values, so the examples of the finding details come from it;
+    without it (a document attached at render) they come from the base.
+    """
     # Imported here: ``reporting`` renders what this module builds.
     from tabalyst.reporting import build_dataset_views
 
     views = {view.id: view for view in build_dataset_views(profile)}
+    whole = {
+        (dataset.id, field.id): field
+        for dataset in (scan.datasets if scan is not None else [])
+        for field in dataset.fields
+    }
+    normalizer = Normalizer(profile.config.normalization)
     for dataset in profile.report.datasets:
         view = views[dataset.id]
-        summaries = [column_summary(column) for column in view.columns]
+        summaries = [
+            column_summary(
+                column, ExampleSource(whole.get((dataset.id, column.id)), normalizer)
+            )
+            for column in view.columns
+        ]
         for column, summary in zip(dataset.columns, summaries, strict=True):
             column.summary = summary
         dataset.table = table_summary(view.columns, summaries)

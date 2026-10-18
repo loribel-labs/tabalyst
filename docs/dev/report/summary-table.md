@@ -1634,3 +1634,363 @@ other members the page does not read (about 200 KB more: `evidence`, `classifica
 `variant_groups`, the unread attributes of each sample entry) are required by the Scan
 models; they could go only with a "report profile" of the base whose members are
 optional, which is a change of contract, not a pruning.
+
+
+## 22. Details of the Findings (lot R12)
+
+Status: validated by the maintainer on 2026-10-18. Tranches 1 (dates, 22.12), 2
+(minority patterns, 22.13), 3 (minority lengths, 22.14), 4 (whitespace, 22.15) and 5 (mixed
+types, 22.16) are built; the Issues preview (22.7) is not. Each detail is built, shown to the maintainer and validated before the
+next one starts. It extends 7.6 and
+16 (the Detail cell of Findings), 18 (previews) and 20 (members built with the document).
+
+### 22.1 Decisions of the maintainer (2026-10-18)
+
+1. **One member.** `ColumnSummary.finding_details` (22.2) holds every detail of a column.
+   `variants` moves into it. Revision 4 is not published, so there is no revision 5 and one
+   line of `docs/en/report/profile-changelog.md` records the move.
+2. **Findings first.** The Detail cell of the Observations section (03, Findings) shows the
+   new details. The Issues preview of the Summary table takes its first examples from the
+   same member in a last, separate tranche (22.7).
+3. **No new component.** A one-line preview in the cell and the full list in the existing
+   hover (`.tip`, `c-vd`), which opens on pointer, focus and tap (16.1).
+4. **Examples come from the samples the Scan already holds.** Counts are exact whenever the
+   Scan counted them exactly; examples are a sample, named as such, and may be missing. The
+   Report never reads the source, and R12 changes no Scan format. Collecting the first
+   occurrences of a rare case in the Scan itself (whitespace in two cells out of 100 000) is
+   another lot.
+
+### 22.2 Member
+
+`ColumnSummary.finding_details: FindingDetails`, built by `report_finding_details` beside
+`variant_details`, called by `report_summary.column_summary`. The models are in
+`summary_models`: codes, numbers and values, no word and no import of presentation.
+
+| Member | Rule (Scan observation) | Content |
+| --- | --- | --- |
+| `variants` | `variant_groups` | `VariantDetails`, unchanged (16, 22.1) |
+| `dates` | `ambiguous_dates` | `DateDetail`: formats, readings, resolved order |
+| `patterns` | `minority_pattern` | `PatternDetail`: the minority patterns with examples |
+| `lengths` | `minority_length` | `LengthDetail`: the dominant length and the minority ones with examples |
+| `whitespace` | `normalization.stages` (`trim`, `collapse_whitespace`: `changed` count) of the observed rules; examples from the sample entries (original values) that the Scan's `Normalizer` says a stage changed | `stages`: `{stage, changed}`; `examples`: `{kind, value, count, truncated}` with `kind` `leading`, `trailing` or `repeated`, one per observed stage that changed the value; no count of the examples left out, a sample says nothing about them | `EXAMPLES_PER_KIND` = 3 per kind, so 9 at most |
+| `types` | `technical_type.counts` | `total`; `types`: `{type, count}` for every type counted, in descending count then name; `closest`: `{type, count}`, the family the finding counts the values outside of; `outside` | the closed set of types (at most 5); no example |
+
+Every member is `None` when the column has no observation of its rule. A member exists
+only if the column carries the observation: the detail explains a finding, it never creates
+one (no new active finding, no report option). The Findings table finds a detail by
+`(column id, rule)`, as it does for `variants` (`reporting.finding_details`); `whitespace`
+answers to both of its rules.
+
+Shared shapes:
+
+- `FindingExample`: `value` (already through the exposure), `count` (occurrences of that
+  value in the sample, `None` when unknown), `truncated` (the Scan cut the value, or the cap
+  of 22.4 did).
+- `ExamplesState` of the members that carry examples: `shown`, `masked` or `hidden`, the
+  vocabulary of `Details.state` (7.2). `hidden` holds no example and says why; `masked` holds
+  the merged masks; the counts, the lengths and the shapes stay. A member whose examples the
+  sample could not supply has an empty list and `examples_from` `none`.
+- `examples_from`: `sample` (a value of `samples.listed` or of the length strata), `column`
+  (the examples of the string profile) or `none`. It is always one of these three, never
+  `source`.
+
+### 22.3 Sources and bounds
+
+All sources are in the Scan or in the column projection built from it. Nothing reads the
+source file. Constants live in `report_finding_details.py`, named in the contract and
+tested.
+
+| Detail | Source | Shape (per column) | Bound |
+| --- | --- | --- | --- |
+| `dates` | the date detector's account of the ambiguity (`details.ambiguity`: `count`, `candidates`, `evidence`) and `date_profile.formats` | `ambiguous_count`; `candidates`: `{formats, count}`, the pairs of formats that fit the same values; `readings`: `{order, count}` for the unambiguous values per day-month order; `formats`: `{format, order, count}` read without doubt; `more_candidates`, `more_formats` | `DATE_FORMATS_SHOWN` = 6 candidates and 6 formats. No example: a format is a shape. |
+| `patterns` | observation `patterns` (ids) resolved in `derived.patterns`; examples from the pattern's `examples` ids resolved in `samples.listed` and `by_length.listed` of the whole Scan sample (22.5) | `dominant`: `{render, distinct}`; `patterns`: `{id, render, distinct, examples}` for the minority patterns, largest first; `population` (distinct values the patterns were inferred on) and `population_complete`; `examples_from`; `more_patterns` | `PATTERNS_SHOWN` = 5 patterns, `EXAMPLES_PER_ITEM` = 3 examples each |
+| `lengths` | `string_lengths.length_histogram` (exact, analytical text); examples from the listed frequencies and the sample normalized as the Scan did (22.14) | `state`, `examples_from`; `total`; `dominant`: `{length, count}`; `lengths`: `{length, count, examples}` for every length but the dominant, in descending count then ascending length; `more_lengths` | `LENGTHS_SHOWN` = 5 lengths, `EXAMPLES_PER_ITEM` = 3 examples each |
+| `whitespace` | `normalization.stages` (`trim`, `collapse_whitespace`: `changed` count); examples from `samples.listed` | `stages`: `{stage, changed}` (rule `trimmed_cells` or `collapsed_whitespace`); `examples`: `{kind, value, count, truncated}` with `kind` `leading`, `trailing` or `repeated`; no count of the examples left out, a sample says nothing about them | `EXAMPLES_PER_KIND` = 3 per kind, so 9 at most |
+| `types` | `technical_type.counts`, `technical_type.confidence` | `types`: `{type, count, share}` for every type present, in descending count; `closest`: the type the column comes closest to | the closed set of types (at most 8); no example |
+
+Remarks:
+
+- **Minority lengths** are the Scan's own: the lengths other than the dominant one when the
+  dominant one holds at least 95 % of the strings and the others at most 5 % together
+  (`quality.py`: `DOMINANT_LENGTH_MIN_SHARE`, `MINORITY_LENGTH_MAX_SHARE`). The detail never
+  re-decides the rule; it reads the histogram of the observation's field.
+- **Minority patterns** are the patterns the observation names (`patterns`), whose share of
+  the distinct values is at most 5 %. A pattern that the observation names and the document
+  no longer holds is counted in `more_patterns`, not invented. `population_complete` is the
+  population flag of the pattern entry (an `at most` reading when `false`).
+- **Whitespace kinds.** The Scan counts the cells a stage changed, not which kind of space
+  they had, and a cell can have two kinds. The counts therefore stay per stage and per
+  observation (as the cell prints them today); the kind exists only on the examples, where it
+  is read from the value itself, and a value with two kinds is listed under the first of
+  `leading`, `trailing`, `repeated`. The detail never claims a count per kind.
+- **Dates.** The detail names the formats and the readings; it never resolves an ambiguity
+  the Scan left open (the principle of `report_profile.py`). When the configuration chose an
+  order (`detectors.date.ambiguous_order`) the Scan resolves those values and raises no
+  observation, so there is no detail and no `resolved_order` to store (the first draft of
+  this section had one; it could never be set).
+- **Types.** A column is `mixed` when its technical type is `mixed`; the composition lists
+  the types the Scan counted, which is not the list of the values outside the closest type
+  (`type_outliers` is another rule).
+- **Determinism.** Every list is sorted by count (descending) then by value or id (ascending);
+  examples follow the order of the sample, the most frequent first, then by value.
+
+### 22.4 Exposure
+
+- The gate (`ExposureGate`) is applied when the member is built, to every `value` of every
+  example, with the exposure the column declares (`show` by default). `hide`: no example, state
+  `hidden`. `mask`: merged masks, `count` summed on merge, state `masked`, an item whose
+  examples all merged keeps its count and loses nothing else.
+- Formats, lengths, counts and type names describe shapes and quantities, not values: they stay
+  whatever the exposure, exactly as the temporal measures of `details_for`.
+- **A pattern render is a value.** It writes the literal text its values share (`'zzsecret'99
+  '@example.org'`), so it is not a shape. The Scan discovers no pattern for a `mask` or `hide`
+  field (`excluded: exposure`), and the detail of the minority patterns is not built for such a
+  column even when a document is edited afterwards (CA-19). It exists only for `show`, so it has
+  no `state` and its examples need no gate. The first draft of this section said the renders
+  stay whatever the exposure; a test showed it leaks.
+- A document that holds raw values whatever its field announces leaks none: the gate runs on
+  the values the builder reads, never on the exposure the sample says (CA-19).
+- **Raw copies outside the member.** `string_profile.length_distribution[].examples` (and
+  `representative_examples`) is a projection member that holds values of the source; the
+  lengths tranche checks whether it goes through the exposure and reports the result to the
+  maintainer before it relies on it. The new member never copies from it without the gate.
+- An example is cut at `EXAMPLE_MAX_CHARS` = 64 characters with `truncated` true, whatever
+  the Scan stored, so that a column of long texts cannot weigh on the document. Whitespace is
+  kept in the stored value; the render makes it visible (22.6).
+
+### 22.5 Where the examples are read
+
+The summaries are attached to the profile after `report_base` reduced the samples of the base
+to `value_examples.kept_per_column` values and dropped the members of `by_length` (19.4). Two
+cases follow:
+
+1. **Built with the document** (`build_profile`): the builder is given the samples of the
+   Scan before the reduction, so the sources above are whole. This is the case the demos and
+   the tests measure.
+2. **Attached to an older document** (`attach_summaries` at render, 20.4): only the reduced
+   base is left. Counts and shapes are unchanged; `patterns` and `whitespace` lose examples
+   that were in dropped entries and say `examples_from` `none` when none is left. A test pins
+   both cases.
+
+`attach_summaries` and `column_summary` therefore take the sample source as an optional
+argument, `None` meaning the base of the profile. No public signature changes (20.3).
+
+### 22.6 Words and render
+
+- Words are in `report_labels` (`FINDING_DETAIL_*`), looked up by code and parameters; plurals
+  and word order belong to the template. The view models of `report_table` (never serialized)
+  assemble them for the macro, as for `SignalsPanel`.
+- The cell prints one line of preview (for example the two largest formats, the dominant length
+  and the minority one, the first minority pattern, the first example of the first kind, the
+  two largest types) and the same list in the hover. The line is clipped to the cell like the
+  variants; the hover has the rest.
+- The hover is keyboard-focusable (`tabindex="0"`), opens on pointer, focus and tap, closes on
+  Escape and holds no control that needs a pointer. Targets and contrast follow 18.
+- Whitespace in an example is shown as visible marks (a dot for a space, an arrow for a tab,
+  a return mark for a line break) with a hidden-text equivalent such as "2 leading spaces".
+  The marks are written by the template; the stored value is the raw one. Values are escaped
+  (RT-14) and a formula is never evaluated.
+- The existing lines of a row (`Records`, `Patterns`, `Limited by`, `Diagnostics`) stay below
+  the detail. `Patterns` (ids) stays when the new member is absent.
+- English only (20.7). No report option.
+
+### 22.7 Issues preview of the Summary table (last tranche)
+
+`report_preview.FindingPreview.examples` (`EXAMPLES_SHOWN` = 2) takes the first two examples of
+`finding_details` for `pattern.minority`, `length.minority` and
+`text.surrounding_whitespace` / `text.repeated_whitespace`. `FINDING_LIMITS` keeps saying that
+the examples come from the sample (`examples_from` `sample`). Today these codes say no example
+(18); the change is that they may have some. `type.mixed` and `temporal.ambiguous_date` keep
+their own sources (the evidence of the detector). No tranche before this one touches a
+preview; CA-19 and CA-27 stay unchanged.
+
+### 22.8 Size
+
+Estimated before the first tranche, measured after each one on `insurance-customers` and on
+a demo that has the rule, recorded in the plan: JSON and HTML, before and after. Bound by
+construction, per column: 6 formats of dates; 5 patterns or 5 lengths with 3 examples each (15
+values); 9 examples of whitespace; 8 types; every value at most 64 characters. A tranche that grows the JSON by
+more than 5 % on a demo stops and goes back to the maintainer.
+
+### 22.9 Tests
+
+One test module per detail in `tests/scan/` (`test_report_finding_details_<detail>.py`):
+
+- **Content**: the member of a column built from a Scan, against hand-computed counts.
+- **Exposure**: `show`, `mask` (merged masks, counts summed) and `hide` (no example, shapes
+  stay).
+- **Absence**: no member for a column without the observation; no example and
+  `examples_from` `none` when the sample holds none; both cases of 22.5.
+- **Parity**: the HTML cell prints exactly the stored member (no second computation; the
+  patched-function guard of 20.4 stays); the same member serves the column page where it
+  prints one.
+- **Words**: no sentence in the JSON (a test walks the member for strings that are not codes,
+  values or formats).
+- **Contract**: CA-19 and CA-27 unchanged; `tests/browser/report.cjs` for the hover (focus,
+  Escape, touch, four sizes).
+- **Scenarios without a demo**: `minority_pattern` and `mixed_types` have no case in
+  `insurance-customers`; their tests build small CSV sources (a rare pattern next to a
+  dominant one, a column of numbers, dates and words). A demo that shows them is chosen with
+  the maintainer when the tranche is validated.
+
+### 22.10 Per tranche
+
+Each of the five tranches (dates, patterns, lengths, whitespace, types) delivers in one change:
+the model, the builder, the labels, the template, the tests, `docs/en/report/read-report.md`
+(the Detail row of the Findings table and the matching hover), `docs/en/report/json-profile.md`,
+`docs/en/report/profile-changelog.md` (revision 4), `scripts/scan_schema.py`, the regenerated
+demos (`examples/tools/regenerate.py --fresh`) and the size measurement (22.8). The sixth
+change is the Issues preview (22.7). The follow-up for `tabalyst-studio` (a new capture of the
+report and of the Findings table) is reported at the end of the lot, not made.
+
+### 22.11 Open points
+
+- Whether `variants` keeps the name `variants` inside `finding_details` or becomes
+  `spellings`; the contract keeps `variants` (stable once documented).
+- The example cap of 64 characters and the counts of 22.3 are the proposal to validate; they
+  are constants and cost one line to change before the first tranche.
+- Whether the "visible whitespace" marks (22.6) are enough for a reader who prints the page;
+  checked with the whitespace tranche.
+- A Scan-side collection of rare cases (22.1, point 4) would make examples reliable; it is
+  not in R12.
+
+### 22.12 Tranche 1: dates (as built)
+
+- **Model** (`summary_models`): `DateDetail` (`ambiguous_count`, `candidates`, `more_candidates`,
+  `readings`, `formats`, `more_formats`) with `DateCandidate`, `DateReading` and `DateFormat`;
+  `FindingDetails` (`variants`, `dates`) is `ColumnSummary.finding_details`, which replaces
+  `ColumnSummary.variants`.
+- **Construction** (`report_finding_details.date_details`, `finding_details`): called by
+  `report_summary.column_summary`. The member exists only when the column carries the
+  `ambiguous_dates` observation and its date detector is complete.
+- **Words** (`report_labels.FINDING_DETAIL_DATES`) and **views** (`report_table.finding_detail_views`,
+  `FindingDetailView`, `DetailSection`, `DetailRow`, never serialized): a one-line preview (the
+  largest pair of formats, its count, `+N more`) and a hover of three sections, the pairs, the
+  evidence by order and the formats read without doubt, with a note that no order was chosen.
+  `reporting` passes the views to the template as `finding_views`.
+- **Tests**: `tests/scan/test_report_finding_details_dates.py`.
+
+### 22.13 Tranche 2: minority patterns (as built)
+
+- **Model** (`summary_models`): `PatternDetail` (`examples_from`, `population`,
+  `population_complete`, `dominant`, `patterns`, `more_patterns`) with `DominantPattern`,
+  `MinorityPattern` (`id`, `render`, `distinct`, `examples`) and `FindingExample` (`value`,
+  `count`, `truncated`), shared by the next tranches; `FindingDetails.patterns`.
+- **Construction** (`report_finding_details.pattern_details`): the column needs the
+  `minority_pattern` observation and a pattern entry; the patterns are those the observation
+  names (`patterns`), sorted by distinct values then id. The dominant pattern is the largest of
+  the entry. Examples are the first `EXAMPLES_PER_ITEM` sample entries the pattern's `examples`
+  ids point to, cut at `EXAMPLE_MAX_CHARS`. No example for a pattern whose ids the sample does
+  not hold: `examples_from` is `none` when no pattern has one.
+- **Where the sample comes from (22.5).** `build_profile` passes the Scan to
+  `attach_summaries(profile, scan)`, so `column_summary(column, source)` reads the examples from
+  the whole sample of the field; a document attached at render (`scan` absent) reads the base,
+  which keeps `kept_per_column` values: counts and renders stay, examples may be missing.
+- **Determinism.** The detail names patterns the Scan discovers on its sample, like the findings
+  and the Overview, so it depends on the Scan sample size; `test_scan_report_sample.py` leaves it
+  out as it leaves those out.
+- **Words and view** (`report_labels.PATTERNS_*`, `report_table._patterns_view`): the cell shows
+  the first two renders as chips and `+N more`; the hover has the dominant pattern, the minority
+  ones with their distinct values, share of the population and example chips, and a note that the
+  examples are values of a sample (and that the patterns were inferred on a sample when the
+  population is not complete). The raw ids (`f2.p1`) of the observation are no longer printed when
+  the detail is.
+- **No demo** has a `minority_pattern` observation yet (`insurance-customers` has minority
+  lengths, `basic` a mixed type): the tests use small CSV sources, and a demo that shows it is
+  chosen with the maintainer.
+- **Tests**: `tests/scan/test_report_finding_details_patterns.py`.
+
+### 22.14 Tranche 3: minority lengths (as built)
+
+- **Model** (`summary_models`): `LengthDetail` (`state`, `examples_from`, `total`, `dominant`,
+  `lengths`, `more_lengths`) with `DominantLength` and `MinorityLength` (`length`, `count`,
+  `examples`); `FindingDetails.lengths`.
+- **Construction** (`report_finding_details.length_details`): the column needs the
+  `minority_length` observation and a complete histogram. The dominant length is the most
+  frequent one; the minority lengths are every other length of the histogram, so the rule of the
+  Scan (the dominant holds at least 95 % of the texts, the others at most 5 % together) is read,
+  not re-decided.
+- **The histogram counts analytical text** (design 18.7: `string_lengths` stays the analytical
+  histogram, the length strata are lengths of the original text). So the strata cannot give the
+  examples of a length: they would put a text with a double space under its original length. The
+  examples are taken from the listed frequencies (analytical, exact counts) and from the sample
+  entries normalized with the Scan's own `Normalizer` (`ExampleSource.normalizer`, built from
+  `profile.config.normalization`), then kept when their length in characters is the length of
+  the line. An example is therefore the analytical text, the one the figure counts.
+- **Exposure.** Lengths and counts are numbers and stay; the examples go through
+  `ExposureGate` (`state` `shown`, `masked` or `hidden`, as for the spelling variants). A hidden
+  column reads no sample at all.
+- **Plumbing.** `ExampleSource(field, normalizer)` replaces the bare field of 22.13:
+  `attach_summaries` always builds the normalizer and passes the field of the whole Scan when it
+  has one. Attached at render, the examples come from the base, which keeps the listed frequencies
+  and `kept_per_column` sample values: lengths and counts stay, examples may be fewer.
+- **String profile.** `ColumnView.string_profile.length_distribution[].examples` is built at render
+  from the base, with no gate of its own: it relies on the Scan having masked or withheld the
+  values of such a field. It is not used by this detail; a document edited to a stricter exposure
+  after the build would still print them in the Strings section (the Patterns section has the same
+  property). Reported to the maintainer, not changed here.
+- **Determinism.** Examples depend on the Scan sample when the frequencies are not complete, like
+  the other details built from a sample.
+- **Words and view** (`report_labels.LENGTHS_*`, `report_table._lengths_view`): the cell shows the
+  first two lengths as chips (`6 characters`) and `+N more`; the hover has the dominant length, the
+  minority ones with their count, share of the texts and example chips, and notes on the examples
+  (a sample, masked, hidden or none kept) and on the analytical text.
+- **Tests**: `tests/scan/test_report_finding_details_lengths.py`; `tests/browser/report.cjs`
+  (`findingDetailChecks`) checks the dates and the lengths hovers on `insurance-customers`.
+
+### 22.15 Tranche 4: whitespace (as built)
+
+- **Model** (`summary_models`): `WhitespaceDetail` (`state`, `examples_from`, `stages`, `examples`)
+  with `WhitespaceChange` (`stage`, `changed`) and `WhitespaceExample` (a `FindingExample` and its
+  `kind`); `FindingDetails.whitespace`. One member answers to both rules: it holds a stage only when
+  its rule has an observation, and the Findings table gives each row (`trimmed_cells`,
+  `collapsed_whitespace`) its own view.
+- **Kinds.** The examples are read from the sample entries (original values, since the analytical
+  text has no whitespace left), and the Scan's `Normalizer.run` says which stage changed each: the
+  `trim` stage gives `leading` (the value does not start as its left-stripped form) or `trailing`;
+  the `collapse_whitespace` stage gives `repeated`. A value both stages changed is an example of each,
+  with the kind of its stage (the first draft of this section listed it under one kind only: the two
+  rows would then disagree). The counts stay per stage, as the Scan counts them.
+- **A long example keeps its whitespace.** The cap of 64 characters would hide a trailing space, so
+  `whitespace_window` keeps the head of a `leading` example, the tail of a `trailing` one and the
+  window around the first run of a `repeated` one, with an ellipsis on each cut side, and sets
+  `truncated`. The stored value is then not the raw one, which `truncated` says.
+- **Marks.** The stored value keeps its whitespace; the page writes visible marks
+  (`report_labels.visible_whitespace`: a middle dot for a space, an arrow for a tab, a return mark for
+  a line break, an open box for another whitespace character) and a hidden equivalent
+  (`spoken_whitespace`: `2 leading whitespace characters`), on the chips of the cell and the rows of
+  the hover. `DetailRow.spoken` and `FindingDetailView.preview_spoken` carry the words.
+- **Exposure.** Counts stay; examples go through `ExposureGate` (`state` `shown`, `masked`, `hidden`),
+  after the kind is read from the raw value. A hidden column reads no sample.
+- **Sample.** Rare cases (two cells out of 100 000) are often not in the sample: `examples_from` is
+  `none` and the hover says so. On `insurance-customers` the sample holds some of each.
+- **Tests**: `tests/scan/test_report_finding_details_whitespace.py`; `report.cjs` checks the
+  `trimmed_cells` hover (the Findings table is filtered to the column first, as it pages by 25 and
+  filters on the column name).
+
+### 22.16 Tranche 5: mixed types (as built)
+
+- **Model** (`summary_models`): `TypeDetail` (`total`, `types`, `closest`, `outside`) and `TypeCount`
+  (`type`, `count`); `FindingDetails.types`.
+- **Construction** (`report_finding_details.type_details`): the column needs the `mixed_types`
+  observation. The closest family follows the rule the Scan uses to count the values outside it
+  (`quality._best_family_count`: the integers, the integers and the other numbers together, the dates,
+  the booleans or the text, the largest; a tie goes to the first of that order), so `outside` equals
+  the count of the `type.mixed` finding and `total` its population; a test pins both. The rule is
+  written again here, not imported, because the Scan's is private: if it changes, that test fails.
+- **No example, no exposure.** The Scan counts types, not values, and the member holds codes and
+  numbers only: no `state`, no gate, and a document edited to another exposure gets the same member.
+- **Words and view** (`report_labels.TYPES_*`, `report_table._types_view`): the cell shows the two
+  largest types with their share (`Integers 66.67%`) and `+N more`; the hover has the composition (every
+  type with its count and share), the closest type, and a note with the number of values outside it.
+- **Tests**: `tests/scan/test_report_finding_details_types.py`. No demo shows it in
+  `insurance-customers` (`basic` has one case), so the browser script checks it only when the
+  report it is given holds one.
+
+### 22.17 Closing remarks of the five tranches
+
+- **Examples are a sample.** For rare cases (two cells out of 100 000) the sample often holds none
+  (`examples_from` `none`). Keeping the cases themselves needs a Scan change (a bounded sample per
+  observed rule), which R12 does not make; the maintainer asked on 2026-10-18 whether it can be done:
+  see the lot proposed in the plan.
+
