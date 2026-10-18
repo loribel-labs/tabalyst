@@ -15,7 +15,7 @@ examples/
 |   `-- web-events.jsonl
 |-- showcase/ (what the website and the documentation publish, nothing else)
 |   |-- basic/
-|   |-- insurance-customers/ (report.html, report.json, report/ with --details; 100,000 rows)
+|   |-- insurance-customers/ (report.html, report.json, scan.json, report/ with --details; 100,000 rows)
 |   |-- insurance-customers-scan/ (scan, second pass, smart plan and sample; 100,000 rows)
 |   |-- orders/
 |   |-- sales/

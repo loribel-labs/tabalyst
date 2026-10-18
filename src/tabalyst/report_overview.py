@@ -31,6 +31,7 @@ from tabalyst.summary_models import (
     OverviewAccuracy,
     OverviewFact,
     OverviewKind,
+    OverviewNote,
 )
 
 __all__ = ["Overview", "OverviewFact", "overview_for", "overview_sentence", "overview_text"]
@@ -41,6 +42,7 @@ class _Facts:
 
     def __init__(self) -> None:
         self.facts: list[OverviewFact] = []
+        self.notes: list[OverviewNote] = []
 
     def add(
         self,
@@ -109,7 +111,7 @@ def _collect_temporal(column: ColumnView, facts: _Facts) -> None:
     # Ambiguous values are excluded from the range (design 9.6); their number is
     # an Issue and is not repeated here.
     if temporal.value.ambiguous:
-        facts.add("ambiguous_left_out", 1)
+        facts.notes.append("ambiguous_left_out")
 
 
 def _collect_shaped(column: ColumnView, facts: _Facts) -> None:
@@ -143,6 +145,13 @@ def _collect_mixed(column: ColumnView, facts: _Facts) -> None:
         facts.add("composition", name)
 
 
+_PLAIN_KINDS: dict[str, OverviewKind] = {
+    "enum": "enum",
+    "boolean": "boolean",
+    "constant": "constant",
+}
+
+
 def _kind(column: ColumnView) -> OverviewKind:
     family = column.classification.family
     kind = column.classification.type
@@ -150,8 +159,8 @@ def _kind(column: ColumnView) -> OverviewKind:
         return "unique_id"
     if kind == "id":
         return "identifier"
-    if kind in ("enum", "boolean", "constant"):
-        return kind
+    if kind in _PLAIN_KINDS:
+        return _PLAIN_KINDS[kind]
     if family == "numeric":
         return "numeric"
     if family == "temporal":
@@ -174,7 +183,7 @@ def overview_for(column: ColumnView) -> Overview:
     if kind == "unique_id":
         facts.add("present", column.field.values.count)
         if any(item.scope.partial for item in column.classification.evidence):
-            facts.add("partial", 1)
+            facts.notes.append("partial_scope")
         _formats(column, facts)
     elif kind == "identifier":
         _distinct(column, facts)
@@ -196,12 +205,14 @@ def overview_for(column: ColumnView) -> Overview:
         _collect_text(column, facts)
     elif kind == "mixed":
         _collect_mixed(column, facts)
-    return Overview(kind=kind, type=column.classification.type, facts=facts.facts)
+    return Overview(
+        kind=kind, type=column.classification.type, facts=facts.facts, notes=facts.notes
+    )
 
 
 def overview_text(column: ColumnView) -> str:
     """Only the sentence of a column."""
-    return overview_for(column).text
+    return overview_sentence(overview_for(column))
 
 
 # Words ------------------------------------------------------------------------
@@ -211,10 +222,24 @@ def _fact(overview: Overview, name: str) -> OverviewFact | None:
     return next((item for item in overview.facts if item.name == name), None)
 
 
+def _real(fact: OverviewFact) -> int | float:
+    """The value of a fact that must be a number; a hand-edited document may not."""
+    if isinstance(fact.value, str):
+        raise TypeError(f"The overview fact {fact.name!r} is not a number.")
+    return fact.value
+
+
+def _whole(fact: OverviewFact) -> int:
+    """The value of a fact that must be a count."""
+    if not isinstance(fact.value, int):
+        raise TypeError(f"The overview fact {fact.name!r} is not a whole number.")
+    return fact.value
+
+
 def _number(fact: OverviewFact) -> str:
     """The fact as a number, with ``at least`` when it is a lower bound."""
     prefix = "at least " if fact.accuracy == "lower_bound" else ""
-    return f"{prefix}{fact.value:,}"
+    return f"{prefix}{_whole(fact):,}"
 
 
 def _counted(fact: OverviewFact | None, one: str, many: str) -> str | None:
@@ -222,17 +247,16 @@ def _counted(fact: OverviewFact | None, one: str, many: str) -> str | None:
     if fact is None:
         return None
     prefix = "at least " if fact.accuracy == "lower_bound" else ""
-    assert isinstance(fact.value, int)
-    return f"{prefix}{plural(fact.value, one, many)}"
+    return f"{prefix}{plural(_whole(fact), one, many)}"
 
 
 def _share(fact: OverviewFact | None) -> str | None:
     if fact is None:
         return None
-    assert isinstance(fact.value, float)
-    text = f"{fact.value:.1%}"
+    share = _real(fact)
+    text = f"{share:.1%}"
     # Rounding must not claim that one value holds everything when it does not.
-    return "more than 99.9%" if fact.value < 1 and text == "100.0%" else text
+    return "more than 99.9%" if share < 1 and text == "100.0%" else text
 
 
 def _capital(text: str) -> str:
@@ -249,9 +273,10 @@ def _recognized(overview: Overview) -> str | None:
 
 def _unique_id(overview: Overview) -> str:
     present = _fact(overview, "present")
-    assert present is not None
+    if present is None:
+        raise ValueError("A unique identifier overview needs its 'present' fact.")
     text = f"All {_number(present)} present values are distinct"
-    if _fact(overview, "partial"):
+    if "partial_scope" in overview.notes:
         text += " in the records the scan accepted"
     formats = _formats_phrase(overview)
     return f"{text}, in {formats}." if formats else f"{text}."
@@ -290,12 +315,10 @@ def _numeric(overview: Overview) -> str:
     low = _fact(overview, "minimum")
     high = _fact(overview, "maximum")
     if low is not None and high is not None:
-        assert not isinstance(low.value, str) and not isinstance(high.value, str)
-        text += f" ranging from {format_number(low.value)} to {format_number(high.value)}"
+        text += f" ranging from {format_number(_real(low))} to {format_number(_real(high))}"
         median = _fact(overview, "median")
         if median is not None:
-            assert not isinstance(median.value, str)
-            text += f", with a median of {format_number(median.value)}"
+            text += f", with a median of {format_number(_real(median))}"
     dominant = _fact(overview, "dominant")
     if dominant is not None:
         word = "most often" if dominant.accuracy == "exact" else "often"
@@ -311,7 +334,8 @@ def _temporal(overview: Overview) -> str:
             continue
         kind = fact.name.removesuffix("_minimum")
         high = _fact(overview, f"{kind}_maximum")
-        assert high is not None
+        if high is None:
+            raise ValueError(f"The overview fact {fact.name!r} has no maximum.")
         parts.append(f"{OVERVIEW_KINDS[kind]} range from {fact.value} to {high.value}")
     if not parts:
         return f"{noun}; their range was not computed."
@@ -319,7 +343,7 @@ def _temporal(overview: Overview) -> str:
     formats = _recognized(overview)
     if formats:
         text += f", in {formats}"
-    if _fact(overview, "ambiguous_left_out"):
+    if "ambiguous_left_out" in overview.notes:
         text += " (ambiguous dates left out of the range)"
     return f"{text}."
 
@@ -335,8 +359,7 @@ def _text(overview: Overview) -> str:
     median = _fact(overview, "median_length")
     if noun is None or median is None:
         return "Text; its length class is not determined."
-    assert not isinstance(median.value, str)
-    text = f"{noun}, with a median length of {format_number(median.value)} characters"
+    text = f"{noun}, with a median length of {format_number(_real(median))} characters"
     distinct = _counted(_fact(overview, "distinct"), "distinct value", "distinct values")
     if distinct:
         text += f" and {distinct}"

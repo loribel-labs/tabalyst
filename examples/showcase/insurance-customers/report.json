@@ -85352,15 +85352,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T00:12:00.672982Z",
-        "duration_seconds": 0.000473,
+        "started_at": "2026-10-18T03:35:21.574636Z",
+        "duration_seconds": 0.000533,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000473
+          "other": 0.000533
         },
         "workers": 1,
-        "peak_memory_bytes": 118198272,
+        "peak_memory_bytes": 117379072,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -154527,12 +154527,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T00:12:01.185800Z",
+    "generated_at": "2026-10-18T03:35:22.162569Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 3.1414,
+    "processing_seconds": 3.2153,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -155028,7 +155028,8 @@
                     "value": 9,
                     "accuracy": "lower_bound"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -155475,7 +155476,8 @@
                     "value": 0.50119,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -156081,7 +156083,8 @@
                     "value": 230,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -156997,7 +157000,8 @@
                     "value": 223,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -157791,12 +157795,10 @@
                     "name": "formats",
                     "value": 5,
                     "accuracy": "exact"
-                  },
-                  {
-                    "name": "ambiguous_left_out",
-                    "value": 1,
-                    "accuracy": "exact"
                   }
+                ],
+                "notes": [
+                  "ambiguous_left_out"
                 ]
               },
               "details": {
@@ -158287,7 +158289,8 @@
                     "value": 0.50119,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -158653,7 +158656,8 @@
                     "value": 0.74647,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -159043,7 +159047,8 @@
                     "value": 5012,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -159582,7 +159587,8 @@
                     "value": 0.17543,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -160489,7 +160495,8 @@
                     "value": 177,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -161262,7 +161269,8 @@
                     "value": 0.21336945263325632,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -161685,7 +161693,8 @@
                     "value": 497,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -162302,7 +162311,8 @@
                     "value": 133,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -163059,7 +163069,8 @@
                     "value": 0.7525825774773243,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -163689,7 +163700,8 @@
                     "value": 0.72788,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -165042,7 +165054,8 @@
                     "value": 2,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -165891,7 +165904,8 @@
                     "value": 0.99978,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -166424,7 +166438,8 @@
               "overview": {
                 "kind": "shaped",
                 "type": "email",
-                "facts": []
+                "facts": [],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -166982,7 +166997,8 @@
                     "value": 2,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -167497,7 +167513,8 @@
                     "value": 3,
                     "accuracy": "lower_bound"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -168045,7 +168062,8 @@
                     "value": 0.40781815636312724,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -168603,12 +168621,10 @@
                     "name": "formats",
                     "value": 5,
                     "accuracy": "exact"
-                  },
-                  {
-                    "name": "ambiguous_left_out",
-                    "value": 1,
-                    "accuracy": "exact"
                   }
+                ],
+                "notes": [
+                  "ambiguous_left_out"
                 ]
               },
               "details": {
@@ -169205,12 +169221,10 @@
                     "name": "formats",
                     "value": 5,
                     "accuracy": "exact"
-                  },
-                  {
-                    "name": "ambiguous_left_out",
-                    "value": 1,
-                    "accuracy": "exact"
                   }
+                ],
+                "notes": [
+                  "ambiguous_left_out"
                 ]
               },
               "details": {
@@ -169694,7 +169708,8 @@
                     "value": 0.76001,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -170212,7 +170227,8 @@
                     "value": 1344.19,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -170671,7 +170687,8 @@
                     "value": 0.64988,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -171125,7 +171142,8 @@
                     "value": 0.55134,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -171596,7 +171614,8 @@
                     "value": 0.21855,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -172198,12 +172217,10 @@
                     "name": "formats",
                     "value": 5,
                     "accuracy": "exact"
-                  },
-                  {
-                    "name": "ambiguous_left_out",
-                    "value": 1,
-                    "accuracy": "exact"
                   }
+                ],
+                "notes": [
+                  "ambiguous_left_out"
                 ]
               },
               "details": {
@@ -172800,12 +172817,10 @@
                     "name": "formats",
                     "value": 5,
                     "accuracy": "exact"
-                  },
-                  {
-                    "name": "ambiguous_left_out",
-                    "value": 1,
-                    "accuracy": "exact"
                   }
+                ],
+                "notes": [
+                  "ambiguous_left_out"
                 ]
               },
               "details": {
@@ -173385,12 +173400,10 @@
                     "name": "formats",
                     "value": 3,
                     "accuracy": "exact"
-                  },
-                  {
-                    "name": "ambiguous_left_out",
-                    "value": 1,
-                    "accuracy": "exact"
                   }
+                ],
+                "notes": [
+                  "ambiguous_left_out"
                 ]
               },
               "details": {
@@ -173888,7 +173901,8 @@
                     "value": 28195.93,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -174344,7 +174358,8 @@
                     "value": 0.4952949438202247,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -174728,7 +174743,8 @@
                     "value": 0.72727,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",

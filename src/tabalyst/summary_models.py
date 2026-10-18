@@ -144,25 +144,11 @@ class FindingRef(ResultModel):
     accuracy: Accuracy
 
 
-def finding_text(item: Finding | FindingRef) -> str:
-    """A finding in words with its count: ``3 spelling-variant groups``; a lower
-    bound is never worded exact."""
-    from tabalyst.report_labels import (
-        TABLE_AT_LEAST,
-        finding_label,
-        finding_name,
-    )
-
-    if item.count is None:
-        text = finding_name(item.code, item.unit)
-    else:
-        text = finding_label(item.code, item.count, item.unit)
-    return f"{TABLE_AT_LEAST} {text}" if item.accuracy == "lower_bound" else text
-
-
 # Overview -------------------------------------------------------------------
 
 OverviewAccuracy = Literal["exact", "lower_bound"]
+# A circumstance of the profile that the sentence mentions, apart from its figures.
+OverviewNote = Literal["partial_scope", "ambiguous_left_out"]
 OverviewKind = Literal[
     "unique_id",
     "identifier",
@@ -190,17 +176,12 @@ class OverviewFact(ResultModel):
 class Overview(ResultModel):
     """The profile of a column and the facts behind its sentence. ``kind`` picks the
     template and ``type`` the classification type it is worded for; the sentence is
-    ``text``, written from them when asked."""
+    written from them by ``overview_sentence`` when a page is rendered."""
 
     kind: OverviewKind
     type: str
     facts: list[OverviewFact]
-
-    @property
-    def text(self) -> str:
-        from tabalyst.report_overview import overview_sentence
-
-        return overview_sentence(self)
+    notes: list[OverviewNote] = Field(default_factory=list)
 
 
 # Details --------------------------------------------------------------------
@@ -298,6 +279,9 @@ class VariantDetails(ResultModel):
 
 # Column ---------------------------------------------------------------------
 
+# The flags of the Summary table segments. They overlap on purpose: ``issue`` is every
+# column with an Error or an Issue ("Quality issues"), ``error`` the ones with an Error
+# ("With errors"), so a column with an Error carries both.
 Flag = Literal["error", "issue", "obs"]
 
 
@@ -340,39 +324,6 @@ class Signal(ResultModel):
     lower_bound: bool
     columns: list[SignalColumn]
 
-    @property
-    def noun(self) -> str:
-        from tabalyst.report_labels import finding_noun
-
-        return finding_noun(self.code, self.unit, self.total)
-
-    def _heading(self) -> tuple[str, str]:
-        """The title and the subtitle of the tile: the catalogue's, or the noun."""
-        from tabalyst.report_labels import SIGNAL_TITLES
-
-        noun = self.noun
-        return SIGNAL_TITLES.get(self.code, (noun[:1].upper() + noun[1:], ""))
-
-    @property
-    def title(self) -> str:
-        return self._heading()[0]
-
-    @property
-    def subtitle(self) -> str:
-        return self._heading()[1]
-
-    @property
-    def note(self) -> str | None:
-        from tabalyst.report_labels import SIGNAL_NOTES
-
-        return SIGNAL_NOTES.get(self.code)
-
-    @property
-    def target(self) -> str | None:
-        from tabalyst.report_labels import SIGNAL_TARGETS
-
-        return SIGNAL_TARGETS.get(self.code)
-
 
 class SignalsView(ResultModel):
     """The signals of a dataset, the tiles shown first and what is left."""
@@ -386,12 +337,6 @@ class SignalsView(ResultModel):
 class StateCount(ResultModel):
     state: str
     columns: int
-
-    @property
-    def label(self) -> str:
-        from tabalyst.report_labels import LIST_STATE_LABELS
-
-        return LIST_STATE_LABELS[self.state]
 
 
 class ValidationList(ResultModel):
@@ -408,10 +353,6 @@ class QualityColumn(ResultModel):
     field_id: str
     name: str
     findings: list[FindingRef]
-
-    @property
-    def labels(self) -> list[str]:
-        return [finding_text(item) for item in self.findings]
 
 
 class QualityView(ResultModel):

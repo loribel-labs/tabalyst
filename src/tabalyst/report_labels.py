@@ -13,6 +13,7 @@ that turns them into words, so a reader of the JSON alone gets the same labels
 from dataclasses import dataclass
 
 from tabalyst.scanner.models import Observation
+from tabalyst.summary_models import Finding, FindingRef
 
 # How a number is qualified. The five kinds of HTML-03: an exact result, an
 # estimate, a result over a sample, a limited result (a proven lower bound) and
@@ -751,6 +752,16 @@ def finding_noun(code: str, unit: str, count: int) -> str:
     (``ambiguous dates``), for a tile that prints the figure apart."""
     one, many = FINDING_NOUNS.get(code, {}).get(unit) or UNIT_NOUNS[unit]
     return one if count == 1 else many
+
+
+def finding_text(item: Finding | FindingRef) -> str:
+    """A finding in words with its count: ``3 spelling-variant groups``; a lower
+    bound is never worded exact."""
+    if item.count is None:
+        text = finding_name(item.code, item.unit)
+    else:
+        text = finding_label(item.code, item.count, item.unit)
+    return f"{TABLE_AT_LEAST} {text}" if item.accuracy == "lower_bound" else text
 
 
 # The overview tiles (contract 7.5). A note is a fact about the reading of a signal; the

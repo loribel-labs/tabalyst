@@ -18,6 +18,7 @@ from scan_helpers import write_text
 from tabalyst import analyze_csv
 from tabalyst.json_text import dump_json
 from tabalyst.report_config import ReportConfig
+from tabalyst.report_overview import overview_sentence
 from tabalyst.reporting import load_profile, render_report
 from tabalyst.scanner import ScanConfig
 
@@ -55,7 +56,7 @@ def test_the_stored_summary_holds_codes_and_numbers_and_no_sentence(tmp_path):
     column = document["report"]["datasets"][0]["columns"][0]
     overview = column["summary"]["overview"]
 
-    assert set(overview) == {"kind", "type", "facts"}
+    assert set(overview) == {"kind", "type", "facts", "notes"}
     text = json.dumps(document["report"]["datasets"])
     assert "present values" not in text and "Spelling variants" not in text
 
@@ -73,7 +74,7 @@ def test_the_overview_sentence_is_written_from_the_stored_facts(tmp_path):
         for c in profile.report.datasets[0].columns
         if c.name == "kind"
     )
-    assert column.summary.overview.text.endswith("and 2 distinct values.")
+    assert overview_sentence(column.summary.overview).endswith("and 2 distinct values.")
 
 
 @pytest.mark.parametrize("mode", ["mask", "hide"])
@@ -217,3 +218,35 @@ def test_the_values_of_the_hover_come_from_the_stored_summary(tmp_path):
 
     assert "zzsecret0@example.org" in html
     assert reloaded.report.datasets[0].columns[0].value_profile.values == []
+
+
+def test_an_overview_fact_of_the_wrong_kind_is_reported_not_worded(tmp_path):
+    from tabalyst.report_labels import OVERVIEW_NUMERIC
+    from tabalyst.report_overview import overview_sentence
+    from tabalyst.summary_models import Overview, OverviewFact
+
+    overview = Overview(
+        kind="numeric",
+        type=next(iter(OVERVIEW_NUMERIC)),
+        facts=[
+            OverviewFact(name="minimum", value="low"),
+            OverviewFact(name="maximum", value=3),
+        ],
+    )
+
+    with pytest.raises(TypeError, match="minimum"):
+        overview_sentence(overview)
+
+
+def test_the_overview_notes_word_the_partial_scope_and_the_dates_left_out(tmp_path):
+    from tabalyst.report_overview import overview_sentence
+    from tabalyst.summary_models import Overview, OverviewFact
+
+    unique = Overview(
+        kind="unique_id",
+        type="unique_id",
+        facts=[OverviewFact(name="present", value=10)],
+        notes=["partial_scope"],
+    )
+
+    assert overview_sentence(unique).endswith("in the records the scan accepted.")

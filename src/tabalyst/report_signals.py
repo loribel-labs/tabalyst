@@ -29,10 +29,9 @@ from tabalyst.summary_models import (
     Spelling,
     StateCount,
     ValidationList,
-    finding_text,
 )
 
-__all__ = ["finding_text", "quality_view", "signals_view"]
+__all__ = ["quality_view", "signals_view"]
 
 # Signals written as a tile; the others are counted ("+2 additional signals").
 SIGNALS_SHOWN = 6

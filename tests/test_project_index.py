@@ -166,9 +166,13 @@ def test_index_is_only_a_lookup_of_the_project_files(location, source):
 
 
 def test_rebuild_prefers_the_latest_creation_time_over_the_id(location, source):
+    import time
     from datetime import UTC, datetime
 
     newer = create_project(location, source, now=datetime(2026, 9, 28, tzinfo=UTC))
+    # The ids carry the millisecond of their creation and a random part: two
+    # projects made in the same millisecond have no order, so wait for the next one.
+    time.sleep(0.005)
     # Created later in real time (greater id) but stamped earlier, as after a
     # clock correction: the stamp decides.
     older = create_project(location, source, now=datetime(2026, 1, 1, tzinfo=UTC))

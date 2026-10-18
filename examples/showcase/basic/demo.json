@@ -4,7 +4,8 @@
   "tool": "report",
   "datasets": ["basic.csv"],
   "steps": [
-    {"command": "tabalyst report examples/datasets/basic.csv -o examples/showcase/basic/report.html --config examples/config.json --force"}
+    {"command": "tabalyst report examples/datasets/basic.csv -o examples/showcase/basic/report.html --config examples/config.json --force"},
+    {"command": "tabalyst scan examples/datasets/basic.csv -o examples/showcase/basic/scan.json --config examples/config.json --force --no-html"}
   ],
   "publish": {"site": false, "docs": ["get-started/examples.md", "reference/history.md"]}
 }

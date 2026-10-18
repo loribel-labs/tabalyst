@@ -8435,15 +8435,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T00:11:59.313618Z",
-        "duration_seconds": 0.000108,
+        "started_at": "2026-10-18T03:35:19.453935Z",
+        "duration_seconds": 0.000106,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000108
+          "other": 0.000106
         },
         "workers": 1,
-        "peak_memory_bytes": 70627328,
+        "peak_memory_bytes": 71307264,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -8919,12 +8919,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T00:11:59.313618Z",
+    "generated_at": "2026-10-18T03:35:19.453935Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0222,
+    "processing_seconds": 0.0249,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -9317,7 +9317,8 @@
                     "value": 4,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -9677,7 +9678,8 @@
                     "value": 4,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -10117,7 +10119,8 @@
                     "value": "text",
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -10528,7 +10531,8 @@
                     "value": 1,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -10915,7 +10919,8 @@
                     "value": 0.8,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -11253,7 +11258,8 @@
                     "value": 3,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",

@@ -48,12 +48,11 @@ from tabalyst.scanner.quality import (
     analytical_distinct,
     value_slots,
 )
-from tabalyst.summary_models import (  # noqa: F401  (re-exported for the checks)
+from tabalyst.summary_models import (
     Accuracy,
     Assessment,
     AssessmentState,
     ColumnFindings,
-    Example,
     Finding,
     FindingList,
     MissingFinding,

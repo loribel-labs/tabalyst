@@ -127,7 +127,8 @@ exposure. They hold codes and numbers; the HTML writes the words from them when 
 computes none of them. The values of a column are in `summary.values` (`selection`,
 `sampled_distinct_count`, `examples`, `values` and `cut`), through the exposure: a column
 exposed as `mask` or `hide` has no raw value in its projection. `columns[].examples` and
-`columns[].value_profile` are no longer written.
+`columns[].value_profile` are no longer written. The `overview` of a column holds its `kind`, `type`,
+`facts` and `notes` (`partial_scope`, `ambiguous_left_out`), not the sentence.
 
 The report carries the new result `date_order` of the second pass under `analyses` (the records where the
 first date of a pair of columns is after the second).

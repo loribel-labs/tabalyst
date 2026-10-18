@@ -16787,15 +16787,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T00:12:21.582585Z",
-        "duration_seconds": 0.000133,
+        "started_at": "2026-10-18T03:35:49.324004Z",
+        "duration_seconds": 0.000139,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000133
+          "other": 0.000139
         },
         "workers": 1,
-        "peak_memory_bytes": 74227712,
+        "peak_memory_bytes": 74498048,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -20955,12 +20955,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T00:12:21.616225Z",
+    "generated_at": "2026-10-18T03:35:49.363749Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0786,
+    "processing_seconds": 0.0795,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -21359,7 +21359,8 @@
                     "value": 120,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -21835,7 +21836,8 @@
                     "value": 1,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -22259,7 +22261,8 @@
                     "value": 48,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -22888,7 +22891,8 @@
                     "value": 120,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -23324,7 +23328,8 @@
                     "value": 5,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -23700,7 +23705,8 @@
                     "value": 3,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -24062,7 +24068,8 @@
                     "value": 7,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -24449,7 +24456,8 @@
                     "value": 105.87,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -24857,7 +24865,8 @@
                     "value": 0.8598130841121495,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",

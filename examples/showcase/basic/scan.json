@@ -1,0 +1,6502 @@
+{
+  "format": "tabalyst.scan",
+  "format_version": "0.2.0",
+  "format_revision": 4,
+  "engine": {
+    "version": "0.7.0",
+    "normalization_version": 1,
+    "detectors": {
+      "number": 1,
+      "date": 1,
+      "boolean": 1,
+      "enumeration": 1,
+      "email": 2,
+      "url": 1,
+      "phone": 2,
+      "postal_code": 2,
+      "currency": 1,
+      "percentage": 1,
+      "quantity": 1,
+      "uuid": 1,
+      "ip_address": 1
+    },
+    "classification": {
+      "catalogue": 4,
+      "names": 2
+    }
+  },
+  "status": "complete",
+  "run": {
+    "started_at": "2026-10-18T03:35:20.463434Z",
+    "duration_seconds": 0.007689,
+    "timings": {
+      "reading": 0.000698,
+      "analysis": 0.000186,
+      "finalize": 0.004547,
+      "derived": 0.001748,
+      "other": 0.00051
+    },
+    "workers": 1,
+    "peak_memory_bytes": 67358720
+  },
+  "source": {
+    "format": "csv",
+    "name": "basic.csv",
+    "size_bytes": 280,
+    "modified_at": "2026-10-16T05:33:33.607029Z",
+    "sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
+    "encoding": "utf-8-sig",
+    "shape": {
+      "lines": 6,
+      "records": 5,
+      "columns": 6,
+      "fields": 6,
+      "datasets": 1,
+      "cells": 30,
+      "missing_cells": 2,
+      "records_with_missing": 1,
+      "empty_records": 0,
+      "duplicate_records": 1
+    },
+    "csv": {
+      "delimiter": ",",
+      "quote": "\"",
+      "header": [
+        "id",
+        "name",
+        "amount",
+        "joined",
+        "active",
+        "notes"
+      ],
+      "bom": false,
+      "line_ending": "crlf"
+    },
+    "excel": null
+  },
+  "config": {
+    "csv": {
+      "encoding": "utf-8-sig",
+      "delimiter": ","
+    },
+    "json": {
+      "collections": null,
+      "discovery_max_depth": 3,
+      "flatten": {
+        "enabled": true,
+        "separator": ".",
+        "max_depth": null
+      },
+      "arrays": {
+        "mode": "preserve"
+      }
+    },
+    "excel": {
+      "dataset_path": null,
+      "header_row": null
+    },
+    "errors": {
+      "policy": "strict",
+      "max_locations": 10
+    },
+    "values": {
+      "null_markers": [
+        "N/A",
+        "NULL"
+      ],
+      "null_markers_case_sensitive": true,
+      "missing": [
+        "absent",
+        "null",
+        "empty",
+        "blank",
+        "marker"
+      ]
+    },
+    "normalization": {
+      "nfc": true,
+      "trim": true,
+      "collapse_whitespace": true,
+      "casefold": true,
+      "strip_accents": true
+    },
+    "limits": {
+      "max_fields": 10000,
+      "max_depth": 64,
+      "max_record_observations": 100000,
+      "max_line_bytes": 16777216,
+      "max_distinct_per_field": 100000,
+      "max_tracked_values": 2000000,
+      "max_stored_value_length": 1000,
+      "max_listed_frequencies": 100,
+      "max_samples": 100,
+      "max_long_samples": 100,
+      "long_preview_chars": 200,
+      "max_samples_per_length": 100,
+      "max_length_strata": 64,
+      "max_sample_memory": 536870912,
+      "max_special_characters": 256,
+      "max_distinct_characters": 1024,
+      "max_top_characters": 20,
+      "max_variant_groups": 100,
+      "max_variants_per_group": 20,
+      "max_evidence_examples": 10,
+      "max_tracked_records": 2000000,
+      "max_listed_records": 10
+    },
+    "records": {
+      "duplicates": true,
+      "sample": {
+        "rows": 1000,
+        "edge": 50,
+        "cell_chars": 200,
+        "max_bytes": 16777216
+      }
+    },
+    "types": {
+      "minimum_confidence": 0.95
+    },
+    "classification": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255
+    },
+    "detection": {
+      "minimum_share": 0.95,
+      "warmup_values": 10000,
+      "probe_interval": 100,
+      "rare_share": 0.001
+    },
+    "detectors": {
+      "number": {
+        "enabled": true,
+        "conventions": [
+          "dot",
+          "comma"
+        ],
+        "ambiguous_convention": null,
+        "infer_convention": true,
+        "min_evidence": 3
+      },
+      "date": {
+        "enabled": true,
+        "orders": [
+          "YMD",
+          "MDY",
+          "DMY"
+        ],
+        "separators": [
+          "-",
+          "/",
+          "."
+        ],
+        "ambiguous_order": null,
+        "month_languages": [
+          "en",
+          "fr"
+        ]
+      },
+      "boolean": {
+        "enabled": true,
+        "pairs": [
+          [
+            "true",
+            "false"
+          ],
+          [
+            "yes",
+            "no"
+          ],
+          [
+            "y",
+            "n"
+          ],
+          [
+            "oui",
+            "non"
+          ],
+          [
+            "vrai",
+            "faux"
+          ]
+        ]
+      },
+      "enumeration": {
+        "enabled": true,
+        "minimum_values": 500,
+        "maximum_distinct": 49,
+        "case_sensitive": true
+      },
+      "email": {
+        "enabled": true,
+        "max_tracked_domains": 10000,
+        "max_listed_domains": 20
+      },
+      "url": {
+        "enabled": true,
+        "schemes": [
+          "http",
+          "https",
+          "ftp"
+        ],
+        "www": true,
+        "max_tracked_hosts": 10000,
+        "max_listed_hosts": 20
+      },
+      "phone": {
+        "enabled": true,
+        "regions": [
+          "nanp",
+          "fr"
+        ]
+      },
+      "postal_code": {
+        "enabled": true,
+        "regions": [
+          "ca",
+          "us"
+        ]
+      },
+      "currency": {
+        "enabled": true,
+        "conventions": [
+          "dot",
+          "comma"
+        ],
+        "ambiguous_convention": null,
+        "infer_convention": true,
+        "min_evidence": 3
+      },
+      "percentage": {
+        "enabled": true,
+        "conventions": [
+          "dot",
+          "comma"
+        ],
+        "ambiguous_convention": null,
+        "infer_convention": true,
+        "min_evidence": 3
+      },
+      "quantity": {
+        "enabled": true,
+        "conventions": [
+          "dot",
+          "comma"
+        ],
+        "ambiguous_convention": null,
+        "infer_convention": true,
+        "min_evidence": 3,
+        "max_tracked_units": 10000,
+        "max_listed_units": 20
+      },
+      "uuid": {
+        "enabled": true
+      },
+      "ip_address": {
+        "enabled": true,
+        "versions": [
+          "ipv4",
+          "ipv6"
+        ]
+      }
+    },
+    "patterns": [],
+    "exposure": {
+      "sensitive_values": "show",
+      "detector_keys": "aggregate"
+    },
+    "pattern_inference": {
+      "enabled": true,
+      "max_values": 10000,
+      "max_families": 16,
+      "max_patterns_per_family": 32,
+      "max_patterns": 128,
+      "max_depth": 3,
+      "max_value_length": 64,
+      "min_distinct": 2
+    },
+    "observations": {
+      "enabled": true,
+      "max_items": 1000
+    },
+    "random_seed": 42
+  },
+  "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+  "scope": {
+    "collections": null,
+    "records_read": 5,
+    "records_analyzed": 5,
+    "records_excluded": 0,
+    "exclusions": {}
+  },
+  "datasets": [
+    {
+      "id": "rows",
+      "kind": "table",
+      "collection_path": null,
+      "record_count": 5,
+      "record_types": {
+        "object": 5
+      },
+      "structure": {
+        "paths": {
+          "status": "complete",
+          "value": 6
+        },
+        "untracked_observations": 0,
+        "depth_truncated_observations": 0,
+        "max_depth_seen": 1
+      },
+      "records": {
+        "with_missing": {
+          "count": 1,
+          "records": [
+            2
+          ]
+        },
+        "empty": {
+          "count": 0,
+          "records": []
+        },
+        "duplicates": {
+          "count": {
+            "status": "complete",
+            "value": 1
+          },
+          "records": [
+            4
+          ]
+        },
+        "sample": {
+          "selection": "start_middle_end",
+          "hash": {
+            "algorithm": "blake2b",
+            "version": 1,
+            "bits": 64,
+            "seed": 42
+          },
+          "requested": {
+            "rows": 1000,
+            "edge": 50,
+            "middle": 900
+          },
+          "middle_k": 900,
+          "population": {
+            "records": 5,
+            "interior": 0,
+            "scope": "interior_rows"
+          },
+          "complete": true,
+          "fields": [
+            "column_1",
+            "column_2",
+            "column_3",
+            "column_4",
+            "column_5",
+            "column_6"
+          ],
+          "fields_limited": false,
+          "cell_chars": 200,
+          "truncated_cells": 0,
+          "bytes": 3005,
+          "max_bytes": 16777216,
+          "kept": 5,
+          "of": 5,
+          "rows": [
+            {"record": 1, "origins": ["start", "end"], "values": {"column_1": ["001"], "column_2": ["Alice"], "column_3": ["12.50"], "column_4": ["2026-01-01"], "column_5": ["true"], "column_6": ["First order"]}},
+            {"record": 2, "origins": ["start", "end"], "values": {"column_1": ["002"], "column_2": ["Bob"], "column_3": [""], "column_4": ["2026-02-01"], "column_5": ["false"], "column_6": [""]}},
+            {"record": 3, "origins": ["start", "end"], "values": {"column_1": ["003"], "column_2": ["Charlie"], "column_3": ["25.00"], "column_4": ["2026-03-01"], "column_5": ["true"], "column_6": ["Two items, one order"]}},
+            {"record": 4, "origins": ["start", "end"], "values": {"column_1": ["003"], "column_2": ["Charlie"], "column_3": ["25.00"], "column_4": ["2026-03-01"], "column_5": ["true"], "column_6": ["Two items, one order"]}},
+            {"record": 5, "origins": ["start", "end"], "values": {"column_1": ["004"], "column_2": ["Dana"], "column_3": ["not available"], "column_4": ["2026-04-01"], "column_5": ["true"], "column_6": ["Pending review"]}}
+          ]
+        }
+      },
+      "fields": [
+        {
+          "id": "column_1",
+          "path": [
+            {
+              "column": 1
+            }
+          ],
+          "display": "id",
+          "name": "id",
+          "parent": null,
+          "collection": null,
+          "first_record": 1,
+          "occurrences": 5,
+          "presence": {
+            "parent_type": "object",
+            "parent_count": 5,
+            "present": 5,
+            "absent": 0
+          },
+          "native_types": {
+            "string": 5
+          },
+          "strings": {
+            "count": 5,
+            "empty": 0,
+            "blank": 0,
+            "marker": 0,
+            "content": 5
+          },
+          "missing": {
+            "count": 0,
+            "definition": [
+              "absent",
+              "null",
+              "empty",
+              "blank",
+              "marker"
+            ],
+            "components": {
+              "absent": 0,
+              "null": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0
+            }
+          },
+          "arrays": null,
+          "values": {
+            "count": 5,
+            "cardinality": {
+              "status": "complete",
+              "value": 4,
+              "accuracy": "exact",
+              "domain": "original",
+              "identity_accuracy": "exact"
+            },
+            "frequencies": {
+              "status": "complete",
+              "value": {
+                "distinct": 4,
+                "listed": [
+                  {
+                    "value": "003",
+                    "type": "string",
+                    "count": 2
+                  },
+                  {
+                    "value": "001",
+                    "type": "string",
+                    "count": 1
+                  },
+                  {
+                    "value": "002",
+                    "type": "string",
+                    "count": 1
+                  },
+                  {
+                    "value": "004",
+                    "type": "string",
+                    "count": 1
+                  }
+                ],
+                "truncated": false
+              }
+            },
+            "samples": {
+              "selection": "all",
+              "kept": 4,
+              "of": 4,
+              "listed": [
+                {"value": "001", "type": "string", "count": 1, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "002", "type": "string", "count": 1, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "003", "type": "string", "count": 2, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "004", "type": "string", "count": 1, "id": 3, "count_accuracy": "exact", "identity_accuracy": "exact"}
+              ]
+            },
+            "first": {
+              "value": "001",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "004",
+              "type": "string",
+              "record": 5
+            }
+          },
+          "string_characteristics": {
+            "non_ascii": 0,
+            "with_line_breaks": 0,
+            "with_control_characters": 0,
+            "with_surrounding_whitespace": 0,
+            "with_repeated_whitespace": 0,
+            "uppercase": 0,
+            "lowercase": 0,
+            "mixed_case": 0,
+            "no_letters": 5,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 5,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 5,
+            "letters_only": 0,
+            "digits_only": 5,
+            "alphanumeric_only": 5,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 15,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 5
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
+          },
+          "string_lengths": {
+            "status": "complete",
+            "value": {
+              "count": 5,
+              "min_length": 3,
+              "max_length": 3,
+              "mean_length": 3,
+              "median_length": 3,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 5
+                }
+              ]
+            }
+          },
+          "numeric": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "booleans": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "temporal": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "normalization": {
+            "version": 1,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed": null,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                }
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "raw"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "nfc"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "trim"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "collapse_whitespace"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "casefold"
+              }
+            ],
+            "variant_groups": {
+              "status": "complete",
+              "value": {
+                "groups": 0,
+                "listed": [],
+                "truncated": false
+              }
+            }
+          },
+          "technical_type": {
+            "type": "text",
+            "confidence": 1.0,
+            "counts": {
+              "text": 5
+            },
+            "outside_count": 0
+          },
+          "detectors": [
+            {
+              "id": "number",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "date",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "boolean",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "true": 0,
+                "false": 0
+              },
+              "adaptive": null
+            },
+            {
+              "id": "enumeration",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 4
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "email",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "domains": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "url",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "hosts": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "phone",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "fr": 0,
+                  "nanp": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "postal_code",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "ca": 0,
+                  "us": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "currency",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "currencies": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "percentage",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "quantity",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "units": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "uuid",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "versions": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "ip_address",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "001",
+                  "002",
+                  "003",
+                  "004"
+                ]
+              },
+              "details": {
+                "versions": {
+                  "ipv4": 0,
+                  "ipv6": 0
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "interpretations": {
+            "primary": null,
+            "candidates": []
+          },
+          "classification": {
+            "family": "identifier",
+            "type": "id",
+            "basis": "inferred",
+            "state": "candidate",
+            "traits": [
+              "first_column",
+              "single_pattern"
+            ],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "context",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "name_rule",
+                "id": "name.identifier",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": null,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [
+              {
+                "family": "text",
+                "type": "text_very_short",
+                "reason": "replaced_by_role"
+              }
+            ],
+            "rule_version": 4002
+          },
+          "sensitive": false,
+          "exposure": null
+        },
+        {
+          "id": "column_2",
+          "path": [
+            {
+              "column": 2
+            }
+          ],
+          "display": "name",
+          "name": "name",
+          "parent": null,
+          "collection": null,
+          "first_record": 1,
+          "occurrences": 5,
+          "presence": {
+            "parent_type": "object",
+            "parent_count": 5,
+            "present": 5,
+            "absent": 0
+          },
+          "native_types": {
+            "string": 5
+          },
+          "strings": {
+            "count": 5,
+            "empty": 0,
+            "blank": 0,
+            "marker": 0,
+            "content": 5
+          },
+          "missing": {
+            "count": 0,
+            "definition": [
+              "absent",
+              "null",
+              "empty",
+              "blank",
+              "marker"
+            ],
+            "components": {
+              "absent": 0,
+              "null": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0
+            }
+          },
+          "arrays": null,
+          "values": {
+            "count": 5,
+            "cardinality": {
+              "status": "complete",
+              "value": 4,
+              "accuracy": "exact",
+              "domain": "original",
+              "identity_accuracy": "exact"
+            },
+            "frequencies": {
+              "status": "complete",
+              "value": {
+                "distinct": 4,
+                "listed": [
+                  {
+                    "value": "Charlie",
+                    "type": "string",
+                    "count": 2
+                  },
+                  {
+                    "value": "Alice",
+                    "type": "string",
+                    "count": 1
+                  },
+                  {
+                    "value": "Bob",
+                    "type": "string",
+                    "count": 1
+                  },
+                  {
+                    "value": "Dana",
+                    "type": "string",
+                    "count": 1
+                  }
+                ],
+                "truncated": false
+              }
+            },
+            "samples": {
+              "selection": "all",
+              "kept": 4,
+              "of": 4,
+              "listed": [
+                {"value": "Alice", "type": "string", "count": 1, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Bob", "type": "string", "count": 1, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Charlie", "type": "string", "count": 2, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Dana", "type": "string", "count": 1, "id": 3, "count_accuracy": "exact", "identity_accuracy": "exact"}
+              ]
+            },
+            "first": {
+              "value": "Alice",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Dana",
+              "type": "string",
+              "record": 5
+            }
+          },
+          "string_characteristics": {
+            "non_ascii": 0,
+            "with_line_breaks": 0,
+            "with_control_characters": 0,
+            "with_surrounding_whitespace": 0,
+            "with_repeated_whitespace": 0,
+            "uppercase": 0,
+            "lowercase": 0,
+            "mixed_case": 5,
+            "no_letters": 0,
+            "with_ascii_lowercase": 5,
+            "with_ascii_uppercase": 5,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 5,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 5,
+            "letters_only": 5,
+            "digits_only": 0,
+            "alphanumeric_only": 5,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 26,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 14
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
+          },
+          "string_lengths": {
+            "status": "complete",
+            "value": {
+              "count": 5,
+              "min_length": 3,
+              "max_length": 7,
+              "mean_length": 5.2,
+              "median_length": 5,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 1
+                },
+                {
+                  "length": 4,
+                  "count": 1
+                },
+                {
+                  "length": 5,
+                  "count": 1
+                },
+                {
+                  "length": 7,
+                  "count": 2
+                }
+              ]
+            }
+          },
+          "numeric": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "booleans": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "temporal": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "normalization": {
+            "version": 1,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed": null,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                }
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "raw"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "nfc"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "trim"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed": 5,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                }
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "casefold"
+              }
+            ],
+            "variant_groups": {
+              "status": "complete",
+              "value": {
+                "groups": 0,
+                "listed": [],
+                "truncated": false
+              }
+            }
+          },
+          "technical_type": {
+            "type": "text",
+            "confidence": 1.0,
+            "counts": {
+              "text": 5
+            },
+            "outside_count": 0
+          },
+          "detectors": [
+            {
+              "id": "number",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "date",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "boolean",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "true": 0,
+                "false": 0
+              },
+              "adaptive": null
+            },
+            {
+              "id": "enumeration",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 4
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "email",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "domains": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "url",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "hosts": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "phone",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "fr": 0,
+                  "nanp": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "postal_code",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "ca": 0,
+                  "us": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "currency",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "currencies": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "percentage",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "quantity",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "units": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "uuid",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "versions": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "ip_address",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "Alice",
+                  "Bob",
+                  "Charlie",
+                  "Dana"
+                ]
+              },
+              "details": {
+                "versions": {
+                  "ipv4": 0,
+                  "ipv6": 0
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "interpretations": {
+            "primary": null,
+            "candidates": []
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_very_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 4002
+          },
+          "sensitive": false,
+          "exposure": null
+        },
+        {
+          "id": "column_3",
+          "path": [
+            {
+              "column": 3
+            }
+          ],
+          "display": "amount",
+          "name": "amount",
+          "parent": null,
+          "collection": null,
+          "first_record": 1,
+          "occurrences": 5,
+          "presence": {
+            "parent_type": "object",
+            "parent_count": 5,
+            "present": 5,
+            "absent": 0
+          },
+          "native_types": {
+            "string": 5
+          },
+          "strings": {
+            "count": 5,
+            "empty": 1,
+            "blank": 0,
+            "marker": 0,
+            "content": 4
+          },
+          "missing": {
+            "count": 1,
+            "definition": [
+              "absent",
+              "null",
+              "empty",
+              "blank",
+              "marker"
+            ],
+            "components": {
+              "absent": 0,
+              "null": 0,
+              "empty": 1,
+              "blank": 0,
+              "marker": 0
+            }
+          },
+          "arrays": null,
+          "values": {
+            "count": 4,
+            "cardinality": {
+              "status": "complete",
+              "value": 3,
+              "accuracy": "exact",
+              "domain": "original",
+              "identity_accuracy": "exact"
+            },
+            "frequencies": {
+              "status": "complete",
+              "value": {
+                "distinct": 3,
+                "listed": [
+                  {
+                    "value": "25.00",
+                    "type": "string",
+                    "count": 2
+                  },
+                  {
+                    "value": "12.50",
+                    "type": "string",
+                    "count": 1
+                  },
+                  {
+                    "value": "not available",
+                    "type": "string",
+                    "count": 1
+                  }
+                ],
+                "truncated": false
+              }
+            },
+            "samples": {
+              "selection": "all",
+              "kept": 3,
+              "of": 3,
+              "listed": [
+                {"value": "12.50", "type": "string", "count": 1, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "25.00", "type": "string", "count": 2, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "not available", "type": "string", "count": 1, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"}
+              ]
+            },
+            "first": {
+              "value": "12.50",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "not available",
+              "type": "string",
+              "record": 5
+            }
+          },
+          "string_characteristics": {
+            "non_ascii": 0,
+            "with_line_breaks": 0,
+            "with_control_characters": 0,
+            "with_surrounding_whitespace": 0,
+            "with_repeated_whitespace": 0,
+            "uppercase": 0,
+            "lowercase": 1,
+            "mixed_case": 0,
+            "no_letters": 3,
+            "with_ascii_lowercase": 1,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 3,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 1,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 4,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 28,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 15
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": ".",
+                    "codepoint": 46,
+                    "value_count": 2,
+                    "occurrence_count": 3
+                  }
+                ]
+              }
+            }
+          },
+          "string_lengths": {
+            "status": "complete",
+            "value": {
+              "count": 4,
+              "min_length": 5,
+              "max_length": 13,
+              "mean_length": 7,
+              "median_length": 5,
+              "length_histogram": [
+                {
+                  "length": 5,
+                  "count": 3
+                },
+                {
+                  "length": 13,
+                  "count": 1
+                }
+              ]
+            }
+          },
+          "numeric": {
+            "status": "complete",
+            "value": {
+              "count": 3,
+              "native_count": 0,
+              "text_count": 3,
+              "min": 12.5,
+              "max": 25,
+              "sum": 62.5,
+              "mean": 20.833333333333332,
+              "population_variance": 34.72222222222222,
+              "population_std": 5.892556509887896,
+              "positive": 3,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 2,
+              "median": {
+                "status": "complete",
+                "value": 25
+              },
+              "coverage": {
+                "of": 4,
+                "share": 0.75
+              }
+            }
+          },
+          "booleans": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "temporal": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "normalization": {
+            "version": 1,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed": null,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                }
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                },
+                "equals": "raw"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                },
+                "equals": "nfc"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                },
+                "equals": "trim"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                },
+                "equals": "collapse_whitespace"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                },
+                "equals": "casefold"
+              }
+            ],
+            "variant_groups": {
+              "status": "complete",
+              "value": {
+                "groups": 0,
+                "listed": [],
+                "truncated": false
+              }
+            }
+          },
+          "technical_type": {
+            "type": "mixed",
+            "confidence": 0.75,
+            "counts": {
+              "number": 3,
+              "text": 1
+            },
+            "outside_count": null
+          },
+          "detectors": [
+            {
+              "id": "number",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 3,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 1,
+                "not_tested": 0,
+                "share_tested": 0.75,
+                "share_eligible": 0.75
+              },
+              "formats": [
+                {
+                  "format": "0.0",
+                  "count": 3
+                }
+              ],
+              "evidence": {
+                "matched": [
+                  "12.50",
+                  "25.00"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "not available"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 3
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "date",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "boolean",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "true": 0,
+                "false": 0
+              },
+              "adaptive": null
+            },
+            {
+              "id": "enumeration",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 3
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "email",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "domains": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "url",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "hosts": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "phone",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "fr": 0,
+                  "nanp": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "postal_code",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "ca": 0,
+                  "us": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "currency",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "currencies": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "percentage",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "quantity",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "units": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "uuid",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "versions": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "ip_address",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "12.50",
+                  "25.00",
+                  "not available"
+                ]
+              },
+              "details": {
+                "versions": {
+                  "ipv4": 0,
+                  "ipv6": 0
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "interpretations": {
+            "primary": null,
+            "candidates": []
+          },
+          "classification": {
+            "family": "other",
+            "type": "mixed",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [
+              "multiple_patterns"
+            ],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "mixed",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 4,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [
+              {
+                "family": "numeric",
+                "type": "currency",
+                "reason": "name_only"
+              }
+            ],
+            "rule_version": 4002
+          },
+          "sensitive": false,
+          "exposure": null
+        },
+        {
+          "id": "column_4",
+          "path": [
+            {
+              "column": 4
+            }
+          ],
+          "display": "joined",
+          "name": "joined",
+          "parent": null,
+          "collection": null,
+          "first_record": 1,
+          "occurrences": 5,
+          "presence": {
+            "parent_type": "object",
+            "parent_count": 5,
+            "present": 5,
+            "absent": 0
+          },
+          "native_types": {
+            "string": 5
+          },
+          "strings": {
+            "count": 5,
+            "empty": 0,
+            "blank": 0,
+            "marker": 0,
+            "content": 5
+          },
+          "missing": {
+            "count": 0,
+            "definition": [
+              "absent",
+              "null",
+              "empty",
+              "blank",
+              "marker"
+            ],
+            "components": {
+              "absent": 0,
+              "null": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0
+            }
+          },
+          "arrays": null,
+          "values": {
+            "count": 5,
+            "cardinality": {
+              "status": "complete",
+              "value": 4,
+              "accuracy": "exact",
+              "domain": "original",
+              "identity_accuracy": "exact"
+            },
+            "frequencies": {
+              "status": "complete",
+              "value": {
+                "distinct": 4,
+                "listed": [
+                  {
+                    "value": "2026-03-01",
+                    "type": "string",
+                    "count": 2
+                  },
+                  {
+                    "value": "2026-01-01",
+                    "type": "string",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-02-01",
+                    "type": "string",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-04-01",
+                    "type": "string",
+                    "count": 1
+                  }
+                ],
+                "truncated": false
+              }
+            },
+            "samples": {
+              "selection": "all",
+              "kept": 4,
+              "of": 4,
+              "listed": [
+                {"value": "2026-01-01", "type": "string", "count": 1, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-01", "type": "string", "count": 1, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-01", "type": "string", "count": 2, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-01", "type": "string", "count": 1, "id": 3, "count_accuracy": "exact", "identity_accuracy": "exact"}
+              ]
+            },
+            "first": {
+              "value": "2026-01-01",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "2026-04-01",
+              "type": "string",
+              "record": 5
+            }
+          },
+          "string_characteristics": {
+            "non_ascii": 0,
+            "with_line_breaks": 0,
+            "with_control_characters": 0,
+            "with_surrounding_whitespace": 0,
+            "with_repeated_whitespace": 0,
+            "uppercase": 0,
+            "lowercase": 0,
+            "mixed_case": 0,
+            "no_letters": 5,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 5,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 5,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 50,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 7
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 4,
+                    "occurrence_count": 5
+                  }
+                ]
+              }
+            }
+          },
+          "string_lengths": {
+            "status": "complete",
+            "value": {
+              "count": 5,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 5
+                }
+              ]
+            }
+          },
+          "numeric": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "booleans": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "temporal": {
+            "status": "complete",
+            "value": {
+              "count": 5,
+              "ambiguous": 0,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 5,
+                  "min": "2026-01-01",
+                  "max": "2026-04-01",
+                  "years": [
+                    {
+                      "year": 2026,
+                      "count": 5
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "normalization": {
+            "version": 1,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed": null,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                }
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "raw"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "nfc"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "trim"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "collapse_whitespace"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 4
+                },
+                "equals": "casefold"
+              }
+            ],
+            "variant_groups": {
+              "status": "complete",
+              "value": {
+                "groups": 0,
+                "listed": [],
+                "truncated": false
+              }
+            }
+          },
+          "technical_type": {
+            "type": "date",
+            "confidence": 1.0,
+            "counts": {
+              "date": 5
+            },
+            "outside_count": 0
+          },
+          "detectors": [
+            {
+              "id": "number",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "date",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 5,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "formats": [
+                {
+                  "format": "YYYY-MM-DD",
+                  "count": 5
+                }
+              ],
+              "evidence": {
+                "matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "boolean",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "true": 0,
+                "false": 0
+              },
+              "adaptive": null
+            },
+            {
+              "id": "enumeration",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 4
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "email",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "domains": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "url",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "hosts": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "phone",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "fr": 0,
+                  "nanp": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "postal_code",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "ca": 0,
+                  "us": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "currency",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "currencies": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "percentage",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "quantity",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "units": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "uuid",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "versions": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "ip_address",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "2026-01-01",
+                  "2026-02-01",
+                  "2026-03-01",
+                  "2026-04-01"
+                ]
+              },
+              "details": {
+                "versions": {
+                  "ipv4": 0,
+                  "ipv6": 0
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "interpretations": {
+            "primary": "date",
+            "candidates": [
+              {
+                "detector": "date",
+                "matched": 5,
+                "share_eligible": 1.0
+              }
+            ]
+          },
+          "classification": {
+            "family": "temporal",
+            "type": "date",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [
+              "single_pattern"
+            ],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "detector",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "eligible",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 4002
+          },
+          "sensitive": false,
+          "exposure": null
+        },
+        {
+          "id": "column_5",
+          "path": [
+            {
+              "column": 5
+            }
+          ],
+          "display": "active",
+          "name": "active",
+          "parent": null,
+          "collection": null,
+          "first_record": 1,
+          "occurrences": 5,
+          "presence": {
+            "parent_type": "object",
+            "parent_count": 5,
+            "present": 5,
+            "absent": 0
+          },
+          "native_types": {
+            "string": 5
+          },
+          "strings": {
+            "count": 5,
+            "empty": 0,
+            "blank": 0,
+            "marker": 0,
+            "content": 5
+          },
+          "missing": {
+            "count": 0,
+            "definition": [
+              "absent",
+              "null",
+              "empty",
+              "blank",
+              "marker"
+            ],
+            "components": {
+              "absent": 0,
+              "null": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0
+            }
+          },
+          "arrays": null,
+          "values": {
+            "count": 5,
+            "cardinality": {
+              "status": "complete",
+              "value": 2,
+              "accuracy": "exact",
+              "domain": "original",
+              "identity_accuracy": "exact"
+            },
+            "frequencies": {
+              "status": "complete",
+              "value": {
+                "distinct": 2,
+                "listed": [
+                  {
+                    "value": "true",
+                    "type": "string",
+                    "count": 4
+                  },
+                  {
+                    "value": "false",
+                    "type": "string",
+                    "count": 1
+                  }
+                ],
+                "truncated": false
+              }
+            },
+            "samples": {
+              "selection": "all",
+              "kept": 2,
+              "of": 2,
+              "listed": [
+                {"value": "true", "type": "string", "count": 4, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "false", "type": "string", "count": 1, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"}
+              ]
+            },
+            "first": {
+              "value": "true",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "true",
+              "type": "string",
+              "record": 5
+            }
+          },
+          "string_characteristics": {
+            "non_ascii": 0,
+            "with_line_breaks": 0,
+            "with_control_characters": 0,
+            "with_surrounding_whitespace": 0,
+            "with_repeated_whitespace": 0,
+            "uppercase": 0,
+            "lowercase": 5,
+            "mixed_case": 0,
+            "no_letters": 0,
+            "with_ascii_lowercase": 5,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 5,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 5,
+            "letters_only": 5,
+            "digits_only": 0,
+            "alphanumeric_only": 5,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 21,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 8
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
+          },
+          "string_lengths": {
+            "status": "complete",
+            "value": {
+              "count": 5,
+              "min_length": 4,
+              "max_length": 5,
+              "mean_length": 4.2,
+              "median_length": 4,
+              "length_histogram": [
+                {
+                  "length": 4,
+                  "count": 4
+                },
+                {
+                  "length": 5,
+                  "count": 1
+                }
+              ]
+            }
+          },
+          "numeric": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "booleans": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "temporal": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "normalization": {
+            "version": 1,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed": null,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 2
+                }
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 2
+                },
+                "equals": "raw"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 2
+                },
+                "equals": "nfc"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 2
+                },
+                "equals": "trim"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 2
+                },
+                "equals": "collapse_whitespace"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 2
+                },
+                "equals": "casefold"
+              }
+            ],
+            "variant_groups": {
+              "status": "complete",
+              "value": {
+                "groups": 0,
+                "listed": [],
+                "truncated": false
+              }
+            }
+          },
+          "technical_type": {
+            "type": "boolean",
+            "confidence": 1.0,
+            "counts": {
+              "boolean": 5
+            },
+            "outside_count": 0
+          },
+          "detectors": [
+            {
+              "id": "number",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "date",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "boolean",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 5,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "formats": [
+                {
+                  "format": "true/false",
+                  "count": 5
+                }
+              ],
+              "evidence": {
+                "matched": [
+                  "true",
+                  "false"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "true": 4,
+                "false": 1
+              },
+              "adaptive": null
+            },
+            {
+              "id": "enumeration",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 2
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "email",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "domains": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "url",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "hosts": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "phone",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "fr": 0,
+                  "nanp": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "postal_code",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "ca": 0,
+                  "us": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "currency",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "currencies": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "percentage",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "quantity",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "units": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "uuid",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "versions": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "ip_address",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 5,
+                "tested": 5,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 5,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "true",
+                  "false"
+                ]
+              },
+              "details": {
+                "versions": {
+                  "ipv4": 0,
+                  "ipv6": 0
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "interpretations": {
+            "primary": "boolean",
+            "candidates": [
+              {
+                "detector": "boolean",
+                "matched": 5,
+                "share_eligible": 1.0
+              }
+            ]
+          },
+          "classification": {
+            "family": "categorical",
+            "type": "boolean",
+            "basis": "fallback",
+            "state": "established",
+            "traits": [],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "boolean",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "detector",
+                "id": "boolean",
+                "role": "supports",
+                "scope": {
+                  "population": "eligible",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 4002
+          },
+          "sensitive": false,
+          "exposure": null
+        },
+        {
+          "id": "column_6",
+          "path": [
+            {
+              "column": 6
+            }
+          ],
+          "display": "notes",
+          "name": "notes",
+          "parent": null,
+          "collection": null,
+          "first_record": 1,
+          "occurrences": 5,
+          "presence": {
+            "parent_type": "object",
+            "parent_count": 5,
+            "present": 5,
+            "absent": 0
+          },
+          "native_types": {
+            "string": 5
+          },
+          "strings": {
+            "count": 5,
+            "empty": 1,
+            "blank": 0,
+            "marker": 0,
+            "content": 4
+          },
+          "missing": {
+            "count": 1,
+            "definition": [
+              "absent",
+              "null",
+              "empty",
+              "blank",
+              "marker"
+            ],
+            "components": {
+              "absent": 0,
+              "null": 0,
+              "empty": 1,
+              "blank": 0,
+              "marker": 0
+            }
+          },
+          "arrays": null,
+          "values": {
+            "count": 4,
+            "cardinality": {
+              "status": "complete",
+              "value": 3,
+              "accuracy": "exact",
+              "domain": "original",
+              "identity_accuracy": "exact"
+            },
+            "frequencies": {
+              "status": "complete",
+              "value": {
+                "distinct": 3,
+                "listed": [
+                  {
+                    "value": "Two items, one order",
+                    "type": "string",
+                    "count": 2
+                  },
+                  {
+                    "value": "First order",
+                    "type": "string",
+                    "count": 1
+                  },
+                  {
+                    "value": "Pending review",
+                    "type": "string",
+                    "count": 1
+                  }
+                ],
+                "truncated": false
+              }
+            },
+            "samples": {
+              "selection": "all",
+              "kept": 3,
+              "of": 3,
+              "listed": [
+                {"value": "First order", "type": "string", "count": 1, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Two items, one order", "type": "string", "count": 2, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Pending review", "type": "string", "count": 1, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"}
+              ]
+            },
+            "first": {
+              "value": "First order",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Pending review",
+              "type": "string",
+              "record": 5
+            }
+          },
+          "string_characteristics": {
+            "non_ascii": 0,
+            "with_line_breaks": 0,
+            "with_control_characters": 0,
+            "with_surrounding_whitespace": 0,
+            "with_repeated_whitespace": 0,
+            "uppercase": 0,
+            "lowercase": 0,
+            "mixed_case": 4,
+            "no_letters": 0,
+            "with_ascii_lowercase": 4,
+            "with_ascii_uppercase": 4,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 4,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 4,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 65,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 17
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": ",",
+                    "codepoint": 44,
+                    "value_count": 1,
+                    "occurrence_count": 2
+                  }
+                ]
+              }
+            }
+          },
+          "string_lengths": {
+            "status": "complete",
+            "value": {
+              "count": 4,
+              "min_length": 11,
+              "max_length": 20,
+              "mean_length": 16.25,
+              "median_length": 17,
+              "length_histogram": [
+                {
+                  "length": 11,
+                  "count": 1
+                },
+                {
+                  "length": 14,
+                  "count": 1
+                },
+                {
+                  "length": 20,
+                  "count": 2
+                }
+              ]
+            }
+          },
+          "numeric": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "booleans": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "temporal": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          },
+          "normalization": {
+            "version": 1,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed": null,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                }
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                },
+                "equals": "raw"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                },
+                "equals": "nfc"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                },
+                "equals": "trim"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed": 4,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                }
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed": 0,
+                "cardinality": {
+                  "status": "complete",
+                  "value": 3
+                },
+                "equals": "casefold"
+              }
+            ],
+            "variant_groups": {
+              "status": "complete",
+              "value": {
+                "groups": 0,
+                "listed": [],
+                "truncated": false
+              }
+            }
+          },
+          "technical_type": {
+            "type": "text",
+            "confidence": 1.0,
+            "counts": {
+              "text": 4
+            },
+            "outside_count": 0
+          },
+          "detectors": [
+            {
+              "id": "number",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "date",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "boolean",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "true": 0,
+                "false": 0
+              },
+              "adaptive": null
+            },
+            {
+              "id": "enumeration",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 3
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "email",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "domains": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "url",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "hosts": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "phone",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "fr": 0,
+                  "nanp": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "postal_code",
+              "version": 2,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "ca": 0,
+                  "us": 0
+                },
+                "keys": {
+                  "status": "not_applicable",
+                  "reason": "no_values"
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "currency",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "currencies": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "percentage",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "quantity",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                },
+                "units": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 0,
+                    "listed": [],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            },
+            {
+              "id": "uuid",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "versions": {}
+              },
+              "adaptive": null
+            },
+            {
+              "id": "ip_address",
+              "version": 1,
+              "status": "complete",
+              "coverage": {
+                "eligible": 4,
+                "tested": 4,
+                "matched": 0,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 4,
+                "not_tested": 0,
+                "share_tested": 0.0,
+                "share_eligible": 0.0
+              },
+              "formats": [],
+              "evidence": {
+                "matched": [],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "First order",
+                  "Two items, one order",
+                  "Pending review"
+                ]
+              },
+              "details": {
+                "versions": {
+                  "ipv4": 0,
+                  "ipv6": 0
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "interpretations": {
+            "primary": null,
+            "candidates": []
+          },
+          "classification": {
+            "family": "text",
+            "type": "text_short",
+            "basis": "inferred",
+            "state": "established",
+            "traits": [
+              "multiple_patterns"
+            ],
+            "evidence": [
+              {
+                "source": "technical_type",
+                "id": "text",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 4,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "string_lengths.median_length",
+                "role": "supports",
+                "scope": {
+                  "population": "present_values",
+                  "of": 4,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "name_rule",
+                "id": "name.text",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": null,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              }
+            ],
+            "alternatives": [],
+            "rule_version": 4002
+          },
+          "sensitive": false,
+          "exposure": null
+        }
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "derived": {
+    "patterns": {
+      "grammar": {
+        "name": "tabalyst.pattern",
+        "version": 2
+      },
+      "algorithm": {
+        "version": 1
+      },
+      "domain": "original",
+      "fields": [
+        {
+          "dataset": "rows",
+          "field": "column_1",
+          "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 0.6667,
+            "reasons": [
+              "regular_structure",
+              "few_distinct"
+            ]
+          },
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 4,
+            "distinct": 4,
+            "occurrences": 5,
+            "occurrences_basis": "exact",
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "families": [
+            {
+              "id": "f1",
+              "key": "D",
+              "d": 4,
+              "o": 5,
+              "patterns": [
+                {
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "00",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "'00'9",
+                  "format": "999",
+                  "lengths": [
+                    3
+                  ],
+                  "d": 4,
+                  "o": 5,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "structures": 0,
+            "d": 0,
+            "o": 0
+          },
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_2",
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.1667,
+            "reasons": [
+              "regular_structure",
+              "no_structural_marks",
+              "few_distinct"
+            ]
+          },
+          "reason": "no_structural_marks"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_3",
+          "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 0.5071,
+            "reasons": [
+              "regular_structure",
+              "few_distinct"
+            ]
+          },
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 3,
+            "distinct": 3,
+            "occurrences": 4,
+            "occurrences_basis": "exact",
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "families": [
+            {
+              "id": "f1",
+              "key": "DP.D",
+              "d": 2,
+              "o": 3,
+              "patterns": [
+                {
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": ".",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "99.99",
+                  "format": "99.99",
+                  "lengths": [
+                    2,
+                    2
+                  ],
+                  "d": 2,
+                  "o": 3,
+                  "examples": [
+                    0,
+                    1
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                0,
+                1
+              ]
+            },
+            {
+              "id": "f2",
+              "key": "LP L",
+              "d": 1,
+              "o": 1,
+              "patterns": [
+                {
+                  "id": "f2.p1",
+                  "signature": [
+                    {
+                      "kind": "lower_ascii",
+                      "min": 3,
+                      "max": 3
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 9,
+                      "max": 9
+                    }
+                  ],
+                  "render": "aaa a{9}",
+                  "format": "aaa a{9}",
+                  "lengths": [
+                    3,
+                    9
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    2
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                2
+              ]
+            }
+          ],
+          "other": {
+            "structures": 0,
+            "d": 0,
+            "o": 0
+          },
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_4",
+          "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 0.5,
+            "reasons": [
+              "regular_structure",
+              "few_distinct",
+              "semantic_detector"
+            ]
+          },
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 4,
+            "distinct": 4,
+            "occurrences": 5,
+            "occurrences_basis": "exact",
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "families": [
+            {
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 4,
+              "o": 5,
+              "patterns": [
+                {
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "2026",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "0",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "01",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "'2026-0'9'-01'",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 4,
+                  "o": 5,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "structures": 0,
+            "d": 0,
+            "o": 0
+          },
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_5",
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "booleans_only"
+            ]
+          },
+          "reason": "booleans_only"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_6",
+          "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 0.3821,
+            "reasons": [
+              "regular_structure",
+              "few_distinct"
+            ]
+          },
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 3,
+            "distinct": 3,
+            "occurrences": 4,
+            "occurrences_basis": "exact",
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "families": [
+            {
+              "id": "f1",
+              "key": "ULP L",
+              "d": 2,
+              "o": 2,
+              "patterns": [
+                {
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 4,
+                      "max": 4
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 5,
+                      "max": 5
+                    }
+                  ],
+                  "render": "Aaaaa aaaaa",
+                  "format": "Aaaaa aaaaa",
+                  "lengths": [
+                    1,
+                    4,
+                    5
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    0
+                  ],
+                  "nodes": []
+                },
+                {
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 6,
+                      "max": 6
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 6,
+                      "max": 6
+                    }
+                  ],
+                  "render": "Aaaaaaa aaaaaa",
+                  "format": "Aaaaaaa aaaaaa",
+                  "lengths": [
+                    1,
+                    6,
+                    6
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    2
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                0,
+                2
+              ]
+            },
+            {
+              "id": "f2",
+              "key": "ULP LP,P LP L",
+              "d": 1,
+              "o": 2,
+              "patterns": [
+                {
+                  "id": "f2.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 5,
+                      "max": 5
+                    },
+                    {
+                      "kind": "literal",
+                      "text": ",",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 3,
+                      "max": 3
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 5,
+                      "max": 5
+                    }
+                  ],
+                  "render": "Aaa aaaaa, aaa aaaaa",
+                  "format": "Aaa aaaaa, aaa aaaaa",
+                  "lengths": [
+                    1,
+                    2,
+                    5,
+                    3,
+                    5
+                  ],
+                  "d": 1,
+                  "o": 2,
+                  "examples": [
+                    1
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                1
+              ]
+            }
+          ],
+          "other": {
+            "structures": 0,
+            "d": 0,
+            "o": 0
+          },
+          "limits": []
+        }
+      ]
+    },
+    "characters": {
+      "fields": [
+        {
+          "dataset": "rows",
+          "field": "column_1",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 5,
+              "characters": 15,
+              "distinct": 5,
+              "top": [
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 10
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 15
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_2",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 5,
+              "characters": 26,
+              "distinct": 14,
+              "top": [
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "A",
+                  "codepoint": 65,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "B",
+                  "codepoint": 66,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "D",
+                  "codepoint": 68,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "b",
+                  "codepoint": 98,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 26
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 21
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 5
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 5,
+              "title_case": 5,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_3",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 4,
+              "characters": 28,
+              "distinct": 15,
+              "top": [
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 5
+                },
+                {
+                  "char": ".",
+                  "codepoint": 46,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": " ",
+                  "codepoint": 32,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "b",
+                  "codepoint": 98,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 12
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 12
+                },
+                {
+                  "name": "Nd",
+                  "occurrence_count": 12
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 3
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 1
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 1,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_4",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 5,
+              "characters": 50,
+              "distinct": 7,
+              "top": [
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 15
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 11
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 10
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 6
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 5
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 40
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 10
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_5",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 5,
+              "characters": 21,
+              "distinct": 8,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 5
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "f",
+                  "codepoint": 102,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 21
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 21
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 5,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_6",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 4,
+              "characters": 65,
+              "distinct": 17,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 10
+                },
+                {
+                  "char": " ",
+                  "codepoint": 32,
+                  "occurrence_count": 8
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 8
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 7
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 5
+                },
+                {
+                  "char": "d",
+                  "codepoint": 100,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "w",
+                  "codepoint": 119,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": ",",
+                  "codepoint": 44,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "T",
+                  "codepoint": 84,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "m",
+                  "codepoint": 109,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "F",
+                  "codepoint": 70,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "P",
+                  "codepoint": 80,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "g",
+                  "codepoint": 103,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 55
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 51
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 8
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 4
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 2
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 4,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        }
+      ]
+    }
+  },
+  "observations": {
+    "version": 2,
+    "truncated": false,
+    "summary": {
+      "informational": 2,
+      "candidate_anomalies": 2,
+      "confirmed_issues": 0,
+      "limits": 0,
+      "has_observations": true,
+      "has_quality_issues": true,
+      "has_limits": false
+    },
+    "datasets": [
+      {
+        "dataset": "rows",
+        "informational": 2,
+        "candidate_anomalies": 2,
+        "confirmed_issues": 0,
+        "limits": 0,
+        "has_observations": true,
+        "has_quality_issues": true,
+        "has_limits": false
+      }
+    ],
+    "items": [
+      {
+        "id": "o1",
+        "rule": "duplicate_rows",
+        "category": "records",
+        "status": "candidate_anomaly",
+        "dataset": "rows",
+        "population": "records",
+        "count": 1,
+        "of": 5,
+        "accuracy": "exact",
+        "records": [
+          4
+        ]
+      },
+      {
+        "id": "o2",
+        "rule": "mixed_types",
+        "category": "types",
+        "status": "candidate_anomaly",
+        "dataset": "rows",
+        "field": "column_3",
+        "population": "occurrences",
+        "count": 1,
+        "of": 4,
+        "accuracy": "exact"
+      },
+      {
+        "id": "o3",
+        "rule": "missing_values",
+        "category": "presence",
+        "status": "informational",
+        "dataset": "rows",
+        "field": "column_3",
+        "population": "value_slots",
+        "count": 1,
+        "of": 5,
+        "accuracy": "exact"
+      },
+      {
+        "id": "o4",
+        "rule": "missing_values",
+        "category": "presence",
+        "status": "informational",
+        "dataset": "rows",
+        "field": "column_6",
+        "population": "value_slots",
+        "count": 1,
+        "of": 5,
+        "accuracy": "exact"
+      }
+    ],
+    "limits": []
+  }
+}

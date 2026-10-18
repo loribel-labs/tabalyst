@@ -4,7 +4,8 @@
   "tool": "report",
   "datasets": ["web-events.jsonl"],
   "steps": [
-    {"command": "tabalyst report examples/datasets/web-events.jsonl -o examples/showcase/web-events/report.html --config examples/config.json --force"}
+    {"command": "tabalyst report examples/datasets/web-events.jsonl -o examples/showcase/web-events/report.html --config examples/config.json --force"},
+    {"command": "tabalyst scan examples/datasets/web-events.jsonl -o examples/showcase/web-events/scan.json --config examples/config.json --force --no-html"}
   ],
   "publish": {"site": true, "docs": ["get-started/examples.md"]}
 }

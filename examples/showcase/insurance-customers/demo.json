@@ -4,7 +4,8 @@
   "tool": "report",
   "datasets": ["insurance-customers-100k.json"],
   "steps": [
-    {"command": "tabalyst report {datasets}/insurance-customers-100k.csv -o examples/showcase/insurance-customers/report.html --config examples/config.json --details --force"}
+    {"command": "tabalyst report {datasets}/insurance-customers-100k.csv -o examples/showcase/insurance-customers/report.html --config examples/config.json --details --force"},
+    {"command": "tabalyst scan {datasets}/insurance-customers-100k.csv -o examples/showcase/insurance-customers/scan.json --config examples/config.json --force --no-html"}
   ],
   "publish": {"site": true, "docs": ["get-started/examples.md"]}
 }

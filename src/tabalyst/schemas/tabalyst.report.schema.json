@@ -10279,7 +10279,7 @@
     },
     "Overview": {
       "additionalProperties": false,
-      "description": "The profile of a column and the facts behind its sentence. ``kind`` picks the\ntemplate and ``type`` the classification type it is worded for; the sentence is\n``text``, written from them when asked.",
+      "description": "The profile of a column and the facts behind its sentence. ``kind`` picks the\ntemplate and ``type`` the classification type it is worded for; the sentence is\nwritten from them by ``overview_sentence`` when a page is rendered.",
       "properties": {
         "kind": {
           "enum": [
@@ -10308,6 +10308,17 @@
             "$ref": "#/$defs/OverviewFact"
           },
           "title": "Facts",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "enum": [
+              "partial_scope",
+              "ambiguous_left_out"
+            ],
+            "type": "string"
+          },
+          "title": "Notes",
           "type": "array"
         }
       },

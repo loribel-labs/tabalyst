@@ -13,7 +13,7 @@ from scan_helpers import write_text
 
 from tabalyst import analyze_csv
 from tabalyst.report_config import ReportConfig
-from tabalyst.report_overview import overview_for, overview_text
+from tabalyst.report_overview import overview_for, overview_sentence, overview_text
 from tabalyst.reporting import dataset_views
 from tabalyst.scanner import ScanConfig
 
@@ -37,7 +37,7 @@ def test_a_unique_identifier_says_all_present_values_are_distinct(tmp_path):
     overview = overview_for(column)
 
     assert column.classification.type == "unique_id"
-    assert overview.text.startswith("All 100 present values are distinct")
+    assert overview_sentence(overview).startswith("All 100 present values are distinct")
     assert _facts(column)["present"].value == 100
 
 

@@ -833,7 +833,9 @@ def test_an_overview_never_says_exact_for_a_limited_measure(tmp_path):
     assert {fact.accuracy for fact in overview.facts if fact.name == "distinct"} == {
         "lower_bound"
     }
-    assert overview.text.lower().startswith("at least")
+    from tabalyst.report_overview import overview_sentence
+
+    assert overview_sentence(overview).lower().startswith("at least")
 
 
 @pytest.mark.report_lot("R8")

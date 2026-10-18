@@ -30015,15 +30015,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T00:12:20.374725Z",
-        "duration_seconds": 0.000197,
+        "started_at": "2026-10-18T03:35:47.362643Z",
+        "duration_seconds": 0.0002,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000197
+          "other": 0.0002
         },
         "workers": 1,
-        "peak_memory_bytes": 77283328,
+        "peak_memory_bytes": 77053952,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -33514,12 +33514,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T00:12:20.454215Z",
+    "generated_at": "2026-10-18T03:35:47.448258Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.14,
+    "processing_seconds": 0.1349,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -33918,7 +33918,8 @@
                     "value": 60,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -34342,7 +34343,8 @@
                     "value": 56,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -34859,7 +34861,8 @@
                     "value": 56,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -35373,7 +35376,8 @@
                     "value": 40,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -35879,7 +35883,8 @@
                     "value": 6,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -36400,7 +36405,8 @@
               "overview": {
                 "kind": "numeric",
                 "type": "integer",
-                "facts": []
+                "facts": [],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -36811,7 +36817,8 @@
                     "value": 1,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -37219,7 +37226,8 @@
                     "value": 0.5178571428571429,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -37559,7 +37567,8 @@
                     "value": 5,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -37935,7 +37944,8 @@
                     "value": 119,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -38411,7 +38421,8 @@
                     "value": 1,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -38835,7 +38846,8 @@
                     "value": 3,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -39203,7 +39215,8 @@
                     "value": 5,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -39573,7 +39586,8 @@
                     "value": 2,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -39923,7 +39937,8 @@
                     "value": 29.9,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -40281,7 +40296,8 @@
                     "value": 54,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -40687,7 +40703,8 @@
                     "value": 1,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",

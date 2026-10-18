@@ -1448,9 +1448,11 @@ Rules:
   `quality_view` and `expose_examples` are called by `report_summary` only. A test
   patches them to fail during a render (`tests/scan/test_report_summary.py`).
 - Writing words from a member is not computing: `overview_sentence(overview)`,
-  `preview_of(finding, assessments)`, `finding_text`, the properties `Signal.title`
-  and `StateCount.label` take codes and numbers and return text through
-  `report_labels`. None of them reads the Scan.
+  `preview_of(finding, assessments)` and `finding_text` take codes and numbers and
+  return text through `report_labels`. None of them reads the Scan. The persisted models
+  of `summary_models` hold no word and import no presentation module; the words of the
+  signals and of the quality figures are added by the view models of `report_table`
+  (`SignalsPanel`, `QualityPanel`), which are never serialized.
 - A document written without its summaries (a hand-made profile, a file of an
   earlier build) gets them once at the start of `render_report`
   (`attach_summaries`), through the exposure its columns declare. It is the same

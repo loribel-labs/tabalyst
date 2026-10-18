@@ -17,9 +17,15 @@ from tabalyst.report_labels import (
     FAMILY_LABELS,
     LIST_STATE_LABELS,
     LIST_STATE_TITLES,
+    SIGNAL_NOTES,
+    SIGNAL_TARGETS,
+    SIGNAL_TITLES,
+    finding_noun,
+    finding_text,
     plural,
     type_label,
 )
+from tabalyst.report_overview import overview_sentence
 from tabalyst.report_preview import (
     CheckLine,
     FindingPreview,
@@ -34,15 +40,19 @@ from tabalyst.summary_models import (
     FindingList,
     Flag,
     MissingFinding,
+    QualityColumn,
     QualityView,
+    Signal,
     SignalsView,
+    StateCount,
+    ValidationList,
     VariantDetails,
-    finding_text,
 )
 
 # Finding labels written in a cell; the rest is in the preview of "+3 more"
 # (decision 7, lot R9b).
 LABELS_SHOWN = 2
+
 
 class FindingsCell(ResultModel):
     """The Errors or the Issues of a row: the state of the list, the labels of its
@@ -110,6 +120,106 @@ class ColumnRow(ResultModel):
         return " ".join(self.flags)
 
 
+# The stored signals and quality figures with their words. The document holds codes and
+# numbers (``summary_models``); these views add the words and are never serialized.
+
+
+class SignalTile(Signal):
+    """A signal with the words of its tile."""
+
+    noun: str
+    title: str
+    subtitle: str
+    note: str | None
+    target: str | None
+
+
+class SignalsPanel(SignalsView):
+    """The signals of a dataset with the words of their tiles."""
+
+    shown: list[SignalTile]  # type: ignore[assignment]
+
+
+class StateRow(StateCount):
+    """A state count with the label of its state."""
+
+    label: str
+
+
+class ValidationRows(ValidationList):
+    """How many columns are in each state, with the words of the states."""
+
+    states: list[StateRow]  # type: ignore[assignment]
+
+
+class QualityRow(QualityColumn):
+    """A column of a quality figure with its findings in words."""
+
+    labels: list[str]
+
+
+class QualityPanel(QualityView):
+    """The quality figures of a dataset with the words of their findings and states."""
+
+    error_columns: list[QualityRow]  # type: ignore[assignment]
+    issue_columns: list[QualityRow]  # type: ignore[assignment]
+    clean_columns: list[QualityRow]  # type: ignore[assignment]
+    errors: ValidationRows
+    issues: ValidationRows
+
+
+def _tile(signal: Signal) -> SignalTile:
+    noun = finding_noun(signal.code, signal.unit, signal.total)
+    title, subtitle = SIGNAL_TITLES.get(signal.code, (noun[:1].upper() + noun[1:], ""))
+    return SignalTile(
+        **dict(signal),
+        noun=noun,
+        title=title,
+        subtitle=subtitle,
+        note=SIGNAL_NOTES.get(signal.code),
+        target=SIGNAL_TARGETS.get(signal.code),
+    )
+
+
+def _signals_panel(view: SignalsView) -> SignalsPanel:
+    return SignalsPanel(
+        shown=[_tile(signal) for signal in view.shown],
+        more=view.more,
+        incomplete_columns=view.incomplete_columns,
+    )
+
+
+def _validation_rows(listing: ValidationList) -> ValidationRows:
+    return ValidationRows(
+        name=listing.name,
+        with_findings=listing.with_findings,
+        states=[
+            StateRow(**dict(item), label=LIST_STATE_LABELS[item.state])
+            for item in listing.states
+        ],
+    )
+
+
+def _quality_rows(columns: list[QualityColumn]) -> list[QualityRow]:
+    return [
+        QualityRow(**dict(item), labels=[finding_text(ref) for ref in item.findings])
+        for item in columns
+    ]
+
+
+def _quality_panel(view: QualityView) -> QualityPanel:
+    return QualityPanel(
+        **{
+            **dict(view),
+            "error_columns": _quality_rows(view.error_columns),
+            "issue_columns": _quality_rows(view.issue_columns),
+            "clean_columns": _quality_rows(view.clean_columns),
+            "errors": _validation_rows(view.errors),
+            "issues": _validation_rows(view.issues),
+        }
+    )
+
+
 class ColumnTable(ResultModel):
     """The rows of a dataset and the counts of the segment above them."""
 
@@ -117,8 +227,8 @@ class ColumnTable(ResultModel):
     error_count: int
     issue_count: int
     observation_count: int
-    signals: SignalsView
-    quality: QualityView
+    signals: SignalsPanel
+    quality: QualityPanel
 
 
 def _caveat(listing: FindingList) -> tuple[str | None, list[CheckLine]]:
@@ -194,7 +304,7 @@ def column_row(column: ColumnView, dataset_id: str) -> ColumnRow:
         family_label=FAMILY_LABELS[classification.family],
         type_key=f"{classification.family}/{classification.type}",
         type_label=type_label(classification.family, classification.type),
-        overview=summary.overview.text,
+        overview=overview_sentence(summary.overview),
         missing=_missing(summary.findings.missing),
         errors=_cell(summary.findings.errors),
         issues=_cell(summary.findings.issues),
@@ -223,6 +333,6 @@ def column_table(dataset: DatasetView) -> ColumnTable:
         error_count=table.error_count,
         issue_count=table.issue_count,
         observation_count=table.observation_count,
-        signals=table.signals,
-        quality=table.quality,
+        signals=_signals_panel(table.signals),
+        quality=_quality_panel(table.quality),
     )

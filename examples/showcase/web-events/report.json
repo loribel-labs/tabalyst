@@ -23407,15 +23407,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T00:12:22.713582Z",
-        "duration_seconds": 0.000141,
+        "started_at": "2026-10-18T03:35:51.146062Z",
+        "duration_seconds": 0.000142,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000141
+          "other": 0.000142
         },
         "workers": 1,
-        "peak_memory_bytes": 76181504,
+        "peak_memory_bytes": 76066816,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -27901,12 +27901,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T00:12:22.987528Z",
+    "generated_at": "2026-10-18T03:35:51.431567Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.3308,
+    "processing_seconds": 0.3311,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -28297,7 +28297,8 @@
                     "value": 300,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -28779,7 +28780,8 @@
                     "value": 300,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -29203,7 +29205,8 @@
                     "value": 5,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -29573,7 +29576,8 @@
                     "value": 33,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -29999,7 +30003,8 @@
                     "value": 5,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -30365,7 +30370,8 @@
                     "value": 3,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -30733,7 +30739,8 @@
                     "value": 5,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -31093,7 +31100,8 @@
                     "value": 0.57,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -31431,7 +31439,8 @@
                     "value": 8,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -31819,7 +31828,8 @@
                     "value": 5,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -32189,7 +32199,8 @@
                     "value": 165.74,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -32619,7 +32630,8 @@
                     "value": 1,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -32949,7 +32961,8 @@
                     "value": 500,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
@@ -33307,7 +33320,8 @@
                     "value": 2,
                     "accuracy": "exact"
                   }
-                ]
+                ],
+                "notes": []
               },
               "details": {
                 "state": "shown",
