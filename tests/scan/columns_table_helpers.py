@@ -8,10 +8,14 @@ from html.parser import HTMLParser
 
 
 class Pop:
-    """A dialog of a cell (``div.pop``): its attributes and its text."""
+    """The content of a dialog of a cell (a ``template``): its attributes and its text.
+
+    ``aria-label`` is the ``data-label`` of the template, which becomes the label of the
+    page's one dialog when the template is opened.
+    """
 
     def __init__(self, attrs: dict[str, str | None]) -> None:
-        self.attrs = attrs
+        self.attrs = {**attrs, "aria-label": attrs.get("data-label")}
         self.parts: list[str] = []
 
     @property
@@ -78,9 +82,9 @@ class _TableParser(HTMLParser):
             return
         if not self.inside:
             return
-        if self._pop is not None and tag == "div":
+        if self._pop is not None and tag == "template":
             self._pop_depth += 1
-        elif tag == "div" and self._cell is not None and "pop" in (values.get("class") or "").split():
+        elif tag == "template" and self._cell is not None:
             self._pop = Pop(values)
             self._pop_depth = 1
             self._cell.pops.append(self._pop)
@@ -107,7 +111,7 @@ class _TableParser(HTMLParser):
             self._in_head = False
         elif tag == "tbody":
             self._in_body = False
-        elif tag == "div" and self._pop is not None:
+        elif tag == "template" and self._pop is not None:
             self._pop_depth -= 1
             if not self._pop_depth:
                 self._pop = None

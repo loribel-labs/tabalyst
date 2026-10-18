@@ -1479,10 +1479,20 @@ it is removed. Constraints:
 
 ### 20.6 One dialogue
 
-The previews of a page share one `role=dialog` element. The cell keeps a button with
-`data-pop` and the member id; `report.js` fills the dialogue from a `<template>` or a
-JSON island keyed by that id when it opens. Focus, Escape, Tab at the edges, the
-bottom sheet under 640 px and the 24 px targets (18) stay.
+The previews of a page share one `role="dialog"` element, `<div class="pop" id="pop">`,
+at the end of the body, closed and empty. Each former panel is a
+`<template id="..." data-label="...">` next to its button, which keeps `data-pop="<id>"`,
+`aria-haspopup="dialog"` and `aria-expanded` (no `aria-controls`: a template is not
+rendered). `report.js` clones the template into the dialogue when the button is pressed,
+sets the `aria-label` from `data-label`, adds the Close button and empties the dialogue
+on close. Focus, Escape, Tab at the edges, the bottom sheet under 640 px and the 24 px
+targets (18) stay.
+
+Measured on `insurance-customers`: the 75 panels weigh 53 KB of the 1.16 MB of HTML, and a
+template holds the same markup, so the file shrinks by 2 KB only. The gain is the DOM
+(75 hidden dialogs become 1; the content of a template is not in the tree until opened)
+and the accessibility tree. The weight of the page is elsewhere: the style sheet
+(233 KB), the Summary (142 KB) and Relationships (130 KB) sections.
 
 ### 20.7 Languages
 

@@ -10,6 +10,7 @@ applied, and the render computes none of them.
 """
 
 import json
+import sys
 
 import pytest
 from scan_helpers import write_text
@@ -99,18 +100,30 @@ def test_the_render_computes_no_finding_overview_detail_or_signal(tmp_path, monk
     def forbidden(*args, **kwargs):
         raise AssertionError("the render must not run a rule of the summary")
 
-    import tabalyst.report_summary as built
-
-    for name in (
-        "column_findings",
-        "overview_for",
-        "details_for",
-        "variant_details",
-        "signals_view",
-        "quality_view",
-        "expose_examples",
-    ):
-        monkeypatch.setattr(built, name, forbidden)
+    # Every module that imported a rule is patched, not only ``report_summary``: a
+    # render that calls one through another module's import must fail too. A name is
+    # patched only when it is the function of the defining module (``report_sections``
+    # has its own ``quality_view``).
+    rules = {
+        "column_findings": "tabalyst.report_findings",
+        "overview_for": "tabalyst.report_overview",
+        "details_for": "tabalyst.report_details",
+        "variant_details": "tabalyst.report_finding_details",
+        "signals_view": "tabalyst.report_signals",
+        "quality_view": "tabalyst.report_signals",
+        "expose_examples": "tabalyst.report_preview",
+        "preview_examples": "tabalyst.report_preview",
+        "attach_summaries": "tabalyst.report_summary",
+    }
+    patched = 0
+    for module_name, module in list(sys.modules.items()):
+        if not module_name.startswith("tabalyst."):
+            continue
+        for name, home in rules.items():
+            if getattr(module, name, None) is getattr(sys.modules[home], name):
+                monkeypatch.setattr(module, name, forbidden)
+                patched += 1
+    assert patched >= len(rules)
 
     html = render_report(reloaded)
 
@@ -148,3 +161,22 @@ def test_a_document_without_summaries_gets_them_at_the_render(tmp_path):
         for column in dataset.columns
     )
     assert "Summary" in html
+
+
+def test_summaries_built_for_another_exposure_are_rebuilt_at_the_render(tmp_path):
+    profile = _profile(tmp_path, _contacts())
+    document = profile.model_dump(mode="json")
+    for dataset in document["report"]["datasets"]:
+        for column in dataset["columns"]:
+            column["exposure"] = "hide"
+    edited = load_profile(write_text(tmp_path, "edited.json", dump_json(document)))
+
+    render_report(edited)
+
+    summaries = [
+        column.summary
+        for dataset in edited.report.datasets
+        for column in dataset.columns
+    ]
+    assert all(summary is not None and summary.details.state == "hidden" for summary in summaries)
+    assert all("zzsecret" not in summary.model_dump_json() for summary in summaries)

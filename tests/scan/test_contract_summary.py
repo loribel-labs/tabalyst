@@ -965,7 +965,7 @@ def test_CA27_previews_are_reachable_without_hover_or_color(tmp_path):
         for attrs, _ in cell.buttons:
             # a button, not a hover: it names the dialog it opens and its state
             assert attrs["type"] == "button" and attrs["aria-haspopup"] == "dialog"
-            assert attrs["aria-expanded"] == "false" and attrs["aria-controls"]
+            assert attrs["aria-expanded"] == "false" and attrs["data-pop"]
     issues = row.cells[6]
     assert issues.buttons and issues.pops
     # the class is written (hidden text in the label, a word in the dialog)

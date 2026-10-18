@@ -10232,6 +10232,20 @@
       "description": "The profile of a column and the facts behind its sentence. ``kind`` picks the\ntemplate and ``type`` the classification type it is worded for; the sentence is\n``text``, written from them when asked.",
       "properties": {
         "kind": {
+          "enum": [
+            "unique_id",
+            "identifier",
+            "enum",
+            "boolean",
+            "constant",
+            "numeric",
+            "temporal",
+            "shaped",
+            "text",
+            "mixed",
+            "empty",
+            "unknown"
+          ],
           "title": "Kind",
           "type": "string"
         },

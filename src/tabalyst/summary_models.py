@@ -163,6 +163,20 @@ def finding_text(item: Finding | FindingRef) -> str:
 # Overview -------------------------------------------------------------------
 
 OverviewAccuracy = Literal["exact", "lower_bound"]
+OverviewKind = Literal[
+    "unique_id",
+    "identifier",
+    "enum",
+    "boolean",
+    "constant",
+    "numeric",
+    "temporal",
+    "shaped",
+    "text",
+    "mixed",
+    "empty",
+    "unknown",
+]
 
 
 class OverviewFact(ResultModel):
@@ -178,7 +192,7 @@ class Overview(ResultModel):
     template and ``type`` the classification type it is worded for; the sentence is
     ``text``, written from them when asked."""
 
-    kind: str
+    kind: OverviewKind
     type: str
     facts: list[OverviewFact]
 
@@ -312,19 +326,20 @@ class Signal(ResultModel):
 
         return finding_noun(self.code, self.unit, self.total)
 
-    @property
-    def title(self) -> str:
+    def _heading(self) -> tuple[str, str]:
+        """The title and the subtitle of the tile: the catalogue's, or the noun."""
         from tabalyst.report_labels import SIGNAL_TITLES
 
         noun = self.noun
-        return SIGNAL_TITLES.get(self.code, (noun[:1].upper() + noun[1:], ""))[0]
+        return SIGNAL_TITLES.get(self.code, (noun[:1].upper() + noun[1:], ""))
+
+    @property
+    def title(self) -> str:
+        return self._heading()[0]
 
     @property
     def subtitle(self) -> str:
-        from tabalyst.report_labels import SIGNAL_TITLES
-
-        noun = self.noun
-        return SIGNAL_TITLES.get(self.code, (noun[:1].upper() + noun[1:], ""))[1]
+        return self._heading()[1]
 
     @property
     def note(self) -> str | None:

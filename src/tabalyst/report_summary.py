@@ -14,8 +14,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from tabalyst.models import ReportProfile
-from tabalyst.report_details import details_for
+from tabalyst.models import ColumnProfile, ReportProfile
+from tabalyst.report_details import STATES, details_for
 from tabalyst.report_finding_details import variant_details
 from tabalyst.report_findings import column_findings
 from tabalyst.report_overview import overview_for
@@ -76,10 +76,21 @@ def table_summary(
     )
 
 
+def _current(column: ColumnProfile) -> bool:
+    """Whether the summary of a column was built for the exposure it declares."""
+    # Why: a summary holds values already through an exposure; one built for another
+    # exposure would print values the column no longer allows.
+    return (
+        column.summary is not None
+        and column.summary.details.state == STATES[column.exposure or "show"]
+    )
+
+
 def has_summaries(profile: ReportProfile) -> bool:
-    """Whether every column and every dataset of the Report carries its summary."""
+    """Whether every column and every dataset of the Report carries a summary built
+    for the exposure of its column."""
     return all(
-        dataset.table is not None and all(column.summary for column in dataset.columns)
+        dataset.table is not None and all(_current(column) for column in dataset.columns)
         for dataset in profile.report.datasets
     )
 

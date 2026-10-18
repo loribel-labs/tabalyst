@@ -26,7 +26,12 @@ from tabalyst.report_labels import (
 from tabalyst.report_measures import dominant_share
 from tabalyst.report_views import ColumnView
 from tabalyst.scanner.models import Complete
-from tabalyst.summary_models import Overview, OverviewAccuracy, OverviewFact
+from tabalyst.summary_models import (
+    Overview,
+    OverviewAccuracy,
+    OverviewFact,
+    OverviewKind,
+)
 
 __all__ = ["Overview", "OverviewFact", "overview_for", "overview_sentence", "overview_text"]
 
@@ -138,7 +143,7 @@ def _collect_mixed(column: ColumnView, facts: _Facts) -> None:
         facts.add("composition", name)
 
 
-def _kind(column: ColumnView) -> str:
+def _kind(column: ColumnView) -> OverviewKind:
     family = column.classification.family
     kind = column.classification.type
     if kind == "unique_id":

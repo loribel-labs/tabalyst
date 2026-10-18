@@ -259,7 +259,7 @@ def _issue_row(tmp_path):
     return profile, render_report(profile)
 
 
-def test_every_label_of_a_cell_is_a_button_that_controls_its_own_dialog(tmp_path):
+def test_every_label_of_a_cell_is_a_button_that_names_its_own_dialog_content(tmp_path):
     _, html = _issue_row(tmp_path)
 
     row = row_for(columns_table(html), "city")
@@ -272,10 +272,9 @@ def test_every_label_of_a_cell_is_a_button_that_controls_its_own_dialog(tmp_path
         assert "data-pop" in attrs
         assert attrs.get("aria-haspopup") == "dialog"
         assert attrs.get("aria-expanded") == "false"
-        dialog = dialogs[attrs["aria-controls"]]
-        assert dialog.attrs.get("role") == "dialog"
-        assert dialog.attrs.get("aria-label")
-        assert "hidden" in dialog.attrs
+        # the content waits in a template; the page's one dialog is filled when it opens
+        dialog = dialogs[attrs["data-pop"]]
+        assert dialog.attrs.get("data-label")
     first = cell.pops[0].text
     assert "Counted in" in first and "Accuracy" in first and "Limit" in first
 

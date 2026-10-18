@@ -1418,13 +1418,15 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
   document.addEventListener('pointerdown', (e) => { if (tipCell && !tipCell.contains(e.target)) hideTip(); });
 
-  /* popovers: the columns and details behind a figure. A button with data-pop opens the
-     dialog it controls next to itself; Escape, a click outside, the Close button or the button
-     again closes it, and the focus goes back to the button. Tab past either end of the dialog
-     closes it and carries on from the button, since the dialog sits at the end of the body while
-     open and would otherwise lead the focus out of the page. The dialog moves to the body while
-     open so that no ancestor clips it. Nothing depends on hover, so touch and keyboard reach it. */
+  /* popovers: the columns and details behind a figure. The page holds one dialog; a button with
+     data-pop names the <template> whose content fills it when it opens (contract 20.6), so the
+     previews of a table are not in the DOM until asked for. Escape, a click outside, the Close
+     button or the button again closes it, and the focus goes back to the button. Tab past either
+     end of the dialog closes it and carries on from the button, since the dialog sits at the end
+     of the body and would otherwise lead the focus out of the page. Nothing depends on hover, so
+     touch and keyboard reach it. */
   const FOCUSABLE = 'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])';
+  const dialog = document.getElementById('pop');
   let openPop = null;
   const placePop = (panel, btn) => {
     const a = btn.getBoundingClientRect();
@@ -1436,35 +1438,34 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
   };
   const closePop = (focusBack) => {
     if (!openPop) return;
-    const { panel, btn, home } = openPop;
+    const { panel, btn } = openPop;
     panel.hidden = true;
-    home.appendChild(panel);
+    panel.replaceChildren();
+    panel.removeAttribute('aria-label');
     btn.setAttribute('aria-expanded', 'false');
     openPop = null;
     if (focusBack) btn.focus();
   };
-  $$('.pop').forEach((panel) => {
+  if (dialog) $$('[data-pop]').forEach((btn) => btn.addEventListener('click', () => {
+    const source = document.getElementById(btn.getAttribute('data-pop'));
+    if (!source) return;
+    const same = openPop && openPop.btn === btn;
+    closePop(false);
+    if (same) return;
     const close = document.createElement('button');
     close.type = 'button';
     close.className = 'pop-x';
     close.textContent = 'Close';
     close.addEventListener('click', () => closePop(true));
-    panel.insertBefore(close, panel.firstChild);
-  });
-  $$('[data-pop]').forEach((btn) => btn.addEventListener('click', () => {
-    const panel = document.getElementById(btn.getAttribute('aria-controls'));
-    if (!panel) return;
-    const same = openPop && openPop.btn === btn;
-    closePop(false);
-    if (same) return;
-    const home = panel.parentElement;
-    document.body.appendChild(panel);
-    panel.hidden = false;
-    panel.tabIndex = -1;
+    dialog.replaceChildren(close, source.content.cloneNode(true));
+    dialog.setAttribute('aria-label', source.dataset.label || '');
+    dialog.scrollTop = 0;
+    dialog.hidden = false;
+    dialog.tabIndex = -1;
     btn.setAttribute('aria-expanded', 'true');
-    openPop = { panel, btn, home };
-    placePop(panel, btn);
-    panel.focus({ preventScroll: true });
+    openPop = { panel: dialog, btn };
+    placePop(dialog, btn);
+    dialog.focus({ preventScroll: true });
   }));
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') { closePop(true); return; }

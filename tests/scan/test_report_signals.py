@@ -135,10 +135,11 @@ def test_signals_have_a_title_a_subtitle_and_a_popover_with_their_columns(tmp_pa
     ambiguous = next(s for s in table.signals.shown if s.code == "temporal.ambiguous_date")
     assert ambiguous.title == "Ambiguous dates" and ambiguous.subtitle
     for index in range(1, len(table.signals.shown) + 1):
-        assert f'aria-controls="pop-s{index}"' in html
-        assert f'id="pop-s{index}" role="dialog"' in html
-    # The dialogs are closed until a button opens them.
-    assert 'role="dialog" aria-label="Ambiguous dates: affected columns" hidden' in html
+        assert f'data-pop="pop-s{index}"' in html
+        assert f'<template id="pop-s{index}" data-label=' in html
+    # The page has one dialog, closed and empty until a button opens it.
+    assert 'data-label="Ambiguous dates: affected columns"' in html
+    assert html.count('role="dialog"') == 1
 
 
 def test_an_error_signal_is_a_red_tile_and_an_issue_a_plain_one(tmp_path):
@@ -161,9 +162,9 @@ def test_the_quality_kpis_open_the_columns_behind_them(tmp_path):
     html = render_report(profile)
 
     assert "Distribution of findings across" in html
-    assert 'aria-controls="pop-q-issue"' in html
+    assert 'data-pop="pop-q-issue"' in html
     # A group with no column is a plain figure: there is nothing to open.
-    assert ('aria-controls="pop-q-clean"' in html) == (table.quality.no_finding > 0)
+    assert ('data-pop="pop-q-clean"' in html) == (table.quality.no_finding > 0)
     assert table.quality.with_issues > 0
     # The statuses of the observations are explained whatever the dataset holds.
     for word in ("Confirmed issue", "Candidate anomaly", "Remark"):

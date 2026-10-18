@@ -19,7 +19,7 @@ from tabalyst.models import ReportProfile
 from tabalyst.report_config import ReportConfig
 from tabalyst.report_deep import column_analyses, second_pass_view
 from tabalyst.report_details import details_withheld, exposed_evidence, exposed_values
-from tabalyst.report_finding_details import exposed_variant_groups, variant_details
+from tabalyst.report_finding_details import exposed_variant_groups
 from tabalyst.report_insights import (
     FAMILY_ORDER,
     dataset_insights,
@@ -350,9 +350,9 @@ def _page_view(
         "ds": dataset,
         "table": column_table(dataset),
         "finding_details": {
-            (column.id, "variant_groups"): details
+            (column.id, "variant_groups"): column.summary.variants
             for column in dataset.columns
-            if (details := variant_details(column)) is not None
+            if column.summary is not None and column.summary.variants is not None
         },
         "insight_cards": shown_cards(dataset.insights, DISPLAY_LIMITS["insights"]),
         # Element ids are prefixed only when the report shows several

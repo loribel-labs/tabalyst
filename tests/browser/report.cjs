@@ -68,6 +68,18 @@ async function tableChecks(page, profile, observedFields, label) {
   await page.locator('[data-seg="summary-table"] [data-mode="all"]').click();
   await resetTable(page, 'summary-table');
 
+  // The "With errors" segment keeps the columns whose Errors list holds a finding.
+  const withErrors = rows.filter(row => row.errors === 'detected');
+  const errorSegment = page.locator('[data-seg="summary-table"] [data-mode="error"]');
+  if (withErrors.length) assert.equal(await errorSegment.count(), 1, label + ': the segment exists');
+  if (await errorSegment.count()) {
+    assert.equal(await errorSegment.locator('.c').innerText(), String(withErrors.length), label + ': With errors count');
+    await errorSegment.click();
+    assert.deepEqual(await visibleRows(page, 'summary-table'), withErrors.map(row => row.name), label + ': With errors rows');
+    await page.locator('[data-seg="summary-table"] [data-mode="all"]').click();
+    await resetTable(page, 'summary-table');
+  }
+
   // Family and Type filter independently, on codes: a family keeps its own types.
   const family = rows[0].family;
   const inFamily = rows.filter(row => row.family === family);
@@ -149,8 +161,11 @@ async function previewChecks(page, label, width, height) {
   assert.ok(await buttons.count() > 0, label + ': findings are buttons');
   const first = buttons.first();
   await first.scrollIntoViewIfNeeded();
-  const closed = await first.evaluate(button => document.getElementById(button.getAttribute('aria-controls')).hidden);
-  assert.equal(closed, true, label + ': the dialog starts closed');
+  // One dialog serves every preview (contract 20.6): closed and empty until a button opens it.
+  assert.equal(await page.locator('[role="dialog"]').count(), 1, label + ': one dialog in the page');
+  assert.equal(await page.locator('.pop:not([hidden])').count(), 0, label + ': the dialog starts closed');
+  assert.equal(await page.locator('#pop').evaluate(el => el.childElementCount), 0, label + ': the dialog starts empty');
+  assert.ok(await first.evaluate(button => document.getElementById(button.getAttribute('data-pop')) instanceof HTMLTemplateElement), label + ': the button names a template');
   assert.ok(await first.locator('.vh').count(), label + ': the class is written, not only coloured');
 
   // Keyboard: Enter opens, the focus moves into the dialog, Tab walks it and leaves it at the end.
