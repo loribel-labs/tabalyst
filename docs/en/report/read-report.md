@@ -208,6 +208,43 @@ page with scan evidence and value counts:
 tabalyst report customers.csv --details
 ```
 
+## Column page
+
+**Purpose:** read everything the report knows about one column, in the order of the
+questions you ask: is something wrong, what, how sure is the report, and what do the
+values look like. The page is written for each column when you add `--details`, and the
+Column and Details cells of the [Summary table](#column-summary) link to it. It reads the
+report document and computes nothing of its own: a figure here is the figure of the tables.
+
+The header names the column, its position and its path, and links the **previous** and
+**next** column pages. A strip under the title gives the family and the type, one sentence
+that profiles the column, and the number of kinds of error and of issue (each opens the
+Findings block). A column whose values are masked or hidden says so there.
+
+| Block | What it shows | What to check |
+| --- | --- | --- |
+| 01 Summary | Analyzable values, Missing (with what counts as missing), Distinct and the number of findings; the Interpretation of the type (state, basis, traits, alternatives, evidence, technical type and its confidence) and the types counted. | The type is a reading of the values, not a promise: check **state** and **basis**. |
+| 02 Findings | One card per Error, then per Issue: what it is, what it counts, how sure the count is, its limit, examples, and the detail beside it (see below). Remarks follow, and a folded list says which checks ran and found nothing. | Start here. A count marked *at least* or *sample* is not exact; see [How counts are qualified](#how-counts-are-qualified). |
+| 03 Values | The stored values, most frequent first, with their exact counts and a bar that compares them. | A list can be every distinct value or a sample; the first line says which. |
+| 04 Shape | The block takes the name of the type: Numbers (range, mean, median), Dates (valid, ambiguous, invalid), Text (lengths, character map) or Distribution. It holds the insight cards of the second pass. | Not drawn when there is nothing to show. |
+| 05 Formats and patterns | Every recognized format once, with how it is read and its share. The detectors and the pattern families are folded below. | Open **Detectors** to see the examples by outcome. |
+| 06 Cleaning | The normalization stages, with the number of values each one changed. | A stage that changed values is highlighted. The spelling variants are in the Findings. |
+| 07 Limits | The measures the scan could not establish for this column, its diagnostics and the meaning of each accuracy mark. | Read it before relying on a figure marked *at least*. |
+| 08 Scan evidence | The facts of the field as the Scan wrote them, in folded groups. | Raw material, for checking a figure. |
+| 09 Data sample | The rows of the sample, for this column only, with their original row numbers. | The sample is not uniform over the file. |
+
+**A finding card.** The left side states what the finding is and how far to trust it. The
+right side holds the detail that explains it: the groups of spelling variants, the formats
+that fit the same ambiguous dates with the unambiguous values by day-month order, the
+dominant length and the minority ones, the minority patterns, the kinds of whitespace made
+visible, or the composition of a mixed column. These are the details of the
+[Findings table](#observations), written in full instead of in a hover. A finding for which
+the Scan keeps no value (values outside a number type) says so. Examples are a sample and
+can be missing for a rare case; a masked column shows merged masks and a hidden one nothing.
+
+The page works with the keyboard and by touch, reads in both themes, and prints with its
+folded groups opened.
+
 ## JSON structure
 
 **Purpose:** show the paths and containers behind the flattened columns. This

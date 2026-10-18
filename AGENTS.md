@@ -69,6 +69,9 @@ support is not yet required. Record format changes in the relevant changelogs.
   measures derived from the Scan), each figure with its accuracy, computed at render time from
   `analyses` alone; `templates/insights.html` is their macro, shared by the report and the column
   pages.
+- `src/tabalyst/report_column_page.py`: the blocks of a column page that the stored summary does not
+  hold as they are (findings with their details, remarks, formats, shape block, neighbour links); the
+  contract is `docs/dev/report/column-page.md`. `templates/column.html` prints them and computes nothing.
 - `src/tabalyst/scan_reuse.py`: scan documents reused by the report, with the
   staleness rule.
 - `src/tabalyst/scanner/pearson.py`: the arithmetic of the Pearson correlation

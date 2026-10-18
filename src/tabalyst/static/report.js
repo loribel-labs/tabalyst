@@ -579,4 +579,7 @@
   /* print: temporarily open collapsed sections */
   window.addEventListener('beforeprint', () => $$('.pbody[hidden]').forEach((b) => { b.dataset.wasHidden = '1'; b.hidden = false; }));
   window.addEventListener('afterprint', () => $$('.pbody[data-was-hidden]').forEach((b) => { b.hidden = true; delete b.dataset.wasHidden; }));
+  /* the folded groups of a column page are open on paper, then back as the reader left them */
+  window.addEventListener('beforeprint', () => $$('details.dsc:not([open])').forEach((d) => { d.dataset.wasClosed = '1'; d.open = true; }));
+  window.addEventListener('afterprint', () => $$('details.dsc[data-was-closed]').forEach((d) => { d.open = false; delete d.dataset.wasClosed; }));
 })();

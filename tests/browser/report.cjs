@@ -367,6 +367,100 @@ async function openFilter(page, table, index) {
   return menu;
 }
 
+// The column page (contract docs/dev/report/column-page.md): the blocks in order, the finding
+// cards, keyboard and touch, no sideways scroll at four sizes and in both themes. Skipped when
+// the report was written without --details.
+async function columnPageChecks(browser, reportFile) {
+  const directory = path.join(path.dirname(reportFile), path.basename(reportFile, path.extname(reportFile)));
+  let pages;
+  try {
+    pages = (await fs.readdir(directory)).filter(name => /^col-\d+-.*\.html$/.test(name)).sort();
+  } catch (error) {
+    pages = [];
+  }
+  if (!pages.length) {
+    console.log('column page: skipped, the report has no column pages (--details)');
+    return;
+  }
+  const withFindings = [];
+  for (const name of pages) {
+    const text = await fs.readFile(path.join(directory, name), 'utf8');
+    if (text.includes('class="fnd fnd-')) withFindings.push(name);
+  }
+  const file = withFindings.find(name => name.includes('postal')) || withFindings[0] || pages[0];
+  const url = pathToFileURL(path.join(directory, file)).href;
+  for (const [name, width, height] of [
+    ['desktop', 1440, 1050],
+    ['zoom200', 720, 525],
+    ['tablet', 820, 1180],
+    ['mobile', 390, 844],
+  ]) {
+    for (const scheme of ['dark', 'light']) {
+      const label = 'column page ' + name + ' ' + scheme;
+      const context = await browser.newContext({
+        viewport: { width, height }, colorScheme: scheme, hasTouch: name === 'mobile', isMobile: name === 'mobile',
+      });
+      const page = await context.newPage();
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      await page.goto(url);
+      assert.equal(
+        await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth),
+        false, label + ': no sideways scroll of the page',
+      );
+      const ids = await page.locator('main > section.panel').evaluateAll(els => els.map(el => el.id));
+      const order = ['summary', 'findings', 'values', 'shape', 'formats', 'cleaning', 'limits', 'scan-evidence', 'sample'];
+      assert.deepEqual(ids, order.filter(id => ids.includes(id)), label + ': blocks in order');
+      assert.deepEqual(ids.slice(0, 3), ['summary', 'findings', 'values'], label);
+      assert.equal(await page.locator('h1').count(), 1, label + ': one h1');
+
+      // The state is written, never only colored: a class word on every finding card.
+      const cards = page.locator('article.fnd');
+      for (let i = 0; i < await cards.count(); i += 1) {
+        const word = (await cards.nth(i).locator('.fcls').innerText()).trim().toLowerCase();
+        assert.ok(['error', 'issue'].includes(word), label + ': card class word ' + word);
+        assert.ok((await cards.nth(i).locator('h3').innerText()).length > 0, label);
+      }
+
+      // Disclosures are native: Enter on the summary opens them, and the group is reachable.
+      const group = page.locator('#findings details.dsc').first();
+      if (await group.count()) {
+        await group.locator('summary').focus();
+        assert.equal(await group.evaluate(el => el.open), false, label + ': folded at the start');
+        await page.keyboard.press('Enter');
+        assert.equal(await group.evaluate(el => el.open), true, label + ': Enter opens the group');
+        const box = await group.locator('summary').boundingBox();
+        assert.ok(box.height >= 44, label + ': disclosure head is at least 44 px');
+      }
+
+      // The side bar follows the page and its targets are fingers wide on a small screen.
+      await page.locator('#limits').scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => document.querySelector('.rep-tab[aria-current="true"]') !== null);
+      if (width <= 860) {
+        const tab = await page.locator('.rep-tab').first().boundingBox();
+        assert.ok(tab.height >= 44, label + ': tab target is at least 44 px');
+      }
+      await page.keyboard.press('Tab');
+      assert.equal(await page.locator('a.skip').count(), 1, label + ': skip link');
+
+      // Print opens the folded groups.
+      await page.emulateMedia({ media: 'print' });
+      await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+      assert.equal(
+        await page.evaluate(() => document.querySelectorAll('details.dsc:not([open])').length), 0,
+        label + ': every group is open on paper',
+      );
+      assert.deepEqual(errors, [], label);
+      if (scheme === 'dark') {
+        await fs.mkdir(artifactsDirectory, { recursive: true });
+        await page.screenshot({ path: path.join(artifactsDirectory, 'column-page-' + name + '.png') });
+      }
+      await context.close();
+    }
+  }
+  console.log('column page: blocks, finding cards, keyboard, touch, print, four sizes and both themes passed');
+}
+
 (async () => {
   const report = JSON.parse(await fs.readFile(process.argv[3], 'utf8'));
   const profile = report.report.datasets[0];
@@ -629,6 +723,7 @@ async function openFilter(page, table, index) {
       await page.close();
     }
     assert.deepEqual(errors, []);
+    await columnPageChecks(browser, process.argv[2]);
   } finally {
     await browser.close();
   }

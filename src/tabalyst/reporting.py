@@ -9,6 +9,7 @@ import unicodedata
 from functools import cache
 from importlib.resources import files
 from pathlib import Path
+from urllib.parse import quote
 
 from jinja2 import DictLoader, Environment, StrictUndefined
 from markupsafe import Markup, escape
@@ -16,6 +17,7 @@ from markupsafe import Markup, escape
 from tabalyst._version import get_version
 from tabalyst.errors import InputError
 from tabalyst.models import ReportProfile
+from tabalyst.report_column_page import Neighbour, column_page
 from tabalyst.report_config import ReportConfig
 from tabalyst.report_deep import column_analyses, second_pass_view
 from tabalyst.report_details import details_withheld, exposed_evidence
@@ -38,6 +40,7 @@ from tabalyst.report_labels import (
     OBSERVATION_STATUS_HELP,
     ORIGIN_WORDS,
     OUTCOME_WORDS,
+    PAGE_NO_EXAMPLE,
     PREVIEW_CHECKS_TITLE,
     SIGNAL_CLASS_WORDS,
     TABLE_AT_LEAST,
@@ -58,7 +61,7 @@ from tabalyst.report_sections import (
     rows_view,
 )
 from tabalyst.report_summary import attach_summaries, has_summaries
-from tabalyst.report_table import column_table, finding_detail_views, page_findings
+from tabalyst.report_table import column_table, finding_detail_views
 from tabalyst.report_views import (
     ColumnAnalyses,
     ColumnView,
@@ -266,6 +269,30 @@ def column_pages(
     return pages
 
 
+def _neighbour(
+    pages: list[tuple[Path, DatasetView, ColumnView]], index: int, other: int
+) -> Neighbour | None:
+    """The page at ``other`` as a link from the page at ``index``, if it is in the same dataset."""
+    if not 0 <= other < len(pages) or pages[other][1].id != pages[index][1].id:
+        return None
+    path, _, column = pages[other]
+    return Neighbour(name=column.name or "(unnamed)", href=quote(path.name))
+
+
+def column_neighbours(
+    pages: list[tuple[Path, DatasetView, ColumnView]],
+) -> dict[tuple[str, str], tuple[Neighbour | None, Neighbour | None]]:
+    """The previous and the next page of every column page, within its dataset. The pages
+    share one directory, so a link is the file name."""
+    return {
+        (dataset.id, column.id): (
+            _neighbour(pages, index, index - 1),
+            _neighbour(pages, index, index + 1),
+        )
+        for index, (_, dataset, column) in enumerate(pages)
+    }
+
+
 @cache
 def _macro_template(name: str) -> str:
     """A shared macro file (the insight cards, the tree of patterns), read once for every page of a run."""
@@ -442,24 +469,27 @@ def render_column_report(
     dataset: DatasetView,
     column: ColumnView,
     report_href: str,
+    previous: Neighbour | None = None,
+    following: Neighbour | None = None,
 ) -> str:
-    """Render a self-contained page from one serialized column profile."""
+    """Render a self-contained page from one serialized column profile. ``previous``
+    and ``following`` link the pages of the neighbouring columns, when they exist."""
     resources = files("tabalyst")
     template = _environment().from_string(
         resources.joinpath("templates/column.html").read_text(encoding="utf-8")
     )
-    errors_cell, issues_cell = page_findings(column)
     rendered = template.render(
         report=profile,
         ds=dataset,
         column=column,
-        errors_cell=errors_cell,
-        issues_cell=issues_cell,
+        page=column_page(column, previous, following),
         report_href=report_href,
         tabalyst_version=get_version(),
         diagnostics=[
             item for item in dataset.limits.diagnostics if item.path == column.path
         ],
+        family_labels=FAMILY_LABELS,
+        no_example=PAGE_NO_EXAMPLE,
         theme_css=resources.joinpath("static/theme.css").read_text(encoding="utf-8"),
         report_js=resources.joinpath("static/report.js").read_text(encoding="utf-8"),
         **_labels(),

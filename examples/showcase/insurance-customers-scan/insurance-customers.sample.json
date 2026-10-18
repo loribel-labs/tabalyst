@@ -30,7 +30,7 @@
     "format": "csv",
     "name": "insurance-customers-100k.csv",
     "size_bytes": 27540101,
-    "modified_at": "2026-10-18T19:25:43.024368Z",
+    "modified_at": "2026-10-18T22:26:56.362751Z",
     "sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
     "encoding": "utf-8-sig",
     "shape": {
@@ -103,14 +103,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-18T20:21:57.056680Z",
-    "duration_seconds": 6.759617,
+    "started_at": "2026-10-18T22:27:55.367381Z",
+    "duration_seconds": 7.541647,
     "timings": {
-      "reading": 6.655675,
-      "selection": 0.054098,
-      "other": 0.049844
+      "reading": 7.425572,
+      "selection": 0.055526,
+      "other": 0.060549
     },
-    "peak_memory_bytes": 169926656,
+    "peak_memory_bytes": 170106880,
     "records_read": 100000,
     "cells_read": 3400000,
     "source_verified": true,
@@ -124,13 +124,13 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "50a3675da993881d4e00306bf840426560761a0cd8f3535b6168f1867903f2e7",
+    "plan_id": "ca23028349c1cc2451ee22622ccca3e1bc582517f928cdbaeb6c5bc211261f97",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
       "config_sha256": "5207449bf6401632967c0f84560f9589c4b97c422a4f6be9431fe90325ebeb5e",
-      "facts_sha256": "3fe94e4e4ebc9eeacb1a115020f1dc910309dc88fc738a9475cdb904b358c678"
+      "facts_sha256": "fd5f4b2416b144c1cb48199473dd852443e00944ed3225e2f3ccf4d98f7078b3"
     },
     "settings": {
       "max_enum_values": 100,

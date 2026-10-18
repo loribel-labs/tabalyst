@@ -552,7 +552,6 @@ td.ex .tip.show{display:block}
 .column-line code{font-size:12px;white-space:pre-wrap;color:var(--text)}
 .column-line b{flex:none;font:500 12px/1.4 var(--f-mono);color:var(--text);text-align:right}
 .column-grid .schema{margin:0}
-.column-json{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0;padding:10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--s0);color:var(--text-2);font:400 11px/1.5 var(--f-mono)}
 @media (max-width:650px){.column-line{align-items:flex-start}.column-line b{white-space:normal}}
 
 /* lot 5: accuracy labels, finding status, pager. Shape and text carry the
@@ -830,9 +829,147 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 .pop-x{float:right;margin:-4px -6px 6px 10px;min-height:24px;padding:2px 8px;border:1px solid var(--line-strong);border-radius:6px;background:none;color:var(--text-2);font:500 12px/1.2 var(--f-body);cursor:pointer}
 .pop-x:hover{border-color:var(--text-3);color:var(--text)}
 @media (max-width:640px){.pop{left:12px!important;right:12px;top:auto!important;bottom:12px;width:auto;max-height:70dvh}}
+
+/* ---- column page (contract column-page.md): tokens only, no new colour ---- */
+
+/* ---- header: the verdict strip ---- */
+.rhead-nav{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;justify-content:flex-end}
+.rhead-nav .btn{min-height:36px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vstrip{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr) auto;gap:8px 20px;align-items:center;margin-top:18px;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--g-card);box-shadow:var(--hl)}
+.vstrip p{margin:0}
+.vs-type{display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
+.vs-fam{color:var(--text-3)}
+.vs-sep{color:var(--d3)}
+.fam-dot{width:10px;height:10px;border-radius:50%;background:var(--fam-other);flex:none}
+.fam-identifier{background:var(--fam-identifier)}.fam-categorical{background:var(--fam-categorical)}.fam-numeric{background:var(--fam-numeric)}
+.fam-temporal{background:var(--fam-temporal)}.fam-contact{background:var(--fam-contact)}.fam-geographic{background:var(--fam-geographic)}
+.fam-web_network{background:var(--fam-web_network)}.fam-text{background:var(--fam-text)}
+.vs-sentence{color:var(--text);font-size:14px}
+.vs-flags{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.cst{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:4px 10px;border-radius:999px;border:1px solid var(--line-strong);font:500 12px/1.2 var(--f-mono);color:var(--text-2);white-space:nowrap}
+.cst b{font-weight:600;color:inherit}
+a.cst:hover{background:var(--s2);color:var(--text)}
+.cst-error{border-color:var(--err);color:var(--err-text)}
+.cst-issue{border-color:rgba(249,133,16,.6);color:var(--attn-text)}
+.cst-ok::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.cst-error::before,.cst-issue::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.cst-issue::before{background:transparent;border:1.5px solid currentColor}
+.cst-exp{border-style:dashed}
+
+/* ---- findings ---- */
+.metric.err{border-color:rgba(240,71,75,.5)}
+.metric.err .v{color:var(--err-text)}
+.fnd{border:1px solid var(--line);border-left-width:4px;border-radius:var(--r-md);background:var(--g-card);box-shadow:var(--hl);margin:0 0 var(--joint);min-width:0}
+.fnd-error{border-left-color:var(--err)}
+.fnd-issue{border-left-color:var(--issue)}
+.fnd-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;padding:14px 16px 4px}
+.fnd-h h3{margin:0;font:600 17px/1.3 var(--f-display);color:var(--text)}
+.fcls{font:500 10.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase}
+.fcls-error{color:var(--err-text)}
+.fcls-issue{color:var(--attn-text)}
+.fnd-n{margin:0 0 0 auto;font-size:13px;color:var(--text-2)}
+.fnd-n b{font:600 15px/1 var(--f-mono);color:var(--text)}
+.fnd-sh{margin-left:8px;color:var(--text-3)}
+.fnd-b{display:grid;grid-template-columns:minmax(260px,5fr) minmax(0,7fr);gap:8px 28px;padding:6px 16px 16px}
+.fnd-def{display:grid;grid-template-columns:minmax(80px,auto) minmax(0,1fr);gap:8px 14px;margin:0;align-content:start;font-size:13px}
+.fnd-def dt{color:var(--text-3)}
+.fnd-def dd{margin:0;color:var(--text-2)}
+.fnd-d{min-width:0;border-left:1px solid var(--line);padding-left:24px}
+.fd-title{margin:0 0 8px;font:600 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
+.fd-n{margin:0 0 10px;font-size:12.5px;color:var(--text-3)}
+.fd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
+.fd-t{margin:0 0 6px;font-weight:600;font-size:13px;color:var(--text)}
+.fd-l{list-style:none;margin:0;padding:0}
+.fd-l li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:6px 0;border-bottom:1px solid var(--line);min-width:0}
+.fd-l li:last-child{border-bottom:0}
+.fd-k{min-width:0;display:flex;flex-direction:column;gap:5px}
+.fd-k code{white-space:pre-wrap;font-size:12.5px;color:var(--text);overflow-wrap:anywhere}
+.fd-v{flex:none;font:500 12px/1.4 var(--f-mono);color:var(--text);text-align:right}
+.fd-v small{display:block;color:var(--text-3);font-size:11px}
+.fd-ex{display:flex;flex-wrap:wrap;gap:6px}
+.fd-ex code{padding:2px 7px;border:1px solid var(--line);border-radius:var(--r-xs);background:var(--s1);font-size:12px;color:var(--text);white-space:pre-wrap}
+.pg-groups{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:8px}
+.pg-group{display:flex;flex-wrap:wrap;gap:6px 10px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--s1)}
+.pg-sp{display:inline-flex;align-items:baseline;gap:4px;padding:2px 7px;border:1px solid var(--line);border-radius:var(--r-xs);background:var(--s2)}
+.pg-sp.top{border-color:var(--line-strong)}
+.pg-sp code{white-space:pre-wrap;font-size:12.5px;color:var(--text-2)}
+.pg-sp.top code{color:var(--text);font-weight:500}
+.pg-sp small{color:var(--text-3);font-size:11px}
+.remarks{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:var(--r-md);background:var(--g-card)}
+.remarks li{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 16px;padding:10px 16px;border-bottom:1px solid var(--line);color:var(--text-2)}
+.remarks li:last-child{border-bottom:0}
+.remarks b{font:500 13px/1.4 var(--f-mono);color:var(--text)}
+.rem-d{flex-basis:100%;border-left:0;padding:8px 0 4px}
+.empty{margin:0;color:var(--text-3)}
+.subh .n{font-weight:400}
+
+/* ---- disclosures ---- */
+.dsc{margin-top:var(--joint);border:1px solid var(--line);border-radius:var(--r-md);background:var(--g-card);box-shadow:var(--hl)}
+.dsc>summary{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 16px;cursor:pointer;list-style:none;font-weight:600;font-size:14px;color:var(--text);border-radius:var(--r-md)}
+.dsc>summary::-webkit-details-marker{display:none}
+.dsc>summary::before{content:"";flex:none;width:7px;height:7px;border-right:2px solid var(--text-3);border-bottom:2px solid var(--text-3);transform:rotate(-45deg);transition:transform .15s}
+.dsc[open]>summary::before{transform:rotate(45deg)}
+.dsc>summary .n{margin-left:8px;font-weight:400;color:var(--text-3);font-size:12.5px}
+.dsc>summary:hover{background:var(--s2)}
+.dsc>*:not(summary){margin-left:16px;margin-right:16px}
+.dsc>*:last-child{margin-bottom:16px}
+.ev-groups .dsc:first-child{margin-top:0}
+
+/* ---- values ---- */
+.vbars{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.vbars li{display:grid;grid-template-columns:minmax(120px,28%) minmax(0,1fr) auto;gap:14px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.vbars li:last-child{border-bottom:0}
+.vbars code{white-space:pre-wrap;font-size:12.5px;color:var(--text);overflow-wrap:anywhere}
+.vb{display:block;height:8px;border-radius:4px;background:var(--s3)}
+.vb i{display:block;height:100%;border-radius:4px;background:var(--text-3)}
+.vbars b{font:500 12px/1.4 var(--f-mono);color:var(--text);text-align:right;min-width:3ch}
+
+/* ---- tables ---- */
+.ftab{width:100%;border-collapse:collapse;font-size:13px}
+.ftab th,.ftab td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;color:var(--text-2);vertical-align:baseline}
+.ftab thead th{font:500 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
+.ftab tbody th{font-weight:400;color:var(--text)}
+.ftab .num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.ftab tr.hit th,.ftab tr.hit td{color:var(--text)}
+.ftab tr.hit .num{color:var(--attn-text)}
+.ftab small{color:var(--text-3)}
+.rcard-title.sub{margin-top:16px}
+h3.rcard-title,h4.rcard-title{font-family:var(--f-body)}
+
+/* ---- limits, sample ---- */
+.acc-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px 20px;margin:20px 0 0}
+.acc-legend>div{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.acc-legend dt{margin:0}
+.acc-legend dd{margin:0;font-size:12.5px;color:var(--text-3)}
+.srows{list-style:none;margin:0;padding:0}
+.srows li{display:grid;grid-template-columns:84px auto minmax(0,1fr);gap:12px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line)}
+.srows li:last-child{border-bottom:0}
+.srows b{font:500 12px/1.4 var(--f-mono);color:var(--text-2)}
+.cellv code{white-space:pre-wrap;font-size:12.5px;color:var(--text);overflow-wrap:anywhere}
+
+/* ---- sizes ---- */
+@media (max-width:1180px){.vstrip{grid-template-columns:minmax(0,1fr)}.vs-flags{justify-content:flex-start}.fnd-b{grid-template-columns:minmax(0,1fr)}.fnd-d{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:14px}}
+@media (max-width:860px){.rhead-nav{justify-content:flex-start}}
+@media (max-width:720px){
+  .fnd-h{padding:12px 12px 2px}.fnd-b{padding:6px 12px 12px}.fnd-n{margin-left:0;flex-basis:100%}
+  .fnd-def{grid-template-columns:1fr;gap:2px}.fnd-def dd{margin-bottom:8px}
+  .vbars li{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}.vbars .vb{grid-column:1 / -1;order:3;height:6px}
+  .srows li{grid-template-columns:minmax(0,1fr) auto}.srows .cellv{grid-column:1 / -1}
+  .ftab th,.ftab td{padding:8px 6px}
+  .dsc>*:not(summary){margin-left:12px;margin-right:12px}
+}
+@media print{.dsc>summary::before{display:none}.vstrip{break-inside:avoid}.fnd{break-inside:avoid}.rhead-nav{display:none}}
+
+.dsc-in{margin-top:10px;background:none;box-shadow:none}
 </style>
 </head>
 <body>
+
+
+
+
+
+
 
 
 
@@ -845,41 +982,129 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
   <a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website"><svg viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M10 10h44v12H38v32H26V22H10z"/><path fill="#F98510" d="M43 29h11v25H43z"/></svg><span class="word">Tabalyst<span class="sub">Report</span></span></a>
   <p class="side-label">Explore the column</p>
   <nav class="rep-nav" data-ds="0" aria-label="Column sections">
-    <p class="side-group">Report</p>
-    <a class="rep-tab" href="#overview"><small>01</small>Overview</a>
-    <a class="rep-tab" href="#values"><small>02</small>Values<span class="ct">20</span></a>
-
-
-
-    <a class="rep-tab" href="#strings"><small>06</small>Text<span class="ct">13</span></a>
-    <a class="rep-tab" href="#patterns"><small>07</small>Patterns</a>
-    <a class="rep-tab" href="#transformations"><small>08</small>Transformations</a>
-    <a class="rep-tab" href="#scan-evidence"><small>09</small>Scan evidence</a>
-    <a class="rep-tab" href="#sample"><small>10</small>Data sample<span class="ct">30</span></a>
-
-    <a class="rep-tab" href="#insights"><small>12</small>Insights<span class="ct">1</span></a>
+    <p class="side-group">Read</p>
+    <a class="rep-tab" href="#summary"><small>01</small>Summary</a>
+    <a class="rep-tab" href="#findings"><small>02</small>Findings<span class="ct attn">2</span></a>
+    <a class="rep-tab" href="#values"><small>03</small>Values<span class="ct">20</span></a>
+    <a class="rep-tab" href="#shape"><small>04</small>Text</a>
+    <p class="side-group">Understand</p>
+    <a class="rep-tab" href="#formats"><small>05</small>Formats and patterns</a>
+    <a class="rep-tab" href="#cleaning"><small>06</small>Cleaning</a>
+    <a class="rep-tab" href="#limits"><small>07</small>Limits</a>
+    <p class="side-group">Evidence</p>
+    <a class="rep-tab" href="#scan-evidence"><small>08</small>Scan evidence</a>
+    <a class="rep-tab" href="#sample"><small>09</small>Data sample<span class="ct">30</span></a>
     <p class="side-group">Navigation</p>
     <a class="rep-tab" href="../report.html"><small>↖</small>Full report</a>
   </nav>
   <div class="side-foot"><div class="row"><button type="button" id="theme-toggle" class="btn btn-icon" aria-label="Theme: auto (system)" title="Theme: auto (system)"><svg data-icon="auto" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2.5" width="12" height="8.5" rx="1"/><path d="M5.5 14h5M8 11v3"/></svg><svg data-icon="light" viewBox="0 0 16 16" aria-hidden="true" hidden><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg><svg data-icon="dark" viewBox="0 0 16 16" aria-hidden="true" hidden><path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7z"/></svg></button><button type="button" class="btn print" data-print style="flex:1">Print / PDF</button></div></div>
 </aside>
 <div class="main"><div class="ds" data-ds="0">
-<header class="rhead"><div class="wrap"><p class="eyebrow">Column report · insurance-customers-100k.csv</p><div class="rhead-top"><div><h1>prenom</h1><ul class="facts"><li><b>Column 3</b> of 34</li><li><code>prenom</code></li><li>100,000 rows</li></ul></div><a class="btn" href="../report.html">← Full report</a></div></div></header>
+<header class="rhead"><div class="wrap">
+  <p class="eyebrow">Column report · insurance-customers-100k.csv</p>
+  <div class="rhead-top">
+    <div>
+      <h1>prenom</h1>
+      <ul class="facts"><li><b>Column 3</b> of 34</li><li><code>prenom</code></li><li>100,000 rows</li></ul>
+    </div>
+    <div class="rhead-nav" role="group" aria-label="Neighbouring columns">
+      <a class="btn" href="col-02-civilite.html" rel="prev"><span aria-hidden="true">←</span> <span class="vh">Previous column: </span>civilite</a>
+      <a class="btn" href="col-04-nom.html" rel="next"><span class="vh">Next column: </span>nom <span aria-hidden="true">→</span></a>
+      <a class="btn" href="../report.html">Full report</a>
+    </div>
+  </div>
+  <div class="vstrip">
+    <p class="vs-type"><span class="fam-dot fam-text" aria-hidden="true"></span><span class="vs-fam">Text</span><span class="vs-sep" aria-hidden="true">/</span><b>Text / Short</b></p>
+    <p class="vs-sentence">Short text, with a median length of 6 characters and 230 distinct values.</p>
+    <p class="vs-flags">
+      <span class="cst cst-ok">No error detected</span>
+      <a class="cst cst-issue" href="#findings"><b>2</b> kinds of issue</a>
+
+    </p>
+  </div>
+</div></header>
 <main id="content" class="wrap content" tabindex="-1">
-<section class="panel" id="overview" aria-labelledby="overview-h"><div class="phead"><div><p class="eyebrow">01 / Overview</p><h2 id="overview-h">Column overview</h2><p>Profile, values and formats at a glance.</p></div></div><div class="pbody">
-  <dl class="metrics"><div class="metric"><dt>Analyzable values</dt><dd><span class="v">99,993</span><span class="s">in 100,000 rows</span></dd></div><div class="metric attn"><dt>Missing</dt><dd><span class="v">0.01<small>%</small></span><span class="s">7 values</span></dd></div><div class="metric"><dt>Distinct</dt><dd><span class="v">230</span><span class="s"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · diverse sample</span></dd></div><div class="metric"><dt>Kinds of error</dt><dd><span class="v">Not applicable</span><span class="s">The check has no meaning for this column</span></dd></div><div class="metric attn"><dt>Kinds of issue</dt><dd><span class="v">2</span><span class="s">13 spelling-variant groups · 6 values with repeated whitespace</span></dd></div></dl>
-  <div class="column-grid"><div class="rcard"><p class="rcard-title">Interpretation</p><dl class="schema"><dt>Inferred type</dt><dd><span class="pill">text</span></dd><dt>Type</dt><dd><span class="pill">Text / Short</span> <small class="sub-n">established · inferred</small></dd><dt>Evidence</dt><dd><code>text</code> <small class="sub-n">supports</small><br><code>string_lengths.median_length</code> <small class="sub-n">supports</small></dd><dt>Technical type confidence</dt><dd>100.0%</dd><dt>Exposure</dt><dd>Normal</dd></dl></div>
-  <div class="rcard"><p class="rcard-title">Value coverage</p><p class="muted">100 stored distinct values · diverse sample.</p><p class="muted">The full value list appears below.</p></div>
-  <div class="rcard"><p class="rcard-title">Detected formats</p><p class="muted">No detector formats.</p></div>
-  <div class="rcard"><p class="rcard-title">Type counts</p><div class="column-line"><span>text</span><b>99,993</b></div><p class="rcard-title">Native types</p><div class="column-line"><span>string</span><b>100,000</b></div></div>
-  <div class="rcard"><p class="rcard-title">Issues</p><div class="column-line"><span>13 spelling-variant groups<small class="sub-n"> · Exact · Groups of values that differ only by case, accents or spacing. · Variants are groups of spellings of one text; they do not prove that the spellings mean the same thing.</small><small class="sub-n"><code>André</code> <code>Andre</code> </small></span><b>13</b></div><div class="column-line"><span>6 values with repeated whitespace<small class="sub-n">99,993 text values · &lt;0.01% (6 of 99,993 text values) · Exact · Values with whitespace repeated inside the text. · Whitespace is often invisible and says nothing about what the value means.</small></span><b>6</b></div></div>
-  <div class="rcard"><p class="rcard-title">Observations</p><div class="column-line"><span><span class="st st-cand" title="Worth a look: a rule cannot confirm it is an error"><i aria-hidden="true"></i>Candidate anomaly</span> Values written in several ways that normalization compares as equal<small class="sub-n"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · groups</small></span><b>13</b></div><div class="column-line"><span><span class="st st-info" title="A finding that may be perfectly valid"><i aria-hidden="true"></i>Remark</span> Missing values<small class="sub-n"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · values out of 100,000</small></span><b>7</b></div><div class="column-line"><span><span class="st st-info" title="A finding that may be perfectly valid"><i aria-hidden="true"></i>Remark</span> Cells changed by collapsing repeated internal whitespace<small class="sub-n"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · text values out of 99,993</small></span><b>6</b></div></div></div>
+
+<section class="panel" id="summary" aria-labelledby="summary-h"><div class="phead"><div><p class="eyebrow">01 / Summary</p><h2 id="summary-h">What this column holds</h2><p>The figures of the column, and how Tabalyst reads its type.</p></div></div><div class="pbody">
+  <dl class="metrics">
+    <div class="metric"><dt>Analyzable values</dt><dd><span class="v">99,993</span><span class="s">in 100,000 rows</span></dd></div>
+    <div class="metric attn"><dt>Missing</dt><dd><span class="v">0.01<small>%</small></span><span class="s">7 values<br>empty 7</span></dd></div>
+    <div class="metric"><dt>Distinct</dt><dd><span class="v">230</span><span class="s"><span class="acc acc-exact" title="Counted on every value of the file">exact</span></span></dd></div>
+    <div class="metric attn"><dt>Findings</dt><dd><span class="v">2</span><span class="s">0 errors · 2 issues · 1 remark</span></dd></div>
+  </dl>
+  <div class="column-grid">
+    <div class="rcard"><h3 class="rcard-title">Interpretation</h3><dl class="schema">
+      <dt>Type</dt><dd><span class="pill">Text / Short</span> <small class="sub-n">established · inferred</small></dd>
+      <dt>Technical type</dt><dd><span class="pill">text</span> <small class="sub-n">100.0% confidence</small></dd>
+
+
+      <dt>Evidence</dt><dd><code>text</code> <small class="sub-n">supports</small><code>string_lengths.median_length</code> <small class="sub-n">supports</small></dd>
+      <dt>Exposure</dt><dd>Normal</dd>
+    </dl></div>
+    <div class="rcard"><h3 class="rcard-title">Type counts</h3>
+      <div class="column-line"><span>text</span><b>99,993</b></div>
+      <h3 class="rcard-title sub">As stored in the source</h3>
+      <div class="column-line"><span>string</span><b>100,000</b></div>
+    </div>
+  </div>
 </div></section>
-<section class="panel" id="values" aria-labelledby="values-h"><div class="phead"><div><p class="eyebrow">02 / Distribution</p><h2 id="values-h">Values<span class="n">(20)</span></h2><p>A diverse sample from 230 distinct values. Each count is the exact frequency of that value in the analyzed column.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><code>Daniel</code><b>1,412</b></div><div class="column-line"><code>Marie</code><b>1,297</b></div><div class="column-line"><code>Jean</code><b>1,291</b></div><div class="column-line"><code>Charlotte</code><b>1,101</b></div><div class="column-line"><code>Diane</code><b>891</b></div><div class="column-line"><code>Geneviève</code><b>761</b></div><div class="column-line"><code>Louis</code><b>655</b></div><div class="column-line"><code>Rémi</code><b>579</b></div><div class="column-line"><code>Alice</code><b>543</b></div><div class="column-line"><code>Jean-François</code><b>453</b></div><div class="column-line"><code>Mateo</code><b>448</b></div><div class="column-line"><code>Pierre-Luc</code><b>427</b></div><div class="column-line"><code>Jack</code><b>396</b></div><div class="column-line"><code>Marc-André</code><b>396</b></div><div class="column-line"><code>Ethan</code><b>250</b></div><div class="column-line"><code>Aurora</code><b>203</b></div><div class="column-line"><code>Zoe</code><b>150</b></div><div class="column-line"><code>Isab  elle</code><b>1</b></div><div class="column-line"><code>Se rge</code><b>1</b></div><div class="column-line"><code>emily</code><b>1</b></div></div></div></section>
+
+<section class="panel" id="findings" aria-labelledby="findings-h"><div class="phead"><div><p class="eyebrow">02 / Findings</p><h2 id="findings-h">Findings<span class="n">(3)</span></h2><p>What Tabalyst found in this column, each with what it counts, how sure it is and the evidence behind it. Errors first, then issues, then remarks.</p></div></div><div class="pbody">
 
 
+<article class="fnd fnd-issue" aria-labelledby="f1-h">
+  <header class="fnd-h"><span class="fcls fcls-issue">Issue</span><h3 id="f1-h">13 spelling-variant groups</h3></header>
+  <div class="fnd-b">
+    <dl class="fnd-def">
+      <dt>What it is</dt><dd>Groups of values that differ only by case, accents or spacing.</dd>
+      <dt>Counted in</dt><dd>groups</dd>
+      <dt>Accuracy</dt><dd><b>Exact</b>: every value the Scan read was counted</dd>
+      <dt>Limit</dt><dd>Variants are groups of spellings of one text; they do not prove that the spellings mean the same thing.</dd>
+      <dt>Examples</dt><dd><span class="fd-ex"><code class="ws">André</code><code class="ws">Andre</code></span></dd>
+    </dl>
+    <div class="fnd-d"><h4 class="fd-title">Spelling variants</h4><ol class="pg-groups"><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">André</code><small>×1,092</small></span><span class="pg-sp"><code class="ws">Andre</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Sylvie</code><small>×1,034</small></span><span class="pg-sp"><code class="ws">sylvie</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">François</code><small>×888</small></span><span class="pg-sp"><code class="ws">françois</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Éric</code><small>×877</small></span><span class="pg-sp"><code class="ws">éric</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Valérie</code><small>×841</small></span><span class="pg-sp"><code class="ws">Valerie</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Léo</code><small>×516</small></span><span class="pg-sp"><code class="ws">Leo</code><small>×320</small></span><span class="pg-sp"><code class="ws">léo</code><small>×1</small></span></li></ol><details class="dsc dsc-in"><summary><span>Show 7 more groups</span></summary><ol class="pg-groups"><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Camille</code><small>×733</small></span><span class="pg-sp"><code class="ws">camille</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Stéphanie</code><small>×693</small></span><span class="pg-sp"><code class="ws">Stephanie</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Noémie</code><small>×633</small></span><span class="pg-sp"><code class="ws">noémie</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Rémi</code><small>×579</small></span><span class="pg-sp"><code class="ws">Remi</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Zoé</code><small>×402</small></span><span class="pg-sp"><code class="ws">Zoe</code><small>×150</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Noah</code><small>×539</small></span><span class="pg-sp"><code class="ws">noah</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">Emily</code><small>×394</small></span><span class="pg-sp"><code class="ws">emily</code><small>×1</small></span></li></ol></details></div>
+  </div>
+</article>
 
-<section class="panel" id="strings" aria-labelledby="strings-h"><div class="phead"><div><p class="eyebrow">06 / Text</p><h2 id="strings-h">String analysis</h2><p>Lengths and representative values.</p></div></div><div class="pbody"><dl class="metrics"><div class="metric"><dt>Shortest</dt><dd><span class="v">2</span></dd></div><div class="metric"><dt>Longest</dt><dd><span class="v">14</span></dd></div><div class="metric"><dt>Mean length</dt><dd><span class="v">6.3</span></dd></div><div class="metric"><dt>Median length</dt><dd><span class="v">6</span><span class="s">short</span></dd></div></dl><div class="column-grid"><div class="rcard"><p class="rcard-title">Length distribution · 13</p><div class="column-line"><span>2 characters</span><b>1 · 0.0%</b></div><div class="column-line"><span>3 characters<small class="sub-n">Luc / Léa / Léo / Ava / Zoé / Zoe</small></span><b>3,732 · 3.73%</b></div><div class="column-line"><span>4 characters<small class="sub-n">Jean / Marc / Éric / Anne / Rémi / Liam / Hugo / Noah / Emma / Luna</small></span><b>11,585 · 11.59%</b></div><div class="column-line"><span>5 characters<small class="sub-n">Marie / Alain / Julie / André / Serge / Diane / Lucie / Denis / Manon / Josée</small></span><b>20,811 · 20.81%</b></div><div class="column-line"><span>6 characters<small class="sub-n">Daniel / Pierre / Michel / Gilles / Claude / Sylvie / Sophie / Robert / Samuel / Louise</small></span><b>25,048 · 25.05%</b></div><div class="column-line"><span>7 characters<small class="sub-n">Mélanie / William / Jacques / Chantal / Suzanne / Valérie / Patrick / Sylvain / Nicolas / Camille</small></span><b>15,530 · 15.53%</b></div><div class="column-line"><span>8 characters<small class="sub-n">Nathalie / Caroline / Isabelle / François / Stéphane / Laurence / Florence / Juliette / Philippe / Béatrice</small></span><b>10,329 · 10.33%</b></div><div class="column-line"><span>9 characters<small class="sub-n">Charlotte / Catherine / Christine / Geneviève / Alexandre / Sébastien / Véronique / Gabrielle / Stéphanie / Marie-Ève</small></span><b>8,786 · 8.79%</b></div><div class="column-line"><span>10 characters<small class="sub-n">Anne-Marie / Pierre-Luc / Marc-André / Isab  elle / iPerre-Luc</small></span><b>1,825 · 1.83%</b></div><div class="column-line"><span>11 characters</span><b>460 · 0.46%</b></div><div class="column-line"><span>12 characters<small class="sub-n">Marie-Claude</small></span><b>510 · 0.51%</b></div><div class="column-line"><span>13 characters<small class="sub-n">Jean-François</small></span><b>899 · 0.9%</b></div><div class="column-line"><span>14 characters<small class="sub-n">Louis-Philippe</small></span><b>477 · 0.48%</b></div></div><div class="rcard"><p class="rcard-title">Representative values</p><div class="column-line"><code>Daniel</code></div><div class="column-line"><code>Marie</code></div><div class="column-line"><code>Mélanie</code></div></div></div><section class="cmap" id="character-map" aria-labelledby="character-map-h"><h3 id="character-map-h" class="cm-title">Character map</h3>
+<article class="fnd fnd-issue" aria-labelledby="f2-h">
+  <header class="fnd-h"><span class="fcls fcls-issue">Issue</span><h3 id="f2-h">6 values with repeated whitespace</h3><p class="fnd-n">&lt;0.01% (6 of 99,993 text values)</p></header>
+  <div class="fnd-b">
+    <dl class="fnd-def">
+      <dt>What it is</dt><dd>Values with whitespace repeated inside the text.</dd>
+      <dt>Counted in</dt><dd>occurrences</dd>
+      <dt>Accuracy</dt><dd><b>Exact</b>: every value the Scan read was counted</dd>
+      <dt>Limit</dt><dd>Whitespace is often invisible and says nothing about what the value means.</dd>
+
+    </dl>
+    <div class="fnd-d"><h4 class="fd-title">Repeated whitespace</h4><p class="fd-n">Examples are texts of these cases chosen by the scan; there may be others.</p><p class="fd-n">Marks show the whitespace: · a space, → a tab, ↵ a line break.</p>
+<div class="fd-grid"><section class="fd-s"><h4 class="fd-t">Whitespace repeated inside the text: 6 cells</h4><ul class="fd-l"><li><span class="fd-k"><code class="ws">Isab··elle<span class="vh"> (whitespace repeated inside the text)</span></code></span><span class="fd-v">1</span></li><li><span class="fd-k"><code class="ws">Alai··n<span class="vh"> (whitespace repeated inside the text)</span></code></span><span class="fd-v">1</span></li><li><span class="fd-k"><code class="ws">Ashe··r<span class="vh"> (whitespace repeated inside the text)</span></code></span><span class="fd-v">1</span></li></ul></section></div>
+</div>
+  </div>
+</article>
+
+<h3 class="subh">Remarks <span class="n">not defects</span></h3><ul class="remarks"><li><span><span class="st st-info" title="A finding that may be perfectly valid"><i aria-hidden="true"></i>Remark</span> Missing values<small class="sub-n"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · values out of 100,000</small></span><b>7</b></li></ul>
+
+<details class="dsc"><summary><span>Checked, nothing found<span class="n">(4)</span></span></summary><ul class="pv-checks"><li><b>ambiguous dates</b><span class="muted">None detected</span><small>every one of the 99,993 eligible values was tested</small></li><li><b>ambiguous numbers</b><span class="muted">None detected</span><small>every one of the 99,993 eligible values was tested</small></li><li><b>values outside the closest type</b><span class="muted">None detected</span></li><li><b>values with surrounding whitespace</b><span class="muted">None detected</span></li></ul></details>
+</div></section>
+
+<section class="panel" id="values" aria-labelledby="values-h"><div class="phead"><div><p class="eyebrow">03 / Values</p><h2 id="values-h">Values<span class="n">(20)</span></h2><p>20 of the 100 distinct values the Scan stored (a diverse sample out of 230). Each count is the exact frequency of that value in the column.</p></div></div><div class="pbody">
+
+  <ol class="vbars"><li><code class="ws">Daniel</code><span class="vb" aria-hidden="true"><i style="width:100.0%"></i></span><b>1,412</b></li><li><code class="ws">Marie</code><span class="vb" aria-hidden="true"><i style="width:91.9%"></i></span><b>1,297</b></li><li><code class="ws">Jean</code><span class="vb" aria-hidden="true"><i style="width:91.4%"></i></span><b>1,291</b></li><li><code class="ws">Charlotte</code><span class="vb" aria-hidden="true"><i style="width:78.0%"></i></span><b>1,101</b></li><li><code class="ws">Diane</code><span class="vb" aria-hidden="true"><i style="width:63.1%"></i></span><b>891</b></li><li><code class="ws">Geneviève</code><span class="vb" aria-hidden="true"><i style="width:53.9%"></i></span><b>761</b></li><li><code class="ws">Louis</code><span class="vb" aria-hidden="true"><i style="width:46.4%"></i></span><b>655</b></li><li><code class="ws">Rémi</code><span class="vb" aria-hidden="true"><i style="width:41.0%"></i></span><b>579</b></li><li><code class="ws">Alice</code><span class="vb" aria-hidden="true"><i style="width:38.5%"></i></span><b>543</b></li><li><code class="ws">Jean-François</code><span class="vb" aria-hidden="true"><i style="width:32.1%"></i></span><b>453</b></li><li><code class="ws">Mateo</code><span class="vb" aria-hidden="true"><i style="width:31.7%"></i></span><b>448</b></li><li><code class="ws">Pierre-Luc</code><span class="vb" aria-hidden="true"><i style="width:30.2%"></i></span><b>427</b></li><li><code class="ws">Jack</code><span class="vb" aria-hidden="true"><i style="width:28.0%"></i></span><b>396</b></li><li><code class="ws">Marc-André</code><span class="vb" aria-hidden="true"><i style="width:28.0%"></i></span><b>396</b></li><li><code class="ws">Ethan</code><span class="vb" aria-hidden="true"><i style="width:17.7%"></i></span><b>250</b></li><li><code class="ws">Aurora</code><span class="vb" aria-hidden="true"><i style="width:14.4%"></i></span><b>203</b></li><li><code class="ws">Zoe</code><span class="vb" aria-hidden="true"><i style="width:10.6%"></i></span><b>150</b></li><li><code class="ws">Isab  elle</code><span class="vb" aria-hidden="true"><i style="width:0.1%"></i></span><b>1</b></li><li><code class="ws">Se rge</code><span class="vb" aria-hidden="true"><i style="width:0.1%"></i></span><b>1</b></li><li><code class="ws">emily</code><span class="vb" aria-hidden="true"><i style="width:0.1%"></i></span><b>1</b></li></ol>
+
+  <details class="dsc"><summary><span>Measures of the Details column<span class="n">(3)</span></span></summary><div class="column-list"><div class="column-line"><span>Shortest value, in characters</span><b>2</b></div><div class="column-line"><span>Longest value, in characters</span><b>14</b></div><div class="column-line"><span>Mean length, in characters</span><b>6.3</b></div></div></details>
+</div></section>
+
+<section class="panel" id="shape" aria-labelledby="shape-h"><div class="phead"><div><p class="eyebrow">04 / Text</p><h2 id="shape-h">Text</h2><p>Lengths and characters of the values, from the Scan and from the second pass.</p></div></div><div class="pbody">
+
+
+  <dl class="metrics"><div class="metric"><dt>Shortest</dt><dd><span class="v">2</span><span class="s">characters</span></dd></div><div class="metric"><dt>Longest</dt><dd><span class="v">14</span><span class="s">characters</span></dd></div><div class="metric"><dt>Mean length</dt><dd><span class="v">6.3</span></dd></div><div class="metric"><dt>Median length</dt><dd><span class="v">6</span><span class="s">short</span></dd></div></dl>
+  <article class="ins" id="c-s-column_3" aria-labelledby="c-s-column_3-h"><header class="ins-h"><h3 class="subh" id="c-s-column_3-h">Read from the Scan<span class="n"><code>prenom</code></span></h3><span class="ins-acc"><span class="acc acc-exact" title="Counted on every value of the file">exact</span></span></header>
+<p class="muted ins-sum">Derived from the Scan, without reading the source again.</p>
+<dl class="ins-facts"><div><dt>Lengths, quartiles</dt><dd>5, 6, 7 characters<small class="sub-n">interquartile range 2</small></dd></div><div><dt>Values outside the listed frequencies</dt><dd>22,683 of 99,993 (22.7%)</dd></div></dl>
+
+
+</article>
+  <section class="cmap" id="character-map" aria-labelledby="character-map-h"><h3 id="character-map-h" class="cm-title">Character map</h3>
 
 <p class="muted">Counted on the sample of distinct values the scan stored, each weighted by its occurrences: a figure of the sample, not of the whole column. A deep pass counts them all. 630,098 characters in 99,993 values, 55 different.</p>
 <p class="rcard-title">Most frequent characters</p><p class="muted">Share of all the characters.</p>
@@ -890,26 +1115,41 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 <div class="rcard"><p class="rcard-title">Case of the values</p><p class="muted">Share of the values.</p><ul class="cm-list"><li><span class="cm-n">Ends with a capital</span><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span><span class="cm-c"><b>0</b> 0.0%</span></li><li><span class="cm-n">Ends with a lowercase letter</span><span class="cm-b" aria-hidden="true"><i style="width:100.0%"></i></span><span class="cm-c"><b>99,993</b> 100.0%</span></li><li><span class="cm-n">Title case</span><span class="cm-b" aria-hidden="true"><i style="width:100.0%"></i></span><span class="cm-c"><b>99,966</b> 100.0%</span></li></ul></div>
 <div class="rcard"><p class="rcard-title">Emoji</p><p class="muted">No emoji.</p></div>
 </div>
-</section></div></section>
-<section class="panel" id="patterns" aria-labelledby="patterns-h"><div class="phead"><div><p class="eyebrow">07 / Shapes</p><h2 id="patterns-h">Patterns</h2><p>Structural patterns inferred from the distinct values the scan sampled: <code>9</code> a digit, <code>A</code> a capital, <code>a</code> a lowercase letter, <code>@</code> any letter, <code>X</code> a capital or a digit, <code>x</code> a lowercase letter or a digit, <code>#</code> a letter or a digit. Quoted text is a constant. Each family gathers the values of one structure as patterns of fixed length; indented lines fix more of the start or the end of a token. Shares count distinct values and sampled occurrences unless marked as on every value.</p></div></div><div class="pbody"><p class="muted"><span class="acc acc-not_computed" title="Not computed by this scan">not computed</span> The values take too many forms of fixed length for patterns.</p></div></section>
-<section class="panel" id="transformations" aria-labelledby="transformations-h"><div class="phead"><div><p class="eyebrow">08 / Cleaning</p><h2 id="transformations-h">Transformations</h2><p>Normalization preserves the raw values in the data sample.</p></div></div><div class="pbody"><div class="column-grid"><div class="rcard"><p class="rcard-title">Stages</p><div class="column-line"><span>raw<small class="sub-n">– changed · –</small></span><b>230</b></div><div class="column-line"><span>nfc<small class="sub-n">0 changed · 0.0%</small></span><b>230</b></div><div class="column-line"><span>trim<small class="sub-n">0 changed · 0.0%</small></span><b>230</b></div><div class="column-line"><span>collapse whitespace<small class="sub-n">6 changed · 0.01%</small></span><b>230</b></div><div class="column-line"><span>casefold<small class="sub-n">99,983 changed · 99.98%</small></span><b>222</b></div><div class="column-line"><span>strip accents<small class="sub-n">18,315 changed · 18.32%</small></span><b>216</b></div></div><div class="rcard"><p class="rcard-title">Variant groups · 13</p><div class="column-line"><span><code>andre</code><small class="sub-n">André (1,092) · Andre (1)</small></span><b>1,093</b></div><div class="column-line"><span><code>sylvie</code><small class="sub-n">Sylvie (1,034) · sylvie (1)</small></span><b>1,035</b></div><div class="column-line"><span><code>francois</code><small class="sub-n">François (888) · françois (1)</small></span><b>889</b></div><div class="column-line"><span><code>eric</code><small class="sub-n">Éric (877) · éric (1)</small></span><b>878</b></div><div class="column-line"><span><code>valerie</code><small class="sub-n">Valérie (841) · Valerie (1)</small></span><b>842</b></div><div class="column-line"><span><code>leo</code><small class="sub-n">Léo (516) · Leo (320) · léo (1)</small></span><b>837</b></div><div class="column-line"><span><code>camille</code><small class="sub-n">Camille (733) · camille (1)</small></span><b>734</b></div><div class="column-line"><span><code>stephanie</code><small class="sub-n">Stéphanie (693) · Stephanie (1)</small></span><b>694</b></div><div class="column-line"><span><code>noemie</code><small class="sub-n">Noémie (633) · noémie (1)</small></span><b>634</b></div><div class="column-line"><span><code>remi</code><small class="sub-n">Rémi (579) · Remi (1)</small></span><b>580</b></div><div class="column-line"><span><code>zoe</code><small class="sub-n">Zoé (402) · Zoe (150)</small></span><b>552</b></div><div class="column-line"><span><code>noah</code><small class="sub-n">Noah (539) · noah (1)</small></span><b>540</b></div><div class="column-line"><span><code>emily</code><small class="sub-n">Emily (394) · emily (1)</small></span><b>395</b></div></div></div></div></section>
-<section class="panel" id="scan-evidence" aria-labelledby="scan-evidence-h"><div class="phead"><div><p class="eyebrow">09 / Scan</p><h2 id="scan-evidence-h">Scan evidence</h2><p>Field facts retained from the Scan document.</p></div></div><div class="pbody column-grid">
-<div class="rcard"><p class="rcard-title">Presence and missing</p><dl class="schema"><dt>First record</dt><dd>1</dd><dt>Occurrences</dt><dd>100,000</dd><dt>Parent</dt><dd>object</dd><dt>Parents</dt><dd>100,000</dd><dt>Present</dt><dd>100,000</dd><dt>Absent</dt><dd>0</dd></dl><div class="column-line"><span>absent</span><b>0</b></div><div class="column-line"><span>null</span><b>0</b></div><div class="column-line"><span>empty</span><b>7</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><p class="muted">Missing definition: absent, null, empty, blank, marker</p></div>
-<div class="rcard"><p class="rcard-title">First and last values</p><div class="column-line"><span>First · record 1<small class="sub-n"><code>Isabelle</code> · string</small></span></div><div class="column-line"><span>Last · record 100000<small class="sub-n"><code>Catherine</code> · string</small></span></div><p class="rcard-title">String categories</p><div class="column-line"><span>count</span><b>100,000</b></div><div class="column-line"><span>empty</span><b>7</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><div class="column-line"><span>content</span><b>99,993</b></div></div>
-<div class="rcard"><p class="rcard-title">String characteristics</p><div class="column-line"><span>non ascii</span><b>18,315</b></div><div class="column-line"><span>with line breaks</span><b>0</b></div><div class="column-line"><span>with control characters</span><b>0</b></div><div class="column-line"><span>with surrounding whitespace</span><b>0</b></div><div class="column-line"><span>with repeated whitespace</span><b>6</b></div><div class="column-line"><span>uppercase</span><b>0</b></div><div class="column-line"><span>lowercase</span><b>10</b></div><div class="column-line"><span>mixed case</span><b>99,983</b></div><div class="column-line"><span>no letters</span><b>0</b></div><div class="column-line"><span>with ascii lowercase</span><b>99,993</b></div><div class="column-line"><span>with ascii uppercase</span><b>96,706</b></div><div class="column-line"><span>with other latin letters</span><b>18,315</b></div><div class="column-line"><span>with non latin letters</span><b>0</b></div><div class="column-line"><span>with ascii digits</span><b>0</b></div><div class="column-line"><span>with other digits</span><b>0</b></div><div class="column-line"><span>starts uppercase</span><b>99,979</b></div><div class="column-line"><span>starts lowercase</span><b>14</b></div><div class="column-line"><span>with tabs</span><b>0</b></div><div class="column-line"><span>with non breaking spaces</span><b>0</b></div><div class="column-line"><span>ascii only</span><b>81,678</b></div><div class="column-line"><span>letters only</span><b>95,754</b></div><div class="column-line"><span>digits only</span><b>0</b></div><div class="column-line"><span>alphanumeric only</span><b>95,754</b></div><div class="column-line"><span>letters and digits</span><b>0</b></div><div class="column-line"><span>with invisible characters</span><b>0</b></div><div class="column-line"><span>with replacement character</span><b>0</b></div><div class="column-line"><span>characters</span><b>630,098</b></div><div class="column-line"><span>distinct characters</span><b>55</b></div><p class="rcard-title">Special characters</p><div class="column-line"><span><code>-</code> U+002D<small class="sub-n">13 distinct values</small></span><b>4,230</b></div><p class="rcard-title">Scan length histogram</p><div class="column-line"><span>2 characters</span><b>1</b></div><div class="column-line"><span>3 characters</span><b>3,732</b></div><div class="column-line"><span>4 characters</span><b>11,585</b></div><div class="column-line"><span>5 characters</span><b>20,811</b></div><div class="column-line"><span>6 characters</span><b>25,048</b></div><div class="column-line"><span>7 characters</span><b>15,530</b></div><div class="column-line"><span>8 characters</span><b>10,329</b></div><div class="column-line"><span>9 characters</span><b>8,786</b></div><div class="column-line"><span>10 characters</span><b>1,825</b></div><div class="column-line"><span>11 characters</span><b>460</b></div><div class="column-line"><span>12 characters</span><b>510</b></div><div class="column-line"><span>13 characters</span><b>899</b></div><div class="column-line"><span>14 characters</span><b>477</b></div></div>
+</section>
+</div></section>
+
+<section class="panel" id="formats" aria-labelledby="formats-h"><div class="phead"><div><p class="eyebrow">05 / Formats and patterns</p><h2 id="formats-h">Formats and patterns</h2><p>The shapes the values take, once each: the formats the detectors recognized, then the patterns inferred from the values.</p></div></div><div class="pbody">
+  <div class="rcard"><h3 class="rcard-title">Formats</h3>
+  <p class="muted">No format was recognized.</p>
+  </div>
+
+  <p class="muted"><span class="acc acc-not_computed" title="Not computed by this scan">not computed</span> The values take too many forms of fixed length for patterns.</p>
+</div></section>
+
+<section class="panel" id="cleaning" aria-labelledby="cleaning-h"><div class="phead"><div><p class="eyebrow">06 / Cleaning</p><h2 id="cleaning-h">Cleaning</h2><p>How the values are normalized before they are compared. The raw values stay in the data sample.</p></div></div><div class="pbody">
+  <table class="ftab"><thead><tr><th scope="col">Stage</th><th scope="col" class="num">Values changed</th><th scope="col" class="num">Distinct after</th></tr></thead><tbody><tr><th scope="row">raw</th><td class="num">–</td><td class="num">230</td></tr><tr><th scope="row">nfc</th><td class="num">0</td><td class="num">230</td></tr><tr><th scope="row">trim</th><td class="num">0</td><td class="num">230</td></tr><tr class="hit"><th scope="row">collapse whitespace</th><td class="num">6 <small>0.01%</small></td><td class="num">230</td></tr><tr class="hit"><th scope="row">casefold</th><td class="num">99,983 <small>99.98%</small></td><td class="num">222</td></tr><tr class="hit"><th scope="row">strip accents</th><td class="num">18,315 <small>18.32%</small></td><td class="num">216</td></tr></tbody></table>
+  <p class="muted sub">Spelling variants (13 groups) are listed with the findings. <a href="#findings">See Findings</a>.</p>
+</div></section>
+
+<section class="panel" id="limits" aria-labelledby="limits-h"><div class="phead"><div><p class="eyebrow">07 / Limits</p><h2 id="limits-h">Limits and accuracy</h2><p>What the scan could not establish for this column, and how to read the accuracy marks.</p></div></div><div class="pbody">
+  <p class="empty"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> No measure of this column was limited.</p>
+
+  <dl class="acc-legend"><div><dt><span class="acc acc-exact" title="Counted on every value of the file">exact</span></dt><dd>Counted on every value of the file</dd></div><div><dt><span class="acc acc-at_least" title="A scan limit stopped the count: the real figure is at least this">at least</span></dt><dd>A scan limit stopped the count: the real figure is at least this</dd></div><div><dt><span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span></dt><dd>Counted on a sample of the distinct values, not on the whole file</dd></div><div><dt><span class="acc acc-estimated" title="Estimated from a sample of the values, with a known error">estimated</span></dt><dd>Estimated from a sample of the values, with a known error</dd></div><div><dt><span class="acc acc-not_computed" title="Not computed by this scan">not computed</span></dt><dd>Not computed by this scan</dd></div></dl>
+</div></section>
+
+
+<section class="panel" id="scan-evidence" aria-labelledby="scan-evidence-h"><div class="phead"><div><p class="eyebrow">08 / Scan evidence</p><h2 id="scan-evidence-h">Scan evidence</h2><p>The facts of the field as the Scan wrote them. Open a group to read it.</p></div></div><div class="pbody ev-groups">
+  <details class="dsc"><summary><span>Presence and missing</span></summary><dl class="schema"><dt>First record</dt><dd>1</dd><dt>Occurrences</dt><dd>100,000</dd><dt>Present</dt><dd>100,000</dd><dt>Absent</dt><dd>0</dd></dl><div class="column-line"><span>absent</span><b>0</b></div><div class="column-line"><span>null</span><b>0</b></div><div class="column-line"><span>empty</span><b>7</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><p class="muted">Missing definition: absent, null, empty, blank, marker</p></details>
+  <details class="dsc"><summary><span>First and last values</span></summary><div class="column-line"><span>First · record 1<small class="sub-n"><code>Isabelle</code> · string</small></span></div><div class="column-line"><span>Last · record 100000<small class="sub-n"><code>Catherine</code> · string</small></span></div></details>
+  <details class="dsc"><summary><span>String categories and characteristics</span></summary><div class="column-line"><span>count</span><b>100,000</b></div><div class="column-line"><span>empty</span><b>7</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><div class="column-line"><span>content</span><b>99,993</b></div><div class="column-line"><span>non ascii</span><b>18,315</b></div><div class="column-line"><span>with line breaks</span><b>0</b></div><div class="column-line"><span>with control characters</span><b>0</b></div><div class="column-line"><span>with surrounding whitespace</span><b>0</b></div><div class="column-line"><span>with repeated whitespace</span><b>6</b></div><div class="column-line"><span>uppercase</span><b>0</b></div><div class="column-line"><span>lowercase</span><b>10</b></div><div class="column-line"><span>mixed case</span><b>99,983</b></div><div class="column-line"><span>no letters</span><b>0</b></div><div class="column-line"><span>with ascii lowercase</span><b>99,993</b></div><div class="column-line"><span>with ascii uppercase</span><b>96,706</b></div><div class="column-line"><span>with other latin letters</span><b>18,315</b></div><div class="column-line"><span>with non latin letters</span><b>0</b></div><div class="column-line"><span>with ascii digits</span><b>0</b></div><div class="column-line"><span>with other digits</span><b>0</b></div><div class="column-line"><span>starts uppercase</span><b>99,979</b></div><div class="column-line"><span>starts lowercase</span><b>14</b></div><div class="column-line"><span>with tabs</span><b>0</b></div><div class="column-line"><span>with non breaking spaces</span><b>0</b></div><div class="column-line"><span>ascii only</span><b>81,678</b></div><div class="column-line"><span>letters only</span><b>95,754</b></div><div class="column-line"><span>digits only</span><b>0</b></div><div class="column-line"><span>alphanumeric only</span><b>95,754</b></div><div class="column-line"><span>letters and digits</span><b>0</b></div><div class="column-line"><span>with invisible characters</span><b>0</b></div><div class="column-line"><span>with replacement character</span><b>0</b></div><div class="column-line"><span>characters</span><b>630,098</b></div><h3 class="rcard-title sub">Scan length histogram</h3><div class="column-line"><span>2 characters</span><b>1</b></div><div class="column-line"><span>3 characters</span><b>3,732</b></div><div class="column-line"><span>4 characters</span><b>11,585</b></div><div class="column-line"><span>5 characters</span><b>20,811</b></div><div class="column-line"><span>6 characters</span><b>25,048</b></div><div class="column-line"><span>7 characters</span><b>15,530</b></div><div class="column-line"><span>8 characters</span><b>10,329</b></div><div class="column-line"><span>9 characters</span><b>8,786</b></div><div class="column-line"><span>10 characters</span><b>1,825</b></div><div class="column-line"><span>11 characters</span><b>460</b></div><div class="column-line"><span>12 characters</span><b>510</b></div><div class="column-line"><span>13 characters</span><b>899</b></div><div class="column-line"><span>14 characters</span><b>477</b></div></details>
 
 
 
 </div></section>
-<section class="panel" id="sample" aria-labelledby="sample-h"><div class="phead"><div><p class="eyebrow">10 / Raw values</p><h2 id="sample-h">Data sample</h2><p>10 at the start, 10 sampled from the interior and 10 at the end, with original row numbers. The sampled rows are not uniform over the whole file.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><b>Row 1</b><span class="pill">Start</span><span><code>Isabelle</code></span></div><div class="column-line"><b>Row 2</b><span class="pill">Start</span><span><code>Félix</code></span></div><div class="column-line"><b>Row 3</b><span class="pill">Start</span><span><code>Éric</code></span></div><div class="column-line"><b>Row 4</b><span class="pill">Start</span><span><code>Monique</code></span></div><div class="column-line"><b>Row 5</b><span class="pill">Start</span><span><code>Diane</code></span></div><div class="column-line"><b>Row 6</b><span class="pill">Start</span><span><code>Louis</code></span></div><div class="column-line"><b>Row 7</b><span class="pill">Start</span><span><code>Henry</code></span></div><div class="column-line"><b>Row 8</b><span class="pill">Start</span><span><code>Jean</code></span></div><div class="column-line"><b>Row 9</b><span class="pill">Start</span><span><code>Louise</code></span></div><div class="column-line"><b>Row 10</b><span class="pill">Start</span><span><code>Jean-Philippe</code></span></div><div class="column-line"><b>Row 3378</b><span class="pill">Sampled</span><span><code>Florence</code></span></div><div class="column-line"><b>Row 6473</b><span class="pill">Sampled</span><span><code>Noah</code></span></div><div class="column-line"><b>Row 7809</b><span class="pill">Sampled</span><span><code>Lucie</code></span></div><div class="column-line"><b>Row 16792</b><span class="pill">Sampled</span><span><code>Ella</code></span></div><div class="column-line"><b>Row 35383</b><span class="pill">Sampled</span><span><code>Ava</code></span></div><div class="column-line"><b>Row 54302</b><span class="pill">Sampled</span><span><code>Léa</code></span></div><div class="column-line"><b>Row 61892</b><span class="pill">Sampled</span><span><code>Valérie</code></span></div><div class="column-line"><b>Row 62516</b><span class="pill">Sampled</span><span><code>Olivia</code></span></div><div class="column-line"><b>Row 66809</b><span class="pill">Sampled</span><span><code>Louis</code></span></div><div class="column-line"><b>Row 91990</b><span class="pill">Sampled</span><span><code>Valérie</code></span></div><div class="column-line"><b>Row 99991</b><span class="pill">End</span><span><code>Luc</code></span></div><div class="column-line"><b>Row 99992</b><span class="pill">End</span><span><code>Louise</code></span></div><div class="column-line"><b>Row 99993</b><span class="pill">End</span><span><code>Mélanie</code></span></div><div class="column-line"><b>Row 99994</b><span class="pill">End</span><span><code>Denis</code></span></div><div class="column-line"><b>Row 99995</b><span class="pill">End</span><span><code>Sophie</code></span></div><div class="column-line"><b>Row 99996</b><span class="pill">End</span><span><code>Luca</code></span></div><div class="column-line"><b>Row 99997</b><span class="pill">End</span><span><code>Robert</code></span></div><div class="column-line"><b>Row 99998</b><span class="pill">End</span><span><code>Philippe</code></span></div><div class="column-line"><b>Row 99999</b><span class="pill">End</span><span><code>Philippe</code></span></div><div class="column-line"><b>Row 100000</b><span class="pill">End</span><span><code>Catherine</code></span></div></div></div></section>
 
-<section class="panel" id="insights" aria-labelledby="insights-h"><div class="phead"><div><p class="eyebrow">12 / Insights</p><h2 id="insights-h">Insights<span class="n">(1)</span></h2><p>What the second pass found in the values of this column, and what the report reads from the Scan, with the accuracy of each figure.</p></div></div><div class="pbody"><article class="ins" id="c-s-column_3" aria-labelledby="c-s-column_3-h"><header class="ins-h"><h3 class="subh" id="c-s-column_3-h">Read from the Scan<span class="n"><code>prenom</code></span></h3><span class="ins-acc"><span class="acc acc-exact" title="Counted on every value of the file">exact</span></span></header>
-<p class="muted ins-sum">Derived from the Scan, without reading the source again.</p>
-<dl class="ins-facts"><div><dt>Lengths, quartiles</dt><dd>5, 6, 7 characters<small class="sub-n">interquartile range 2</small></dd></div><div><dt>Values outside the listed frequencies</dt><dd>22,683 of 99,993 (22.7%)</dd></div></dl>
-
-
-</article></div></section>
-</main></div><footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">Tabalyst<span class="ver">v0.7.0</span></a><p>Local-first CSV and JSON profiling.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://docs.tabalyst.com/" target="_blank" rel="noopener noreferrer">Documentation <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>Tabalyst © 2026 Gregory Borelli · MPL-2.0 · Open source project by Loribel Labs</span><span>Report generated locally</span></div></div></footer></div></div>
+<section class="panel" id="sample" aria-labelledby="sample-h"><div class="phead"><div><p class="eyebrow">09 / Data sample</p><h2 id="sample-h">Data sample</h2><p>10 rows at the start, 10 sampled from the interior and 10 at the end, with their original row numbers. The sample is not uniform over the file.</p></div></div><div class="pbody"><ol class="srows"><li><b>Row 1</b><span class="pill">Start</span><span class="cellv"><code class="ws">Isabelle</code></span></li><li><b>Row 2</b><span class="pill">Start</span><span class="cellv"><code class="ws">Félix</code></span></li><li><b>Row 3</b><span class="pill">Start</span><span class="cellv"><code class="ws">Éric</code></span></li><li><b>Row 4</b><span class="pill">Start</span><span class="cellv"><code class="ws">Monique</code></span></li><li><b>Row 5</b><span class="pill">Start</span><span class="cellv"><code class="ws">Diane</code></span></li><li><b>Row 6</b><span class="pill">Start</span><span class="cellv"><code class="ws">Louis</code></span></li><li><b>Row 7</b><span class="pill">Start</span><span class="cellv"><code class="ws">Henry</code></span></li><li><b>Row 8</b><span class="pill">Start</span><span class="cellv"><code class="ws">Jean</code></span></li><li><b>Row 9</b><span class="pill">Start</span><span class="cellv"><code class="ws">Louise</code></span></li><li><b>Row 10</b><span class="pill">Start</span><span class="cellv"><code class="ws">Jean-Philippe</code></span></li><li><b>Row 3378</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">Florence</code></span></li><li><b>Row 6473</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">Noah</code></span></li><li><b>Row 7809</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">Lucie</code></span></li><li><b>Row 16792</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">Ella</code></span></li><li><b>Row 35383</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">Ava</code></span></li><li><b>Row 54302</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">Léa</code></span></li><li><b>Row 61892</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">Valérie</code></span></li><li><b>Row 62516</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">Olivia</code></span></li><li><b>Row 66809</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">Louis</code></span></li><li><b>Row 91990</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">Valérie</code></span></li><li><b>Row 99991</b><span class="pill">End</span><span class="cellv"><code class="ws">Luc</code></span></li><li><b>Row 99992</b><span class="pill">End</span><span class="cellv"><code class="ws">Louise</code></span></li><li><b>Row 99993</b><span class="pill">End</span><span class="cellv"><code class="ws">Mélanie</code></span></li><li><b>Row 99994</b><span class="pill">End</span><span class="cellv"><code class="ws">Denis</code></span></li><li><b>Row 99995</b><span class="pill">End</span><span class="cellv"><code class="ws">Sophie</code></span></li><li><b>Row 99996</b><span class="pill">End</span><span class="cellv"><code class="ws">Luca</code></span></li><li><b>Row 99997</b><span class="pill">End</span><span class="cellv"><code class="ws">Robert</code></span></li><li><b>Row 99998</b><span class="pill">End</span><span class="cellv"><code class="ws">Philippe</code></span></li><li><b>Row 99999</b><span class="pill">End</span><span class="cellv"><code class="ws">Philippe</code></span></li><li><b>Row 100000</b><span class="pill">End</span><span class="cellv"><code class="ws">Catherine</code></span></li></ol></div></section>
+</main></div>
+<footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">Tabalyst<span class="ver">v0.7.0</span></a><p>Local-first CSV and JSON profiling.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://docs.tabalyst.com/" target="_blank" rel="noopener noreferrer">Documentation <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>Tabalyst © 2026 Gregory Borelli · MPL-2.0 · Open source project by Loribel Labs</span><span>Report generated locally</span></div></div></footer></div></div>
 <script>// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
@@ -1491,6 +1731,9 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
   /* print: temporarily open collapsed sections */
   window.addEventListener('beforeprint', () => $$('.pbody[hidden]').forEach((b) => { b.dataset.wasHidden = '1'; b.hidden = false; }));
   window.addEventListener('afterprint', () => $$('.pbody[data-was-hidden]').forEach((b) => { b.hidden = true; delete b.dataset.wasHidden; }));
+  /* the folded groups of a column page are open on paper, then back as the reader left them */
+  window.addEventListener('beforeprint', () => $$('details.dsc:not([open])').forEach((d) => { d.dataset.wasClosed = '1'; d.open = true; }));
+  window.addEventListener('afterprint', () => $$('details.dsc[data-was-closed]').forEach((d) => { d.open = false; delete d.dataset.wasClosed; }));
 })();
 </script>
 </body></html>

@@ -27,23 +27,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-18T20:22:08.778313Z",
-    "duration_seconds": 0.018876,
+    "started_at": "2026-10-18T22:28:07.880094Z",
+    "duration_seconds": 0.020876,
     "timings": {
-      "reading": 0.003549,
-      "analysis": 0.00203,
-      "finalize": 0.008798,
-      "derived": 0.004092,
-      "other": 0.000407
+      "reading": 0.002814,
+      "analysis": 0.002013,
+      "finalize": 0.00908,
+      "derived": 0.004147,
+      "other": 0.002823
     },
     "workers": 1,
-    "peak_memory_bytes": 72613888
+    "peak_memory_bytes": 74063872
   },
   "source": {
     "format": "excel",
     "name": "sales.xlsx",
     "size_bytes": 17717,
-    "modified_at": "2026-10-18T18:11:41.534250Z",
+    "modified_at": "2026-10-18T22:25:48.191684Z",
     "sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
     "encoding": null,
     "shape": {

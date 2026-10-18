@@ -27,23 +27,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-18T20:22:06.442017Z",
-    "duration_seconds": 0.031461,
+    "started_at": "2026-10-18T22:28:05.562712Z",
+    "duration_seconds": 0.031457,
     "timings": {
-      "reading": 0.004077,
-      "analysis": 0.003603,
-      "finalize": 0.014644,
-      "derived": 0.008681,
-      "other": 0.000456
+      "reading": 0.00314,
+      "analysis": 0.003267,
+      "finalize": 0.013972,
+      "derived": 0.00818,
+      "other": 0.002898
     },
     "workers": 1,
-    "peak_memory_bytes": 72884224
+    "peak_memory_bytes": 75096064
   },
   "source": {
     "format": "json",
     "name": "orders.json",
     "size_bytes": 60720,
-    "modified_at": "2026-10-18T18:11:41.534250Z",
+    "modified_at": "2026-10-18T22:25:48.191684Z",
     "sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
     "encoding": "utf-8",
     "shape": {

@@ -1356,6 +1356,10 @@ one dialog per finding, and the states without finding explain themselves check 
 
 ## 19. Column page and consumers (lot R10)
 
+The layout of the column page was redesigned in lot R13: see `column-page.md`, which replaces the
+parts of this section about the cards and the order of the blocks. The exposure, the consumers
+and the tests of this section stay.
+
 - **Exposure.** The column page reads the values of the column only through
   `report_details.exposed_values` (tab counter, Value coverage list, Values panel) and the
   detector examples through `exposed_evidence`; the free-form `details` JSON of a detector

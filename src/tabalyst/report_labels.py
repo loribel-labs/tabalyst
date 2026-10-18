@@ -878,3 +878,50 @@ def spoken_whitespace(kind: str, text: str) -> str:
     if kind == "trailing":
         return plural(len(text) - len(text.rstrip()), "trailing whitespace character", "trailing whitespace characters")
     return "whitespace repeated inside the text"
+
+
+# The column page (contract column-page.md). Words by code, like the rest of the file.
+PAGE_DATE_ORDERS = {"YMD": "Year, month, day", "DMY": "Day, month, year", "MDY": "Month, day, year"}
+PAGE_NO_EXAMPLE = "The Scan keeps no value for this finding."
+# Title and lead of the Shape block, by the technical type of the column; the side bar uses the
+# first word group of the key.
+PAGE_SHAPE = {
+    "number": (
+        "Numbers",
+        "Shape of the numbers",
+        "The range and the shape of the values, from the Scan and from the second pass.",
+    ),
+    "date": (
+        "Dates",
+        "Dates",
+        (
+            "How the dates are written and spread over time. An ambiguous date is not wrong; "
+            "Tabalyst does not guess its order."
+        ),
+    ),
+    "text": (
+        "Text",
+        "Text",
+        "Lengths and characters of the values, from the Scan and from the second pass.",
+    ),
+    "other": (
+        "Distribution",
+        "Distribution",
+        "What the second pass found in the values of this column.",
+    ),
+}
+# The technical types that share a Shape block.
+PAGE_SHAPE_KIND = {"integer": "number", "number": "number", "date": "date", "text": "text"}
+
+
+def values_lead(shown: int, stored: int, selection: str, distinct: int | None) -> str:
+    """What the list of the Values block is: every distinct value, or the part of a sample
+    the page lists. Every count is exact whatever the list."""
+    if selection == "complete":
+        return "Every distinct value of the column, most frequent first, each with its exact count."
+    total = "a limited number of" if distinct is None else f"{distinct:,}"
+    kind = selection.replace("_", " ")
+    return (
+        f"{shown:,} of the {stored:,} distinct values the Scan stored (a {kind} out of {total}). "
+        "Each count is the exact frequency of that value in the column."
+    )
