@@ -21,28 +21,29 @@
       "ip_address": 1
     },
     "classification": {
-      "catalogue": 1
+      "catalogue": 4,
+      "names": 2
     }
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-16T06:58:10.797737Z",
-    "duration_seconds": 0.027477,
+    "started_at": "2026-10-18T18:31:30.046948Z",
+    "duration_seconds": 0.042195,
     "timings": {
-      "reading": 0.003198,
-      "analysis": 0.003129,
-      "finalize": 0.012651,
-      "derived": 0.008033,
-      "other": 0.000467
+      "reading": 0.006118,
+      "analysis": 0.006348,
+      "finalize": 0.019098,
+      "derived": 0.009722,
+      "other": 0.000911
     },
     "workers": 1,
-    "peak_memory_bytes": 70733824
+    "peak_memory_bytes": 73637888
   },
   "source": {
     "format": "json",
     "name": "orders.json",
     "size_bytes": 60720,
-    "modified_at": "2026-10-16T05:33:33.607029Z",
+    "modified_at": "2026-10-18T18:11:42.966677Z",
     "sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
     "encoding": "utf-8",
     "shape": {
@@ -1628,11 +1629,14 @@
             "candidates": []
           },
           "classification": {
-            "family": "text",
-            "type": "text_very_short",
+            "family": "identifier",
+            "type": "unique_id",
             "basis": "inferred",
-            "state": "established",
-            "traits": [],
+            "state": "candidate",
+            "traits": [
+              "observed_unique",
+              "single_pattern"
+            ],
             "evidence": [
               {
                 "source": "technical_type",
@@ -1648,6 +1652,28 @@
               {
                 "source": "measure",
                 "id": "string_lengths.median_length",
+                "role": "context",
+                "scope": {
+                  "population": "present_values",
+                  "of": 60,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "name_rule",
+                "id": "name.identifier",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": null,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "values.cardinality",
                 "role": "supports",
                 "scope": {
                   "population": "present_values",
@@ -1655,10 +1681,27 @@
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "measure",
+                "id": "missing.count",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": 60,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "text",
+                "type": "text_very_short",
+                "reason": "replaced_by_role"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -2870,7 +2913,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -4103,37 +4146,39 @@
             ]
           },
           "classification": {
-            "family": "text",
-            "type": "text_medium",
+            "family": "contact",
+            "type": "email",
             "basis": "inferred",
             "state": "established",
-            "traits": [],
+            "traits": [
+              "observed_unique"
+            ],
             "evidence": [
               {
-                "source": "technical_type",
-                "id": "text",
+                "source": "detector",
+                "id": "email",
                 "role": "supports",
                 "scope": {
-                  "population": "present_values",
+                  "population": "eligible",
                   "of": 56,
                   "partial": false,
                   "accuracy": "exact"
                 }
               },
               {
-                "source": "measure",
-                "id": "string_lengths.median_length",
+                "source": "name_rule",
+                "id": "name.email",
                 "role": "supports",
                 "scope": {
-                  "population": "present_values",
-                  "of": 56,
+                  "population": "positions",
+                  "of": null,
                   "partial": false,
                   "accuracy": "exact"
                 }
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": true,
           "exposure": "show"
@@ -5236,37 +5281,40 @@
             ]
           },
           "classification": {
-            "family": "text",
-            "type": "text_short",
+            "family": "contact",
+            "type": "phone",
             "basis": "inferred",
             "state": "established",
-            "traits": [],
+            "traits": [
+              "observed_unique",
+              "single_pattern"
+            ],
             "evidence": [
               {
-                "source": "technical_type",
-                "id": "text",
+                "source": "detector",
+                "id": "phone",
                 "role": "supports",
                 "scope": {
-                  "population": "present_values",
+                  "population": "eligible",
                   "of": 40,
                   "partial": false,
                   "accuracy": "exact"
                 }
               },
               {
-                "source": "measure",
-                "id": "string_lengths.median_length",
+                "source": "name_rule",
+                "id": "name.phone",
                 "role": "supports",
                 "scope": {
-                  "population": "present_values",
-                  "of": 40,
+                  "population": "positions",
+                  "of": null,
                   "partial": false,
                   "accuracy": "exact"
                 }
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": true,
           "exposure": "show"
@@ -5563,7 +5611,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -6417,7 +6465,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -7291,26 +7339,56 @@
             ]
           },
           "classification": {
-            "family": "numeric",
-            "type": "integer",
-            "basis": "fallback",
-            "state": "established",
-            "traits": [],
+            "family": "geographic",
+            "type": "postal_code",
+            "basis": "inferred",
+            "state": "candidate",
+            "traits": [
+              "single_pattern"
+            ],
             "evidence": [
+              {
+                "source": "detector",
+                "id": "postal_code",
+                "role": "supports",
+                "scope": {
+                  "population": "eligible",
+                  "of": 51,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
               {
                 "source": "technical_type",
                 "id": "integer",
-                "role": "supports",
+                "role": "context",
                 "scope": {
                   "population": "present_values",
                   "of": 51,
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "name_rule",
+                "id": "name.postal",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": null,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "numeric",
+                "type": "integer",
+                "reason": "outranked_by_name"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -8525,7 +8603,9 @@
             "type": "date",
             "basis": "fallback",
             "state": "established",
-            "traits": [],
+            "traits": [
+              "single_pattern"
+            ],
             "evidence": [
               {
                 "source": "technical_type",
@@ -8537,10 +8617,32 @@
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "detector",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "eligible",
+                  "of": 60,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "name_rule",
+                "id": "name.date_suffix",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": null,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -8877,7 +8979,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -9180,7 +9282,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -10016,7 +10118,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -10319,7 +10421,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -10619,7 +10721,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -12088,11 +12190,14 @@
             "candidates": []
           },
           "classification": {
-            "family": "text",
-            "type": "text_short",
+            "family": "identifier",
+            "type": "id",
             "basis": "inferred",
-            "state": "established",
-            "traits": [],
+            "state": "candidate",
+            "traits": [
+              "observed_unique",
+              "single_pattern"
+            ],
             "evidence": [
               {
                 "source": "technical_type",
@@ -12108,17 +12213,34 @@
               {
                 "source": "measure",
                 "id": "string_lengths.median_length",
-                "role": "supports",
+                "role": "context",
                 "scope": {
                   "population": "present_values",
                   "of": 119,
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "name_rule",
+                "id": "tokens.order_id",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": null,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "text",
+                "type": "text_short",
+                "reason": "replaced_by_role"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -13543,7 +13665,9 @@
             "type": "date",
             "basis": "fallback",
             "state": "established",
-            "traits": [],
+            "traits": [
+              "single_pattern"
+            ],
             "evidence": [
               {
                 "source": "technical_type",
@@ -13555,10 +13679,27 @@
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "detector",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "eligible",
+                  "of": 119,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "temporal",
+                "type": "datetime",
+                "reason": "name_only"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -14351,7 +14492,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -14660,7 +14801,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -14966,7 +15107,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -15810,7 +15951,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -16182,8 +16323,14 @@
                 }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "numeric",
+                "type": "quantity",
+                "reason": "name_only"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -16567,8 +16714,14 @@
                 }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "numeric",
+                "type": "currency",
+                "reason": "name_only"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -17008,7 +17161,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -17728,26 +17881,15 @@
             "candidates": []
           },
           "classification": {
-            "family": "text",
-            "type": "text_very_short",
+            "family": "categorical",
+            "type": "constant",
             "basis": "inferred",
             "state": "established",
             "traits": [],
             "evidence": [
               {
-                "source": "technical_type",
-                "id": "text",
-                "role": "supports",
-                "scope": {
-                  "population": "present_values",
-                  "of": 119,
-                  "partial": false,
-                  "accuracy": "exact"
-                }
-              },
-              {
                 "source": "measure",
-                "id": "string_lengths.median_length",
+                "id": "values.cardinality",
                 "role": "supports",
                 "scope": {
                   "population": "present_values",
@@ -17758,7 +17900,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -21316,7 +21458,7 @@
         "engine_version": "0.7.0",
         "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
         "config_sha256": "e23594dba08c4ba3a6ecd019d0ac08545b9b142c3c03abc01f59c4e043c17c7b",
-        "facts_sha256": "422273ab54b17713ea445bae0139591128da74315d793dacff3862fce787206a"
+        "facts_sha256": "08a3ed5bc067fa2ebffa640e4007e6ff4eea2d1f7007aa90c69cbe79863ca722"
       },
       "settings": {
         "bins": 100,
@@ -21425,13 +21567,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 17,
-        "plan_id": "358b5ee337b87d0c36372c317d78b633583044c25b2f42bdc1ba6842791764b7",
+        "plan_id": "e8857613cecb513a30eeb7ef209b814115accabee0afdfa73a2a24c4ad224520",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
           "config_sha256": "e23594dba08c4ba3a6ecd019d0ac08545b9b142c3c03abc01f59c4e043c17c7b",
-          "facts_sha256": "422273ab54b17713ea445bae0139591128da74315d793dacff3862fce787206a"
+          "facts_sha256": "08a3ed5bc067fa2ebffa640e4007e6ff4eea2d1f7007aa90c69cbe79863ca722"
         },
         "objective": {
           "automatic": true,
@@ -24447,15 +24589,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T18:07:13.151177Z",
-        "duration_seconds": 0.000218,
+        "started_at": "2026-10-18T18:49:19.164911Z",
+        "duration_seconds": 0.000195,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000218
+          "other": 0.000195
         },
         "workers": 1,
-        "peak_memory_bytes": 79040512,
+        "peak_memory_bytes": 78786560,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -24477,7 +24619,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "e276172abbe5776007fc38159d724e6165296a024de4f72b528f48aaae088035",
+          "key": "97fbd2ed6286bae023af86fec5fed6b2baebff29286c753e6477a731a8408669",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -25147,7 +25289,7 @@
             "domain": 3
           },
           "domain": "analytical",
-          "key": "8367453617ad692b2ec8144d6caec4459923bd74a0935ebd7f8d9a2c86491566",
+          "key": "f7704d7c636831e734e4ba3948f1280eb5f718aa0fa07ea44066e4d807c505a4",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -25220,7 +25362,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "ef737fb10dae0f13f56a7e13c272ab23e2280d58f2b4074b90dcdfe11e5582c5",
+          "key": "b3227f1aed2fca4e48c74d9878d38d392a9371411da41013587316ae270260a6",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -25498,7 +25640,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "afabc559a3ae55855a71b57d97815e5e5e7727a506013b45f099beae4b501c5a",
+          "key": "b28565c3356a7e368c755bf3ed53d21409927db9b00fd71d5eaa5c9a3ebe9e7f",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -25782,7 +25924,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "44513de8fa567778d87e989846bb808c6376483d6e03c3c357bd42daceae5c4a",
+          "key": "b9d6db59fc32c268e5681df508a1a6803cc3abae34b349b25581e170de3d6e45",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -25941,7 +26083,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "e6768be135f96f86870a9b6512277478af0e51b7e2b6c5ee20fe7cebe43e8651",
+          "key": "7701c68d3992dddb5c6c48647a73ea9cf093ec5173e4043e0fb7bc5b5b873979",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26005,7 +26147,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "f3969b1f62d4b0d074aee3667d854794bd75387f97de9285286e14f2d0175c47",
+          "key": "227fe05b5aebb61cabfdb4aa89ed093d996100728296521f89f914151116e055",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26094,7 +26236,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "eac908447656cec53a12b4ee840d928b3411622da1c3902781b37f5cbc9c6531",
+          "key": "b86c735f762f3ca09913780ba3595e7232a66eddfd98323f16eaf5e3e5dfd85b",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26217,7 +26359,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "f3544a5df8464b3f56573926fb7ae868f815ff86d1e0ac0bfbab9f86de9c63d7",
+          "key": "a4d5e2ac096e1dc79d54cc7d227186b666624d2051b67f9c5048042c34ac6409",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26396,7 +26538,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "11ec7bd60de23bfcec6cd61fd6bd57077bd345d86b1b0e8ffabf8bcfdde5cbef",
+          "key": "77ee3aab3b27b108f31a93991b4d045841f2dbbe3568df1c135a8cdf8b022d97",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26598,7 +26740,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "2a49633ed52fc19637a1192e345a5c533887fb0c87f343d085a633f116004f2e",
+          "key": "84f6d36fb27e856c0dcccdb711ce909fae74709e68fdbe6c1228d820da095a03",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -26863,7 +27005,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "7edb0ee741354914bc774d0f01ff54ccc0ecc6ed6af81843de7d5d1891106772",
+          "key": "c17037f52a6d537682385f02ebb59548e68514080278cbf261e3d6f4f510c12b",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -27266,7 +27408,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "1953516dda57d69315459894ddcba94189bc1c8e5088247805dd6f1ddc63dcdf",
+          "key": "e1a285187737c9e4baf3762c45ea4de3897a8b32bc2aee48aab64da52175f33e",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -27308,7 +27450,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "7a57511cb3a2b8246fcd05083a0c8aad21954e6b17f407ade0ee1c42ed905788",
+          "key": "f6459e56701baac0d89d90f721e46755cef9080c4704109c0338d74fa6f3fba5",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -27367,7 +27509,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "a1130f570d67a17b099131baead2a0e4403d8e67480f3d2db219e094b25187d4",
+          "key": "a1a9afc0369d94b5db22dc580f85668d477e6a3fbb8d1fbe916fbd6931a8c302",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -27670,7 +27812,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "a4c79c1d5a0ac8cdf684536f6709773e19f6e90ca49102215ea5df551b51ec9e",
+          "key": "56957b6903b613211e46ac99c82cddeac8fa5a10bc3e7927ec463450024c9a92",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -27946,12 +28088,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T18:07:13.224187Z",
+    "generated_at": "2026-10-18T18:49:19.246357Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1335,
+    "processing_seconds": 0.1497,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -27981,7 +28123,7 @@
       "engine_version": "0.7.0",
       "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
       "config_sha256": "e23594dba08c4ba3a6ecd019d0ac08545b9b142c3c03abc01f59c4e043c17c7b",
-      "facts_sha256": "422273ab54b17713ea445bae0139591128da74315d793dacff3862fce787206a"
+      "facts_sha256": "08a3ed5bc067fa2ebffa640e4007e6ff4eea2d1f7007aa90c69cbe79863ca722"
     },
     "datasets": [
       {
@@ -28018,34 +28160,50 @@
             "number": 11.76
           },
           "type_family_counts": {
-            "text": 10,
-            "numeric": 4,
+            "identifier": 2,
+            "text": 5,
+            "contact": 2,
+            "geographic": 1,
             "temporal": 2,
-            "categorical": 1
+            "categorical": 2,
+            "numeric": 3
           },
           "type_family_percents": {
-            "text": 58.82,
-            "numeric": 23.53,
+            "identifier": 11.76,
+            "text": 29.41,
+            "contact": 11.76,
+            "geographic": 5.88,
             "temporal": 11.76,
-            "categorical": 5.88
+            "categorical": 11.76,
+            "numeric": 17.65
           },
           "type_counts": {
-            "text/text_very_short": 3,
-            "text/text_short": 6,
-            "text/text_medium": 1,
-            "numeric/integer": 2,
+            "identifier/unique_id": 1,
+            "text/text_short": 4,
+            "contact/email": 1,
+            "contact/phone": 1,
+            "text/text_very_short": 1,
+            "geographic/postal_code": 1,
             "temporal/date": 2,
             "categorical/boolean": 1,
-            "numeric/number": 2
+            "identifier/id": 1,
+            "numeric/integer": 1,
+            "numeric/number": 2,
+            "categorical/constant": 1
           },
           "type_percents": {
-            "text/text_very_short": 17.65,
-            "text/text_short": 35.29,
-            "text/text_medium": 5.88,
-            "numeric/integer": 11.76,
+            "identifier/unique_id": 5.88,
+            "text/text_short": 23.53,
+            "contact/email": 5.88,
+            "contact/phone": 5.88,
+            "text/text_very_short": 5.88,
+            "geographic/postal_code": 5.88,
             "temporal/date": 11.76,
             "categorical/boolean": 5.88,
-            "numeric/number": 11.76
+            "identifier/id": 5.88,
+            "numeric/integer": 5.88,
+            "numeric/number": 11.76,
+            "categorical/constant": 5.88
           }
         },
         "date_summary": {
@@ -28135,11 +28293,14 @@
             },
             "distinct_count": 60,
             "classification": {
-              "family": "text",
-              "type": "text_very_short",
+              "family": "identifier",
+              "type": "unique_id",
               "basis": "inferred",
-              "state": "established",
-              "traits": [],
+              "state": "candidate",
+              "traits": [
+                "observed_unique",
+                "single_pattern"
+              ],
               "evidence": [
                 {
                   "source": "technical_type",
@@ -28155,6 +28316,28 @@
                 {
                   "source": "measure",
                   "id": "string_lengths.median_length",
+                  "role": "context",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 60,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "name_rule",
+                  "id": "name.identifier",
+                  "role": "supports",
+                  "scope": {
+                    "population": "positions",
+                    "of": null,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "values.cardinality",
                   "role": "supports",
                   "scope": {
                     "population": "present_values",
@@ -28162,10 +28345,27 @@
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "measure",
+                  "id": "missing.count",
+                  "role": "supports",
+                  "scope": {
+                    "population": "positions",
+                    "of": 60,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "text",
+                  "type": "text_very_short",
+                  "reason": "replaced_by_role"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -28311,11 +28511,11 @@
                     },
                     {
                       "code": "identifier.repetition",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_identifier"
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 60,
+                      "tested": 60,
+                      "reason": null
                     },
                     {
                       "code": "text.surrounding_whitespace",
@@ -28337,17 +28537,17 @@
                 }
               },
               "overview": {
-                "kind": "text",
-                "type": "text_very_short",
+                "kind": "unique_id",
+                "type": "unique_id",
                 "facts": [
                   {
-                    "name": "median_length",
-                    "value": 5.0,
+                    "name": "present",
+                    "value": 60,
                     "accuracy": "exact"
                   },
                   {
-                    "name": "distinct",
-                    "value": 60,
+                    "name": "formats",
+                    "value": 1,
                     "accuracy": "exact"
                   }
                 ],
@@ -28379,14 +28579,7 @@
                 "total": 60,
                 "total_accuracy": "exact",
                 "note": "3 values of 60 distinct values; A sample of the values; the list is not exhaustive.",
-                "measures": [
-                  {
-                    "name": "fixed_length",
-                    "label": "Fixed length, in characters",
-                    "value": 5,
-                    "accuracy": "exact"
-                  }
-                ]
+                "measures": []
               },
               "values": {
                 "selection": "diverse_sample",
@@ -28597,7 +28790,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -29011,37 +29204,39 @@
             },
             "distinct_count": 56,
             "classification": {
-              "family": "text",
-              "type": "text_medium",
+              "family": "contact",
+              "type": "email",
               "basis": "inferred",
               "state": "established",
-              "traits": [],
+              "traits": [
+                "observed_unique"
+              ],
               "evidence": [
                 {
-                  "source": "technical_type",
-                  "id": "text",
+                  "source": "detector",
+                  "id": "email",
                   "role": "supports",
                   "scope": {
-                    "population": "present_values",
+                    "population": "eligible",
                     "of": 56,
                     "partial": false,
                     "accuracy": "exact"
                   }
                 },
                 {
-                  "source": "measure",
-                  "id": "string_lengths.median_length",
+                  "source": "name_rule",
+                  "id": "name.email",
                   "role": "supports",
                   "scope": {
-                    "population": "present_values",
-                    "of": 56,
+                    "population": "positions",
+                    "of": null,
                     "partial": false,
                     "accuracy": "exact"
                   }
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": "show",
             "detectors": [
@@ -29162,7 +29357,7 @@
                 },
                 "errors": {
                   "items": [],
-                  "state": "not_applicable",
+                  "state": "none_detected",
                   "assessments": [
                     {
                       "code": "temporal.invalid_calendar",
@@ -29174,11 +29369,11 @@
                     },
                     {
                       "code": "semantic.invalid",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_semantic_type"
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 56,
+                      "tested": 56,
+                      "reason": null
                     },
                     {
                       "code": "type.outside_family",
@@ -29204,11 +29399,11 @@
                     },
                     {
                       "code": "semantic.invalid",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_semantic_type"
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 56,
+                      "tested": 56,
+                      "reason": null
                     },
                     {
                       "code": "type.outside_family",
@@ -29294,20 +29489,9 @@
                 }
               },
               "overview": {
-                "kind": "text",
-                "type": "text_medium",
-                "facts": [
-                  {
-                    "name": "median_length",
-                    "value": 27.0,
-                    "accuracy": "exact"
-                  },
-                  {
-                    "name": "distinct",
-                    "value": 56,
-                    "accuracy": "exact"
-                  }
-                ],
+                "kind": "shaped",
+                "type": "email",
+                "facts": [],
                 "notes": []
               },
               "details": {
@@ -29338,21 +29522,15 @@
                 "note": "3 values of 56 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": [
                   {
-                    "name": "minimum_length",
-                    "label": "Shortest value, in characters",
-                    "value": 24,
+                    "name": "matched_percent",
+                    "label": "Share recognized by the detector",
+                    "value": 100.0,
                     "accuracy": "exact"
                   },
                   {
-                    "name": "maximum_length",
-                    "label": "Longest value, in characters",
-                    "value": 30,
-                    "accuracy": "exact"
-                  },
-                  {
-                    "name": "mean_length",
-                    "label": "Mean length, in characters",
-                    "value": 27.04,
+                    "name": "key",
+                    "label": "example",
+                    "value": 56,
                     "accuracy": "exact"
                   }
                 ]
@@ -29538,37 +29716,40 @@
             },
             "distinct_count": 40,
             "classification": {
-              "family": "text",
-              "type": "text_short",
+              "family": "contact",
+              "type": "phone",
               "basis": "inferred",
               "state": "established",
-              "traits": [],
+              "traits": [
+                "observed_unique",
+                "single_pattern"
+              ],
               "evidence": [
                 {
-                  "source": "technical_type",
-                  "id": "text",
+                  "source": "detector",
+                  "id": "phone",
                   "role": "supports",
                   "scope": {
-                    "population": "present_values",
+                    "population": "eligible",
                     "of": 40,
                     "partial": false,
                     "accuracy": "exact"
                   }
                 },
                 {
-                  "source": "measure",
-                  "id": "string_lengths.median_length",
+                  "source": "name_rule",
+                  "id": "name.phone",
                   "role": "supports",
                   "scope": {
-                    "population": "present_values",
-                    "of": 40,
+                    "population": "positions",
+                    "of": null,
                     "partial": false,
                     "accuracy": "exact"
                   }
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": "show",
             "detectors": [
@@ -29684,7 +29865,7 @@
                 },
                 "errors": {
                   "items": [],
-                  "state": "not_applicable",
+                  "state": "none_detected",
                   "assessments": [
                     {
                       "code": "temporal.invalid_calendar",
@@ -29696,11 +29877,11 @@
                     },
                     {
                       "code": "semantic.invalid",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_semantic_type"
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 40,
+                      "tested": 40,
+                      "reason": null
                     },
                     {
                       "code": "type.outside_family",
@@ -29726,11 +29907,11 @@
                     },
                     {
                       "code": "semantic.invalid",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_semantic_type"
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 40,
+                      "tested": 40,
+                      "reason": null
                     },
                     {
                       "code": "type.outside_family",
@@ -29816,17 +29997,12 @@
                 }
               },
               "overview": {
-                "kind": "text",
-                "type": "text_short",
+                "kind": "shaped",
+                "type": "phone",
                 "facts": [
                   {
-                    "name": "median_length",
-                    "value": 17.0,
-                    "accuracy": "exact"
-                  },
-                  {
-                    "name": "distinct",
-                    "value": 40,
+                    "name": "formats",
+                    "value": 1,
                     "accuracy": "exact"
                   }
                 ],
@@ -29860,9 +30036,21 @@
                 "note": "3 values of 40 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": [
                   {
-                    "name": "fixed_length",
-                    "label": "Fixed length, in characters",
-                    "value": 17,
+                    "name": "matched_percent",
+                    "label": "Share recognized by the detector",
+                    "value": 100.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "format",
+                    "label": "+33 9 99 99 99 99",
+                    "value": 40,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "key",
+                    "label": "fr",
+                    "value": 40,
                     "accuracy": "exact"
                   }
                 ]
@@ -30158,7 +30346,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -30516,26 +30704,56 @@
             },
             "distinct_count": 5,
             "classification": {
-              "family": "numeric",
-              "type": "integer",
-              "basis": "fallback",
-              "state": "established",
-              "traits": [],
+              "family": "geographic",
+              "type": "postal_code",
+              "basis": "inferred",
+              "state": "candidate",
+              "traits": [
+                "single_pattern"
+              ],
               "evidence": [
+                {
+                  "source": "detector",
+                  "id": "postal_code",
+                  "role": "supports",
+                  "scope": {
+                    "population": "eligible",
+                    "of": 51,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
                 {
                   "source": "technical_type",
                   "id": "integer",
-                  "role": "supports",
+                  "role": "context",
                   "scope": {
                     "population": "present_values",
                     "of": 51,
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "name_rule",
+                  "id": "name.postal",
+                  "role": "supports",
+                  "scope": {
+                    "population": "positions",
+                    "of": null,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "numeric",
+                  "type": "integer",
+                  "reason": "outranked_by_name"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [
@@ -30750,19 +30968,19 @@
                     },
                     {
                       "code": "semantic.invalid",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_semantic_type"
-                    },
-                    {
-                      "code": "type.outside_family",
                       "state": "none_detected",
                       "accuracy": "exact",
                       "eligible": 51,
                       "tested": 51,
                       "reason": null
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
                     }
                   ]
                 },
@@ -30780,19 +30998,19 @@
                     },
                     {
                       "code": "semantic.invalid",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_semantic_type"
-                    },
-                    {
-                      "code": "type.outside_family",
                       "state": "none_detected",
                       "accuracy": "exact",
                       "eligible": 51,
                       "tested": 51,
                       "reason": null
+                    },
+                    {
+                      "code": "type.outside_family",
+                      "state": "not_applicable",
+                      "accuracy": "unavailable",
+                      "eligible": null,
+                      "tested": null,
+                      "reason": "not_numeric_type"
                     },
                     {
                       "code": "temporal.ambiguous_date",
@@ -30870,9 +31088,15 @@
                 }
               },
               "overview": {
-                "kind": "numeric",
-                "type": "integer",
-                "facts": [],
+                "kind": "shaped",
+                "type": "postal_code",
+                "facts": [
+                  {
+                    "name": "formats",
+                    "value": 1,
+                    "accuracy": "exact"
+                  }
+                ],
                 "notes": []
               },
               "details": {
@@ -30901,7 +31125,50 @@
                 "total": 5,
                 "total_accuracy": "exact",
                 "note": "3 values of 5 distinct values; A sample of the values; the list is not exhaustive.",
-                "measures": []
+                "measures": [
+                  {
+                    "name": "matched_percent",
+                    "label": "Share recognized by the detector",
+                    "value": 100.0,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "format",
+                    "label": "99999",
+                    "value": 51,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "key",
+                    "label": "6",
+                    "value": 15,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "key",
+                    "label": "5",
+                    "value": 11,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "key",
+                    "label": "7",
+                    "value": 10,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "key",
+                    "label": "4",
+                    "value": 8,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "key",
+                    "label": "3",
+                    "value": 7,
+                    "accuracy": "exact"
+                  }
+                ]
               },
               "values": {
                 "selection": "complete",
@@ -31028,7 +31295,9 @@
               "type": "date",
               "basis": "fallback",
               "state": "established",
-              "traits": [],
+              "traits": [
+                "single_pattern"
+              ],
               "evidence": [
                 {
                   "source": "technical_type",
@@ -31040,10 +31309,32 @@
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "detector",
+                  "id": "date",
+                  "role": "supports",
+                  "scope": {
+                    "population": "eligible",
+                    "of": 60,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "name_rule",
+                  "id": "name.date_suffix",
+                  "role": "supports",
+                  "scope": {
+                    "population": "positions",
+                    "of": null,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [
@@ -31527,7 +31818,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -31870,7 +32161,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -32224,11 +32515,14 @@
             },
             "distinct_count": 119,
             "classification": {
-              "family": "text",
-              "type": "text_short",
+              "family": "identifier",
+              "type": "id",
               "basis": "inferred",
-              "state": "established",
-              "traits": [],
+              "state": "candidate",
+              "traits": [
+                "observed_unique",
+                "single_pattern"
+              ],
               "evidence": [
                 {
                   "source": "technical_type",
@@ -32244,17 +32538,34 @@
                 {
                   "source": "measure",
                   "id": "string_lengths.median_length",
-                  "role": "supports",
+                  "role": "context",
                   "scope": {
                     "population": "present_values",
                     "of": 119,
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "name_rule",
+                  "id": "tokens.order_id",
+                  "role": "supports",
+                  "scope": {
+                    "population": "positions",
+                    "of": null,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "text",
+                  "type": "text_short",
+                  "reason": "replaced_by_role"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -32400,11 +32711,11 @@
                     },
                     {
                       "code": "identifier.repetition",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_identifier"
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 119,
+                      "tested": 119,
+                      "reason": null
                     },
                     {
                       "code": "text.surrounding_whitespace",
@@ -32426,18 +32737,18 @@
                 }
               },
               "overview": {
-                "kind": "text",
-                "type": "text_short",
+                "kind": "identifier",
+                "type": "id",
                 "facts": [
-                  {
-                    "name": "median_length",
-                    "value": 7.0,
-                    "accuracy": "exact"
-                  },
                   {
                     "name": "distinct",
                     "value": 119,
                     "accuracy": "exact"
+                  },
+                  {
+                    "name": "formats",
+                    "value": 1,
+                    "accuracy": "lower_bound"
                   }
                 ],
                 "notes": []
@@ -32468,14 +32779,7 @@
                 "total": 119,
                 "total_accuracy": "exact",
                 "note": "3 values of 119 distinct values; A sample of the values; the list is not exhaustive.",
-                "measures": [
-                  {
-                    "name": "fixed_length",
-                    "label": "Fixed length, in characters",
-                    "value": 7,
-                    "accuracy": "exact"
-                  }
-                ]
+                "measures": []
               },
               "values": {
                 "selection": "diverse_sample",
@@ -32660,7 +32964,9 @@
               "type": "date",
               "basis": "fallback",
               "state": "established",
-              "traits": [],
+              "traits": [
+                "single_pattern"
+              ],
               "evidence": [
                 {
                   "source": "technical_type",
@@ -32672,10 +32978,27 @@
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "detector",
+                  "id": "date",
+                  "role": "supports",
+                  "scope": {
+                    "population": "eligible",
+                    "of": 119,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "temporal",
+                  "type": "datetime",
+                  "reason": "name_only"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [
@@ -33170,7 +33493,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -33546,7 +33869,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -33918,8 +34241,14 @@
                   }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "numeric",
+                  "type": "quantity",
+                  "reason": "name_only"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -34276,8 +34605,14 @@
                   }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "numeric",
+                  "type": "currency",
+                  "reason": "name_only"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -34643,7 +34978,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -35032,26 +35367,15 @@
             },
             "distinct_count": 1,
             "classification": {
-              "family": "text",
-              "type": "text_very_short",
+              "family": "categorical",
+              "type": "constant",
               "basis": "inferred",
               "state": "established",
               "traits": [],
               "evidence": [
                 {
-                  "source": "technical_type",
-                  "id": "text",
-                  "role": "supports",
-                  "scope": {
-                    "population": "present_values",
-                    "of": 119,
-                    "partial": false,
-                    "accuracy": "exact"
-                  }
-                },
-                {
                   "source": "measure",
-                  "id": "string_lengths.median_length",
+                  "id": "values.cardinality",
                   "role": "supports",
                   "scope": {
                     "population": "present_values",
@@ -35062,7 +35386,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -35234,17 +35558,12 @@
                 }
               },
               "overview": {
-                "kind": "text",
-                "type": "text_very_short",
+                "kind": "constant",
+                "type": "constant",
                 "facts": [
                   {
-                    "name": "median_length",
-                    "value": 3.0,
-                    "accuracy": "exact"
-                  },
-                  {
-                    "name": "distinct",
-                    "value": 1,
+                    "name": "present",
+                    "value": 119,
                     "accuracy": "exact"
                   }
                 ],
@@ -35264,14 +35583,7 @@
                 "total": 1,
                 "total_accuracy": "exact",
                 "note": null,
-                "measures": [
-                  {
-                    "name": "fixed_length",
-                    "label": "Fixed length, in characters",
-                    "value": 3,
-                    "accuracy": "exact"
-                  }
-                ]
+                "measures": []
               },
               "values": {
                 "selection": "complete",
@@ -35860,11 +36172,11 @@
               "states": [
                 {
                   "state": "none_detected",
-                  "columns": 6
+                  "columns": 8
                 },
                 {
                   "state": "not_applicable",
-                  "columns": 11
+                  "columns": 9
                 }
               ]
             },

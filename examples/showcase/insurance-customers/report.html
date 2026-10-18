@@ -551,7 +551,6 @@ td.ex .tip.show{display:block}
 .column-line code{font-size:12px;white-space:pre-wrap;color:var(--text)}
 .column-line b{flex:none;font:500 12px/1.4 var(--f-mono);color:var(--text);text-align:right}
 .column-grid .schema{margin:0}
-.column-json{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0;padding:10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--s0);color:var(--text-2);font:400 11px/1.5 var(--f-mono)}
 @media (max-width:650px){.column-line{align-items:flex-start}.column-line b{white-space:normal}}
 
 /* lot 5: accuracy labels, finding status, pager. Shape and text carry the
@@ -829,6 +828,138 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 .pop-x{float:right;margin:-4px -6px 6px 10px;min-height:24px;padding:2px 8px;border:1px solid var(--line-strong);border-radius:6px;background:none;color:var(--text-2);font:500 12px/1.2 var(--f-body);cursor:pointer}
 .pop-x:hover{border-color:var(--text-3);color:var(--text)}
 @media (max-width:640px){.pop{left:12px!important;right:12px;top:auto!important;bottom:12px;width:auto;max-height:70dvh}}
+
+/* ---- column page (contract column-page.md): tokens only, no new colour ---- */
+
+/* ---- header: the verdict strip ---- */
+.rhead-nav{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;justify-content:flex-end}
+.rhead-nav .btn{min-height:36px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vstrip{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr) auto;gap:8px 20px;align-items:center;margin-top:18px;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--g-card);box-shadow:var(--hl)}
+.vstrip p{margin:0}
+.vs-type{display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
+.vs-fam{color:var(--text-3)}
+.vs-sep{color:var(--d3)}
+.fam-dot{width:10px;height:10px;border-radius:50%;background:var(--fam-other);flex:none}
+.fam-identifier{background:var(--fam-identifier)}.fam-categorical{background:var(--fam-categorical)}.fam-numeric{background:var(--fam-numeric)}
+.fam-temporal{background:var(--fam-temporal)}.fam-contact{background:var(--fam-contact)}.fam-geographic{background:var(--fam-geographic)}
+.fam-web_network{background:var(--fam-web_network)}.fam-text{background:var(--fam-text)}
+.vs-sentence{color:var(--text);font-size:14px}
+.vs-flags{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.cst{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:4px 10px;border-radius:999px;border:1px solid var(--line-strong);font:500 12px/1.2 var(--f-mono);color:var(--text-2);white-space:nowrap}
+.cst b{font-weight:600;color:inherit}
+a.cst:hover{background:var(--s2);color:var(--text)}
+.cst-error{border-color:var(--err);color:var(--err-text)}
+.cst-issue{border-color:rgba(249,133,16,.6);color:var(--attn-text)}
+.cst-ok::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.cst-error::before,.cst-issue::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.cst-issue::before{background:transparent;border:1.5px solid currentColor}
+.cst-exp{border-style:dashed}
+
+/* ---- findings ---- */
+.metric.err{border-color:rgba(240,71,75,.5)}
+.metric.err .v{color:var(--err-text)}
+.fnd{border:1px solid var(--line);border-left-width:4px;border-radius:var(--r-md);background:var(--g-card);box-shadow:var(--hl);margin:0 0 var(--joint);min-width:0}
+.fnd-error{border-left-color:var(--err)}
+.fnd-issue{border-left-color:var(--issue)}
+.fnd-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;padding:14px 16px 4px}
+.fnd-h h3{margin:0;font:600 17px/1.3 var(--f-display);color:var(--text)}
+.fcls{font:500 10.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase}
+.fcls-error{color:var(--err-text)}
+.fcls-issue{color:var(--attn-text)}
+.fnd-n{margin:0 0 0 auto;font-size:13px;color:var(--text-2)}
+.fnd-n b{font:600 15px/1 var(--f-mono);color:var(--text)}
+.fnd-sh{margin-left:8px;color:var(--text-3)}
+.fnd-b{display:grid;grid-template-columns:minmax(260px,5fr) minmax(0,7fr);gap:8px 28px;padding:6px 16px 16px}
+.fnd-def{display:grid;grid-template-columns:minmax(80px,auto) minmax(0,1fr);gap:8px 14px;margin:0;align-content:start;font-size:13px}
+.fnd-def dt{color:var(--text-3)}
+.fnd-def dd{margin:0;color:var(--text-2)}
+.fnd-d{min-width:0;border-left:1px solid var(--line);padding-left:24px}
+.fd-title{margin:0 0 8px;font:600 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
+.fd-n{margin:0 0 10px;font-size:12.5px;color:var(--text-3)}
+.fd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
+.fd-t{margin:0 0 6px;font-weight:600;font-size:13px;color:var(--text)}
+.fd-l{list-style:none;margin:0;padding:0}
+.fd-l li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:6px 0;border-bottom:1px solid var(--line);min-width:0}
+.fd-l li:last-child{border-bottom:0}
+.fd-k{min-width:0;display:flex;flex-direction:column;gap:5px}
+.fd-k code{white-space:pre-wrap;font-size:12.5px;color:var(--text);overflow-wrap:anywhere}
+.fd-v{flex:none;font:500 12px/1.4 var(--f-mono);color:var(--text);text-align:right}
+.fd-v small{display:block;color:var(--text-3);font-size:11px}
+.fd-ex{display:flex;flex-wrap:wrap;gap:6px}
+.fd-ex code{padding:2px 7px;border:1px solid var(--line);border-radius:var(--r-xs);background:var(--s1);font-size:12px;color:var(--text);white-space:pre-wrap}
+.pg-groups{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:8px}
+.pg-group{display:flex;flex-wrap:wrap;gap:6px 10px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--s1)}
+.pg-sp{display:inline-flex;align-items:baseline;gap:4px;padding:2px 7px;border:1px solid var(--line);border-radius:var(--r-xs);background:var(--s2)}
+.pg-sp.top{border-color:var(--line-strong)}
+.pg-sp code{white-space:pre-wrap;font-size:12.5px;color:var(--text-2)}
+.pg-sp.top code{color:var(--text);font-weight:500}
+.pg-sp small{color:var(--text-3);font-size:11px}
+.remarks{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:var(--r-md);background:var(--g-card)}
+.remarks li{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 16px;padding:10px 16px;border-bottom:1px solid var(--line);color:var(--text-2)}
+.remarks li:last-child{border-bottom:0}
+.remarks b{font:500 13px/1.4 var(--f-mono);color:var(--text)}
+.rem-d{flex-basis:100%;border-left:0;padding:8px 0 4px}
+.empty{margin:0;color:var(--text-3)}
+.subh .n{font-weight:400}
+
+/* ---- disclosures ---- */
+.dsc{margin-top:var(--joint);border:1px solid var(--line);border-radius:var(--r-md);background:var(--g-card);box-shadow:var(--hl)}
+.dsc>summary{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 16px;cursor:pointer;list-style:none;font-weight:600;font-size:14px;color:var(--text);border-radius:var(--r-md)}
+.dsc>summary::-webkit-details-marker{display:none}
+.dsc>summary::before{content:"";flex:none;width:7px;height:7px;border-right:2px solid var(--text-3);border-bottom:2px solid var(--text-3);transform:rotate(-45deg);transition:transform .15s}
+.dsc[open]>summary::before{transform:rotate(45deg)}
+.dsc>summary .n{margin-left:8px;font-weight:400;color:var(--text-3);font-size:12.5px}
+.dsc>summary:hover{background:var(--s2)}
+.dsc>*:not(summary){margin-left:16px;margin-right:16px}
+.dsc>*:last-child{margin-bottom:16px}
+.ev-groups .dsc:first-child{margin-top:0}
+
+/* ---- values ---- */
+.vbars{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.vbars li{display:grid;grid-template-columns:minmax(120px,28%) minmax(0,1fr) auto;gap:14px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.vbars li:last-child{border-bottom:0}
+.vbars code{white-space:pre-wrap;font-size:12.5px;color:var(--text);overflow-wrap:anywhere}
+.vb{display:block;height:8px;border-radius:4px;background:var(--s3)}
+.vb i{display:block;height:100%;border-radius:4px;background:var(--text-3)}
+.vbars b{font:500 12px/1.4 var(--f-mono);color:var(--text);text-align:right;min-width:3ch}
+
+/* ---- tables ---- */
+.ftab{width:100%;border-collapse:collapse;font-size:13px}
+.ftab th,.ftab td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;color:var(--text-2);vertical-align:baseline}
+.ftab thead th{font:500 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
+.ftab tbody th{font-weight:400;color:var(--text)}
+.ftab .num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.ftab tr.hit th,.ftab tr.hit td{color:var(--text)}
+.ftab tr.hit .num{color:var(--attn-text)}
+.ftab small{color:var(--text-3)}
+.rcard-title.sub{margin-top:16px}
+h3.rcard-title,h4.rcard-title{font-family:var(--f-body)}
+
+/* ---- limits, sample ---- */
+.acc-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px 20px;margin:20px 0 0}
+.acc-legend>div{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.acc-legend dt{margin:0}
+.acc-legend dd{margin:0;font-size:12.5px;color:var(--text-3)}
+.srows{list-style:none;margin:0;padding:0}
+.srows li{display:grid;grid-template-columns:84px auto minmax(0,1fr);gap:12px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line)}
+.srows li:last-child{border-bottom:0}
+.srows b{font:500 12px/1.4 var(--f-mono);color:var(--text-2)}
+.cellv code{white-space:pre-wrap;font-size:12.5px;color:var(--text);overflow-wrap:anywhere}
+
+/* ---- sizes ---- */
+@media (max-width:1180px){.vstrip{grid-template-columns:minmax(0,1fr)}.vs-flags{justify-content:flex-start}.fnd-b{grid-template-columns:minmax(0,1fr)}.fnd-d{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:14px}}
+@media (max-width:860px){.rhead-nav{justify-content:flex-start}}
+@media (max-width:720px){
+  .fnd-h{padding:12px 12px 2px}.fnd-b{padding:6px 12px 12px}.fnd-n{margin-left:0;flex-basis:100%}
+  .fnd-def{grid-template-columns:1fr;gap:2px}.fnd-def dd{margin-bottom:8px}
+  .vbars li{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}.vbars .vb{grid-column:1 / -1;order:3;height:6px}
+  .srows li{grid-template-columns:minmax(0,1fr) auto}.srows .cellv{grid-column:1 / -1}
+  .ftab th,.ftab td{padding:8px 6px}
+  .dsc>*:not(summary){margin-left:12px;margin-right:12px}
+}
+@media print{.dsc>summary::before{display:none}.vstrip{break-inside:avoid}.fnd{break-inside:avoid}.rhead-nav{display:none}}
+
+.dsc-in{margin-top:10px;background:none;box-shadow:none}
 </style>
 </head>
 <body>
@@ -901,7 +1032,7 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
   <div class="main">
     
     <div class="ds" data-ds="0">
-    <header class="rhead"><div class="wrap"><p class="eyebrow">Dataset report</p><div class="rhead-top"><div><h1>insurance-customers-100k<span class="ext">.csv</span></h1><ul class="facts"><li><b>CSV</b></li><li><b>100,000</b> rows</li><li><b>34</b> columns</li><li>26.3 MB</li><li>utf-8-sig</li><li>Delimiter <code>,</code></li></ul></div><div class="gen"><span class="badge"><i aria-hidden="true"></i>Analysis complete · 3.15 s</span><time datetime="2026-10-18T18:06:51.039890+00:00">2026-10-18 18:06 UTC</time></div></div></div></header>
+    <header class="rhead"><div class="wrap"><p class="eyebrow">Dataset report</p><div class="rhead-top"><div><h1>insurance-customers-100k<span class="ext">.csv</span></h1><ul class="facts"><li><b>CSV</b></li><li><b>100,000</b> rows</li><li><b>34</b> columns</li><li>26.3 MB</li><li>utf-8-sig</li><li>Delimiter <code>,</code></li></ul></div><div class="gen"><span class="badge"><i aria-hidden="true"></i>Analysis complete · 3.32 s</span><time datetime="2026-10-18T18:48:52.419634+00:00">2026-10-18 18:48 UTC</time></div></div></div></header>
     <main id="content" class="wrap content" tabindex="-1">
 <section class="panel" id="overview" aria-labelledby="overview-h"><div class="phead"><div><p class="eyebrow">01 / Overview</p><h2 id="overview-h">Dataset overview</h2><p>Size, completeness and the main signal to check first.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="overview-b" aria-label="Collapse Dataset overview" data-name="Dataset overview"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="overview-b">
 <dl class="metrics"><div class="metric"><dt>Rows</dt><dd><span class="v">100,000</span><span class="s">No empty rows</span></dd></div><div class="metric"><dt>Columns</dt><dd><span class="v">34</span><span class="s">3,400,000 cells analyzed</span></dd></div><div class="metric attn"><dt>Missing cells</dt><dd><span class="v">12.25<small>%</small></span><span class="s">416,405 cells</span></dd></div><div class="metric attn"><dt>Duplicate rows</dt><dd><span class="v">8</span><span class="s">Beyond the first occurrence</span></dd></div></dl>
@@ -1736,6 +1867,9 @@ button.kpi:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
   /* print: temporarily open collapsed sections */
   window.addEventListener('beforeprint', () => $$('.pbody[hidden]').forEach((b) => { b.dataset.wasHidden = '1'; b.hidden = false; }));
   window.addEventListener('afterprint', () => $$('.pbody[data-was-hidden]').forEach((b) => { b.hidden = true; delete b.dataset.wasHidden; }));
+  /* the folded groups of a column page are open on paper, then back as the reader left them */
+  window.addEventListener('beforeprint', () => $$('details.dsc:not([open])').forEach((d) => { d.dataset.wasClosed = '1'; d.open = true; }));
+  window.addEventListener('afterprint', () => $$('details.dsc[data-was-closed]').forEach((d) => { d.open = false; delete d.dataset.wasClosed; }));
 })();
 </script>
 </body>

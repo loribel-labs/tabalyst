@@ -21,28 +21,29 @@
       "ip_address": 1
     },
     "classification": {
-      "catalogue": 1
+      "catalogue": 4,
+      "names": 2
     }
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-16T06:57:19.029726Z",
-    "duration_seconds": 0.005861,
+    "started_at": "2026-10-18T18:29:49.038571Z",
+    "duration_seconds": 0.007612,
     "timings": {
-      "reading": 0.00048,
-      "analysis": 0.000151,
-      "finalize": 0.003143,
-      "derived": 0.001675,
-      "other": 0.000413
+      "reading": 0.00061,
+      "analysis": 0.000158,
+      "finalize": 0.004594,
+      "derived": 0.001774,
+      "other": 0.000476
     },
     "workers": 1,
-    "peak_memory_bytes": 68190208
+    "peak_memory_bytes": 71577600
   },
   "source": {
     "format": "csv",
     "name": "basic.csv",
     "size_bytes": 280,
-    "modified_at": "2026-10-16T05:33:33.607029Z",
+    "modified_at": "2026-10-18T18:11:42.958640Z",
     "sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
     "encoding": "utf-8-sig",
     "shape": {
@@ -1179,11 +1180,14 @@
             "candidates": []
           },
           "classification": {
-            "family": "text",
-            "type": "text_very_short",
+            "family": "identifier",
+            "type": "id",
             "basis": "inferred",
-            "state": "established",
-            "traits": [],
+            "state": "candidate",
+            "traits": [
+              "first_column",
+              "single_pattern"
+            ],
             "evidence": [
               {
                 "source": "technical_type",
@@ -1199,17 +1203,34 @@
               {
                 "source": "measure",
                 "id": "string_lengths.median_length",
-                "role": "supports",
+                "role": "context",
                 "scope": {
                   "population": "present_values",
                   "of": 5,
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "name_rule",
+                "id": "name.identifier",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": null,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "text",
+                "type": "text_very_short",
+                "reason": "replaced_by_role"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -2022,7 +2043,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -2819,7 +2840,9 @@
             "type": "mixed",
             "basis": "fallback",
             "state": "established",
-            "traits": [],
+            "traits": [
+              "multiple_patterns"
+            ],
             "evidence": [
               {
                 "source": "technical_type",
@@ -2833,8 +2856,14 @@
                 }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "numeric",
+                "type": "currency",
+                "reason": "name_only"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -3645,7 +3674,9 @@
             "type": "date",
             "basis": "fallback",
             "state": "established",
-            "traits": [],
+            "traits": [
+              "single_pattern"
+            ],
             "evidence": [
               {
                 "source": "technical_type",
@@ -3657,10 +3688,21 @@
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "detector",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "eligible",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -4425,10 +4467,21 @@
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "detector",
+                "id": "boolean",
+                "role": "supports",
+                "scope": {
+                  "population": "eligible",
+                  "of": 5,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -5199,7 +5252,9 @@
             "type": "text_short",
             "basis": "inferred",
             "state": "established",
-            "traits": [],
+            "traits": [
+              "multiple_patterns"
+            ],
             "evidence": [
               {
                 "source": "technical_type",
@@ -5222,10 +5277,21 @@
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "name_rule",
+                "id": "name.text",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": null,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -6446,7 +6512,7 @@
         "engine_version": "0.7.0",
         "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
         "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
-        "facts_sha256": "27ef0712249b4478ed6bc3ab2e67252b87d2368cf5c2ea749aa4b4b390842a04"
+        "facts_sha256": "5758e5fc6775e0f1c52a084a47d79b8d9716287c5263cdfcdad2a9778dde327c"
       },
       "settings": {
         "bins": 100,
@@ -6555,13 +6621,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 17,
-        "plan_id": "e25bd19a44cc723a6b62316454c31dfc0c422eebcfedb9030cdbc95df5912739",
+        "plan_id": "430405c8ecbfb42a3cb2c3c0865371e9e87f9165acb0c6f296a765527e1b08c0",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
           "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
-          "facts_sha256": "27ef0712249b4478ed6bc3ab2e67252b87d2368cf5c2ea749aa4b4b390842a04"
+          "facts_sha256": "5758e5fc6775e0f1c52a084a47d79b8d9716287c5263cdfcdad2a9778dde327c"
         },
         "objective": {
           "automatic": true,
@@ -7380,7 +7446,7 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T18:06:48.496419Z",
+        "started_at": "2026-10-18T18:48:49.416486Z",
         "duration_seconds": 0.000109,
         "timings": {
           "reading": 0.0,
@@ -7388,7 +7454,7 @@
           "other": 0.000109
         },
         "workers": 1,
-        "peak_memory_bytes": 72667136,
+        "peak_memory_bytes": 73023488,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -7417,7 +7483,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "c3afe46df003b216ee319bb20fb5a016cccc98bbccbab2c8a831fb13cf5d39dc",
+          "key": "cd1bee7727efcb330b18e5d6ac091fd3802755888741d68d96fdc46682560af3",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7481,7 +7547,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "ac0322e50492e8f8a57153f2788fcbb126547c73bd78935bb8de7efaddb81ebb",
+          "key": "202e8b6a3c607aae56ce933f449d6b7a8c808afe852b0bd58c65e4e4b099cc0f",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7570,7 +7636,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "e68a74071577c0e0ba62a97dbea20926a327c4f94ef29c6960d5281b28e6ef7f",
+          "key": "15e2ea247afa3b6b0616792269bb77314c95691d73aadf294f3c7608d95c29a7",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7634,7 +7700,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "bc4dabcd7afedf9090aa0dbcc81cb2b726a4f093ff0810513dfc687066829107",
+          "key": "c15392e262311904b063e9df8d84567ae067f03cb405980ae4db25ab33f502a4",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7728,7 +7794,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "5c593d4fc9301b920fe406d65c03946e52a682bc3cef007ea7625d30c7eed1e3",
+          "key": "e4c222b52975daea806423c84998d16b61eacf2268b21ce54bae13c894512dfd",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -7779,7 +7845,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "78c6ca29e62fa2739055f12386a6d2d33a35ec47177a4623735cf7890bd55418",
+          "key": "8044347a2772884630dc1403f4f0f8a62995132a7c4deb3b40beaf1e38deabf3",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -7833,7 +7899,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "1cb80ad9773efa09beda127a26906f1d8c3573931a3f578a38f9a3a6e4882ab8",
+          "key": "29f30d57c6f22be7fd0156434766f3f31aaf793b40e0f87777cc93b2c55aedfc",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -7864,12 +7930,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T18:06:48.499246Z",
+    "generated_at": "2026-10-18T18:48:49.416486Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0258,
+    "processing_seconds": 0.0277,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -7899,7 +7965,7 @@
       "engine_version": "0.7.0",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
       "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
-      "facts_sha256": "27ef0712249b4478ed6bc3ab2e67252b87d2368cf5c2ea749aa4b4b390842a04"
+      "facts_sha256": "5758e5fc6775e0f1c52a084a47d79b8d9716287c5263cdfcdad2a9778dde327c"
     },
     "datasets": [
       {
@@ -7934,26 +8000,30 @@
             "boolean": 16.67
           },
           "type_family_counts": {
-            "text": 3,
+            "identifier": 1,
+            "text": 2,
             "other": 1,
             "temporal": 1,
             "categorical": 1
           },
           "type_family_percents": {
-            "text": 50.0,
+            "identifier": 16.67,
+            "text": 33.33,
             "other": 16.67,
             "temporal": 16.67,
             "categorical": 16.67
           },
           "type_counts": {
-            "text/text_very_short": 2,
+            "identifier/id": 1,
+            "text/text_very_short": 1,
             "other/mixed": 1,
             "temporal/date": 1,
             "categorical/boolean": 1,
             "text/text_short": 1
           },
           "type_percents": {
-            "text/text_very_short": 33.33,
+            "identifier/id": 16.67,
+            "text/text_very_short": 16.67,
             "other/mixed": 16.67,
             "temporal/date": 16.67,
             "categorical/boolean": 16.67,
@@ -8047,11 +8117,14 @@
             },
             "distinct_count": 4,
             "classification": {
-              "family": "text",
-              "type": "text_very_short",
+              "family": "identifier",
+              "type": "id",
               "basis": "inferred",
-              "state": "established",
-              "traits": [],
+              "state": "candidate",
+              "traits": [
+                "first_column",
+                "single_pattern"
+              ],
               "evidence": [
                 {
                   "source": "technical_type",
@@ -8067,17 +8140,34 @@
                 {
                   "source": "measure",
                   "id": "string_lengths.median_length",
-                  "role": "supports",
+                  "role": "context",
                   "scope": {
                     "population": "present_values",
                     "of": 5,
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "name_rule",
+                  "id": "name.identifier",
+                  "role": "supports",
+                  "scope": {
+                    "population": "positions",
+                    "of": null,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "text",
+                  "type": "text_very_short",
+                  "reason": "replaced_by_role"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -8146,8 +8236,34 @@
                   ]
                 },
                 "issues": {
-                  "items": [],
-                  "state": "none_detected",
+                  "items": [
+                    {
+                      "code": "identifier.repetition",
+                      "cls": "issue",
+                      "field": "column_1",
+                      "count": 1,
+                      "unit": "occurrences",
+                      "population": {
+                        "kind": "present_values",
+                        "size": 5
+                      },
+                      "share": {
+                        "numerator": 1,
+                        "denominator": 5,
+                        "percent": 20.0,
+                        "accuracy": "exact"
+                      },
+                      "accuracy": "exact",
+                      "status": "detected",
+                      "basis": [
+                        "values.cardinality"
+                      ],
+                      "examples": [],
+                      "examples_state": "none",
+                      "overlaps": []
+                    }
+                  ],
+                  "state": "detected",
                   "assessments": [
                     {
                       "code": "temporal.invalid_calendar",
@@ -8223,11 +8339,11 @@
                     },
                     {
                       "code": "identifier.repetition",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_identifier"
+                      "state": "detected",
+                      "accuracy": "exact",
+                      "eligible": 5,
+                      "tested": 5,
+                      "reason": null
                     },
                     {
                       "code": "text.surrounding_whitespace",
@@ -8249,17 +8365,17 @@
                 }
               },
               "overview": {
-                "kind": "text",
-                "type": "text_very_short",
+                "kind": "identifier",
+                "type": "id",
                 "facts": [
-                  {
-                    "name": "median_length",
-                    "value": 3.0,
-                    "accuracy": "exact"
-                  },
                   {
                     "name": "distinct",
                     "value": 4,
+                    "accuracy": "exact"
+                  },
+                  {
+                    "name": "formats",
+                    "value": 1,
                     "accuracy": "exact"
                   }
                 ],
@@ -8291,14 +8407,7 @@
                 "total": 4,
                 "total_accuracy": "exact",
                 "note": "3 values of 4 distinct values; A sample of the values; the list is not exhaustive.",
-                "measures": [
-                  {
-                    "name": "fixed_length",
-                    "label": "Fixed length, in characters",
-                    "value": 3,
-                    "accuracy": "exact"
-                  }
-                ]
+                "measures": []
               },
               "values": {
                 "selection": "complete",
@@ -8336,7 +8445,9 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [
+                "issue"
+              ]
             }
           },
           {
@@ -8445,7 +8556,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -8800,7 +8911,9 @@
               "type": "mixed",
               "basis": "fallback",
               "state": "established",
-              "traits": [],
+              "traits": [
+                "multiple_patterns"
+              ],
               "evidence": [
                 {
                   "source": "technical_type",
@@ -8814,8 +8927,14 @@
                   }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "numeric",
+                  "type": "currency",
+                  "reason": "name_only"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [
@@ -9257,7 +9376,9 @@
               "type": "date",
               "basis": "fallback",
               "state": "established",
-              "traits": [],
+              "traits": [
+                "single_pattern"
+              ],
               "evidence": [
                 {
                   "source": "technical_type",
@@ -9269,10 +9390,21 @@
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "detector",
+                  "id": "date",
+                  "role": "supports",
+                  "scope": {
+                    "population": "eligible",
+                    "of": 5,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [
@@ -9683,10 +9815,21 @@
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "detector",
+                  "id": "boolean",
+                  "role": "supports",
+                  "scope": {
+                    "population": "eligible",
+                    "of": 5,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [
@@ -10044,7 +10187,9 @@
               "type": "text_short",
               "basis": "inferred",
               "state": "established",
-              "traits": [],
+              "traits": [
+                "multiple_patterns"
+              ],
               "evidence": [
                 {
                   "source": "technical_type",
@@ -10067,10 +10212,21 @@
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "name_rule",
+                  "id": "name.text",
+                  "role": "supports",
+                  "scope": {
+                    "population": "positions",
+                    "of": null,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -10346,10 +10502,26 @@
         "structure": null,
         "table": {
           "error_count": 0,
-          "issue_count": 1,
+          "issue_count": 2,
           "observation_count": 2,
           "signals": {
             "shown": [
+              {
+                "code": "identifier.repetition",
+                "cls": "issue",
+                "total": 1,
+                "unit": "occurrences",
+                "lower_bound": false,
+                "columns": [
+                  {
+                    "field_id": "column_1",
+                    "name": "id",
+                    "count": 1,
+                    "relative_percent": 100.0,
+                    "spellings": []
+                  }
+                ]
+              },
               {
                 "code": "type.mixed",
                 "cls": "issue",
@@ -10373,13 +10545,25 @@
           "quality": {
             "columns": 6,
             "with_errors": 0,
-            "with_issues": 1,
-            "no_finding": 5,
+            "with_issues": 2,
+            "no_finding": 4,
             "errors_percent": 0.0,
-            "issues_percent": 16.7,
-            "clean_percent": 83.3,
+            "issues_percent": 33.3,
+            "clean_percent": 66.7,
             "error_columns": [],
             "issue_columns": [
+              {
+                "field_id": "column_1",
+                "name": "id",
+                "findings": [
+                  {
+                    "code": "identifier.repetition",
+                    "count": 1,
+                    "unit": "occurrences",
+                    "accuracy": "exact"
+                  }
+                ]
+              },
               {
                 "field_id": "column_3",
                 "name": "amount",
@@ -10394,11 +10578,6 @@
               }
             ],
             "clean_columns": [
-              {
-                "field_id": "column_1",
-                "name": "id",
-                "findings": []
-              },
               {
                 "field_id": "column_2",
                 "name": "name",
@@ -10436,15 +10615,15 @@
             },
             "issues": {
               "name": "Issues",
-              "with_findings": 1,
+              "with_findings": 2,
               "states": [
                 {
                   "state": "detected",
-                  "columns": 1
+                  "columns": 2
                 },
                 {
                   "state": "none_detected",
-                  "columns": 5
+                  "columns": 4
                 }
               ]
             }

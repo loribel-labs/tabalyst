@@ -27,23 +27,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-18T18:06:58.542679Z",
-    "duration_seconds": 2.356806,
+    "started_at": "2026-10-18T18:49:00.962580Z",
+    "duration_seconds": 2.625603,
     "timings": {
-      "reading": 0.345096,
-      "analysis": 0.722328,
-      "finalize": 0.758951,
-      "derived": 0.054499,
-      "other": 0.475932
+      "reading": 0.37791,
+      "analysis": 0.806471,
+      "finalize": 0.835184,
+      "derived": 0.063145,
+      "other": 0.542894
     },
     "workers": 6,
-    "peak_memory_bytes": 165019648
+    "peak_memory_bytes": 165318656
   },
   "source": {
     "format": "csv",
     "name": "insurance-customers-100k.csv",
     "size_bytes": 27540101,
-    "modified_at": "2026-10-14T22:56:12.835198Z",
+    "modified_at": "2026-10-18T18:30:28.664836Z",
     "sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
     "encoding": "utf-8-sig",
     "shape": {

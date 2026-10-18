@@ -21,28 +21,29 @@
       "ip_address": 1
     },
     "classification": {
-      "catalogue": 1
+      "catalogue": 4,
+      "names": 2
     }
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-16T06:58:12.215242Z",
-    "duration_seconds": 0.018641,
+    "started_at": "2026-10-18T18:31:32.778767Z",
+    "duration_seconds": 0.019827,
     "timings": {
-      "reading": 0.003411,
-      "analysis": 0.002089,
-      "finalize": 0.008477,
-      "derived": 0.004218,
-      "other": 0.000447
+      "reading": 0.002441,
+      "analysis": 0.002185,
+      "finalize": 0.010159,
+      "derived": 0.004545,
+      "other": 0.000496
     },
     "workers": 1,
-    "peak_memory_bytes": 71847936
+    "peak_memory_bytes": 72892416
   },
   "source": {
     "format": "excel",
     "name": "sales.xlsx",
     "size_bytes": 17717,
-    "modified_at": "2026-10-16T05:33:33.607029Z",
+    "modified_at": "2026-10-18T18:11:42.966677Z",
     "sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
     "encoding": null,
     "shape": {
@@ -1909,11 +1910,15 @@
             "candidates": []
           },
           "classification": {
-            "family": "text",
-            "type": "text_short",
+            "family": "identifier",
+            "type": "unique_id",
             "basis": "inferred",
-            "state": "established",
-            "traits": [],
+            "state": "candidate",
+            "traits": [
+              "observed_unique",
+              "first_column",
+              "single_pattern"
+            ],
             "evidence": [
               {
                 "source": "technical_type",
@@ -1929,6 +1934,28 @@
               {
                 "source": "measure",
                 "id": "string_lengths.median_length",
+                "role": "context",
+                "scope": {
+                  "population": "present_values",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "name_rule",
+                "id": "tokens.order_id",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": null,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "measure",
+                "id": "values.cardinality",
                 "role": "supports",
                 "scope": {
                   "population": "present_values",
@@ -1936,10 +1963,27 @@
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "measure",
+                "id": "missing.count",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "text",
+                "type": "text_short",
+                "reason": "replaced_by_role"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -3256,7 +3300,9 @@
             "type": "date",
             "basis": "fallback",
             "state": "established",
-            "traits": [],
+            "traits": [
+              "single_pattern"
+            ],
             "evidence": [
               {
                 "source": "technical_type",
@@ -3268,10 +3314,32 @@
                   "partial": false,
                   "accuracy": "exact"
                 }
+              },
+              {
+                "source": "detector",
+                "id": "date",
+                "role": "supports",
+                "scope": {
+                  "population": "eligible",
+                  "of": 120,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
+              },
+              {
+                "source": "name_rule",
+                "id": "name.date_suffix",
+                "role": "supports",
+                "scope": {
+                  "population": "positions",
+                  "of": null,
+                  "partial": false,
+                  "accuracy": "exact"
+                }
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -4434,7 +4502,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -6000,37 +6068,39 @@
             ]
           },
           "classification": {
-            "family": "text",
-            "type": "text_medium",
+            "family": "contact",
+            "type": "email",
             "basis": "inferred",
             "state": "established",
-            "traits": [],
+            "traits": [
+              "observed_unique"
+            ],
             "evidence": [
               {
-                "source": "technical_type",
-                "id": "text",
+                "source": "detector",
+                "id": "email",
                 "role": "supports",
                 "scope": {
-                  "population": "present_values",
+                  "population": "eligible",
                   "of": 120,
                   "partial": false,
                   "accuracy": "exact"
                 }
               },
               {
-                "source": "measure",
-                "id": "string_lengths.median_length",
+                "source": "name_rule",
+                "id": "name.email",
                 "role": "supports",
                 "scope": {
-                  "population": "present_values",
-                  "of": 120,
+                  "population": "positions",
+                  "of": null,
                   "partial": false,
                   "accuracy": "exact"
                 }
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": true,
           "exposure": "show"
@@ -6858,7 +6928,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -7645,7 +7715,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -8059,8 +8129,14 @@
                 }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "numeric",
+                "type": "quantity",
+                "reason": "name_only"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -9068,8 +9144,14 @@
                 }
               }
             ],
-            "alternatives": [],
-            "rule_version": 1
+            "alternatives": [
+              {
+                "family": "numeric",
+                "type": "currency",
+                "reason": "name_only"
+              }
+            ],
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -9406,7 +9488,7 @@
               }
             ],
             "alternatives": [],
-            "rule_version": 1
+            "rule_version": 4002
           },
           "sensitive": false,
           "exposure": null
@@ -10906,7 +10988,7 @@
         "engine_version": "0.7.0",
         "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
         "config_sha256": "76b48c0b010b005e76c4b9d5ed5060a0e09adfa6a3d7bc20f44e8b2991118be4",
-        "facts_sha256": "1e95fb399cf712b99dfc822f10f6f26905d0aa8f42c4226525259845438a670b"
+        "facts_sha256": "f5a22db553dbf968987a09cb260b293b2d58918a5ad210615ed3526696017875"
       },
       "settings": {
         "bins": 100,
@@ -11015,13 +11097,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 17,
-        "plan_id": "5b8e91f4fe4dfd7cab73b388e6d8bd471de485bd6a8ae48aae6ba96b238e49df",
+        "plan_id": "9aff5c762e18174b50ef2e0de22b42e858cd12754faa1cd8f6ad88742836997b",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
           "config_sha256": "76b48c0b010b005e76c4b9d5ed5060a0e09adfa6a3d7bc20f44e8b2991118be4",
-          "facts_sha256": "1e95fb399cf712b99dfc822f10f6f26905d0aa8f42c4226525259845438a670b"
+          "facts_sha256": "f5a22db553dbf968987a09cb260b293b2d58918a5ad210615ed3526696017875"
         },
         "objective": {
           "automatic": true,
@@ -12516,15 +12598,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T18:07:15.080389Z",
-        "duration_seconds": 0.000149,
+        "started_at": "2026-10-18T18:49:21.584103Z",
+        "duration_seconds": 0.000153,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000149
+          "other": 0.000153
         },
         "workers": 1,
-        "peak_memory_bytes": 75517952,
+        "peak_memory_bytes": 76529664,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -12546,7 +12628,7 @@
             "distinct": 120
           },
           "domain": "analytical",
-          "key": "7d0ad960a0bd3e25edf30c804b3f642c26ccc033f581f1c893846714e17ecab3",
+          "key": "7e7f83608ede6b3e00f9ee945311081435647dc9916f685fcc61a7d080fb7cd9",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -13221,7 +13303,7 @@
             "distinct": 120
           },
           "domain": "analytical",
-          "key": "defafd51932555c8106742cb5612be44ea772339825d419dd7850aea62e965ff",
+          "key": "b7381b9a619c40e8e1fd56ba5781b4866e43b677ef3d71ba1e6c54ee4bcad30f",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -13896,7 +13978,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "02d2c79cf8a1c3366764a24369157763b73303c8e6fce9eb2dba98047d20ddb8",
+          "key": "9f8f631b58677a97bc09c89c1d16469695ffe021928958350260a7476ff0735b",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -14521,7 +14603,7 @@
             "domain": 12
           },
           "domain": "analytical",
-          "key": "d0ba7e97f4963dafff56480bed04ac49cab971f03a1d173164033f6ff798f44f",
+          "key": "ff315469e21a3709c5c17c2f1a528ae6dd0a9900e28670c282352d9a2383aafa",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -14630,7 +14712,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "7a4e80c50f4b76422d9a56d079f984265dc11e34ae033ac9ceff3fe72c475ea6",
+          "key": "577b2371f2c538b79e7f13d48e3436b99302786af26eaf4825e96f86a3b7a7ee",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -14914,7 +14996,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "9337f4d0f7cb2ac0439821523f89091263420ab550ee67b0423db9dbdc8dfd9a",
+          "key": "c59f761283cd56472f575e416c49a28fd2458cfc869afd46d9bf195a634f066b",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -15047,7 +15129,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "5075db4601f92134b5202cfb8c6c8ddd0456e8e0d7bfca7a54902aa1a611decd",
+          "key": "313ebc330894157d762f4ee149cd6a6f10efed803ea2b1cf347c2e11635d9caa",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -15207,7 +15289,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "d2e7ce225a12e0462194e19d2100793441859a35257a23a2747ca6c42f3df4c0",
+          "key": "69769555db553e2b35c0e330af9754875a676c936f1f58dec93393011df2de88",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -15542,7 +15624,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "a3ce4be4f7b25143a35fab629f697dfc3609de80a101c65b88e71614d901db87",
+          "key": "ba4b6c4a50fb54bf116f242e3666344ee3b9c211ff08accd1c6cda08fce2436c",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -15590,7 +15672,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "e8aed4e0ec8a299e3bd74026b6bb33fec4aa2caae65d81e1d7e35190b33db6a5",
+          "key": "146d6d64ef41e55bd986952d11e3a437c36726384cdac239cdc4ec80956d5962",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -16684,12 +16766,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T18:07:15.122335Z",
+    "generated_at": "2026-10-18T18:49:21.620522Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0824,
+    "processing_seconds": 0.083,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -16719,7 +16801,7 @@
       "engine_version": "0.7.0",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
       "config_sha256": "76b48c0b010b005e76c4b9d5ed5060a0e09adfa6a3d7bc20f44e8b2991118be4",
-      "facts_sha256": "1e95fb399cf712b99dfc822f10f6f26905d0aa8f42c4226525259845438a670b"
+      "facts_sha256": "f5a22db553dbf968987a09cb260b293b2d58918a5ad210615ed3526696017875"
     },
     "datasets": [
       {
@@ -16756,30 +16838,36 @@
             "boolean": 11.11
           },
           "type_family_counts": {
-            "text": 5,
+            "identifier": 1,
             "temporal": 1,
+            "text": 3,
+            "contact": 1,
             "numeric": 2,
             "categorical": 1
           },
           "type_family_percents": {
-            "text": 55.56,
+            "identifier": 11.11,
             "temporal": 11.11,
+            "text": 33.33,
+            "contact": 11.11,
             "numeric": 22.22,
             "categorical": 11.11
           },
           "type_counts": {
-            "text/text_short": 2,
+            "identifier/unique_id": 1,
             "temporal/date": 1,
-            "text/text_medium": 1,
+            "text/text_short": 1,
+            "contact/email": 1,
             "text/text_very_short": 2,
             "numeric/integer": 1,
             "numeric/number": 1,
             "categorical/boolean": 1
           },
           "type_percents": {
-            "text/text_short": 22.22,
+            "identifier/unique_id": 11.11,
             "temporal/date": 11.11,
-            "text/text_medium": 11.11,
+            "text/text_short": 11.11,
+            "contact/email": 11.11,
             "text/text_very_short": 22.22,
             "numeric/integer": 11.11,
             "numeric/number": 11.11,
@@ -16873,11 +16961,15 @@
             },
             "distinct_count": 120,
             "classification": {
-              "family": "text",
-              "type": "text_short",
+              "family": "identifier",
+              "type": "unique_id",
               "basis": "inferred",
-              "state": "established",
-              "traits": [],
+              "state": "candidate",
+              "traits": [
+                "observed_unique",
+                "first_column",
+                "single_pattern"
+              ],
               "evidence": [
                 {
                   "source": "technical_type",
@@ -16893,6 +16985,28 @@
                 {
                   "source": "measure",
                   "id": "string_lengths.median_length",
+                  "role": "context",
+                  "scope": {
+                    "population": "present_values",
+                    "of": 120,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "name_rule",
+                  "id": "tokens.order_id",
+                  "role": "supports",
+                  "scope": {
+                    "population": "positions",
+                    "of": null,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "measure",
+                  "id": "values.cardinality",
                   "role": "supports",
                   "scope": {
                     "population": "present_values",
@@ -16900,10 +17014,27 @@
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "measure",
+                  "id": "missing.count",
+                  "role": "supports",
+                  "scope": {
+                    "population": "positions",
+                    "of": 120,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "text",
+                  "type": "text_short",
+                  "reason": "replaced_by_role"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -17049,11 +17180,11 @@
                     },
                     {
                       "code": "identifier.repetition",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_identifier"
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 120,
+                      "tested": 120,
+                      "reason": null
                     },
                     {
                       "code": "text.surrounding_whitespace",
@@ -17075,18 +17206,18 @@
                 }
               },
               "overview": {
-                "kind": "text",
-                "type": "text_short",
+                "kind": "unique_id",
+                "type": "unique_id",
                 "facts": [
                   {
-                    "name": "median_length",
-                    "value": 7.0,
+                    "name": "present",
+                    "value": 120,
                     "accuracy": "exact"
                   },
                   {
-                    "name": "distinct",
-                    "value": 120,
-                    "accuracy": "exact"
+                    "name": "formats",
+                    "value": 1,
+                    "accuracy": "lower_bound"
                   }
                 ],
                 "notes": []
@@ -17117,14 +17248,7 @@
                 "total": 120,
                 "total_accuracy": "exact",
                 "note": "3 values of 120 distinct values; A sample of the values; the list is not exhaustive.",
-                "measures": [
-                  {
-                    "name": "fixed_length",
-                    "label": "Fixed length, in characters",
-                    "value": 7,
-                    "accuracy": "exact"
-                  }
-                ]
+                "measures": []
               },
               "values": {
                 "selection": "diverse_sample",
@@ -17309,7 +17433,9 @@
               "type": "date",
               "basis": "fallback",
               "state": "established",
-              "traits": [],
+              "traits": [
+                "single_pattern"
+              ],
               "evidence": [
                 {
                   "source": "technical_type",
@@ -17321,10 +17447,32 @@
                     "partial": false,
                     "accuracy": "exact"
                   }
+                },
+                {
+                  "source": "detector",
+                  "id": "date",
+                  "role": "supports",
+                  "scope": {
+                    "population": "eligible",
+                    "of": 120,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
+                },
+                {
+                  "source": "name_rule",
+                  "id": "name.date_suffix",
+                  "role": "supports",
+                  "scope": {
+                    "population": "positions",
+                    "of": null,
+                    "partial": false,
+                    "accuracy": "exact"
+                  }
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [
@@ -17819,7 +17967,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -18345,37 +18493,39 @@
             },
             "distinct_count": 120,
             "classification": {
-              "family": "text",
-              "type": "text_medium",
+              "family": "contact",
+              "type": "email",
               "basis": "inferred",
               "state": "established",
-              "traits": [],
+              "traits": [
+                "observed_unique"
+              ],
               "evidence": [
                 {
-                  "source": "technical_type",
-                  "id": "text",
+                  "source": "detector",
+                  "id": "email",
                   "role": "supports",
                   "scope": {
-                    "population": "present_values",
+                    "population": "eligible",
                     "of": 120,
                     "partial": false,
                     "accuracy": "exact"
                   }
                 },
                 {
-                  "source": "measure",
-                  "id": "string_lengths.median_length",
+                  "source": "name_rule",
+                  "id": "name.email",
                   "role": "supports",
                   "scope": {
-                    "population": "present_values",
-                    "of": 120,
+                    "population": "positions",
+                    "of": null,
                     "partial": false,
                     "accuracy": "exact"
                   }
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": "show",
             "detectors": [
@@ -18496,7 +18646,7 @@
                 },
                 "errors": {
                   "items": [],
-                  "state": "not_applicable",
+                  "state": "none_detected",
                   "assessments": [
                     {
                       "code": "temporal.invalid_calendar",
@@ -18508,11 +18658,11 @@
                     },
                     {
                       "code": "semantic.invalid",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_semantic_type"
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 120,
+                      "tested": 120,
+                      "reason": null
                     },
                     {
                       "code": "type.outside_family",
@@ -18538,11 +18688,11 @@
                     },
                     {
                       "code": "semantic.invalid",
-                      "state": "not_applicable",
-                      "accuracy": "unavailable",
-                      "eligible": null,
-                      "tested": null,
-                      "reason": "not_semantic_type"
+                      "state": "none_detected",
+                      "accuracy": "exact",
+                      "eligible": 120,
+                      "tested": 120,
+                      "reason": null
                     },
                     {
                       "code": "type.outside_family",
@@ -18628,20 +18778,9 @@
                 }
               },
               "overview": {
-                "kind": "text",
-                "type": "text_medium",
-                "facts": [
-                  {
-                    "name": "median_length",
-                    "value": 27.0,
-                    "accuracy": "exact"
-                  },
-                  {
-                    "name": "distinct",
-                    "value": 120,
-                    "accuracy": "exact"
-                  }
-                ],
+                "kind": "shaped",
+                "type": "email",
+                "facts": [],
                 "notes": []
               },
               "details": {
@@ -18672,21 +18811,15 @@
                 "note": "3 values of 120 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": [
                   {
-                    "name": "minimum_length",
-                    "label": "Shortest value, in characters",
-                    "value": 24,
+                    "name": "matched_percent",
+                    "label": "Share recognized by the detector",
+                    "value": 100.0,
                     "accuracy": "exact"
                   },
                   {
-                    "name": "maximum_length",
-                    "label": "Longest value, in characters",
-                    "value": 29,
-                    "accuracy": "exact"
-                  },
-                  {
-                    "name": "mean_length",
-                    "label": "Mean length, in characters",
-                    "value": 26.94,
+                    "name": "key",
+                    "label": "example",
+                    "value": 120,
                     "accuracy": "exact"
                   }
                 ]
@@ -18900,7 +19033,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -19284,7 +19417,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -19648,8 +19781,14 @@
                   }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "numeric",
+                  "type": "quantity",
+                  "reason": "name_only"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -20043,8 +20182,14 @@
                   }
                 }
               ],
-              "alternatives": [],
-              "rule_version": 1
+              "alternatives": [
+                {
+                  "family": "numeric",
+                  "type": "currency",
+                  "reason": "name_only"
+                }
+              ],
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -20470,7 +20615,7 @@
                 }
               ],
               "alternatives": [],
-              "rule_version": 1
+              "rule_version": 4002
             },
             "exposure": null,
             "detectors": [],
@@ -20781,11 +20926,11 @@
               "states": [
                 {
                   "state": "none_detected",
-                  "columns": 3
+                  "columns": 4
                 },
                 {
                   "state": "not_applicable",
-                  "columns": 6
+                  "columns": 5
                 }
               ]
             },

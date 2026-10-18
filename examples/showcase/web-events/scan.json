@@ -27,23 +27,23 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-18T18:07:18.257087Z",
-    "duration_seconds": 0.038823,
+    "started_at": "2026-10-18T18:49:25.480686Z",
+    "duration_seconds": 0.036893,
     "timings": {
-      "reading": 0.00588,
-      "analysis": 0.009051,
-      "finalize": 0.015619,
-      "derived": 0.006059,
-      "other": 0.002214
+      "reading": 0.007064,
+      "analysis": 0.008279,
+      "finalize": 0.014882,
+      "derived": 0.00621,
+      "other": 0.000458
     },
     "workers": 1,
-    "peak_memory_bytes": 72892416
+    "peak_memory_bytes": 73224192
   },
   "source": {
     "format": "jsonl",
     "name": "web-events.jsonl",
     "size_bytes": 69631,
-    "modified_at": "2026-10-16T05:33:33.613600Z",
+    "modified_at": "2026-10-18T18:11:42.967677Z",
     "sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
     "encoding": "utf-8",
     "shape": {
