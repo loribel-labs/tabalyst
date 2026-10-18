@@ -23407,15 +23407,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T00:13:16.402829Z",
-        "duration_seconds": 0.000142,
+        "started_at": "2026-10-18T00:12:22.713582Z",
+        "duration_seconds": 0.000141,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000142
+          "other": 0.000141
         },
         "workers": 1,
-        "peak_memory_bytes": 77647872,
+        "peak_memory_bytes": 76181504,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -27901,12 +27901,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T00:13:16.663498Z",
+    "generated_at": "2026-10-18T00:12:22.987528Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.3153,
+    "processing_seconds": 0.3308,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -28081,117 +28081,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 300,
-            "examples": [
-              "evt-00001",
-              "evt-00002",
-              "evt-00003"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "evt-00001",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00002",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00003",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00015",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00020",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00038",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00042",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00051",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00064",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00096",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00100",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00122",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00148",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00197",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00211",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00237",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00263",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00275",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00282",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "evt-00294",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -28445,6 +28334,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "evt-00001",
+                  "evt-00002",
+                  "evt-00003"
+                ],
+                "values": [
+                  [
+                    "evt-00001",
+                    1
+                  ],
+                  [
+                    "evt-00002",
+                    1
+                  ],
+                  [
+                    "evt-00003",
+                    1
+                  ],
+                  [
+                    "evt-00015",
+                    1
+                  ],
+                  [
+                    "evt-00020",
+                    1
+                  ],
+                  [
+                    "evt-00038",
+                    1
+                  ],
+                  [
+                    "evt-00042",
+                    1
+                  ],
+                  [
+                    "evt-00051",
+                    1
+                  ],
+                  [
+                    "evt-00064",
+                    1
+                  ],
+                  [
+                    "evt-00096",
+                    1
+                  ],
+                  [
+                    "evt-00100",
+                    1
+                  ],
+                  [
+                    "evt-00122",
+                    1
+                  ],
+                  [
+                    "evt-00148",
+                    1
+                  ],
+                  [
+                    "evt-00197",
+                    1
+                  ],
+                  [
+                    "evt-00211",
+                    1
+                  ],
+                  [
+                    "evt-00237",
+                    1
+                  ],
+                  [
+                    "evt-00263",
+                    1
+                  ],
+                  [
+                    "evt-00275",
+                    1
+                  ],
+                  [
+                    "evt-00282",
+                    1
+                  ],
+                  [
+                    "evt-00294",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -28524,117 +28505,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 300,
-            "examples": [
-              "2026-03-01T08:00:16Z",
-              "2026-03-01T08:00:17Z",
-              "2026-03-01T08:01:03Z"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "2026-03-01T08:00:16Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T08:00:17Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T08:01:03Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T08:06:09Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T08:14:57Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T08:20:35Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T08:41:12Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T08:58:40Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T09:22:44Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T09:31:29Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T09:43:50Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T09:59:15Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T10:08:29Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T10:10:36Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T10:21:13Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T10:49:08Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T10:56:55Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T11:15:43Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T11:23:59Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T11:32:31Z",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -28946,6 +28816,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "2026-03-01T08:00:16Z",
+                  "2026-03-01T08:00:17Z",
+                  "2026-03-01T08:01:03Z"
+                ],
+                "values": [
+                  [
+                    "2026-03-01T08:00:16Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T08:00:17Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T08:01:03Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T08:06:09Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T08:14:57Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T08:20:35Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T08:41:12Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T08:58:40Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T09:22:44Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T09:31:29Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T09:43:50Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T09:59:15Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T10:08:29Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T10:10:36Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T10:21:13Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T10:49:08Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T10:56:55Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T11:15:43Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T11:23:59Z",
+                    1
+                  ],
+                  [
+                    "2026-03-01T11:32:31Z",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -29025,42 +28987,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 5,
-            "examples": [
-              "page_view",
-              "click",
-              "error"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 5,
-              "values": [
-                {
-                  "value": "page_view",
-                  "count": 152,
-                  "truncated": false
-                },
-                {
-                  "value": "click",
-                  "count": 80,
-                  "truncated": false
-                },
-                {
-                  "value": "error",
-                  "count": 26,
-                  "truncated": false
-                },
-                {
-                  "value": "purchase",
-                  "count": 21,
-                  "truncated": false
-                },
-                {
-                  "value": "signup",
-                  "count": 21,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -29326,6 +29252,38 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 5,
+                "examples": [
+                  "page_view",
+                  "click",
+                  "error"
+                ],
+                "values": [
+                  [
+                    "page_view",
+                    152
+                  ],
+                  [
+                    "click",
+                    80
+                  ],
+                  [
+                    "error",
+                    26
+                  ],
+                  [
+                    "purchase",
+                    21
+                  ],
+                  [
+                    "signup",
+                    21
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -29405,117 +29363,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 60,
-            "examples": [
-              "59",
-              "25",
-              "34"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 60,
-              "values": [
-                {
-                  "value": "59",
-                  "count": 8,
-                  "truncated": false
-                },
-                {
-                  "value": "25",
-                  "count": 7,
-                  "truncated": false
-                },
-                {
-                  "value": "34",
-                  "count": 7,
-                  "truncated": false
-                },
-                {
-                  "value": "6",
-                  "count": 7,
-                  "truncated": false
-                },
-                {
-                  "value": "60",
-                  "count": 7,
-                  "truncated": false
-                },
-                {
-                  "value": "43",
-                  "count": 6,
-                  "truncated": false
-                },
-                {
-                  "value": "18",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "28",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "8",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "9",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "22",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "32",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "10",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "13",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "57",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "11",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "12",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "4",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "40",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "46",
-                  "count": 2,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "numeric",
               "type": "integer",
@@ -29763,6 +29610,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 60,
+                "examples": [
+                  "59",
+                  "25",
+                  "34"
+                ],
+                "values": [
+                  [
+                    "59",
+                    8
+                  ],
+                  [
+                    "25",
+                    7
+                  ],
+                  [
+                    "34",
+                    7
+                  ],
+                  [
+                    "6",
+                    7
+                  ],
+                  [
+                    "60",
+                    7
+                  ],
+                  [
+                    "43",
+                    6
+                  ],
+                  [
+                    "18",
+                    5
+                  ],
+                  [
+                    "28",
+                    5
+                  ],
+                  [
+                    "8",
+                    5
+                  ],
+                  [
+                    "9",
+                    5
+                  ],
+                  [
+                    "22",
+                    4
+                  ],
+                  [
+                    "32",
+                    4
+                  ],
+                  [
+                    "10",
+                    3
+                  ],
+                  [
+                    "13",
+                    3
+                  ],
+                  [
+                    "57",
+                    3
+                  ],
+                  [
+                    "11",
+                    2
+                  ],
+                  [
+                    "12",
+                    2
+                  ],
+                  [
+                    "4",
+                    2
+                  ],
+                  [
+                    "40",
+                    2
+                  ],
+                  [
+                    "46",
+                    2
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "obs"
@@ -29844,42 +29783,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 5,
-            "examples": [
-              "FR",
-              "US",
-              "DE"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 5,
-              "values": [
-                {
-                  "value": "FR",
-                  "count": 57,
-                  "truncated": false
-                },
-                {
-                  "value": "US",
-                  "count": 54,
-                  "truncated": false
-                },
-                {
-                  "value": "DE",
-                  "count": 53,
-                  "truncated": false
-                },
-                {
-                  "value": "CA",
-                  "count": 45,
-                  "truncated": false
-                },
-                {
-                  "value": "BE",
-                  "count": 44,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_very_short",
@@ -30133,6 +30036,38 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 5,
+                "examples": [
+                  "FR",
+                  "US",
+                  "DE"
+                ],
+                "values": [
+                  [
+                    "FR",
+                    57
+                  ],
+                  [
+                    "US",
+                    54
+                  ],
+                  [
+                    "DE",
+                    53
+                  ],
+                  [
+                    "CA",
+                    45
+                  ],
+                  [
+                    "BE",
+                    44
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "obs"
@@ -30214,32 +30149,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 3,
-            "examples": [
-              "pro",
-              "free",
-              "team"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 3,
-              "values": [
-                {
-                  "value": "pro",
-                  "count": 111,
-                  "truncated": false
-                },
-                {
-                  "value": "free",
-                  "count": 105,
-                  "truncated": false
-                },
-                {
-                  "value": "team",
-                  "count": 84,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_very_short",
@@ -30505,6 +30414,30 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 3,
+                "examples": [
+                  "pro",
+                  "free",
+                  "team"
+                ],
+                "values": [
+                  [
+                    "pro",
+                    111
+                  ],
+                  [
+                    "free",
+                    105
+                  ],
+                  [
+                    "team",
+                    84
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -30584,42 +30517,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 5,
-            "examples": [
-              "Windows",
-              "Android",
-              "iOS"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 5,
-              "values": [
-                {
-                  "value": "Windows",
-                  "count": 66,
-                  "truncated": false
-                },
-                {
-                  "value": "Android",
-                  "count": 61,
-                  "truncated": false
-                },
-                {
-                  "value": "iOS",
-                  "count": 60,
-                  "truncated": false
-                },
-                {
-                  "value": "macOS",
-                  "count": 58,
-                  "truncated": false
-                },
-                {
-                  "value": "Linux",
-                  "count": 55,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_very_short",
@@ -30885,6 +30782,38 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 5,
+                "examples": [
+                  "Windows",
+                  "Android",
+                  "iOS"
+                ],
+                "values": [
+                  [
+                    "Windows",
+                    66
+                  ],
+                  [
+                    "Android",
+                    61
+                  ],
+                  [
+                    "iOS",
+                    60
+                  ],
+                  [
+                    "macOS",
+                    58
+                  ],
+                  [
+                    "Linux",
+                    55
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -30964,26 +30893,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 2,
-            "examples": [
-              "false",
-              "true"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 2,
-              "values": [
-                {
-                  "value": "false",
-                  "count": 171,
-                  "truncated": false
-                },
-                {
-                  "value": "true",
-                  "count": 129,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "boolean",
@@ -31208,6 +31117,25 @@
                 "note": null,
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 2,
+                "examples": [
+                  "false",
+                  "true"
+                ],
+                "values": [
+                  [
+                    "false",
+                    171
+                  ],
+                  [
+                    "true",
+                    129
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -31287,57 +31215,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 8,
-            "examples": [
-              "/docs",
-              "/checkout",
-              "/blog"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 8,
-              "values": [
-                {
-                  "value": "/docs",
-                  "count": 51,
-                  "truncated": false
-                },
-                {
-                  "value": "/checkout",
-                  "count": 49,
-                  "truncated": false
-                },
-                {
-                  "value": "/blog",
-                  "count": 41,
-                  "truncated": false
-                },
-                {
-                  "value": "/login",
-                  "count": 40,
-                  "truncated": false
-                },
-                {
-                  "value": "/pricing",
-                  "count": 36,
-                  "truncated": false
-                },
-                {
-                  "value": "/",
-                  "count": 31,
-                  "truncated": false
-                },
-                {
-                  "value": "/docs/install",
-                  "count": 29,
-                  "truncated": false
-                },
-                {
-                  "value": "/signup",
-                  "count": 23,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -31603,6 +31480,50 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 8,
+                "examples": [
+                  "/docs",
+                  "/checkout",
+                  "/blog"
+                ],
+                "values": [
+                  [
+                    "/docs",
+                    51
+                  ],
+                  [
+                    "/checkout",
+                    49
+                  ],
+                  [
+                    "/blog",
+                    41
+                  ],
+                  [
+                    "/login",
+                    40
+                  ],
+                  [
+                    "/pricing",
+                    36
+                  ],
+                  [
+                    "/",
+                    31
+                  ],
+                  [
+                    "/docs/install",
+                    29
+                  ],
+                  [
+                    "/signup",
+                    23
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -31682,42 +31603,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 5,
-            "examples": [
-              "beta",
-              "newsletter",
-              "returning"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 5,
-              "values": [
-                {
-                  "value": "beta",
-                  "count": 95,
-                  "truncated": false
-                },
-                {
-                  "value": "newsletter",
-                  "count": 94,
-                  "truncated": false
-                },
-                {
-                  "value": "returning",
-                  "count": 93,
-                  "truncated": false
-                },
-                {
-                  "value": "mobile",
-                  "count": 84,
-                  "truncated": false
-                },
-                {
-                  "value": "promo",
-                  "count": 84,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -31983,6 +31868,38 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 5,
+                "examples": [
+                  "beta",
+                  "newsletter",
+                  "returning"
+                ],
+                "values": [
+                  [
+                    "beta",
+                    95
+                  ],
+                  [
+                    "newsletter",
+                    94
+                  ],
+                  [
+                    "returning",
+                    93
+                  ],
+                  [
+                    "mobile",
+                    84
+                  ],
+                  [
+                    "promo",
+                    84
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -32062,122 +31979,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 21,
-            "examples": [
-              "151.62",
-              "160.1",
-              "165.74"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 21,
-              "values": [
-                {
-                  "value": "151.62",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "160.1",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "165.74",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "203.71",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "216.5",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "226.44",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "23.43",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "232.05",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "239.9",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "248.12",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "262.23",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "269.96",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "273.29",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "289.62",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "30.23",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "47.97",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "51.35",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "59.65",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "79.2",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "91.93",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "94.1",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "numeric",
               "type": "number",
@@ -32425,6 +32226,102 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 21,
+                "examples": [
+                  "151.62",
+                  "160.1",
+                  "165.74"
+                ],
+                "values": [
+                  [
+                    "151.62",
+                    1
+                  ],
+                  [
+                    "160.1",
+                    1
+                  ],
+                  [
+                    "165.74",
+                    1
+                  ],
+                  [
+                    "203.71",
+                    1
+                  ],
+                  [
+                    "216.5",
+                    1
+                  ],
+                  [
+                    "226.44",
+                    1
+                  ],
+                  [
+                    "23.43",
+                    1
+                  ],
+                  [
+                    "232.05",
+                    1
+                  ],
+                  [
+                    "239.9",
+                    1
+                  ],
+                  [
+                    "248.12",
+                    1
+                  ],
+                  [
+                    "262.23",
+                    1
+                  ],
+                  [
+                    "269.96",
+                    1
+                  ],
+                  [
+                    "273.29",
+                    1
+                  ],
+                  [
+                    "289.62",
+                    1
+                  ],
+                  [
+                    "30.23",
+                    1
+                  ],
+                  [
+                    "47.97",
+                    1
+                  ],
+                  [
+                    "51.35",
+                    1
+                  ],
+                  [
+                    "59.65",
+                    1
+                  ],
+                  [
+                    "79.2",
+                    1
+                  ],
+                  [
+                    "91.93",
+                    1
+                  ],
+                  [
+                    "94.1",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "obs"
@@ -32506,20 +32403,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 1,
-            "examples": [
-              "EUR"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 1,
-              "values": [
-                {
-                  "value": "EUR",
-                  "count": 21,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_very_short",
@@ -32761,6 +32644,20 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 1,
+                "examples": [
+                  "EUR"
+                ],
+                "values": [
+                  [
+                    "EUR",
+                    21
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "obs"
@@ -32842,32 +32739,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 3,
-            "examples": [
-              "500",
-              "404",
-              "503"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 3,
-              "values": [
-                {
-                  "value": "500",
-                  "count": 11,
-                  "truncated": false
-                },
-                {
-                  "value": "404",
-                  "count": 9,
-                  "truncated": false
-                },
-                {
-                  "value": "503",
-                  "count": 6,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "numeric",
               "type": "integer",
@@ -33115,6 +32986,30 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 3,
+                "examples": [
+                  "500",
+                  "404",
+                  "503"
+                ],
+                "values": [
+                  [
+                    "500",
+                    11
+                  ],
+                  [
+                    "404",
+                    9
+                  ],
+                  [
+                    "503",
+                    6
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "obs"
@@ -33196,26 +33091,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 2,
-            "examples": [
-              "A",
-              "B"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 2,
-              "values": [
-                {
-                  "value": "A",
-                  "count": 20,
-                  "truncated": false
-                },
-                {
-                  "value": "B",
-                  "count": 10,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_very_short",
@@ -33462,6 +33337,25 @@
                     "accuracy": "exact"
                   }
                 ]
+              },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 2,
+                "examples": [
+                  "A",
+                  "B"
+                ],
+                "values": [
+                  [
+                    "A",
+                    20
+                  ],
+                  [
+                    "B",
+                    10
+                  ]
+                ],
+                "cut": []
               },
               "variants": null,
               "flags": [

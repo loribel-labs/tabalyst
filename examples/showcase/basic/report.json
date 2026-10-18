@@ -8435,15 +8435,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T00:12:53.346097Z",
-        "duration_seconds": 0.000114,
+        "started_at": "2026-10-18T00:11:59.313618Z",
+        "duration_seconds": 0.000108,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000114
+          "other": 0.000108
         },
         "workers": 1,
-        "peak_memory_bytes": 70250496,
+        "peak_memory_bytes": 70627328,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -8919,12 +8919,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T00:12:53.346097Z",
+    "generated_at": "2026-10-18T00:11:59.313618Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0273,
+    "processing_seconds": 0.0222,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -9101,37 +9101,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 4,
-            "examples": [
-              "003",
-              "001",
-              "002"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 4,
-              "values": [
-                {
-                  "value": "003",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "001",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "002",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "004",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_very_short",
@@ -9385,6 +9354,34 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 4,
+                "examples": [
+                  "003",
+                  "001",
+                  "002"
+                ],
+                "values": [
+                  [
+                    "003",
+                    2
+                  ],
+                  [
+                    "001",
+                    1
+                  ],
+                  [
+                    "002",
+                    1
+                  ],
+                  [
+                    "004",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -9464,37 +9461,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 4,
-            "examples": [
-              "Charlie",
-              "Alice",
-              "Bob"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 4,
-              "values": [
-                {
-                  "value": "Charlie",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Alice",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Bob",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Dana",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_very_short",
@@ -9760,6 +9726,34 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 4,
+                "examples": [
+                  "Charlie",
+                  "Alice",
+                  "Bob"
+                ],
+                "values": [
+                  [
+                    "Charlie",
+                    2
+                  ],
+                  [
+                    "Alice",
+                    1
+                  ],
+                  [
+                    "Bob",
+                    1
+                  ],
+                  [
+                    "Dana",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -9840,32 +9834,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 3,
-            "examples": [
-              "25.00",
-              "12.50",
-              "not available"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 3,
-              "values": [
-                {
-                  "value": "25.00",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "12.50",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "not available",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "other",
               "type": "mixed",
@@ -10192,6 +10160,30 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 3,
+                "examples": [
+                  "25.00",
+                  "12.50",
+                  "not available"
+                ],
+                "values": [
+                  [
+                    "25.00",
+                    2
+                  ],
+                  [
+                    "12.50",
+                    1
+                  ],
+                  [
+                    "not available",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue",
@@ -10274,37 +10266,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 4,
-            "examples": [
-              "2026-03-01",
-              "2026-01-01",
-              "2026-02-01"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 4,
-              "values": [
-                {
-                  "value": "2026-03-01",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-01-01",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-02-01",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-04-01",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "temporal",
               "type": "date",
@@ -10604,6 +10565,34 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 4,
+                "examples": [
+                  "2026-03-01",
+                  "2026-01-01",
+                  "2026-02-01"
+                ],
+                "values": [
+                  [
+                    "2026-03-01",
+                    2
+                  ],
+                  [
+                    "2026-01-01",
+                    1
+                  ],
+                  [
+                    "2026-02-01",
+                    1
+                  ],
+                  [
+                    "2026-04-01",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -10683,26 +10672,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 2,
-            "examples": [
-              "true",
-              "false"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 2,
-              "values": [
-                {
-                  "value": "true",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "false",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "boolean",
@@ -10970,6 +10939,25 @@
                 "note": null,
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 2,
+                "examples": [
+                  "true",
+                  "false"
+                ],
+                "values": [
+                  [
+                    "true",
+                    4
+                  ],
+                  [
+                    "false",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -11049,32 +11037,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 3,
-            "examples": [
-              "Two items, one order",
-              "First order",
-              "Pending review"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 3,
-              "values": [
-                {
-                  "value": "Two items, one order",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "First order",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Pending review",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -11339,6 +11301,30 @@
                     "accuracy": "exact"
                   }
                 ]
+              },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 3,
+                "examples": [
+                  "Two items, one order",
+                  "First order",
+                  "Pending review"
+                ],
+                "values": [
+                  [
+                    "Two items, one order",
+                    2
+                  ],
+                  [
+                    "First order",
+                    1
+                  ],
+                  [
+                    "Pending review",
+                    1
+                  ]
+                ],
+                "cut": []
               },
               "variants": null,
               "flags": [

@@ -13,8 +13,6 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from pydantic import Field
-
 from tabalyst.report_labels import (
     DETAILS_MEASURES,
     DETAILS_NOTES,
@@ -22,9 +20,9 @@ from tabalyst.report_labels import (
     plural,
 )
 from tabalyst.report_views import ColumnView
-from tabalyst.result_model import ResultModel
 from tabalyst.scanner.exposure import ExposureGate, ExposureMode
 from tabalyst.summary_models import (
+    ColumnValues,
     DetailExample,
     DetailMeasure,
     Details,
@@ -55,8 +53,7 @@ def _gate(column: ColumnView) -> ExposureGate:
 
 def _examples(column: ColumnView, gate: ExposureGate) -> list[DetailExample]:
     """The first values of the profile, as many as the cell of the old table
-    showed, through the gate (masks merged, nothing when hidden). The gate is
-    applied again on purpose: the document may hold raw values."""
+    showed, through the gate (masks merged, nothing when hidden)."""
     taken = column.value_profile.values[: len(column.examples)]
     present = column.field.values.count
     cut = {item.value for item in taken if item.truncated}
@@ -72,28 +69,19 @@ def _examples(column: ColumnView, gate: ExposureGate) -> list[DetailExample]:
     ]
 
 
-class ExposedValues(ResultModel):
-    """The values of a column the tables list in a cell and in its hover, through the
-    exposure of the column (CA-19): ``examples`` are the inline chips, ``values`` the
-    value and its count of the hover, both empty when the column is hidden."""
-
-    examples: list[str]
-    values: list[tuple[str, int]]
-    # Exposed values the Scan cut at its stored length: not the whole value.
-    cut: list[str] = Field(default_factory=list)
-
-
-def exposed_values(column: ColumnView) -> ExposedValues:
+def exposed_values(column: ColumnView) -> ColumnValues:
     """The examples and the values of ``column.value_profile`` as the Columns and the
-    Numeric tables may print them.
+    Numeric tables may print them, through the exposure of the column.
 
-    The gate is applied again on purpose: a document may hold raw values whatever
-    the exposure its field announces, and no table reads ``column.examples`` or
-    ``column.value_profile`` directly.
+    Runs when the Report is built, where the column still holds its raw values; the
+    result is stored in the column summary and no page reads ``column.examples`` or
+    ``column.value_profile`` (the document does not serialize them).
     """
     gate = _gate(column)
     counts = gate.counts((item.value, item.count) for item in column.value_profile.values)
-    return ExposedValues(
+    return ColumnValues(
+        selection=column.value_profile.selection,
+        sampled_distinct_count=column.value_profile.sampled_distinct_count,
         examples=gate.examples(list(column.examples)),
         values=list(counts.items()),
         cut=[

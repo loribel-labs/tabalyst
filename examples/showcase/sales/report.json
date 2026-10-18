@@ -16787,15 +16787,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T00:13:15.289656Z",
-        "duration_seconds": 0.000128,
+        "started_at": "2026-10-18T00:12:21.582585Z",
+        "duration_seconds": 0.000133,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000128
+          "other": 0.000133
         },
         "workers": 1,
-        "peak_memory_bytes": 75640832,
+        "peak_memory_bytes": 74227712,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -20955,12 +20955,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T00:13:15.329766Z",
+    "generated_at": "2026-10-18T00:12:21.616225Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0772,
+    "processing_seconds": 0.0786,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -21143,117 +21143,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 120,
-            "examples": [
-              "SO-0001",
-              "SO-0002",
-              "SO-0003"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "SO-0001",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0002",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0003",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0005",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0015",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0024",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0036",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0042",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0045",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0059",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0061",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0074",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0075",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0077",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0080",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0093",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0104",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0108",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0116",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "SO-0120",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -21507,6 +21396,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "SO-0001",
+                  "SO-0002",
+                  "SO-0003"
+                ],
+                "values": [
+                  [
+                    "SO-0001",
+                    1
+                  ],
+                  [
+                    "SO-0002",
+                    1
+                  ],
+                  [
+                    "SO-0003",
+                    1
+                  ],
+                  [
+                    "SO-0005",
+                    1
+                  ],
+                  [
+                    "SO-0015",
+                    1
+                  ],
+                  [
+                    "SO-0024",
+                    1
+                  ],
+                  [
+                    "SO-0036",
+                    1
+                  ],
+                  [
+                    "SO-0042",
+                    1
+                  ],
+                  [
+                    "SO-0045",
+                    1
+                  ],
+                  [
+                    "SO-0059",
+                    1
+                  ],
+                  [
+                    "SO-0061",
+                    1
+                  ],
+                  [
+                    "SO-0074",
+                    1
+                  ],
+                  [
+                    "SO-0075",
+                    1
+                  ],
+                  [
+                    "SO-0077",
+                    1
+                  ],
+                  [
+                    "SO-0080",
+                    1
+                  ],
+                  [
+                    "SO-0093",
+                    1
+                  ],
+                  [
+                    "SO-0104",
+                    1
+                  ],
+                  [
+                    "SO-0108",
+                    1
+                  ],
+                  [
+                    "SO-0116",
+                    1
+                  ],
+                  [
+                    "SO-0120",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -21586,117 +21567,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 75,
-            "examples": [
-              "2026-01-03",
-              "2026-01-05",
-              "2026-01-07"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 75,
-              "values": [
-                {
-                  "value": "2026-01-03",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-01-05",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-01-07",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-01-13",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-01-21",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-01-29",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-02-08",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-02-14",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-02-26",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-06",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-16",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-30",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-04-07",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-04-09",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-04-15",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-04-27",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-05-13",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-05-17",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-05-19",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-05-23",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "temporal",
               "type": "date",
@@ -22002,6 +21872,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 75,
+                "examples": [
+                  "2026-01-03",
+                  "2026-01-05",
+                  "2026-01-07"
+                ],
+                "values": [
+                  [
+                    "2026-01-03",
+                    2
+                  ],
+                  [
+                    "2026-01-05",
+                    2
+                  ],
+                  [
+                    "2026-01-07",
+                    2
+                  ],
+                  [
+                    "2026-01-13",
+                    2
+                  ],
+                  [
+                    "2026-01-21",
+                    2
+                  ],
+                  [
+                    "2026-01-29",
+                    2
+                  ],
+                  [
+                    "2026-02-08",
+                    2
+                  ],
+                  [
+                    "2026-02-14",
+                    2
+                  ],
+                  [
+                    "2026-02-26",
+                    2
+                  ],
+                  [
+                    "2026-03-06",
+                    2
+                  ],
+                  [
+                    "2026-03-16",
+                    2
+                  ],
+                  [
+                    "2026-03-30",
+                    2
+                  ],
+                  [
+                    "2026-04-07",
+                    1
+                  ],
+                  [
+                    "2026-04-09",
+                    1
+                  ],
+                  [
+                    "2026-04-15",
+                    1
+                  ],
+                  [
+                    "2026-04-27",
+                    1
+                  ],
+                  [
+                    "2026-05-13",
+                    1
+                  ],
+                  [
+                    "2026-05-17",
+                    1
+                  ],
+                  [
+                    "2026-05-19",
+                    1
+                  ],
+                  [
+                    "2026-05-23",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -22081,257 +22043,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 48,
-            "examples": [
-              "Emma Laurent",
-              "Hugo Laurent",
-              "Ana Martin"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 48,
-              "values": [
-                {
-                  "value": "Emma Laurent",
-                  "count": 6,
-                  "truncated": false
-                },
-                {
-                  "value": "Hugo Laurent",
-                  "count": 6,
-                  "truncated": false
-                },
-                {
-                  "value": "Ana Martin",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "Bruno Bernard",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "Bruno Laurent",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "Bruno Martin",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "David Bernard",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "Emma Martin",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "Farid Bernard",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "Gaelle Moreau",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "Hugo Martin",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "Ana Dubois",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "Bruno Michel",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "Bruno Moreau",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "Bruno Simon",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "Chloe Laurent",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "David Michel",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "David Simon",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "Gaelle Dubois",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "Ana Bernard",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Ana Laurent",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Ana Simon",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Chloe Dubois",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Chloe Martin",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "David Dubois",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "David Laurent",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Emma Bernard",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Emma Michel",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Emma Moreau",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Emma Simon",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Farid Dubois",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Farid Martin",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Farid Michel",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Gaelle Laurent",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Gaelle Martin",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Hugo Bernard",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Hugo Michel",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Hugo Simon",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "Bruno Dubois",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Chloe Bernard",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Chloe Michel",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Chloe Moreau",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Chloe Simon",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "David Moreau",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Emma Dubois",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Farid Laurent",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Gaelle Simon",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Hugo Dubois",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -22597,6 +22308,210 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 48,
+                "examples": [
+                  "Emma Laurent",
+                  "Hugo Laurent",
+                  "Ana Martin"
+                ],
+                "values": [
+                  [
+                    "Emma Laurent",
+                    6
+                  ],
+                  [
+                    "Hugo Laurent",
+                    6
+                  ],
+                  [
+                    "Ana Martin",
+                    4
+                  ],
+                  [
+                    "Bruno Bernard",
+                    4
+                  ],
+                  [
+                    "Bruno Laurent",
+                    4
+                  ],
+                  [
+                    "Bruno Martin",
+                    4
+                  ],
+                  [
+                    "David Bernard",
+                    4
+                  ],
+                  [
+                    "Emma Martin",
+                    4
+                  ],
+                  [
+                    "Farid Bernard",
+                    4
+                  ],
+                  [
+                    "Gaelle Moreau",
+                    4
+                  ],
+                  [
+                    "Hugo Martin",
+                    4
+                  ],
+                  [
+                    "Ana Dubois",
+                    3
+                  ],
+                  [
+                    "Bruno Michel",
+                    3
+                  ],
+                  [
+                    "Bruno Moreau",
+                    3
+                  ],
+                  [
+                    "Bruno Simon",
+                    3
+                  ],
+                  [
+                    "Chloe Laurent",
+                    3
+                  ],
+                  [
+                    "David Michel",
+                    3
+                  ],
+                  [
+                    "David Simon",
+                    3
+                  ],
+                  [
+                    "Gaelle Dubois",
+                    3
+                  ],
+                  [
+                    "Ana Bernard",
+                    2
+                  ],
+                  [
+                    "Ana Laurent",
+                    2
+                  ],
+                  [
+                    "Ana Simon",
+                    2
+                  ],
+                  [
+                    "Chloe Dubois",
+                    2
+                  ],
+                  [
+                    "Chloe Martin",
+                    2
+                  ],
+                  [
+                    "David Dubois",
+                    2
+                  ],
+                  [
+                    "David Laurent",
+                    2
+                  ],
+                  [
+                    "Emma Bernard",
+                    2
+                  ],
+                  [
+                    "Emma Michel",
+                    2
+                  ],
+                  [
+                    "Emma Moreau",
+                    2
+                  ],
+                  [
+                    "Emma Simon",
+                    2
+                  ],
+                  [
+                    "Farid Dubois",
+                    2
+                  ],
+                  [
+                    "Farid Martin",
+                    2
+                  ],
+                  [
+                    "Farid Michel",
+                    2
+                  ],
+                  [
+                    "Gaelle Laurent",
+                    2
+                  ],
+                  [
+                    "Gaelle Martin",
+                    2
+                  ],
+                  [
+                    "Hugo Bernard",
+                    2
+                  ],
+                  [
+                    "Hugo Michel",
+                    2
+                  ],
+                  [
+                    "Hugo Simon",
+                    2
+                  ],
+                  [
+                    "Bruno Dubois",
+                    1
+                  ],
+                  [
+                    "Chloe Bernard",
+                    1
+                  ],
+                  [
+                    "Chloe Michel",
+                    1
+                  ],
+                  [
+                    "Chloe Moreau",
+                    1
+                  ],
+                  [
+                    "Chloe Simon",
+                    1
+                  ],
+                  [
+                    "David Moreau",
+                    1
+                  ],
+                  [
+                    "Emma Dubois",
+                    1
+                  ],
+                  [
+                    "Farid Laurent",
+                    1
+                  ],
+                  [
+                    "Gaelle Simon",
+                    1
+                  ],
+                  [
+                    "Hugo Dubois",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -22676,117 +22591,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 120,
-            "examples": [
-              "ana.bernard13@shop.example",
-              "ana.bernard94@shop.example",
-              "ana.dubois56@shop.example"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "ana.bernard13@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ana.bernard94@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ana.dubois56@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ana.dubois93@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ana.dubois99@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ana.laurent3@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ana.martin37@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ana.martin90@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ana.simon41@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "bruno.martin30@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "chloe.dubois114@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "david.dubois67@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "emma.dubois103@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "farid.bernard105@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "farid.bernard14@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "farid.michel79@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "gaelle.dubois120@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "gaelle.moreau33@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "gaelle.moreau85@shop.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "hugo.michel25@shop.example",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_medium",
@@ -23133,6 +22937,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "ana.bernard13@shop.example",
+                  "ana.bernard94@shop.example",
+                  "ana.dubois56@shop.example"
+                ],
+                "values": [
+                  [
+                    "ana.bernard13@shop.example",
+                    1
+                  ],
+                  [
+                    "ana.bernard94@shop.example",
+                    1
+                  ],
+                  [
+                    "ana.dubois56@shop.example",
+                    1
+                  ],
+                  [
+                    "ana.dubois93@shop.example",
+                    1
+                  ],
+                  [
+                    "ana.dubois99@shop.example",
+                    1
+                  ],
+                  [
+                    "ana.laurent3@shop.example",
+                    1
+                  ],
+                  [
+                    "ana.martin37@shop.example",
+                    1
+                  ],
+                  [
+                    "ana.martin90@shop.example",
+                    1
+                  ],
+                  [
+                    "ana.simon41@shop.example",
+                    1
+                  ],
+                  [
+                    "bruno.martin30@shop.example",
+                    1
+                  ],
+                  [
+                    "chloe.dubois114@shop.example",
+                    1
+                  ],
+                  [
+                    "david.dubois67@shop.example",
+                    1
+                  ],
+                  [
+                    "emma.dubois103@shop.example",
+                    1
+                  ],
+                  [
+                    "farid.bernard105@shop.example",
+                    1
+                  ],
+                  [
+                    "farid.bernard14@shop.example",
+                    1
+                  ],
+                  [
+                    "farid.michel79@shop.example",
+                    1
+                  ],
+                  [
+                    "gaelle.dubois120@shop.example",
+                    1
+                  ],
+                  [
+                    "gaelle.moreau33@shop.example",
+                    1
+                  ],
+                  [
+                    "gaelle.moreau85@shop.example",
+                    1
+                  ],
+                  [
+                    "hugo.michel25@shop.example",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -23212,42 +23108,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 5,
-            "examples": [
-              "West",
-              "Center",
-              "East"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 5,
-              "values": [
-                {
-                  "value": "West",
-                  "count": 28,
-                  "truncated": false
-                },
-                {
-                  "value": "Center",
-                  "count": 24,
-                  "truncated": false
-                },
-                {
-                  "value": "East",
-                  "count": 24,
-                  "truncated": false
-                },
-                {
-                  "value": "North",
-                  "count": 22,
-                  "truncated": false
-                },
-                {
-                  "value": "South",
-                  "count": 22,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_very_short",
@@ -23513,6 +23373,38 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 5,
+                "examples": [
+                  "West",
+                  "Center",
+                  "East"
+                ],
+                "values": [
+                  [
+                    "West",
+                    28
+                  ],
+                  [
+                    "Center",
+                    24
+                  ],
+                  [
+                    "East",
+                    24
+                  ],
+                  [
+                    "North",
+                    22
+                  ],
+                  [
+                    "South",
+                    22
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -23592,32 +23484,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 3,
-            "examples": [
-              "web",
-              "store",
-              "phone"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 3,
-              "values": [
-                {
-                  "value": "web",
-                  "count": 45,
-                  "truncated": false
-                },
-                {
-                  "value": "store",
-                  "count": 41,
-                  "truncated": false
-                },
-                {
-                  "value": "phone",
-                  "count": 34,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_very_short",
@@ -23883,6 +23749,30 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 3,
+                "examples": [
+                  "web",
+                  "store",
+                  "phone"
+                ],
+                "values": [
+                  [
+                    "web",
+                    45
+                  ],
+                  [
+                    "store",
+                    41
+                  ],
+                  [
+                    "phone",
+                    34
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -23962,77 +23852,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 12,
-            "examples": [
-              "7",
-              "1",
-              "11"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 12,
-              "values": [
-                {
-                  "value": "7",
-                  "count": 14,
-                  "truncated": false
-                },
-                {
-                  "value": "1",
-                  "count": 12,
-                  "truncated": false
-                },
-                {
-                  "value": "11",
-                  "count": 12,
-                  "truncated": false
-                },
-                {
-                  "value": "9",
-                  "count": 12,
-                  "truncated": false
-                },
-                {
-                  "value": "10",
-                  "count": 10,
-                  "truncated": false
-                },
-                {
-                  "value": "2",
-                  "count": 10,
-                  "truncated": false
-                },
-                {
-                  "value": "3",
-                  "count": 10,
-                  "truncated": false
-                },
-                {
-                  "value": "5",
-                  "count": 10,
-                  "truncated": false
-                },
-                {
-                  "value": "12",
-                  "count": 9,
-                  "truncated": false
-                },
-                {
-                  "value": "4",
-                  "count": 9,
-                  "truncated": false
-                },
-                {
-                  "value": "8",
-                  "count": 7,
-                  "truncated": false
-                },
-                {
-                  "value": "6",
-                  "count": 5,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "numeric",
               "type": "integer",
@@ -24280,6 +24099,66 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 12,
+                "examples": [
+                  "7",
+                  "1",
+                  "11"
+                ],
+                "values": [
+                  [
+                    "7",
+                    14
+                  ],
+                  [
+                    "1",
+                    12
+                  ],
+                  [
+                    "11",
+                    12
+                  ],
+                  [
+                    "9",
+                    12
+                  ],
+                  [
+                    "10",
+                    10
+                  ],
+                  [
+                    "2",
+                    10
+                  ],
+                  [
+                    "3",
+                    10
+                  ],
+                  [
+                    "5",
+                    10
+                  ],
+                  [
+                    "12",
+                    9
+                  ],
+                  [
+                    "4",
+                    9
+                  ],
+                  [
+                    "8",
+                    7
+                  ],
+                  [
+                    "6",
+                    5
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -24360,117 +24239,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 119,
-            "examples": [
-              "23.69",
-              "100.44",
-              "101.24"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "23.69",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "100.44",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "101.24",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "112.86",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "122.51",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "128.58",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "135.47",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "136.61",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "145.77",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "147.81",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "153.55",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "16.06",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "21.23",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "35.98",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "43.54",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "46.11",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "63.11",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "78.25",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "80.3",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "84.34",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "numeric",
               "type": "number",
@@ -24718,6 +24486,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "23.69",
+                  "100.44",
+                  "101.24"
+                ],
+                "values": [
+                  [
+                    "23.69",
+                    2
+                  ],
+                  [
+                    "100.44",
+                    1
+                  ],
+                  [
+                    "101.24",
+                    1
+                  ],
+                  [
+                    "112.86",
+                    1
+                  ],
+                  [
+                    "122.51",
+                    1
+                  ],
+                  [
+                    "128.58",
+                    1
+                  ],
+                  [
+                    "135.47",
+                    1
+                  ],
+                  [
+                    "136.61",
+                    1
+                  ],
+                  [
+                    "145.77",
+                    1
+                  ],
+                  [
+                    "147.81",
+                    1
+                  ],
+                  [
+                    "153.55",
+                    1
+                  ],
+                  [
+                    "16.06",
+                    1
+                  ],
+                  [
+                    "21.23",
+                    1
+                  ],
+                  [
+                    "35.98",
+                    1
+                  ],
+                  [
+                    "43.54",
+                    1
+                  ],
+                  [
+                    "46.11",
+                    1
+                  ],
+                  [
+                    "63.11",
+                    1
+                  ],
+                  [
+                    "78.25",
+                    1
+                  ],
+                  [
+                    "80.3",
+                    1
+                  ],
+                  [
+                    "84.34",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -24797,26 +24657,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 2,
-            "examples": [
-              "true",
-              "false"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 2,
-              "values": [
-                {
-                  "value": "true",
-                  "count": 92,
-                  "truncated": false
-                },
-                {
-                  "value": "false",
-                  "count": 15,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "boolean",
@@ -25040,6 +24880,25 @@
                 "total_accuracy": "exact",
                 "note": null,
                 "measures": []
+              },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 2,
+                "examples": [
+                  "true",
+                  "false"
+                ],
+                "values": [
+                  [
+                    "true",
+                    92
+                  ],
+                  [
+                    "false",
+                    15
+                  ]
+                ],
+                "cut": []
               },
               "variants": null,
               "flags": [

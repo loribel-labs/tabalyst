@@ -301,14 +301,12 @@ Each column profile always contains:
 | `missing_count`, `missing_percent` | Missing cells; for JSON, also the objects where the field is absent. The percentage is over the cells of the column (the rows of a CSV; for JSON, the occurrences of the field plus the objects where it is absent) |
 | `normalization` | Values changed by each normalization stage and the variant groups (see below); missing cells are not counted |
 | `distinct_count` | Number of distinct values after normalization, even for a masked column; `null` when a scan limit stopped the count |
-| `examples` | A few representative values |
-| `value_profile` | Value occurrences, complete or sampled (see `selection`) |
 | `classification` | The family and type of the column, with `basis`, `state`, `traits`, `evidence`, `alternatives` and `rule_version`. It is the `classification` of the scan field (see [Classification](../scan/format.md#classification)), refined by the second pass when it supplies a fact the scan lacked: an `identifier/id` whose distinct count the scan could not complete becomes `identifier/unique_id` when the exact distinct count proves it (see [Exact distinct count](../scan/deep.md#exact-distinct-count)). A report without a usable second pass carries the classification of the scan |
-| `summary` | What the Summary table and the previews say about the column, built with the report and holding codes and numbers, never a sentence: `findings` (`missing`, `errors` and `issues`, each finding with its code, class, count, unit, population, share, accuracy and examples already through the exposure, and each list with its evaluation state and the checks behind it), `overview` (the profile and the facts of its sentence), `details` (representative values and measures), `variants` (groups of spelling variants) and `flags`. The words are written when the report is rendered |
-| `exposure` | `mask`, `hide` or `show` for a sensitive column, the way its values appear in `examples`, `value_profile` and the rows of the data sample; `null` otherwise |
+| `summary` | What the Summary table and the previews say about the column, built with the report and holding codes and numbers, never a sentence: `findings` (`missing`, `errors` and `issues`, each finding with its code, class, count, unit, population, share, accuracy and examples already through the exposure, and each list with its evaluation state and the checks behind it), `overview` (the profile and the facts of its sentence), `details` (representative values and measures), `values` (the inline examples and the value occurrences, complete or sampled, see `selection`), `variants` (groups of spelling variants) and `flags`. The words are written when the report is rendered |
+| `exposure` | `mask`, `hide` or `show` for a sensitive column, the way its values appear in `summary` and the rows of the data sample; `null` otherwise |
 | `detectors` | The detectors that recognized values of the column, in scan order (see below); empty when none did |
 
-`value_profile.selection` is `complete` when all available frequencies are
+`summary.values.selection` is `complete` when all available frequencies are
 listed. A primary `enumeration` keeps this complete list even above
 `report.config.value_examples.full_distribution_max_distinct`, if the Scan frequency measure
 is complete. Otherwise the profile uses a bounded diverse or random sample.

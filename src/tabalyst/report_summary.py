@@ -15,7 +15,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from tabalyst.models import ColumnProfile, ReportProfile
-from tabalyst.report_details import STATES, details_for
+from tabalyst.report_details import STATES, details_for, exposed_values
 from tabalyst.report_finding_details import variant_details
 from tabalyst.report_findings import column_findings
 from tabalyst.report_overview import overview_for
@@ -57,6 +57,7 @@ def column_summary(column: ColumnView) -> ColumnSummary:
         findings=findings,
         overview=overview_for(column),
         details=details_for(column),
+        values=exposed_values(column),
         variants=variant_details(column),
         flags=flags,
     )

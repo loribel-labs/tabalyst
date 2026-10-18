@@ -15,6 +15,7 @@ from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import ConfigDict, Field, FiniteFloat, model_serializer
+from pydantic.json_schema import SkipJsonSchema
 
 from tabalyst.config import PresentationSettings
 from tabalyst.result_model import ResultModel
@@ -145,8 +146,16 @@ class ColumnProfile(ResultModel):
     normalization: NormalizationStats
     # Null when a scan limit released the frequency table of the column.
     distinct_count: int | None
-    examples: list[str]
-    value_profile: ValueProfile
+    # The raw values of the column, held while the Report is built and never
+    # serialized: the summary keeps them through the exposure (``summary.values``,
+    # contract summary-table.md 20.5). A document read from a file has them empty.
+    examples: SkipJsonSchema[list[str]] = Field(default_factory=list, exclude=True)
+    value_profile: SkipJsonSchema[ValueProfile] = Field(
+        default_factory=lambda: ValueProfile(
+            selection="random_sample", sampled_distinct_count=0, values=[]
+        ),
+        exclude=True,
+    )
     # Family and type of the column: the Scan's classification refined by the
     # second pass (``report_classification.refine``).
     classification: Classification

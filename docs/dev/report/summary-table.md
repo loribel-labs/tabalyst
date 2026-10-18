@@ -1455,9 +1455,10 @@ Rules:
   earlier build) gets them once at the start of `render_report`
   (`attach_summaries`), through the exposure its columns declare. It is the same
   function the build calls.
-- `exposed_values` still gates the values of the Columns and Numeric tables at
-  render: their members (`ColumnProfile.examples`, `value_profile`) are projections
-  of the Report, not of the summary, and are cleaned by the pruning of 20.5.
+- The values of the Columns and Numeric tables and of the column page are the stored
+  `summary.values` (`ColumnValues`), built by `report_details.exposed_values` with the
+  summary. `ColumnProfile.examples` and `value_profile` exist in memory while the Report is
+  built and are not serialized (20.5).
 - Rendering needs the Report document alone; the Scan is not opened.
 
 ### 20.5 Pruning (decided after measurement)
@@ -1476,6 +1477,24 @@ it is removed. Constraints:
 - Identity (`source_sha256`, `config_sha256`, `facts_sha256`) is unchanged.
 - First candidates, to measure: members of `datasets[].fields` no page reads, the
   second copy of a figure in `derived`, the reduced sample beyond the Values list.
+
+First pruning (2026-10-17, measured on `insurance-customers`):
+
+- `columns[].examples` and `columns[].value_profile` leave the document. The pages read
+  `summary.values`, the same values through the exposure, so a `mask` or `hide` column
+  keeps no raw value in its projection (the gate that ran at every reading is gone).
+  The size is almost unchanged for a shown column (the occurrences move), what changes
+  is that nothing raw is left for a masked or hidden one. A document read from a file has
+  both members empty, so a document without its summaries gets Details with no example.
+- `columns[].classification` stays: it is the Report's classification, which the second
+  pass may refine, not a copy of `fields[].classification` (identical on the demo only
+  because no column was refined). Removing either copy needs a delta or a change of the
+  Scan models, for 12.7 KB.
+- Not pruned yet, with what reads them: `fields[].values.samples` and `frequencies`
+  (page, Explore), `fields[].detectors` (page, Explore), `fields[].string_characteristics`
+  (no page; `check_scan`, smart sample targets), `analyses.deep.plan.candidates` (page).
+  `fields` as a whole stays until the column views (`numeric`, `date_profile`,
+  `string_profile`, `distinct`, `patterns`, `characters`) are built with the Report too.
 
 ### 20.6 One dialogue
 

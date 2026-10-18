@@ -180,3 +180,40 @@ def test_summaries_built_for_another_exposure_are_rebuilt_at_the_render(tmp_path
     ]
     assert all(summary is not None and summary.details.state == "hidden" for summary in summaries)
     assert all("zzsecret" not in summary.model_dump_json() for summary in summaries)
+
+
+@pytest.mark.parametrize("mode", ["mask", "hide"])
+def test_the_projection_of_a_masked_or_hidden_column_holds_no_raw_value(tmp_path, mode):
+    profile = _profile(tmp_path, _contacts(), mode)
+
+    columns = [
+        dump_json(column.model_dump(mode="json"))
+        for dataset in profile.report.datasets
+        for column in dataset.columns
+    ]
+
+    assert columns
+    assert all("zzsecret" not in item and "zzbad" not in item for item in columns)
+
+
+def test_the_document_keeps_no_raw_value_profile_or_examples(tmp_path):
+    profile = _profile(tmp_path, _contacts())
+
+    column = json.loads(dump_json(profile.model_dump(mode="json")))["report"]["datasets"][0][
+        "columns"
+    ][0]
+
+    assert "value_profile" not in column and "examples" not in column
+    assert column["summary"]["values"]["values"]
+
+
+def test_the_values_of_the_hover_come_from_the_stored_summary(tmp_path):
+    profile = _profile(tmp_path, _contacts(), "show")
+    reloaded = load_profile(
+        write_text(tmp_path, "report.json", dump_json(profile.model_dump(mode="json")))
+    )
+
+    html = render_report(reloaded)
+
+    assert "zzsecret0@example.org" in html
+    assert reloaded.report.datasets[0].columns[0].value_profile.values == []

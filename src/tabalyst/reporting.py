@@ -18,7 +18,7 @@ from tabalyst.errors import InputError
 from tabalyst.models import ReportProfile
 from tabalyst.report_config import ReportConfig
 from tabalyst.report_deep import column_analyses, second_pass_view
-from tabalyst.report_details import details_withheld, exposed_evidence, exposed_values
+from tabalyst.report_details import details_withheld, exposed_evidence
 from tabalyst.report_finding_details import exposed_variant_groups
 from tabalyst.report_insights import (
     FAMILY_ORDER,
@@ -300,7 +300,6 @@ def _labels() -> dict[str, object]:
         "family_titles": {family: family_title(family) for family in FAMILY_ORDER},
         "type_labels": TYPE_LABELS,
         "table_more": TABLE_MORE,
-        "exposed_values": exposed_values,
         "exposed_evidence": exposed_evidence,
         "exposed_variant_groups": exposed_variant_groups,
         "details_withheld": details_withheld,

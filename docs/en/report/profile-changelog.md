@@ -124,7 +124,10 @@ Each column of the report carries a `summary` and each dataset a `table`: the fi
 Errors and Issues with their evaluation states), the facts of the Overview, the Details, the spelling
 variants, the signals and the quality counts, built once with the document and already through the
 exposure. They hold codes and numbers; the HTML writes the words from them when it renders, and
-computes none of them.
+computes none of them. The values of a column are in `summary.values` (`selection`,
+`sampled_distinct_count`, `examples`, `values` and `cut`), through the exposure: a column
+exposed as `mask` or `hide` has no raw value in its projection. `columns[].examples` and
+`columns[].value_profile` are no longer written.
 
 The report carries the new result `date_order` of the second pass under `analyses` (the records where the
 first date of a pair of columns is after the second).

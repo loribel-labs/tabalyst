@@ -85352,15 +85352,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T00:12:54.683889Z",
-        "duration_seconds": 0.0005,
+        "started_at": "2026-10-18T00:12:00.672982Z",
+        "duration_seconds": 0.000473,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.0005
+          "other": 0.000473
         },
         "workers": 1,
-        "peak_memory_bytes": 118235136,
+        "peak_memory_bytes": 118198272,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -154527,12 +154527,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T00:12:55.217962Z",
+    "generated_at": "2026-10-18T00:12:01.185800Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 3.1557,
+    "processing_seconds": 3.1414,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -154766,117 +154766,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 99992,
-            "examples": [
-              "CLI-00000696",
-              "CLI-00006855",
-              "CLI-00024689"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "CLI-00000696",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00006855",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00024689",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00001157",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00003083",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00011340",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00018871",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00021265",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00047620",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00052314",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00057737",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00060379",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CLI-00062646",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ONT0000402",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ONT0002349",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ONT0003510",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ONT0007991",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "QC-0000-4550",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "QC-0000-5316",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "QC-0001-4675",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "identifier",
               "type": "id",
@@ -155169,6 +155058,98 @@
                 "note": "3 values of 99,992 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
               },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "CLI-00000696",
+                  "CLI-00006855",
+                  "CLI-00024689"
+                ],
+                "values": [
+                  [
+                    "CLI-00000696",
+                    2
+                  ],
+                  [
+                    "CLI-00006855",
+                    2
+                  ],
+                  [
+                    "CLI-00024689",
+                    2
+                  ],
+                  [
+                    "CLI-00001157",
+                    1
+                  ],
+                  [
+                    "CLI-00003083",
+                    1
+                  ],
+                  [
+                    "CLI-00011340",
+                    1
+                  ],
+                  [
+                    "CLI-00018871",
+                    1
+                  ],
+                  [
+                    "CLI-00021265",
+                    1
+                  ],
+                  [
+                    "CLI-00047620",
+                    1
+                  ],
+                  [
+                    "CLI-00052314",
+                    1
+                  ],
+                  [
+                    "CLI-00057737",
+                    1
+                  ],
+                  [
+                    "CLI-00060379",
+                    1
+                  ],
+                  [
+                    "CLI-00062646",
+                    1
+                  ],
+                  [
+                    "ONT0000402",
+                    1
+                  ],
+                  [
+                    "ONT0002349",
+                    1
+                  ],
+                  [
+                    "ONT0003510",
+                    1
+                  ],
+                  [
+                    "ONT0007991",
+                    1
+                  ],
+                  [
+                    "QC-0000-4550",
+                    1
+                  ],
+                  [
+                    "QC-0000-5316",
+                    1
+                  ],
+                  [
+                    "QC-0001-4675",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue"
@@ -155250,26 +155231,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 2,
-            "examples": [
-              "M.",
-              "Mme"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 2,
-              "values": [
-                {
-                  "value": "M.",
-                  "count": 50119,
-                  "truncated": false
-                },
-                {
-                  "value": "Mme",
-                  "count": 49881,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -155537,6 +155498,25 @@
                 "total_accuracy": "exact",
                 "note": null,
                 "measures": []
+              },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 2,
+                "examples": [
+                  "M.",
+                  "Mme"
+                ],
+                "values": [
+                  [
+                    "M.",
+                    50119
+                  ],
+                  [
+                    "Mme",
+                    49881
+                  ]
+                ],
+                "cut": []
               },
               "variants": null,
               "flags": []
@@ -155830,117 +155810,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 230,
-            "examples": [
-              "Daniel",
-              "Marie",
-              "Jean"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "Daniel",
-                  "count": 1412,
-                  "truncated": false
-                },
-                {
-                  "value": "Marie",
-                  "count": 1297,
-                  "truncated": false
-                },
-                {
-                  "value": "Jean",
-                  "count": 1291,
-                  "truncated": false
-                },
-                {
-                  "value": "Charlotte",
-                  "count": 1101,
-                  "truncated": false
-                },
-                {
-                  "value": "Diane",
-                  "count": 891,
-                  "truncated": false
-                },
-                {
-                  "value": "Geneviève",
-                  "count": 761,
-                  "truncated": false
-                },
-                {
-                  "value": "Louis",
-                  "count": 655,
-                  "truncated": false
-                },
-                {
-                  "value": "Rémi",
-                  "count": 579,
-                  "truncated": false
-                },
-                {
-                  "value": "Alice",
-                  "count": 543,
-                  "truncated": false
-                },
-                {
-                  "value": "Jean-François",
-                  "count": 453,
-                  "truncated": false
-                },
-                {
-                  "value": "Mateo",
-                  "count": 448,
-                  "truncated": false
-                },
-                {
-                  "value": "Pierre-Luc",
-                  "count": 427,
-                  "truncated": false
-                },
-                {
-                  "value": "Jack",
-                  "count": 396,
-                  "truncated": false
-                },
-                {
-                  "value": "Marc-André",
-                  "count": 396,
-                  "truncated": false
-                },
-                {
-                  "value": "Ethan",
-                  "count": 250,
-                  "truncated": false
-                },
-                {
-                  "value": "Aurora",
-                  "count": 203,
-                  "truncated": false
-                },
-                {
-                  "value": "Zoe",
-                  "count": 150,
-                  "truncated": false
-                },
-                {
-                  "value": "Isab  elle",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Se rge",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "emily",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -156260,6 +156129,98 @@
                     "accuracy": "exact"
                   }
                 ]
+              },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "Daniel",
+                  "Marie",
+                  "Jean"
+                ],
+                "values": [
+                  [
+                    "Daniel",
+                    1412
+                  ],
+                  [
+                    "Marie",
+                    1297
+                  ],
+                  [
+                    "Jean",
+                    1291
+                  ],
+                  [
+                    "Charlotte",
+                    1101
+                  ],
+                  [
+                    "Diane",
+                    891
+                  ],
+                  [
+                    "Geneviève",
+                    761
+                  ],
+                  [
+                    "Louis",
+                    655
+                  ],
+                  [
+                    "Rémi",
+                    579
+                  ],
+                  [
+                    "Alice",
+                    543
+                  ],
+                  [
+                    "Jean-François",
+                    453
+                  ],
+                  [
+                    "Mateo",
+                    448
+                  ],
+                  [
+                    "Pierre-Luc",
+                    427
+                  ],
+                  [
+                    "Jack",
+                    396
+                  ],
+                  [
+                    "Marc-André",
+                    396
+                  ],
+                  [
+                    "Ethan",
+                    250
+                  ],
+                  [
+                    "Aurora",
+                    203
+                  ],
+                  [
+                    "Zoe",
+                    150
+                  ],
+                  [
+                    "Isab  elle",
+                    1
+                  ],
+                  [
+                    "Se rge",
+                    1
+                  ],
+                  [
+                    "emily",
+                    1
+                  ]
+                ],
+                "cut": []
               },
               "variants": {
                 "state": "shown",
@@ -156765,117 +156726,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 223,
-            "examples": [
-              "Tremblay",
-              "Roy",
-              "Gagnon"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "Tremblay",
-                  "count": 2783,
-                  "truncated": false
-                },
-                {
-                  "value": "Roy",
-                  "count": 2464,
-                  "truncated": false
-                },
-                {
-                  "value": "Gagnon",
-                  "count": 2443,
-                  "truncated": false
-                },
-                {
-                  "value": "Simard",
-                  "count": 1456,
-                  "truncated": false
-                },
-                {
-                  "value": "Wright",
-                  "count": 594,
-                  "truncated": false
-                },
-                {
-                  "value": "Parker",
-                  "count": 349,
-                  "truncated": false
-                },
-                {
-                  "value": "Collins",
-                  "count": 332,
-                  "truncated": false
-                },
-                {
-                  "value": "Wu",
-                  "count": 225,
-                  "truncated": false
-                },
-                {
-                  "value": "Zhang",
-                  "count": 192,
-                  "truncated": false
-                },
-                {
-                  "value": "D'Souza",
-                  "count": 65,
-                  "truncated": false
-                },
-                {
-                  "value": "rBown",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "'Adams",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Gag  né",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Halz",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Levesque",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Ouuellet",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Scont",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Thomppson",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "aCmpbell",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "côté",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -157196,6 +157046,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "Tremblay",
+                  "Roy",
+                  "Gagnon"
+                ],
+                "values": [
+                  [
+                    "Tremblay",
+                    2783
+                  ],
+                  [
+                    "Roy",
+                    2464
+                  ],
+                  [
+                    "Gagnon",
+                    2443
+                  ],
+                  [
+                    "Simard",
+                    1456
+                  ],
+                  [
+                    "Wright",
+                    594
+                  ],
+                  [
+                    "Parker",
+                    349
+                  ],
+                  [
+                    "Collins",
+                    332
+                  ],
+                  [
+                    "Wu",
+                    225
+                  ],
+                  [
+                    "Zhang",
+                    192
+                  ],
+                  [
+                    "D'Souza",
+                    65
+                  ],
+                  [
+                    "rBown",
+                    2
+                  ],
+                  [
+                    "'Adams",
+                    1
+                  ],
+                  [
+                    "Gag  né",
+                    1
+                  ],
+                  [
+                    "Halz",
+                    1
+                  ],
+                  [
+                    "Levesque",
+                    1
+                  ],
+                  [
+                    "Ouuellet",
+                    1
+                  ],
+                  [
+                    "Scont",
+                    1
+                  ],
+                  [
+                    "Thomppson",
+                    1
+                  ],
+                  [
+                    "aCmpbell",
+                    1
+                  ],
+                  [
+                    "côté",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": {
                 "state": "shown",
                 "groups": [
@@ -157488,117 +157430,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 42682,
-            "examples": [
-              "1957-08-29",
-              "2002-01-16",
-              "1941-03-14"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "1957-08-29",
-                  "count": 13,
-                  "truncated": false
-                },
-                {
-                  "value": "2002-01-16",
-                  "count": 12,
-                  "truncated": false
-                },
-                {
-                  "value": "1941-03-14",
-                  "count": 11,
-                  "truncated": false
-                },
-                {
-                  "value": "1961-02-05",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "1963-03-14",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "1957-04-25",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "1963-10-02",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "1966-04-20",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "1993-11-25",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "2000-02-14",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "1948-10-01",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "1982-02-14",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "1984-01-31",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "04-10-1982",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "05-31-1964",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "09-17-1974",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "11-04-1989",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "1959-06-19",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "1961-08-05",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "1988-11-17",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "temporal",
               "type": "date",
@@ -158027,6 +157858,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "1957-08-29",
+                  "2002-01-16",
+                  "1941-03-14"
+                ],
+                "values": [
+                  [
+                    "1957-08-29",
+                    13
+                  ],
+                  [
+                    "2002-01-16",
+                    12
+                  ],
+                  [
+                    "1941-03-14",
+                    11
+                  ],
+                  [
+                    "1961-02-05",
+                    5
+                  ],
+                  [
+                    "1963-03-14",
+                    5
+                  ],
+                  [
+                    "1957-04-25",
+                    4
+                  ],
+                  [
+                    "1963-10-02",
+                    3
+                  ],
+                  [
+                    "1966-04-20",
+                    3
+                  ],
+                  [
+                    "1993-11-25",
+                    3
+                  ],
+                  [
+                    "2000-02-14",
+                    3
+                  ],
+                  [
+                    "1948-10-01",
+                    2
+                  ],
+                  [
+                    "1982-02-14",
+                    2
+                  ],
+                  [
+                    "1984-01-31",
+                    2
+                  ],
+                  [
+                    "04-10-1982",
+                    1
+                  ],
+                  [
+                    "05-31-1964",
+                    1
+                  ],
+                  [
+                    "09-17-1974",
+                    1
+                  ],
+                  [
+                    "11-04-1989",
+                    1
+                  ],
+                  [
+                    "1959-06-19",
+                    1
+                  ],
+                  [
+                    "1961-08-05",
+                    1
+                  ],
+                  [
+                    "1988-11-17",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue",
@@ -158109,26 +158032,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 2,
-            "examples": [
-              "M",
-              "F"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 2,
-              "values": [
-                {
-                  "value": "M",
-                  "count": 50119,
-                  "truncated": false
-                },
-                {
-                  "value": "F",
-                  "count": 49881,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -158408,6 +158311,25 @@
                 "note": null,
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 2,
+                "examples": [
+                  "M",
+                  "F"
+                ],
+                "values": [
+                  [
+                    "M",
+                    50119
+                  ],
+                  [
+                    "F",
+                    49881
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -158487,26 +158409,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 2,
-            "examples": [
-              "fr",
-              "en"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 2,
-              "values": [
-                {
-                  "value": "fr",
-                  "count": 74647,
-                  "truncated": false
-                },
-                {
-                  "value": "en",
-                  "count": 25353,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -158775,6 +158677,25 @@
                 "note": null,
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 2,
+                "examples": [
+                  "fr",
+                  "en"
+                ],
+                "values": [
+                  [
+                    "fr",
+                    74647
+                  ],
+                  [
+                    "en",
+                    25353
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -158854,117 +158775,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 9999,
-            "examples": [
-              "9873",
-              "4113",
-              "2998"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "9873",
-                  "count": 25,
-                  "truncated": false
-                },
-                {
-                  "value": "4113",
-                  "count": 23,
-                  "truncated": false
-                },
-                {
-                  "value": "2998",
-                  "count": 22,
-                  "truncated": false
-                },
-                {
-                  "value": "227",
-                  "count": 21,
-                  "truncated": false
-                },
-                {
-                  "value": "8108",
-                  "count": 18,
-                  "truncated": false
-                },
-                {
-                  "value": "5161",
-                  "count": 14,
-                  "truncated": false
-                },
-                {
-                  "value": "4173",
-                  "count": 13,
-                  "truncated": false
-                },
-                {
-                  "value": "4585",
-                  "count": 13,
-                  "truncated": false
-                },
-                {
-                  "value": "7446",
-                  "count": 13,
-                  "truncated": false
-                },
-                {
-                  "value": "8761",
-                  "count": 13,
-                  "truncated": false
-                },
-                {
-                  "value": "5104",
-                  "count": 12,
-                  "truncated": false
-                },
-                {
-                  "value": "7129",
-                  "count": 12,
-                  "truncated": false
-                },
-                {
-                  "value": "9203",
-                  "count": 12,
-                  "truncated": false
-                },
-                {
-                  "value": "3801",
-                  "count": 11,
-                  "truncated": false
-                },
-                {
-                  "value": "8879",
-                  "count": 11,
-                  "truncated": false
-                },
-                {
-                  "value": "4693",
-                  "count": 10,
-                  "truncated": false
-                },
-                {
-                  "value": "3365",
-                  "count": 8,
-                  "truncated": false
-                },
-                {
-                  "value": "7516",
-                  "count": 8,
-                  "truncated": false
-                },
-                {
-                  "value": "1657",
-                  "count": 7,
-                  "truncated": false
-                },
-                {
-                  "value": "6794",
-                  "count": 7,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "numeric",
               "type": "integer",
@@ -159270,6 +159080,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "9873",
+                  "4113",
+                  "2998"
+                ],
+                "values": [
+                  [
+                    "9873",
+                    25
+                  ],
+                  [
+                    "4113",
+                    23
+                  ],
+                  [
+                    "2998",
+                    22
+                  ],
+                  [
+                    "227",
+                    21
+                  ],
+                  [
+                    "8108",
+                    18
+                  ],
+                  [
+                    "5161",
+                    14
+                  ],
+                  [
+                    "4173",
+                    13
+                  ],
+                  [
+                    "4585",
+                    13
+                  ],
+                  [
+                    "7446",
+                    13
+                  ],
+                  [
+                    "8761",
+                    13
+                  ],
+                  [
+                    "5104",
+                    12
+                  ],
+                  [
+                    "7129",
+                    12
+                  ],
+                  [
+                    "9203",
+                    12
+                  ],
+                  [
+                    "3801",
+                    11
+                  ],
+                  [
+                    "8879",
+                    11
+                  ],
+                  [
+                    "4693",
+                    10
+                  ],
+                  [
+                    "3365",
+                    8
+                  ],
+                  [
+                    "7516",
+                    8
+                  ],
+                  [
+                    "1657",
+                    7
+                  ],
+                  [
+                    "6794",
+                    7
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -159398,172 +159300,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 31,
-            "examples": [
-              "rue",
-              "avenue",
-              "boulevard"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 31,
-              "values": [
-                {
-                  "value": "rue",
-                  "count": 17543,
-                  "truncated": false
-                },
-                {
-                  "value": "avenue",
-                  "count": 11469,
-                  "truncated": false
-                },
-                {
-                  "value": "boulevard",
-                  "count": 10940,
-                  "truncated": false
-                },
-                {
-                  "value": "chemin",
-                  "count": 6939,
-                  "truncated": false
-                },
-                {
-                  "value": "Street",
-                  "count": 5512,
-                  "truncated": false
-                },
-                {
-                  "value": "route",
-                  "count": 4799,
-                  "truncated": false
-                },
-                {
-                  "value": "rang",
-                  "count": 4027,
-                  "truncated": false
-                },
-                {
-                  "value": "Avenue",
-                  "count": 3500,
-                  "truncated": false
-                },
-                {
-                  "value": "montée",
-                  "count": 3258,
-                  "truncated": false
-                },
-                {
-                  "value": "place",
-                  "count": 2949,
-                  "truncated": false
-                },
-                {
-                  "value": "Boulevard",
-                  "count": 2747,
-                  "truncated": false
-                },
-                {
-                  "value": "terrasse",
-                  "count": 2695,
-                  "truncated": false
-                },
-                {
-                  "value": "Road",
-                  "count": 2600,
-                  "truncated": false
-                },
-                {
-                  "value": "croissant",
-                  "count": 2437,
-                  "truncated": false
-                },
-                {
-                  "value": "Drive",
-                  "count": 2320,
-                  "truncated": false
-                },
-                {
-                  "value": "impasse",
-                  "count": 1740,
-                  "truncated": false
-                },
-                {
-                  "value": "promenade",
-                  "count": 1625,
-                  "truncated": false
-                },
-                {
-                  "value": "allée",
-                  "count": 1588,
-                  "truncated": false
-                },
-                {
-                  "value": "Lane",
-                  "count": 1365,
-                  "truncated": false
-                },
-                {
-                  "value": "Court",
-                  "count": 1248,
-                  "truncated": false
-                },
-                {
-                  "value": "côte",
-                  "count": 1227,
-                  "truncated": false
-                },
-                {
-                  "value": "Crescent",
-                  "count": 1167,
-                  "truncated": false
-                },
-                {
-                  "value": "autoroute",
-                  "count": 1045,
-                  "truncated": false
-                },
-                {
-                  "value": "carré",
-                  "count": 894,
-                  "truncated": false
-                },
-                {
-                  "value": "Highway",
-                  "count": 850,
-                  "truncated": false
-                },
-                {
-                  "value": "Trail",
-                  "count": 782,
-                  "truncated": false
-                },
-                {
-                  "value": "Way",
-                  "count": 748,
-                  "truncated": false
-                },
-                {
-                  "value": "Place",
-                  "count": 676,
-                  "truncated": false
-                },
-                {
-                  "value": "Terrace",
-                  "count": 529,
-                  "truncated": false
-                },
-                {
-                  "value": "Circle",
-                  "count": 427,
-                  "truncated": false
-                },
-                {
-                  "value": "Parkway",
-                  "count": 354,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -159875,6 +159611,142 @@
                 "total_accuracy": "exact",
                 "note": "3 values of 31 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
+              },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 31,
+                "examples": [
+                  "rue",
+                  "avenue",
+                  "boulevard"
+                ],
+                "values": [
+                  [
+                    "rue",
+                    17543
+                  ],
+                  [
+                    "avenue",
+                    11469
+                  ],
+                  [
+                    "boulevard",
+                    10940
+                  ],
+                  [
+                    "chemin",
+                    6939
+                  ],
+                  [
+                    "Street",
+                    5512
+                  ],
+                  [
+                    "route",
+                    4799
+                  ],
+                  [
+                    "rang",
+                    4027
+                  ],
+                  [
+                    "Avenue",
+                    3500
+                  ],
+                  [
+                    "montée",
+                    3258
+                  ],
+                  [
+                    "place",
+                    2949
+                  ],
+                  [
+                    "Boulevard",
+                    2747
+                  ],
+                  [
+                    "terrasse",
+                    2695
+                  ],
+                  [
+                    "Road",
+                    2600
+                  ],
+                  [
+                    "croissant",
+                    2437
+                  ],
+                  [
+                    "Drive",
+                    2320
+                  ],
+                  [
+                    "impasse",
+                    1740
+                  ],
+                  [
+                    "promenade",
+                    1625
+                  ],
+                  [
+                    "allée",
+                    1588
+                  ],
+                  [
+                    "Lane",
+                    1365
+                  ],
+                  [
+                    "Court",
+                    1248
+                  ],
+                  [
+                    "côte",
+                    1227
+                  ],
+                  [
+                    "Crescent",
+                    1167
+                  ],
+                  [
+                    "autoroute",
+                    1045
+                  ],
+                  [
+                    "carré",
+                    894
+                  ],
+                  [
+                    "Highway",
+                    850
+                  ],
+                  [
+                    "Trail",
+                    782
+                  ],
+                  [
+                    "Way",
+                    748
+                  ],
+                  [
+                    "Place",
+                    676
+                  ],
+                  [
+                    "Terrace",
+                    529
+                  ],
+                  [
+                    "Circle",
+                    427
+                  ],
+                  [
+                    "Parkway",
+                    354
+                  ]
+                ],
+                "cut": []
               },
               "variants": {
                 "state": "shown",
@@ -160321,117 +160193,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 177,
-            "examples": [
-              "du Ruisseau",
-              "des Érables",
-              "des Mélèzes"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "du Ruisseau",
-                  "count": 2759,
-                  "truncated": false
-                },
-                {
-                  "value": "des Érables",
-                  "count": 2706,
-                  "truncated": false
-                },
-                {
-                  "value": "des Mélèzes",
-                  "count": 2653,
-                  "truncated": false
-                },
-                {
-                  "value": "des Peupliers",
-                  "count": 2317,
-                  "truncated": false
-                },
-                {
-                  "value": "Cedar",
-                  "count": 910,
-                  "truncated": false
-                },
-                {
-                  "value": "Forest",
-                  "count": 799,
-                  "truncated": false
-                },
-                {
-                  "value": "Valleyview",
-                  "count": 796,
-                  "truncated": false
-                },
-                {
-                  "value": "Brookside",
-                  "count": 730,
-                  "truncated": false
-                },
-                {
-                  "value": "Kingfisher",
-                  "count": 641,
-                  "truncated": false
-                },
-                {
-                  "value": "de la Falaise",
-                  "count": 631,
-                  "truncated": false
-                },
-                {
-                  "value": "Garden",
-                  "count": 599,
-                  "truncated": false
-                },
-                {
-                  "value": "Westwood",
-                  "count": 538,
-                  "truncated": false
-                },
-                {
-                  "value": "Lakeshore",
-                  "count": 403,
-                  "truncated": false
-                },
-                {
-                  "value": "Mill",
-                  "count": 367,
-                  "truncated": false
-                },
-                {
-                  "value": "Church",
-                  "count": 299,
-                  "truncated": false
-                },
-                {
-                  "value": "Woodland",
-                  "count": 81,
-                  "truncated": false
-                },
-                {
-                  "value": "Meaow",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Orcchard",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "du LLac",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "oMrningstar",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -160776,6 +160537,98 @@
                     "accuracy": "exact"
                   }
                 ]
+              },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "du Ruisseau",
+                  "des Érables",
+                  "des Mélèzes"
+                ],
+                "values": [
+                  [
+                    "du Ruisseau",
+                    2759
+                  ],
+                  [
+                    "des Érables",
+                    2706
+                  ],
+                  [
+                    "des Mélèzes",
+                    2653
+                  ],
+                  [
+                    "des Peupliers",
+                    2317
+                  ],
+                  [
+                    "Cedar",
+                    910
+                  ],
+                  [
+                    "Forest",
+                    799
+                  ],
+                  [
+                    "Valleyview",
+                    796
+                  ],
+                  [
+                    "Brookside",
+                    730
+                  ],
+                  [
+                    "Kingfisher",
+                    641
+                  ],
+                  [
+                    "de la Falaise",
+                    631
+                  ],
+                  [
+                    "Garden",
+                    599
+                  ],
+                  [
+                    "Westwood",
+                    538
+                  ],
+                  [
+                    "Lakeshore",
+                    403
+                  ],
+                  [
+                    "Mill",
+                    367
+                  ],
+                  [
+                    "Church",
+                    299
+                  ],
+                  [
+                    "Woodland",
+                    81
+                  ],
+                  [
+                    "Meaow",
+                    1
+                  ],
+                  [
+                    "Orcchard",
+                    1
+                  ],
+                  [
+                    "du LLac",
+                    1
+                  ],
+                  [
+                    "oMrningstar",
+                    1
+                  ]
+                ],
+                "cut": []
               },
               "variants": {
                 "state": "shown",
@@ -161159,57 +161012,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 8,
-            "examples": [
-              "Ouest",
-              "Nord",
-              "Sud"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 8,
-              "values": [
-                {
-                  "value": "Ouest",
-                  "count": 5356,
-                  "truncated": false
-                },
-                {
-                  "value": "Nord",
-                  "count": 5014,
-                  "truncated": false
-                },
-                {
-                  "value": "Sud",
-                  "count": 4495,
-                  "truncated": false
-                },
-                {
-                  "value": "Est",
-                  "count": 3993,
-                  "truncated": false
-                },
-                {
-                  "value": "West",
-                  "count": 1782,
-                  "truncated": false
-                },
-                {
-                  "value": "North",
-                  "count": 1698,
-                  "truncated": false
-                },
-                {
-                  "value": "South",
-                  "count": 1438,
-                  "truncated": false
-                },
-                {
-                  "value": "East",
-                  "count": 1326,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -161490,6 +161292,50 @@
                 "note": "3 values of 8 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 8,
+                "examples": [
+                  "Ouest",
+                  "Nord",
+                  "Sud"
+                ],
+                "values": [
+                  [
+                    "Ouest",
+                    5356
+                  ],
+                  [
+                    "Nord",
+                    5014
+                  ],
+                  [
+                    "Sud",
+                    4495
+                  ],
+                  [
+                    "Est",
+                    3993
+                  ],
+                  [
+                    "West",
+                    1782
+                  ],
+                  [
+                    "North",
+                    1698
+                  ],
+                  [
+                    "South",
+                    1438
+                  ],
+                  [
+                    "East",
+                    1326
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "obs"
@@ -161571,117 +161417,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 999,
-            "examples": [
-              "144",
-              "267",
-              "277"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "144",
-                  "count": 53,
-                  "truncated": false
-                },
-                {
-                  "value": "267",
-                  "count": 53,
-                  "truncated": false
-                },
-                {
-                  "value": "277",
-                  "count": 53,
-                  "truncated": false
-                },
-                {
-                  "value": "329",
-                  "count": 47,
-                  "truncated": false
-                },
-                {
-                  "value": "714",
-                  "count": 45,
-                  "truncated": false
-                },
-                {
-                  "value": "454",
-                  "count": 38,
-                  "truncated": false
-                },
-                {
-                  "value": "966",
-                  "count": 38,
-                  "truncated": false
-                },
-                {
-                  "value": "285",
-                  "count": 37,
-                  "truncated": false
-                },
-                {
-                  "value": "582",
-                  "count": 36,
-                  "truncated": false
-                },
-                {
-                  "value": "589",
-                  "count": 35,
-                  "truncated": false
-                },
-                {
-                  "value": "400",
-                  "count": 34,
-                  "truncated": false
-                },
-                {
-                  "value": "338",
-                  "count": 33,
-                  "truncated": false
-                },
-                {
-                  "value": "346",
-                  "count": 33,
-                  "truncated": false
-                },
-                {
-                  "value": "166",
-                  "count": 32,
-                  "truncated": false
-                },
-                {
-                  "value": "54",
-                  "count": 32,
-                  "truncated": false
-                },
-                {
-                  "value": "390",
-                  "count": 30,
-                  "truncated": false
-                },
-                {
-                  "value": "599",
-                  "count": 30,
-                  "truncated": false
-                },
-                {
-                  "value": "749",
-                  "count": 30,
-                  "truncated": false
-                },
-                {
-                  "value": "710",
-                  "count": 29,
-                  "truncated": false
-                },
-                {
-                  "value": "538",
-                  "count": 26,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "numeric",
               "type": "integer",
@@ -161987,6 +161722,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "144",
+                  "267",
+                  "277"
+                ],
+                "values": [
+                  [
+                    "144",
+                    53
+                  ],
+                  [
+                    "267",
+                    53
+                  ],
+                  [
+                    "277",
+                    53
+                  ],
+                  [
+                    "329",
+                    47
+                  ],
+                  [
+                    "714",
+                    45
+                  ],
+                  [
+                    "454",
+                    38
+                  ],
+                  [
+                    "966",
+                    38
+                  ],
+                  [
+                    "285",
+                    37
+                  ],
+                  [
+                    "582",
+                    36
+                  ],
+                  [
+                    "589",
+                    35
+                  ],
+                  [
+                    "400",
+                    34
+                  ],
+                  [
+                    "338",
+                    33
+                  ],
+                  [
+                    "346",
+                    33
+                  ],
+                  [
+                    "166",
+                    32
+                  ],
+                  [
+                    "54",
+                    32
+                  ],
+                  [
+                    "390",
+                    30
+                  ],
+                  [
+                    "599",
+                    30
+                  ],
+                  [
+                    "749",
+                    30
+                  ],
+                  [
+                    "710",
+                    29
+                  ],
+                  [
+                    "538",
+                    26
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "obs"
@@ -162229,117 +162056,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 133,
-            "examples": [
-              "Montréal",
-              "Québec",
-              "Laval"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "Montréal",
-                  "count": 11259,
-                  "truncated": false
-                },
-                {
-                  "value": "Québec",
-                  "count": 7198,
-                  "truncated": false
-                },
-                {
-                  "value": "Laval",
-                  "count": 4705,
-                  "truncated": false
-                },
-                {
-                  "value": "Brossard",
-                  "count": 2028,
-                  "truncated": false
-                },
-                {
-                  "value": "Drummondville",
-                  "count": 1772,
-                  "truncated": false
-                },
-                {
-                  "value": "Winnipeg",
-                  "count": 750,
-                  "truncated": false
-                },
-                {
-                  "value": "Vaudreuil-Dorion",
-                  "count": 731,
-                  "truncated": false
-                },
-                {
-                  "value": "Alma",
-                  "count": 723,
-                  "truncated": false
-                },
-                {
-                  "value": "La Tuque",
-                  "count": 675,
-                  "truncated": false
-                },
-                {
-                  "value": "Iqaluit",
-                  "count": 180,
-                  "truncated": false
-                },
-                {
-                  "value": "Baie-Coomeau",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Calagry",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Gspé",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Levis",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Mfntréal",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Ottaawa",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "Saint-Hyacinthhe",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "VVancouver",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "oJliette",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "toronto",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "text",
               "type": "text_short",
@@ -162634,6 +162350,98 @@
                     "accuracy": "exact"
                   }
                 ]
+              },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "Montréal",
+                  "Québec",
+                  "Laval"
+                ],
+                "values": [
+                  [
+                    "Montréal",
+                    11259
+                  ],
+                  [
+                    "Québec",
+                    7198
+                  ],
+                  [
+                    "Laval",
+                    4705
+                  ],
+                  [
+                    "Brossard",
+                    2028
+                  ],
+                  [
+                    "Drummondville",
+                    1772
+                  ],
+                  [
+                    "Winnipeg",
+                    750
+                  ],
+                  [
+                    "Vaudreuil-Dorion",
+                    731
+                  ],
+                  [
+                    "Alma",
+                    723
+                  ],
+                  [
+                    "La Tuque",
+                    675
+                  ],
+                  [
+                    "Iqaluit",
+                    180
+                  ],
+                  [
+                    "Baie-Coomeau",
+                    1
+                  ],
+                  [
+                    "Calagry",
+                    1
+                  ],
+                  [
+                    "Gspé",
+                    1
+                  ],
+                  [
+                    "Levis",
+                    1
+                  ],
+                  [
+                    "Mfntréal",
+                    1
+                  ],
+                  [
+                    "Ottaawa",
+                    1
+                  ],
+                  [
+                    "Saint-Hyacinthhe",
+                    1
+                  ],
+                  [
+                    "VVancouver",
+                    1
+                  ],
+                  [
+                    "oJliette",
+                    1
+                  ],
+                  [
+                    "toronto",
+                    1
+                  ]
+                ],
+                "cut": []
               },
               "variants": {
                 "state": "shown",
@@ -162969,112 +162777,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 19,
-            "examples": [
-              "QC",
-              "ON",
-              "BC"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 19,
-              "values": [
-                {
-                  "value": "QC",
-                  "count": 75256,
-                  "truncated": false
-                },
-                {
-                  "value": "ON",
-                  "count": 14161,
-                  "truncated": false
-                },
-                {
-                  "value": "BC",
-                  "count": 2622,
-                  "truncated": false
-                },
-                {
-                  "value": "AB",
-                  "count": 2615,
-                  "truncated": false
-                },
-                {
-                  "value": "NB",
-                  "count": 1740,
-                  "truncated": false
-                },
-                {
-                  "value": "NS",
-                  "count": 912,
-                  "truncated": false
-                },
-                {
-                  "value": "MB",
-                  "count": 889,
-                  "truncated": false
-                },
-                {
-                  "value": "SK",
-                  "count": 884,
-                  "truncated": false
-                },
-                {
-                  "value": "NL",
-                  "count": 355,
-                  "truncated": false
-                },
-                {
-                  "value": "NU",
-                  "count": 180,
-                  "truncated": false
-                },
-                {
-                  "value": "PE",
-                  "count": 178,
-                  "truncated": false
-                },
-                {
-                  "value": "YT",
-                  "count": 99,
-                  "truncated": false
-                },
-                {
-                  "value": "NT",
-                  "count": 83,
-                  "truncated": false
-                },
-                {
-                  "value": "qc",
-                  "count": 16,
-                  "truncated": false
-                },
-                {
-                  "value": "ab",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "on",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "nb",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "nl",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ns",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -163387,6 +163089,94 @@
                 "note": "3 values of 19 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 19,
+                "examples": [
+                  "QC",
+                  "ON",
+                  "BC"
+                ],
+                "values": [
+                  [
+                    "QC",
+                    75256
+                  ],
+                  [
+                    "ON",
+                    14161
+                  ],
+                  [
+                    "BC",
+                    2622
+                  ],
+                  [
+                    "AB",
+                    2615
+                  ],
+                  [
+                    "NB",
+                    1740
+                  ],
+                  [
+                    "NS",
+                    912
+                  ],
+                  [
+                    "MB",
+                    889
+                  ],
+                  [
+                    "SK",
+                    884
+                  ],
+                  [
+                    "NL",
+                    355
+                  ],
+                  [
+                    "NU",
+                    180
+                  ],
+                  [
+                    "PE",
+                    178
+                  ],
+                  [
+                    "YT",
+                    99
+                  ],
+                  [
+                    "NT",
+                    83
+                  ],
+                  [
+                    "qc",
+                    16
+                  ],
+                  [
+                    "ab",
+                    2
+                  ],
+                  [
+                    "on",
+                    2
+                  ],
+                  [
+                    "nb",
+                    1
+                  ],
+                  [
+                    "nl",
+                    1
+                  ],
+                  [
+                    "ns",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": {
                 "state": "shown",
                 "groups": [
@@ -163617,112 +163407,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 19,
-            "examples": [
-              "Québec",
-              "Ontario",
-              "British Columbia"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 19,
-              "values": [
-                {
-                  "value": "Québec",
-                  "count": 72788,
-                  "truncated": false
-                },
-                {
-                  "value": "Ontario",
-                  "count": 14159,
-                  "truncated": false
-                },
-                {
-                  "value": "British Columbia",
-                  "count": 2621,
-                  "truncated": false
-                },
-                {
-                  "value": "Alberta",
-                  "count": 2617,
-                  "truncated": false
-                },
-                {
-                  "value": "Quebec",
-                  "count": 2480,
-                  "truncated": false
-                },
-                {
-                  "value": "New Brunswick",
-                  "count": 1151,
-                  "truncated": false
-                },
-                {
-                  "value": "Nova Scotia",
-                  "count": 913,
-                  "truncated": false
-                },
-                {
-                  "value": "Manitoba",
-                  "count": 889,
-                  "truncated": false
-                },
-                {
-                  "value": "Saskatchewan",
-                  "count": 884,
-                  "truncated": false
-                },
-                {
-                  "value": "Nouveau-Brunswick",
-                  "count": 590,
-                  "truncated": false
-                },
-                {
-                  "value": "Newfoundland and Labrador",
-                  "count": 356,
-                  "truncated": false
-                },
-                {
-                  "value": "Nunavut",
-                  "count": 180,
-                  "truncated": false
-                },
-                {
-                  "value": "Prince Edward Island",
-                  "count": 178,
-                  "truncated": false
-                },
-                {
-                  "value": "Yukon",
-                  "count": 99,
-                  "truncated": false
-                },
-                {
-                  "value": "Territoires du Nord-Ouest",
-                  "count": 46,
-                  "truncated": false
-                },
-                {
-                  "value": "Northwest Territories",
-                  "count": 37,
-                  "truncated": false
-                },
-                {
-                  "value": "quebec",
-                  "count": 10,
-                  "truncated": false
-                },
-                {
-                  "value": "british columbia",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "ontario",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -164034,6 +163718,94 @@
                 "total_accuracy": "exact",
                 "note": "3 values of 19 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
+              },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 19,
+                "examples": [
+                  "Québec",
+                  "Ontario",
+                  "British Columbia"
+                ],
+                "values": [
+                  [
+                    "Québec",
+                    72788
+                  ],
+                  [
+                    "Ontario",
+                    14159
+                  ],
+                  [
+                    "British Columbia",
+                    2621
+                  ],
+                  [
+                    "Alberta",
+                    2617
+                  ],
+                  [
+                    "Quebec",
+                    2480
+                  ],
+                  [
+                    "New Brunswick",
+                    1151
+                  ],
+                  [
+                    "Nova Scotia",
+                    913
+                  ],
+                  [
+                    "Manitoba",
+                    889
+                  ],
+                  [
+                    "Saskatchewan",
+                    884
+                  ],
+                  [
+                    "Nouveau-Brunswick",
+                    590
+                  ],
+                  [
+                    "Newfoundland and Labrador",
+                    356
+                  ],
+                  [
+                    "Nunavut",
+                    180
+                  ],
+                  [
+                    "Prince Edward Island",
+                    178
+                  ],
+                  [
+                    "Yukon",
+                    99
+                  ],
+                  [
+                    "Territoires du Nord-Ouest",
+                    46
+                  ],
+                  [
+                    "Northwest Territories",
+                    37
+                  ],
+                  [
+                    "quebec",
+                    10
+                  ],
+                  [
+                    "british columbia",
+                    1
+                  ],
+                  [
+                    "ontario",
+                    1
+                  ]
+                ],
+                "cut": []
               },
               "variants": {
                 "state": "shown",
@@ -164717,117 +164489,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 57660,
-            "examples": [
-              "H0A 7R6",
-              "H0A 2Y3",
-              "H0A 4S8"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "H0A 7R6",
-                  "count": 15,
-                  "truncated": false
-                },
-                {
-                  "value": "H0A 2Y3",
-                  "count": 14,
-                  "truncated": false
-                },
-                {
-                  "value": "H0A 4S8",
-                  "count": 14,
-                  "truncated": false
-                },
-                {
-                  "value": "H0A 7Y8",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "V0A 6J4",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "K0B 7R4",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "B0B 6A1",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "H0H  0T0",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "H0J 3C3",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "H0M 4G1",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "H0P 2S7",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "H0T 8B6",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "H0X 5W2",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "H1E 0M7",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "H1V 7X9",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "K0C 6V2",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "K0H 5M6",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "S0B 2L8",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "T0B 9W5",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "X0G 4Y7",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "geographic",
               "type": "postal_code",
@@ -165460,6 +165121,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "H0A 7R6",
+                  "H0A 2Y3",
+                  "H0A 4S8"
+                ],
+                "values": [
+                  [
+                    "H0A 7R6",
+                    15
+                  ],
+                  [
+                    "H0A 2Y3",
+                    14
+                  ],
+                  [
+                    "H0A 4S8",
+                    14
+                  ],
+                  [
+                    "H0A 7Y8",
+                    5
+                  ],
+                  [
+                    "V0A 6J4",
+                    3
+                  ],
+                  [
+                    "K0B 7R4",
+                    2
+                  ],
+                  [
+                    "B0B 6A1",
+                    1
+                  ],
+                  [
+                    "H0H  0T0",
+                    1
+                  ],
+                  [
+                    "H0J 3C3",
+                    1
+                  ],
+                  [
+                    "H0M 4G1",
+                    1
+                  ],
+                  [
+                    "H0P 2S7",
+                    1
+                  ],
+                  [
+                    "H0T 8B6",
+                    1
+                  ],
+                  [
+                    "H0X 5W2",
+                    1
+                  ],
+                  [
+                    "H1E 0M7",
+                    1
+                  ],
+                  [
+                    "H1V 7X9",
+                    1
+                  ],
+                  [
+                    "K0C 6V2",
+                    1
+                  ],
+                  [
+                    "K0H 5M6",
+                    1
+                  ],
+                  [
+                    "S0B 2L8",
+                    1
+                  ],
+                  [
+                    "T0B 9W5",
+                    1
+                  ],
+                  [
+                    "X0G 4Y7",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": {
                 "state": "shown",
                 "groups": [
@@ -165864,26 +165617,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 2,
-            "examples": [
-              "CA",
-              "ca"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 2,
-              "values": [
-                {
-                  "value": "CA",
-                  "count": 99978,
-                  "truncated": false
-                },
-                {
-                  "value": "ca",
-                  "count": 22,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -166182,6 +165915,25 @@
                 "note": null,
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 2,
+                "examples": [
+                  "CA",
+                  "ca"
+                ],
+                "values": [
+                  [
+                    "CA",
+                    99978
+                  ],
+                  [
+                    "ca",
+                    22
+                  ]
+                ],
+                "cut": []
+              },
               "variants": {
                 "state": "shown",
                 "groups": [
@@ -166284,117 +166036,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 99992,
-            "examples": [
-              "danielpaquette@hotmail.example",
-              "jam47@yahoo.example",
-              "laurencep@hotmail.example"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "danielpaquette@hotmail.example",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "jam47@yahoo.example",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "laurencep@hotmail.example",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "andre.gagnon@bell.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "audreylessard@outlook.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "carolinegauthier@hotmail.examp...",
-                  "count": 1,
-                  "truncated": true
-                },
-                {
-                  "value": "chloecook@gmail.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "dgauthier.3@gmail.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "eclark.6@gmail.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "elias055@gmail.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "emi43.2@gmail.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "france_bouchard@videotron.exam...",
-                  "count": 1,
-                  "truncated": true
-                },
-                {
-                  "value": "genevieve.bouchard.2@gmail.exa...",
-                  "count": 1,
-                  "truncated": true
-                },
-                {
-                  "value": "isabelle_bouchard@hotmail.exam...",
-                  "count": 1,
-                  "truncated": true
-                },
-                {
-                  "value": "leo8665@icloud.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "louises.2@gmail.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "melaniep@icloud.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "pierre6475@videotron.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "sbrown.2@hotmail.example",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "suzannel.3@gmail.example",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "contact",
               "type": "email",
@@ -166826,6 +166467,103 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "danielpaquette@hotmail.example",
+                  "jam47@yahoo.example",
+                  "laurencep@hotmail.example"
+                ],
+                "values": [
+                  [
+                    "danielpaquette@hotmail.example",
+                    2
+                  ],
+                  [
+                    "jam47@yahoo.example",
+                    2
+                  ],
+                  [
+                    "laurencep@hotmail.example",
+                    2
+                  ],
+                  [
+                    "andre.gagnon@bell.example",
+                    1
+                  ],
+                  [
+                    "audreylessard@outlook.example",
+                    1
+                  ],
+                  [
+                    "carolinegauthier@hotmail.examp...",
+                    1
+                  ],
+                  [
+                    "chloecook@gmail.example",
+                    1
+                  ],
+                  [
+                    "dgauthier.3@gmail.example",
+                    1
+                  ],
+                  [
+                    "eclark.6@gmail.example",
+                    1
+                  ],
+                  [
+                    "elias055@gmail.example",
+                    1
+                  ],
+                  [
+                    "emi43.2@gmail.example",
+                    1
+                  ],
+                  [
+                    "france_bouchard@videotron.exam...",
+                    1
+                  ],
+                  [
+                    "genevieve.bouchard.2@gmail.exa...",
+                    1
+                  ],
+                  [
+                    "isabelle_bouchard@hotmail.exam...",
+                    1
+                  ],
+                  [
+                    "leo8665@icloud.example",
+                    1
+                  ],
+                  [
+                    "louises.2@gmail.example",
+                    1
+                  ],
+                  [
+                    "melaniep@icloud.example",
+                    1
+                  ],
+                  [
+                    "pierre6475@videotron.example",
+                    1
+                  ],
+                  [
+                    "sbrown.2@hotmail.example",
+                    1
+                  ],
+                  [
+                    "suzannel.3@gmail.example",
+                    1
+                  ]
+                ],
+                "cut": [
+                  "carolinegauthier@hotmail.examp...",
+                  "france_bouchard@videotron.exam...",
+                  "genevieve.bouchard.2@gmail.exa...",
+                  "isabelle_bouchard@hotmail.exam..."
+                ]
+              },
               "variants": null,
               "flags": [
                 "error",
@@ -166908,117 +166646,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 1213,
-            "examples": [
-              "+1-200-555-0114",
-              "+1-200-555-0177",
-              "+1-200-555-0107"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "+1-200-555-0114",
-                  "count": 826,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-200-555-0177",
-                  "count": 825,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-200-555-0107",
-                  "count": 815,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-200-555-0100",
-                  "count": 757,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-200-555-0136",
-                  "count": 754,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-201-555-0150",
-                  "count": 139,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-203-555-0165",
-                  "count": 34,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-204-555-0141",
-                  "count": 24,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-202-555-0189",
-                  "count": 22,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-204-555-0123",
-                  "count": 19,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-206-555-0172",
-                  "count": 11,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-207-555-0115",
-                  "count": 10,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-205-555-0168",
-                  "count": 7,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-208-555-0101",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-209-555-0142",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-211-555-0111",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-210-555-0172",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "+1-212-555-0143",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "+1  200-555-0110",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "+1  202-555-0143",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "contact",
               "type": "phone",
@@ -167410,6 +167037,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "+1-200-555-0114",
+                  "+1-200-555-0177",
+                  "+1-200-555-0107"
+                ],
+                "values": [
+                  [
+                    "+1-200-555-0114",
+                    826
+                  ],
+                  [
+                    "+1-200-555-0177",
+                    825
+                  ],
+                  [
+                    "+1-200-555-0107",
+                    815
+                  ],
+                  [
+                    "+1-200-555-0100",
+                    757
+                  ],
+                  [
+                    "+1-200-555-0136",
+                    754
+                  ],
+                  [
+                    "+1-201-555-0150",
+                    139
+                  ],
+                  [
+                    "+1-203-555-0165",
+                    34
+                  ],
+                  [
+                    "+1-204-555-0141",
+                    24
+                  ],
+                  [
+                    "+1-202-555-0189",
+                    22
+                  ],
+                  [
+                    "+1-204-555-0123",
+                    19
+                  ],
+                  [
+                    "+1-206-555-0172",
+                    11
+                  ],
+                  [
+                    "+1-207-555-0115",
+                    10
+                  ],
+                  [
+                    "+1-205-555-0168",
+                    7
+                  ],
+                  [
+                    "+1-208-555-0101",
+                    5
+                  ],
+                  [
+                    "+1-209-555-0142",
+                    4
+                  ],
+                  [
+                    "+1-211-555-0111",
+                    3
+                  ],
+                  [
+                    "+1-210-555-0172",
+                    2
+                  ],
+                  [
+                    "+1-212-555-0143",
+                    2
+                  ],
+                  [
+                    "+1  200-555-0110",
+                    1
+                  ],
+                  [
+                    "+1  202-555-0143",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue",
@@ -167492,117 +167211,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 99983,
-            "examples": [
-              "CTR-1000000696",
-              "CTR-1000006855",
-              "CTR-1000024689"
-            ],
-            "value_profile": {
-              "selection": "diverse_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "CTR-1000000696",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000006855",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000024689",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000013814",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000014906",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000025720",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000027341",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000038403",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000039656",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000040580",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000051417",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000052899",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000053628",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-1000066127",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-2000002190",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-2000004676",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-2000006937",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-2000008442",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-3000007070",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "CTR-3000011560",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "identifier",
               "type": "id",
@@ -167919,6 +167527,98 @@
                 "note": "3 values of 99,983 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
               },
+              "values": {
+                "selection": "diverse_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "CTR-1000000696",
+                  "CTR-1000006855",
+                  "CTR-1000024689"
+                ],
+                "values": [
+                  [
+                    "CTR-1000000696",
+                    2
+                  ],
+                  [
+                    "CTR-1000006855",
+                    2
+                  ],
+                  [
+                    "CTR-1000024689",
+                    2
+                  ],
+                  [
+                    "CTR-1000013814",
+                    1
+                  ],
+                  [
+                    "CTR-1000014906",
+                    1
+                  ],
+                  [
+                    "CTR-1000025720",
+                    1
+                  ],
+                  [
+                    "CTR-1000027341",
+                    1
+                  ],
+                  [
+                    "CTR-1000038403",
+                    1
+                  ],
+                  [
+                    "CTR-1000039656",
+                    1
+                  ],
+                  [
+                    "CTR-1000040580",
+                    1
+                  ],
+                  [
+                    "CTR-1000051417",
+                    1
+                  ],
+                  [
+                    "CTR-1000052899",
+                    1
+                  ],
+                  [
+                    "CTR-1000053628",
+                    1
+                  ],
+                  [
+                    "CTR-1000066127",
+                    1
+                  ],
+                  [
+                    "CTR-2000002190",
+                    1
+                  ],
+                  [
+                    "CTR-2000004676",
+                    1
+                  ],
+                  [
+                    "CTR-2000006937",
+                    1
+                  ],
+                  [
+                    "CTR-2000008442",
+                    1
+                  ],
+                  [
+                    "CTR-3000007070",
+                    1
+                  ],
+                  [
+                    "CTR-3000011560",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue",
@@ -168038,67 +167738,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 10,
-            "examples": [
-              "auto",
-              "habitation",
-              "voyage"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 10,
-              "values": [
-                {
-                  "value": "auto",
-                  "count": 40781,
-                  "truncated": false
-                },
-                {
-                  "value": "habitation",
-                  "count": 30199,
-                  "truncated": false
-                },
-                {
-                  "value": "voyage",
-                  "count": 16734,
-                  "truncated": false
-                },
-                {
-                  "value": "vie",
-                  "count": 12273,
-                  "truncated": false
-                },
-                {
-                  "value": "auto_X",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "AUTO",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "autos",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "habitation_X",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "HABITATION",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "voyage_X",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -168436,6 +168075,58 @@
                 "note": "3 values of 10 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 10,
+                "examples": [
+                  "auto",
+                  "habitation",
+                  "voyage"
+                ],
+                "values": [
+                  [
+                    "auto",
+                    40781
+                  ],
+                  [
+                    "habitation",
+                    30199
+                  ],
+                  [
+                    "voyage",
+                    16734
+                  ],
+                  [
+                    "vie",
+                    12273
+                  ],
+                  [
+                    "auto_X",
+                    3
+                  ],
+                  [
+                    "AUTO",
+                    2
+                  ],
+                  [
+                    "autos",
+                    2
+                  ],
+                  [
+                    "habitation_X",
+                    2
+                  ],
+                  [
+                    "HABITATION",
+                    1
+                  ],
+                  [
+                    "voyage_X",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": {
                 "state": "shown",
                 "groups": [
@@ -168558,117 +168249,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 9367,
-            "examples": [
-              "2026-08-16",
-              "2026-04-30",
-              "2026-09-12"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "2026-08-16",
-                  "count": 45,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-04-30",
-                  "count": 44,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-09-12",
-                  "count": 43,
-                  "truncated": false
-                },
-                {
-                  "value": "2024-03-05",
-                  "count": 27,
-                  "truncated": false
-                },
-                {
-                  "value": "2024-11-26",
-                  "count": 26,
-                  "truncated": false
-                },
-                {
-                  "value": "2025-06-09",
-                  "count": 23,
-                  "truncated": false
-                },
-                {
-                  "value": "2022-06-25",
-                  "count": 22,
-                  "truncated": false
-                },
-                {
-                  "value": "2018-03-10",
-                  "count": 21,
-                  "truncated": false
-                },
-                {
-                  "value": "2018-07-26",
-                  "count": 21,
-                  "truncated": false
-                },
-                {
-                  "value": "2020-08-17",
-                  "count": 20,
-                  "truncated": false
-                },
-                {
-                  "value": "2017-11-23",
-                  "count": 12,
-                  "truncated": false
-                },
-                {
-                  "value": "11-08-2021",
-                  "count": 7,
-                  "truncated": false
-                },
-                {
-                  "value": "29-12-2018",
-                  "count": 6,
-                  "truncated": false
-                },
-                {
-                  "value": "06-05-2023",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "05-18-2017",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "08-08-2020",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "01-18-2021",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "03-30-2023",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "07-24-2025",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2027-02-23",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "temporal",
               "type": "date",
@@ -169090,6 +168670,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "2026-08-16",
+                  "2026-04-30",
+                  "2026-09-12"
+                ],
+                "values": [
+                  [
+                    "2026-08-16",
+                    45
+                  ],
+                  [
+                    "2026-04-30",
+                    44
+                  ],
+                  [
+                    "2026-09-12",
+                    43
+                  ],
+                  [
+                    "2024-03-05",
+                    27
+                  ],
+                  [
+                    "2024-11-26",
+                    26
+                  ],
+                  [
+                    "2025-06-09",
+                    23
+                  ],
+                  [
+                    "2022-06-25",
+                    22
+                  ],
+                  [
+                    "2018-03-10",
+                    21
+                  ],
+                  [
+                    "2018-07-26",
+                    21
+                  ],
+                  [
+                    "2020-08-17",
+                    20
+                  ],
+                  [
+                    "2017-11-23",
+                    12
+                  ],
+                  [
+                    "11-08-2021",
+                    7
+                  ],
+                  [
+                    "29-12-2018",
+                    6
+                  ],
+                  [
+                    "06-05-2023",
+                    5
+                  ],
+                  [
+                    "05-18-2017",
+                    4
+                  ],
+                  [
+                    "08-08-2020",
+                    4
+                  ],
+                  [
+                    "01-18-2021",
+                    2
+                  ],
+                  [
+                    "03-30-2023",
+                    2
+                  ],
+                  [
+                    "07-24-2025",
+                    1
+                  ],
+                  [
+                    "2027-02-23",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue",
@@ -169172,117 +168844,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 6142,
-            "examples": [
-              "2027-04-04",
-              "2027-08-11",
-              "2027-07-29"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "2027-04-04",
-                  "count": 182,
-                  "truncated": false
-                },
-                {
-                  "value": "2027-08-11",
-                  "count": 172,
-                  "truncated": false
-                },
-                {
-                  "value": "2027-07-29",
-                  "count": 169,
-                  "truncated": false
-                },
-                {
-                  "value": "29-03-2027",
-                  "count": 36,
-                  "truncated": false
-                },
-                {
-                  "value": "12-04-2027",
-                  "count": 26,
-                  "truncated": false
-                },
-                {
-                  "value": "2025-09-18",
-                  "count": 11,
-                  "truncated": false
-                },
-                {
-                  "value": "2023-03-11",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "2022-03-15",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "2023-10-23",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "2020-08-17",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "2020-11-23",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "2021-07-15",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "2020-12-12",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2023-07-12",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "26-03-2024",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "27-03-2022",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "04-15-2025",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "10-09-2022",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "16-09-2024",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2023-10-18",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "temporal",
               "type": "date",
@@ -169711,6 +169272,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "2027-04-04",
+                  "2027-08-11",
+                  "2027-07-29"
+                ],
+                "values": [
+                  [
+                    "2027-04-04",
+                    182
+                  ],
+                  [
+                    "2027-08-11",
+                    172
+                  ],
+                  [
+                    "2027-07-29",
+                    169
+                  ],
+                  [
+                    "29-03-2027",
+                    36
+                  ],
+                  [
+                    "12-04-2027",
+                    26
+                  ],
+                  [
+                    "2025-09-18",
+                    11
+                  ],
+                  [
+                    "2023-03-11",
+                    5
+                  ],
+                  [
+                    "2022-03-15",
+                    4
+                  ],
+                  [
+                    "2023-10-23",
+                    4
+                  ],
+                  [
+                    "2020-08-17",
+                    3
+                  ],
+                  [
+                    "2020-11-23",
+                    3
+                  ],
+                  [
+                    "2021-07-15",
+                    3
+                  ],
+                  [
+                    "2020-12-12",
+                    2
+                  ],
+                  [
+                    "2023-07-12",
+                    2
+                  ],
+                  [
+                    "26-03-2024",
+                    2
+                  ],
+                  [
+                    "27-03-2022",
+                    2
+                  ],
+                  [
+                    "04-15-2025",
+                    1
+                  ],
+                  [
+                    "10-09-2022",
+                    1
+                  ],
+                  [
+                    "16-09-2024",
+                    1
+                  ],
+                  [
+                    "2023-10-18",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue",
@@ -169793,47 +169446,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 6,
-            "examples": [
-              "actif",
-              "expiré",
-              "suspendu"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 6,
-              "values": [
-                {
-                  "value": "actif",
-                  "count": 76001,
-                  "truncated": false
-                },
-                {
-                  "value": "expiré",
-                  "count": 12879,
-                  "truncated": false
-                },
-                {
-                  "value": "suspendu",
-                  "count": 6120,
-                  "truncated": false
-                },
-                {
-                  "value": "résilié",
-                  "count": 4995,
-                  "truncated": false
-                },
-                {
-                  "value": "actif_X",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "suspendu_X",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -170112,6 +169724,42 @@
                 "note": "3 values of 6 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 6,
+                "examples": [
+                  "actif",
+                  "expiré",
+                  "suspendu"
+                ],
+                "values": [
+                  [
+                    "actif",
+                    76001
+                  ],
+                  [
+                    "expiré",
+                    12879
+                  ],
+                  [
+                    "suspendu",
+                    6120
+                  ],
+                  [
+                    "résilié",
+                    4995
+                  ],
+                  [
+                    "actif_X",
+                    4
+                  ],
+                  [
+                    "suspendu_X",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -170192,117 +169840,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 85867,
-            "examples": [
-              "303.56",
-              "562.15",
-              "1123.75"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "303.56",
-                  "count": 6,
-                  "truncated": false
-                },
-                {
-                  "value": "562.15",
-                  "count": 6,
-                  "truncated": false
-                },
-                {
-                  "value": "1123.75",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "1413.62",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "1549.57",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "183.49",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2789.72",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "1117.50",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "1289.02",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "1633.84",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "1862.37",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "1873.47",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2418.32",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2428.97",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2482.57",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2739.51",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "427.56",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "454.74",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "490.03",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "529.03",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "numeric",
               "type": "number",
@@ -170712,6 +170249,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "303.56",
+                  "562.15",
+                  "1123.75"
+                ],
+                "values": [
+                  [
+                    "303.56",
+                    6
+                  ],
+                  [
+                    "562.15",
+                    6
+                  ],
+                  [
+                    "1123.75",
+                    5
+                  ],
+                  [
+                    "1413.62",
+                    2
+                  ],
+                  [
+                    "1549.57",
+                    2
+                  ],
+                  [
+                    "183.49",
+                    2
+                  ],
+                  [
+                    "2789.72",
+                    2
+                  ],
+                  [
+                    "1117.50",
+                    1
+                  ],
+                  [
+                    "1289.02",
+                    1
+                  ],
+                  [
+                    "1633.84",
+                    1
+                  ],
+                  [
+                    "1862.37",
+                    1
+                  ],
+                  [
+                    "1873.47",
+                    1
+                  ],
+                  [
+                    "2418.32",
+                    1
+                  ],
+                  [
+                    "2428.97",
+                    1
+                  ],
+                  [
+                    "2482.57",
+                    1
+                  ],
+                  [
+                    "2739.51",
+                    1
+                  ],
+                  [
+                    "427.56",
+                    1
+                  ],
+                  [
+                    "454.74",
+                    1
+                  ],
+                  [
+                    "490.03",
+                    1
+                  ],
+                  [
+                    "529.03",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "error",
@@ -170795,42 +170424,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 5,
-            "examples": [
-              "mensuelle",
-              "annuelle",
-              "trimestrielle"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 5,
-              "values": [
-                {
-                  "value": "mensuelle",
-                  "count": 64988,
-                  "truncated": false
-                },
-                {
-                  "value": "annuelle",
-                  "count": 21984,
-                  "truncated": false
-                },
-                {
-                  "value": "trimestrielle",
-                  "count": 8938,
-                  "truncated": false
-                },
-                {
-                  "value": "semestrielle",
-                  "count": 4087,
-                  "truncated": false
-                },
-                {
-                  "value": "mensuelle_X",
-                  "count": 3,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -171108,6 +170701,38 @@
                 "note": "3 values of 5 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 5,
+                "examples": [
+                  "mensuelle",
+                  "annuelle",
+                  "trimestrielle"
+                ],
+                "values": [
+                  [
+                    "mensuelle",
+                    64988
+                  ],
+                  [
+                    "annuelle",
+                    21984
+                  ],
+                  [
+                    "trimestrielle",
+                    8938
+                  ],
+                  [
+                    "semestrielle",
+                    4087
+                  ],
+                  [
+                    "mensuelle_X",
+                    3
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": []
             }
@@ -171220,57 +170845,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 8,
-            "examples": [
-              "prélèvement",
-              "carte",
-              "virement"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 8,
-              "values": [
-                {
-                  "value": "prélèvement",
-                  "count": 55134,
-                  "truncated": false
-                },
-                {
-                  "value": "carte",
-                  "count": 24880,
-                  "truncated": false
-                },
-                {
-                  "value": "virement",
-                  "count": 14931,
-                  "truncated": false
-                },
-                {
-                  "value": "chèque",
-                  "count": 5030,
-                  "truncated": false
-                },
-                {
-                  "value": "prelevement",
-                  "count": 16,
-                  "truncated": false
-                },
-                {
-                  "value": "prélèvement_X",
-                  "count": 6,
-                  "truncated": false
-                },
-                {
-                  "value": "virement_X",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "cheque",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -171581,6 +171155,50 @@
                 "note": "3 values of 8 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 8,
+                "examples": [
+                  "prélèvement",
+                  "carte",
+                  "virement"
+                ],
+                "values": [
+                  [
+                    "prélèvement",
+                    55134
+                  ],
+                  [
+                    "carte",
+                    24880
+                  ],
+                  [
+                    "virement",
+                    14931
+                  ],
+                  [
+                    "chèque",
+                    5030
+                  ],
+                  [
+                    "prelevement",
+                    16
+                  ],
+                  [
+                    "prélèvement_X",
+                    6
+                  ],
+                  [
+                    "virement_X",
+                    2
+                  ],
+                  [
+                    "cheque",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": {
                 "state": "shown",
                 "groups": [
@@ -171698,172 +171316,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 31,
-            "examples": [
-              "AG-PR-001",
-              "AG-PR-002",
-              "AG-PR-005"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 31,
-              "values": [
-                {
-                  "value": "AG-PR-001",
-                  "count": 21855,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-PR-002",
-                  "count": 13169,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-PR-005",
-                  "count": 8230,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-PR-003",
-                  "count": 7149,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-PR-004",
-                  "count": 6410,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-QC-001",
-                  "count": 6293,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-PR-006",
-                  "count": 5784,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-PR-008",
-                  "count": 5093,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-PR-007",
-                  "count": 5029,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-QC-002",
-                  "count": 3934,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-ON-001",
-                  "count": 3170,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-QC-003",
-                  "count": 2560,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-QC-004",
-                  "count": 2204,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-QC-005",
-                  "count": 1856,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-ON-003",
-                  "count": 1464,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-ON-002",
-                  "count": 1349,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-QC-006",
-                  "count": 1329,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-ON-004",
-                  "count": 1170,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-ON-005",
-                  "count": 1104,
-                  "truncated": false
-                },
-                {
-                  "value": "AG-ON-006",
-                  "count": 832,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--QC-001",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--PR-001",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--PR-002",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--PR-004",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--ON-003",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--ON-004",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--PR-003",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--PR-005",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--QC-002",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--QC-003",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "AG--QC-006",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -172174,6 +171626,142 @@
                 "note": "3 values of 31 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 31,
+                "examples": [
+                  "AG-PR-001",
+                  "AG-PR-002",
+                  "AG-PR-005"
+                ],
+                "values": [
+                  [
+                    "AG-PR-001",
+                    21855
+                  ],
+                  [
+                    "AG-PR-002",
+                    13169
+                  ],
+                  [
+                    "AG-PR-005",
+                    8230
+                  ],
+                  [
+                    "AG-PR-003",
+                    7149
+                  ],
+                  [
+                    "AG-PR-004",
+                    6410
+                  ],
+                  [
+                    "AG-QC-001",
+                    6293
+                  ],
+                  [
+                    "AG-PR-006",
+                    5784
+                  ],
+                  [
+                    "AG-PR-008",
+                    5093
+                  ],
+                  [
+                    "AG-PR-007",
+                    5029
+                  ],
+                  [
+                    "AG-QC-002",
+                    3934
+                  ],
+                  [
+                    "AG-ON-001",
+                    3170
+                  ],
+                  [
+                    "AG-QC-003",
+                    2560
+                  ],
+                  [
+                    "AG-QC-004",
+                    2204
+                  ],
+                  [
+                    "AG-QC-005",
+                    1856
+                  ],
+                  [
+                    "AG-ON-003",
+                    1464
+                  ],
+                  [
+                    "AG-ON-002",
+                    1349
+                  ],
+                  [
+                    "AG-QC-006",
+                    1329
+                  ],
+                  [
+                    "AG-ON-004",
+                    1170
+                  ],
+                  [
+                    "AG-ON-005",
+                    1104
+                  ],
+                  [
+                    "AG-ON-006",
+                    832
+                  ],
+                  [
+                    "AG--QC-001",
+                    3
+                  ],
+                  [
+                    "AG--PR-001",
+                    2
+                  ],
+                  [
+                    "AG--PR-002",
+                    2
+                  ],
+                  [
+                    "AG--PR-004",
+                    2
+                  ],
+                  [
+                    "AG--ON-003",
+                    1
+                  ],
+                  [
+                    "AG--ON-004",
+                    1
+                  ],
+                  [
+                    "AG--PR-003",
+                    1
+                  ],
+                  [
+                    "AG--PR-005",
+                    1
+                  ],
+                  [
+                    "AG--QC-002",
+                    1
+                  ],
+                  [
+                    "AG--QC-003",
+                    1
+                  ],
+                  [
+                    "AG--QC-006",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue",
@@ -172256,117 +171844,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 9400,
-            "examples": [
-              "2025-09-14",
-              "2026-07-02",
-              "2026-06-23"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "2025-09-14",
-                  "count": 41,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-07-02",
-                  "count": 41,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-06-23",
-                  "count": 40,
-                  "truncated": false
-                },
-                {
-                  "value": "2021-07-15",
-                  "count": 17,
-                  "truncated": false
-                },
-                {
-                  "value": "2023-08-26",
-                  "count": 16,
-                  "truncated": false
-                },
-                {
-                  "value": "2024-01-08",
-                  "count": 16,
-                  "truncated": false
-                },
-                {
-                  "value": "2020-11-23",
-                  "count": 14,
-                  "truncated": false
-                },
-                {
-                  "value": "04-01-2025",
-                  "count": 13,
-                  "truncated": false
-                },
-                {
-                  "value": "03-06-2025",
-                  "count": 12,
-                  "truncated": false
-                },
-                {
-                  "value": "2020-12-12",
-                  "count": 12,
-                  "truncated": false
-                },
-                {
-                  "value": "13-02-2022",
-                  "count": 7,
-                  "truncated": false
-                },
-                {
-                  "value": "24-02-2024",
-                  "count": 6,
-                  "truncated": false
-                },
-                {
-                  "value": "07-23-2019",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "26-03-2024",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "01-21-2018",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "01-18-2020",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "06-14-2018",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "07-24-2025",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "10-20-2020",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "30-08-2021",
-                  "count": 2,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "temporal",
               "type": "date",
@@ -172788,6 +172265,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "2025-09-14",
+                  "2026-07-02",
+                  "2026-06-23"
+                ],
+                "values": [
+                  [
+                    "2025-09-14",
+                    41
+                  ],
+                  [
+                    "2026-07-02",
+                    41
+                  ],
+                  [
+                    "2026-06-23",
+                    40
+                  ],
+                  [
+                    "2021-07-15",
+                    17
+                  ],
+                  [
+                    "2023-08-26",
+                    16
+                  ],
+                  [
+                    "2024-01-08",
+                    16
+                  ],
+                  [
+                    "2020-11-23",
+                    14
+                  ],
+                  [
+                    "04-01-2025",
+                    13
+                  ],
+                  [
+                    "03-06-2025",
+                    12
+                  ],
+                  [
+                    "2020-12-12",
+                    12
+                  ],
+                  [
+                    "13-02-2022",
+                    7
+                  ],
+                  [
+                    "24-02-2024",
+                    6
+                  ],
+                  [
+                    "07-23-2019",
+                    4
+                  ],
+                  [
+                    "26-03-2024",
+                    4
+                  ],
+                  [
+                    "01-21-2018",
+                    3
+                  ],
+                  [
+                    "01-18-2020",
+                    2
+                  ],
+                  [
+                    "06-14-2018",
+                    2
+                  ],
+                  [
+                    "07-24-2025",
+                    2
+                  ],
+                  [
+                    "10-20-2020",
+                    2
+                  ],
+                  [
+                    "30-08-2021",
+                    2
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue",
@@ -172870,117 +172439,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 8105,
-            "examples": [
-              "2026-09-15",
-              "2026-09-14",
-              "2026-09-05"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "2026-09-15",
-                  "count": 166,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-09-14",
-                  "count": 163,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-09-05",
-                  "count": 148,
-                  "truncated": false
-                },
-                {
-                  "value": "2024-10-17",
-                  "count": 43,
-                  "truncated": false
-                },
-                {
-                  "value": "2025-05-28",
-                  "count": 34,
-                  "truncated": false
-                },
-                {
-                  "value": "2023-07-12",
-                  "count": 25,
-                  "truncated": false
-                },
-                {
-                  "value": "08-18-2026",
-                  "count": 14,
-                  "truncated": false
-                },
-                {
-                  "value": "24-11-2024",
-                  "count": 7,
-                  "truncated": false
-                },
-                {
-                  "value": "2017-10-28",
-                  "count": 6,
-                  "truncated": false
-                },
-                {
-                  "value": "04-10-2022",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "2018-03-10",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "22-04-2024",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "23-05-2022",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "28-01-2023",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "06-19-2024",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "06-29-2023",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "11-08-2021",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "2018-04-18",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "2017-08-21",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "20-06-2018",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "temporal",
               "type": "date",
@@ -173409,6 +172867,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "2026-09-15",
+                  "2026-09-14",
+                  "2026-09-05"
+                ],
+                "values": [
+                  [
+                    "2026-09-15",
+                    166
+                  ],
+                  [
+                    "2026-09-14",
+                    163
+                  ],
+                  [
+                    "2026-09-05",
+                    148
+                  ],
+                  [
+                    "2024-10-17",
+                    43
+                  ],
+                  [
+                    "2025-05-28",
+                    34
+                  ],
+                  [
+                    "2023-07-12",
+                    25
+                  ],
+                  [
+                    "08-18-2026",
+                    14
+                  ],
+                  [
+                    "24-11-2024",
+                    7
+                  ],
+                  [
+                    "2017-10-28",
+                    6
+                  ],
+                  [
+                    "04-10-2022",
+                    5
+                  ],
+                  [
+                    "2018-03-10",
+                    5
+                  ],
+                  [
+                    "22-04-2024",
+                    5
+                  ],
+                  [
+                    "23-05-2022",
+                    5
+                  ],
+                  [
+                    "28-01-2023",
+                    5
+                  ],
+                  [
+                    "06-19-2024",
+                    4
+                  ],
+                  [
+                    "06-29-2023",
+                    3
+                  ],
+                  [
+                    "11-08-2021",
+                    3
+                  ],
+                  [
+                    "2018-04-18",
+                    3
+                  ],
+                  [
+                    "2017-08-21",
+                    2
+                  ],
+                  [
+                    "20-06-2018",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue",
@@ -173491,117 +173041,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 4954,
-            "examples": [
-              "2026-09-16",
-              "2026-09-11",
-              "2026-09-13"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "2026-09-16",
-                  "count": 29,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-09-11",
-                  "count": 28,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-09-13",
-                  "count": 28,
-                  "truncated": false
-                },
-                {
-                  "value": "2020-12-28",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "2024-10-17",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "2023-03-20",
-                  "count": 4,
-                  "truncated": false
-                },
-                {
-                  "value": "2019-01-27",
-                  "count": 3,
-                  "truncated": false
-                },
-                {
-                  "value": "03-11-2022",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "06-28-2023",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2023-02-23",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2023-02-28",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "2023-08-04",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "07-10-2021",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "11-26-2025",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "12-06-2020",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2018-07-26",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2022-06-25",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2022-11-16",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2024-03-05",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "25-06-2024",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "temporal",
               "type": "date",
@@ -174001,6 +173440,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "2026-09-16",
+                  "2026-09-11",
+                  "2026-09-13"
+                ],
+                "values": [
+                  [
+                    "2026-09-16",
+                    29
+                  ],
+                  [
+                    "2026-09-11",
+                    28
+                  ],
+                  [
+                    "2026-09-13",
+                    28
+                  ],
+                  [
+                    "2020-12-28",
+                    5
+                  ],
+                  [
+                    "2024-10-17",
+                    5
+                  ],
+                  [
+                    "2023-03-20",
+                    4
+                  ],
+                  [
+                    "2019-01-27",
+                    3
+                  ],
+                  [
+                    "03-11-2022",
+                    2
+                  ],
+                  [
+                    "06-28-2023",
+                    2
+                  ],
+                  [
+                    "2023-02-23",
+                    2
+                  ],
+                  [
+                    "2023-02-28",
+                    2
+                  ],
+                  [
+                    "2023-08-04",
+                    2
+                  ],
+                  [
+                    "07-10-2021",
+                    1
+                  ],
+                  [
+                    "11-26-2025",
+                    1
+                  ],
+                  [
+                    "12-06-2020",
+                    1
+                  ],
+                  [
+                    "2018-07-26",
+                    1
+                  ],
+                  [
+                    "2022-06-25",
+                    1
+                  ],
+                  [
+                    "2022-11-16",
+                    1
+                  ],
+                  [
+                    "2024-03-05",
+                    1
+                  ],
+                  [
+                    "25-06-2024",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "issue",
@@ -174083,117 +173614,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 11671,
-            "examples": [
-              "0.00",
-              "12033.09",
-              "135325.98"
-            ],
-            "value_profile": {
-              "selection": "random_sample",
-              "sampled_distinct_count": 100,
-              "values": [
-                {
-                  "value": "0.00",
-                  "count": 5,
-                  "truncated": false
-                },
-                {
-                  "value": "12033.09",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "135325.98",
-                  "count": 2,
-                  "truncated": false
-                },
-                {
-                  "value": "136283.57",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "139009.41",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "15084.73",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "15796.01",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "1736.43",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2342.57",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "25588.31",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "25911.13",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "27555.39",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "34395.90",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "34853.63",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "34953.21",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "38891.45",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "39911.48",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "48912.09",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "8986.57",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "90025.16",
-                  "count": 1,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "numeric",
               "type": "number",
@@ -174505,6 +173925,98 @@
                   }
                 ]
               },
+              "values": {
+                "selection": "random_sample",
+                "sampled_distinct_count": 100,
+                "examples": [
+                  "0.00",
+                  "12033.09",
+                  "135325.98"
+                ],
+                "values": [
+                  [
+                    "0.00",
+                    5
+                  ],
+                  [
+                    "12033.09",
+                    2
+                  ],
+                  [
+                    "135325.98",
+                    2
+                  ],
+                  [
+                    "136283.57",
+                    1
+                  ],
+                  [
+                    "139009.41",
+                    1
+                  ],
+                  [
+                    "15084.73",
+                    1
+                  ],
+                  [
+                    "15796.01",
+                    1
+                  ],
+                  [
+                    "1736.43",
+                    1
+                  ],
+                  [
+                    "2342.57",
+                    1
+                  ],
+                  [
+                    "25588.31",
+                    1
+                  ],
+                  [
+                    "25911.13",
+                    1
+                  ],
+                  [
+                    "27555.39",
+                    1
+                  ],
+                  [
+                    "34395.90",
+                    1
+                  ],
+                  [
+                    "34853.63",
+                    1
+                  ],
+                  [
+                    "34953.21",
+                    1
+                  ],
+                  [
+                    "38891.45",
+                    1
+                  ],
+                  [
+                    "39911.48",
+                    1
+                  ],
+                  [
+                    "48912.09",
+                    1
+                  ],
+                  [
+                    "8986.57",
+                    1
+                  ],
+                  [
+                    "90025.16",
+                    1
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "obs"
@@ -174586,37 +174098,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 4,
-            "examples": [
-              "fermé",
-              "en_cours",
-              "ouvert"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 4,
-              "values": [
-                {
-                  "value": "fermé",
-                  "count": 7053,
-                  "truncated": false
-                },
-                {
-                  "value": "en_cours",
-                  "count": 4250,
-                  "truncated": false
-                },
-                {
-                  "value": "ouvert",
-                  "count": 2223,
-                  "truncated": false
-                },
-                {
-                  "value": "rejeté",
-                  "count": 714,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -174893,6 +174374,34 @@
                 "note": "3 values of 4 distinct values; A sample of the values; the list is not exhaustive.",
                 "measures": []
               },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 4,
+                "examples": [
+                  "fermé",
+                  "en_cours",
+                  "ouvert"
+                ],
+                "values": [
+                  [
+                    "fermé",
+                    7053
+                  ],
+                  [
+                    "en_cours",
+                    4250
+                  ],
+                  [
+                    "ouvert",
+                    2223
+                  ],
+                  [
+                    "rejeté",
+                    714
+                  ]
+                ],
+                "cut": []
+              },
               "variants": null,
               "flags": [
                 "obs"
@@ -174974,32 +174483,6 @@
               "variant_groups_truncated": false
             },
             "distinct_count": 3,
-            "examples": [
-              "principal",
-              "quebec",
-              "ontario"
-            ],
-            "value_profile": {
-              "selection": "complete",
-              "sampled_distinct_count": 3,
-              "values": [
-                {
-                  "value": "principal",
-                  "count": 72727,
-                  "truncated": false
-                },
-                {
-                  "value": "quebec",
-                  "count": 18182,
-                  "truncated": false
-                },
-                {
-                  "value": "ontario",
-                  "count": 9091,
-                  "truncated": false
-                }
-              ]
-            },
             "classification": {
               "family": "categorical",
               "type": "enum",
@@ -175274,6 +174757,30 @@
                 "total_accuracy": "exact",
                 "note": null,
                 "measures": []
+              },
+              "values": {
+                "selection": "complete",
+                "sampled_distinct_count": 3,
+                "examples": [
+                  "principal",
+                  "quebec",
+                  "ontario"
+                ],
+                "values": [
+                  [
+                    "principal",
+                    72727
+                  ],
+                  [
+                    "quebec",
+                    18182
+                  ],
+                  [
+                    "ontario",
+                    9091
+                  ]
+                ],
+                "cut": []
               },
               "variants": null,
               "flags": []

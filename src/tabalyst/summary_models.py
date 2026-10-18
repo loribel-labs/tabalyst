@@ -244,6 +244,25 @@ class Details(ResultModel):
     measures: list[DetailMeasure]
 
 
+# Values ---------------------------------------------------------------------
+
+ValueSelection = Literal["complete", "diverse_sample", "random_sample"]
+
+
+class ColumnValues(ResultModel):
+    """The values of a column the tables list in a cell and in its hover, through the
+    exposure of the column (CA-19): ``examples`` are the inline chips, ``values`` the
+    value and its count of the hover. All are empty when the column is hidden and hold
+    merged masks when it is masked; the document keeps no raw value (contract 20.5)."""
+
+    selection: ValueSelection
+    sampled_distinct_count: int
+    examples: list[str]
+    values: list[tuple[str, int]]
+    # Exposed values the Scan cut at its stored length: not the whole value.
+    cut: list[str] = Field(default_factory=list)
+
+
 # Spelling variants ----------------------------------------------------------
 
 VariantState = Literal["shown", "masked", "hidden"]
@@ -289,6 +308,7 @@ class ColumnSummary(ResultModel):
     findings: ColumnFindings
     overview: Overview
     details: Details
+    values: ColumnValues
     # The groups of spelling variants behind the Issue of the same name, for the hover.
     variants: VariantDetails | None
     flags: list[Flag]

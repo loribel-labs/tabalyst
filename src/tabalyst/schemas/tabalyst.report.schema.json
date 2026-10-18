@@ -2385,16 +2385,6 @@
           ],
           "title": "Distinct Count"
         },
-        "examples": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Examples",
-          "type": "array"
-        },
-        "value_profile": {
-          "$ref": "#/$defs/ValueProfile"
-        },
         "classification": {
           "$ref": "#/$defs/Classification"
         },
@@ -2448,8 +2438,6 @@
         "missing_percent",
         "normalization",
         "distinct_count",
-        "examples",
-        "value_profile",
         "classification"
       ],
       "title": "ColumnProfile",
@@ -2482,6 +2470,9 @@
         "details": {
           "$ref": "#/$defs/Details"
         },
+        "values": {
+          "$ref": "#/$defs/ColumnValues"
+        },
         "variants": {
           "anyOf": [
             {
@@ -2509,10 +2500,69 @@
         "findings",
         "overview",
         "details",
+        "values",
         "variants",
         "flags"
       ],
       "title": "ColumnSummary",
+      "type": "object"
+    },
+    "ColumnValues": {
+      "additionalProperties": false,
+      "description": "The values of a column the tables list in a cell and in its hover, through the\nexposure of the column (CA-19): ``examples`` are the inline chips, ``values`` the\nvalue and its count of the hover. All are empty when the column is hidden and hold\nmerged masks when it is masked; the document keeps no raw value (contract 20.5).",
+      "properties": {
+        "selection": {
+          "enum": [
+            "complete",
+            "diverse_sample",
+            "random_sample"
+          ],
+          "title": "Selection",
+          "type": "string"
+        },
+        "sampled_distinct_count": {
+          "title": "Sampled Distinct Count",
+          "type": "integer"
+        },
+        "examples": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Examples",
+          "type": "array"
+        },
+        "values": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "cut": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Cut",
+          "type": "array"
+        }
+      },
+      "required": [
+        "selection",
+        "sampled_distinct_count",
+        "examples",
+        "values"
+      ],
+      "title": "ColumnValues",
       "type": "object"
     },
     "CombinationAdvice": {
@@ -17407,62 +17457,6 @@
         }
       },
       "title": "ValueExamplesSettings",
-      "type": "object"
-    },
-    "ValueOccurrence": {
-      "additionalProperties": false,
-      "properties": {
-        "value": {
-          "title": "Value",
-          "type": "string"
-        },
-        "count": {
-          "title": "Count",
-          "type": "integer"
-        },
-        "truncated": {
-          "default": false,
-          "title": "Truncated",
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "value",
-        "count"
-      ],
-      "title": "ValueOccurrence",
-      "type": "object"
-    },
-    "ValueProfile": {
-      "additionalProperties": false,
-      "properties": {
-        "selection": {
-          "enum": [
-            "complete",
-            "diverse_sample",
-            "random_sample"
-          ],
-          "title": "Selection",
-          "type": "string"
-        },
-        "sampled_distinct_count": {
-          "title": "Sampled Distinct Count",
-          "type": "integer"
-        },
-        "values": {
-          "items": {
-            "$ref": "#/$defs/ValueOccurrence"
-          },
-          "title": "Values",
-          "type": "array"
-        }
-      },
-      "required": [
-        "selection",
-        "sampled_distinct_count",
-        "values"
-      ],
-      "title": "ValueProfile",
       "type": "object"
     },
     "ValueSettings": {

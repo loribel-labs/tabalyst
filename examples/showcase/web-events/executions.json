@@ -2,15 +2,15 @@
   "schema_version": "1.0",
   "executions": [
     {
-      "timestamp": "2026-10-18T00:13:16.912819Z",
+      "timestamp": "2026-10-18T00:12:23.246967Z",
       "tabalyst_version": "0.7.0",
       "source_file": "web-events.jsonl",
       "html_file": "report.html",
       "json_file": "report.json",
       "rows": 300,
       "columns": 14,
-      "analysis_seconds": 0.3153,
-      "total_seconds": 0.5347,
+      "analysis_seconds": 0.3308,
+      "total_seconds": 0.5534,
       "git": {
         "available": true,
         "commit": "924c60c653c4faf4d7eecab8923a7c1d41f47c10",
