@@ -6,7 +6,8 @@
 
 The contract is ``docs/dev/report/summary-table.md`` 22: the dominant length and every other
 length of the exact histogram, with examples of the analytical text (the one the lengths are
-counted on), through the exposure of the column.
+counted on) read from the cases the Scan keeps (scan design 18.15), through the exposure of
+the column.
 """
 
 import json
@@ -69,7 +70,7 @@ def test_the_examples_are_analytical_texts_of_their_length(tmp_path):
     assert sorted(examples[5]) == ["KEY12", "KEY13"]
     # The original has two spaces (nine characters); the histogram counts the collapsed text.
     assert examples[8] == ["KEY 12 3"]
-    assert detail.examples_from == "sample"
+    assert detail.examples_from == "cases"
     assert all(len(values) <= EXAMPLES_PER_ITEM for values in examples.values())
 
 
@@ -178,7 +179,7 @@ def test_the_findings_table_prints_the_stored_detail(tmp_path):
     assert "Dominant length" in html and "Lengths that few texts have" in html
     assert "5 characters" in html and "8 characters" in html
     assert "KEY 12 3" in html
-    assert "Examples are texts of a sample" in html
+    assert "The scan kept every distinct text of these cases." in html
 
 
 def test_the_render_of_the_detail_equals_the_render_from_memory(tmp_path):
@@ -194,3 +195,22 @@ def test_the_render_of_the_detail_equals_the_render_from_memory(tmp_path):
         )
 
     assert strip(render_report(reloaded)) == strip(render_report(profile))
+
+
+def test_a_rare_length_absent_from_the_sample_has_its_cases(tmp_path):
+    keys = [f"KEY{n:05d}" for n in range(3_000)]
+    keys[2_053] = "KEY2053"
+    source = write_text(tmp_path, "data.csv", "\n".join(["key", *keys]) + "\n")
+    config = ScanConfig.model_validate({"limits": {"max_distinct_per_field": 500, "max_samples": 20}})
+    result = scan(source, config=config)
+    profile = build_profile(result, ReportConfig(scan=result.config))
+    sampled = {entry.value for entry in result.datasets[0].fields[0].values.samples.listed}
+
+    detail = profile.report.datasets[0].columns[0].summary.finding_details.lengths
+
+    assert "KEY2053" not in sampled
+    assert detail is not None and detail.examples_from == "cases"
+    by_length = {item.length: item for item in detail.lengths}
+    assert [e.value for e in by_length[7].examples] == ["KEY2053"]
+    assert by_length[7].examples[0].count == 1 and by_length[7].complete
+    assert by_length[7].count == 1 and 8 not in by_length

@@ -15,6 +15,8 @@ from __future__ import annotations
 from pydantic import Field
 
 from tabalyst.report_labels import (
+    CASES_COMPLETE,
+    CASES_SAMPLE,
     CAVEAT_STATES,
     DATES_CANDIDATES,
     DATES_FORMATS,
@@ -30,7 +32,6 @@ from tabalyst.report_labels import (
     LENGTHS_DOMINANT,
     LENGTHS_MINORITY,
     LENGTHS_NO_EXAMPLES,
-    LENGTHS_SAMPLE_EXAMPLES,
     LENGTHS_TITLE,
     LENGTHS_UNIT,
     LIST_STATE_LABELS,
@@ -50,10 +51,10 @@ from tabalyst.report_labels import (
     TYPES_OUTSIDE,
     TYPES_TITLE,
     TYPES_WORDS,
+    WHITESPACE_CELLS,
     WHITESPACE_KIND_TITLES,
     WHITESPACE_NO_EXAMPLES,
     WHITESPACE_NOTE,
-    WHITESPACE_SAMPLE_EXAMPLES,
     WHITESPACE_TITLES,
     finding_noun,
     finding_text,
@@ -483,20 +484,27 @@ def _patterns_view(detail: PatternDetail) -> FindingDetailView:
 def _whitespace_view(detail: WhitespaceDetail, rule: str) -> FindingDetailView:
     kinds = ("leading", "trailing") if rule == "trimmed_cells" else ("repeated",)
     examples = [item for item in detail.examples if item.kind in kinds]
+    counted = {item.kind: item for item in detail.kinds if item.kind in kinds}
     sections = [
         DetailSection(
-            title=WHITESPACE_KIND_TITLES[kind],
+            title=(
+                f"{WHITESPACE_KIND_TITLES[kind]}: {counted[kind].occurrences:,} "
+                f"{WHITESPACE_CELLS[0] if counted[kind].occurrences == 1 else WHITESPACE_CELLS[1]}"
+                if kind in counted
+                else WHITESPACE_KIND_TITLES[kind]
+            ),
             rows=[
                 DetailRow(
                     label=visible_whitespace(item.value),
                     spoken=spoken_whitespace(kind, item.value),
+                    figure=item.count,
                 )
                 for item in examples
                 if item.kind == kind
             ],
         )
         for kind in kinds
-        if any(item.kind == kind for item in examples)
+        if kind in counted or any(item.kind == kind for item in examples)
     ]
     if detail.state == "masked":
         example_note = EXAMPLES_MASKED
@@ -504,8 +512,10 @@ def _whitespace_view(detail: WhitespaceDetail, rule: str) -> FindingDetailView:
         example_note = EXAMPLES_HIDDEN
     elif not examples:
         example_note = WHITESPACE_NO_EXAMPLES
+    elif all(item.complete for item in counted.values()):
+        example_note = CASES_COMPLETE
     else:
-        example_note = WHITESPACE_SAMPLE_EXAMPLES
+        example_note = CASES_SAMPLE
     shown = examples[:2]
     return FindingDetailView(
         title=WHITESPACE_TITLES[rule],
@@ -567,8 +577,10 @@ def _lengths_view(detail: LengthDetail) -> FindingDetailView:
         example_note = EXAMPLES_HIDDEN
     elif detail.examples_from == "none":
         example_note = LENGTHS_NO_EXAMPLES
+    elif all(item.complete for item in detail.lengths if item.examples):
+        example_note = CASES_COMPLETE
     else:
-        example_note = LENGTHS_SAMPLE_EXAMPLES
+        example_note = CASES_SAMPLE
     dominant = detail.dominant
     return FindingDetailView(
         title=LENGTHS_TITLE,

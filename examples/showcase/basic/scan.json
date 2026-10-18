@@ -27,23 +27,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-18T18:06:49.467035Z",
-    "duration_seconds": 0.008297,
+    "started_at": "2026-10-18T20:21:01.037651Z",
+    "duration_seconds": 0.007335,
     "timings": {
-      "reading": 0.000445,
-      "analysis": 0.000146,
-      "finalize": 0.004123,
-      "derived": 0.001649,
-      "other": 0.001935
+      "reading": 0.000686,
+      "analysis": 0.000154,
+      "finalize": 0.00415,
+      "derived": 0.001922,
+      "other": 0.000423
     },
     "workers": 1,
-    "peak_memory_bytes": 69332992
+    "peak_memory_bytes": 70885376
   },
   "source": {
     "format": "csv",
     "name": "basic.csv",
     "size_bytes": 280,
-    "modified_at": "2026-10-16T05:33:33.607029Z",
+    "modified_at": "2026-10-18T18:11:41.529228Z",
     "sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
     "encoding": "utf-8-sig",
     "shape": {
@@ -134,6 +134,8 @@
       "long_preview_chars": 200,
       "max_samples_per_length": 100,
       "max_length_strata": 64,
+      "max_cases_per_class": 5,
+      "max_case_lengths": 32,
       "max_sample_memory": 536870912,
       "max_special_characters": 256,
       "max_distinct_characters": 1024,
@@ -322,7 +324,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+  "config_sha256": "5207449bf6401632967c0f84560f9589c4b97c422a4f6be9431fe90325ebeb5e",
   "scope": {
     "collections": null,
     "records_read": 5,

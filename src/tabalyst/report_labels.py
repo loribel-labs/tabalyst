@@ -645,8 +645,11 @@ LENGTHS_DOMINANT = "Dominant length"
 LENGTHS_MINORITY = "Lengths that few texts have"
 LENGTHS_UNIT = ("character", "characters")
 LENGTHS_ANALYTICAL = "Lengths count the characters of the text after normalization."
-LENGTHS_SAMPLE_EXAMPLES = "Examples are texts of a sample, not every text of a length."
-LENGTHS_NO_EXAMPLES = "The scan kept no example of these lengths."
+LENGTHS_NO_EXAMPLES = "The scan kept no text of these lengths."
+# The cases the scan keeps for a rule (scan design 18.15): all of their distinct texts, or a
+# bounded selection of them.
+CASES_COMPLETE = "The scan kept every distinct text of these cases."
+CASES_SAMPLE = "Examples are texts of these cases chosen by the scan; there may be others."
 EXAMPLES_MASKED = "Masked values: equal masks are merged."
 EXAMPLES_HIDDEN = "Values hidden by the exposure setting of the column."
 # Whitespace is made visible in an example (contract summary-table.md 22.6): the stored value
@@ -663,8 +666,8 @@ WHITESPACE_KIND_TITLES = {
     "repeated": "Whitespace repeated inside the text",
 }
 WHITESPACE_NOTE = "Marks show the whitespace: \u00b7 a space, \u2192 a tab, \u21b5 a line break."
-WHITESPACE_SAMPLE_EXAMPLES = "Examples are values of a sample, not every changed text."
-WHITESPACE_NO_EXAMPLES = "The sample holds no example of these texts."
+WHITESPACE_NO_EXAMPLES = "The scan kept no text of these cases."
+WHITESPACE_CELLS = ("cell", "cells")
 TYPES_TITLE = "Mixed types"
 TYPES_COMPOSITION = "Values by technical type"
 TYPES_CLOSEST = "Closest type"

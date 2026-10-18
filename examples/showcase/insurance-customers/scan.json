@@ -27,23 +27,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-18T18:06:55.091045Z",
-    "duration_seconds": 2.475574,
+    "started_at": "2026-10-18T20:21:16.589401Z",
+    "duration_seconds": 2.496926,
     "timings": {
-      "reading": 0.369692,
-      "analysis": 0.778624,
-      "finalize": 0.767542,
-      "derived": 0.052771,
-      "other": 0.506945
+      "reading": 0.343929,
+      "analysis": 0.725036,
+      "finalize": 0.80956,
+      "derived": 0.074151,
+      "other": 0.54425
     },
     "workers": 6,
-    "peak_memory_bytes": 164601856
+    "peak_memory_bytes": 165392384
   },
   "source": {
     "format": "csv",
     "name": "insurance-customers-100k.csv",
     "size_bytes": 27540101,
-    "modified_at": "2026-10-14T22:56:12.835198Z",
+    "modified_at": "2026-10-18T19:25:43.024368Z",
     "sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
     "encoding": "utf-8-sig",
     "shape": {
@@ -162,6 +162,8 @@
       "long_preview_chars": 200,
       "max_samples_per_length": 100,
       "max_length_strata": 64,
+      "max_cases_per_class": 5,
+      "max_case_lengths": 32,
       "max_sample_memory": 536870912,
       "max_special_characters": 256,
       "max_distinct_characters": 1024,
@@ -350,7 +352,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "83ef5d5f713af42e6457c4a35a2df15722f265edc01178c45a9869f7a04f93e0",
+  "config_sha256": "5207449bf6401632967c0f84560f9589c4b97c422a4f6be9431fe90325ebeb5e",
   "scope": {
     "collections": null,
     "records_read": 100000,
@@ -4941,6 +4943,41 @@
                   {"value": "Sarah-Maude", "type": "string", "count": 459, "id": 228, "count_accuracy": "exact", "identity_accuracy": "exact"},
                   {"value": "Jean-Philippe", "type": "string", "count": 446, "id": 229, "count_accuracy": "exact", "identity_accuracy": "exact"}
                 ]
+              },
+              "cases": {
+                "per_class_k": 5,
+                "whitespace": [
+                  {
+                    "kind": "repeated",
+                    "occurrences": 6,
+                    "selection": "bottom_k",
+                    "kept": 5,
+                    "of": 5,
+                    "threshold": "ab346afaa02b56fb23b6c3472e7166ca",
+                    "listed": [
+                      {
+                        "value": "Isab  elle",
+                        "count": 1
+                      },
+                      {
+                        "value": "Alai  n",
+                        "count": 1
+                      },
+                      {
+                        "value": "Ashe  r",
+                        "count": 1
+                      },
+                      {
+                        "value": "Luk  e",
+                        "count": 1
+                      },
+                      {
+                        "value": "Ow  en",
+                        "count": 1
+                      }
+                    ]
+                  }
+                ]
               }
             },
             "first": {
@@ -6887,6 +6924,40 @@
                   {"value": "Hernancez", "type": "string", "count": 1, "id": 220, "count_accuracy": "exact", "identity_accuracy": "exact"},
                   {"value": "Richardson", "type": "string", "count": 163, "id": 221, "count_accuracy": "exact", "identity_accuracy": "exact"},
                   {"value": "Campbel  l", "type": "string", "count": 1, "id": 222, "count_accuracy": "exact", "identity_accuracy": "exact"}
+                ]
+              },
+              "cases": {
+                "per_class_k": 5,
+                "whitespace": [
+                  {
+                    "kind": "repeated",
+                    "occurrences": 5,
+                    "selection": "all",
+                    "kept": 5,
+                    "of": 5,
+                    "listed": [
+                      {
+                        "value": "Gag  né",
+                        "count": 1
+                      },
+                      {
+                        "value": "Campbel  l",
+                        "count": 1
+                      },
+                      {
+                        "value": "Gagn  é",
+                        "count": 1
+                      },
+                      {
+                        "value": "Zh  ang",
+                        "count": 1
+                      },
+                      {
+                        "value": "G  agnon",
+                        "count": 1
+                      }
+                    ]
+                  }
                 ]
               }
             },
@@ -15135,6 +15206,54 @@
                   {"value": "de la Grande-Allée", "type": "string", "count": 376, "id": 182, "count_accuracy": "exact", "identity_accuracy": "exact"},
                   {"value": "des  Deux-Rivières", "type": "string", "count": 1, "id": 183, "count_accuracy": "exact", "identity_accuracy": "exact"},
                   {"value": "chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans ", "type": "string", "count": 2, "id": 184, "count_accuracy": "exact", "identity_accuracy": "exact"}
+                ]
+              },
+              "cases": {
+                "per_class_k": 5,
+                "whitespace": [
+                  {
+                    "kind": "trailing",
+                    "occurrences": 2,
+                    "selection": "all",
+                    "kept": 1,
+                    "of": 1,
+                    "listed": [
+                      {
+                        "value": "chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans fin chemin des tres longues rues sans ",
+                        "count": 2
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "repeated",
+                    "occurrences": 8,
+                    "selection": "bottom_k",
+                    "kept": 5,
+                    "of": 5,
+                    "threshold": "bde458a97c28faec5f3de301f86ca894",
+                    "listed": [
+                      {
+                        "value": "des  Sommets",
+                        "count": 1
+                      },
+                      {
+                        "value": "des  Pionniers",
+                        "count": 1
+                      },
+                      {
+                        "value": "de  la Clairière",
+                        "count": 1
+                      },
+                      {
+                        "value": "du  Marais",
+                        "count": 1
+                      },
+                      {
+                        "value": "des  Pins",
+                        "count": 1
+                      }
+                    ]
+                  }
                 ]
               }
             },
@@ -23658,6 +23777,76 @@
                   {"value": "K0B  5H1", "type": "string", "count": 1, "id": 173, "count_accuracy": "exact", "identity_accuracy": "exact"},
                   {"value": "H0H  1W3", "type": "string", "count": 1, "id": 174, "count_accuracy": "exact", "identity_accuracy": "exact"}
                 ]
+              },
+              "cases": {
+                "per_class_k": 5,
+                "whitespace": [
+                  {
+                    "kind": "repeated",
+                    "occurrences": 54,
+                    "selection": "bottom_k",
+                    "kept": 5,
+                    "of": 5,
+                    "threshold": "0a8bb75b4829686c0815a759ebbda765",
+                    "listed": [
+                      {
+                        "value": "H0H  0T0",
+                        "count": 1
+                      },
+                      {
+                        "value": "A0A  1R0",
+                        "count": 1
+                      },
+                      {
+                        "value": "H0C  8J7",
+                        "count": 1
+                      },
+                      {
+                        "value": "H1H  6B8",
+                        "count": 1
+                      },
+                      {
+                        "value": "H0P  1S6",
+                        "count": 1
+                      }
+                    ]
+                  }
+                ],
+                "lengths": {
+                  "max_lengths": 32,
+                  "classes": [
+                    {
+                      "length": 6,
+                      "occurrences": 21,
+                      "selection": "bottom_k",
+                      "kept": 5,
+                      "of": 5,
+                      "threshold": "555107b5204e9d5ba8a11707c2596aca",
+                      "listed": [
+                        {
+                          "value": "H0L 6T",
+                          "count": 1
+                        },
+                        {
+                          "value": "V0A7Y6",
+                          "count": 1
+                        },
+                        {
+                          "value": "H0H4V5",
+                          "count": 1
+                        },
+                        {
+                          "value": "H1J 9S",
+                          "count": 1
+                        },
+                        {
+                          "value": "0B 8N5",
+                          "count": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
               }
             },
             "first": {
@@ -30827,6 +31016,41 @@
                   {"value": "+1  200-555-0197", "type": "string", "count": 2, "id": 134, "count_accuracy": "exact", "identity_accuracy": "exact"},
                   {"value": "+1  201-555-0158", "type": "string", "count": 1, "id": 135, "count_accuracy": "exact", "identity_accuracy": "exact"}
                 ]
+              },
+              "cases": {
+                "per_class_k": 5,
+                "whitespace": [
+                  {
+                    "kind": "repeated",
+                    "occurrences": 42,
+                    "selection": "bottom_k",
+                    "kept": 5,
+                    "of": 5,
+                    "threshold": "19348b5bca92712b25f928201321c7d4",
+                    "listed": [
+                      {
+                        "value": "+1  200-555-0171",
+                        "count": 1
+                      },
+                      {
+                        "value": "+1  200-555-0110",
+                        "count": 1
+                      },
+                      {
+                        "value": "+1  202-555-0143",
+                        "count": 1
+                      },
+                      {
+                        "value": "+1  200-555-0187",
+                        "count": 2
+                      },
+                      {
+                        "value": "+1  200-555-0157",
+                        "count": 1
+                      }
+                    ]
+                  }
+                ]
               }
             },
             "first": {
@@ -32433,6 +32657,74 @@
                   {"value": "CTR--3000006932", "type": "string", "count": 1, "id": 134, "count_accuracy": "exact", "identity_accuracy": "exact"},
                   {"value": "CTR--1000059280", "type": "string", "count": 1, "id": 135, "count_accuracy": "exact", "identity_accuracy": "exact"}
                 ]
+              },
+              "cases": {
+                "per_class_k": 5,
+                "lengths": {
+                  "max_lengths": 32,
+                  "classes": [
+                    {
+                      "length": 13,
+                      "occurrences": 22,
+                      "selection": "bottom_k",
+                      "kept": 5,
+                      "of": 5,
+                      "threshold": "5684c92e7b9abf6c31946b436aff6594",
+                      "listed": [
+                        {
+                          "value": "CTR-300000704",
+                          "count": 1
+                        },
+                        {
+                          "value": "CTR-200008883",
+                          "count": 1
+                        },
+                        {
+                          "value": "CTR-100000584",
+                          "count": 1
+                        },
+                        {
+                          "value": "CTR-200000752",
+                          "count": 1
+                        },
+                        {
+                          "value": "CTR-100009323",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "length": 15,
+                      "occurrences": 14,
+                      "selection": "bottom_k",
+                      "kept": 5,
+                      "of": 5,
+                      "threshold": "35f17fc57c08bf34f43affead9e7ccd7",
+                      "listed": [
+                        {
+                          "value": "CTR--1000025428",
+                          "count": 1
+                        },
+                        {
+                          "value": "CTR--1000057806",
+                          "count": 1
+                        },
+                        {
+                          "value": "CTR--1000061653",
+                          "count": 1
+                        },
+                        {
+                          "value": "CTR--1000066946",
+                          "count": 1
+                        },
+                        {
+                          "value": "CTR--1000045861",
+                          "count": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
               }
             },
             "first": {
@@ -33435,7 +33727,25 @@
                 {"value": "HABITATION", "type": "string", "count": 1, "id": 8, "count_accuracy": "exact", "identity_accuracy": "exact"},
                 {"value": "voyage_X", "type": "string", "count": 1, "id": 9, "count_accuracy": "exact", "identity_accuracy": "exact"},
                 {"value": "auto_X", "type": "string", "count": 3, "id": 10, "count_accuracy": "exact", "identity_accuracy": "exact"}
-              ]
+              ],
+              "cases": {
+                "per_class_k": 5,
+                "whitespace": [
+                  {
+                    "kind": "trailing",
+                    "occurrences": 2,
+                    "selection": "all",
+                    "kept": 1,
+                    "of": 1,
+                    "listed": [
+                      {
+                        "value": "auto ",
+                        "count": 2
+                      }
+                    ]
+                  }
+                ]
+              }
             },
             "first": {
               "value": "habitation",
@@ -42309,7 +42619,45 @@
                 {"value": "AG--QC-006", "type": "string", "count": 1, "id": 28, "count_accuracy": "exact", "identity_accuracy": "exact"},
                 {"value": "AG--QC-003", "type": "string", "count": 1, "id": 29, "count_accuracy": "exact", "identity_accuracy": "exact"},
                 {"value": "AG--QC-002", "type": "string", "count": 1, "id": 30, "count_accuracy": "exact", "identity_accuracy": "exact"}
-              ]
+              ],
+              "cases": {
+                "per_class_k": 5,
+                "lengths": {
+                  "max_lengths": 32,
+                  "classes": [
+                    {
+                      "length": 10,
+                      "occurrences": 16,
+                      "selection": "bottom_k",
+                      "kept": 5,
+                      "of": 5,
+                      "threshold": "68d47bdf148796b1031b94a0c0a029eb",
+                      "listed": [
+                        {
+                          "value": "AG--QC-002",
+                          "count": 1
+                        },
+                        {
+                          "value": "AG--PR-001",
+                          "count": 2
+                        },
+                        {
+                          "value": "AG--ON-004",
+                          "count": 1
+                        },
+                        {
+                          "value": "AG--PR-004",
+                          "count": 2
+                        },
+                        {
+                          "value": "AG--PR-003",
+                          "count": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
             },
             "first": {
               "value": "AG-PR-007",

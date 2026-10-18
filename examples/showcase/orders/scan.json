@@ -27,23 +27,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-18T18:07:14.290562Z",
-    "duration_seconds": 0.030999,
+    "started_at": "2026-10-18T20:22:06.442017Z",
+    "duration_seconds": 0.031461,
     "timings": {
-      "reading": 0.004055,
-      "analysis": 0.003268,
-      "finalize": 0.01377,
-      "derived": 0.007619,
-      "other": 0.002287
+      "reading": 0.004077,
+      "analysis": 0.003603,
+      "finalize": 0.014644,
+      "derived": 0.008681,
+      "other": 0.000456
     },
     "workers": 1,
-    "peak_memory_bytes": 72388608
+    "peak_memory_bytes": 72884224
   },
   "source": {
     "format": "json",
     "name": "orders.json",
     "size_bytes": 60720,
-    "modified_at": "2026-10-16T05:33:33.607029Z",
+    "modified_at": "2026-10-18T18:11:41.534250Z",
     "sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
     "encoding": "utf-8",
     "shape": {
@@ -123,6 +123,8 @@
       "long_preview_chars": 200,
       "max_samples_per_length": 100,
       "max_length_strata": 64,
+      "max_cases_per_class": 5,
+      "max_case_lengths": 32,
       "max_sample_memory": 536870912,
       "max_special_characters": 256,
       "max_distinct_characters": 1024,
@@ -311,7 +313,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "e23594dba08c4ba3a6ecd019d0ac08545b9b142c3c03abc01f59c4e043c17c7b",
+  "config_sha256": "dd55baf37a922cc0bcce589a10912160784ef1ef91226cab2da63d8208f9f341",
   "scope": {
     "collections": {
       "mode": "explicit",

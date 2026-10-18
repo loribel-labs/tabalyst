@@ -27,23 +27,23 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-18T18:07:18.257087Z",
-    "duration_seconds": 0.038823,
+    "started_at": "2026-10-18T20:22:11.402941Z",
+    "duration_seconds": 0.036297,
     "timings": {
-      "reading": 0.00588,
-      "analysis": 0.009051,
-      "finalize": 0.015619,
-      "derived": 0.006059,
-      "other": 0.002214
+      "reading": 0.006449,
+      "analysis": 0.008075,
+      "finalize": 0.014767,
+      "derived": 0.006573,
+      "other": 0.000433
     },
     "workers": 1,
-    "peak_memory_bytes": 72892416
+    "peak_memory_bytes": 72708096
   },
   "source": {
     "format": "jsonl",
     "name": "web-events.jsonl",
     "size_bytes": 69631,
-    "modified_at": "2026-10-16T05:33:33.613600Z",
+    "modified_at": "2026-10-18T18:11:41.534250Z",
     "sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
     "encoding": "utf-8",
     "shape": {
@@ -121,6 +121,8 @@
       "long_preview_chars": 200,
       "max_samples_per_length": 100,
       "max_length_strata": 64,
+      "max_cases_per_class": 5,
+      "max_case_lengths": 32,
       "max_sample_memory": 536870912,
       "max_special_characters": 256,
       "max_distinct_characters": 1024,
@@ -309,7 +311,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "62a084962bf317935dc4ad9d9857ea79341496c6505bdf71adb731ea87cf7aed",
+  "config_sha256": "39483c95af5cdebb6bf797a9a03bdb74ef94a425da646d67c69e9bc9f054130f",
   "scope": {
     "collections": null,
     "records_read": 303,

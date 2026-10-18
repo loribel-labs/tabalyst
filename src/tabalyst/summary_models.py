@@ -331,7 +331,9 @@ class DateDetail(ResultModel):
 
 # Where the examples of a detail come from (contract summary-table.md 22.2): a value of the
 # sample the Scan holds, or nowhere (the sample kept none of them).
-ExamplesFrom = Literal["sample", "none"]
+# ``cases``: the cases the Scan kept for the rule (scan design 18.15); ``sample``: values of
+# its sample of distinct values.
+ExamplesFrom = Literal["sample", "cases", "none"]
 
 
 class FindingExample(ResultModel):
@@ -396,6 +398,8 @@ class MinorityLength(ResultModel):
     length: int
     count: int
     examples: list[FindingExample]
+    # The examples are every distinct text of the length: the Scan kept them all.
+    complete: bool = False
 
 
 class LengthDetail(ResultModel):
@@ -433,24 +437,33 @@ class WhitespaceChange(ResultModel):
 
 
 class WhitespaceExample(FindingExample):
-    """A value of the sample that a stage changed, and why."""
+    """A value of a case that a stage changed, and why."""
 
     kind: WhitespaceKind
+
+
+class WhitespaceKindCount(ResultModel):
+    """The cells of one kind of whitespace, counted exactly by the Scan, and whether the
+    examples of the kind are every distinct text of it."""
+
+    kind: WhitespaceKind
+    occurrences: int
+    complete: bool = False
 
 
 class WhitespaceDetail(ResultModel):
     """The whitespace behind the ``trimmed_cells`` and ``collapsed_whitespace`` findings.
 
-    The Scan counts the texts a stage changed, not which kind of whitespace each had, so the
-    counts are per stage and the kind exists only on the examples, which are original values
-    of the sample (the analytical text has no whitespace to show). A value that both stages
-    changed is an example of each, with the kind of its stage. The examples go through the
-    exposure (``state``).
+    The counts are per stage (the texts a stage changed) and, from the cases the Scan keeps,
+    per kind (``kinds``, exact). The examples are original texts of those cases (the analytical
+    text has no whitespace to show). A text that both stages changed is an example of each,
+    with its kind. The examples go through the exposure (``state``).
     """
 
     state: DetailsState
     examples_from: ExamplesFrom
     stages: list[WhitespaceChange]
+    kinds: list[WhitespaceKindCount] = Field(default_factory=list)
     examples: list[WhitespaceExample]
 
 

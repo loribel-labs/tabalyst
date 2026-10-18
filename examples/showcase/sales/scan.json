@@ -27,23 +27,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-18T18:07:16.149637Z",
-    "duration_seconds": 0.027433,
+    "started_at": "2026-10-18T20:22:08.778313Z",
+    "duration_seconds": 0.018876,
     "timings": {
-      "reading": 0.006998,
-      "analysis": 0.002394,
-      "finalize": 0.010911,
-      "derived": 0.004835,
-      "other": 0.002295
+      "reading": 0.003549,
+      "analysis": 0.00203,
+      "finalize": 0.008798,
+      "derived": 0.004092,
+      "other": 0.000407
     },
     "workers": 1,
-    "peak_memory_bytes": 73768960
+    "peak_memory_bytes": 72613888
   },
   "source": {
     "format": "excel",
     "name": "sales.xlsx",
     "size_bytes": 17717,
-    "modified_at": "2026-10-16T05:33:33.607029Z",
+    "modified_at": "2026-10-18T18:11:41.534250Z",
     "sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
     "encoding": null,
     "shape": {
@@ -138,6 +138,8 @@
       "long_preview_chars": 200,
       "max_samples_per_length": 100,
       "max_length_strata": 64,
+      "max_cases_per_class": 5,
+      "max_case_lengths": 32,
       "max_sample_memory": 536870912,
       "max_special_characters": 256,
       "max_distinct_characters": 1024,
@@ -326,7 +328,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "76b48c0b010b005e76c4b9d5ed5060a0e09adfa6a3d7bc20f44e8b2991118be4",
+  "config_sha256": "973ff681129cdbed346323df5d8e550985fae1d58d18eba09003330765bcc579",
   "scope": {
     "collections": null,
     "records_read": 120,

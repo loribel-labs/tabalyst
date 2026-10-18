@@ -1657,8 +1657,9 @@ next one starts. It extends 7.6 and
 4. **Examples come from the samples the Scan already holds.** Counts are exact whenever the
    Scan counted them exactly; examples are a sample, named as such, and may be missing. The
    Report never reads the source, and R12 changes no Scan format. Collecting the first
-   occurrences of a rare case in the Scan itself (whitespace in two cells out of 100 000) is
-   another lot.
+   occurrences of a rare case in the Scan itself (whitespace in two cells out of 100 000) was
+   another lot: the Scan keeps them (scan design 18.15) and the whitespace and lengths details
+   read them (22.18).
 
 ### 22.2 Member
 
@@ -1851,8 +1852,8 @@ report and of the Findings table) is reported at the end of the lot, not made.
   are constants and cost one line to change before the first tranche.
 - Whether the "visible whitespace" marks (22.6) are enough for a reader who prints the page;
   checked with the whitespace tranche.
-- A Scan-side collection of rare cases (22.1, point 4) would make examples reliable; it is
-  not in R12.
+- A Scan-side collection of rare cases (22.1, point 4) makes examples reliable: done by the Scan
+  lot K1 and read in 22.18.
 
 ### 22.12 Tranche 1: dates (as built)
 
@@ -1962,8 +1963,7 @@ report and of the Findings table) is reported at the end of the lot, not made.
   the hover. `DetailRow.spoken` and `FindingDetailView.preview_spoken` carry the words.
 - **Exposure.** Counts stay; examples go through `ExposureGate` (`state` `shown`, `masked`, `hidden`),
   after the kind is read from the raw value. A hidden column reads no sample.
-- **Sample.** Rare cases (two cells out of 100 000) are often not in the sample: `examples_from` is
-  `none` and the hover says so. On `insurance-customers` the sample holds some of each.
+- **Sample.** Superseded by 22.18: the examples are read from the Scan's cases, not from the sample.
 - **Tests**: `tests/scan/test_report_finding_details_whitespace.py`; `report.cjs` checks the
   `trimmed_cells` hover (the Findings table is filtered to the column first, as it pages by 25 and
   filters on the column name).
@@ -1989,8 +1989,35 @@ report and of the Findings table) is reported at the end of the lot, not made.
 
 ### 22.17 Closing remarks of the five tranches
 
-- **Examples are a sample.** For rare cases (two cells out of 100 000) the sample often holds none
+- **Examples are a sample** (superseded for whitespace and lengths by 22.18). For rare cases (two cells out of 100 000) the sample often holds none
   (`examples_from` `none`). Keeping the cases themselves needs a Scan change (a bounded sample per
   observed rule), which R12 does not make; the maintainer asked on 2026-10-18 whether it can be done:
   see the lot proposed in the plan.
 
+### 22.18 Cases of the Scan (lot K1, step 2)
+
+The Scan keeps a bounded sample of texts for each case of the whitespace and minority length rules
+(scan design 18.15, `values.samples.cases`), with the exact number of cells of the case. The two
+details that explained a rare case with an empty list now read them:
+
+- **Whitespace.** The examples of a kind are the first texts of its case in the order the Scan lists
+  them (ascending priority of the hash), at most `EXAMPLES_PER_KIND`, after the gate merged equal masks.
+  `WhitespaceDetail.kinds` holds, for each kind of an observed stage, the exact `occurrences` of the
+  kind and `complete` (the case is `all` and every distinct text is shown). The first draft of 22.3 said
+  that the detail never claims a count per kind; the Scan now counts them, so it does.
+- **Lengths.** The examples of a length are the analytical texts of its case (the Scan keeps originals,
+  the figure counts the analytical text: two originals that normalize alike are one example, counts
+  added), at most `EXAMPLES_PER_ITEM`. `MinorityLength.complete` says they are every distinct text of
+  the length. A length the Scan did not track (more than `scan.limits.max_case_lengths` lengths met
+  before it) has no example.
+- **`examples_from`** gains `cases`. Patterns keep `sample` (the examples of a pattern are values of the
+  population the inference read, which are in the sample), types and dates have none.
+- **Attached at render.** The base of the Report keeps the counts of the cases and empties their lists,
+  so a document attached at render shows the exact cells per kind and no example; the details of a
+  document built with the Scan are complete.
+- **Words.** `CASES_COMPLETE` ("The scan kept every distinct text of these cases.") and `CASES_SAMPLE`
+  replace the notes about a sample; the sentence "a rare case is often not in the sample" is gone from
+  22.15, 22.17 and `read-report.md`. The section of a kind in the hover says its cells ("Whitespace
+  before the text: 2 cells") and each example row its exact count.
+- **Tests.** `test_report_finding_details_whitespace.py` and `test_report_finding_details_lengths.py`
+  gain a case absent from the sample (a 3,000-value field sampled at 20) that the detail lists.

@@ -13,7 +13,6 @@ values. Values go through the exposure of their column, whatever the document ho
 from __future__ import annotations
 
 import re
-from collections.abc import Collection
 from typing import NamedTuple
 
 from tabalyst.report_details import STATES
@@ -47,6 +46,7 @@ from tabalyst.summary_models import (
     WhitespaceDetail,
     WhitespaceExample,
     WhitespaceKind,
+    WhitespaceKindCount,
     WhitespaceStage,
 )
 
@@ -282,20 +282,6 @@ def pattern_details(
     )
 
 
-def _length_pool(field: FieldResult, normalizer: Normalizer) -> dict[str, int]:
-    """The analytical texts the field lists with their occurrences: the listed
-    frequencies (exact) first, then the sampled originals normalized as the Scan did."""
-    frequencies = field.values.frequencies
-    pool = (
-        {item.value: item.count for item in frequencies.value.listed}
-        if frequencies.status == "complete"
-        else {}
-    )
-    for entry in sample_entries(field).values():
-        pool.setdefault(normalizer.analytical(entry.value), entry.count)
-    return pool
-
-
 def length_details(
     column: ColumnView, source: ExampleSource | None = None
 ) -> LengthDetail | None:
@@ -304,8 +290,9 @@ def length_details(
 
     The minority lengths are every length of the histogram but the dominant one: the Scan
     raises the observation only when the dominant length holds nearly every text, and the
-    detail never re-decides the rule. Examples are analytical texts of the length, taken from
-    the listed frequencies and the sample (``source``, 22.5), through the exposure.
+    detail never re-decides the rule. Examples are analytical texts of the length, read from
+    the cases the Scan kept for it (scan design 18.15; ``source`` gives the normalization that
+    turns an original text into the analytical one), through the exposure.
     """
     if not any(item.observation.rule == "minority_length" for item in column.quality):
         return None
@@ -321,32 +308,48 @@ def length_details(
     mode: ExposureMode = column.exposure or "show"
     gate = ExposureGate(mode)
     listed = others[:LENGTHS_SHOWN]
-    wanted = {item.length for item in listed}
-    found: dict[int, list[tuple[str, int]]] = {length: [] for length in wanted}
-    if source is not None and mode != "hide":
-        pool = _length_pool(_field(column, source), source.normalizer)
-        for text, count in sorted(pool.items(), key=lambda item: (-item[1], item[0])):
-            bucket = found.get(len(text))
-            if bucket is not None and len(bucket) < EXAMPLES_PER_ITEM:
-                bucket.append((text, count))
-    minority = [
-        MinorityLength(
-            length=item.length,
-            count=item.count,
-            examples=[
-                FindingExample(
-                    value=value[:EXAMPLE_MAX_CHARS],
-                    count=count,
-                    truncated=len(value) > EXAMPLE_MAX_CHARS,
-                )
-                for value, count in gate.counts(found[item.length]).items()
-            ],
+    cases = _field(column, source).values.samples.cases
+    classes = (
+        {item.length: item for item in cases.lengths.classes}
+        if cases is not None and cases.lengths is not None
+        else {}
+    )
+    minority = []
+    for item in listed:
+        case = classes.get(item.length)
+        texts: dict[str, int] = {}
+        if case is not None and mode != "hide":
+            # The cases hold original texts; the figure counts the analytical text, so two
+            # originals that normalize alike are one example.
+            analytical = source.normalizer.analytical if source is not None else str
+            for entry in case.listed:
+                text = analytical(entry.value)
+                texts[text] = texts.get(text, 0) + entry.count
+        exposed = gate.counts(texts.items())
+        shown = list(exposed.items())[:EXAMPLES_PER_ITEM]
+        minority.append(
+            MinorityLength(
+                length=item.length,
+                count=item.count,
+                examples=[
+                    FindingExample(
+                        value=value[:EXAMPLE_MAX_CHARS],
+                        count=count,
+                        truncated=len(value) > EXAMPLE_MAX_CHARS,
+                    )
+                    for value, count in shown
+                ],
+                complete=bool(
+                    case is not None
+                    and case.selection == "all"
+                    and exposed
+                    and len(exposed) <= EXAMPLES_PER_ITEM
+                ),
+            )
         )
-        for item in listed
-    ]
     return LengthDetail(
         state=STATES[mode],
-        examples_from="sample" if any(item.examples for item in minority) else "none",
+        examples_from="cases" if any(item.examples for item in minority) else "none",
         total=measure.value.count,
         dominant=DominantLength(length=dominant.length, count=dominant.count),
         lengths=minority,
@@ -354,11 +357,14 @@ def length_details(
     )
 
 
-# The rule of the Scan behind each stage, the bit of ``Normalizer.run`` that says the stage
-# changed a text, and the kinds of its examples.
+# The rule of the Scan behind each stage, and the stage and order of the kinds of its cases.
 WHITESPACE_RULES: dict[WhitespaceStage, str] = {"trim": "trimmed_cells", "collapse_whitespace": "collapsed_whitespace"}
-_TRIM_BIT, _COLLAPSE_BIT = 2, 4
 KIND_ORDER: tuple[WhitespaceKind, ...] = ("leading", "trailing", "repeated")
+KIND_STAGE: dict[WhitespaceKind, WhitespaceStage] = {
+    "leading": "trim",
+    "trailing": "trim",
+    "repeated": "collapse_whitespace",
+}
 
 
 ELLIPSIS = "\u2026"
@@ -383,18 +389,6 @@ def whitespace_window(kind: WhitespaceKind, value: str) -> tuple[str, bool]:
     return (ELLIPSIS if start else "") + window + ELLIPSIS, True
 
 
-def _whitespace_kinds(
-    value: str, changes: int, stages: Collection[str]
-) -> list[WhitespaceKind]:
-    """The kinds a value is an example of: one per observed stage that changed it."""
-    kinds: list[WhitespaceKind] = []
-    if "trim" in stages and changes & _TRIM_BIT:
-        kinds.append("leading" if value.lstrip() != value else "trailing")
-    if "collapse_whitespace" in stages and changes & _COLLAPSE_BIT:
-        kinds.append("repeated")
-    return kinds
-
-
 def whitespace_details(
     column: ColumnView, source: ExampleSource | None = None
 ) -> WhitespaceDetail | None:
@@ -402,10 +396,11 @@ def whitespace_details(
     observations of a column, or ``None`` when it has neither.
 
     The stages are those the Scan ran and that changed texts. The examples are original
-    values of the sample (``source``, contract summary-table.md 22.5) that the Scan's own
-    ``Normalizer`` says a stage changed, the most frequent first, at most
-    ``EXAMPLES_PER_KIND`` of each kind, through the exposure. The sample of a rare case is
-    often empty: ``examples_from`` then says ``none``.
+    texts of the cases the Scan kept for each kind (scan design 18.15), in the order the Scan
+    lists them, at most ``EXAMPLES_PER_KIND`` of each kind, through the exposure; the count
+    of the cells of each kind is the Scan's, exact. A kind is ``complete`` when its examples
+    are every distinct text of it. Without cases (a document attached at render, or cases
+    turned off) the kinds and examples are empty and ``examples_from`` says ``none``.
     """
     observed = {
         stage
@@ -423,23 +418,36 @@ def whitespace_details(
         return None
     mode: ExposureMode = column.exposure or "show"
     gate = ExposureGate(mode)
-    found: dict[WhitespaceKind, list[tuple[str, int]]] = {kind: [] for kind in KIND_ORDER}
-    if source is not None and mode != "hide":
-        stages = {item.stage for item in changes}
-        for entry in sample_entries(_field(column, source)).values():
-            outcome = source.normalizer.run(entry.value)[1]
-            for kind in _whitespace_kinds(entry.value, outcome, stages):
-                found[kind].append((entry.value, entry.count))
+    cases = _field(column, source).values.samples.cases
+    by_kind = (
+        {item.kind: item for item in cases.whitespace or ()} if cases is not None else {}
+    )
+    stages = {item.stage for item in changes}
+    kinds: list[WhitespaceKindCount] = []
     examples = []
     for kind in KIND_ORDER:
-        ranked = sorted(found[kind], key=lambda item: (-item[1], item[0]))
-        for value, count in gate.counts(ranked[:EXAMPLES_PER_KIND]).items():
+        case = by_kind.get(kind)
+        if case is None or KIND_STAGE[kind] not in stages:
+            continue
+        # Equal masks are merged first, then the first few are shown.
+        exposed = gate.counts((entry.value, entry.count) for entry in case.listed)
+        for value, count in list(exposed.items())[:EXAMPLES_PER_KIND]:
             text, cut = whitespace_window(kind, value)
             examples.append(WhitespaceExample(kind=kind, value=text, count=count, truncated=cut))
+        kinds.append(
+            WhitespaceKindCount(
+                kind=kind,
+                occurrences=case.occurrences,
+                complete=bool(
+                    case.selection == "all" and exposed and len(exposed) <= EXAMPLES_PER_KIND
+                ),
+            )
+        )
     return WhitespaceDetail(
         state=STATES[mode],
-        examples_from="sample" if examples else "none",
+        examples_from="cases" if examples else "none",
         stages=changes,
+        kinds=kinds,
         examples=examples,
     )
 

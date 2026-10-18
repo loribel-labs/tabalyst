@@ -122,7 +122,7 @@ the primary interpretation. `length_distribution_max_length` cannot exceed `scan
 
 Each column of the report carries a `summary` and each dataset a `table`: the findings (Missing,
 Errors and Issues with their evaluation states), the facts of the Overview, the Details, the evidence behind the Issues
-(`finding_details`: the spelling variants, the formats of the ambiguous dates, the minority patterns, the minority lengths, the whitespace and the mixed types), the signals and the quality counts, built once with the document and already through the
+(`finding_details`: the spelling variants, the formats of the ambiguous dates, the minority patterns, the minority lengths, the whitespace and the mixed types; the examples of the lengths and of the whitespace come from the cases of the scan, with `examples_from` `cases`, a `complete` flag per length and the exact cells per kind of whitespace in `whitespace.kinds`), the signals and the quality counts, built once with the document and already through the
 exposure. They hold codes and numbers; the HTML writes the words from them when it renders, and
 computes none of them. The values of a column are in `summary.values` (`selection`,
 `sampled_distinct_count`, `examples`, `values` and `cut`), through the exposure: a column

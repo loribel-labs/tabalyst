@@ -5,8 +5,8 @@
 """Detail of the whitespace findings in the Findings table (lot R12, tranche 4).
 
 The contract is ``docs/dev/report/summary-table.md`` 22: the cells each normalization stage
-changed, and examples of them taken from the sample (the original values, whitespace kept),
-by kind, through the exposure of the column.
+changed, and examples of them read from the cases the Scan keeps (the original texts, whitespace
+kept; scan design 18.15), by kind, through the exposure of the column.
 """
 
 import json
@@ -26,7 +26,7 @@ from tabalyst.report_labels import spoken_whitespace, visible_whitespace
 from tabalyst.report_profile import build_profile
 from tabalyst.report_summary import attach_summaries
 from tabalyst.reporting import load_profile, render_report
-from tabalyst.scanner import ScanConfig, scan
+from tabalyst.scanner import ScanConfig, bottomk, scan
 
 NAMES = [f"Name{n:03d}" for n in range(90)]
 # One leading, one trailing, one repeated, one with all three.
@@ -55,6 +55,12 @@ def _examples(detail):
     return {kind: [e.value for e in detail.examples if e.kind == kind] for kind in ("leading", "trailing", "repeated")}
 
 
+def _case_order(texts: list[str]) -> list[str]:
+    """The texts in the order the Scan lists a case: ascending priority of the hash."""
+    seed = ScanConfig.model_validate({}).random_seed
+    return sorted(texts, key=lambda text: bottomk.priority(("string", text), seed=seed))
+
+
 def test_the_detail_counts_the_cells_each_stage_changed(tmp_path):
     _, profile = _built(tmp_path, _csv(MIXED))
 
@@ -66,7 +72,7 @@ def test_the_detail_counts_the_cells_each_stage_changed(tmp_path):
         ("trim", 3),
         ("collapse_whitespace", 2),
     ]
-    assert detail.state == "shown" and detail.examples_from == "sample"
+    assert detail.state == "shown" and detail.examples_from == "cases"
 
 
 def test_the_examples_are_original_values_by_kind(tmp_path):
@@ -75,11 +81,18 @@ def test_the_examples_are_original_values_by_kind(tmp_path):
     detail = _detail(profile)
 
     assert detail is not None
-    assert _examples(detail) == {
-        "leading": [" Alice", " Eve  Fay "],
-        "trailing": ["Bob "],
-        "repeated": [" Eve  Fay ", "Carl  Dean"],
+    # The Scan lists a case's texts by priority of its hash: the order is fixed, not alphabetical.
+    assert {kind: set(values) for kind, values in _examples(detail).items()} == {
+        "leading": {" Alice", " Eve  Fay "},
+        "trailing": {"Bob ", " Eve  Fay "},
+        "repeated": {" Eve  Fay ", "Carl  Dean"},
     }
+    # The cells of each kind are the Scan's exact counts, and every distinct text is listed.
+    assert [(item.kind, item.occurrences, item.complete) for item in detail.kinds] == [
+        ("leading", 2, True),
+        ("trailing", 2, True),
+        ("repeated", 2, True),
+    ]
 
 
 def test_only_the_stages_that_have_an_observation_are_described(tmp_path):
@@ -90,7 +103,8 @@ def test_only_the_stages_that_have_an_observation_are_described(tmp_path):
     assert detail is not None
     assert [item.stage for item in detail.stages] == ["collapse_whitespace"]
     assert set(_examples(detail)["leading"] + _examples(detail)["trailing"]) == set()
-    assert _examples(detail)["repeated"] == ["Carl  Dean", "Fay   Gus"]
+    assert set(_examples(detail)["repeated"]) == {"Carl  Dean", "Fay   Gus"}
+    assert [item.kind for item in detail.kinds] == ["repeated"]
 
 
 def test_a_column_without_whitespace_findings_has_no_detail(tmp_path):
@@ -108,7 +122,9 @@ def test_the_examples_of_a_kind_are_bounded_and_ordered(tmp_path):
     assert detail is not None
     leading = _examples(detail)["leading"]
     assert len(leading) == EXAMPLES_PER_KIND
-    assert leading == sorted(leading)
+    # The first texts of the case in the order of the hash; six distinct texts are not all shown.
+    assert leading == [text for text in _case_order(odd)][:EXAMPLES_PER_KIND]
+    assert detail.kinds[0].occurrences == 6 and not detail.kinds[0].complete
 
 
 @pytest.mark.parametrize("mode", ["mask", "hide"])
@@ -156,7 +172,8 @@ def test_the_stored_detail_holds_numbers_and_values_and_no_sentence(tmp_path):
 
     detail = column["summary"]["finding_details"]["whitespace"]
 
-    assert set(detail) == {"state", "examples_from", "stages", "examples"}
+    assert set(detail) == {"state", "examples_from", "stages", "kinds", "examples"}
+    assert set(detail["kinds"][0]) == {"kind", "occurrences", "complete"}
     assert set(detail["examples"][0]) == {"kind", "value", "count", "truncated"}
     # The value is the raw one: the marks are written at the render.
     assert " Alice" in {item["value"] for item in detail["examples"]}
@@ -214,3 +231,40 @@ def test_a_long_example_keeps_the_part_that_shows_its_whitespace(kind):
     # A cut side is marked, so that the reader knows the text goes on.
     assert ("…" in window) is True
     assert whitespace_window(kind, "short ") == ("short ", False)
+
+
+def test_a_rare_case_absent_from_the_sample_is_in_the_detail(tmp_path):
+    names = [f"Name{n:06d}" for n in range(3_000)]
+    names[2_053] = "Name002053 "
+    names[2_434] = "Name002434  "
+    content = "\n".join(["name", *(f'"{name}"' for name in names)]) + "\n"
+    source = write_text(tmp_path, "data.csv", content)
+    config = ScanConfig.model_validate({"limits": {"max_distinct_per_field": 500, "max_samples": 20}})
+    result = scan(source, config=config)
+    profile = build_profile(result, ReportConfig(scan=result.config))
+    listed = {entry.value for entry in result.datasets[0].fields[0].values.samples.listed}
+
+    detail = _detail(profile)
+
+    # Neither text is in the sample of 20 values out of 3,000, yet both are shown, with the
+    # exact number of cells of the kind.
+    assert "Name002053 " not in listed and "Name002434  " not in listed
+    assert detail is not None and detail.examples_from == "cases"
+    assert _examples(detail)["trailing"] and set(_examples(detail)["trailing"]) == {
+        "Name002053 ",
+        "Name002434  ",
+    }
+    assert [(item.kind, item.occurrences, item.complete) for item in detail.kinds] == [
+        ("trailing", 2, True)
+    ]
+
+
+def test_the_hover_says_the_cases_are_complete_and_counts_the_cells(tmp_path):
+    source = write_text(tmp_path, "data.csv", _csv(MIXED))
+    profile = analyze_csv(source, ReportConfig(scan=ScanConfig.model_validate({})))
+
+    html = render_report(profile)
+
+    assert "The scan kept every distinct text of these cases." in html
+    assert "Whitespace before the text: 2 cells" in html
+    assert "a rare case" not in html.lower()
