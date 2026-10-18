@@ -393,6 +393,86 @@ class ByLength(ScanModel):
         return _omit_none(handler(self), ("requested_max_lengths", "reason", "other"))
 
 
+class CaseEntry(ScanModel):
+    """An original text of a case and the exact number of its occurrences in the
+    whole field (design 18.15)."""
+
+    value: str
+    count: int
+
+
+class WhitespaceCase(ScanModel):
+    """The cells of one kind of whitespace and a bottom-k of their original texts.
+
+    ``occurrences`` is the exact number of cells of the kind. ``selection`` is
+    ``all`` while the class dropped no text, so ``listed`` is then every
+    distinct text of the case; ``of`` texts were sampled and ``kept`` listed
+    (exposure can withhold them, as for ``Samples``).
+    """
+
+    kind: Literal["leading", "trailing", "repeated"]
+    occurrences: int
+    selection: Literal["all", "bottom_k"]
+    kept: int
+    of: int
+    threshold: str | None = None
+    listed: list[CaseEntry]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("threshold",))
+
+
+class LengthCase(ScanModel):
+    """The cells of one analytical length: ``WhitespaceCase`` for a length."""
+
+    length: int
+    occurrences: int
+    selection: Literal["all", "bottom_k"]
+    kept: int
+    of: int
+    threshold: str | None = None
+    listed: list[CaseEntry]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("threshold",))
+
+
+class CaseLengths(ScanModel):
+    """Cases by analytical length, written for a field with a minority length:
+    every tracked length but the dominant one. At most ``max_lengths`` lengths
+    are tracked, as met; the cells of the others are summed in ``other``."""
+
+    max_lengths: int
+    other: LengthOther | None = None
+    classes: list[LengthCase]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("other",))
+
+
+class Cases(ScanModel):
+    """Bounded samples of the cases of the rules observed in the field
+    (design 18.15). ``per_class_k`` is the number of texts kept per class
+    (design 18.10), ``requested_per_class_k`` the one asked for when the memory
+    budget granted fewer."""
+
+    per_class_k: int
+    requested_per_class_k: int | None = None
+    reason: str | None = None
+    whitespace: list[WhitespaceCase] | None = None
+    lengths: CaseLengths | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(
+            handler(self),
+            ("requested_per_class_k", "reason", "whitespace", "lengths"),
+        )
+
+
 class Samples(ScanModel):
     """Distinct original values with their exact counts (design 18.9).
 
@@ -422,6 +502,9 @@ class Samples(ScanModel):
     # Samples by length of the stored values, only for a ``bottom_k`` sample
     # (an ``all`` sample lists every value) and when they are turned on.
     by_length: ByLength | None = None
+    # Samples of the cases of the observed rules (design 18.15), absent when
+    # the field has none or they are turned off.
+    cases: Cases | None = None
 
     @model_serializer(mode="wrap")
     def _omit_bottom_k(self, handler) -> dict[str, Any]:
@@ -435,6 +518,7 @@ class Samples(ScanModel):
                 "threshold",
                 "long_texts",
                 "by_length",
+                "cases",
             ),
         )
 

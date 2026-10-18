@@ -40,6 +40,7 @@ from tabalyst.scanner.longtext import (
 from tabalyst.scanner.measures import canonical_text
 from tabalyst.scanner.models import (
     ByLength,
+    Cases,
     DigestInfo,
     LengthOther,
     LengthStratum,
@@ -130,10 +131,15 @@ class ValueSample:
             self.long_k = k
 
     def add(
-        self, keys: Sequence[TableKey], counts: Sequence[int], scalars: bool
+        self,
+        keys: Sequence[TableKey],
+        counts: Sequence[int],
+        scalars: bool,
+        priorities: Sequence[int] | None = None,
     ) -> None:
         """Account for distinct table keys with their counts, in first-seen
-        order; ``scalars`` says whether some are not strings."""
+        order; ``scalars`` says whether some are not strings. ``priorities`` are
+        those of the strings, when the caller hashed them for another consumer."""
         if not keys:
             return
         if scalars:
@@ -149,6 +155,9 @@ class ValueSample:
         texts, counts = self._sieve(texts, counts, None)
         if not texts or not self._fits():
             return
+        # Priorities are aligned to the keys: a sieve that dropped a long text
+        # breaks the alignment, and they are computed again.
+        given = priorities if priorities is not None and len(texts) == len(keys) else None
         sampler = self.sampler
         if sampler is not None:
             # The hot path of a field of strings: no key is built unless it
@@ -156,18 +165,20 @@ class ValueSample:
             # sample and its strata.
             strata = self.strata
             if strata is None:
-                sampler.update_strings(texts, counts)
+                sampler.update_strings(texts, counts, given)
             else:
-                values = string_priorities(texts, seed=self.seed)
+                values = given or string_priorities(texts, seed=self.seed)
                 sampler.update_strings(texts, counts, values)
                 strata.update_strings(texts, counts, values)
         elif not self.exact and len(texts) > self.k:
             # A table released with more than K strings (the usual case).
-            values = string_priorities(texts, seed=self.seed) if self._strata_on() else None
+            values = given
+            if values is None and self._strata_on():
+                values = string_priorities(texts, seed=self.seed)
             self.sampler = BottomKSampler.from_exact_strings(
                 self.k, texts, counts, seed=self.seed, priorities=values
             )
-            if values is not None:
+            if values is not None and self._strata_on():
                 self.strata = LengthStrataSampler.from_exact_strings(
                     self.length_k, self.strata_k, texts, counts, values, seed=self.seed
                 )
@@ -383,7 +394,7 @@ class ValueSample:
             "theta_hex": kmv.theta_hex if gate.mode == "show" else None,
         }
 
-    def samples(self, gate: ExposureGate) -> Samples:
+    def samples(self, gate: ExposureGate, cases: Cases | None = None) -> Samples:
         """The ``values.samples`` block, through the exposure gate.
 
         ``of`` counts the original values sampled and ``kept`` the entries
@@ -391,6 +402,8 @@ class ValueSample:
         the same mask, ``hide`` lists none), which a reader sees as a sample
         that cannot give the originals back (design 21). The block describes
         the values that fit ``max_length``; ``long_texts`` describes the rest.
+        ``cases`` is the member of the cases of the observed rules (design 18.15),
+        already through the gate.
         """
         exact = self.exact
         sampler = self.sampler
@@ -417,6 +430,7 @@ class ValueSample:
                 of=len(items),
                 listed=listed,
                 long_texts=long_texts,
+                cases=cases,
             )
         sensitive = gate.mode != "show"
         reduced = self.k < self.requested
@@ -432,6 +446,7 @@ class ValueSample:
             threshold=(None if threshold is None or sensitive else f"{threshold:032x}"),
             long_texts=long_texts,
             by_length=self._by_length(gate, items, len(listed)),
+            cases=cases,
         )
 
     def _by_length_limited(self) -> bool:

@@ -84,7 +84,7 @@ def expected_identity(
 def facts_sha256(base: ScanResult) -> str:
     """SHA-256 of the facts of a base: without ``run``, which varies between
     runs, without ``derived`` and ``observations``, which are computed from the
-    facts, and without the contents of the samples and of their strata, whose
+    facts, and without the contents of the samples, of their strata and of their cases, whose
     size depends on the document and not on the data (design 19.5)."""
     # ``Any``: a serialized model is a plain dict whose values are JSON data.
     # Excluded before serializing: a Scan holds up to ``max_samples`` values per
@@ -108,6 +108,16 @@ def facts_sha256(base: ScanResult) -> str:
                                     "by_length": {
                                         "listed": True,
                                         "strata": {"__all__": {"kept": True, "ids": True}},
+                                    },
+                                    "cases": {
+                                        "whitespace": {
+                                            "__all__": {"listed": True, "kept": True}
+                                        },
+                                        "lengths": {
+                                            "classes": {
+                                                "__all__": {"listed": True, "kept": True}
+                                            }
+                                        },
                                     },
                                 }
                             }

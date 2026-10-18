@@ -186,7 +186,22 @@ def test_hide_keeps_counts_only(tmp_path):
         "truncated": True,
     }
     # The originals were sampled and withheld: a reader sees kept below of.
-    assert values["samples"] == {
+    samples = dict(values["samples"])
+    # The cell with a leading space is a case: its count stays, its text is withheld.
+    assert samples.pop("cases") == {
+        "per_class_k": 5,
+        "whitespace": [
+            {
+                "kind": "leading",
+                "occurrences": 1,
+                "selection": "all",
+                "kept": 0,
+                "of": 1,
+                "listed": [],
+            }
+        ],
+    }
+    assert samples == {
         "selection": "all",
         "kept": 0,
         "of": 3,

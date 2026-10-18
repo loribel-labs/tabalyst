@@ -22,6 +22,14 @@ LONG_ENTRY_BYTES = 700
 LONG_SHARE = 8
 # The samples by length (design 18.7) take the same share again.
 LENGTH_SHARE = 8
+# The cases of the observed rules (design 18.15) take another eighth.
+CASE_SHARE = 8
+# Bytes a class of cases costs before its first text: its sampler, two dictionaries and
+# the counters. The entries of 18.10 spread this over thousands of texts; five texts do not
+# (measured at 5.3 KB per class of five texts of 40 characters, tests/scan/test_cases.py).
+CASE_CLASS_BYTES = 2_048
+# Classes a field can hold besides the lengths: leading, trailing, repeated.
+CASE_WHITESPACE_CLASSES = 3
 
 
 def sample_entry_bytes(mean_chars: float) -> int:
@@ -75,8 +83,8 @@ _COUNTERS = (
 
 class SampleBudget:
     """``limits.max_sample_memory``: the bytes the samples of the whole scan may
-    reserve, with a sub-budget for the long texts and one for the samples by
-    length.
+    reserve, with a sub-budget for the long texts, one for the samples by
+    length and one for the cases of the observed rules.
 
     ``grant_sample``, ``grant_long`` and ``grant_strata`` return the size a
     field may have; they are called in the scan process only, in reading order
@@ -87,6 +95,8 @@ class SampleBudget:
     """
 
     __slots__ = (
+        "case_limit",
+        "case_reserved",
         "length_limit",
         "length_reserved",
         "limit",
@@ -98,8 +108,10 @@ class SampleBudget:
     def __init__(self, limit: int) -> None:
         self.long_limit = limit // LONG_SHARE
         self.length_limit = limit // LENGTH_SHARE
-        self.limit = limit - self.long_limit - self.length_limit
+        self.case_limit = limit // CASE_SHARE
+        self.limit = limit - self.long_limit - self.length_limit - self.case_limit
         self.reserved = 0
+        self.case_reserved = 0
         self.long_reserved = 0
         self.length_reserved = 0
 
@@ -141,6 +153,36 @@ class SampleBudget:
         if entries is not None:
             wanted = min(wanted, entries)
         self.length_reserved += wanted * sample_entry_bytes(mean_chars)
+        return granted
+
+    def grant_cases(
+        self,
+        requested: int,
+        max_lengths: int,
+        entries: int | None,
+        mean_chars: float,
+        fields: int,
+    ) -> int:
+        """The texts a field may keep for each class of its cases (design 18.15):
+        the largest size, up to ``requested``, at which its whole set of classes
+        (the kinds of whitespace and ``max_lengths`` lengths) fits its share of
+        the case budget, each class costing ``CASE_CLASS_BYTES`` besides its texts.
+        A complete table holds ``entries`` values at most, which is all it reserves."""
+        entry = sample_entry_bytes(mean_chars)
+        classes = CASE_WHITESPACE_CLASSES + max_lengths
+        room = min(
+            self.case_limit // max(fields, 1), self.case_limit - self.case_reserved
+        )
+        per_class = max(room, 0) // classes - CASE_CLASS_BYTES
+        granted = min(requested, max(per_class, 0) // entry)
+        if not granted:
+            return 0
+        used = classes
+        wanted = granted * classes
+        if entries is not None:
+            used = min(used, entries)
+            wanted = min(wanted, entries)
+        self.case_reserved += used * CASE_CLASS_BYTES + wanted * entry
         return granted
 
     def grant_long(self, requested: int, preview_chars: int) -> int:

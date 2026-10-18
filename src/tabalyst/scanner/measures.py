@@ -543,12 +543,14 @@ class ValueMeasures:
         counts: list[int],
         normalizer: Normalizer,
         forms: dict[str, tuple[str, ...]] | None = None,
+        flagged: list[tuple[int, int]] | None = None,
     ) -> tuple[list[str], list[int]]:
         """Normalize distinct content strings (design 10) and count their
         characteristics, analytical lengths and normalization changes, each
         weighted by its count. Returns the analytical texts and their lengths.
         ``forms`` receives the output of every stage for the strings that a
-        stage changed.
+        stage changed; ``flagged`` receives the position and the changes of
+        those that a whitespace stage changed (the cases of design 18.15).
 
         Printable strings in NFC take a fast path with the same results as
         ``Normalizer.run`` and ``characteristic_flags``: their only whitespace
@@ -629,6 +631,8 @@ class ValueMeasures:
                 if changes and forms is not None:
                     forms[raw] = stages
             length = len(text)
+            if flagged is not None and changes & 6:
+                flagged.append((len(texts), changes))
             texts.append(text)
             lengths.append(length)
             histogram[length] = histogram.get(length, 0) + count

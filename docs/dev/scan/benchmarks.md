@@ -46,3 +46,4 @@ lot or a section name) keep a target. The sections of the moved page, to look th
 - Final guards of the Patterns plan (Patterns lot P8, AC-026)
 - Character map (Patterns lot C2)
 - Declared keys of the detectors (Patterns lot P5)
+- Cases of the observed rules (lot K1)

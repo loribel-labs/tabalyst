@@ -273,11 +273,11 @@ class WorkerPool:
         counts: list,
         limited,
         scalars: bool,
-        grants: tuple[int, int, int],
+        grants: tuple[int, int, int, int],
     ) -> int:
         """Start processing a released table; returns the worker of the field.
-        ``grants`` are the sizes of its sample, of its long texts and of its
-        samples by length."""
+        ``grants`` are the sizes of its sample, of its long texts, of its
+        samples by length and of the classes of its cases."""
         index = self._least_loaded()
         limit = (limited.reason, limited.limit, limited.lower_bound)
         message = ("release", field, keys, counts, limit, scalars, grants)
@@ -308,7 +308,7 @@ class WorkerPool:
         counts: list,
         ends: tuple,
         scalars: bool,
-        sample_grant: tuple[int, int] | None,
+        sample_grant: tuple[int, int, int] | None,
     ) -> int:
         """Finalize a field from its complete table, whose sample and samples
         by length have the sizes ``sample_grant`` granted by the memory budget;
@@ -404,7 +404,7 @@ def main() -> None:
         table,
         ends,
         scalars: bool,
-        sample_grant: tuple[int, int] | None = None,
+        sample_grant: tuple[int, int, int] | None = None,
     ) -> None:
         events: list[tuple[str, str, object]] = []
 

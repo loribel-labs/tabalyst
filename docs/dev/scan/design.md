@@ -85,6 +85,7 @@ lot, with the reason recorded in section 17.
 | O65 | Patterns lot P1: hierarchical discovery and validation of patterns | The discovery stays in the `derived` post-pass behind an eligibility (score, reasons, four states); `derived.patterns` moves to grammar 2: families (structure keys, merged at the edge of a block) that list patterns of fixed length (DEC-034), nodes by content facets scored in bits on `d` and `o`, tables of facets, budgets `max_values`, `max_families`, `max_patterns_per_family`, `max_patterns`, `max_depth`; the notation of DEC-032; no compatibility with the flat list. The validation recognizes each value once in its family, counts its ancestors by sums, bounds the tables by bytes, counts new variants of length and of segment (PAT-11 kept for structures), writes five outcomes with `invalid` reserved and never written, and keys its cache on the versions of the grammar and of the algorithm and on the settings. Positional structure of characters is not in the V1. Scan format revision 4 for the whole plan. | Accepted 2026-10-13 (maintainer: Porte 0, "tout par defaut") | 18.12, 20.9 |
 | O67 | Patterns lot P5: declared keys of the detectors | The `email`, `phone` and `postal_code` detectors (version 2) publish `details.keys`: keys whose meaning they establish (extension and domain read from the right, region and area code or zone, first character and area), counted exactly in the first pass as occurrences and kept by floors (0.5 % then 2 % of the parent, 5 occurrences, budgets 32 and 16, coverage 95 %), with no test against chance. They stay exposed on a masked or hidden field (DEC-027) with no example, profile or row of the sample; `exposure.detector_keys` set to `mask` withholds them. The `domains` block stays masked. | Accepted 2026-10-13 (maintainer, "ok pour tout") | 18.12 |
 | O66 | Patterns lot C1: character profile of the strings | `string_characteristics` keeps its nine counters and adds, in the first pass and on raw values, counters of presence by class (ASCII lower and upper case letters, other Latin letters, other letters, ASCII digits, other digits), of the start (upper or lower case), of tabulations, non-breaking spaces, invisible characters and the replacement character, of composition (ASCII only, letters only, digits only, alphanumeric only, letters and digits), the total of characters, the exact count of distinct characters (`distinct_characters`, bound `limits.max_distinct_characters`, 1,024) and the inventory of special characters (`special_characters`, bound `limits.max_special_characters`, 256, 0 turns it off). A bounded table that overflows is `limited` with the reason `character_limit` and no list. A masked or hidden field keeps the counters and the total and has both distributions `disabled`. Format revision 4. | Accepted 2026-10-13 (maintainer: "tout par defaut") | 9.2, 12.8 |
+| O68 | Cases lot K1: cases of the observed rules | `values.samples.cases` keeps, for the classes `leading`, `trailing` and `repeated` of whitespace and for each analytical length of a field with a minority length, the exact number of cells and a bottom-k of `max_cases_per_class` (5) original texts with their exact counts, chosen by the hash of 18.3, bounded by `max_case_lengths` (32) and by an eighth of the sample budget, exposure as the samples; the Report reads them in place of the sample; mixed types follow in K2 if the cost allows. | Accepted 2026-10-18 | 18.15 |
 | O58 | Insight lot 20: the Report reads the later analyses with the accuracy of each figure | The Report prints, from the document alone, one insight card for each result of the values with a unit, the shape of the numbers, the parts of the dates, the values left out, the repeated values and the numbers by category, and the measures derived from the Scan, each fact, distribution and table with its own kind (exact, estimated, sample, at least). A section Insights (before the Second pass) and a section of the column page hold them; the Dates section says how many ambiguous dates the evidence read. No format changes. The cost model is reviewed with the matrix: the ceiling of the tiers of 17a and 17b, `pearson` and the utility 40 stay; `automatic_stats` goes from 8 to 2 (the second pass of the realistic file: 15.4 s to 11.8 s). Lots 18 and 19 are reported after the milestone. | Accepted 2026-10-12 (maintainer, lot 20; Porte E pending) | 20.29, 20.17, 18.14 |
 | O57 | Insight lot 17d.2b: values with a unit read by the evidence of the column | The second pass reads the ambiguous numbers of the values with a unit (`1,250 Kg`, `$4,825`, `12,5 %`) in the convention that the unambiguous values of the same detector (`currency`, `percentage` or `quantity`) prove, by the rule of O56 (`min_evidence`, none proving the other, `ambiguous_convention` wins, `infer_convention`), and under `comma` reads `1.250 Kg` as 1250. The plan decides it from `details.ambiguity.evidence` of the detector in the Scan (`MeasureFacts.convention`) and writes the parameter `number_convention` (part of the key) and the reason `ambiguous_numbers_read_by_evidence`; the reader of the extraction applies it (`CellReader.cells(measure=, convention=)`), the check against the Scan becomes read plus resolved ambiguous equal the coverage, and the result names it (`resolved`, `resolution`). The Scan and the settings are those of 17d.2a; no analyzer other than `measure_extraction` changes. | Accepted 2026-10-12 (maintainer, plan of the session) | 20.28, 20.27, 20.19 |
 | O56 | Insight lot 17d.2a: ambiguous numbers read by the evidence of the column | The Scan reads the ambiguous numbers (`1,234`) in the convention that the unambiguous numbers of the column prove, at least `detectors.number.min_evidence` (3) of them and none proving the other, and counts them in `numeric`; under a `comma` proof the strict decimals `d.ddd` (`1.250`) are thousands. The proof comes from the values only: `ambiguous_convention` wins and regroups nothing; spaces prove nothing alone. Decided at the finalization of the field from integers N kept during the Scan (scenario B5 of 17d.1), named in `details.ambiguity.resolution` (`source: evidence`, `resolved`); `coverage` and `formats` still describe the writing. Every later reading (second pass, smart sample, explorations) reads the field in the convention the Scan wrote and never decides again. One rule module, `scanner/convention_rule.py`, shared with the dates. Numbers with a unit: lot 17d.2b. | Accepted 2026-10-12 (maintainer, gate N) | 20.27, 12.6, 9.4 |
@@ -2280,6 +2281,8 @@ that are too long to be stored.
   (VAL-06). The `threshold` of a sensitive field (mode `mask` or `hide`) is not
   written: it is the priority of one of its values.
 
+`values.samples.cases` (18.15) keeps the cases of the whitespace and minority length rules.
+
 `values.samples.by_length` (lot 3a, 18.7), written for a `bottom_k` sample when
 `limits.max_samples_per_length` and `limits.max_length_strata` are above 0 (and
 absent for an `all` sample, whatever the lengths):
@@ -2372,6 +2375,9 @@ block: a cut sample is a `bottom_k`, its KMV estimate has the error of the size
 in force, and a sample of size 0 has no estimate. No limit is ever lifted by a
 request for an exact result (MEM-06); the exact tables are bounded by T and by
 `max_tracked_values`, and lowering T stays the other way to spend less.
+
+The cases of the observed rules (18.15) have an eighth of the budget (`memory.CASE_SHARE`), so the
+samples of values keep five eighths.
 
 The samples by length (18.7) have their own sub-budget, an eighth of
 `limits.max_sample_memory` (`memory.LENGTH_SHARE`), so the samples of values
@@ -3154,6 +3160,189 @@ requiring anyone to know Cramér's V or Pearson, and the candidate rules, labell
 not validated. A score on low counts is `unstable` and gets no strength word; a table without
 a score says why. What the planner explored on the sample, and found nothing in, is a note.
 The Second pass section keeps a row for each analysis.
+
+### 18.15 Cases of the observed rules (lot K1, CASE-01 to CASE-15, O68)
+
+Status: **Accepted** by the maintainer on 2026-10-18. Step 1, the Scan, is built (`scanner/cases.py`,
+`tests/scan/test_cases.py`); the Report reads the cases in step 2.
+
+**Problem.** The Report explains a finding with examples (R12, `summary-table.md` 22). It reads
+them from `values.samples`, a bottom-k of the distinct values by hash (18.9). A field of D distinct
+values above K keeps a given value with probability K / D: with K = 10,000 and D = 100,000, the
+two cells that carry a trailing space are in the sample one time out of ten, and the finding
+prints "no example". Nothing in the Scan can be blamed: the observation is exact (the counters
+saw both cells), only the cases are lost. The strata of 18.7 do not solve it: they exist for a
+`bottom_k` sample only, they class the original text by its original length while the findings
+speak of the analytical text, and they hold 100 values for each of 64 lengths whether or not a
+rule needs them. The smart sample (20.15, 20.16) finds rows by rule but reads the source again
+and is a user decision; the cases are wanted in the first pass, without a second reading.
+
+**Decision.** While it reads the values, the Scan keeps a small bounded sample of the original
+texts of each case of the rules it can later observe, with the exact number of cells of the case
+and the exact count of each text kept. A reader that wants the cells of a rare case reads them
+here, whatever the size of the field. This extends `values.samples` with a member `cases`; it
+creates no observation and changes none (CASE-01).
+
+**What is a case.** A case is a class of cells defined by a fact the first pass already
+computes, never by a new rule:
+
+| Group | Class | Defined by | Rule it explains |
+| --- | --- | --- | --- |
+| `whitespace` | `leading` | the `trim` stage changed the text and the text does not start as its left-stripped form | `trimmed_cells` |
+| `whitespace` | `trailing` | the `trim` stage changed the text and the text does not end as its right-stripped form | `trimmed_cells` |
+| `whitespace` | `repeated` | the `collapse_whitespace` stage changed the text (a run of whitespace other than a line break read as one space, as `Normalizer.run` does) | `collapsed_whitespace` |
+| `lengths` | a length | the analytical length of the text, the one of `string_lengths.length_histogram` (after `nfc`, `trim` and `collapse_whitespace`) | `minority_length` |
+
+A text with a leading and a trailing space is a case of both classes; a class counts its own
+cells. Both groups are classes of content strings. A disabled stage creates no class
+(CA16). Minority patterns need nothing (CASE-13) and dates and the other rules are not in K1
+(`types`: CASE-14).
+
+**Member.** `values.samples.cases`, present when at least one class has a cell and absent
+otherwise (a field with nothing to explain keeps the document it has today):
+
+```
+cases: {
+  per_class_k, requested_per_class_k?, reason?,
+  whitespace?: [{kind, occurrences, selection, kept, of, threshold?, listed}],
+  lengths?: {max_lengths, other?: {lengths, occurrences},
+             classes: [{length, occurrences, selection, kept, of, threshold?, listed}]}
+}
+```
+
+- `kind` is `leading`, `trailing` or `repeated`, in that order, and only the kinds that have a
+  cell are written. `occurrences` is the exact number of cells of the class. `selection` is `all`
+  while the class dropped no text (the list is then every distinct text of the case, a
+  complete answer), `bottom_k` otherwise, with `threshold` as in 18.9. `kept` is the number of
+  texts listed and `of` the number of texts the class sampled (at most `per_class_k`).
+- `listed` is a list of `{value, count}` in ascending `(priority, text)`, the priority of the key
+  `("string", original text)` through 18.3 with the seed of the Scan, so the choice is the same
+  as the global sample would make, reproducible and independent of the order of the values, of
+  the batches, of the workers and of `max_distinct_per_field`. `count` is the exact number of
+  occurrences of that original text in the whole field: a class sampler admits a text at its
+  first occurrence and never loses it (the argument of 18.3), so no count is partial and the
+  member has no `count_accuracy`. A case carries its own text: it is not an id into
+  `samples.listed`, because the Report base reduces and drops samples (19.4) and an id would
+  point at nothing.
+- `lengths` is written only when the field has a minority length by the rule of the observation
+  (`MINORITY_LENGTH_*` of `quality.py`, applied to the same histogram by one shared function),
+  and its `classes` hold every tracked length but the dominant one. A field of free text, with
+  forty lengths and no dominant one, writes no `lengths`. Lengths are tracked as met: the
+  `max_lengths` (`scan.limits.max_case_lengths`) first lengths in the order of the distinct
+  values; the other cells are summed in `other`. A length that has no class
+  has no case, and the Report says so.
+- A text longer than `max_stored_value_length` is counted in `occurrences` and listed in no
+  class (a case is a stored text, 18.6). `occurrences` of `repeated` equals the `changed` count
+  of the stage `collapse_whitespace` and `leading` and `trailing` obey
+  `max(leading, trailing) <= changed(trim) <= leading + trailing`, so the new counts can
+  never disagree with the ones the findings already print (CASE-07).
+
+**Exposure (CASE-08).** After the calculation on originals, like 18.9. `mask` merges the texts
+with the same mask, counts added (`kept` below `of`); `hide` lists none; `occurrences`, lengths
+and kinds are numbers and stay; the `threshold` of a sensitive field is not written; a document
+edited to another exposure leaks nothing because the Report applies its gate again.
+
+**Memory (CASE-09).** The cases have their own share of the budget of 18.10: an eighth of
+`limits.max_sample_memory` (`memory.CASE_SHARE`), taken from the share of the samples of values,
+which keep five eighths. The first draft said a sixteenth and 112 KB per field; `tracemalloc` showed
+that a sampler of five texts costs 5.3 KB, not 3.4 KB, because its two dictionaries and its counters
+are a fixed cost that the 600 bytes per entry of 18.10 spread over thousands of entries (measured
+in `test_the_memory_of_the_cases_stays_within_the_model`), so the model has a cost per class
+(`memory.CASE_CLASS_BYTES`, 2,048 bytes) and the share doubled. A field reserves, once, when its
+sample is made, the cost of its largest possible set of classes: `(3 + max_case_lengths) *
+(CASE_CLASS_BYTES + per_class_k * sample_entry_bytes(mean_chars))`; the grant is the largest
+`per_class_k` that fits the share of the field (`room / fields discovered so far`, as 18.10), never
+below 0. A grant under the request writes `requested_per_class_k` with `reason: memory_budget`; a
+grant of 0 keeps every `occurrences` (counters cost nothing) and lists no text. With the defaults
+(5 and 32) a field reserves 35 * 5,248 bytes, 184 KB, and the share holds about 360 fields at full
+size and 700 at one text per class; beyond that the fields keep their counts and no text. The
+warning `sample_budget` does not count a field whose cases alone were cut. The numbers are a
+model, checked against `tracemalloc` like the others.
+
+**Settings.** `scan.limits.max_cases_per_class` (5, hard cap 100, 0 turns the cases off) and
+`scan.limits.max_case_lengths` (32, hard cap 256, 0 turns the lengths off). Both are in the
+configuration hash of the Scan (`config_sha256`): a document without cases and one with them are
+two different scans. Five per class is two more than the three the Report shows for each kind,
+so a `mask` that merges a few texts still leaves three.
+
+**Cost (CASE-10).**
+
+- Complete table (at most T distinct values, `all` or `bottom_k` sample made at the end): the
+  cases are read from the table at the end, only for a rule that fired (`changed` of a stage above
+  0, a minority length), so a clean field pays one test. The only hashing is that of the
+  texts of the classes written.
+- Released table (more than T distinct values): the class samplers are fed by the same batches
+  as the sample and the strata, with the priorities computed once per batch and shared by the
+  three. A text that cannot enter its class costs one lookup and one comparison against the
+  admission limit (`BottomKSampler.admission_limit`), as in 18.7. Only the cells of a class
+  are offered to it: whitespace is rare, but the rule of the minority length is only known at the
+  end, so a released field offers every cell to the class of its length while it reads.
+- Refusal rule, as 18.8: lot K1 is refused if the first pass of the realistic dataset regresses by
+  more than 3 % against the baseline of the same session or the worst-width dataset by more than
+  5 %, with the cases on (defaults) against `max_cases_per_class = 0`. Measured in
+  `tabalyst-lab/benchmarks` (`cases.py`), recorded in `benchmarks.md` with a file that has rare
+  whitespace in a column of 200,000 distinct values and one that has a minority length.
+  A regression above the threshold goes back to the maintainer, who may accept the lengths and
+  refuse nothing else, or the reverse.
+  Measured (`tabalyst-lab/docs/benchmarks/scan.md`): in the default parallel mode +0.6 % on the realistic
+  file, +0.9 % on the worst-width file; with one process +4.4 % on the realistic file (+2.1 % wide,
+  +1.9 % rare), after the priorities of a batch were hashed once for the sample, the strata and the cases
+  (a first version hashed them again: +7 %, +12 %, +21 %). The one-process figure is above the 3 % line and
+  waits for the maintainer's decision.
+
+**Validation and schema (CASE-11).** `check_scan` (`validation.py`) verifies, for every field
+whose exposure is `show`: `kept <= of <= per_class_k`, `kept` equals the length of `listed`;
+each text is listed once; its priority is in ascending order and equals the one the seed gives;
+the text belongs to its class when the Normalizer of the configuration is run on it (a `leading`
+text starts as its left-stripped form does not, an analytical length is the class length);
+the sum of the counts is at most `occurrences`, and equals it when the class is `all`, the field
+has no long text and nothing was masked; the identities of CASE-07 hold against the stages of
+`normalization`; the classes of `lengths` are distinct ascending lengths, never the dominant one, with
+`occurrences` at most the cells of that length in the histogram, and with `other` they
+add up to at most the cells of the other lengths. `scripts/scan_schema.py` regenerates
+`tabalyst.scan.schema.json` and the test that compares it fails when it is out of date.
+
+**Format (CASE-12).** The member is new and optional: revision 4 of the Scan, still in
+preparation, gains it in place, with a line in `docs/en/scan/format-changelog.md` and in
+`docs/en/scan/format.md`. `facts_sha256` leaves `listed` of `cases` out like the one of
+`samples` (19.5) and keeps `occurrences`. A Report base keeps the counters of `cases` and
+empties the lists (19.4): the details of the Findings already carry the examples the page prints.
+No migration (19.6).
+
+**What the Report reads (CASE-13).** After the Scan lot, `report_finding_details.py` reads the
+`whitespace` and `lengths` details from `cases` in place of the sample: `examples_from` gains the
+value `cases`; the examples of a class are its first texts in the order above, with their
+exact count; a class marked `all` is said to be complete, one marked `bottom_k` to be a
+sample of its texts. The Normalizer detour of 22.14 stays only to show the analytical text of a
+length case (the class holds the original). The note "a rare case is often missing" of the
+whitespace and the lengths hovers and 22.15 and 22.17 are removed. Counts, shapes and the
+order of 22.3 do not change. Patterns need nothing: the examples of a minority pattern are
+values of the population the inference read, which are in the sample the Report receives
+(22.13), and a pattern too rare to be inferred is not an observation. Dates have no example.
+Attached to a document without `cases` (a Scan of an older revision is refused anyway), the
+details keep saying `none`.
+
+**Mixed types (CASE-14, lot K2, after K1).** The technical family of a string is known only after
+the detectors ran (`registry.add_string_measures`), and a text column offers every value to the
+`text` class. K2 measures the cost of a class per family (`types`, outside the dominant family)
+on top of K1 and is built only if the cost stays under the thresholds above. Until then the
+`types` detail keeps printing no example.
+
+**Tests (CASE-15).** `tests/scan/test_cases.py`: the classes of a hand-built field, one case per
+class with exact counts; a field of 200,000 distinct values with two cells with a trailing space
+lists both, with count; reproducibility (batch sizes, `workers` 1 and 4, `max_distinct_per_field`
+50 against the default give the same member byte for byte); the `all` selection; the lengths
+tracked, `other`, and the absence of `lengths` without a minority; the parity of CASE-07 on
+`insurance-customers`; `mask` (merged, counts added) and `hide`; the memory grant (field wide
+source, `requested_per_class_k`) against `tracemalloc`; a stage disabled; long texts; JSON and
+Excel sources; the schema and `check_scan` refusing a hand-edited case (wrong class, wrong
+priority). The Report tests of 22.9 gain the case where the sample lacks the text and the cases
+hold it.
+
+**Order of work.** K1 in three steps, each validated: (1) the Scan (models, collectors, budget,
+settings, validation, schema, changelog, benchmark); (2) the Report reads the cases (after R12 is
+committed: the builder it changes is in the branch `report-overview/l0`); (3) K2 if the cost
+allows. Follow-up for `tabalyst-studio`: the Scan format page and the Findings capture.
 
 ## 19. Scan and Report as one document family (O27, O29, O30)
 

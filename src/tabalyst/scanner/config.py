@@ -53,6 +53,8 @@ HARD_CAPS: dict[str, int] = {
     "max_long_samples": 10_000,
     "max_samples_per_length": 10_000,
     "max_length_strata": 10_000,
+    "max_cases_per_class": 100,
+    "max_case_lengths": 256,
     "long_preview_chars": 1_000_000,
     "max_sample_memory": 1 << 40,
     "max_special_characters": 100_000,
@@ -276,6 +278,10 @@ DEFAULT_LONG_PREVIEW_CHARS = 200
 # Samples by length (design 18.7): up to 64 lengths of 100 values each.
 DEFAULT_MAX_SAMPLES_PER_LENGTH = 100
 DEFAULT_MAX_LENGTH_STRATA = 64
+# Cases of the observed rules (design 18.15): original texts kept for each
+# class of whitespace and each analytical length, and the lengths tracked.
+DEFAULT_MAX_CASES_PER_CLASS = 5
+DEFAULT_MAX_CASE_LENGTHS = 32
 # The model of the bytes the samples of the whole scan may take (design 18.10).
 DEFAULT_MAX_SAMPLE_MEMORY = 512 << 20
 
@@ -309,6 +315,13 @@ class LimitSettings(_Settings):
     max_length_strata: int = _limit(
         DEFAULT_MAX_LENGTH_STRATA, "max_length_strata", 0
     )
+    # Cases of the observed rules (design 18.15): the original texts kept for
+    # each class (0 turns the cases off) and the analytical lengths tracked per
+    # field (0 turns the cases by length off).
+    max_cases_per_class: int = _limit(
+        DEFAULT_MAX_CASES_PER_CLASS, "max_cases_per_class", 0
+    )
+    max_case_lengths: int = _limit(DEFAULT_MAX_CASE_LENGTHS, "max_case_lengths", 0)
     # Bytes, by the model of design 18.10, that the samples of the whole scan
     # may reserve; the long texts share a part of it.
     max_sample_memory: int = _limit(

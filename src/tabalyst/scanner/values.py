@@ -28,10 +28,12 @@ from decimal import Decimal
 from functools import reduce
 from itertools import islice
 from operator import or_
-from typing import Any
+from typing import Any, cast
 
 from pydantic import BaseModel
 
+from tabalyst.scanner.bottomk import string_priorities
+from tabalyst.scanner.cases import CaseCollector
 from tabalyst.scanner.config import ScanConfig, exact_share
 from tabalyst.scanner.detectors.registry import (
     DetectorSet,
@@ -101,6 +103,8 @@ class ValueContext:
         "detectors",
         "discovered",
         "length_k",
+        "max_case_lengths",
+        "max_cases",
         "max_distinct",
         "max_distinct_characters",
         "max_length_strata",
@@ -135,6 +139,9 @@ class ValueContext:
         # Samples by length (design 18.7): values per length, lengths per field.
         self.length_k = limits.max_samples_per_length
         self.max_length_strata = limits.max_length_strata
+        # Cases of the observed rules (design 18.15): texts per class, lengths.
+        self.max_cases = limits.max_cases_per_class
+        self.max_case_lengths = limits.max_case_lengths
         # A preview never needs to be longer than a stored value.
         self.preview_chars = min(
             limits.long_preview_chars, limits.max_stored_value_length
@@ -223,9 +230,10 @@ class ValueTracker:
         self.pending_chars = 0
         self.long_seen = False
         self.long_granted = False
-        # Sizes granted for a complete table (``reserve``): its sample and the
-        # lengths its samples by length may track.
-        self.sample_grant: tuple[int, int] | None = None
+        # Sizes granted for a complete table (``reserve``): its sample, the
+        # lengths its samples by length may track and the texts of each class of
+        # its cases.
+        self.sample_grant: tuple[int, int, int] | None = None
         # Distinct values stored in the table, which enter the budget.
         self.distinct = 0
         self.first: tuple[str, object, int] | None = None
@@ -426,10 +434,11 @@ class ValueTracker:
         stored = [length for length in lengths if length <= longest]
         return sum(stored) / len(stored) if stored else 0.0
 
-    def _grants(self, keys: list[Key]) -> tuple[int, int, int]:
+    def _grants(self, keys: list[Key]) -> tuple[int, int, int, int]:
         """The sizes the memory budget grants to the sample of a released table,
-        when a long value is in it to its long texts, and the lengths its
-        samples by length may track (design 18.10).
+        when a long value is in it to its long texts, the lengths its samples by
+        length may track and the texts of each class of its cases (design 18.10,
+        18.15).
 
         The scan process spends the budget in the order the source is read, so
         the sizes do not depend on the workers.
@@ -443,7 +452,20 @@ class ValueTracker:
         strata = self._strata_grant(None, mean)
         if max(lengths, default=0) > context.max_stored_length:
             self.long_seen = True
-        return sample_k, self._long_grant(), strata
+        return sample_k, self._long_grant(), strata, self._cases_grant(None, mean)
+
+    def _cases_grant(self, entries: int | None, mean_chars: float) -> int:
+        """The texts the cases of the field may keep for each class."""
+        context = self.context
+        if not context.max_cases:
+            return 0
+        return context.samples.grant_cases(
+            context.max_cases,
+            context.max_case_lengths,
+            entries,
+            mean_chars,
+            context.discovered,
+        )
 
     def _strata_grant(self, entries: int | None, mean_chars: float) -> int:
         """The lengths the samples by length of the field may track."""
@@ -486,7 +508,7 @@ class ValueTracker:
         strata = (
             self._strata_grant(len(table), mean) if 0 < sample_k < len(table) else 0
         )
-        self.sample_grant = (sample_k, strata)
+        self.sample_grant = (sample_k, strata, self._cases_grant(len(table), mean))
 
     def _weigh(self, fresh: list[str]) -> None:
         """Account for new strings of a streamed field: heavy ones bound the
@@ -648,6 +670,7 @@ class ValueProcessor:
     """
 
     __slots__ = (
+        "cases",
         "context",
         "decided",
         "limited",
@@ -669,6 +692,8 @@ class ValueProcessor:
         # The sample of original values, once released (a complete table
         # makes it at finalization).
         self.sample: ValueSample | None = None
+        # The cases of the observed rules (design 18.15), once the grant is known.
+        self.cases: CaseCollector | None = None
         # The limit that released the table, if any.
         self.limited: Limited | None = None
         # Whether a value other than a string was seen.
@@ -687,12 +712,12 @@ class ValueProcessor:
         counts: list[int],
         limited: Limited,
         scalars: bool,
-        grants: tuple[int, int, int] | None = None,
+        grants: tuple[int, int, int, int] | None = None,
     ) -> None:
         """Process the values of a released table, then expect streamed
         values. ``grants`` are the sizes the memory budget granted to the
-        sample, to its long texts and to its samples by length (the configured
-        ones without it)."""
+        sample, to its long texts, to its samples by length and to the classes
+        of its cases (the configured ones without it)."""
         self.limited = limited
         measures = self.measures
         measures.numeric.median_values = None
@@ -701,9 +726,12 @@ class ValueProcessor:
                 readings.release()
         if grants is None:
             sample_grant, long_k = None, self.context.max_long_samples
+            cases_k = self.context.max_cases
         else:
             sample_grant, long_k = (grants[0], grants[2]), grants[1]
+            cases_k = grants[3]
         self.sample = self._new_sample(sample_grant)
+        self.cases = self._new_cases(cases_k)
         if long_k:
             self.sample.grant_long(long_k)
         self.process(keys, counts, scalars=scalars)
@@ -724,17 +752,32 @@ class ValueProcessor:
         """
         if scalars:
             self.scalars = True
+        priorities: list[int] | None = None
         if self.sample is not None:
-            self.sample.add(keys, counts, self.scalars)
+            if self.cases is not None and not self.scalars:
+                # Hashed once for the sample, its strata and the cases.
+                priorities = string_priorities(
+                    cast("list[str]", keys), seed=self.context.seed
+                )
+            self.sample.add(keys, counts, self.scalars, priorities)
         if not self.decided:
             end, warmup = self._warmup(keys)
             if end:
-                self._measure(keys[:end], counts[:end], None, collected, warmup)
+                self._measure(
+                    keys[:end],
+                    counts[:end],
+                    None,
+                    collected,
+                    warmup,
+                    priorities=None if priorities is None else priorities[:end],
+                )
             if end == len(keys):
                 return
             self.decided = True
             self.skipping = self.context.detectors.skipping(self.measures.tallies)
             keys, counts = keys[end:], counts[end:]
+            if priorities is not None:
+                priorities = priorities[end:]
         tested = rewarm = None
         if self.skipping is not None:
             # Warm-up values of a streamed field and probes are tested by
@@ -752,7 +795,9 @@ class ValueProcessor:
                         rewarm.add(position)
                     elif probe(key):
                         tested.append(position)
-        self._measure(keys, counts, tested, collected, None, rewarm)
+        self._measure(
+            keys, counts, tested, collected, None, rewarm, priorities=priorities
+        )
 
     def _warmup(self, keys: list[Key]) -> tuple[int, tuple]:
         """Count the new distinct values of the warm-up; returns the position
@@ -802,13 +847,17 @@ class ValueProcessor:
         collected: Collected | None,
         warmup: tuple | None = None,
         rewarm: set[int] | None = None,
+        priorities: list[int] | None = None,
     ) -> None:
         """Facts of distinct values with their counts: ``tested`` lists the
         positions that skipped detectors still test, ``None`` when no detector
         is skipped, among which ``rewarm`` are warm-up values; ``warmup``
-        locates the values first met in the warm-up (``_warmup``)."""
+        locates the values first met in the warm-up (``_warmup``);
+        ``priorities`` are those of the strings, already hashed for the sample."""
         if not self.scalars:
-            texts = self._strings(keys, counts, tested, collected, warmup, rewarm)
+            texts = self._strings(
+                keys, counts, tested, collected, warmup, rewarm, priorities
+            )
             typed = None
         else:
             texts, typed = self._mixed(
@@ -825,6 +874,20 @@ class ValueProcessor:
         with the next batch."""
         assert self.sample is not None
         self.sample.grant_long(k)
+
+    def _new_cases(self, k: int) -> CaseCollector | None:
+        """The collector of the cases of the field, granted ``k`` texts per
+        class; none when the cases are turned off."""
+        context = self.context
+        if not context.max_cases:
+            return None
+        return CaseCollector(
+            k,
+            context.max_cases,
+            context.max_case_lengths,
+            context.seed,
+            context.max_stored_length,
+        )
 
     def _new_sample(self, grant: tuple[int, int] | None = None) -> ValueSample:
         """The sample of the field, of the granted sizes ``(k, lengths)`` (the
@@ -852,18 +915,27 @@ class ValueProcessor:
         collected: Collected | None,
         warmup: tuple | None = None,
         rewarm: set[int] | None = None,
+        priorities: list[int] | None = None,
     ) -> list[str]:
         """Normalize and classify distinct content strings; returns their
         analytical texts."""
         context = self.context
         measures = self.measures
         detectors = context.detectors
+        cases = self.cases
+        flagged: list[tuple[int, int]] | None = None if cases is None else []
         texts, lengths = measures.add_strings(
             raws,
             counts,
             context.normalizer,
             None if collected is None else collected[1],
+            flagged,
         )
+        if cases is not None:
+            assert flagged is not None
+            # A complete table waits for its histogram; a streamed field cannot.
+            feed = cases.defer if collected is not None else cases.observe
+            feed(raws, counts, lengths, flagged, priorities)
         numbers, dates = detectors.run(
             measures.tallies,
             "string",
@@ -1009,7 +1081,7 @@ class ValueProcessor:
         report_failure: FailureReporter,
         report_probe: ProbeReporter | None = None,
         scalars: bool = False,
-        sample_grant: tuple[int, int] | None = None,
+        sample_grant: tuple[int, int, int] | None = None,
     ) -> dict:
         """The value blocks of the field; ``table`` is its complete frequency
         table, ``None`` once released, ``ends`` its first and last values and
@@ -1028,12 +1100,19 @@ class ValueProcessor:
             # Stage outputs of the strings that a stage changed; every other
             # value is its own output at every stage.
             changed: dict[str, tuple[str, ...]] = {}
+            self.cases = self._new_cases(
+                context.max_cases if sample_grant is None else sample_grant[2]
+            )
             self.process(list(table), list(table.values()), (analytical, changed))
             changes = reduce(or_, measures.changes, 0)
         detectors = context.detectors
         # Every value is now tallied: the field's sensitivity is known.
         exposure = detectors.gate(measures.tallies)
         gate = SHOW if exposure is None else exposure
+        cases = None
+        if self.cases is not None:
+            self.cases.finish(measures.lengths)
+            cases = self.cases.block(gate)
         if table is not None:
             cardinality = Complete[int](value=len(table))
             stage_cardinality = _stage_cardinalities(
@@ -1059,9 +1138,9 @@ class ValueProcessor:
                     truncated=distinct > len(ranked),
                 )
             )
-            sample = self._new_sample(sample_grant)
+            sample = self._new_sample(None if sample_grant is None else sample_grant[:2])
             sample.add(list(table), list(table.values()), self.scalars)
-            samples = sample.samples(gate)
+            samples = sample.samples(gate, cases)
             estimate = None
         else:
             limited = self.limited
@@ -1070,7 +1149,7 @@ class ValueProcessor:
             unproven = Limited(reason=limited.reason, limit=limited.limit)
             frequencies = unproven
             sample = self.sample
-            samples = sample.samples(gate)
+            samples = sample.samples(gate, cases)
             estimate = sample.estimate(gate)
             stage_cardinality = dict.fromkeys(range(len(STAGES)), unproven)
             if not measures.lengths:

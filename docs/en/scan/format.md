@@ -677,6 +677,59 @@ field whose sample is `bottom_k` and absent when the sample lists every value
 - `scan.limits.max_samples_per_length` and `max_length_strata` at 0 turn the
   samples by length off. Both are in the [configuration](../reference/configuration.md).
 
+### Cases of the observed rules
+
+A rare case, such as two cells out of 100,000 that end with a space, is often
+missing from a sample of distinct values. `values.samples.cases` keeps it: while
+it reads the values, the scan counts the cells of each case and keeps a small
+bottom-k of their original texts with exact counts. The member is absent when
+the field has no case.
+
+```json
+"cases": {"per_class_k": 5,
+          "whitespace": [
+            {"kind": "trailing", "occurrences": 2, "selection": "all",
+             "kept": 2, "of": 2,
+             "listed": [{"value": "CLI-000017 ", "count": 1},
+                        {"value": "CLI-004000  ", "count": 1}]}
+          ],
+          "lengths": {"max_lengths": 32,
+                      "classes": [
+                        {"length": 6, "occurrences": 2, "selection": "all",
+                         "kept": 1, "of": 1,
+                         "listed": [{"value": "CLI-12", "count": 2}]}
+                      ]}}
+```
+
+- `whitespace` has a class for each `kind` that has a cell: `leading` and
+  `trailing` (the `trim` stage changed the text) and `repeated` (the
+  `collapse_whitespace` stage did). A text with two kinds is a case of both.
+  `occurrences` is the exact number of cells: `repeated` equals the `changed`
+  count of the stage `collapse_whitespace`, and `leading` and `trailing` bound
+  that of `trim`.
+- `lengths` is written only when the field has a minority length (the observation
+  `minority_length`) and has a class for each analytical length (the one of `string_lengths`)
+  except the dominant one. The first `scan.limits.max_case_lengths` lengths (32 by
+  default) are tracked; the cells of the others are summed in `other`, as for the
+  [samples by length](#samples-by-length).
+- A class lists at most `per_class_k` texts (`scan.limits.max_cases_per_class`, 5 by
+  default), chosen by the priority of the sample, so the choice does not depend
+  on the order of the values or on the workers. `count` is the exact number of
+  occurrences of that original text in the whole field. `selection` is `all`
+  while the class dropped no text: the list is then every distinct text of the
+  case. Otherwise it is `bottom_k` and `threshold` works as for the sample.
+- A case holds its own text: it is not an `id` of `samples.listed`. A text longer
+  than `scan.limits.max_stored_value_length` is counted in `occurrences` and
+  never listed.
+- A sensitive field follows its exposure: `mask` merges the texts with the same
+  mask and adds their counts, `hide` lists none, and neither writes a
+  `threshold`. `occurrences` stay.
+- A [report](../report/json-profile.md#reduced-samples) keeps the counts of the
+  cases and empties their lists.
+- `scan.limits.max_cases_per_class` at 0 turns the cases off, `max_case_lengths`
+  at 0 turns off those by length. Both are in the
+  [configuration](../reference/configuration.md).
+
 ### Sample sizes and the memory budget
 
 The scan limits the memory its samples may take with a model of their cost, not
@@ -684,9 +737,14 @@ by measuring (`scan.limits.max_sample_memory`, 512 MiB by default). Sizes are
 reserved in the order the source is read, so they are the same for any number of
 workers. A field never takes more than an equal share of the budget, so a source
 with very many columns cuts every column alike. A long text sample and the
-samples by length each take their reservation from an eighth of the budget.
+samples by length each take their reservation from an eighth of the budget, and
+the cases of the observed rules from another eighth.
 The samples by length reserve the cost of a full stratum for each length they
-may track, in the same order.
+may track, in the same order. The cases reserve the cost of all their classes
+(the kinds of whitespace and `max_case_lengths` lengths) at `per_class_k` texts
+each; when the budget grants fewer texts, `per_class_k` is the size in force and
+`requested_per_class_k` and `reason` `memory_budget` say what was asked (the
+warning `sample_budget` does not count them).
 
 When the budget grants less than `scan.limits.max_samples` (or
 `max_long_samples`), the block writes the size in force in `k`, the size asked

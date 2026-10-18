@@ -10,7 +10,7 @@ is read and none is written, only counts and references.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 
@@ -547,6 +547,26 @@ def _field_observations(
     _minority_length(field_result, where, add)
 
 
+def minority_length_split(histogram: Mapping[int, int]) -> tuple[int, int] | None:
+    """The dominant length and the number of strings of the other lengths when
+    the rule of ``minority_length`` holds on this histogram of the analytical
+    lengths of the content strings, else ``None``. The Scan keeps the cases of
+    those other lengths (design 18.15), so it asks the rule the observation
+    asks."""
+    total = sum(histogram.values())
+    if total < MINORITY_LENGTH_MIN_VALUES:
+        return None
+    dominant = max(histogram, key=lambda length: (histogram[length], -length))
+    rest = total - histogram[dominant]
+    if (
+        not rest
+        or histogram[dominant] < DOMINANT_LENGTH_MIN_SHARE * total
+        or rest > MINORITY_LENGTH_MAX_SHARE * total
+    ):
+        return None
+    return dominant, rest
+
+
 def _minority_length(
     field_result: FieldResult,
     where: dict[str, str],
@@ -558,18 +578,15 @@ def _minority_length(
     lengths = field_result.string_lengths
     if not isinstance(lengths, Complete):
         return
-    total = lengths.value.count
-    if total < MINORITY_LENGTH_MIN_VALUES:
-        return
-    dominant = max(item.count for item in lengths.value.length_histogram)
-    rest = total - dominant
-    if (
-        not rest
-        or dominant < DOMINANT_LENGTH_MIN_SHARE * total
-        or rest > MINORITY_LENGTH_MAX_SHARE * total
-    ):
-        return
-    add(_Draft("minority_length", "content_strings", rest, of=total, **where))
+    split = minority_length_split(
+        {item.length: item.count for item in lengths.value.length_histogram}
+    )
+    if split is not None:
+        add(
+            _Draft(
+                "minority_length", "content_strings", split[1], of=lengths.value.count, **where
+            )
+        )
 
 
 def _minority_pattern(

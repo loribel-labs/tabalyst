@@ -179,6 +179,17 @@ classification of the fields; it is not final until the release that ships it.
   stays unused. `engine.classification` becomes `{"catalogue": 4, "names": 2}`
   (`rule_version` 4002). Still revision 4.
 
+- `values.samples.cases` keeps the cases of the rules a field is observed to
+  break: the cells that end, start or repeat whitespace (`kind` `leading`,
+  `trailing`, `repeated`) and, for a field with a minority length, the cells of each
+  analytical length other than the dominant one. Each class has its exact number of
+  cells and a bottom-k of original texts with exact counts, so a rare case no
+  longer depends on the sample of distinct values (see
+  [Cases of the observed rules](format.md#cases-of-the-observed-rules)). New
+  settings `scan.limits.max_cases_per_class` (5, 0 turns the cases off) and
+  `max_case_lengths` (32, 0 turns off those by length); an eighth of
+  `max_sample_memory` is reserved for them.
+
 - The default of `scan.exposure.sensitive_values` becomes `show` (it was `mask`):
   sensitive columns are not handled in this beta, so their values are listed and
   patterns are inferred for them like for any other column. `mask` and `hide`

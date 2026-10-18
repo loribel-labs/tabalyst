@@ -462,6 +462,125 @@
       "title": "CardinalityLimited",
       "type": "object"
     },
+    "CaseEntry": {
+      "additionalProperties": false,
+      "description": "An original text of a case and the exact number of its occurrences in the\nwhole field (design 18.15).",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "count"
+      ],
+      "title": "CaseEntry",
+      "type": "object"
+    },
+    "CaseLengths": {
+      "additionalProperties": false,
+      "description": "Cases by analytical length, written for a field with a minority length:\nevery tracked length but the dominant one. At most ``max_lengths`` lengths\nare tracked, as met; the cells of the others are summed in ``other``.",
+      "properties": {
+        "max_lengths": {
+          "title": "Max Lengths",
+          "type": "integer"
+        },
+        "other": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LengthOther"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "classes": {
+          "items": {
+            "$ref": "#/$defs/LengthCase"
+          },
+          "title": "Classes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "max_lengths",
+        "classes"
+      ],
+      "title": "CaseLengths",
+      "type": "object"
+    },
+    "Cases": {
+      "additionalProperties": false,
+      "description": "Bounded samples of the cases of the rules observed in the field\n(design 18.15). ``per_class_k`` is the number of texts kept per class\n(design 18.10), ``requested_per_class_k`` the one asked for when the memory\nbudget granted fewer.",
+      "properties": {
+        "per_class_k": {
+          "title": "Per Class K",
+          "type": "integer"
+        },
+        "requested_per_class_k": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Per Class K"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "whitespace": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/WhitespaceCase"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Whitespace"
+        },
+        "lengths": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CaseLengths"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "per_class_k"
+      ],
+      "title": "Cases",
+      "type": "object"
+    },
     "CharacterCount": {
       "additionalProperties": false,
       "description": "One character of the most frequent ones, with the occurrences of it in the\nvalues read (design 9.2b).",
@@ -3183,6 +3302,65 @@
       "title": "KeySegment",
       "type": "object"
     },
+    "LengthCase": {
+      "additionalProperties": false,
+      "description": "The cells of one analytical length: ``WhitespaceCase`` for a length.",
+      "properties": {
+        "length": {
+          "title": "Length",
+          "type": "integer"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "selection": {
+          "enum": [
+            "all",
+            "bottom_k"
+          ],
+          "title": "Selection",
+          "type": "string"
+        },
+        "kept": {
+          "title": "Kept",
+          "type": "integer"
+        },
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/CaseEntry"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "length",
+        "occurrences",
+        "selection",
+        "kept",
+        "of",
+        "listed"
+      ],
+      "title": "LengthCase",
+      "type": "object"
+    },
     "LengthCount": {
       "additionalProperties": false,
       "properties": {
@@ -3482,6 +3660,20 @@
           "maximum": 10000,
           "minimum": 0,
           "title": "Max Length Strata",
+          "type": "integer"
+        },
+        "max_cases_per_class": {
+          "default": 5,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Max Cases Per Class",
+          "type": "integer"
+        },
+        "max_case_lengths": {
+          "default": 32,
+          "maximum": 256,
+          "minimum": 0,
+          "title": "Max Case Lengths",
           "type": "integer"
         },
         "max_sample_memory": {
@@ -5987,6 +6179,17 @@
             }
           ],
           "default": null
+        },
+        "cases": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Cases"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -7205,6 +7408,70 @@
         "truncated"
       ],
       "title": "VariantGroups",
+      "type": "object"
+    },
+    "WhitespaceCase": {
+      "additionalProperties": false,
+      "description": "The cells of one kind of whitespace and a bottom-k of their original texts.\n\n``occurrences`` is the exact number of cells of the kind. ``selection`` is\n``all`` while the class dropped no text, so ``listed`` is then every\ndistinct text of the case; ``of`` texts were sampled and ``kept`` listed\n(exposure can withhold them, as for ``Samples``).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "leading",
+            "trailing",
+            "repeated"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "selection": {
+          "enum": [
+            "all",
+            "bottom_k"
+          ],
+          "title": "Selection",
+          "type": "string"
+        },
+        "kept": {
+          "title": "Kept",
+          "type": "integer"
+        },
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/CaseEntry"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "occurrences",
+        "selection",
+        "kept",
+        "of",
+        "listed"
+      ],
+      "title": "WhitespaceCase",
       "type": "object"
     },
     "YearCount": {

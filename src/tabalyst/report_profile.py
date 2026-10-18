@@ -71,6 +71,7 @@ from tabalyst.scanner.bottomk import BottomKSampler
 from tabalyst.scanner.classify.models import Classification
 from tabalyst.scanner.models import (
     ByLength,
+    Cases,
     Complete,
     DatasetResult,
     DetectorComplete,
@@ -890,6 +891,22 @@ def report_rows(sample: RowSample, seed: int, settings: RowSampleSettings) -> Ro
     return sample.model_copy(update={"kept": len(kept), "rows": kept})
 
 
+def _without_texts(cases: Cases) -> Cases:
+    """The cases of a sample without their texts: the counts stay, the details
+    of the Findings already carry the examples a Report prints (design 19.4)."""
+
+    empty = {"kept": 0, "listed": []}
+    lengths = cases.lengths
+    if lengths is not None:
+        lengths = lengths.model_copy(
+            update={"classes": [item.model_copy(update=empty) for item in lengths.classes]}
+        )
+    whitespace = cases.whitespace
+    if whitespace is not None:
+        whitespace = [item.model_copy(update=empty) for item in whitespace]
+    return cases.model_copy(update={"whitespace": whitespace, "lengths": lengths})
+
+
 def report_base(
     result: ScanResult, size: int, rows: RowSampleSettings | None = None
 ) -> ScanResult:
@@ -910,6 +927,8 @@ def report_base(
                 changes.update(kept=len(kept), listed=kept)
             if samples.by_length is not None:
                 changes["by_length"] = _without_members(samples.by_length)
+            if samples.cases is not None:
+                changes["cases"] = _without_texts(samples.cases)
             if changes:
                 reduced = samples.model_copy(update=changes)
                 values = field.values.model_copy(update={"samples": reduced})

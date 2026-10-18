@@ -9,8 +9,12 @@ that a JSON Schema cannot express (design 19.7).
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
+from functools import partial
 from typing import Any
 
+from tabalyst.scanner import bottomk
+from tabalyst.scanner.cases import KINDS
 from tabalyst.scanner.config import PatternInferenceSettings, config_sha256
 from tabalyst.scanner.detectors.keys import MIN_OCCURRENCES as MIN_KEY_OCCURRENCES
 from tabalyst.scanner.features import ascii_regex
@@ -28,6 +32,7 @@ from tabalyst.scanner.models import (
     FieldPatternsFailed,
     FieldPatternsNotApplicable,
     FieldResult,
+    LengthCase,
     LengthStratum,
     LongTexts,
     Observation,
@@ -40,8 +45,9 @@ from tabalyst.scanner.models import (
     RowSample,
     SampleEntry,
     ScanResult,
+    WhitespaceCase,
 )
-from tabalyst.scanner.normalization import STAGES
+from tabalyst.scanner.normalization import STAGES, Normalizer
 from tabalyst.scanner.pattern_eligibility import deciding_reason
 from tabalyst.scanner.patterninfer import (
     EXAMPLES,
@@ -53,7 +59,11 @@ from tabalyst.scanner.patterninfer import (
     render_signature,
     tokenized_population,
 )
-from tabalyst.scanner.quality import OBSERVATIONS_VERSION, RULES
+from tabalyst.scanner.quality import (
+    OBSERVATIONS_VERSION,
+    RULES,
+    minority_length_split,
+)
 from tabalyst.scanner.rowsample import (
     ROW_HASH_ALGORITHM,
     ROW_HASH_BITS,
@@ -385,6 +395,7 @@ def _check_listings(
         )
     _check_sample_members(field, where, problems)
     _check_by_length(field, expected, result, where, problems)
+    _check_cases(field, result, where, problems)
 
 
 def _check_by_length(
@@ -438,6 +449,155 @@ def _check_by_length(
     counted += 0 if block.other is None else block.other.occurrences
     if block.max_lengths and counted != stored:
         problems.append(f"{where}: strata and other must add up to the stored values")
+
+
+def _check_cases(
+    field: FieldResult, result: ScanResult, where: str, problems: list[str]
+) -> None:
+    """The ``cases`` member of a sample (design 18.15): its sizes, its counts
+    against the stages and the histogram of lengths and, for a field whose values
+    are exposed, that each text belongs to its class and is where the hash puts
+    it."""
+    block = field.values.samples.cases
+    if block is None:
+        return
+    where = f"{where}.values.samples.cases"
+    config = result.config
+    limits = config.limits
+    if not limits.max_cases_per_class or block.per_class_k > limits.max_cases_per_class:
+        problems.append(f"{where}: sizes out of the configured limits")
+    if (block.requested_per_class_k is None) != (block.reason is None) or (
+        block.requested_per_class_k is not None
+        and block.requested_per_class_k <= block.per_class_k
+    ):
+        problems.append(
+            f"{where}: requested_per_class_k and reason go together and "
+            "requested_per_class_k exceeds per_class_k"
+        )
+    if block.whitespace is None and block.lengths is None:
+        problems.append(f"{where}: a field without a case has no cases member")
+    normalizer = Normalizer(config.normalization)
+    checker = _CaseChecker(
+        block.per_class_k,
+        config.random_seed,
+        field.exposure in (None, "show"),
+        field.values.samples.long_texts is None,
+    )
+    stages = {stage.stage: stage.changed or 0 for stage in field.normalization.stages}
+    kinds = [item.kind for item in block.whitespace or ()]
+    if kinds != [kind for kind in KINDS if kind in kinds]:
+        problems.append(f"{where}.whitespace: kinds must be distinct and in order")
+    occurrences = {item.kind: item.occurrences for item in block.whitespace or ()}
+    for kind_case in block.whitespace or ():
+        checker.check(
+            kind_case,
+            f"{where}.whitespace[{kind_case.kind}]",
+            partial(_in_kind, kind=kind_case.kind, normalizer=normalizer),
+            problems,
+        )
+    if occurrences.get("repeated", 0) != stages.get("collapse_whitespace", 0):
+        problems.append(
+            f"{where}.whitespace: repeated must equal the cells the collapse stage changed"
+        )
+    leading, trailing = occurrences.get("leading", 0), occurrences.get("trailing", 0)
+    if not max(leading, trailing) <= stages.get("trim", 0) <= leading + trailing:
+        problems.append(
+            f"{where}.whitespace: leading and trailing must bound the cells the trim stage changed"
+        )
+    lengths = block.lengths
+    if lengths is None:
+        return
+    where = f"{where}.lengths"
+    histogram: dict[int, int] = {}
+    if isinstance(field.string_lengths, Complete):
+        histogram = {
+            item.length: item.count for item in field.string_lengths.value.length_histogram
+        }
+    split = minority_length_split(histogram)
+    if split is None:
+        problems.append(f"{where}: only a field with a minority length has cases by length")
+        return
+    if not limits.max_case_lengths or lengths.max_lengths != limits.max_case_lengths:
+        problems.append(f"{where}: max_lengths out of the configured limits")
+    names = [item.length for item in lengths.classes]
+    if names != sorted(set(names)) or split[0] in names or len(names) > lengths.max_lengths:
+        problems.append(
+            f"{where}: classes must be distinct ascending lengths, not the dominant one"
+        )
+    counted = 0 if lengths.other is None else lengths.other.occurrences
+    for length_case in lengths.classes:
+        label = f"{where}.classes[length={length_case.length}]"
+        if length_case.occurrences > histogram.get(length_case.length, 0):
+            problems.append(f"{label}: occurrences exceed the cells of that length")
+        counted += length_case.occurrences
+        checker.check(
+            length_case,
+            label,
+            partial(_has_length, length=length_case.length, normalizer=normalizer),
+            problems,
+        )
+    if counted > sum(histogram.values()) - histogram[split[0]]:
+        problems.append(f"{where}: classes and other exceed the cells of the other lengths")
+
+
+def _in_kind(text: str, kind: str, normalizer: Normalizer) -> bool:
+    """Whether a text is a case of a kind of whitespace."""
+    if kind == "leading":
+        return text != text.lstrip()
+    if kind == "trailing":
+        return text != text.rstrip()
+    return bool(normalizer.run(text)[1] & 4)
+
+
+def _has_length(text: str, length: int, normalizer: Normalizer) -> bool:
+    """Whether the analytical text of ``text`` has ``length`` characters."""
+    return len(normalizer.analytical(text)) == length
+
+
+class _CaseChecker:
+    """The checks a class of cases shares, whichever its kind."""
+
+    def __init__(self, k: int, seed: int, shown: bool, no_long: bool) -> None:
+        self.k = k
+        self.seed = seed
+        self.shown = shown
+        self.no_long = no_long
+
+    def check(
+        self,
+        item: WhitespaceCase | LengthCase,
+        where: str,
+        belongs: Callable[[str], bool],
+        problems: list[str],
+    ) -> None:
+        if item.occurrences < 1:
+            problems.append(f"{where}: a class has a cell")
+        if item.kept != len(item.listed) or item.kept > item.of or item.of > self.k:
+            problems.append(f"{where}: sizes out of range")
+        if item.selection == "all" and item.threshold is not None:
+            problems.append(f"{where}: only a bottom_k class has a threshold")
+        if any(entry.count < 1 for entry in item.listed):
+            problems.append(f"{where}: a count is out of range")
+        total = sum(entry.count for entry in item.listed)
+        if total > item.occurrences:
+            problems.append(f"{where}: counts exceed occurrences")
+        if not self.shown:
+            return
+        texts = [entry.value for entry in item.listed]
+        if len(set(texts)) != len(texts):
+            problems.append(f"{where}: a text is listed twice")
+        ranks = [bottomk.priority(("string", text), seed=self.seed) for text in texts]
+        if ranks != sorted(ranks):
+            problems.append(f"{where}: texts must be in ascending priority")
+        if not all(belongs(text) for text in texts):
+            problems.append(f"{where}: a text does not belong to the class")
+        if (
+            item.selection == "all"
+            and item.kept == item.of
+            and self.no_long
+            and total != item.occurrences
+        ):
+            problems.append(f"{where}: all counts must add up to occurrences")
 
 
 def _check_stratum(

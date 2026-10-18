@@ -444,7 +444,10 @@ def test_the_strata_budget_is_a_share_of_the_sample_memory():
 
     assert budget.length_limit == 8_000_000 // LENGTH_SHARE
     assert budget.long_limit == 8_000_000 // LONG_SHARE
-    assert budget.limit + budget.long_limit + budget.length_limit == 8_000_000
+    assert (
+        budget.limit + budget.long_limit + budget.length_limit + budget.case_limit
+        == 8_000_000
+    )
 
 
 def test_a_field_never_takes_more_than_its_share_of_the_strata_budget():
