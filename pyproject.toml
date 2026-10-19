@@ -84,3 +84,9 @@ markers = [
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+
+[tool.ruff.lint.per-file-ignores]
+# The naive instants of the date-order analysis are built on purpose; ruff 0.16 enables DTZ001 by
+# default and ruff 0.17 does not, so the exemption lives here and not in a noqa comment.
+"src/tabalyst/scanner/secondpass/orders.py" = ["DTZ001"]
+"tests/scan/test_date_order.py" = ["DTZ001"]

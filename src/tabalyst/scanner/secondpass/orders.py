@@ -44,7 +44,7 @@ _NOT_TEXT = "\x00"
 
 
 _EPOCH = date(1970, 1, 1)
-_EPOCH_NAIVE = datetime(1970, 1, 1)  # noqa: DTZ001 - the origin of the naive instants
+_EPOCH_NAIVE = datetime(1970, 1, 1)
 _EPOCH_AWARE = datetime(1970, 1, 1, tzinfo=UTC)
 _MICROSECOND = timedelta(microseconds=1)
 _MICROSECONDS_A_DAY = 86_400_000_000

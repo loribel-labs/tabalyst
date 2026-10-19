@@ -186,7 +186,7 @@ def test_an_excel_source_is_compared_record_by_record(tmp_path):
     sheet.write_row(0, 0, ["start", "end", "n"])
     rng = random.Random(6)
     for i in range(1, 301):
-        begin = datetime(2020, 1, 1) + timedelta(days=rng.randrange(900))  # noqa: DTZ001
+        begin = datetime(2020, 1, 1) + timedelta(days=rng.randrange(900))
         finish = begin + timedelta(days=1 + rng.randrange(200))
         if i == 41:
             begin, finish = finish, begin
@@ -233,7 +233,7 @@ def test_the_keys_of_dates_and_instants_follow_their_order_to_the_microsecond() 
     paris = timezone(timedelta(hours=2))
     assert instant_key(date(2020, 1, 1)) < instant_key(date(2020, 1, 2))
     assert instant_key(date(1960, 1, 1)) < instant_key(date(1970, 1, 1)) < instant_key(date(1980, 1, 1))
-    assert instant_key(datetime(2020, 1, 1, 12, 0, 0, 1)) > instant_key(datetime(2020, 1, 1, 12, 0, 0))  # noqa: DTZ001
+    assert instant_key(datetime(2020, 1, 1, 12, 0, 0, 1)) > instant_key(datetime(2020, 1, 1, 12, 0, 0))
     # The same instant in two zones is the same key, and one second later is one second apart.
     noon_utc = datetime(2020, 1, 1, 12, 0, tzinfo=UTC)
     assert instant_key(datetime(2020, 1, 1, 14, 0, tzinfo=paris)) == instant_key(noon_utc)
