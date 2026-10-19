@@ -739,7 +739,8 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
             return
         if artifact.kind == "summary":
             stage.write_text(json.dumps(summaries[artifact.dataset_id],
-                                        ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                                        ensure_ascii=False, indent=2) + "\n",
+                             encoding="utf-8", newline="\n")
             return
         if "combine" in dataset:
             first = datasets[dataset["combine"]["inputs"][0]]

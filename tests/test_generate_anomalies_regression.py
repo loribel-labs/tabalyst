@@ -114,7 +114,7 @@ EXPECTED: dict[str, dict[str, str]] = {
         "crm-contacts.dirty_realistic.csv":
             "d76cfd4d27a21a1139278607e431585afa30dc38fb521f07db0ed751f8106aca",
         "crm-contacts.dirty_realistic.summary.json":
-            "0cac916b4f7af32a4224db6e5be29bc0925927dcbd3f015ebeba5bfd7c562621",
+            "ff9ae3838a6bb811b11bb317a3817822722347f72999643e59e405a0e75acbfc",
     },
     "insurance-dirty_stress": {
         "insurance-combined.csv":
@@ -124,7 +124,7 @@ EXPECTED: dict[str, dict[str, str]] = {
         "insurance-combined.dirty_stress.csv":
             "74c8b3e8bf0211c7df6683328ba36a1b7b7a54e4bc8553fa7e3d3344222e0933",
         "insurance-combined.dirty_stress.summary.json":
-            "b7fda5259044ca2beb8a103eb3ffa4b322c1f3924309fb056607e43ce641ff8a",
+            "9c9ba35069b4ba044781ef6c89c2e4b450b3483ce8cbf237d5311968c69c4b98",
         "insurance-ontario.csv":
             "69252bca2b365c06213a94a01c840ae37406219834a995ffe24d8eb7059bd545",
         "insurance-principal.csv":
@@ -140,7 +140,7 @@ EXPECTED: dict[str, dict[str, str]] = {
         "insurance-combined.dirty_realistic.csv":
             "869b629b7f9695ddbe14d52861422c1a9c99d90a8d614d2ff82653777107a7ff",
         "insurance-combined.dirty_realistic.summary.json":
-            "601527c74362dc3f5560ebcc5f4c96b9e5514b8a9adf4cd1e64e9cc1bce09994",
+            "d88d39b6243669f16e02fc8f52227d95511caa710c9a3d392845abe3e9f5d4be",
         "insurance-ontario.csv":
             "69252bca2b365c06213a94a01c840ae37406219834a995ffe24d8eb7059bd545",
         "insurance-principal.csv":
