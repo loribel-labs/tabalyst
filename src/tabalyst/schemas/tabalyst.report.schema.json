@@ -7349,10 +7349,19 @@
     },
     "FindingRef": {
       "additionalProperties": false,
-      "description": "The words of a finding need only these four members.",
+      "description": "The words of a finding, and its class for the figures of the overview.",
       "properties": {
         "code": {
           "title": "Code",
+          "type": "string"
+        },
+        "cls": {
+          "enum": [
+            "error",
+            "issue",
+            "information"
+          ],
+          "title": "Cls",
           "type": "string"
         },
         "count": {
@@ -7390,10 +7399,23 @@
           ],
           "title": "Accuracy",
           "type": "string"
+        },
+        "percent": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Percent"
         }
       },
       "required": [
         "code",
+        "cls",
         "count",
         "unit",
         "accuracy"
@@ -14665,6 +14687,18 @@
         "lower_bound": {
           "title": "Lower Bound",
           "type": "boolean"
+        },
+        "population": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Population"
         },
         "columns": {
           "items": {

@@ -28,7 +28,15 @@ FAMILIES = (
     "other",
 )
 TEXT_TOKENS = ("err-text", "info-text", "attn-text", "text-2", "text-3", "text")
-SHAPE_TOKENS = ("err", "issue", "info-text", *(f"fam-{name}" for name in FAMILIES))
+TYPE_TOKENS = ("text", "integer", "number", "boolean", "date", "empty")
+SHAPE_TOKENS = (
+    "err",
+    "issue",
+    "info-text",
+    "tb-viz-warning",
+    *(f"fam-{name}" for name in FAMILIES),
+    *(f"tb-viz-type-{name}" for name in TYPE_TOKENS),
+)
 SURFACES = ("s0", "s1", "s2", "s3")
 
 
@@ -96,8 +104,29 @@ def test_the_shapes_that_carry_a_meaning_reach_three_to_one_on_every_surface(the
     assert not failures
 
 
+def _family_token(name: str) -> str:
+    """The dataviz token a family colour points to (``--fam-web_network`` is ``--tb-viz-family-web-network``)."""
+    target = _block(":root")[f"fam-{name}"].strip()
+    assert target.startswith("var(--tb-viz-family-"), f"fam-{name} is not a dataviz family token"
+    return target[4:-1].lstrip("-")
+
+
 def test_every_family_has_a_colour_in_both_themes():
     light = _block(':root[data-theme="light"]')
     for name in FAMILIES:
-        assert f"fam-{name}" in _block(":root")
-        assert f"fam-{name}" in light, f"fam-{name} falls back to a dark-theme colour"
+        token = _family_token(name)
+        assert token in _block(":root")
+        assert token in light, f"{token} falls back to a dark-theme colour"
+
+
+def test_the_brand_orange_is_not_the_colour_of_a_family():
+    for theme, tokens in _themes().items():
+        for name in FAMILIES:
+            colour = _hex(tokens[f"fam-{name}"], tokens).upper()
+            assert colour not in {"#F98510", "#B85200", "#D06500"}, f"{name} is orange in {theme}"
+
+
+def test_the_families_are_told_apart_in_both_themes():
+    for theme, tokens in _themes().items():
+        colours = {name: _hex(tokens[f"fam-{name}"], tokens).upper() for name in FAMILIES}
+        assert len(set(colours.values())) == len(FAMILIES), f"two families share a colour in {theme}"

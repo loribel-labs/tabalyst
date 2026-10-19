@@ -7380,15 +7380,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T18:06:48.496419Z",
-        "duration_seconds": 0.000109,
+        "started_at": "2026-10-19T01:33:40.112770Z",
+        "duration_seconds": 0.000123,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000109
+          "other": 0.000123
         },
         "workers": 1,
-        "peak_memory_bytes": 72667136,
+        "peak_memory_bytes": 72802304,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -7864,12 +7864,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T18:06:48.499246Z",
+    "generated_at": "2026-10-19T01:33:40.115776Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0258,
+    "processing_seconds": 0.0227,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -10356,6 +10356,7 @@
                 "total": 1,
                 "unit": "occurrences",
                 "lower_bound": false,
+                "population": 4,
                 "columns": [
                   {
                     "field_id": "column_3",
@@ -10386,9 +10387,11 @@
                 "findings": [
                   {
                     "code": "type.mixed",
+                    "cls": "issue",
                     "count": 1,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 25.0
                   }
                 ]
               }

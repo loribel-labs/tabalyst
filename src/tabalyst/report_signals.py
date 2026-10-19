@@ -34,7 +34,7 @@ from tabalyst.summary_models import (
 __all__ = ["quality_view", "signals_view"]
 
 # Signals written as a tile; the others are counted ("+2 additional signals").
-SIGNALS_SHOWN = 6
+SIGNALS_SHOWN = 12
 # Spellings of the first group shown beside a column in the popover of a spelling signal.
 SPELLINGS_SHOWN = 3
 # The states of a list in the order the checks print them.
@@ -47,6 +47,8 @@ STATE_ORDER = (
     "not_applicable",
 )
 INCOMPLETE = ("partial", "not_assessed", "failed")
+# The states of a check that looked at values, whatever it found.
+COVERED = ("detected", "none_detected", "partial")
 
 
 def _list(name: str, lists: Sequence[FindingList]) -> ValidationList:
@@ -83,9 +85,11 @@ def quality_view(
                 findings=[
                     FindingRef(
                         code=finding.code,
+                        cls=finding.cls,
                         count=finding.count,
                         unit=finding.unit,
                         accuracy=finding.accuracy,
+                        percent=finding.share.percent if finding.share else None,
                     )
                     for finding in found
                 ],
@@ -115,19 +119,37 @@ def _spellings(column: ColumnView) -> list[Spelling]:
     return details.groups[0].spellings[:SPELLINGS_SHOWN]
 
 
+def _populations(findings: Sequence[ColumnFindings]) -> dict[tuple[str, str], int]:
+    """What each check was run on, summed over the columns it covered, by class and code.
+
+    Why: a share of "the columns that have the finding" would overstate it; the
+    denominator is every value the check looked at, finding or not.
+    """
+    sizes: dict[tuple[str, str], int] = defaultdict(int)
+    for item in findings:
+        for cls, listing in (("error", item.errors), ("issue", item.issues)):
+            for assessment in listing.assessments:
+                if assessment.state in COVERED and assessment.eligible is not None:
+                    sizes[(cls, assessment.code)] += assessment.eligible
+    return sizes
+
+
 def signals_view(
     columns: Sequence[ColumnView], findings: Sequence[ColumnFindings]
 ) -> SignalsView:
     """The signals of a dataset: the Errors first, then the Issues, each group by
     the number of columns touched, then by its figure, then by its code."""
     found: dict[tuple[str, str, str], list[tuple[ColumnView, int, bool]]] = defaultdict(list)
+    open_population: set[tuple[str, str, str]] = set()
     for column, item in zip(columns, findings, strict=True):
         for finding in (*item.errors.items, *item.issues.items):
             if finding.count is None:
                 continue
-            found[(finding.cls, finding.code, finding.unit)].append(
-                (column, finding.count, finding.accuracy == "lower_bound")
-            )
+            key = (finding.cls, finding.code, finding.unit)
+            found[key].append((column, finding.count, finding.accuracy == "lower_bound"))
+            if finding.population.size is None:
+                open_population.add(key)
+    sizes = _populations(findings)
     signals = []
     for (cls, code, unit), terms in found.items():
         total = sum(count for _, count, _ in terms)
@@ -139,6 +161,9 @@ def signals_view(
                 total=total,
                 unit=unit,
                 lower_bound=any(bound for _, _, bound in terms),
+                population=None
+                if (cls, code, unit) in open_population
+                else sizes.get((cls, code)) or None,
                 columns=[
                     SignalColumn(
                         field_id=column.id,

@@ -71706,15 +71706,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T18:06:50.511163Z",
-        "duration_seconds": 0.000479,
+        "started_at": "2026-10-19T01:33:42.213612Z",
+        "duration_seconds": 0.000542,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000479
+          "other": 0.000542
         },
         "workers": 1,
-        "peak_memory_bytes": 117919744,
+        "peak_memory_bytes": 118829056,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -140881,12 +140881,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T18:06:51.039890Z",
+    "generated_at": "2026-10-19T01:33:42.736886Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 3.1534,
+    "processing_seconds": 3.1632,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -162008,6 +162008,7 @@
                 "total": 14,
                 "unit": "occurrences",
                 "lower_bound": false,
+                "population": 246452,
                 "columns": [
                   {
                     "field_id": "column_25",
@@ -162024,6 +162025,7 @@
                 "total": 12,
                 "unit": "occurrences",
                 "lower_bound": false,
+                "population": 300000,
                 "columns": [
                   {
                     "field_id": "column_18",
@@ -162040,6 +162042,7 @@
                 "total": 106,
                 "unit": "groups",
                 "lower_bound": false,
+                "population": null,
                 "columns": [
                   {
                     "field_id": "column_16",
@@ -162257,6 +162260,7 @@
                 "total": 53729,
                 "unit": "occurrences",
                 "lower_bound": false,
+                "population": 2983595,
                 "columns": [
                   {
                     "field_id": "column_30",
@@ -162308,6 +162312,7 @@
                 "total": 115,
                 "unit": "occurrences",
                 "lower_bound": false,
+                "population": 499989,
                 "columns": [
                   {
                     "field_id": "column_16",
@@ -162352,6 +162357,7 @@
                 "total": 73,
                 "unit": "occurrences",
                 "lower_bound": false,
+                "population": 299991,
                 "columns": [
                   {
                     "field_id": "column_20",
@@ -162375,9 +162381,57 @@
                     "spellings": []
                   }
                 ]
+              },
+              {
+                "code": "identifier.repetition",
+                "cls": "issue",
+                "total": 16,
+                "unit": "occurrences",
+                "lower_bound": false,
+                "population": 199991,
+                "columns": [
+                  {
+                    "field_id": "column_1",
+                    "name": "id_client",
+                    "count": 8,
+                    "relative_percent": 100.0,
+                    "spellings": []
+                  },
+                  {
+                    "field_id": "column_20",
+                    "name": "id_contrat",
+                    "count": 8,
+                    "relative_percent": 100.0,
+                    "spellings": []
+                  }
+                ]
+              },
+              {
+                "code": "text.surrounding_whitespace",
+                "cls": "issue",
+                "total": 4,
+                "unit": "occurrences",
+                "lower_bound": false,
+                "population": 199998,
+                "columns": [
+                  {
+                    "field_id": "column_10",
+                    "name": "nom_voie",
+                    "count": 2,
+                    "relative_percent": 100.0,
+                    "spellings": []
+                  },
+                  {
+                    "field_id": "column_21",
+                    "name": "type_contrat",
+                    "count": 2,
+                    "relative_percent": 100.0,
+                    "spellings": []
+                  }
+                ]
               }
             ],
-            "more": 2,
+            "more": 0,
             "incomplete_columns": 0
           },
           "quality": {
@@ -162395,9 +162449,11 @@
                 "findings": [
                   {
                     "code": "semantic.invalid",
+                    "cls": "error",
                     "count": 12,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.012
                   }
                 ]
               },
@@ -162407,9 +162463,11 @@
                 "findings": [
                   {
                     "code": "type.outside_family",
+                    "cls": "error",
                     "count": 14,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.014000420012600379
                   }
                 ]
               }
@@ -162421,9 +162479,11 @@
                 "findings": [
                   {
                     "code": "identifier.repetition",
+                    "cls": "issue",
                     "count": 8,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.008
                   }
                 ]
               },
@@ -162433,15 +162493,19 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 13,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   },
                   {
                     "code": "text.repeated_whitespace",
+                    "cls": "issue",
                     "count": 6,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.006000420029402058
                   }
                 ]
               },
@@ -162451,15 +162515,19 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 13,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   },
                   {
                     "code": "text.repeated_whitespace",
+                    "cls": "issue",
                     "count": 5,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.00500020000800032
                   }
                 ]
               },
@@ -162469,9 +162537,11 @@
                 "findings": [
                   {
                     "code": "temporal.ambiguous_date",
+                    "cls": "issue",
                     "count": 10857,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 10.857651459087545
                   }
                 ]
               },
@@ -162481,9 +162551,11 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 3,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   }
                 ]
               },
@@ -162493,21 +162565,27 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 19,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   },
                   {
                     "code": "text.surrounding_whitespace",
+                    "cls": "issue",
                     "count": 2,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.002
                   },
                   {
                     "code": "text.repeated_whitespace",
+                    "cls": "issue",
                     "count": 8,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.008
                   }
                 ]
               },
@@ -162517,9 +162595,11 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 10,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   }
                 ]
               },
@@ -162529,9 +162609,11 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 6,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   }
                 ]
               },
@@ -162541,9 +162623,11 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 3,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   }
                 ]
               },
@@ -162553,21 +162637,27 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 34,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   },
                   {
                     "code": "length.minority",
+                    "cls": "issue",
                     "count": 21,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.021
                   },
                   {
                     "code": "text.repeated_whitespace",
+                    "cls": "issue",
                     "count": 54,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.054
                   }
                 ]
               },
@@ -162577,9 +162667,11 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 1,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   }
                 ]
               },
@@ -162589,9 +162681,11 @@
                 "findings": [
                   {
                     "code": "text.repeated_whitespace",
+                    "cls": "issue",
                     "count": 42,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.042
                   }
                 ]
               },
@@ -162601,15 +162695,19 @@
                 "findings": [
                   {
                     "code": "length.minority",
+                    "cls": "issue",
                     "count": 36,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.03600324029162625
                   },
                   {
                     "code": "identifier.repetition",
+                    "cls": "issue",
                     "count": 8,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.008000720064805832
                   }
                 ]
               },
@@ -162619,15 +162717,19 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 2,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   },
                   {
                     "code": "text.surrounding_whitespace",
+                    "cls": "issue",
                     "count": 2,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.002000040000800016
                   }
                 ]
               },
@@ -162637,9 +162739,11 @@
                 "findings": [
                   {
                     "code": "temporal.ambiguous_date",
+                    "cls": "issue",
                     "count": 10764,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 10.764
                   }
                 ]
               },
@@ -162649,9 +162753,11 @@
                 "findings": [
                   {
                     "code": "temporal.ambiguous_date",
+                    "cls": "issue",
                     "count": 8956,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 10.713943918078286
                   }
                 ]
               },
@@ -162661,9 +162767,11 @@
                 "findings": [
                   {
                     "code": "categorical.case_variants",
+                    "cls": "issue",
                     "count": 2,
                     "unit": "groups",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": null
                   }
                 ]
               },
@@ -162673,9 +162781,11 @@
                 "findings": [
                   {
                     "code": "length.minority",
+                    "cls": "issue",
                     "count": 16,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 0.016
                   }
                 ]
               },
@@ -162685,9 +162795,11 @@
                 "findings": [
                   {
                     "code": "temporal.ambiguous_date",
+                    "cls": "issue",
                     "count": 10638,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 10.638
                   }
                 ]
               },
@@ -162697,9 +162809,11 @@
                 "findings": [
                   {
                     "code": "temporal.ambiguous_date",
+                    "cls": "issue",
                     "count": 10944,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 10.944
                   }
                 ]
               },
@@ -162709,9 +162823,11 @@
                 "findings": [
                   {
                     "code": "temporal.ambiguous_date",
+                    "cls": "issue",
                     "count": 1570,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 11.025280898876405
                   }
                 ]
               }

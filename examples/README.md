@@ -15,7 +15,7 @@ examples/
 |   `-- web-events.jsonl
 |-- showcase/ (what the website and the documentation publish, nothing else)
 |   |-- basic/
-|   |-- insurance-customers/ (report.html, report.json, scan.json, report/ with --details; 100,000 rows)
+|   |-- insurance-customers/ (report.html, report.json, scan.json; 100,000 rows)
 |   |-- insurance-customers-scan/ (scan, second pass, smart plan and sample; 100,000 rows)
 |   |-- orders/
 |   |-- sales/
@@ -90,7 +90,7 @@ datasets, `D:/GIT.test/tabalyst/datasets/` here, or `$TABALYST_DATASETS`):
 
 ```console
 tabalyst report examples/datasets/basic.csv -o examples/showcase/basic/report.html
-tabalyst report {datasets}/insurance-customers-100k.csv -o examples/showcase/insurance-customers/report.html --details
+tabalyst report {datasets}/insurance-customers-100k.csv -o examples/showcase/insurance-customers/report.html
 tabalyst report examples/datasets/orders.json -o examples/showcase/orders/report.html
 tabalyst report examples/datasets/web-events.jsonl -o examples/showcase/web-events/report.html
 tabalyst report examples/datasets/sales.xlsx -o examples/showcase/sales/report.html

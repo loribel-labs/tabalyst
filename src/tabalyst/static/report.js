@@ -561,6 +561,46 @@
   window.addEventListener('resize', () => { if (openPop) placePop(openPop.panel, openPop.btn); });
   window.addEventListener('beforeprint', () => closePop(false));
 
+  /* overview balance: the lists of the findings card and of the kinds show at least the rows the
+     markup gives them, then as many more as fit under the height of Column types, so that the three
+     blocks end together. The rest stays behind the "+ N" button or in the Findings section. */
+  const balance = () => {
+    const grid = document.querySelector('.ov-grid');
+    const types = grid && grid.querySelector('.types');
+    if (!types) return;
+    const lists = $$('[data-fit]', grid);
+    lists.forEach((list) => $$('.ov-x', list).forEach((li) => li.classList.remove('ov-on')));
+    grid.style.alignItems = 'start';
+    const room = types.offsetHeight;
+    lists.forEach((list) => {
+      const card = list.closest('.rcard, .focus');
+      const extra = $$('.ov-x', list);
+      let shown = 0;
+      if (room > 0 && !grid.closest('[hidden]')) {
+        for (const li of extra) {
+          li.classList.add('ov-on');
+          if (card.offsetHeight > room) { li.classList.remove('ov-on'); break; }
+          shown += 1;
+        }
+      }
+      const rest = extra.length - shown;
+      const more = card.querySelector('.fk-more');
+      if (more) { more.hidden = rest === 0; more.querySelector('[data-n]').textContent = rest; }
+      const text = card.querySelector('[data-rest-text]');
+      if (text) { text.hidden = rest === 0; text.querySelector('[data-n]').textContent = rest; }
+    });
+    grid.style.alignItems = '';
+  };
+  let balancing = 0;
+  const rebalance = () => { cancelAnimationFrame(balancing); balancing = requestAnimationFrame(balance); };
+  window.addEventListener('load', rebalance);
+  // A width change, a panel opened again or a dataset shown are all a change of the grid.
+  const ovGrid = document.querySelector('.ov-grid');
+  if (ovGrid && window.ResizeObserver) new ResizeObserver(rebalance).observe(ovGrid);
+  else window.addEventListener('resize', rebalance);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(rebalance);
+  balance();
+
   /* copy hash */
   $$('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
     const text = b.dataset.copy;

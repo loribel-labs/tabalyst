@@ -35,7 +35,6 @@ from tabalyst.report_labels import (
     DETAILS_TITLES,
     FAMILY_LABELS,
     MODE_WORDS,
-    OBSERVATION_STATUS_HELP,
     ORIGIN_WORDS,
     OUTCOME_WORDS,
     PREVIEW_CHECKS_TITLE,
@@ -304,7 +303,6 @@ def _labels() -> dict[str, object]:
         "exposed_variant_groups": exposed_variant_groups,
         "details_withheld": details_withheld,
         "preview_checks_title": PREVIEW_CHECKS_TITLE,
-        "observation_status_help": OBSERVATION_STATUS_HELP,
         "signal_class_words": SIGNAL_CLASS_WORDS,
         "table_at_least": TABLE_AT_LEAST,
         "details_states": DETAILS_STATES,
@@ -401,15 +399,17 @@ def render_report(
     template = environment.from_string(
         resources.joinpath("templates/report.html").read_text(encoding="utf-8")
     )
+    # The semantic colour of each technical type (charter dataviz v1.1). Mixed is a confirmed
+    # warning about the data, not brand attention, so it takes the warning gold, not the orange.
     type_colors = {
-        "text": "var(--d2)",
-        "mixed": "var(--attn)",
-        "integer": "var(--d3)",
-        "number": "var(--d1)",
-        "boolean": "var(--ok)",
-        "date": "var(--d1)",
-        "empty": "var(--line-strong)",
-        "complex": "var(--text-3)",
+        "text": "var(--tb-viz-type-text)",
+        "mixed": "var(--tb-viz-warning)",
+        "integer": "var(--tb-viz-type-integer)",
+        "number": "var(--tb-viz-type-number)",
+        "boolean": "var(--tb-viz-type-boolean)",
+        "date": "var(--tb-viz-type-date)",
+        "empty": "var(--tb-viz-type-empty)",
+        "complex": "var(--tb-viz-family-other)",
     }
     family_colors = dict(FAMILY_COLORS)
     datasets = views if views is not None else dataset_views(profile)

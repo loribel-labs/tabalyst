@@ -142,33 +142,95 @@ def test_signals_have_a_title_a_subtitle_and_a_popover_with_their_columns(tmp_pa
     assert html.count('role="dialog"') == 1
 
 
-def test_an_error_signal_is_a_red_tile_and_an_issue_a_plain_one(tmp_path):
+def test_an_error_row_is_marked_before_its_title_and_an_issue_row_too(tmp_path):
     rows = [(f"user{n}@example.com", "01/02/2020") for n in range(40)]
     rows.append(("bad address@example.com", "03/04/2020"))
     profile = _csv(tmp_path, ["email", "when"], rows, sensitive_values="show")
 
     html = render_report(profile)
 
-    assert 'class="sig sig-error"' in html and 'class="sig sig-issue"' in html
-    # The class is written before the title: the colour is never the only cue.
-    assert '<span class="sig-c">Error</span>' in html
-    assert '<span class="sig-c">Issue</span>' in html
+    assert 'class="fl-c fl-error">Error' in html and 'class="fl-c fl-issue">Issue' in html
+    # The class is written in words as well as in colour.
+    assert 'fl-dot fl-error" aria-hidden="true"></span>Invalid values' in html
+    assert 'class="fk fk-error"' in html and 'class="fk fk-issue"' in html
 
 
-def test_the_quality_kpis_open_the_columns_behind_them(tmp_path):
-    profile = _dates(tmp_path)
-    _, table = _table(profile)
+def test_the_findings_kpi_counts_findings_and_the_columns_behind_them(tmp_path):
+    rows = [(f"user{n}@example.com", "01/02/2020") for n in range(40)]
+    rows.append(("bad address@example.com", "03/04/2020"))
+    profile = _csv(tmp_path, ["email", "when"], rows, sensitive_values="show")
+    view, table = _table(profile)
+
+    quality = table.quality
+
+    found = [column_findings(column) for column in view.columns]
+    assert quality.error_findings == sum(len(f.errors.items) for f in found)
+    assert quality.issue_findings == sum(len(f.issues.items) for f in found)
+    assert len(quality.error_class_columns) == sum(bool(f.errors.items) for f in found)
+    assert len(quality.issue_class_columns) == sum(bool(f.issues.items) for f in found)
+    # A column with both is listed under each, with the findings of that class only.
+    for row in quality.error_class_columns:
+        assert all(ref.cls == "error" for ref in row.findings)
+    for row in quality.issue_class_columns:
+        assert all(ref.cls == "issue" for ref in row.findings)
+
+
+def test_the_affected_columns_come_widest_finding_first_on_a_log_bar(tmp_path):
+    view, table = _table(_dates(tmp_path))
+
+    top = table.quality.top
+
+    assert len(top) == len(view.columns) - table.quality.no_finding
+    shared = [c for c in top if c.worst is not None]
+    assert shared and top[: len(shared)] == shared
+    assert [c.bar for c in shared] == sorted((c.bar for c in shared), reverse=True)
+    assert max(c.bar for c in shared) <= 100 and all(c.bar > 0 for c in shared)
+    assert all(c.errors or c.issues for c in top)
+
+
+def test_a_log_bar_keeps_a_rare_finding_and_a_frequent_one_apart():
+    from tabalyst.report_table import _bar
+
+    assert _bar(100) == 100.0
+    assert 0 < _bar(0.01) < _bar(10) < _bar(100)
+    assert _bar(0.0) == 0.0 and _bar(1e-9) == 0.0
+
+
+def test_a_signal_share_is_out_of_the_values_every_covered_column_offered(tmp_path):
+    view, table = _table(_dates(tmp_path))
+
+    signal = next(s for s in table.signals.shown if s.code == "temporal.ambiguous_date")
+    spelling = next(s for s in table.signals.shown if s.code == "categorical.case_variants")
+
+    covered = sum(
+        a.eligible
+        for column in view.columns
+        for a in column_findings(column).issues.assessments
+        if a.code == "temporal.ambiguous_date" and a.eligible is not None
+    )
+    assert signal.population == covered
+    assert signal.share is not None and f"of {covered:,}" in signal.share
+    # Groups of spellings have no population, so no share.
+    assert spelling.population is None and spelling.share is None
+
+
+def test_the_overview_lists_every_finding_kind_and_a_zero_says_so(tmp_path):
+    rows = [(n, f"name{n}") for n in range(30)]
+    profile = _csv(tmp_path, ["id", "label"], rows)
 
     html = render_report(profile)
 
-    assert "Distribution of findings across" in html
+    assert "No Error and no Issue." in html
+    assert "No Error and no Issue was detected by the checks that ran." in html
+    assert 'class="fk fk-error fk-zero"' in html
+
+
+def test_the_quality_kpis_were_replaced_by_the_findings_card(tmp_path):
+    html = render_report(_dates(tmp_path))
+
+    assert "Distribution of findings across" not in html
     assert 'data-pop="pop-q-issue"' in html
-    # A group with no column is a plain figure: there is nothing to open.
-    assert ('data-pop="pop-q-clean"' in html) == (table.quality.no_finding > 0)
-    assert table.quality.with_issues > 0
-    # The statuses of the observations are explained whatever the dataset holds.
-    for word in ("Confirmed issue", "Candidate anomaly", "Remark"):
-        assert word in html
+    assert 'class="rcard flist"' in html and "Affected columns" in html
 
 
 def test_the_spelling_signal_lists_the_largest_group_of_each_column(tmp_path):
@@ -198,8 +260,7 @@ def test_the_overview_cards_are_rendered_from_the_model(tmp_path):
 
     html = render_report(profile)
 
-    assert "Signals / what the checks found" in html
-    assert "Column quality" in html
+    assert "Errors and Issues" in html and "Affected columns" in html
     assert "Ambiguous dates" in html and "data-pop" in html
 
 
@@ -292,11 +353,11 @@ def test_the_documented_signal_tiles_are_the_ones_the_report_can_draw():
 
     page = Path(__file__).resolve().parents[2] / "docs" / "en" / "report" / "read-report.md"
     text = page.read_text(encoding="utf-8").replace("\r\n", "\n")
-    section = re.split(r"\n#{2,3} ", text.split("### Signal tiles")[1])[0]
+    section = re.split(r"\n#{2,3} ", text.split("### Kinds of finding in the overview")[1])[0]
     rows = [
         [cell.strip() for cell in line.strip("|").split("|")]
         for line in section.splitlines()
-        if line.startswith("| ") and not line.startswith("| Tile") and "---" not in line
+        if line.startswith("| ") and not line.startswith("| Kind") and "---" not in line
     ]
     documented = {row[0]: (row[1], row[2]) for row in rows}
     classes = {item.code: item.cls for item in FINDINGS}
@@ -306,3 +367,30 @@ def test_the_documented_signal_tiles_are_the_ones_the_report_can_draw():
         for code, (title, subtitle) in SIGNAL_TITLES.items()
     }
     assert documented == expected
+
+
+def test_a_small_share_keeps_three_decimals_and_never_reads_zero():
+    from tabalyst.report_table import _small_percent
+
+    assert _small_percent(12.5) == "12.5%"
+    assert _small_percent(0.02) == "0.02%"
+    assert _small_percent(12 / 300_000 * 100) == "0.004%"
+    assert _small_percent(0.0001) == "<0.001%"
+
+
+def test_every_signal_popover_says_in_one_sentence_what_the_finding_is():
+    from tabalyst.report_labels import SIGNAL_NOTES, SIGNAL_TITLES
+
+    assert set(SIGNAL_NOTES) == set(SIGNAL_TITLES)
+
+
+def test_the_overview_lists_carry_a_floor_of_eight_rows_and_link_to_the_summary(tmp_path):
+    _, table = _table(_dates(tmp_path))
+    html = render_report(_dates(tmp_path))
+
+    first = table.quality.top[0]
+    assert f'href="#sum-{first.field_id}"' in html
+    assert f'id="sum-{first.field_id}"' in html
+    # Rows beyond the floor are marked for the script and the others are not.
+    assert html.count('class="ov-x"') >= max(0, len(table.quality.top) - 8)
+    assert ("pop-q-cols" in html) == (len(table.quality.top) > 8)

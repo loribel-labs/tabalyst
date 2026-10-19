@@ -12,6 +12,8 @@ codes and numbers; the rows themselves are not serialized.
 
 from __future__ import annotations
 
+import math
+
 from pydantic import Field
 
 from tabalyst.report_labels import (
@@ -175,6 +177,10 @@ class SignalTile(Signal):
     subtitle: str
     note: str | None
     target: str | None
+    # "0.5% of 99,994" when the figure has a known population; the figure alone otherwise.
+    share: str | None
+    # Width of its bar on the log scale of the overview, from the same share.
+    bar: float | None
 
 
 class SignalsPanel(SignalsView):
@@ -201,14 +207,70 @@ class QualityRow(QualityColumn):
     labels: list[str]
 
 
+class TopColumn(ResultModel):
+    """An affected column: how many kinds of finding it has and how far its widest
+    one reaches in the column. The kinds are never added up as values."""
+
+    field_id: str
+    name: str
+    errors: int
+    issues: int
+    # The finding that touches the largest share of the column, when any has a share.
+    worst: str | None
+    worst_cls: str | None
+    percent_text: str | None
+    # Width of its bar in percent, on a log scale from ``BAR_FLOOR`` to 100%.
+    bar: float
+    # Every finding of the column in words, Errors first, for the tooltip and the popover.
+    labels: list[str]
+
+
 class QualityPanel(QualityView):
-    """The quality figures of a dataset with the words of their findings and states."""
+    """The quality figures of a dataset with the words of their findings and states.
+
+    ``error_findings`` and ``issue_findings`` count findings (a check on a column),
+    never occurrences: findings of two codes are not added (findings.md).
+    """
+
+    error_findings: int
+    issue_findings: int
+    # The columns with a finding of each class, a column with both in each, with the
+    # words of the findings of that class only.
+    error_class_columns: list[QualityRow]
+    issue_class_columns: list[QualityRow]
+    top: list[TopColumn]
 
     error_columns: list[QualityRow]  # type: ignore[assignment]
     issue_columns: list[QualityRow]  # type: ignore[assignment]
     clean_columns: list[QualityRow]  # type: ignore[assignment]
     errors: ValidationRows
     issues: ValidationRows
+
+
+def _small_percent(percent: float) -> str:
+    """A share with two decimals, three below 0.01%, and a bound under that: a few
+    values among hundreds of thousands must never be written 0%."""
+    if percent >= 0.01:
+        return percent_text(percent)
+    if percent >= 0.001:
+        return f"{percent:.3f}".rstrip("0") + "%"
+    return "<0.001%"
+
+
+def _share_percent(signal: Signal) -> float | None:
+    """The share of a signal out of what its check looked at, when both are known."""
+    population = signal.population
+    if population is None or signal.total > population:
+        return None
+    return 100 * signal.total / population
+
+
+def _share(signal: Signal) -> str | None:
+    percent = _share_percent(signal)
+    if percent is None:
+        return None
+    prefix = "at least " if signal.lower_bound else ""
+    return f"{prefix}{_small_percent(percent)} of {signal.population:,}"
 
 
 def _tile(signal: Signal) -> SignalTile:
@@ -221,6 +283,8 @@ def _tile(signal: Signal) -> SignalTile:
         subtitle=subtitle,
         note=SIGNAL_NOTES.get(signal.code),
         target=SIGNAL_TARGETS.get(signal.code),
+        share=_share(signal),
+        bar=None if _share_percent(signal) is None else _bar(_share_percent(signal) or 0.0),
     )
 
 
@@ -250,10 +314,71 @@ def _quality_rows(columns: list[QualityColumn]) -> list[QualityRow]:
     ]
 
 
+def _class_rows(view: QualityView, cls: str) -> list[QualityRow]:
+    """The columns with a finding of one class, each with the words of those findings."""
+    rows = []
+    for item in (*view.error_columns, *view.issue_columns):
+        found = [ref for ref in item.findings if ref.cls == cls]
+        if found:
+            rows.append(
+                QualityRow(**{**dict(item), "findings": found}, labels=[finding_text(r) for r in found])
+            )
+    return rows
+
+
+# The smallest share a bar can tell apart; below it the bar keeps its minimal width.
+BAR_FLOOR = 0.001
+
+
+def _bar(percent: float) -> float:
+    """Width of a bar on a log scale: a share of 0.01% and one of 10% both stay readable."""
+    clamped = min(max(percent, BAR_FLOOR), 100.0)
+    return round(100 * math.log10(clamped / BAR_FLOOR) / math.log10(100 / BAR_FLOOR), 1)
+
+
+def _top_columns(view: QualityView) -> list[TopColumn]:
+    """Every affected column, the widest share first, then the kinds of finding."""
+    rows = []
+    for item in (*view.error_columns, *view.issue_columns):
+        shared = [ref for ref in item.findings if ref.percent is not None]
+        worst = max(shared, key=lambda ref: ref.percent or 0.0, default=None)
+        percent = None if worst is None else worst.percent
+        ordered = sorted(item.findings, key=lambda ref: (ref.cls != "error", -(ref.count or 0)))
+        rows.append(
+            TopColumn(
+                field_id=item.field_id,
+                labels=[f"{ref.cls.capitalize()}: {finding_text(ref)}" for ref in ordered],
+                name=item.name,
+                errors=sum(ref.cls == "error" for ref in item.findings),
+                issues=sum(ref.cls == "issue" for ref in item.findings),
+                worst=None if worst is None else SIGNAL_TITLES.get(worst.code, (worst.code, ""))[0],
+                worst_cls=None if worst is None else worst.cls,
+                percent_text=None if percent is None else _small_percent(percent),
+                bar=0.0 if percent is None else _bar(percent),
+            )
+        )
+    return sorted(
+        rows,
+        key=lambda row: (
+            row.percent_text is None,
+            -row.bar,
+            -(row.errors + row.issues),
+            row.name,
+        ),
+    )
+
+
 def _quality_panel(view: QualityView) -> QualityPanel:
+    errors = _class_rows(view, "error")
+    issues = _class_rows(view, "issue")
     return QualityPanel(
         **{
             **dict(view),
+            "top": _top_columns(view),
+            "error_findings": sum(len(row.findings) for row in errors),
+            "issue_findings": sum(len(row.findings) for row in issues),
+            "error_class_columns": errors,
+            "issue_class_columns": issues,
             "error_columns": _quality_rows(view.error_columns),
             "issue_columns": _quality_rows(view.issue_columns),
             "clean_columns": _quality_rows(view.clean_columns),

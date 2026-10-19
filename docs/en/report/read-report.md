@@ -46,37 +46,50 @@ investigating individual fields.
 | Missing cells | Missing positions divided by all analyzed cell positions, with the count below. Empty or whitespace-only values, configured markers and absent JSON members can count as missing. | Check the affected columns and the effective missing-value rules. |
 | Duplicate rows | Records equal to an earlier record by exact raw values across columns, excluding the first occurrence. | `≥` is a lower bound after the tracking limit; `–` means the check was disabled. |
 
-Three cards sum what the checks found and how far they went, as KPIs. They add up
-the findings of the [column summary](#column-summary), column by column, and never
-guess: a sum only joins findings of one kind counted in one unit. Every figure that
-stands for columns opens a popover (click, Enter or Space; Escape closes it and gives
-the focus back) with the columns behind it.
+Three cards sum what the checks found and how far they went. They add up the
+findings of the [column summary](#column-summary), column by column, and never
+guess: a sum only joins findings of one kind counted in one unit, so no card adds up
+Errors of different kinds. Every figure that stands for columns opens a popover (click,
+Enter or Space; Escape closes it and gives the focus back) with the columns behind it.
 
-- **Column quality** shows how many columns have Errors, Issues only, or no finding,
-  as figures, percentages of the columns and one bar. A column with Errors counts under
-  Errors even when it also has Issues, so the three figures add up to the columns. Each
-  figure opens the columns of its group with their findings. A line counts the
-  observations of the scan by status (*confirmed issue*: a defect by the structure of the
-  source; *candidate anomaly*: worth a look and never proof of an error; *remark*: may be
-  perfectly valid, such as a constant column), with the meaning in its `?` popover.
-- **Signals** gives one tile per kind of finding present, with a large figure, a title
-  and a line that says what it counts: type mismatches, invalid values, spelling
-  variants, ambiguous dates, repeated whitespace, minority lengths... Errors come first
-  in a red tile, then Issues, each ordered by the columns touched. `≥` marks a sum with
-  a lower bound. The **N columns** button opens the columns with their figure and, by
-  case, their details: the largest group of spelling variants of each column, or the
-  note that Tabalyst does not guess the order of an ambiguous date. Six tiles are shown;
-  the others are counted.
+- **Finding types** (the card with the notched corner) gives two figures: the **Error
+  types** and the **Issue types**. A type is one kind of finding in one column (an
+  invalid email value in `email` is one Error type), so the figures count kinds of
+  problem, never values; each figure sits in a framed tile and the number of columns
+  ("21 of 34 columns") is underneath (a column with both
+  counts in both). Under them, every **affected column** with its widest finding: the
+  share of the column's values that this finding touches, as a number and as a bar
+  on a log scale (so that 0.01% and 10% stay readable), the class and name of that
+  finding, and how many other types the column has (hovering the row lists all of them, with their counts). A line under the bars says what the bar is, and its `i` button says that the scale is logarithmic. Columns are ordered by that share;
+  one with only findings without a share (spelling variants) comes last. The shares
+  of two findings are never added. The names link to the row of the column in the summary. At least eight columns are
+  listed, more when the height of Column types allows it, and the button
+  "+ N more" opens all of them. The figures open the columns with their findings.
+- **Errors and Issues** lists the kinds of finding present, Errors first and then
+  Issues, each ordered by the columns touched. A row has a dot of its class before
+  the title, the title, the sum of the finding
+  over the columns that have it, a thin bar of that share on the same log scale as the columns of the first card, and a line with the class in words (so the colour is never the only cue), its unit, its share when it is
+  known (two decimals, three for a very small one, `<0.001%` below), and the number of columns. The share is the sum out of every value the check
+  looked at, in all the columns it covered, and is left out when the finding has no
+  population (groups of spelling variants). `≥` marks a sum with a lower bound. A row
+  opens a short sentence on what the finding is, then the columns with their figure and, by case, their details: the largest group
+  of spelling variants of each column, or the note that Tabalyst does not guess the
+  order of an ambiguous date. At least eight kinds are shown, more when Column types is taller, so that the three
+  blocks end together; the others are in the Findings section (the line "+ N more"). A defect
+  by the structure of the source (excluded records, blank or repeated column names)
+  is listed after them as a *Dataset* row. A line says how many columns the checks
+  did not completely cover, so that a zero is not read as a guarantee. Without any
+  finding the card says that no Error and no Issue was detected.
 - **Column types** counts columns twice, not cells: by family and type of the
   classification, then by technical type.
 
-### Signal tiles
+### Kinds of finding in the overview
 
-Twelve kinds of finding produce a tile. The title and the line under it are the ones
-below; the figure is the sum of the finding over the columns that have it, counted in
+Twelve kinds of finding have a row. The title and the line that says what it counts are
+the ones below; the figure is the sum of the finding over the columns that have it, counted in
 one unit.
 
-| Tile | Class | What it counts | Counted in | Where it comes from |
+| Kind | Class | What it counts | Counted in | Where it comes from |
 | --- | --- | --- | --- | --- |
 | Invalid dates | Error | Dates that do not exist in the calendar | values | The date detector, on a column established as dates |
 | Invalid values | Error | Values failing a validation check | values | The email, phone, postal code, URL, IP address and UUID detectors |
@@ -94,14 +107,14 @@ one unit.
 The class is written before the title, so the colour is never the only cue. Tabalyst
 has two classes of finding to act on, Error and Issue; it has no Warning class.
 
-Two information findings, an empty column and a constant column, have no tile: a
-signal points at what to look at, and these say what a column is. They are in the
-Overview of the column and, as remarks, in the count of the observations of Column
-quality.
+Two information findings, an empty column and a constant column, have no row: a
+finding points at what to look at, and these say what a column is. They are in the
+Overview of the column.
 
 The overview, the column summary and the findings answer different questions: how
 much and how far, which column, and what exactly. See
-[Findings](json-profile.md#findings).
+[Findings](json-profile.md#findings) and the
+[Findings catalog](findings.md), which lists every finding code.
 
 ## Observations
 

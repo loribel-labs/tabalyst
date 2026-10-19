@@ -12516,15 +12516,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T18:07:15.080389Z",
-        "duration_seconds": 0.000149,
+        "started_at": "2026-10-19T01:34:06.558072Z",
+        "duration_seconds": 0.000136,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000149
+          "other": 0.000136
         },
         "workers": 1,
-        "peak_memory_bytes": 75517952,
+        "peak_memory_bytes": 76238848,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -16684,12 +16684,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T18:07:15.122335Z",
+    "generated_at": "2026-10-19T01:34:06.597171Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0824,
+    "processing_seconds": 0.0773,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
