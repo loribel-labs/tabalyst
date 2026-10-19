@@ -196,7 +196,7 @@ def test_a_log_bar_keeps_a_rare_finding_and_a_frequent_one_apart():
     assert _bar(0.0) == 0.0 and _bar(1e-9) == 0.0
 
 
-def test_a_signal_share_is_out_of_the_values_every_covered_column_offered(tmp_path):
+def test_a_signal_share_is_out_of_the_values_the_columns_with_the_finding_offered(tmp_path):
     view, table = _table(_dates(tmp_path))
 
     signal = next(s for s in table.signals.shown if s.code == "temporal.ambiguous_date")
@@ -206,7 +206,8 @@ def test_a_signal_share_is_out_of_the_values_every_covered_column_offered(tmp_pa
         a.eligible
         for column in view.columns
         for a in column_findings(column).issues.assessments
-        if a.code == "temporal.ambiguous_date" and a.eligible is not None
+        if a.code == "temporal.ambiguous_date"
+        and a.state == "detected" and a.eligible is not None
     )
     assert signal.population == covered
     assert signal.share is not None and f"of {covered:,}" in signal.share
@@ -411,3 +412,29 @@ def test_the_overview_lists_carry_a_floor_of_eight_rows_and_link_to_the_summary(
     # Rows beyond the floor are marked for the script and the others are not.
     assert html.count('class="ov-x"') >= max(0, len(table.quality.top) - 8)
     assert ("pop-q-cols" in html) == (len(table.quality.top) > 8)
+
+
+def test_a_column_with_an_error_is_shown_by_its_error_even_when_an_issue_is_wider():
+    from tabalyst.report_table import _top_columns
+    from tabalyst.summary_models import FindingRef, QualityColumn, QualityView
+
+    def ref(code, cls, count, percent):
+        return FindingRef(
+            code=code, cls=cls, count=count, percent=percent, unit="occurrences", accuracy="exact"
+        )
+
+    column = QualityColumn(
+        field_id="c1",
+        name="zone",
+        findings=[
+            ref("semantic.invalid", "error", 16, 0.016),
+            ref("whitespace.repeated", "issue", 54, 0.054),
+        ],
+    )
+    view = QualityView.model_construct(
+        error_columns=[column], issue_columns=[], clean_columns=[]
+    )
+
+    (row,) = _top_columns(view)
+
+    assert (row.worst_cls, row.worst) == ("error", "Invalid values")

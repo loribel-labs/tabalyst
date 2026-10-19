@@ -775,6 +775,9 @@ button.fk:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 .fkpi .bars .t span{height:100%;min-width:3px}
 .fkpi .bars .t .t-error{background:var(--err)}
 .fkpi .bars .t .t-issue{background:var(--attn)}
+.fkpi .fk-top .t{display:flex}
+.fkpi .fk-top .t span{flex:none;border-radius:0}
+.pop-cols .t span.t-issue{background:var(--attn)}
 .fk-name{display:block;min-width:0;overflow-wrap:anywhere;color:var(--text-2)}
 .fk-name a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--line-strong)}
 .fk-name a:hover{color:var(--text);border-color:var(--orange)}
@@ -828,12 +831,12 @@ button.fl-row:hover .fl-t,a.fl-row:hover .fl-t{text-decoration:underline;text-un
 .pop-h small{margin-left:6px;font:400 12px/1 var(--f-body);color:var(--text-3)}
 .pop-n{margin:0 0 8px;font-size:12px;line-height:1.45;color:var(--text-3)}
 .pop-cols{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:7px}
-.pop-cols li{display:grid;grid-template-columns:minmax(0,1fr) 70px auto;gap:4px 10px;align-items:center}
+.pop-cols li{display:grid;grid-template-columns:minmax(0,1fr) 70px 54px;gap:4px 10px;align-items:center}
 .pop-cols li:not(:has(.t)){grid-template-columns:minmax(0,1fr)}
 .pop-cols .pc-name{font:500 12.5px/1.3 var(--f-mono);color:var(--text);overflow-wrap:anywhere}
-.pop-cols .t{display:block;height:6px;border-radius:3px;background:var(--line)}
-.pop-cols .t span{display:block;height:100%;border-radius:3px;background:var(--issue)}
-.pop-cols b{font:500 12px/1 var(--f-mono);color:var(--text)}
+.pop-cols .t{display:flex;overflow:hidden;height:6px;border-radius:3px;background:var(--line)}
+.pop-cols .t span{display:block;flex:none;min-width:3px;height:100%;border-radius:0;background:var(--issue)}
+.pop-cols b{font:500 12px/1 var(--f-mono);color:var(--text);text-align:right}
 .pop-cols .pc-d{grid-column:1 / -1;font-size:12px;color:var(--text-3);overflow-wrap:anywhere}
 .pop-def{margin:0;display:grid;gap:4px 12px;grid-template-columns:max-content minmax(0,1fr)}
 .pop-def dt{font-weight:600;color:var(--text)}
@@ -948,7 +951,7 @@ button.fl-row:hover .fl-t,a.fl-row:hover .fl-t{text-decoration:underline;text-un
   <div class="main">
     
     <div class="ds" data-ds="0">
-    <header class="rhead"><div class="wrap"><p class="eyebrow">Dataset report</p><div class="rhead-top"><div><h1>web-events<span class="ext">.jsonl</span></h1><ul class="facts"><li><b>JSONL</b></li><li>Dataset <code>$[]</code></li><li><b>300</b> records</li><li><b>14</b> fields</li><li>68.0 KB</li><li>utf-8</li></ul></div><div class="gen"><span class="badge"><i aria-hidden="true"></i>Analysis complete · 0.31 s</span><time datetime="2026-10-19T02:00:59.014914+00:00">2026-10-19 02:00 UTC</time></div></div></div></header>
+    <header class="rhead"><div class="wrap"><p class="eyebrow">Dataset report</p><div class="rhead-top"><div><h1>web-events<span class="ext">.jsonl</span></h1><ul class="facts"><li><b>JSONL</b></li><li>Dataset <code>$[]</code></li><li><b>300</b> records</li><li><b>14</b> fields</li><li>68.0 KB</li><li>utf-8</li></ul></div><div class="gen"><span class="badge"><i aria-hidden="true"></i>Analysis complete · 0.32 s</span><time datetime="2026-10-19T03:21:33.048119+00:00">2026-10-19 03:21 UTC</time></div></div></div></header>
     <main id="content" class="wrap content" tabindex="-1">
 <section class="panel" id="overview" aria-labelledby="overview-h"><div class="phead"><div><p class="eyebrow">01 / Overview</p><h2 id="overview-h">Dataset overview</h2><p>Size, completeness and the main signal to check first.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="overview-b" aria-label="Collapse Dataset overview" data-name="Dataset overview"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="overview-b">
 <dl class="metrics"><div class="metric"><dt>Rows</dt><dd><span class="v">300</span><span class="s">No empty rows</span></dd></div><div class="metric"><dt>Columns</dt><dd><span class="v">14</span><span class="s">4,350 cells analyzed</span></dd></div><div class="metric attn"><dt>Missing cells</dt><dd><span class="v">28.05<small>%</small></span><span class="s">1,220 cells</span></dd></div><div class="metric"><dt>Duplicate rows</dt><dd><span class="v">0</span><span class="s">Beyond the first occurrence</span></dd></div></dl>

@@ -71706,15 +71706,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-19T02:00:35.997048Z",
-        "duration_seconds": 0.000475,
+        "started_at": "2026-10-19T03:21:07.912952Z",
+        "duration_seconds": 0.000494,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000475
+          "other": 0.000494
         },
         "workers": 1,
-        "peak_memory_bytes": 118128640,
+        "peak_memory_bytes": 118546432,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -140881,12 +140881,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-19T02:00:36.496872Z",
+    "generated_at": "2026-10-19T03:21:08.446560Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 3.1163,
+    "processing_seconds": 3.1543,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -151446,8 +151446,34 @@
                   }
                 },
                 "errors": {
-                  "items": [],
-                  "state": "none_detected",
+                  "items": [
+                    {
+                      "code": "semantic.invalid",
+                      "cls": "error",
+                      "field": "column_16",
+                      "count": 16,
+                      "unit": "occurrences",
+                      "population": {
+                        "kind": "eligible_values",
+                        "size": 100000
+                      },
+                      "share": {
+                        "numerator": 16,
+                        "denominator": 100000,
+                        "percent": 0.016,
+                        "accuracy": "exact"
+                      },
+                      "accuracy": "exact",
+                      "status": "detected",
+                      "basis": [
+                        "postal_code"
+                      ],
+                      "examples": [],
+                      "examples_state": "none",
+                      "overlaps": []
+                    }
+                  ],
+                  "state": "detected",
                   "assessments": [
                     {
                       "code": "temporal.invalid_calendar",
@@ -151459,7 +151485,7 @@
                     },
                     {
                       "code": "semantic.invalid",
-                      "state": "none_detected",
+                      "state": "detected",
                       "accuracy": "exact",
                       "eligible": 100000,
                       "tested": 100000,
@@ -152214,6 +152240,7 @@
                 "types": null
               },
               "flags": [
+                "error",
                 "issue",
                 "obs"
               ]
@@ -161997,40 +162024,47 @@
         ],
         "structure": null,
         "table": {
-          "error_count": 2,
+          "error_count": 3,
           "issue_count": 23,
           "observation_count": 25,
           "signals": {
             "shown": [
+              {
+                "code": "semantic.invalid",
+                "cls": "error",
+                "total": 28,
+                "unit": "occurrences",
+                "lower_bound": false,
+                "population": 200000,
+                "columns": [
+                  {
+                    "field_id": "column_16",
+                    "name": "code_postal",
+                    "count": 16,
+                    "relative_percent": 100.0,
+                    "spellings": []
+                  },
+                  {
+                    "field_id": "column_18",
+                    "name": "courriel",
+                    "count": 12,
+                    "relative_percent": 75.0,
+                    "spellings": []
+                  }
+                ]
+              },
               {
                 "code": "type.outside_family",
                 "cls": "error",
                 "total": 14,
                 "unit": "occurrences",
                 "lower_bound": false,
-                "population": 246452,
+                "population": 99997,
                 "columns": [
                   {
                     "field_id": "column_25",
                     "name": "prime_annuelle",
                     "count": 14,
-                    "relative_percent": 100.0,
-                    "spellings": []
-                  }
-                ]
-              },
-              {
-                "code": "semantic.invalid",
-                "cls": "error",
-                "total": 12,
-                "unit": "occurrences",
-                "lower_bound": false,
-                "population": 300000,
-                "columns": [
-                  {
-                    "field_id": "column_18",
-                    "name": "courriel",
-                    "count": 12,
                     "relative_percent": 100.0,
                     "spellings": []
                   }
@@ -162260,7 +162294,7 @@
                 "total": 53729,
                 "unit": "occurrences",
                 "lower_bound": false,
-                "population": 2983595,
+                "population": 497826,
                 "columns": [
                   {
                     "field_id": "column_30",
@@ -162436,13 +162470,51 @@
           },
           "quality": {
             "columns": 34,
-            "with_errors": 2,
-            "with_issues": 21,
+            "with_errors": 3,
+            "with_issues": 20,
             "no_finding": 11,
-            "errors_percent": 5.9,
-            "issues_percent": 61.8,
+            "errors_percent": 8.8,
+            "issues_percent": 58.8,
             "clean_percent": 32.4,
             "error_columns": [
+              {
+                "field_id": "column_16",
+                "name": "code_postal",
+                "findings": [
+                  {
+                    "code": "semantic.invalid",
+                    "cls": "error",
+                    "count": 16,
+                    "unit": "occurrences",
+                    "accuracy": "exact",
+                    "percent": 0.016
+                  },
+                  {
+                    "code": "categorical.case_variants",
+                    "cls": "issue",
+                    "count": 34,
+                    "unit": "groups",
+                    "accuracy": "exact",
+                    "percent": null
+                  },
+                  {
+                    "code": "length.minority",
+                    "cls": "issue",
+                    "count": 21,
+                    "unit": "occurrences",
+                    "accuracy": "exact",
+                    "percent": 0.021
+                  },
+                  {
+                    "code": "text.repeated_whitespace",
+                    "cls": "issue",
+                    "count": 54,
+                    "unit": "occurrences",
+                    "accuracy": "exact",
+                    "percent": 0.054
+                  }
+                ]
+              },
               {
                 "field_id": "column_18",
                 "name": "courriel",
@@ -162628,36 +162700,6 @@
                     "unit": "groups",
                     "accuracy": "exact",
                     "percent": null
-                  }
-                ]
-              },
-              {
-                "field_id": "column_16",
-                "name": "code_postal",
-                "findings": [
-                  {
-                    "code": "categorical.case_variants",
-                    "cls": "issue",
-                    "count": 34,
-                    "unit": "groups",
-                    "accuracy": "exact",
-                    "percent": null
-                  },
-                  {
-                    "code": "length.minority",
-                    "cls": "issue",
-                    "count": 21,
-                    "unit": "occurrences",
-                    "accuracy": "exact",
-                    "percent": 0.021
-                  },
-                  {
-                    "code": "text.repeated_whitespace",
-                    "cls": "issue",
-                    "count": 54,
-                    "unit": "occurrences",
-                    "accuracy": "exact",
-                    "percent": 0.054
                   }
                 ]
               },
@@ -162891,15 +162933,15 @@
             ],
             "errors": {
               "name": "Errors",
-              "with_findings": 2,
+              "with_findings": 3,
               "states": [
                 {
                   "state": "detected",
-                  "columns": 2
+                  "columns": 3
                 },
                 {
                   "state": "none_detected",
-                  "columns": 11
+                  "columns": 10
                 },
                 {
                   "state": "not_applicable",

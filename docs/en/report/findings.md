@@ -28,7 +28,7 @@ Twelve codes produce a finding in `errors` or `issues`. Two more state a fact.
 | Code | Class | Counts | Unit | Out of | Detail member |
 | --- | --- | --- | --- | --- | --- |
 | `temporal.invalid_calendar` | Error | Dates that do not exist | occurrences | date values | none |
-| `semantic.invalid` | Error | Values failing the syntax of their type | occurrences | values the detector tested | none |
+| `semantic.invalid` | Error | Values failing the shape or the syntax of their type | occurrences | values the detector tested | none |
 | `type.outside_family` | Error | Values that are not numbers in a numeric column | occurrences | present values | none |
 | `temporal.ambiguous_date` | Issue | Dates that fit two day-month orders | occurrences | date values | `dates` |
 | `number.ambiguous` | Issue | Numbers with more than one reading | occurrences | values the detector tested | none |
@@ -92,17 +92,18 @@ as an Issue with the same code, and the preview of the finding says so.
 
 - **Category:** columns classified as Email, Phone, Postal code, URL, IP
   address or UUID. One code covers all six; the detector is named in `basis`.
-- **Counts:** values with the shape of the type that fail its syntax. For
-  example a space in the local part of an email, an area code no phone number
+- **Counts:** values that do not have the shape of the type, or have it and
+  fail its syntax. For example `K0J S9` in a postal code column, a space in
+  the local part of an email, an area code no phone number
   has, a Canadian postal code with a letter Canada Post does not use, a port
   above 65,535, an octet above 255, or a non-hexadecimal digit in a UUID.
-- **Source:** the detector of the type of the column, `coverage.invalid`. A
+- **Source:** the detector of the type of the column, `coverage.invalid` plus
+  `coverage.not_matched`. A
   detector of another type that finds values in the column is not a constraint
   on it.
 - **Detail:** none.
-- **Limits:** syntax only, no code is looked up. A value without the shape of
-  the type is not counted. A purely numeric value is never invalid for Phone,
-  so an unformatted phone column has none.
+- **Limits:** syntax only, no code is looked up. The type is established by the
+  detector and the name of the column, so a value outside it counts.
 
 ### `type.outside_family`
 

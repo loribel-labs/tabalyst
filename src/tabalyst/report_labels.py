@@ -693,7 +693,7 @@ FINDING_NATURES = {
         "wrong width."
     ),
     "semantic.invalid": (
-        "Values that have the shape of the type of the column and fail its syntax."
+        "Values that do not have the shape or the syntax of the type of the column."
     ),
     "type.outside_family": (
         "Values that are not numbers in a column whose type is a number: a word, a "
@@ -820,7 +820,7 @@ def finding_text(item: Finding | FindingRef) -> str:
 # target is the section that explains it better than Findings does.
 SIGNAL_NOTES = {
     "temporal.invalid_calendar": "Dates that do not exist, such as 30 February or 25:00.",
-    "semantic.invalid": "Values with the shape of a type (email, phone, postal code...) that break its syntax.",
+    "semantic.invalid": "Values that break the shape or the syntax of the type of the column (email, phone, postal code...).",
     "type.outside_family": "Values that are not numbers in a column of numbers.",
     "temporal.ambiguous_date": (
         "Dates that fit two day-month orders, such as 03/04/2024. "

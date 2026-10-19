@@ -219,8 +219,12 @@ class TopColumn(ResultModel):
     worst: str | None
     worst_cls: str | None
     percent_text: str | None
-    # Width of its bar in percent, on a log scale from ``BAR_FLOOR`` to 100%.
+    # The bar is stacked: the widest Error share, then the widest Issue share. Its
+    # length is their sum on a log scale from ``BAR_FLOOR`` to 100%, shared out between
+    # the two classes in proportion to their shares; ``bar`` is the whole length.
     bar: float
+    error_bar: float
+    issue_bar: float
     # Every finding of the column in words, Errors first, for the tooltip and the popover.
     labels: list[str]
 
@@ -341,8 +345,18 @@ def _top_columns(view: QualityView) -> list[TopColumn]:
     rows = []
     for item in (*view.error_columns, *view.issue_columns):
         shared = [ref for ref in item.findings if ref.percent is not None]
-        worst = max(shared, key=lambda ref: ref.percent or 0.0, default=None)
-        percent = None if worst is None else worst.percent
+        # An Error outranks any Issue, however small its share: the row must not
+        # read as an Issue when the column has an Error.
+        worst = max(
+            shared, key=lambda ref: (ref.cls == "error", ref.percent or 0.0), default=None
+        )
+        widest = {
+            cls: max((ref.percent or 0.0 for ref in shared if ref.cls == cls), default=0.0)
+            for cls in ("error", "issue")
+        }
+        percent = sum(widest.values()) if shared else None
+        bar = 0.0 if not percent else _bar(percent)
+        error_bar = bar * widest["error"] / percent if percent else 0.0
         ordered = sorted(item.findings, key=lambda ref: (ref.cls != "error", -(ref.count or 0)))
         rows.append(
             TopColumn(
@@ -354,7 +368,9 @@ def _top_columns(view: QualityView) -> list[TopColumn]:
                 worst=None if worst is None else SIGNAL_TITLES.get(worst.code, (worst.code, ""))[0],
                 worst_cls=None if worst is None else worst.cls,
                 percent_text=None if percent is None else _small_percent(percent),
-                bar=0.0 if percent is None else _bar(percent),
+                bar=bar,
+                error_bar=round(error_bar, 1),
+                issue_bar=round(bar - error_bar, 1),
             )
         )
     return sorted(

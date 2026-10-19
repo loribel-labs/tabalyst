@@ -193,8 +193,13 @@ def assess_detector(
     code: str,
     detector: DetectorResult,
     looking_for: Literal["invalid", "ambiguous"],
+    *,
+    unmatched_count: bool = False,
 ) -> Assessment:
     """How far a detector checked what ``code`` looks for.
+
+    ``unmatched_count`` adds the ``not_matched`` values to what an ``invalid`` check
+    looks for (see ``invalid_semantic_values``).
 
     The count of a partly tested detector is a lower bound of the eligible
     values: it says what the tested ones showed and nothing about the others.
@@ -208,6 +213,8 @@ def assess_detector(
         )
     coverage = detector.coverage
     found = coverage.invalid if looking_for == "invalid" else coverage.ambiguous
+    if unmatched_count:
+        found += coverage.not_matched
     state = evaluation_state("complete", coverage.eligible, coverage.tested, found)
     accuracy: Accuracy = "unavailable"
     if state in ("detected", "none_detected"):
@@ -528,9 +535,15 @@ def _detector_values(
     column: ColumnView,
     detector_id: str,
     looking_for: Literal["invalid", "ambiguous"] = "invalid",
+    *,
+    unmatched_invalid: bool = False,
 ) -> CheckResult:
     """The ``invalid`` (an Error) or ``ambiguous`` (an Issue) values of one
     detector.
+
+    ``unmatched_invalid`` counts the ``not_matched`` values as invalid too: for a
+    field whose type the detector defines, a value without the shape of the type
+    breaks it as surely as one with the shape and a bad syntax.
 
     The count and its accuracy are the detector's own: a detector that tested
     part of the eligible values gives a lower bound, a failed one gives
@@ -540,12 +553,16 @@ def _detector_values(
     detector = detector_of(column.field, detector_id)
     if detector is None:
         return _withheld(code, "not_assessed", "detector_missing")
-    assessment = assess_detector(code, detector, looking_for)
+    assessment = assess_detector(
+        code, detector, looking_for, unmatched_count=unmatched_invalid
+    )
     if assessment.state != "detected" or not isinstance(detector, DetectorComplete):
         return CheckResult(assessment=assessment)
     entry = FINDING_CODES[code]
     coverage = detector.coverage
     found = coverage.invalid if looking_for == "invalid" else coverage.ambiguous
+    if unmatched_invalid:
+        found += coverage.not_matched
     finding = Finding(
         code=code,
         cls=entry.cls,
@@ -581,13 +598,17 @@ def invalid_semantic_values(column: ColumnView) -> CheckResult:
 
     Only that detector answers, and the detector is in ``basis``. A field whose
     type is another one, or none, has no meaning established for it to violate.
+    The type is established from the detector and the name, so a value that has not
+    even the shape of the type (``K0J S9`` in a postal code column) is invalid too:
+    it is counted with the ``not_matched`` ones (maintainer, reverses CA13 for the
+    semantic types).
     """
     code = "semantic.invalid"
     classification = column.classification
     detector = _SEMANTIC_TYPES.get((classification.family, classification.type))
     if detector is None:
         return _withheld(code, "not_applicable", "not_semantic_type")
-    return _detector_values(code, column, detector)
+    return _detector_values(code, column, detector, unmatched_invalid=True)
 
 
 def values_outside_family(column: ColumnView) -> CheckResult:

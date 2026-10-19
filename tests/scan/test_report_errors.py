@@ -58,8 +58,8 @@ def _errors(column):
 
 
 # One column per semantic detector: 300 valid values, one with the shape of the
-# type that fails its syntax (an Error), one that does not have the shape (not an
-# Error). The audit of 6.8.
+# type that fails its syntax and one that does not have the shape (both Errors).
+# The audit of 6.8.
 SEMANTIC = [
     ("email", "abc@x.org", "a b@x.org", "bad address"),
     ("phone", "(514) 555-1234", "(014) 555-1234", "call me"),
@@ -76,7 +76,7 @@ SEMANTIC = [
 
 
 @pytest.mark.parametrize(("detector", "valid", "invalid", "other"), SEMANTIC)
-def test_a_value_with_the_shape_of_an_established_type_that_fails_it_is_an_error(
+def test_a_value_that_fails_the_shape_or_the_syntax_of_an_established_type_is_an_error(
     tmp_path, detector, valid, invalid, other
 ):
     column = _csv(tmp_path, detector, [valid] * 300 + [invalid, other])
@@ -86,7 +86,7 @@ def test_a_value_with_the_shape_of_an_established_type_that_fails_it_is_an_error
     assert column.classification.state == "established"
     assert set(errors) == {"semantic.invalid"}
     error = errors["semantic.invalid"]
-    assert (error.cls, error.count, error.unit) == ("error", 1, "occurrences")
+    assert (error.cls, error.count, error.unit) == ("error", 2, "occurrences")
     assert error.basis == [detector]
     assert error.population.kind == "eligible_values"
     assert error.accuracy == "exact"
@@ -105,14 +105,20 @@ def test_invalid_values_are_counted_by_occurrence_out_of_the_eligible_values(
     assert round(error.share.percent, 2) == round(400 / 304, 2)
 
 
-def test_CA13_a_value_the_detector_does_not_recognize_is_not_an_error(tmp_path):
+def test_a_value_without_the_shape_of_an_established_type_is_an_error(tmp_path):
     column = _csv(tmp_path, "zone", ["K1A 0B1"] * 30 + ["hello"])
 
-    findings = column_findings(column)
+    error = _errors(column)["semantic.invalid"]
 
     assert column.classification.type == "postal_code"
-    assert not findings.errors.items
-    assert findings.errors.state == "none_detected"
+    assert error.count == 1
+    assert error.population.size == 31
+
+
+def test_CA13_a_value_a_date_detector_does_not_recognize_is_not_an_error(tmp_path):
+    column = _csv(tmp_path, "signed", ["2025-01-15"] * 300 + ["hello"])
+
+    assert not column_findings(column).errors.items
 
 
 def test_CA11_an_impossible_date_is_an_error_and_an_ambiguous_one_is_not(tmp_path):

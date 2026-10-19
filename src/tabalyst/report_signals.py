@@ -47,8 +47,6 @@ STATE_ORDER = (
     "not_applicable",
 )
 INCOMPLETE = ("partial", "not_assessed", "failed")
-# The states of a check that looked at values, whatever it found.
-COVERED = ("detected", "none_detected", "partial")
 
 
 def _list(name: str, lists: Sequence[FindingList]) -> ValidationList:
@@ -120,16 +118,17 @@ def _spellings(column: ColumnView) -> list[Spelling]:
 
 
 def _populations(findings: Sequence[ColumnFindings]) -> dict[tuple[str, str], int]:
-    """What each check was run on, summed over the columns it covered, by class and code.
+    """What each check was run on, summed over the columns that carry its finding.
 
-    Why: a share of "the columns that have the finding" would overstate it; the
-    denominator is every value the check looked at, finding or not.
+    Why: the figure and its denominator must describe the same columns, or the "6 columns"
+    of a tile would be shared out over the 34 that were merely checked; inside those
+    columns the denominator is every value the check looked at, finding or not.
     """
     sizes: dict[tuple[str, str], int] = defaultdict(int)
     for item in findings:
         for cls, listing in (("error", item.errors), ("issue", item.issues)):
             for assessment in listing.assessments:
-                if assessment.state in COVERED and assessment.eligible is not None:
+                if assessment.state == "detected" and assessment.eligible is not None:
                     sizes[(cls, assessment.code)] += assessment.eligible
     return sizes
 

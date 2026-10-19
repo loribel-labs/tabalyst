@@ -775,6 +775,9 @@ button.fk:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 .fkpi .bars .t span{height:100%;min-width:3px}
 .fkpi .bars .t .t-error{background:var(--err)}
 .fkpi .bars .t .t-issue{background:var(--attn)}
+.fkpi .fk-top .t{display:flex}
+.fkpi .fk-top .t span{flex:none;border-radius:0}
+.pop-cols .t span.t-issue{background:var(--attn)}
 .fk-name{display:block;min-width:0;overflow-wrap:anywhere;color:var(--text-2)}
 .fk-name a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--line-strong)}
 .fk-name a:hover{color:var(--text);border-color:var(--orange)}
@@ -828,12 +831,12 @@ button.fl-row:hover .fl-t,a.fl-row:hover .fl-t{text-decoration:underline;text-un
 .pop-h small{margin-left:6px;font:400 12px/1 var(--f-body);color:var(--text-3)}
 .pop-n{margin:0 0 8px;font-size:12px;line-height:1.45;color:var(--text-3)}
 .pop-cols{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:7px}
-.pop-cols li{display:grid;grid-template-columns:minmax(0,1fr) 70px auto;gap:4px 10px;align-items:center}
+.pop-cols li{display:grid;grid-template-columns:minmax(0,1fr) 70px 54px;gap:4px 10px;align-items:center}
 .pop-cols li:not(:has(.t)){grid-template-columns:minmax(0,1fr)}
 .pop-cols .pc-name{font:500 12.5px/1.3 var(--f-mono);color:var(--text);overflow-wrap:anywhere}
-.pop-cols .t{display:block;height:6px;border-radius:3px;background:var(--line)}
-.pop-cols .t span{display:block;height:100%;border-radius:3px;background:var(--issue)}
-.pop-cols b{font:500 12px/1 var(--f-mono);color:var(--text)}
+.pop-cols .t{display:flex;overflow:hidden;height:6px;border-radius:3px;background:var(--line)}
+.pop-cols .t span{display:block;flex:none;min-width:3px;height:100%;border-radius:0;background:var(--issue)}
+.pop-cols b{font:500 12px/1 var(--f-mono);color:var(--text);text-align:right}
 .pop-cols .pc-d{grid-column:1 / -1;font-size:12px;color:var(--text-3);overflow-wrap:anywhere}
 .pop-def{margin:0;display:grid;gap:4px 12px;grid-template-columns:max-content minmax(0,1fr)}
 .pop-def dt{font-weight:600;color:var(--text)}
@@ -935,7 +938,7 @@ button.fl-row:hover .fl-t,a.fl-row:hover .fl-t{text-decoration:underline;text-un
 <div class="metric"><dt>Agreed</dt><dd><span class="v">1,438<small> / 1,438</small></span><span class="s">No difference</span></dd></div>
 <div class="metric"><dt>Candidate pool</dt><dd><span class="v">937.4 KB</span><span class="s">3,521 rows held, 0 refused by the budget</span></dd></div>
 <div class="metric"><dt>Readings of the source</dt><dd><span class="v">1</span><span class="s">Selection only; the stored Scan was current</span></dd></div>
-<div class="metric"><dt>Duration</dt><dd><span class="v">5.74</span><span class="s">100,000 records read</span></dd></div>
+<div class="metric"><dt>Duration</dt><dd><span class="v">7.03</span><span class="s">100,000 records read</span></dd></div>
 </dl>
 
 </div>

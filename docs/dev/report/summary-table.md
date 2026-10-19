@@ -795,10 +795,11 @@ deterministic rule applies to it.
   URL, IP address or UUID, and only the detector of that type answers (its id is
   in `basis`). Count `coverage.invalid`, unit `occurrences`, population
   `eligible_values`. A detector of another type that finds some values in a field
-  of a different type is not a constraint on it (RF-14). A `not_matched` value is
-  not counted (CA-13). A purely numeric value is never `invalid` for Phone (the
-  detector leaves identifiers alone), so an unformatted phone column has no
-  `invalid`.
+  of a different type is not a constraint on it (RF-14). The count is
+  `coverage.invalid + coverage.not_matched`: the type is established (detector and
+  name), so a value without even its shape (`K0J S9` in a postal code column) is
+  as invalid as one with the shape and a bad syntax (maintainer, 2026-10-18; this
+  reverses CA-13 for the semantic types, CA-13 stays true for dates).
 - **`type.outside_family`**: the classification is `numeric/integer` or
   `numeric/number` and the technical type is the same. Count
   `technical_type.outside_count` (less the decimals of an Integer: they are numbers),
