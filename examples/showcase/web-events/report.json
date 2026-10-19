@@ -27,23 +27,23 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-18T22:28:08.825122Z",
-    "duration_seconds": 0.038288,
+    "started_at": "2026-10-19T03:39:58.262487Z",
+    "duration_seconds": 0.033386,
     "timings": {
-      "reading": 0.005784,
-      "analysis": 0.008162,
-      "finalize": 0.015376,
-      "derived": 0.006812,
-      "other": 0.002153
+      "reading": 0.005444,
+      "analysis": 0.007779,
+      "finalize": 0.014186,
+      "derived": 0.005539,
+      "other": 0.000438
     },
     "workers": 1,
-    "peak_memory_bytes": 74502144
+    "peak_memory_bytes": 75325440
   },
   "source": {
     "format": "jsonl",
     "name": "web-events.jsonl",
     "size_bytes": 69631,
-    "modified_at": "2026-10-18T22:25:48.192856Z",
+    "modified_at": "2026-10-16T05:33:33.613600Z",
     "sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
     "encoding": "utf-8",
     "shape": {
@@ -15527,7 +15527,7 @@
         "engine_version": "0.7.0",
         "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
         "config_sha256": "39483c95af5cdebb6bf797a9a03bdb74ef94a425da646d67c69e9bc9f054130f",
-        "facts_sha256": "9126f5e450336a41c60376b6829b6ebe1ac2f02b39f1aaa9d78b58c626ec5a2a"
+        "facts_sha256": "ac9e3993e6a6ae08add3d067be9e59e803ee2e73955f54497c3598ce1bb8004a"
       },
       "settings": {
         "bins": 100,
@@ -15636,13 +15636,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 17,
-        "plan_id": "c4ef1e98c1c831c9da253e0f3fa4b1a2188cf05ed6b85d7a49321ec67be14aa7",
+        "plan_id": "db8360044ad4f42e22bb0fffb45700e62ac420e369fd2da810b7c4fa8099bd6e",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
           "config_sha256": "39483c95af5cdebb6bf797a9a03bdb74ef94a425da646d67c69e9bc9f054130f",
-          "facts_sha256": "9126f5e450336a41c60376b6829b6ebe1ac2f02b39f1aaa9d78b58c626ec5a2a"
+          "facts_sha256": "ac9e3993e6a6ae08add3d067be9e59e803ee2e73955f54497c3598ce1bb8004a"
         },
         "objective": {
           "automatic": true,
@@ -18141,15 +18141,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-18T22:28:08.943488Z",
-        "duration_seconds": 0.021552,
+        "started_at": "2026-10-19T03:39:58.381519Z",
+        "duration_seconds": 0.021759,
         "timings": {
-          "reading": 0.005153,
-          "analysis": 0.008402,
-          "other": 0.007997
+          "reading": 0.00551,
+          "analysis": 0.00863,
+          "other": 0.007619
         },
         "workers": 1,
-        "peak_memory_bytes": 81068032,
+        "peak_memory_bytes": 79556608,
         "source_read": true,
         "source_verified": true,
         "records_read": 300,
@@ -18171,7 +18171,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "feff02484c404a1c5b80eab4bf7b26a4a928b237fa3d1cbfe2fd8746dbf7d98a",
+          "key": "1e67855e95900618b9ee458562aff2eb1a3657b6d76551c47b11f77ac08ce30f",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -19746,7 +19746,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "0e3713856287e903cb09efac9c090f7acc3f4e8d0ac09a07ea4a0dcaead8e437",
+          "key": "a4f796f32354c68a75e31fda1aeac702eae2a42bae6565d0da7a085b30f592d6",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -21321,7 +21321,7 @@
             "domain": 60
           },
           "domain": "analytical",
-          "key": "033459c26931c4f25bf9ad5e768b2e5a645dc13176704b97785e1634b6164cd9",
+          "key": "06fb9f183b8f881f55a8577a492dcfb5026809bbd04380b48bd6b46ccb019b96",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -21622,7 +21622,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "6c0262df39665e0c2d6cc31627950145436b1aadaa15c22113c5cda5875edf3b",
+          "key": "a0d8f7577502b48e02ddf252bd1e966bb8a3e9c3354936252652eaad7231e17a",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -21899,7 +21899,7 @@
             "domain": 100
           },
           "domain": "analytical",
-          "key": "b43822b4a2accd7620cea9d2ae6814942a28c3f26c2f5b8f352dedade5c02e95",
+          "key": "531708808dcf6d650baabcb9a8595b0969cd7d495166a976e89c0ec81450b663",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -21978,7 +21978,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "ea53cf5d9d758b5fc13282439f147955bd4144825d7608e26cf11e750ec72771",
+          "key": "5321040c9fd24f55bc0f532d9f956fa97acd891c46cda2c01e7417441d8d6bf3",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22099,7 +22099,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "9acb35894e4d9baab2bfcc49e185c5e79481024804e1e244697c7bea8f393d98",
+          "key": "a6bdb8f514cfbf809ff91b1cd1407208270c6987bfb919de9dad2c1748d7dfce",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22286,7 +22286,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "bf744c85975b82bb3a8bffd92adff0b507b1f63baa2ec00d7e5548877656e57c",
+          "key": "f694cc262b6b53fdc772d83d32a1dcc8476e3443d1b34ee3c1bcf9c517c3395b",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22395,7 +22395,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "dc329e466653501d2779948fabeaedb74b30c14dcd997bc05cc80021cf87fa04",
+          "key": "d34082c9da7450ffa07e2e4c5273be68e43e5a9fe0e8dcdfa7198c26dfca2642",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22559,7 +22559,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "76c24afa058e758b6513dadfa8d88e731225ddbb5b1672dde5c83233a1a91925",
+          "key": "0571fdb50537629dccda3a964c1b708e74ce2f76e59fe6cef3b9c4499f202e84",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -22603,7 +22603,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "e8295d655136cb6799e52af22a00f7d22f238f07ae9610c5a0056002745bdf3e",
+          "key": "16e2b4ade51b71436517f4e6f1d56c4dbd1adced4e5c8db5c3c877ff00ce6a64",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -22635,12 +22635,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-18T22:28:09.237594Z",
+    "generated_at": "2026-10-19T03:39:58.679078Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.4195,
+    "processing_seconds": 0.435,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -22670,7 +22670,7 @@
       "engine_version": "0.7.0",
       "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
       "config_sha256": "39483c95af5cdebb6bf797a9a03bdb74ef94a425da646d67c69e9bc9f054130f",
-      "facts_sha256": "9126f5e450336a41c60376b6829b6ebe1ac2f02b39f1aaa9d78b58c626ec5a2a"
+      "facts_sha256": "ac9e3993e6a6ae08add3d067be9e59e803ee2e73955f54497c3598ce1bb8004a"
     },
     "datasets": [
       {
@@ -28631,6 +28631,7 @@
                 "total": 169,
                 "unit": "occurrences",
                 "lower_bound": false,
+                "population": 229,
                 "columns": [
                   {
                     "field_id": "f5",
@@ -28661,9 +28662,11 @@
                 "findings": [
                   {
                     "code": "identifier.repetition",
+                    "cls": "issue",
                     "count": 169,
                     "unit": "occurrences",
-                    "accuracy": "exact"
+                    "accuracy": "exact",
+                    "percent": 73.79912663755458
                   }
                 ]
               }

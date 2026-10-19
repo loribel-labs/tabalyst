@@ -1,4 +1,4 @@
-Plan for insurance-customers-100k.csv (plan f17c64e4c0d9, planner 1).
+Plan for insurance-customers-100k.csv (plan 6a2056d4f30b, planner 1).
 296 candidates: 42 selected, 90 already answered by the scan, 164 left out.
 
 Selected:
@@ -174,7 +174,7 @@ Not applicable:
   10 x the field misses no value and has too many distinct values to follow by position
 
 A second reading of the source is needed (3,400,000 cells, CPU low). Memory: 28.3 MiB to 112.2 MiB, about 56.8 MiB.
-Estimated time: 2 s to 7 s (a guide from the first pass, not a promise).
+Estimated time: 2 s to 8 s (a guide from the first pass, not a promise).
 Running it would not ask for a confirmation.
 
 Smart sample plan for insurance-customers-100k.csv (dataset rows, 100,000 rows)
