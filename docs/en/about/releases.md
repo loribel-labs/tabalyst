@@ -9,7 +9,7 @@ Reworks Scan and the JSON formats: samples with stated accuracy, inferred
 patterns, observations, a Scan web page and a second pass (`scan --plan`,
 `scan --deep`) that Report chooses automatically when it pays. Adds smart
 samples (`sample --sample-method smart`). Scan and Report move to format
-revision 2, so older documents must be made again. Generate now reads package
+revision 4, so older documents must be made again. Generate now reads package
 directories instead of `definition_version: 1` files and adds the Computer
 example.
 

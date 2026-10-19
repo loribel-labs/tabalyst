@@ -1031,7 +1031,7 @@ as the writer. It describes what a reader accepts.
 
 ## Changelog
 
-### Version 0.2.0, revision 3 (in preparation)
+### Version 0.2.0, revision 3 (Tabalyst 0.7.0)
 
 The result `date_order` of the analyzer `date_order` (the order of two dates of a record), the
 settings member `deep.date_order` and the plan block `relations.orders` (the exploration of the pairs

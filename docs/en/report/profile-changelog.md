@@ -104,7 +104,7 @@ miss a value together (`missing_matrix`), the lengths of the arrays and the sets
 fingerprints (`text_profile`, `fingerprint_distinct`) and the masks and classes of a masked column
 (`sensitive_forms`), which holds no value of it, and the distinct count of a masked or hidden column.
 
-## Version 0.2.0, revision 4 (in preparation)
+## Version 0.2.0, revision 4 (Tabalyst 0.7.0)
 
 The four length bounds that named the String analysis classes (`very_short_max_length`,
 `short_max_length`, `medium_max_length`, `long_max_length`) are no longer in
@@ -149,3 +149,9 @@ content, as the Scan changelog says. The `pattern_counts` result of the second p
 under `analyses` follows the hierarchy too (revision 3 of the [second pass format](../scan/deep-format.md)):
 families, patterns and nodes with their occurrences, distinct values and tables. The report adds no member of its own, but it carries the character map (`derived.characters`) and the `character_profile` result of the second pass, and the column page draws them. The HTML page of a column presents the hierarchy (families, patterns, indented nodes and tables, readable without JavaScript) and the table of the dataset names the family of each pattern; nothing of the JSON changes.
 The report carries the `keys` of the `email`, `phone` and `postal_code` detectors (see the Scan changelog) inside the detector `details`; the column page does not draw them yet.
+
+The signals and the quality counts of a dataset `table` gain what the overview of the HTML report reads. A signal
+carries `population`: what its sum is out of, the values every column the check covered offered it, and `null`
+when a column with the finding has no population (groups of spelling variants). A finding of a quality column
+(`table.quality`) carries its `cls` (`error` or `issue`) and its `percent` (the share of its population, `null` without one), so that the figures of each class are counted
+without guessing it from the code. The report shows up to eight signals instead of six.

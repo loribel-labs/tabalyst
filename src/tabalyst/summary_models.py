@@ -136,12 +136,15 @@ class ColumnFindings(ResultModel):
 
 
 class FindingRef(ResultModel):
-    """The words of a finding need only these four members."""
+    """The words of a finding, and its class for the figures of the overview."""
 
     code: str
+    cls: FindingClass
     count: int | None
     unit: FindingUnit
     accuracy: Accuracy
+    # Share of the population in percent, ``None`` without one (a number of groups).
+    percent: float | None = None
 
 
 # Overview -------------------------------------------------------------------
@@ -551,6 +554,9 @@ class Signal(ResultModel):
     unit: str
     # The sum is a lower bound when one of its terms is.
     lower_bound: bool
+    # What the sum is out of: the values every column the check covered offered it.
+    # ``None`` when a column with the finding has no population (a number of groups).
+    population: int | None = None
     columns: list[SignalColumn]
 
 

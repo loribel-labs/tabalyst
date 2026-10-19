@@ -321,14 +321,14 @@ async function previewChecks(page, label, width, height) {
       return (Math.max(fore, back) + 0.05) / (Math.min(fore, back) + 0.05);
     };
     const selectors = ['#summary-table .fl-error .fl-btn', '#summary-table .fl-issue .fl-btn', '#summary-table .fl-more .fl-btn',
-      '#summary-table .fl-caveat', '#summary-table .fl-state-btn', '#summary-table .fl-state', '.signals .sig-n', '.signals .sig-c'];
+      '#summary-table .fl-caveat', '#summary-table .fl-state-btn', '#summary-table .fl-state', '.fkpi .fk-n', '.flist .fl-c'];
     return selectors.map(selector => [selector, document.querySelector(selector)])
       .filter(([, el]) => el)
       .map(([selector, el]) => [selector, Math.round(ratio(el) * 100) / 100]);
   });
   assert.ok(ratios.length >= 3, label + ': the contrast probes found their elements');
   for (const [selector, ratio] of ratios) {
-    assert.ok(ratio >= (selector.endsWith('.sig-n') ? 3 : 4.5), label + ': contrast of ' + selector + ' is ' + ratio);
+    assert.ok(ratio >= (selector.endsWith('.fk-n') ? 3 : 4.5), label + ': contrast of ' + selector + ' is ' + ratio);
   }
 }
 
@@ -528,26 +528,29 @@ async function columnPageChecks(browser, reportFile) {
       await previewChecks(page, name + ' dark', width, height);
       await findingDetailChecks(page, profile, name + ' dark', width);
 
-      // Overview layout: Quality observations over Signals on two thirds, Column types beside them.
+      // Overview layout: the findings card, the list of kinds and Column types side by side
+      // on a wide screen, then two columns with Column types below, then one column.
       const boxes = await page.evaluate(() => {
         const box = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; };
-        return { quality: box('.ov-grid .quality'), signals: box('.ov-grid .signals'), types: box('.ov-grid .types') };
+        return { findings: box('.ov-grid .fkpi'), list: box('.ov-grid .flist'), types: box('.ov-grid .types') };
       });
-      assert.ok(boxes.quality.y < boxes.signals.y, name + ': Signals sit under Quality observations');
-      if (width > 1080) {
-        assert.ok(boxes.quality.w > 1.7 * boxes.types.w, name + ': Quality observations take two thirds');
-        assert.ok(Math.abs(boxes.quality.w - boxes.signals.w) <= 1, name + ': Signals share that width');
-        assert.ok(boxes.types.x > boxes.quality.x + boxes.quality.w - 1, name + ': Column types are beside them');
+      if (width > 1280) {
+        assert.ok(Math.abs(boxes.findings.y - boxes.list.y) <= 1 && Math.abs(boxes.list.y - boxes.types.y) <= 1, name + ': three blocks on one row');
+        assert.ok(boxes.list.x > boxes.findings.x + boxes.findings.w - 1, name + ': the list is beside the findings card');
+        assert.ok(boxes.types.x > boxes.list.x + boxes.list.w - 1, name + ': Column types are beside the list');
+      } else if (width > 1080) {
+        assert.ok(Math.abs(boxes.findings.y - boxes.list.y) <= 1, name + ': two blocks on the first row');
+        assert.ok(boxes.types.y > boxes.findings.y, name + ': Column types are under them');
       } else {
-        assert.ok(Math.abs(boxes.quality.w - boxes.types.w) <= 1, name + ': one column on a narrow screen');
+        assert.ok(Math.abs(boxes.findings.w - boxes.types.w) <= 1, name + ': one column on a narrow screen');
       }
-      // Overview: the KPIs add up to the columns, a popover opens on the columns behind a
-      // figure, stays inside the screen, closes with Escape and gives the focus back.
-      const kpis = await page.locator('.quality .kpi-n').allInnerTexts();
-      assert.equal(kpis.map(text => Number(text.replace(/,/g, ''))).reduce((a, b) => a + b, 0), profile.columns.length);
-      const firstPop = page.locator('.signals .pop-btn').first();
+      // Overview: the figures count findings, a popover opens on the columns behind a
+      // row, stays inside the screen, closes with Escape and gives the focus back.
+      const fkpis = await page.locator('.fkpi .fk-n').allInnerTexts();
+      assert.equal(fkpis.length, 2);
+      const firstPop = page.locator('.flist button.fl-row').first();
       if (await firstPop.count()) {
-        const wanted = Number((await firstPop.innerText()).replace(/[^0-9]/g, ''));
+        const wanted = Number(((await firstPop.locator('.fl-s').innerText()).match(/([0-9,]+) columns?$/) || [])[1].replace(/,/g, ''));
         await firstPop.click();
         assert.equal(await firstPop.getAttribute('aria-expanded'), 'true');
         const dialog = page.locator('.pop:not([hidden])');
@@ -560,7 +563,7 @@ async function columnPageChecks(browser, reportFile) {
         await page.keyboard.press('Escape');
         assert.equal(await page.locator('.pop:not([hidden])').count(), 0);
         assert.equal(await firstPop.getAttribute('aria-expanded'), 'false');
-        assert.ok(await page.evaluate(() => document.activeElement.classList.contains('pop-btn')));
+        assert.ok(await page.evaluate(() => document.activeElement.classList.contains('fl-row')));
       }
       assert.ok(await page.evaluate(() => Boolean(
         document.getElementById('summary').compareDocumentPosition(document.getElementById('observations')) & Node.DOCUMENT_POSITION_FOLLOWING,
@@ -613,11 +616,11 @@ async function columnPageChecks(browser, reportFile) {
       await resetTable(page, 'columns-table');
 
       if (profile.date_summary) {
-        // The ambiguous dates are one tile of the signals: the sum of the date columns.
-        const tile = page.locator('.signals .sig').filter({ hasText: 'Ambiguous dates' }).first();
+        // The ambiguous dates are one row of the list of findings: the sum of the date columns.
+        const tile = page.locator('.flist .fl-row').filter({ hasText: 'Ambiguous dates' }).first();
         if (profile.date_summary.ambiguous_count > 0) {
           assert.equal(
-            await tile.locator('.sig-n').innerText(),
+            await tile.locator('.fl-n').innerText(),
             profile.date_summary.ambiguous_count.toLocaleString('en-US'),
           );
         }

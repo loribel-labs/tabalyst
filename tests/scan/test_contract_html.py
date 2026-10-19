@@ -73,8 +73,9 @@ def test_F02_exact_estimated_sample_limited_and_not_computed_are_labelled(tmp_pa
     for kind in ("exact", "sample"):
         assert f'class="acc acc-{kind}"' in html
     assert "<b>≥</b> at least" in html
-    # A candidate is not a defect and a remark is not an issue.
-    assert "Candidate anomaly" in html or "Remark" in html
+    # A candidate is not a defect and a remark is not an issue: the status of an
+    # observation is a word of the rule table, never a class of the overview.
+    assert 'data-pop="pop-q-status"' not in html
     # The pattern shares say what they count.
     assert "of sampled distinct values" in html or "of every distinct value" in html
 

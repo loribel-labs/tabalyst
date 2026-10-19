@@ -36,7 +36,7 @@ modified or sent anywhere.
   with the evidence behind them, and the technical type with its error rates.
 - A summary table with one row per column: its type, a sentence about its
   values, the missing share, its Errors and Issues with a preview of each, and
-  its details; above it, the Column quality and Signals cards.
+  its details; above it, the Findings and Errors and Issues cards.
 - Numeric, date and string-length analysis, normalization and value
   distributions.
 - Distinct values, representative examples, date formats and detected meanings
@@ -59,6 +59,8 @@ HTML works without a network connection or a CDN.
 
 - [Read the report](read-report.md): interpret every HTML section, its
   tables, indicators and limits.
+- [Findings catalog](findings.md): every Error, Issue and Information
+  finding, with its code, what it counts, its detail and its limits.
 - [Types and patterns](../reference/types-and-patterns/index.md): shared
   types and detectors, with a dedicated [pattern catalog](../reference/types-and-patterns/patterns.md).
 - [Create your first report](../get-started/first-report.md): a five-minute

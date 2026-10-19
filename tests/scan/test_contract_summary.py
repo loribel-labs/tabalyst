@@ -728,12 +728,12 @@ def test_CA11_an_ambiguous_date_is_an_issue(tmp_path):
 
 
 @pytest.mark.report_lot("R6a")
-def test_CA13_a_value_a_detector_does_not_recognize_is_not_an_error(tmp_path):
+def test_CA13_a_value_a_date_detector_does_not_recognize_is_not_an_error(tmp_path):
     from tabalyst.report_findings import column_findings
 
-    values = ["K1A 0B1"] * 30 + ["hello"]
+    values = ["2025-01-15"] * 30 + ["hello"]
 
-    findings = column_findings(_column_view(tmp_path, "zone", values))
+    findings = column_findings(_column_view(tmp_path, "signed", values))
 
     assert not findings.errors.items
 

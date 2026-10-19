@@ -75,24 +75,24 @@ your data: share them accordingly.
 ## 4. Read what Tabalyst found
 
 The report is organized in numbered sections, listed in the bar at the top:
-**Overview**, **Summary**, **Observations**, **Columns**, **Transformations**,
-**Dates**, **Strings**, **Detectors**, **Patterns**, **Insights**, **Second pass**,
-**Data sample** and **Analysis settings**. A section appears only when the data
-has something to show: a file with a numeric column also gets **Numeric**, and a
-**Limits** section appears when the scan stopped a measure at a limit.
+**Overview**, **Summary**, **Columns**, **Transformations**, **Dates**,
+**Strings**, **Detectors**, **Patterns**, **Data sample** and **Analysis
+settings**. A section appears only when the data has something to show: a file
+with a numeric column also gets **Numeric**. The sections **Observations**,
+**Relationships**, **Insights**, **Second pass** and **Limits** are not written
+in the report for now; their data stays in the JSON profile.
 
 ### Overview
 
 The **Overview** section sums up the file: 5 rows, 6 columns, 2 missing cells
 (6.67 %) and 1 duplicate row. Under it:
 
-- **Column quality** counts the columns by what Tabalyst found in them: 0 with
-  errors, 2 with issues, 4 with no finding. A column with errors counts under
-  errors even when it also has issues.
-- **Signals** has one tile per kind of finding. Here there are two, both Issues:
-  **ID repetitions** (1 value repeated beyond its first occurrence, in `id`) and
+- **Finding types** has two figures: no Error type and **1 Issue type** in 1 column, with the most
+  affected column under them (`amount`, one finding).
+- **Errors and Issues** lists the kinds of finding. Here there is one Issue:
   **Mixed types** (1 value outside the closest type, in `amount`). The
-  [tile catalogue](../report/read-report.md#signal-tiles) lists the others.
+  [catalogue of kinds](../report/read-report.md#kinds-of-finding-in-the-overview)
+  lists the others.
 - **Column types** counts the columns by family and type.
 
 An **Error** is a value that a rule proves invalid, such as a date that does not

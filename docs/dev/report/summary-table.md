@@ -795,10 +795,11 @@ deterministic rule applies to it.
   URL, IP address or UUID, and only the detector of that type answers (its id is
   in `basis`). Count `coverage.invalid`, unit `occurrences`, population
   `eligible_values`. A detector of another type that finds some values in a field
-  of a different type is not a constraint on it (RF-14). A `not_matched` value is
-  not counted (CA-13). A purely numeric value is never `invalid` for Phone (the
-  detector leaves identifiers alone), so an unformatted phone column has no
-  `invalid`.
+  of a different type is not a constraint on it (RF-14). The count is
+  `coverage.invalid + coverage.not_matched`: the type is established (detector and
+  name), so a value without even its shape (`K0J S9` in a postal code column) is
+  as invalid as one with the shape and a bad syntax (maintainer, 2026-10-18; this
+  reverses CA-13 for the semantic types, CA-13 stays true for dates).
 - **`type.outside_family`**: the classification is `numeric/integer` or
   `numeric/number` and the technical type is the same. Count
   `technical_type.outside_count` (less the decimals of an Integer: they are numbers),
@@ -1253,7 +1254,9 @@ Summary panel is now 02 and Findings 03.
   sum never joins two codes or two units), `columns` the terms with their share of the
   largest, `lower_bound` when one term is. Order: Errors first, then the Issues, each by
   the number of columns, then the total, then the code (no threshold, no measured time).
-  Six tiles are shown (`SIGNALS_SHOWN`), the rest is counted. A finding without a count
+  Eight rows are shown (`SIGNALS_SHOWN`), the rest is counted. `population` is the sum of
+  `eligible` over every assessment of the code that looked at values (a column without the
+  finding included), `None` when a column with the finding has no population. A finding without a count
   is left out. `SIGNAL_NOTES` and `SIGNAL_TARGETS` (`report_labels.py`) carry the note of
   the ambiguous dates and the section that explains a signal better than Findings.
   `incomplete_columns` counts the columns whose Errors or Issues list is partial, not
@@ -2025,3 +2028,28 @@ details that explained a rare case with an empty list now read them:
   before the text: 2 cells") and each example row its exact count.
 - **Tests.** `test_report_finding_details_whitespace.py` and `test_report_finding_details_lengths.py`
   gain a case absent from the sample (a 3,000-value field sampled at 20) that the detail lists.
+
+## 18. Overview in three blocks (Findings card, list of kinds, Column types)
+
+The overview goes back to three blocks on one row, the one of the notched card of the
+first versions. Block 3 (Column types) is unchanged.
+
+- **Findings** (`.fkpi`, `QualityPanel`): two figures, `error_findings` and `issue_findings`, the
+  number of findings (a check on a column, never an addition of occurrences of two codes), with
+  `error_class_columns` and `issue_class_columns` (the columns with a finding of each class, a column
+  with both in each, the labels of that class only) behind a popover. `FindingRef.cls` is stored for
+  it. Under them, `top`: every affected column, ordered by its widest finding (`FindingRef.percent`, the share of the column; a log bar from `BAR_FLOOR` to 100%, no sum of shares), a limit being to decide when the heights are balanced, each bar scaled to
+  the column with most findings and split in an Error and an Issue segment.
+- **Errors and Issues** (`.flist`): one row per `SignalTile` (class, title, sum, unit, `share`,
+  columns), the popover of the former tile. `share` is `total` out of `Signal.population`, written
+  only when the population is known and not smaller than the total, in `_small_percent` (two decimals, three under 0.01%, `<0.001%` below); it is "at least" for a lower
+  bound. The confirmed issues of the dataset (`excluded_records`, `ambiguous_header`) follow as
+  *Dataset* rows, then the number of columns not completely checked. Without a finding the two
+  blocks say that no Error and no Issue was detected; the empty state is to be designed further.
+- The observation count by status ("confirmed, candidates, remarks") and its `?` popover left the
+  overview: the Findings section still carries the statuses.
+- **Balance** (`report.js`, `balance`): the lists of the two first blocks carry a floor of eight rows
+  in the markup; the rows after it (`.ov-x`) are shown one by one while the card stays no taller than
+  Column types, measured with the grid set to `align-items:start`. A `ResizeObserver` on the grid
+  redoes it on a width change, when a panel is opened again or when fonts load. Without script only
+  the floor shows. The hidden columns are all in the popover of `+ N more`.

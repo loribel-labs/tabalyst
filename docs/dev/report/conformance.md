@@ -25,7 +25,7 @@ regression is `tests/browser/report.cjs` (four sizes, both themes, keyboard, tou
 | CA-10 | A column of long emails stays Email | `test_CA10_long_emails_stay_email_and_do_not_become_text` | Met |  |
 | CA-11 | An impossible calendar date is an Error, an ambiguous one an Issue | `test_CA11_an_impossible_calendar_date_is_an_error_and_an_ambiguous_one_is_not`, `test_CA11_an_ambiguous_date_is_an_issue` | Met |  |
 | CA-12 | A column named email that holds free text gets no email Errors | `test_CA12_an_email_name_over_free_text_is_not_established` | Met |  |
-| CA-13 | A value a non-mandatory detector does not recognize is not an Error | `test_CA13_a_value_a_detector_does_not_recognize_is_not_an_error` | Met |  |
+| CA-13 | A value the date detector does not recognize is not an Error (a semantic type counts its `not_matched` values as invalid) | `test_CA13_a_value_a_detector_does_not_recognize_is_not_an_error` | Met |  |
 | CA-14 | Three categories and twenty occurrences are distinct figures | `test_CA14_three_categories_and_twenty_occurrences_are_distinct_figures` | Met |  |
 | CA-15 | Repetitions beyond the first are not duplicated occurrences | `test_CA15_repetitions_beyond_the_first_are_not_duplicated_occurrences` | Met |  |
 | CA-16 | A mostly empty column reports Missing without an Error | `test_CA16_a_mostly_empty_column_reports_missing_without_error` | Met |  |

@@ -696,7 +696,7 @@ FINDING_NATURES = {
         "wrong width."
     ),
     "semantic.invalid": (
-        "Values that have the shape of the type of the column and fail its syntax."
+        "Values that do not have the shape or the syntax of the type of the column."
     ),
     "type.outside_family": (
         "Values that are not numbers in a column whose type is a number: a word, a "
@@ -822,10 +822,21 @@ def finding_text(item: Finding | FindingRef) -> str:
 # The overview tiles (contract 7.5). A note is a fact about the reading of a signal; the
 # target is the section that explains it better than Findings does.
 SIGNAL_NOTES = {
+    "temporal.invalid_calendar": "Dates that do not exist, such as 30 February or 25:00.",
+    "semantic.invalid": "Values that break the shape or the syntax of the type of the column (email, phone, postal code...).",
+    "type.outside_family": "Values that are not numbers in a column of numbers.",
     "temporal.ambiguous_date": (
-        "Values that match more than one configured date order. "
+        "Dates that fit two day-month orders, such as 03/04/2024. "
         "Tabalyst does not guess the order."
     ),
+    "number.ambiguous": "Numbers whose separators allow more than one reading, such as 1,234.",
+    "categorical.case_variants": "Groups of values that differ only by case, accents or spacing.",
+    "pattern.minority": "Distinct values written in a pattern that few values share.",
+    "length.minority": "Values whose length differs from the one nearly all values share.",
+    "type.mixed": "Values outside the closest technical type of a mixed column.",
+    "identifier.repetition": "Repetitions of an identifier beyond its first occurrence.",
+    "text.surrounding_whitespace": "Values with whitespace before or after the text.",
+    "text.repeated_whitespace": "Values with whitespace repeated inside the text.",
 }
 SIGNAL_TARGETS = {
     "temporal.ambiguous_date": "dates",
@@ -852,13 +863,6 @@ SIGNAL_TITLES = {
     ),
     "text.repeated_whitespace": ("Repeated whitespace", "Values with repeated whitespace"),
 }
-# What the three statuses of the observations of the scan mean (the quality KPI).
-OBSERVATION_STATUS_HELP = (
-    ("Confirmed issue", "a defect by the structure of the source"),
-    ("Candidate anomaly", "worth a look and never proof of an error"),
-    ("Remark", "may be perfectly valid, such as a constant column"),
-)
-
 # The class of a signal tile, written before its title so that the colour is never the only cue.
 SIGNAL_CLASS_WORDS = {"error": "Error", "issue": "Issue", "information": "Info"}
 
