@@ -133,10 +133,10 @@ Also in revision 2:
   and does not change for the last three: the second pass reads the values with a
   unit by the evidence of their own detector.
 
-## Version 0.2.0, revision 4 (in preparation)
+## Version 0.2.0, revision 4 (Tabalyst 0.7.0)
 
 Revision 4 gathers the changes of the hierarchical pattern discovery and of the
-classification of the fields; it is not final until the release that ships it.
+classification of the fields; it ships with Tabalyst 0.7.0.
 
 - Every field has a `classification` (`family`, `type`, `basis`, `state`,
   `traits`, `evidence`, `alternatives`, `rule_version`): see

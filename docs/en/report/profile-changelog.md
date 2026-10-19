@@ -104,7 +104,7 @@ miss a value together (`missing_matrix`), the lengths of the arrays and the sets
 fingerprints (`text_profile`, `fingerprint_distinct`) and the masks and classes of a masked column
 (`sensitive_forms`), which holds no value of it, and the distinct count of a masked or hidden column.
 
-## Version 0.2.0, revision 4 (in preparation)
+## Version 0.2.0, revision 4 (Tabalyst 0.7.0)
 
 The four length bounds that named the String analysis classes (`very_short_max_length`,
 `short_max_length`, `medium_max_length`, `long_max_length`) are no longer in

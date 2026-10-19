@@ -72,6 +72,11 @@ from tabalyst.scan_reuse import read_json_document
 from tabalyst.scanner.models import FieldResult
 from tabalyst.scanner.secondpass.models import DistinctCount
 
+# Sections of the report that are not written for now: the template skips them, their code and
+# their data stay. TODO: switch them back on (empty this set) once Observations, Relationships,
+# Insights, Second pass and Limits are ready for the default report.
+HIDDEN_SECTIONS = frozenset({"observations", "relationships", "insights", "second-pass", "limits"})
+
 
 def cell_text(values: list[str | None]) -> str:
     """The text of a cell of the row sample: the values of an items path joined,
@@ -304,6 +309,7 @@ def _labels() -> dict[str, object]:
         "details_withheld": details_withheld,
         "preview_checks_title": PREVIEW_CHECKS_TITLE,
         "signal_class_words": SIGNAL_CLASS_WORDS,
+        "hidden_sections": HIDDEN_SECTIONS,
         "table_at_least": TABLE_AT_LEAST,
         "details_states": DETAILS_STATES,
         "details_titles": DETAILS_TITLES,
