@@ -547,9 +547,9 @@ def test_G137_the_ambiguous_dates_are_read_under_each_order_and_never_placed(tmp
     deep = DeepSettings.model_validate({"datetime": {"as_of": "2023-12-31"}})
     _, _, outcome = _deep(tmp_path, columns, deep)
     result = _parts(outcome, "eu")
-    # 05/05 is ambiguous too: the detector sees two formats, not two different dates.
-    ambiguous = [(d, m, y) for d, m, y in written.european if d <= 12]
-    sure = [(d, m, y) for d, m, y in written.european if d > 12] + written.american
+    # 05/05 is the same day in both orders: placed, not ambiguous.
+    ambiguous = [(d, m, y) for d, m, y in written.european if d <= 12 and d != m]
+    sure = [(d, m, y) for d, m, y in written.european if d > 12 or d == m] + written.american
 
     assert result.ambiguous == len(ambiguous) and result.count == len(sure)
     assert _as_months(result.year_months) == dict(Counter(f"{y:04d}-{m:02d}" for _, m, y in sure))

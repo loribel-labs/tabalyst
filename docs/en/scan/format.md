@@ -1244,6 +1244,12 @@ the evidence of their own column, never by a guess:
 
 The second pass reads the numbers of such a field as the scan counted them.
 
+Dates whose two readings are the same day (`06-06-2020`) need no order. The
+`date` detector counts them as matched, with no format, and publishes their
+number in `details.ambiguity.same_day`. They are neither in `count` and
+`candidates` (the ambiguous dates) nor in `evidence`, since they prove no
+order.
+
 ## Sensitive values
 
 A field is sensitive when a sensitive detector (`email`, `phone`,

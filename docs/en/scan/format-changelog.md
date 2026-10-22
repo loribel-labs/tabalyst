@@ -271,3 +271,9 @@ classification of the fields; it ships with Tabalyst 0.7.0.
   `disabled` (`exposure`). The keys are published on a
   masked field too, with no example or row of the sample. New setting
   `scan.exposure.detector_keys` (`aggregate`, or `mask` to bring the masking back).
+
+### After Tabalyst 0.7.0 (revision 4)
+
+- `details.ambiguity.same_day` of the `date` detector counts the dates whose two
+  readings are the same day (`06-06-2020`). They are matched with no format, and no
+  longer ambiguous.

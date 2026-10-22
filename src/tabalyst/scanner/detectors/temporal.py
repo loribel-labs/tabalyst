@@ -25,6 +25,7 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping, Sequence
 from datetime import UTC, date, datetime, time, timedelta, timezone
+from typing import TYPE_CHECKING
 
 from tabalyst.scanner.detectors.base import (
     AmbiguityAccumulator,
@@ -38,6 +39,9 @@ from tabalyst.scanner.models import (
     TemporalStats,
     YearCount,
 )
+
+if TYPE_CHECKING:
+    from tabalyst.scanner.exposure import ExposureGate
 
 # Longer than every accepted form, so longer values are not matched.
 _MAX_LENGTH = 40
@@ -240,6 +244,14 @@ class DateDetector(Detector):
                 "matched", format=formats[order], value=parsed, convention=order
             )
         candidates = tuple(sorted(formats.values()))
+        if len(set(valid.values())) == 1:
+            # 06-06-2020 means the same day in both orders: the value is
+            # known, but it proves neither order and names no format. The
+            # candidates mark it for `DateAccumulator`, which counts it as
+            # `same_day`, apart from the ambiguous dates.
+            return Classification(
+                "matched", value=next(iter(valid.values())), candidates=candidates
+            )
         if self.resolution in valid:
             return Classification(
                 "matched",
@@ -368,17 +380,28 @@ class DateAccumulator(AmbiguityAccumulator):
     """Ambiguity details and the ``temporal`` block of the field (design
     9.6): ambiguous values are counted, never compared."""
 
-    __slots__ = ("kinds", "unresolved")
+    __slots__ = ("kinds", "same_day", "unresolved")
     ignores_unmatched = True
 
     def __init__(self, readings: list[str], resolution: dict[str, str] | None) -> None:
         super().__init__(readings, resolution)
         self.kinds: dict[str, _KindStats] = {}
+        self.same_day = 0
         self.unresolved = 0
 
     def add(
         self, value: str, classification: Classification | None, count: int
     ) -> None:
+        if (
+            classification is not None
+            and classification.state == "matched"
+            and classification.candidates
+            and classification.format is None
+        ):
+            # Matched with candidates and no format: the same day in both
+            # orders (`_numeric_date`), counted apart from the ambiguous ones.
+            self.same_day += count
+            classification = classification._replace(candidates=())
         super().add(value, classification, count)
         if classification is None:
             return
@@ -391,6 +414,13 @@ class DateAccumulator(AmbiguityAccumulator):
                 if stats is None:
                     stats = self.kinds[kind] = _KindStats(kind != "time")
                 stats.add(classification.value, count)
+
+    def details(self, gate: ExposureGate) -> dict[str, object]:
+        """The ambiguity block, plus ``same_day``: the dates whose two readings
+        are the same day (``06-06-2020``), which need no order."""
+        details = super().details(gate)
+        details["ambiguity"]["same_day"] = self.same_day  # type: ignore[index]
+        return details
 
     def temporal(self):
         if not self.kinds and not self.unresolved:

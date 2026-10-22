@@ -180,6 +180,20 @@ def test_execution_modes_give_identical_results(tmp_path):
     ] == [(item["id"], item["coverage"], item["formats"]) for item in default["detectors"]]
 
 
+def test_a_date_with_the_same_day_in_both_orders_is_matched_without_proving_an_order(
+    tmp_path,
+):
+    source = write_text(tmp_path, "dates.csv", "day\n06-06-2020\n13-02-2026\n")
+
+    found = detector(field(dataset(run_scan(source), "rows"), "day"), "date")
+
+    assert (found["coverage"]["matched"], found["coverage"]["ambiguous"]) == (2, 0)
+    ambiguity = found["details"]["ambiguity"]
+    assert ambiguity["same_day"] == 1
+    assert (ambiguity["count"], ambiguity["candidates"]) == (0, [])
+    assert ambiguity["evidence"] == {"DMY": 1, "MDY": 0}
+
+
 def test_number_conventions_expose_ambiguity(tmp_path):
     """Design 12.6 and 12.10: the strict rule first, then decimal conventions."""
     values = ["1.5", "12,5", "1,234", "1.234,5", "1 234", "abc"]
