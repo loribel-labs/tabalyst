@@ -28,7 +28,7 @@ ENABLED_LOTS: set[str] = {
 
     "4",  # first pass, limit, metrics
 
-    # "5",  # second pass, CSV outputs
+    "5",  # second pass, CSV outputs
 
     # "6",  # JSON report
 

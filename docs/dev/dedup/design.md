@@ -211,7 +211,7 @@ the public API exists (lot 8):
 ```python
 analyze_dedup(source, *, csv, max_rows, memory_budget_mb, temp_dir, on_progress=None,
                measure_memory=False) -> DedupAnalysis   # lot 4, writes nothing
-write_outputs(source, analysis, *, csv, destination, temp_dir=None, on_progress=None)
+write_outputs(source, analysis, *, csv, destination, on_progress=None)
     -> StagedOutputs                      # lot 5, temporary files, validated
 process_source(source, settings, *, destination, on_progress=None)
     -> SourceOutcome                      # lots 5 to 7, grows lot by lot
@@ -281,6 +281,43 @@ into the exception or the `failures` entry. A refusal that happens before any wo
 calls the second pass as `writer.write_outputs(...)`, through the module, so that a
 test can intercept it between the passes (T23).
 
+`writer.write_outputs(source, analysis, *, csv, destination, on_progress=None)` (lot 5) does
+nothing when `analysis.outputs` is empty (`StagedOutputs` with no file, no second reading).
+Otherwise it creates `destination` if needed, reads the source again and writes each
+record to the outputs that the marks assign it (8.4), in source order, to temporary files
+`.<final name>.<token>.tmp` in `destination` (the same volume as the final names, so that
+the publication is an `os.replace`). It has no `temp_dir`: the staging is in the
+destination, and the temporary folder of the store (`--temp-dir`) is closed and empty by
+then. It returns `StagedOutputs` (`files`: a `StagedFile` per output with `kind`,
+`temporary`, `final`, `rows`, `size_bytes` and `sha256`; `second_pass_seconds`; `discard()`).
+Before it returns, it has checked in this order: size and `mtime_ns` of the source against
+the first pass; at most `N` records; `N` records read; the bytes read equal to the size;
+the SHA-256 equal to the first pass; size and `mtime_ns` unchanged at the end; then the
+rows of each file against `D`, `G` and `O`. A difference of the source is `source_changed`
+(a source that became malformed or undecodable is a changed source too; one that vanished
+is `source_unreadable`); a row count that disagrees while the SHA-256 is equal is a defect
+of the product, `unexpected_error`. A write error is `output_unwritable`, or
+`insufficient_disk_space` for `ENOSPC`. The messages carry no path and no cell. On any
+exception, `KeyboardInterrupt` included, the temporary files are deleted.
+`writer.remove_stale_temporaries(source, destination)` deletes the `.<managed
+name>.*.tmp` files of the four managed names of a source (11.5), and no other.
+
+`publish.publish_csv(staged)` replaces the final names one by one with `os.replace`. If one
+replacement fails, the files published by that call and the staged ones left are deleted
+and `output_unwritable` is raised. This is only the CSV part of 11.5: the recovery report,
+the deletion of the outputs of a previous run that the new set does not contain, and the
+JSON report come with lots 6 and 7. Until then a rerun does not delete a stale
+`duplicates_all` and a crash between two replacements can leave a partial set.
+
+`pipeline.process_source(source, settings, *, destination, on_progress=None)` (lot 5) deletes
+the stale temporaries of the source, runs `analyze_dedup`, `writer.write_outputs` and
+`publish_csv` and returns a `SourceOutcome` (`source`, `status` `DONE` or `FAILED`,
+`reason`, `files` published, `analysis`, `error`). `DedupInputError` and `DedupReportError`
+become a `FAILED` outcome with their `reason`; any other exception becomes `FAILED` with
+`unexpected_error` and a fixed message (its cause is chained, not printed, as it may hold a
+cell). `verbose` turns on the memory measure. `SKIPPED`, the report and the ownership of the
+names are added by lots 6 and 7.
+
 ### 4.4 Shared CSV reading and writing (D16, DD-04)
 
 `tabalyst/csv_records.py` is extracted from `sampling.py` (`_open_reader`,
@@ -306,7 +343,13 @@ before the extraction) and the unit tests of `tests/test_csv_records.py`. It off
   reads what remains of the file, so a caller that stopped early still gets the digest of the
   whole file. Without either, the file is opened as `sample` always did.
 - `output_encoding(source, encoding)`: BOM only if the source had one (D14), used by `sample`.
-- `open_writer(path, csv_config, encoding)`: the conventions of section 6.4 (lot 5).
+- `open_writer(path, csv_config, encoding)` (lot 5): a context manager that creates `path`
+  (`FileExistsError` if it exists) and gives a `CsvWriter` with the conventions of section
+  6.4: `write_header(row)`, `write_record(row)` (`rows_written` counts the data records),
+  delimiter of the configuration, `\r\n`, minimal quoting. The bytes pass through a
+  digesting sink, so `size_bytes` and `sha256` of the file come from the writing itself,
+  with no re-read. A normal exit flushes and `fsync`s the file; an exception closes it as it
+  is. `OSError` is not translated (the caller knows whether the file is temporary).
 
 ## 5. Row identity (S5)
 
@@ -565,8 +608,9 @@ duplicates_all.csv  if (extra[i] or group_first[i]) and M >= 3
 
 It checks that the records read equal `N`, that each output holds the expected number
 of rows (`D`, `G`, `O`), and that the source is unchanged between the passes
-(section 9.3). On any difference it discards the temporary files and fails with
-`source_changed`; no inconsistent set is published.
+(section 9.3). On any difference of the source it discards the temporary files and fails
+with `source_changed`; a row count that disagrees although the SHA-256 is the same is an
+internal error (`unexpected_error`). No inconsistent set is published.
 
 With `G = 0` there is one pass (`passes = 1`) and no temporary CSV. Otherwise
 `passes = 2`.

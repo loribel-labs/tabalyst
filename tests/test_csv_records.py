@@ -145,3 +145,74 @@ def test_the_output_encoding_keeps_the_presence_of_a_byte_order_mark(tmp_path):
     assert output_encoding(plain, "utf-8-sig") == "utf-8"
     assert output_encoding(marked, "utf-8-sig") == "utf-8-sig"
     assert output_encoding(plain, "cp1252") == "cp1252"
+
+
+# ------------------------------------------------------------------ writer
+
+
+def test_open_writer_writes_crlf_minimal_quoting_and_counts_data_rows(tmp_path):
+    from tabalyst.csv_records import open_writer
+
+    path = tmp_path / "out.csv"
+
+    with open_writer(path, CsvConfig(delimiter=";"), "utf-8") as writer:
+        writer.write_header(["id", "note"])
+        writer.write_record(["1", 'a;b "c"'])
+        writer.write_record(["", ""])
+        assert writer.rows_written == 2
+
+    assert path.read_bytes() == b'id;note\r\n1;"a;b ""c"""\r\n;\r\n'
+
+
+def test_open_writer_gives_the_size_and_digest_of_the_file_once_closed(tmp_path):
+    from tabalyst.csv_records import open_writer
+
+    path = tmp_path / "out.csv"
+
+    with open_writer(path, CsvConfig(), "utf-8-sig") as writer:
+        writer.write_header(["é"])
+        writer.write_record(["ü"])
+
+    data = path.read_bytes()
+    assert data.startswith(b"\xef\xbb\xbf")
+    assert writer.size_bytes == len(data)
+    assert writer.sha256 == hashlib.sha256(data).hexdigest()
+
+
+def test_open_writer_refuses_to_overwrite_an_existing_file(tmp_path):
+    from tabalyst.csv_records import open_writer
+
+    path = tmp_path / "out.csv"
+    path.write_text("keep", encoding="utf-8")
+
+    with pytest.raises(FileExistsError), open_writer(path, CsvConfig(), "utf-8"):
+        pass
+
+    assert path.read_text(encoding="utf-8") == "keep"
+
+
+def test_open_writer_closes_the_file_when_the_block_fails(tmp_path):
+    from tabalyst.csv_records import open_writer
+
+    path = tmp_path / "out.csv"
+
+    with pytest.raises(RuntimeError), open_writer(path, CsvConfig(), "utf-8") as writer:
+        writer.write_header(["id"])
+        raise RuntimeError("stop")
+
+    path.unlink()  # a file still open would not be deletable on Windows
+
+
+def test_what_open_writer_writes_open_records_reads_back(tmp_path):
+    from tabalyst.csv_records import open_writer
+
+    rows = [["1", "two\r\nlines"], ["", ""], ['q"uote', "a,b"]]
+    path = tmp_path / "round.csv"
+    with open_writer(path, CsvConfig(), "utf-8") as writer:
+        writer.write_header(["a", "b"])
+        for row in rows:
+            writer.write_record(row)
+
+    with open_records(path, CsvConfig()) as records:
+        assert records.header == ["a", "b"]
+        assert list(records) == rows

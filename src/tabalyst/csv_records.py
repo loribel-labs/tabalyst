@@ -8,11 +8,13 @@ from __future__ import annotations
 
 import codecs
 import csv
+import hashlib
 import io
-from collections.abc import Callable, Iterator
+import os
+from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Literal, Protocol, TextIO
+from typing import BinaryIO, Literal, Protocol, TextIO, cast
 
 from tabalyst.config import CsvConfig
 from tabalyst.errors import InputError
@@ -198,3 +200,88 @@ def output_encoding(source: Path, encoding: str) -> str:
             f"Cannot read CSV file {source}: {exc}", kind="source_unreadable"
         ) from exc
     return "utf-8-sig" if has_bom else "utf-8"
+
+
+class _DigestingSink(io.RawIOBase):
+    """Binary sink that counts and hashes the bytes it passes to the file."""
+
+    def __init__(self, raw: BinaryIO) -> None:
+        self._raw = raw
+        self._hash = hashlib.sha256()
+        self.size_bytes = 0
+
+    def writable(self) -> bool:
+        return True
+
+    def write(self, data: bytes | bytearray | memoryview, /) -> int:  # type: ignore[override]
+        written = self._raw.write(data)
+        self._hash.update(memoryview(data)[:written])
+        self.size_bytes += written
+        return written
+
+    def hexdigest(self) -> str:
+        return self._hash.hexdigest()
+
+    def sync(self) -> None:
+        self._raw.flush()
+        os.fsync(self._raw.fileno())
+
+    def close(self) -> None:
+        if not self.closed:
+            self._raw.close()
+        super().close()
+
+
+class CsvWriter:
+    """An open CSV output with the writing conventions of design dedup 6.4.
+
+    ``write_header`` and ``write_record`` write CRLF-terminated lines with minimal
+    quoting; a row with one empty cell is written ``""`` and reads back as that row.
+    ``rows_written`` counts the data records, the header excluded. ``size_bytes`` and
+    ``sha256`` describe the file once ``open_writer`` has closed it.
+    """
+
+    def __init__(self, stream: TextIO, delimiter: str, sink: _DigestingSink) -> None:
+        self._writer = csv.writer(stream, delimiter=delimiter, lineterminator="\r\n")
+        self._sink = sink
+        self.rows_written = 0
+
+    def write_header(self, header: Sequence[str]) -> None:
+        """Write the first line of the file, which is not counted as a row."""
+        self._writer.writerow(header)
+
+    def write_record(self, row: Sequence[str]) -> None:
+        """Write one data record."""
+        self._writer.writerow(row)
+        self.rows_written += 1
+
+    @property
+    def size_bytes(self) -> int:
+        """Bytes of the file, final once ``open_writer`` has left its block."""
+        return self._sink.size_bytes
+
+    @property
+    def sha256(self) -> str:
+        """SHA-256 of the file, hexadecimal, final once ``open_writer`` has left its block."""
+        return self._sink.hexdigest()
+
+
+@contextmanager
+def open_writer(
+    path: Path, config: CsvConfig, encoding: str
+) -> Iterator[CsvWriter]:
+    """Create ``path`` (it must not exist) as text in ``encoding``, with the delimiter of ``config``.
+
+    On a normal exit the file is flushed and ``fsync``ed, so a crash after it cannot
+    leave a short file under a name that is then published. On an exception the
+    file is closed as it is and the caller deletes it. ``OSError`` is not translated:
+    the caller knows whether it is a temporary or a final file.
+    """
+    sink = _DigestingSink(path.open("xb"))
+    text = io.TextIOWrapper(io.BufferedWriter(cast(io.RawIOBase, sink)), encoding=encoding, newline="")
+    try:
+        yield CsvWriter(text, config.delimiter, sink)
+        text.flush()
+        sink.sync()
+    finally:
+        text.close()

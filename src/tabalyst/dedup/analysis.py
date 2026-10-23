@@ -122,7 +122,7 @@ def analyze_dedup(
     require_positive_int("memory_budget_mb", memory_budget_mb)
     path = Path(source)
     started = time.perf_counter()
-    before = _stat(path)
+    before = stat_source(path)
     forward = _staged(on_progress)
     spilled_at: int | None = None
 
@@ -154,8 +154,8 @@ def analyze_dedup(
             storage_mode = store.storage_mode
         except CsvRecordError as exc:
             # A file rewritten during the read often looks malformed: say what changed.
-            if _changed(before, _stat(path)):
-                raise _source_changed(exc.records_read) from exc
+            if stat_differs(before, stat_source(path)):
+                raise source_changed_error(exc.records_read) from exc
             message = (
                 "The source cannot be opened or read."
                 if exc.kind == "source_unreadable"
@@ -166,8 +166,8 @@ def analyze_dedup(
             ) from exc
         finally:
             store.close()
-    if _changed(before, _stat(path)) or bytes_read != before.st_size:
-        raise _source_changed(result.stats.total)
+    if stat_differs(before, stat_source(path)) or bytes_read != before.st_size:
+        raise source_changed_error(result.stats.total)
     return DedupAnalysis(
         stats=result.stats,
         marks=result.marks,
@@ -179,7 +179,7 @@ def analyze_dedup(
     )
 
 
-def _stat(path: Path) -> os.stat_result:
+def stat_source(path: Path) -> os.stat_result:
     # The messages of a failure carry no path: the report that holds them has none (12.1).
     try:
         status = path.stat()
@@ -192,11 +192,11 @@ def _stat(path: Path) -> os.stat_result:
     return status
 
 
-def _changed(before: os.stat_result, after: os.stat_result) -> bool:
+def stat_differs(before: os.stat_result, after: os.stat_result) -> bool:
     return (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns)
 
 
-def _source_changed(records_read: int) -> DedupInputError:
+def source_changed_error(records_read: int) -> DedupInputError:
     return DedupInputError(
         "The source changed while it was being read.",
         reason="source_changed",
