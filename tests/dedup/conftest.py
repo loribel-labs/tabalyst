@@ -38,7 +38,7 @@ ENABLED_LOTS: set[str] = {
 
     "9",  # command line
 
-    # "10",  # hardening, scale
+    "10",  # hardening, scale
 
     # "11",  # finalization
 }

@@ -337,5 +337,5 @@ def test_a_batch_skips_two_processed_files_and_processes_the_third(tmp_path):
         "products.csv": "SKIPPED",
         "orders.csv": "DONE",
     }
-    assert batch.failures == []
+    assert not batch.failures
     assert (tmp_path / "dedup.summary.json").exists()

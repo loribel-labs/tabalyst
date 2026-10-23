@@ -203,6 +203,86 @@
       "title": "Failure",
       "type": "object"
     },
+    "InProgressReport": {
+      "additionalProperties": false,
+      "description": "The write-ahead record of a publication: never a result, only a proof (design dedup 12.5).",
+      "properties": {
+        "format": {
+          "const": "tabalyst.dedup",
+          "default": "tabalyst.dedup",
+          "title": "Format",
+          "type": "string"
+        },
+        "format_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Format Version",
+          "type": "string"
+        },
+        "format_revision": {
+          "const": 1,
+          "default": 1,
+          "title": "Format Revision",
+          "type": "integer"
+        },
+        "generator": {
+          "$ref": "#/$defs/ReportGenerator"
+        },
+        "status": {
+          "const": "in_progress",
+          "title": "Status",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/RecoverySource"
+        },
+        "settings": {
+          "$ref": "#/$defs/ReportSettings"
+        },
+        "recovery": {
+          "$ref": "#/$defs/Recovery"
+        }
+      },
+      "required": [
+        "generator",
+        "status",
+        "source",
+        "settings",
+        "recovery",
+        "format",
+        "format_version",
+        "format_revision"
+      ],
+      "title": "InProgressReport",
+      "type": "object"
+    },
+    "InventoryEntry": {
+      "additionalProperties": false,
+      "description": "A managed output as the recovery report names it: its file, size and digest.",
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "size_bytes": {
+          "minimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file",
+        "size_bytes",
+        "sha256"
+      ],
+      "title": "InventoryEntry",
+      "type": "object"
+    },
     "OutputFile": {
       "additionalProperties": false,
       "description": "A CSV the run published: the inventory entry that proves what it wrote.",
@@ -385,6 +465,86 @@
       "title": "Records",
       "type": "object"
     },
+    "Recovery": {
+      "additionalProperties": false,
+      "description": "The two inventories that prove the ownership of the outputs during a publication.\n\nA file under a managed name is owned if it matches either one (ADR ownership).",
+      "properties": {
+        "previous_outputs": {
+          "items": {
+            "$ref": "#/$defs/InventoryEntry"
+          },
+          "title": "Previous Outputs",
+          "type": "array"
+        },
+        "planned_outputs": {
+          "items": {
+            "$ref": "#/$defs/InventoryEntry"
+          },
+          "title": "Planned Outputs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "previous_outputs",
+        "planned_outputs"
+      ],
+      "title": "Recovery",
+      "type": "object"
+    },
+    "RecoverySource": {
+      "additionalProperties": false,
+      "description": "The source of a recovery report: its name, and what the run knew of its content.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "size_bytes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size Bytes"
+        },
+        "mtime_ns": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mtime Ns"
+        },
+        "content_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content Sha256"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "RecoverySource",
+      "type": "object"
+    },
     "ReportGenerator": {
       "additionalProperties": false,
       "properties": {
@@ -543,9 +703,12 @@
     },
     {
       "$ref": "#/$defs/FailedReport"
+    },
+    {
+      "$ref": "#/$defs/InProgressReport"
     }
   ],
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Tabalyst Dedup",
-  "description": "Document tabalyst.dedup, format 0.2.0 revision 1: the report of one source, complete or failed."
+  "description": "Document tabalyst.dedup, format 0.2.0 revision 1: the report of one source: complete, failed or in progress (recovery)."
 }

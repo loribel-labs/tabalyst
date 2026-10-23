@@ -1,6 +1,6 @@
 ---
 title: Configuration
-description: Reference for the JSON configuration file read by tabalyst report, tabalyst sample, tabalyst scan and the Python API.
+description: Reference for the JSON configuration file read by tabalyst report, tabalyst sample, tabalyst dedup, tabalyst scan and the Python API.
 ---
 
 Tabalyst reads strict JSON configuration files. JSON does not allow comments;
@@ -16,8 +16,10 @@ object holds the presentation settings of the report, described in
 [Report settings](#report-settings). The top-level `output` object sets how
 the documents are written, described in [Output settings](#output-settings).
 The top-level `deep` object sets the histograms of the second pass, described
-in [Deep settings](#deep-settings).
-The top-level `csv` object holds the CSV settings of `tabalyst sample`:
+in [Deep settings](#deep-settings). The top-level `dedup` object sets
+`tabalyst dedup`, described in [Dedup settings](#dedup-settings).
+The top-level `csv` object holds the CSV settings of `tabalyst sample` and
+`tabalyst dedup`:
 
 ```json
 {
@@ -346,10 +348,43 @@ when the target gets rarer or when its base rises, and never passes `cap`.
 }
 ```
 
-- `csv.encoding`: source-file encoding for `tabalyst sample`. The default
+- `csv.encoding`: source-file encoding for `tabalyst sample` and
+  `tabalyst dedup`. The default
   accepts UTF-8 with or without a BOM; `cp1252` is useful for some
   Windows-produced files.
 - `csv.delimiter`: single-character separator, a comma by default.
+
+## Dedup settings
+
+`tabalyst dedup` and `tabalyst.dedup_csv()` read the `dedup` object, and the
+`csv` object above for the delimiter and the encoding of the files they read
+and write.
+
+```json
+{
+  "dedup": {
+    "max_rows": 10000000,
+    "memory_budget_mb": 512,
+    "verify_content_on_skip": false
+  }
+}
+```
+
+- `dedup.max_rows`: the most data records of a source, 10,000,000 by default
+  and at least 1. A source with more records fails with `row_limit_exceeded`.
+  The option is `--max-rows`.
+- `dedup.memory_budget_mb`: the memory in MiB that the rows may take before
+  the run continues on disk, 512 by default and at least 1. It is not a limit
+  of the memory of the process; see
+  [Exactness, memory and limits](../dedup/limits.md). The option is
+  `--memory-budget-mb`.
+- `dedup.verify_content_on_skip`: `false` by default. With `true`, a source is
+  taken as already processed only when the SHA-256 of the source and of its
+  outputs match the report, as `--verify-content` does. The command line cannot
+  turn a configured `true` off, and a forced run (`--force`) does not use it.
+
+Unknown keys in the `dedup` object are refused. The command line options
+override the configuration file, which overrides the defaults.
 
 ## Scan settings
 

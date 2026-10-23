@@ -1,0 +1,393 @@
+{
+  "$defs": {
+    "BatchOutputs": {
+      "additionalProperties": false,
+      "description": "The files of this run: CSV created now, and the reports a reader can open.",
+      "properties": {
+        "csv_files_created": {
+          "minimum": 0,
+          "title": "Csv Files Created",
+          "type": "integer"
+        },
+        "reports_available": {
+          "minimum": 0,
+          "title": "Reports Available",
+          "type": "integer"
+        },
+        "reports_updated": {
+          "minimum": 0,
+          "title": "Reports Updated",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "csv_files_created",
+        "reports_available",
+        "reports_updated"
+      ],
+      "title": "BatchOutputs",
+      "type": "object"
+    },
+    "BatchSource": {
+      "additionalProperties": false,
+      "description": "One file of the batch. An excluded file has no report and no count.",
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "DONE",
+            "SKIPPED",
+            "FAILED",
+            "EXCLUDED"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "derived_csv",
+                "dedup_output",
+                "inspect_file",
+                "lock_file",
+                "output_directory"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "row_limit_exceeded",
+                "invalid_csv",
+                "encoding_error",
+                "source_unreadable",
+                "source_changed",
+                "insufficient_disk_space",
+                "storage_unavailable",
+                "output_unwritable",
+                "unexpected_error"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "already_processed",
+                "output_refused"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
+        },
+        "verification": {
+          "anyOf": [
+            {
+              "enum": [
+                "metadata",
+                "digest"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Verification"
+        },
+        "report": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Report"
+        },
+        "records": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceRecords"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "csv_files_created": {
+          "minimum": 0,
+          "title": "Csv Files Created",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "file",
+        "status",
+        "reason",
+        "verification",
+        "report",
+        "records",
+        "csv_files_created"
+      ],
+      "title": "BatchSource",
+      "type": "object"
+    },
+    "Counters": {
+      "additionalProperties": false,
+      "description": "How many files the batch found and what became of each one (nothing counted twice).",
+      "properties": {
+        "found": {
+          "minimum": 0,
+          "title": "Found",
+          "type": "integer"
+        },
+        "eligible": {
+          "minimum": 0,
+          "title": "Eligible",
+          "type": "integer"
+        },
+        "excluded": {
+          "minimum": 0,
+          "title": "Excluded",
+          "type": "integer"
+        },
+        "done": {
+          "minimum": 0,
+          "title": "Done",
+          "type": "integer"
+        },
+        "skipped": {
+          "minimum": 0,
+          "title": "Skipped",
+          "type": "integer"
+        },
+        "failed": {
+          "minimum": 0,
+          "title": "Failed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "found",
+        "eligible",
+        "excluded",
+        "done",
+        "skipped",
+        "failed"
+      ],
+      "title": "Counters",
+      "type": "object"
+    },
+    "ReportGenerator": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "const": "tabalyst",
+          "default": "tabalyst",
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "title": "ReportGenerator",
+      "type": "object"
+    },
+    "SourceRecords": {
+      "additionalProperties": false,
+      "description": "The main counts of one source, as its own report states them.",
+      "properties": {
+        "total": {
+          "minimum": 0,
+          "title": "Total",
+          "type": "integer"
+        },
+        "distinct": {
+          "minimum": 0,
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "extra_copies": {
+          "minimum": 0,
+          "title": "Extra Copies",
+          "type": "integer"
+        },
+        "duplicate_groups": {
+          "minimum": 0,
+          "title": "Duplicate Groups",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "distinct",
+        "extra_copies",
+        "duplicate_groups"
+      ],
+      "title": "SourceRecords",
+      "type": "object"
+    },
+    "Tally": {
+      "additionalProperties": false,
+      "description": "The sources of one kind and the sum of their counts.",
+      "properties": {
+        "sources": {
+          "minimum": 0,
+          "title": "Sources",
+          "type": "integer"
+        },
+        "records": {
+          "minimum": 0,
+          "title": "Records",
+          "type": "integer"
+        },
+        "extra_copies": {
+          "minimum": 0,
+          "title": "Extra Copies",
+          "type": "integer"
+        },
+        "duplicate_groups": {
+          "minimum": 0,
+          "title": "Duplicate Groups",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sources",
+        "records",
+        "extra_copies",
+        "duplicate_groups"
+      ],
+      "title": "Tally",
+      "type": "object"
+    },
+    "Totals": {
+      "additionalProperties": false,
+      "description": "The counts of the sources this run processed and, apart, of the ones it reused.\n\nA reused source (``SKIPPED``) brings the counts of the report that already existed;\na failed source brings none. Each source is in at most one of the two tallies.",
+      "properties": {
+        "processed": {
+          "$ref": "#/$defs/Tally"
+        },
+        "reused": {
+          "$ref": "#/$defs/Tally"
+        }
+      },
+      "required": [
+        "processed",
+        "reused"
+      ],
+      "title": "Totals",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Document tabalyst.dedup.batch, format 0.2.0 revision 1: the summary dedup.summary.json of a batch of sources.",
+  "properties": {
+    "format": {
+      "const": "tabalyst.dedup.batch",
+      "default": "tabalyst.dedup.batch",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 1,
+      "default": 1,
+      "title": "Format Revision",
+      "type": "integer"
+    },
+    "generator": {
+      "$ref": "#/$defs/ReportGenerator"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial",
+        "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "inputs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Inputs",
+      "type": "array"
+    },
+    "output_dir": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Output Dir"
+    },
+    "counters": {
+      "$ref": "#/$defs/Counters"
+    },
+    "totals": {
+      "$ref": "#/$defs/Totals"
+    },
+    "outputs": {
+      "$ref": "#/$defs/BatchOutputs"
+    },
+    "duration_seconds": {
+      "minimum": 0,
+      "title": "Duration Seconds",
+      "type": "number"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/BatchSource"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "diagnostics": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Diagnostics",
+      "type": "array"
+    }
+  },
+  "required": [
+    "generator",
+    "status",
+    "inputs",
+    "output_dir",
+    "counters",
+    "totals",
+    "outputs",
+    "duration_seconds",
+    "sources",
+    "diagnostics",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst Dedup batch",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

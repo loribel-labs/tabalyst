@@ -1,6 +1,6 @@
 ---
 title: Concepts
-description: How Tabalyst works - the toolkit and its four tools, the workflow from a file to a report, local-first processing, masking of sensitive values, experimental JSON formats and beta status.
+description: How Tabalyst works - the toolkit and its tools, the workflow from a file to a report, local-first processing, masking of sensitive values, experimental JSON formats and beta status.
 ---
 
 ## The toolkit and its tools
@@ -15,6 +15,7 @@ provides:
 | [Tabalyst Scan](../scan/index.md) | `tabalyst scan` | Complete JSON description of every field |
 | [Tabalyst Inspect](../inspect/json.md) | `tabalyst inspect` | Finds how to read a JSON, JSONL or Excel file |
 | [Tabalyst Sample](../sample/index.md) | `tabalyst sample` | Smaller CSV files |
+| [Tabalyst Dedup](../dedup/index.md) | `tabalyst dedup` | Exact duplicate rows of CSV files, as new CSV files |
 
 ## The workflow
 
@@ -36,6 +37,9 @@ CSV, JSON, JSONL or Excel
   columns named by their path, such as `address.city`. Scan and Report run it by themselves when needed, and use
   your edits of its file when you made some.
 - **Sample** is independent: it cuts a CSV file down to a manageable size.
+- **Dedup** is independent too: it reads a CSV file with its own pass, never
+  starts a Scan, and writes the unique rows, the repeated rows and every copy
+  of a repeated row to new CSV files.
 
 A scan is reused when the source content, the effective configuration and the
 Tabalyst version are unchanged; otherwise it is replaced.

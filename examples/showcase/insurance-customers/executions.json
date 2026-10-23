@@ -2,20 +2,20 @@
   "schema_version": "1.0",
   "executions": [
     {
-      "timestamp": "2026-10-22T17:55:38.959426Z",
+      "timestamp": "2026-10-23T15:23:55.286818Z",
       "tabalyst_version": "0.7.0",
       "source_file": "insurance-customers-100k.csv",
       "html_file": "report.html",
       "json_file": "report.json",
       "rows": 100000,
       "columns": 34,
-      "analysis_seconds": 3.0988,
-      "total_seconds": 1.2263,
+      "analysis_seconds": 3.0414,
+      "total_seconds": 1.1376,
       "git": {
         "available": true,
-        "commit": "3ed016646807feaf98f67b159319464d226825c5",
+        "commit": "29e2c301bb951d92a1f23caecc6985fea0dbe7ce",
         "dirty": true,
-        "state": "3ed01664+working"
+        "state": "29e2c301+working"
       }
     }
   ]

@@ -26,8 +26,10 @@ from tabalyst.dedup.report import (
     CompleteReport,
     DedupDocumentError,
     FailedReport,
+    InProgressReport,
     dedup_schema,
     dedup_schema_text,
+    inventory_of,
     parse_report,
     read_report,
     report_json,
@@ -59,11 +61,11 @@ def test_the_committed_schema_is_the_generated_one():
     assert committed.read_text(encoding="utf-8") == dedup_schema_text()
 
 
-def test_the_schema_is_a_valid_json_schema_with_two_variants():
+def test_the_schema_is_a_valid_json_schema_with_three_variants():
     schema = dedup_schema()
     jsonschema.Draft202012Validator.check_schema(schema)
-    assert len(schema["oneOf"]) == 2
-    for name in ("CompleteReport", "FailedReport"):
+    assert len(schema["oneOf"]) == 3
+    for name in ("CompleteReport", "FailedReport", "InProgressReport"):
         required = schema["$defs"][name]["required"]
         assert {"format", "format_version", "format_revision", "status"} <= set(required)
 
@@ -359,18 +361,26 @@ def test_a_failure_to_write_the_failed_report_keeps_the_primary_failure(tmp_path
 
 def test_the_report_is_published_last_after_the_csv(tmp_path, monkeypatch):
     source = write_csv(tmp_path, "order.csv", PAIRS)
-    seen: list[set[str]] = []
+    seen: list[tuple[str, set[str]]] = []
     real = report_module.write_text_atomic
 
     def spy(path, content):
-        seen.append({p.name for p in tmp_path.iterdir() if not p.name.startswith(".")})
+        status = json.loads(content)["status"]
+        seen.append((status, {p.name for p in tmp_path.iterdir() if not p.name.startswith(".")}))
         real(path, content)
 
     monkeypatch.setattr(report_module, "write_text_atomic", spy)
 
     run(source)
 
-    assert seen == [{"order.csv", "order.unique.csv", "order.duplicates.csv"}]
+    # The recovery report goes first (before any CSV is visible), the complete one last.
+    assert seen == [
+        ("in_progress", {"order.csv"}),
+        (
+            "complete",
+            {"order.csv", "order.dedup.json", "order.unique.csv", "order.duplicates.csv"},
+        ),
+    ]
     assert (tmp_path / "order.dedup.json").exists()
 
 
@@ -405,3 +415,79 @@ def test_a_rerun_replaces_the_report_atomically(tmp_path):
     assert json.loads(first)["records"]["total"] == 5
     assert second["records"]["total"] == 6
     assert no_temporary_files(tmp_path)
+
+
+# ------------------------------------------------- recovery report (lot 7)
+
+
+def _recovery(tmp_path):
+    source = write_csv(tmp_path, "data.csv", TRIPLES)
+    run(source)
+    complete = load_report(tmp_path, "data")
+    inventory = [
+        {key: complete["outputs"][kind][key] for key in ("file", "size_bytes", "sha256")}
+        for kind in ("unique", "duplicates", "duplicates_all")
+    ]
+    return {
+        key: complete[key]
+        for key in ("format", "format_version", "format_revision", "generator", "settings")
+    } | {
+        "status": "in_progress",
+        "source": {"name": "data.csv"},
+        "recovery": {"previous_outputs": inventory, "planned_outputs": []},
+    }
+
+
+@pytest.mark.dedup_lot("7")
+def test_a_recovery_report_satisfies_the_schema_and_the_models(tmp_path):
+    document = _recovery(tmp_path)
+
+    validate_report(document)
+    parsed = parse_report(document)
+
+    assert isinstance(parsed, InProgressReport)
+    assert json.loads(report_json(parsed)) == document
+    assert [entry.file for entry in inventory_of(parsed)] == [
+        "data.unique.csv",
+        "data.duplicates.csv",
+        "data.duplicates_all.csv",
+    ]
+
+
+@pytest.mark.dedup_lot("7")
+def test_a_recovery_report_may_carry_the_identity_of_the_source(tmp_path):
+    document = _recovery(tmp_path)
+    document["source"] = load_report(tmp_path, "data")["source"]
+
+    validate_report(document)
+    assert parse_report(document).source.content_sha256 == document["source"]["content_sha256"]
+
+
+@pytest.mark.dedup_lot("7")
+@pytest.mark.parametrize(
+    "damage",
+    [
+        lambda d: d.pop("recovery"),
+        lambda d: d["recovery"].pop("planned_outputs"),
+        lambda d: d["recovery"].update(extra=1),
+        lambda d: d["recovery"]["previous_outputs"][0].update(sha256="abc"),
+        lambda d: d["recovery"]["previous_outputs"][0].update(rows=3),
+        lambda d: d.update(records={}),
+        lambda d: d.update(status="unknown"),
+    ],
+    ids=["no-recovery", "no-planned", "extra-member", "bad-sha", "rows", "records", "status"],
+)
+def test_a_damaged_recovery_report_is_refused(tmp_path, damage):
+    document = _recovery(tmp_path)
+    damage(document)
+
+    with pytest.raises(DedupDocumentError):
+        parse_report(document)
+
+
+@pytest.mark.dedup_lot("7")
+def test_the_inventory_of_a_failed_report_is_empty(tmp_path):
+    source = write_csv(tmp_path, "limit.csv", PAIRS)
+    run(source, max_rows=3)
+
+    assert inventory_of(read_report(tmp_path / "limit.dedup.json")) == []

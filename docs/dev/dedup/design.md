@@ -135,8 +135,8 @@ Compatibility notes carried by the contract:
 
 - The Scan counts duplicates with a 128-bit digest and a lower bound past
   `limits.max_tracked_records`. Dedup is its exact complement. The two numbers agree
-  under the Scan limit (compared in lot 10) and the documentation of Dedup says which
-  to trust (lot 11).
+  under the Scan limit (compared in lot 10, section 18.6) and the documentation of Dedup
+  says which to trust (lot 11).
 - Dedup reads the source with its own pass. It never starts a Scan.
 
 ## 4. Package, modules and Python API
@@ -630,7 +630,9 @@ can still lower the constant if its own measures say so. The accounting is deter
 same file and the same budget choose the same storage mode on any machine. It is not a
 bound of the process RSS (S10.2) and it does not include the two bit arrays of the
 records, the CSV buffers or the interpreter. When the accounted bytes pass the budget,
-the store migrates to disk (section 8.5). Minimum accepted value: 1.
+the store migrates to disk (section 8.5). Minimum accepted value: 1. Lot 10 measured the
+constant again, with the budget, and kept both (section 18.3); the peak of the working
+set is bounded in section 18.4.
 
 ### 8.4 First and second pass (S11.2, S11.3)
 
@@ -756,8 +758,9 @@ produces a published set (T23).
 
 Durations come from `time.perf_counter` per step (first pass, second pass, total).
 `run.memory_peak_bytes` is the `tracemalloc` peak, only when `--verbose` enabled the
-tracing, else `null`. The RSS is not measured in V1. A measure that is not available is
-`null`, never invented.
+tracing, else `null`; the tracing makes the first pass two to four times slower (18.5). The
+RSS is not measured in V1. A measure that is not available is `null`, never invented. The
+numeric budgets of time, memory and disk are in section 18.4.
 
 ## 10. Configuration and options (D13, S7.2, S14.2)
 
@@ -1341,6 +1344,10 @@ implementation, and that T01 to T30 and the lots of this document are all covere
 | T29 | `--force` | 7 | `test_contract_cache.py` | no |
 | T30 | `--verify-content` finds a hidden rewrite | 7 | `test_contract_cache.py` | no |
 
+Lot 10 enabled the heavy versions (T07 full, T08, T09, T21 at scale) and added the fast
+tests `test_scan_control.py` and `test_scale_edges.py`; the scenarios, the measures and the
+checks they gained are in section 18.7.
+
 Every result `complete` is checked, by the helpers, against the invariants of
 section 12.3, against the reference `Counter(tuple(row) for row in csv)` on small
 inputs, and for the ordered content of each CSV and its re-reading with the same
@@ -1386,14 +1393,15 @@ To read with this document; none blocks lot 1 or lot 2.
    `mtime_ns` of the report would remove the cost at the price of a write.
 4. **`ENTRY_OVERHEAD`** is measured by lot 2 (160, section 8.3); the spill estimate
    (24 bytes and a 1.25 factor) and the SQLite settings are those measured in lot 3
-   (section 8.5). Gate 3 reads those numbers; the budgets of the whole command are fixed at gate 10.
+   (section 8.5). Gate 3 reads those numbers; lot 10 confirmed all of them and the default
+   budget of 512 MiB (section 18.3). The budgets of the whole command are read at gate 10.
 5. **Alias `dedup_files`**: not exported (D12).
 6. **Batch report of zero or one source**: written whenever a pattern or two inputs are
    given (DD-13); a folder with only derived files gets one. Settled by lot 8 (13.5).
 7. **Foreign `dedup.summary.json`**: recognized by `format "tabalyst.dedup.batch"`, replaced
    only with `--force` otherwise. Settled by lot 8 (13.5).
 8. **Numbers of the budgets** (time, memory, disk) are fixed from the measures at gates
-   3 and 10, not before (S16.3).
+   3 and 10, not before (S16.3). Lot 10 proposes them in section 18.4; gate 10 validates them.
 9. **A report of another `format_revision`** reads as foreign (section 11.6): the user
    needs `--force` to reprocess after a breaking change of the format. Acceptable during the
    beta; to reopen when a revision 2 exists.
@@ -1402,3 +1410,285 @@ To read with this document; none blocks lot 1 or lot 2.
 11. **Exit code of a source refused at run time** (`output_refused`): the exception keeps its
     class, so a collision with a source is 4 and a foreign file is 1 like the same refusal
     at the plan. Settled by lot 9 (DD-21, 13.6).
+12. **`--verbose` measures the memory peak with `tracemalloc`**, which makes the first pass
+    two to four times slower and doubles the memory used (18.5). Kept for V1 with a warning
+    in the help; replacing it by the peak working set of the process changes the meaning of
+    `run.memory_peak_bytes`. Decision for gate 10.
+13. **No preflight of the space for the outputs**: only the temporary store checks the free
+    space (8.5). The outputs stay under twice the size of the source (18.4). Decision for
+    gate 10.
+14. **A cell over 131,072 characters** (the field limit of the `csv` module) is an
+    `invalid_csv` failure of its source, as for `sample`. To document in lot 11.
+
+## 18. Scale, calibration and budgets (lot 10)
+
+Written on 2026-10-23 from the measures of lot 10. The budgets of 18.4 are proposals until
+the maintainer validates them at gate 10; from then on they are the numeric budgets of the
+contract. The specification forbids any objective in seconds or megabytes before the
+measures (S10.2, S16.3); none of these figures decides anything at run time (principle 4:
+the decisions use accounted bytes and record counts, the time only feeds messages).
+
+### 18.1 Method
+
+- **Reference machine.** Intel Core Ultra 9 275HX (24 logical processors, the product uses
+  one), 31 GB of memory, NVMe SSD, Windows 11, Python 3.12.14, SQLite 3.53.1. Timings vary
+  by about 40 % between identical runs (the 3 million record case at a 1 MiB budget took 40.4
+  and 30.3 s), so every ceiling of 18.4 is 1.5 times the measured maximum of its class.
+- **One case, one fresh interpreter.** `tabalyst-lab/benchmarks/dedup_scale.py` writes the
+  CSV under `D:\GIT.test\tabalyst\artifacts\dedup-scale` (never in a checkout), runs
+  `process_source` (decision, first pass, second pass, publication, report) in a child
+  process and reads from it the time of each step (from the report), the CPU time, the peak
+  working set and peak commit of the process (`GetProcessMemoryInfo`), the peak size of the
+  temporary folder (sampled every 0.25 s, so a floor), the sizes of the source and of the
+  outputs, the storage mode and the records per second. The progress callback is off.
+- **Exactness is checked on every case.** The generator knows the number of extra copies and
+  the report must match `N`, `D` and `E`; the script then recounts the same file with
+  DuckDB (a `GROUP BY` of every cell, which shares no code with Dedup) and compares `N`,
+  `D`, `G`, `E`, `O`, `M`, `G2` and `G3+`. All 50 cases of the tables below match both.
+- **Shapes.** `narrow` rows have 4 cells (a key of about 44 to 57 bytes), `wide` rows 5, 20
+  or 50 cells, `text` rows 5 cells with two texts of about 230 characters (a key of about
+  490 bytes, a few cells with quotes and a line break). Groups: `pairs` (each copy repeats
+  a row not copied yet, so groups of two), `mixed` (a uniform earlier row, groups of two to
+  about ten) and `hot` (copies of the first 1,000 rows, a few very frequent groups).
+- **Archive.** The results are JSON files in `tabalyst-lab/benchmarks/results/`
+  (`dedup-scale-lot10-<group>.json`, `dedup-overhead-lot10.json`,
+  `dedup-vs-scan-lot10.json`); the heavy tests archive their own measures in
+  `<artifact root>/dedup-heavy-measures/t07.json`, `t08.json`, `t09.json` and `t21.json`
+  (`record_measure` of `tests/dedup/dedup_helpers.py`). The command lines are in the
+  docstring of each script.
+
+### 18.2 Measures
+
+Default budget (512 MiB), rows of 4 cells, mixed groups. Times are wall-clock seconds of the
+whole source (`wall`), of the first pass (`1st`) and of the second (`2nd`); `WS` is the peak
+working set of the process, `temp` the peak of the temporary folder, `out` the size of the
+published CSV, all in MiB.
+
+| Records | Extra copies | Mode | wall | 1st | 2nd | Records/s | WS | temp | source | out |
+| ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 100,000 | 25 % | memory | 0.3 s | 0.2 s | 0.1 s | 309 k | 75 | 0 | 5 | 6 |
+| 1,000,000 | 0 % | memory | 1.8 s | 1.7 s | none | 571 k | 225 | 0 | 50 | 0 |
+| 1,000,000 | 1 % | memory | 3.1 s | 1.7 s | 1.4 s | 319 k | 224 | 0 | 50 | 51 |
+| 1,000,000 | 25 % | memory | 3.5 s | 1.8 s | 1.7 s | 288 k | 210 | 0 | 50 | 68 |
+| 1,000,000 | 50 % | memory | 3.9 s | 1.9 s | 1.9 s | 258 k | 148 | 0 | 49 | 73 |
+| 1,000,000 | 90 % | memory | 3.1 s | 1.7 s | 1.4 s | 323 k | 81 | 0 | 45 | 54 |
+| 2,000,000 | 25 % | memory | 7.9 s | 4.1 s | 3.8 s | 252 k | 370 | 0 | 102 | 140 |
+| 5,000,000 | 0 % | disk | 23.8 s | 23.8 s | none | 210 k | 510 | 353 | 268 | 0 |
+| 5,000,000 | 1 % | disk | 34.4 s | 25.7 s | 8.7 s | 145 k | 512 | 351 | 267 | 273 |
+| 5,000,000 | 25 % | disk | 34.4 s | 24.6 s | 9.9 s | 145 k | 527 | 266 | 264 | 361 |
+| 5,000,000 | 50 % | disk | 28.7 s | 17.9 s | 10.7 s | 174 k | 532 | 178 | 258 | 387 |
+| 5,000,000 | 90 % | memory | 20.5 s | 11.6 s | 8.9 s | 244 k | 154 | 0 | 241 | 286 |
+| 10,000,000 | 0 % | disk | 57.0 s | 56.9 s | none | 175 k | 587 | 728 | 539 | 0 |
+| 10,000,000 | 1 % | disk | 78.5 s | 61.0 s | 17.5 s | 127 k | 627 | 714 | 539 | 550 |
+| 10,000,000 | 25 % | disk | 95.6 s | 75.3 s | 20.3 s | 104 k | 596 | 541 | 535 | 733 |
+| 10,000,000 | 50 % | disk | 91.1 s | 68.0 s | 23.1 s | 109 k | 532 | 362 | 527 | 791 |
+| 10,000,000 | 90 % | memory | 46.4 s | 27.9 s | 18.5 s | 215 k | 244 | 0 | 491 | 582 |
+
+The rows with 100,000 and 2,000,000 records at 0, 1, 50 and 90 % are in
+`dedup-scale-lot10-scale.json`. The storage mode is decided by the accounted bytes, so it
+follows the number of distinct rows: the switch to disk comes between 2.5 and 3.3 million
+distinct narrow rows (2,000,000 records stay in memory, 5,000,000 at 50 % or less of copies
+do not).
+
+Other shapes (default budget):
+
+| Records | Cells | Extra copies | Mode | wall | 1st | 2nd | Records/s | WS | temp | source | out |
+| ---: | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1,000,000 | 5 | 25 % | memory | 4.5 s | 2.2 s | 2.3 s | 222 k | 220 | 0 | 64 | 87 |
+| 1,000,000 | 20 | 25 % | memory | 13.5 s | 5.6 s | 8.0 s | 73 k | 371 | 0 | 284 | 390 |
+| 1,000,000 | 50 | 25 % | disk | 35.6 s | 18.3 s | 17.4 s | 28 k | 590 | 621 | 736 | 1,009 |
+| 5,000,000 | 20 | 25 % | disk | 123.9 s | 81.4 s | 42.5 s | 40 k | 600 | 1,348 | 1,501 | 2,055 |
+| 10,000,000 | 20 | 25 % | disk | 213.2 s | 147.7 s | 65.6 s | 47 k | 604 | 2,743 | 3,036 | 4,163 |
+| 300,000 | 5 texts | 25 % | memory | 4.7 s | 1.4 s | 3.3 s | 63 k | 200 | 0 | 146 | 200 |
+| 1,000,000 | 5 texts | 25 % | memory | 18.6 s | 5.9 s | 12.7 s | 53 k | 530 | 0 | 487 | 670 |
+
+The second pass of the wide and text shapes costs more than the first: it writes up to
+three files, and the `csv` writer (C code) quotes and encodes about 30 to 60 MiB per second
+(about 1 microsecond per written record for narrow rows).
+
+Shapes of the groups (1,000,000 records stay in memory, 5,000,000 go to disk):
+
+| Records | Groups | Extra copies | Mode | wall | 1st | 2nd | WS | out |
+| ---: | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |
+| 1,000,000 | pairs | 25 % | memory | 2.9 s | 1.6 s | 1.2 s | 211 | 50 |
+| 1,000,000 | mixed | 25 % | memory | 3.4 s | 1.7 s | 1.7 s | 210 | 68 |
+| 1,000,000 | hot | 25 % | memory | 4.4 s | 1.6 s | 2.6 s | 206 | 47 |
+| 1,000,000 | pairs | 50 % | memory | 3.7 s | 1.7 s | 2.0 s | 150 | 90 |
+| 1,000,000 | mixed | 50 % | memory | 3.9 s | 2.0 s | 2.0 s | 147 | 73 |
+| 1,000,000 | hot | 50 % | memory | 2.9 s | 1.6 s | 1.3 s | 144 | 44 |
+| 5,000,000 | pairs | 25 % | disk | 31.3 s | 23.0 s | 8.3 s | 528 | 263 |
+| 5,000,000 | hot | 25 % | disk | 31.0 s | 22.3 s | 8.7 s | 514 | 248 |
+
+The shape of the groups changes the size of the outputs (44 to 90 MiB for a source of 44 to
+50) and hardly the time of the first pass (1.6 to 2.0 s).
+
+Memory against disk on the same file (rows of 4 cells, 25 % of extra copies), by
+`--memory-budget-mb`:
+
+| Records | Budget | Mode | wall | 1st | WS | temp |
+| ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| 1,000,000 | 1 | disk | 11.2 s | 9.1 s | 66 | 50 |
+| 1,000,000 | 64 | disk | 6.7 s | 4.9 s | 137 | 47 |
+| 1,000,000 | 512 | memory | 3.5 s | 1.8 s | 210 | 0 |
+| 5,000,000 | 1 | disk | 64.4 s | 56.4 s | 67 | 269 |
+| 5,000,000 | 64 | disk | 43.0 s | 33.9 s | 140 | 268 |
+| 5,000,000 | 512 | disk | 34.4 s | 24.6 s | 527 | 266 |
+| 5,000,000 | 100,000 | memory | 21.0 s | 10.1 s | 743 | 0 |
+| 10,000,000 | 512 | disk | 95.6 s | 75.3 s | 596 | 541 |
+| 10,000,000 | 100,000 | memory | 35.3 s | 19.5 s | 1,425 | 0 |
+
+The disk path costs 1.6 to 2.7 times the memory path on the same file, and the working set
+follows the budget closely (a budget of 1 MiB runs in 67 MiB, which is the interpreter and
+the CSV buffers).
+
+Through the command, on 3,000,000 records of 4 cells with 25 % of copies (in memory), with the
+machine busy running the test suite: `tabalyst dedup big.csv --force` 13.4 s, the same
+command on a source already processed 1.0 s (decision by metadata, start of the interpreter
+included) and 1.5 s with `--verify-content` (the source and the three outputs hashed).
+`--verbose` on the same file takes 35.0 s (first pass 29.5 s, 347 MiB of Python allocations):
+see 18.5.
+
+### 18.3 Calibration
+
+- **`ENTRY_OVERHEAD` stays at 160 bytes.** `benchmarks/dedup_overhead.py` fills a
+  `MemoryRowStore` with 1 and 3 million distinct keys of 2 to 50 cells in a fresh
+  interpreter and compares the growth of the working set with the accounted bytes
+  (`dedup-overhead-lot10.json`). The real cost beyond the key is 108 to 135 bytes for keys
+  up to 240 bytes, 120 to 144 for keys of 600 bytes and 170 to 194 for keys of 1.2 KB (above
+  512 bytes Python leaves its small-object allocator and each key carries the system
+  allocator's header and rounding). Real over accounted is 0.70 to 0.95 at 1 million entries and
+  0.84 to 0.98 at 3 million entries for keys up to 600 bytes (the dictionary fills up its
+  table), and 1.01 to 1.03 for keys of 1.2 KB. The accounting is therefore a good estimate of the real cost, above it for keys up
+  to 600 bytes and within 3 % below it for kilobyte keys. Changing the constant would move
+  the deterministic switch point for no gain, so it is kept; the peak of the working set is
+  what 18.4 bounds.
+- **The default budget stays at 512 MiB.** The peak working set of a run on the default
+  budget is 510 to 627 MiB on disk and at most the accounted bytes plus the interpreter in
+  memory (530 MiB for 1 million records of long texts). A larger default would speed up the
+  files between 3 and 8 million distinct rows (10 million records at 25 % of copies: 35 s in
+  1,425 MiB against 96 s in 596 MiB) at the price of memory that the user did not ask for.
+  Per the rule "smart by default, explicit when costly", the default stays low and the
+  documentation (lot 11) says that `--memory-budget-mb 2048` makes the files of up to about
+  9 million distinct narrow rows run in memory. The switch point is the budget itself (the
+  accounted bytes of the dictionary pass it); the disk cache takes the budget once the
+  dictionary is gone, so the working set is about the budget plus 100 MiB in both modes.
+- **The disk estimate keeps its constants.** The measured database holds 76 bytes per
+  distinct 4-cell row (key of 57 bytes, so key plus 19), 377 per 20-cell row of 5 million
+  records (key 330, plus 47) and 383 at 10 million (plus 38). The floor `(key + 24) * 1.25`
+  of `estimate_disk_bytes` stays above the measure (101 and 442 against 76 and 377).
+- **The migration** (3 to 5 s) is not visible in the tables; the first pass of the disk path
+  is 3.6 to 7.5 microseconds per record (3.6 for 5 million records at 50 % of copies, 7.5 for
+  10 million at 25 %): it grows with the size of the database.
+
+### 18.4 Budgets (proposed for gate 10)
+
+Machine of reference of 18.1. Figures are ceilings (1.5 times the measured maximum of the
+class); a run above a time ceiling is a defect to look at, never a failure.
+
+| Resource | Budget | Measured |
+| --- | --- | --- |
+| Records | 10,000,000 by default (`--max-rows`) | exact up to the limit (T08), refusal at the next record (T09) |
+| Memory | peak working set at most `--memory-budget-mb` plus 150 MiB, in memory and on disk. The bit arrays take 2.5 MB at 10 million records. Not a bound of the RSS in general (S10.2) | at most budget plus 115 MiB: 627 MiB at 512, 140 at 64, 67 at 1 |
+| Temporary disk | at most `D * (K + 50)` bytes on the volume of `--temp-dir`, `D` the distinct rows and `K` the mean key bytes (about the UTF-8 bytes of the record plus one per cell), plus 64 MiB of free space kept | key plus 19 to 47 bytes per distinct row: 0.7 GiB for 10 million distinct 4-cell rows, 2.7 GiB for 10 million 20-cell rows |
+| Disk for the outputs | at most twice the size of the source in `--output-dir` (the source folder by default); an LF source adds one byte per record written | 0 to 1.84 times (1.37 for the wide shapes): 733 MiB for a 535 MiB source (25 %), 791 for 527 (50 %), 90 for 49 with groups of two at 50 % |
+| Time, memory path | 7 microseconds per record for rows of up to 5 cells; 20 for 20 cells; 28 for rows of 1.2 KB | 2.9 to 4.5; 13.5; 18.6 |
+| Time, disk path | 15 microseconds per record for rows of 4 cells; 32 for 20 cells; 55 for 50 cells | 4.8 to 9.6; 21.3; 35.6 |
+
+In seconds, for the files at the default limit: 1 million narrow records in at most 7 s, 10
+million narrow records in at most 2 minutes 30 s (measured 96 s) and 10 million records of
+20 cells in at most 5 minutes 20 s (measured 213 s). The database and the outputs never
+coexist (the store is closed and its folder deleted before the second pass starts), so the
+space to plan is the source plus the larger of the two. For the largest case measured (10
+million records of 20 cells) that is 3.0 GiB of source plus 4.1 GiB of outputs, the database
+having been 2.7 GiB.
+
+### 18.5 Optimizations measured and refused
+
+Each candidate was measured against the code of lots 2 to 5; none gives a gain that
+justifies a change. The exactness of the engine is covered by the existing equivalence
+tests (memory against disk, reference counts, T18 to T20), so a safe change would have been
+free of risk; the measures say there is none worth taking.
+
+- **Key.** `canonical_key` costs 0.38 microseconds for 4 cells and 1.67 for 20. Three
+  alternatives that give the same bytes (one `chain` of `zip`ped lengths and cells, the same
+  on `str` then one `encode`, `str.format`) cost 0.8 to 3.5 microseconds. The current code is
+  the fastest.
+- **First-pass loop.** Binding the methods to locals and dropping the `enumerate` of
+  `count_rows` gave no gain (best of six, 1.84 s for the current loop against 2.16 s for the
+  variant, per million records; the other runs were within noise).
+- **Where the first pass spends its time** (1 million records of 4 cells, memory path): the
+  `csv` module 0.36 s, the SHA-256 of the file 0.11 s, the key 0.57 s, the store 0.80 s
+  and the counters and marks 0.66 s. The second pass is dominated by `csv.writer.writerow`
+  (45 %) and by the `csv` reader (25 %); both are C code, and the writes of the file
+  (`BufferedWriter`, 8 KiB) are 6 %.
+- **`--verbose` costs a lot.** The memory peak of the report is measured with `tracemalloc`
+  (9.4). On 2 million records it multiplies the first pass by 4.4 (16.9 s against 3.8 s)
+  and the working set by 1.8 (673 against 371 MiB) and, on the disk path (5 million records), the first pass by 2.6 (63.6 s against 24.6 s) and
+  the working set by 2.1 (1,099 against 527 MiB). The help of `--verbose` now says so. A cheaper measure (the peak working set of the process, which is
+  the number 18.4 bounds) would change the meaning of `run.memory_peak_bytes`, a field of
+  the format, so it is left for the maintainer to decide (18.8).
+- **The disk path** keeps the parameters of lot 3 (page size 16 KiB, no journal, sorted
+  migration, cache equal to the budget). Section 18.2 confirms them: the working set follows
+  the budget and the time falls as the cache grows.
+
+### 18.6 Control comparison with the Scan
+
+`benchmarks/dedup_vs_scan.py` reads the same CSV with `tabalyst.scan` (default configuration)
+and with the first pass of Dedup (`dedup-vs-scan-lot10.json`). The Scan counts the records
+equal to an earlier one (its `records.duplicates.count`, positions numbered from 1, at most
+10,000 listed), which is `E`, the extra copies of Dedup.
+
+| File | Records | Dedup `E` | Scan | Agreement |
+| --- | ---: | ---: | --- | --- |
+| `examples/datasets/insurance-customers.csv` | 3,000 | 8 | complete, 8 | count and the 8 positions |
+| generated, 25 % of copies | 200,000 | 50,000 | complete, 50,000 | count and the first 10,000 positions |
+| generated, 1 % of copies | 1,000,000 | 10,000 | complete, 10,000 | count and the 10,000 positions |
+| generated, 50 % of copies, `hot` groups | 1,000,000 | 500,000 | complete, 500,000 | count and the first 10,000 positions |
+| generated, 25 % of copies | 3,000,000 | 750,000 | limited (`record_budget`, limit 2,000,000), lower bound 745,229 | the bound is below the exact count |
+
+Under the Scan limit (`limits.max_tracked_records`, 2,000,000) the two agree on the count
+and on the position of every extra copy that the Scan lists; past it the Scan reports a
+proven lower bound and Dedup the exact number, as the specification wants. The fast tests
+`tests/dedup/test_scan_control.py` repeat the comparison on the example dataset, on
+generated files of 5,000 records and past a lowered limit. The times of the two tools are not
+comparable (the Scan reads and analyses every value on all processors; Dedup reads twice and
+writes) and are in the archive for information only.
+
+### 18.7 Tests of lot 10
+
+The four heavy tests of `test_contract_scale.py` run with `-m dedup_heavy` and the artifact
+root `D:\GIT.test\tabalyst\artifacts`; they pass in 3 minutes 11 s together. Lot `"10"` is
+enabled in `tests/dedup/conftest.py`.
+
+| Test | Scenario | Process time | Checked beyond the contract text |
+| --- | --- | ---: | --- |
+| T07 | 1,000,000 records, 275,000 copies, 3 cells | 3.9 s, memory | the counts of the report against `Counter` (`N`, `D`, `G`, `E`, `O`, `M`) and the content and order of the three CSV against the reference, the schema |
+| T08 | 10,000,000 records, 500,000 copies, 4 cells | 77.0 s, disk | `storage_mode` is `disk`, the temporary folder is empty, the counts of the groups and of the outputs against a DuckDB `GROUP BY` of every cell, the schema |
+| T09 | 10,000,001 records | 48.0 s | the failed report names the limit and `records_read = 10000001`, `certified false`, no CSV, no temporary file, empty temporary folder |
+| T21 | 3,000,000 records, 900,000 copies, budget 1 MiB | 30.3 s, disk | `storage_mode` is `disk`, the counts against DuckDB, the schema, empty temporary folder (the scenario also accepts a clean failure) |
+
+The scenarios and the assertions of the contract are unchanged; the checks of the right-hand
+column were added. Each test archives its measures with `record_measure`. The fast tests of
+lot 10 are `test_scan_control.py` (18.6) and `test_scale_edges.py`: a key larger than the
+whole budget (a spill at the first record), cells of 100,000 characters, a cell over the
+field limit of the `csv` module (131,072 characters: an `invalid_csv` failure, with no cell in
+the report), 2,000 columns in memory and on disk, and NUL, astral and combining characters
+counted alike by the two stores.
+
+### 18.8 Gate 10: what the maintainer validates
+
+1. The budgets of 18.4 (memory, temporary disk, output disk, time per record and in seconds
+   for the files at the limit).
+2. The default budget of 512 MiB and the constant 160 (18.3): kept, with `--memory-budget-mb
+   2048` as the documented way to keep the files of up to 9 million distinct narrow rows in
+   memory.
+3. `--verbose` and its `tracemalloc` (18.5): keep the cost and the help text, or replace the
+   measure by the peak working set of the process (a change of meaning of
+   `run.memory_peak_bytes`, hence a note in the format changelog).
+4. No preflight of the space for the outputs: only the temporary store checks the free space
+   (8.5). A destination volume that fills up during the second pass fails the source with
+   `insufficient_disk_space` after the first pass, which can take minutes at 10 million
+   records. An estimate from `D`, `G`, `O` and the size of the source is possible
+   (the outputs stay under twice the size of the source); it is not implemented.
+5. The cell limit of the `csv` module (131,072 characters) is kept: a longer cell is an
+   `invalid_csv` failure of that source, the same for `sample`.

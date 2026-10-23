@@ -11,7 +11,7 @@ source language; the French terms below are used when Tabalyst is translated, fo
 Keep these exactly as written in every language:
 
 - the product names `Tabalyst`, `Tabalyst Report`, `Tabalyst CSV Report`,
-  `Tabalyst Scan`, `Tabalyst Inspect` and `Tabalyst Generate`;
+  `Tabalyst Scan`, `Tabalyst Inspect`, `Tabalyst Dedup` and `Tabalyst Generate`;
 - commands and options, such as `tabalyst report`, `-o`, `--output-dir` or
   `--config`;
 - JSON keys and values, such as `format_version`, `with_issues` or `mixed`;
@@ -116,6 +116,21 @@ Keep these exactly as written in every language:
 | histogram | histogramme | The count of the values of a numeric field per integer or per bin, exact, with a median and quantiles that are exact or estimated |
 | already satisfied | déjà satisfaite | An analysis whose answer the scan already holds, so the plan does not select it |
 | duplicate record | enregistrement en double | A record equal to an earlier record of its dataset |
+| row identity | identité de ligne | In Dedup, the list of the decoded cells of a CSV record, compared without any normalization: case, spaces and leading zeros count |
+| distinct row | ligne distincte | One row identity; Dedup counts it once, and writes it once to `unique.csv` |
+| duplicate group | groupe de doublons | All the occurrences of one row that occurs at least twice; `records.duplicate_groups` counts the groups |
+| repeated row | ligne répétée | The row of a duplicate group, written once to `duplicates.csv` |
+| extra copy | occurrence supplémentaire | An occurrence after the first of its row, counted by `records.extra_copies`; a row that occurs three times has two |
+| first occurrence | première occurrence | The first record of a row in the order of the source; the one Dedup keeps |
+| singleton | ligne unique | A row that occurs exactly once |
+| maximum frequency | fréquence maximale | `records.max_occurrences`, the most occurrences of one row; three or more makes Dedup write `duplicates_all.csv` |
+| group occurrences | occurrences des groupes | Every occurrence of the rows of the duplicate groups, first ones included; the rows of `duplicates_all.csv` |
+| managed output | sortie gérée | A file under an output name of Dedup that a Dedup report proves it published |
+| foreign output | sortie étrangère | A file under an output name of Dedup that no report proves it published; Dedup replaces it only with `--force` |
+| recovery report | rapport de reprise | The report with the status `in_progress` that Dedup writes before it changes the files of an earlier result |
+| verification level | niveau de vérification | `metadata` (size and modification time) or `digest` (SHA-256): how far Dedup checked that a skipped source is unchanged |
+| storage mode | mode de stockage | `memory` or `disk`: where Dedup kept the rows it had seen |
+| spill | repli sur disque | The automatic switch of Dedup from memory to disk when the memory budget is reached |
 | record | enregistrement | One CSV row, one element of a JSON collection, one object line of a JSONL file or one data row of an Excel table |
 | collection | collection | A JSON array whose elements are analyzed as records; a JSONL file is one collection, `$[]` |
 | field | champ | A CSV column or a path inside JSON records, such as `orders[].amount` |

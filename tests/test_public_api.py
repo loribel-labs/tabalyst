@@ -256,3 +256,30 @@ def test_worker_modules_do_not_load_the_services_of_the_package():
     )
 
     assert completed.stdout.strip() == "[]"
+
+
+def test_dedup_api_processes_files_and_a_batch_with_positioned_progress(tmp_path):
+    first = tmp_path / "first.csv"
+    second = tmp_path / "second.csv"
+    first.write_text("a\r\n1\r\n1\r\n", encoding="utf-8", newline="")
+    second.write_text("a\r\n1\r\n2\r\n", encoding="utf-8", newline="")
+    events = []
+
+    single = tabalyst.dedup_csv(first)
+    batch = tabalyst.generate_dedups(
+        [first, second], output_dir=tmp_path / "out", on_progress=events.append
+    )
+
+    assert single.status == "DONE"
+    assert [path.name for path in single.files] == ["first.unique.csv", "first.duplicates.csv"]
+    assert isinstance(batch, tabalyst.BatchDedupResult)
+    assert isinstance(single, tabalyst.DedupResult)
+    assert [item.status for item in batch.results] == ["DONE", "DONE"]
+    assert batch.succeeded
+    assert batch.batch_report == tmp_path / "out" / "dedup.summary.json"
+    assert json.loads(batch.batch_report.read_text(encoding="utf-8"))["format"] == (
+        "tabalyst.dedup.batch"
+    )
+    for index in (1, 2):
+        assert [e.phase for e in events if e.index == index][-1] is ProgressPhase.COMPLETE
+    assert all(event.total == 2 for event in events)

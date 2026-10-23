@@ -16,6 +16,10 @@ from tabalyst.errors import ConfigurationError, InputError, ReportError, Tabalys
 if TYPE_CHECKING:
     from tabalyst.config import DeepSettings as DeepSettings
     from tabalyst.config import PearsonSettings as PearsonSettings
+    from tabalyst.dedup_service import BatchDedupResult as BatchDedupResult
+    from tabalyst.dedup_service import DedupResult as DedupResult
+    from tabalyst.dedup_service import dedup_csv as dedup_csv
+    from tabalyst.dedup_service import generate_dedups as generate_dedups
     from tabalyst.deep_service import execute_deep as execute_deep
     from tabalyst.deep_service import generate_deep as generate_deep
     from tabalyst.deep_service import prepare_deep as prepare_deep
@@ -76,6 +80,10 @@ _LAZY: dict[str, str] = {
     "generate_deep": "tabalyst.deep_service",
     "prepare_deep": "tabalyst.deep_service",
     "ConfirmationRequired": "tabalyst.deep_store",
+    "BatchDedupResult": "tabalyst.dedup_service",
+    "DedupResult": "tabalyst.dedup_service",
+    "dedup_csv": "tabalyst.dedup_service",
+    "generate_dedups": "tabalyst.dedup_service",
     "ComputerPlan": "tabalyst.generate_service",
     "GeneratePlan": "tabalyst.generate_service",
     "GenerateResult": "tabalyst.generate_service",
@@ -140,9 +148,11 @@ def __dir__() -> list[str]:
 __all__ = [
     "AnalysisPlan",
     "AnalysisRequest",
+    "BatchDedupResult",
     "ComputerPlan",
     "ConfigurationError",
     "ConfirmationRequired",
+    "DedupResult",
     "DeepResult",
     "DeepSettings",
     "GeneratePlan",
@@ -166,9 +176,11 @@ __all__ = [
     "__version__",
     "analyze",
     "build_generate_plan",
+    "dedup_csv",
     "execute_deep",
     "execute_smart_samples",
     "generate_datasets",
+    "generate_dedups",
     "generate_deep",
     "generate_inspections",
     "generate_plans",

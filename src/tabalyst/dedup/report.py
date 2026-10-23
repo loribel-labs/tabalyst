@@ -6,6 +6,7 @@
 
 import json
 import math
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Annotated, Any, Final, Literal
 
@@ -181,8 +182,53 @@ class FailedReport(_Model):
     partial: Partial
 
 
-DedupReport = Annotated[CompleteReport | FailedReport, Field(discriminator="status")]
-_ADAPTER: TypeAdapter[CompleteReport | FailedReport] = TypeAdapter(DedupReport)
+class InventoryEntry(_Model):
+    """A managed output as the recovery report names it: its file, size and digest."""
+
+    file: str
+    size_bytes: Count
+    sha256: Sha256
+
+
+class Recovery(_Model):
+    """The two inventories that prove the ownership of the outputs during a publication.
+
+    A file under a managed name is owned if it matches either one (ADR ownership).
+    """
+
+    previous_outputs: list[InventoryEntry]
+    planned_outputs: list[InventoryEntry]
+
+
+class RecoverySource(_Model):
+    """The source of a recovery report: its name, and what the run knew of its content."""
+
+    name: str
+    size_bytes: Count | None = None
+    mtime_ns: Count | None = None
+    content_sha256: Sha256 | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler: Any) -> dict[str, Any]:
+        return _without_none(handler(self), ("size_bytes", "mtime_ns", "content_sha256"))
+
+
+class InProgressReport(_Model):
+    """The write-ahead record of a publication: never a result, only a proof (design dedup 12.5)."""
+
+    format: Literal["tabalyst.dedup"] = FORMAT
+    format_version: Literal["0.2.0"] = FORMAT_VERSION
+    format_revision: Literal[1] = FORMAT_REVISION
+    generator: ReportGenerator
+    status: Literal["in_progress"]
+    source: RecoverySource
+    settings: ReportSettings
+    recovery: Recovery
+
+
+AnyReport = CompleteReport | FailedReport | InProgressReport
+DedupReport = Annotated[AnyReport, Field(discriminator="status")]
+_ADAPTER: TypeAdapter[AnyReport] = TypeAdapter(DedupReport)
 
 
 def broken_invariants(report: CompleteReport) -> list[str]:
@@ -396,6 +442,62 @@ def failed_report(
     )
 
 
+def planned_inventory(staged: StagedOutputs) -> list[InventoryEntry]:
+    """The staged files as inventory entries: what a publication is about to put in place."""
+    return [
+        InventoryEntry(
+            file=output.final.name, size_bytes=output.size_bytes, sha256=output.sha256
+        )
+        for output in staged.files
+    ]
+
+
+def recovery_report(
+    source_name: str,
+    settings: DedupSettings,
+    *,
+    previous: Sequence[InventoryEntry],
+    planned: Sequence[InventoryEntry],
+    analysis: DedupAnalysis | None = None,
+) -> InProgressReport:
+    """The recovery report written before the first change to the outputs (design dedup 12.5).
+
+    ``previous`` are the outputs of the earlier run that exist and are proven, ``planned``
+    the staged ones; ``analysis`` adds the identity of the source it describes, if any.
+    """
+    identity = analysis.source if analysis is not None else None
+    return InProgressReport(
+        generator=ReportGenerator(version=__version__),
+        status="in_progress",
+        source=RecoverySource(
+            name=source_name,
+            size_bytes=identity.size_bytes if identity else None,
+            mtime_ns=identity.mtime_ns if identity else None,
+            content_sha256=identity.content_sha256 if identity else None,
+        ),
+        settings=_settings(settings),
+        recovery=Recovery(previous_outputs=list(previous), planned_outputs=list(planned)),
+    )
+
+
+def inventory_of(report: AnyReport) -> list[InventoryEntry]:
+    """Every output file that ``report`` vouches for (design dedup 11.3).
+
+    A complete report vouches for its inventory, a recovery report for both of its
+    inventories, a failed report for nothing.
+    """
+    if isinstance(report, CompleteReport):
+        outputs = report.outputs
+        return [
+            InventoryEntry(file=item.file, size_bytes=item.size_bytes, sha256=item.sha256)
+            for item in (outputs.unique, outputs.duplicates, outputs.duplicates_all)
+            if item is not None
+        ]
+    if isinstance(report, InProgressReport):
+        return [*report.recovery.previous_outputs, *report.recovery.planned_outputs]
+    return []
+
+
 def _settings(settings: DedupSettings) -> ReportSettings:
     return ReportSettings(
         max_rows=settings.max_rows,
@@ -422,21 +524,21 @@ def _records(stats: GroupStats) -> Records:
 # ------------------------------------------------- reading and writing
 
 
-def report_json(report: CompleteReport | FailedReport) -> str:
+def report_json(report: AnyReport) -> str:
     """The report as the file holds it: indented JSON, one trailing newline."""
     return json.dumps(report.model_dump(mode="json"), indent=2, ensure_ascii=False) + "\n"
 
 
-def write_report(path: Path, report: CompleteReport | FailedReport) -> None:
+def write_report(path: Path, report: AnyReport) -> None:
     """Replace ``path`` with ``report`` atomically; ``OSError`` if it cannot be written."""
     write_text_atomic(path, report_json(report))
 
 
-def parse_report(document: object) -> CompleteReport | FailedReport:
+def parse_report(document: object) -> AnyReport:
     """Validate a decoded JSON document, the invariants of design dedup 12.3 included.
 
-    Raises ``DedupDocumentError`` for anything that is not a complete or failed report
-    of this format and revision; a document that breaks an invariant is not a complete
+    Raises ``DedupDocumentError`` for anything that is not a complete, failed or
+    in-progress report of this format and revision; a document that breaks an invariant is not a complete
     report, so the cache can treat it as unreadable.
     """
     try:
@@ -445,7 +547,7 @@ def parse_report(document: object) -> CompleteReport | FailedReport:
         raise DedupDocumentError(_describe(exc)) from exc
 
 
-def read_report(path: Path) -> CompleteReport | FailedReport:
+def read_report(path: Path) -> AnyReport:
     """Read and validate the report at ``path``; ``DedupDocumentError`` if it is not valid."""
     try:
         text = path.read_text(encoding="utf-8")
@@ -479,7 +581,7 @@ def dedup_schema() -> dict[str, Any]:
     schema["title"] = "Tabalyst Dedup"
     schema["description"] = (
         f"Document {FORMAT}, format {FORMAT_VERSION} revision {FORMAT_REVISION}: "
-        "the report of one source, complete or failed."
+        "the report of one source: complete, failed or in progress (recovery)."
     )
     for node in schema["$defs"].values():
         properties = node.get("properties", {})

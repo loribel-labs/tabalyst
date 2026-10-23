@@ -7,12 +7,13 @@ Reference pages describe exactly what Tabalyst accepts and produces.
 
 - [Command line (CLI)](cli/index.md): the shared conventions and one page per
   command ([report](cli/report.md), [scan](cli/scan.md),
-  [inspect](cli/inspect.md), [sample](cli/sample.md), [cache](cli/cache.md))
+  [inspect](cli/inspect.md), [sample](cli/sample.md), [dedup](cli/dedup.md),
+  [cache](cli/cache.md))
   with every option, examples and exit codes.
 - [Python API](python-api/index.md): the public functions and their
   arguments.
-- [Configuration](configuration.md): the JSON configuration file and every
-  `scan` setting.
+- [Configuration](configuration.md): the JSON configuration file, the
+  [`dedup` settings](configuration.md#dedup-settings) and every `scan` setting.
 - [Types and patterns](types-and-patterns/index.md): native, inferred and
   semantic [types](types-and-patterns/types.md), plus built-in and configurable
   [patterns](types-and-patterns/patterns.md) shared by Scan and Report.
@@ -27,3 +28,5 @@ Reference pages describe exactly what Tabalyst accepts and produces.
   [changelog](../scan/format-changelog.md), for `tabalyst scan`.
 - [Inspect format](../inspect/format.md) and its
   [changelog](../inspect/format-changelog.md), for `tabalyst inspect`.
+- [Dedup reports](../dedup/format.md) and their
+  [changelog](../dedup/format-changelog.md), for `tabalyst dedup`.

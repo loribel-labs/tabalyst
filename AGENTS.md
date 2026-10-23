@@ -149,6 +149,25 @@ support is not yet required. Record format changes in the relevant changelogs.
 - `src/tabalyst/scanner/readers/excel_*.py`: the Excel reader, the workbook
   helpers (`excel_common.py`) and the header rule shared by Inspect and the reader
   (`excel_table.py`).
+- `src/tabalyst/csv_records.py`: the CSV reading (`open_records`, the digest and byte hooks) and writing
+  (`open_writer`, `output_encoding`) conventions shared by `sample` and Dedup.
+- `src/tabalyst/dedup/`: Tabalyst Dedup, the exact deduplication of CSV rows (`docs/dev/dedup/design.md` is
+  the contract; the format changelog is `docs/dev/dedup/format-changelog.md`). `identity.py` is the canonical
+  key of a row; `store.py`, `diskstore.py` and `tiered.py` the exact row store (memory, SQLite, automatic
+  migration at the memory budget; ADR `2026-10-22-dedup-exact-store-and-disk-fallback`); `groups.py` the
+  counters, the marks of the records and the invariants; `analysis.py` the first pass and `writer.py` the
+  second one (temporary CSV, checks between the passes); `publish.py` the publication, the recovery report and
+  the deletion of obsolete outputs, and `cache.py` the ownership of the outputs and the `SKIPPED` decision (ADR
+  `2026-10-22-dedup-output-ownership-and-recovery`); `discovery.py` the sources, the exclusions of derived
+  files and the planned outputs; `settings.py` the validated options; `report.py` and `batch_report.py` the
+  models, schemas and writing of `<stem>.dedup.json` and `dedup.summary.json`; `failures.py` the stable
+  `reason` codes; `pipeline.py` one source from decision to report. Nothing there prints or reads the
+  terminal. `src/tabalyst/dedup_service.py` is its boundary for the CLI and the API (`dedup_csv`,
+  `generate_dedups`, `DedupResult`, `BatchDedupResult`); the schemas are
+  `src/tabalyst/schemas/tabalyst.dedup.schema.json` and `tabalyst.dedup.batch.schema.json`; the tests are in
+  `tests/dedup/` (contract tests T01 to T30, `dedup_heavy` run with `-m dedup_heavy` and the external artifact
+  root). The public pages are `docs/en/dedup/`, `docs/en/reference/cli/dedup.md` and
+  `docs/en/reference/python-api/dedup.md`.
 - `src/tabalyst/cli/`: thin command adapters, error presentation and terminal
   output management.
 - `src/tabalyst/templates/` and `src/tabalyst/static/`: report presentation.

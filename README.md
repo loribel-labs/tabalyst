@@ -42,6 +42,7 @@ Update before each new test.
 | [**Tabalyst Scan**](https://docs.tabalyst.com/scan/) | Profile datasets and generate JSON and HTML scan summaries |
 | [**Tabalyst Inspect**](https://docs.tabalyst.com/inspect/) | Discover and configure JSON collections and Excel tables |
 | [**Tabalyst Sample**](https://docs.tabalyst.com/sample/) | Create random, stratified and smart CSV samples |
+| [**Tabalyst Dedup**](https://docs.tabalyst.com/dedup/) | Find the exact duplicate rows of CSV files and write the unique and repeated rows |
 | [**Tabalyst Generate**](https://docs.tabalyst.com/generate/) | Generate synthetic CSV datasets for testing and demos |
 
 ## Tabalyst Report
@@ -195,6 +196,34 @@ estimate the population from it. Sampling reads records as a stream.
 
 Details: [Tabalyst Sample](https://docs.tabalyst.com/sample/).
 
+## Tabalyst Dedup
+
+Find the rows that occur more than once in a CSV file, without modifying it:
+
+```console
+tabalyst dedup customers.csv
+tabalyst dedup "*.csv" -d deduped
+```
+
+Two rows are the same only when every cell is identical (case, spaces and
+leading zeros count). Dedup writes, beside the source or in `-d`,
+`customers.unique.csv` (every distinct row once, at its first place),
+`customers.duplicates.csv` (each repeated row once) and, when a row occurs three
+times or more, `customers.duplicates_all.csv` (every occurrence of the repeated
+rows), plus `customers.dedup.json`, a report whose counts always add up. A file
+without duplicate gets its report only. A batch also writes
+`dedup.summary.json`; a file that is already processed and unchanged is skipped.
+
+A result is exact or the file fails with a reason: the rows are kept in memory up
+to a budget (`--memory-budget-mb`, 512 by default) and then on disk, a file may
+hold 10,000,000 records by default (`--max-rows`), and nothing is ever
+approximated. Dedup reads CSV files only and asks no question.
+
+Details: [Tabalyst Dedup](https://docs.tabalyst.com/dedup/),
+[batches and already processed files](https://docs.tabalyst.com/dedup/batch/),
+[exactness, memory and limits](https://docs.tabalyst.com/dedup/limits/) and the
+[`dedup` command reference](https://docs.tabalyst.com/reference/cli/dedup/).
+
 ## Tabalyst Generate
 
 Generate synthetic CSV data from a packaged example (`crm`, `insurance` or
@@ -224,6 +253,7 @@ import tabalyst
 result = tabalyst.analyze("customers.csv", "customers.html")
 batch = tabalyst.generate_reports(["*.csv"], output_dir="reports")
 sample = tabalyst.sample_csv("customers.csv", method="random", rows=1000, seed=42)
+dedup = tabalyst.dedup_csv("customers.csv")
 scan = tabalyst.scan("orders.json")
 inspection = tabalyst.inspect("orders.json")
 ```
@@ -257,7 +287,8 @@ Generated JSON and HTML may contain source values and should be shared
 accordingly.
 
 Reports, samples, and scans read CSV, JSON and JSONL files as a stream, with
-memory bounded by configurable limits. An Excel workbook is read by sheet into
+memory bounded by configurable limits; Dedup keeps the rows it has seen in memory
+up to a budget, then on disk. An Excel workbook is read by sheet into
 memory, and a sheet above 1 GiB of XML is refused. See
 [limitations](https://docs.tabalyst.com/about/limitations/).
 

@@ -1,17 +1,18 @@
 ---
 title: Command line (CLI)
-description: The tabalyst commands (report, scan, inspect, sample, generate, cache) and their shared conventions.
+description: The tabalyst commands (report, scan, inspect, sample, dedup, generate, cache) and their shared conventions.
 ---
 
-The `tabalyst` command has six subcommands. `python -m tabalyst` accepts the
+The `tabalyst` command has seven subcommands. `python -m tabalyst` accepts the
 same ones. Each has its own page with every option and examples.
 
 | Command | Purpose | Options and examples |
 | --- | --- | --- |
-| `tabalyst report` | HTML report and JSON profile of CSV, JSON, JSONL or Excel files | [tabalyst report](tabalyst/docs/en/reference/cli/report.md) |
+| `tabalyst report` | HTML report and JSON profile of CSV, JSON, JSONL or Excel files | [tabalyst report](report.md) |
 | `tabalyst scan` | Complete JSON description of every field | [tabalyst scan](scan.md) |
 | `tabalyst inspect` | Find how to read a JSON, JSONL or Excel file | [tabalyst inspect](inspect.md) |
 | `tabalyst sample` | Smaller CSV file from a larger one | [tabalyst sample](sample.md) |
+| `tabalyst dedup` | Exact duplicate rows of CSV files, as new CSV files | [tabalyst dedup](dedup.md) |
 | `tabalyst cache` | Inspect and clean disposable query caches | [tabalyst cache](cache.md) |
 | `tabalyst generate` | Synthetic CSV datasets from YAML | [tabalyst generate](generate.md) |
 
@@ -23,7 +24,7 @@ tabalyst report --help
 
 ## Conventions
 
-- **Inputs.** `report`, `scan`, `inspect` and `sample` take one or more files or
+- **Inputs.** `report`, `scan`, `inspect`, `sample` and `dedup` take one or more files or
   non-recursive glob patterns, such as `*.csv`. Tabalyst expands wildcards
   itself, so they behave the same in PowerShell, `cmd` and POSIX shells. It
   does not search subfolders.
@@ -92,7 +93,7 @@ made and how to keep it in an Inspect file.
 | `0` | Success |
 | `1` | Analysis or output failure |
 | `2` | Invalid configuration or command, or a JSON or Excel source whose collection or table must be chosen (see [Inspect](../../inspect/json.md) and [Inspect Excel workbooks](../../inspect/excel.md)) |
-| `3` | A confirmation was needed and not given, so nothing was started (`tabalyst scan --deep`) |
+| `3` | A confirmation was needed and not given, so nothing was started (`tabalyst scan --deep`). `tabalyst dedup` never asks and never returns it |
 | `4` | Input error: missing, unreadable or invalid source |
 
 When a batch has several kinds of failure, `1` wins over `2`, which wins over

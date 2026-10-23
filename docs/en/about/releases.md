@@ -1,7 +1,14 @@
 ---
 title: Release notes
-description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.0.
+description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.1.
 ---
+
+## 0.7.1
+
+Adds [Tabalyst Dedup](../dedup/index.md): `tabalyst dedup` finds the exact
+duplicate rows of CSV files and writes the unique rows, the repeated rows and
+a JSON report, with batches, incremental runs and the Python API
+(`dedup_csv`, `generate_dedups`).
 
 ## 0.7.0
 

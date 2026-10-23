@@ -11,6 +11,7 @@ external artifact root, never inside the checkout.
 """
 
 import shutil
+import time
 import uuid
 
 import pytest
@@ -19,11 +20,14 @@ from dedup_helpers import (
     artifact_root,
     assert_published,
     count_stats,
+    duckdb_stats,
     generated_rows,
     load_report,
     no_temporary_files,
+    record_measure,
     reference_stats,
     run,
+    validate_report,
     write_csv,
     write_generated_csv,
 )
@@ -69,17 +73,30 @@ def test_a_thousand_rows_with_275_copies_publish_the_conditional_files(tmp_path)
 @pytest.mark.dedup_heavy
 @pytest.mark.dedup_t("T07")
 def test_one_million_rows_with_275000_copies_are_exact(heavy_folder):
-    source = write_generated_csv(heavy_folder / "t07.csv", 1_000_000, 275_000)
-    run(source)
+    header = ["id", "column_1", "column_2"]
+    rows = _rows(1_000_000, 275_000)
+    source = write_csv(heavy_folder, "t07.csv", rows, header=header)
+    started = time.perf_counter()
+    outcome = run(source)
+    record_measure("t07", outcome, time.perf_counter() - started)
+    assert outcome.status == "DONE"
     document = load_report(heavy_folder, "t07")
     assert document["status"] == "complete"
     records = document["records"]
     assert (records["total"], records["distinct"], records["extra_copies"]) == (
         1_000_000, 725_000, 275_000,
     )
-    outputs = document["outputs"]
-    assert outputs["unique"]["rows"] == 725_000
-    assert outputs["duplicates"]["rows"] == records["duplicate_groups"]
+    assert document["outputs"]["unique"]["rows"] == 725_000
+    assert document["outputs"]["duplicates"]["rows"] == records["duplicate_groups"]
+    validate_report(document)
+    # The counts of the report and the content and order of every file against the
+    # reference of the specification, computed with a dictionary of whole rows.
+    letters = reference_stats(rows)
+    assert (records["duplicate_groups"], records["max_occurrences"]) == (
+        letters["G"], letters["M"],
+    )
+    assert records["duplicate_group_occurrences"] == letters["O"]
+    assert_published(heavy_folder, "t07", rows, header=header)
 
 
 # ----------------------------------------------------------------- T08
@@ -90,15 +107,37 @@ def test_one_million_rows_with_275000_copies_are_exact(heavy_folder):
 @pytest.mark.dedup_t("T08")
 def test_ten_million_rows_are_exact_within_the_default_limit(heavy_folder):
     source = write_generated_csv(heavy_folder / "t08.csv", 10_000_000, 500_000, width=4)
-    run(source)
+    scratch = heavy_folder / "tmp"
+    scratch.mkdir()
+    started = time.perf_counter()
+    # The default budget (512 MiB): 9.5 million distinct rows cannot stay in memory.
+    outcome = run(source, temp_dir=scratch)
+    record_measure("t08", outcome, time.perf_counter() - started)
+    assert outcome.status == "DONE"
     document = load_report(heavy_folder, "t08")
     assert document["status"] == "complete"
+    validate_report(document)
     records = document["records"]
     assert (records["total"], records["distinct"], records["extra_copies"]) == (
         10_000_000, 9_500_000, 500_000,
     )
-    assert document["run"]["storage_mode"] in {"memory", "disk"}
+    assert document["run"]["storage_mode"] == "disk"
     assert document["outputs"]["unique"]["rows"] == 9_500_000
+    assert not list(scratch.iterdir()), "the temporary database is deleted"
+    assert no_temporary_files(heavy_folder)
+    # An oracle that shares nothing with the product: a group by of every cell.
+    oracle = duckdb_stats(source, heavy_folder / "duckdb")
+    assert oracle["N"] == 10_000_000 and oracle["E"] == 500_000
+    assert (
+        records["duplicate_groups"],
+        records["duplicate_group_occurrences"],
+        records["max_occurrences"],
+        records["groups_occurring_twice"],
+        records["groups_occurring_three_plus"],
+    ) == (oracle["G"], oracle["O"], oracle["M"], oracle["G2"], oracle["G3+"])
+    outputs = document["outputs"]
+    assert outputs["duplicates"]["rows"] == oracle["G"]
+    assert outputs["duplicates_all"]["rows"] == oracle["O"]
 
 
 # ----------------------------------------------------------------- T09
@@ -141,10 +180,20 @@ def test_an_exceeded_limit_publishes_no_csv_and_writes_a_partial_failed_report(t
 @pytest.mark.dedup_t("T09")
 def test_ten_million_and_one_rows_fail_under_the_default_limit(heavy_folder):
     source = write_generated_csv(heavy_folder / "t09.csv", 10_000_001, 100_000, width=2)
-    outcome = run(source)
+    scratch = heavy_folder / "tmp"
+    scratch.mkdir()
+    started = time.perf_counter()
+    outcome = run(source, temp_dir=scratch)
+    record_measure("t09", outcome, time.perf_counter() - started)
     assert outcome.status == "FAILED"
     assert outcome.reason == "row_limit_exceeded"
     assert not list(heavy_folder.glob("t09.*.csv"))
+    assert no_temporary_files(heavy_folder)
+    assert not list(scratch.iterdir()), "the temporary database is deleted"
+    document = load_report(heavy_folder, "t09")
+    assert document["status"] == "failed"
+    assert document["failure"]["limit"] == 10_000_000
+    assert document["partial"] == {"records_read": 10_000_001, "certified": False}
 
 
 # ----------------------------------------------------------------- T21
@@ -187,13 +236,29 @@ def test_a_large_file_on_a_tiny_budget_is_exact_or_fails_never_inexact(heavy_fol
     source = write_generated_csv(heavy_folder / "t21.csv", 3_000_000, 900_000, width=3)
     scratch = heavy_folder / "tmp"
     scratch.mkdir()
+    started = time.perf_counter()
     outcome = run(source, memory_budget_mb=1, temp_dir=scratch)
+    record_measure("t21", outcome, time.perf_counter() - started, budget_mb=1)
+    assert not list(scratch.iterdir()), "the temporary database is deleted"
+    assert no_temporary_files(heavy_folder)
     if outcome.status == "FAILED":
         assert outcome.reason in {"insufficient_disk_space", "storage_unavailable"}
         assert load_report(heavy_folder, "t21")["status"] == "failed"
+        assert not list(heavy_folder.glob("t21.*.csv"))
         return
-    records = load_report(heavy_folder, "t21")["records"]
+    document = load_report(heavy_folder, "t21")
+    validate_report(document)
+    records = document["records"]
     assert (records["distinct"], records["extra_copies"]) == (2_100_000, 900_000)
+    # 2.1 million distinct rows do not fit in one MiB: the run went through the disk.
+    assert document["run"]["storage_mode"] == "disk"
+    oracle = duckdb_stats(source, heavy_folder / "duckdb")
+    assert (
+        records["duplicate_groups"],
+        records["duplicate_group_occurrences"],
+        records["max_occurrences"],
+    ) == (oracle["G"], oracle["O"], oracle["M"])
+    assert document["outputs"]["unique"]["rows"] == oracle["D"]
 
 
 # ----------------------------------------------------------------- T22

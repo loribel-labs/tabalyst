@@ -71,7 +71,8 @@ class BatchPlan:
 
 
 # Whether a managed output is proven to have been published by a Dedup report.
-# Lot 7 supplies the real test; until then nothing is owned.
+# ``cache.is_owned`` is the real test, which reads the report beside the source; the
+# default of ``plan_batch`` owns nothing, so a caller that passes none is refused safely.
 OwnershipTest = Callable[[Path, PlannedSource], bool]
 
 
@@ -103,12 +104,13 @@ def managed_names(source: Path, destination: Path | None) -> dict[str, Path]:
 
 
 def _discover(
-    input_specs: Sequence[str | Path], destination: Path | None
+    input_specs: Sequence[str | Path], destination: Path | None, *, literal: bool
 ) -> tuple[list[Path], list[tuple[Path, ExclusionReason]]]:
     """Expand the specs into sources and exclusions, each file once, in spec order.
 
     A file given by an explicit path is never excluded, and a file that any spec
-    makes eligible stays eligible.
+    makes eligible stays eligible. With ``literal`` every spec is a path, whatever
+    characters its name holds.
     """
     destination_key = path_key(destination) if destination is not None else None
     found: dict[str, tuple[Path, ExclusionReason | None]] = {}
@@ -121,11 +123,11 @@ def _discover(
 
     for value in input_specs:
         text = os.fspath(value)
-        if "**" in text:
+        if not literal and "**" in text:
             raise ConfigurationError(
                 f"Recursive input patterns are not supported yet: {text}"
             )
-        if glob.has_magic(text):
+        if not literal and glob.has_magic(text):
             matches = sorted(
                 (Path(match) for match in glob.glob(text) if Path(match).is_file()),
                 key=path_key,
@@ -177,6 +179,15 @@ def _batch_report_directory(
     return Path.cwd()
 
 
+def foreign_output_error(paths: Sequence[Path]) -> ReportError:
+    """The refusal for outputs that exist and no Dedup report proves are its own (design dedup 7.4)."""
+    lines = "\n".join(f"  {path}" for path in paths)
+    return ReportError(
+        "Dedup output already exists and no Tabalyst Dedup report proves it is "
+        "one of its results. Use --force to allow replacing it:\n" + lines
+    )
+
+
 def _refuse_foreign_outputs(
     planned: Sequence[PlannedSource], is_owned: OwnershipTest
 ) -> None:
@@ -187,11 +198,7 @@ def _refuse_foreign_outputs(
         if os.path.lexists(path) and not is_owned(path, item)
     ]
     if foreign:
-        lines = "\n".join(f"  {path}" for path in foreign)
-        raise ReportError(
-            "Dedup output already exists and no Tabalyst Dedup report proves it is "
-            "one of its results. Use --force to allow replacing it:\n" + lines
-        )
+        raise foreign_output_error(foreign)
 
 
 def plan_batch(
@@ -199,6 +206,7 @@ def plan_batch(
     settings: DedupSettings,
     *,
     is_owned: OwnershipTest = _nothing_is_owned,
+    literal: bool = False,
 ) -> BatchPlan:
     """Resolve the inputs and refuse an unsafe batch before any work (design dedup 7).
 
@@ -206,12 +214,14 @@ def plan_batch(
     Dedup skips gives a plan without work. A managed output that is a source or a
     directory is an ``InputError``; two sources mapping to one output, or an existing
     output that ``is_owned`` does not recognize (without ``settings.force``), is a
-    ``ReportError``. Nothing is created or written.
+    ``ReportError``. Nothing is created or written. With ``literal`` the inputs are
+    explicit paths and never patterns (the Python API of one file), so a name with
+    brackets is a file, not a wildcard.
     """
     if not input_specs:
         raise ConfigurationError("At least one input file is required.")
     destination = output_directory(settings.output_dir)
-    sources, excluded = _discover(input_specs, destination)
+    sources, excluded = _discover(input_specs, destination, literal=literal)
 
     planned = tuple(
         PlannedSource(source=source, names=managed_names(source, destination))
@@ -229,8 +239,8 @@ def plan_batch(
         _refuse_foreign_outputs(planned, is_owned)
 
     found = [*sources, *(path for path, _ in excluded)]
-    explicit_single = len(input_specs) == 1 and not glob.has_magic(
-        os.fspath(input_specs[0])
+    explicit_single = len(input_specs) == 1 and (
+        literal or not glob.has_magic(os.fspath(input_specs[0]))
     )
     return BatchPlan(
         eligible=planned,

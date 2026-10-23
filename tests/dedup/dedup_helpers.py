@@ -14,9 +14,11 @@ lot 8 may rewire ``run`` to the public API without changing the tests.
 import csv
 import json
 import os
+import platform
 import tempfile
 from collections import Counter
 from collections.abc import Iterable, Iterator, Sequence
+from datetime import UTC, datetime
 from pathlib import Path
 
 Row = tuple[str, ...]
@@ -106,6 +108,77 @@ def write_generated_csv(
         writer.writerow(header)
         writer.writerows(generated_rows(total, extra_copies, width=width, seed=seed))
     return path
+
+
+def record_measure(name: str, outcome, wall_seconds: float, **extra) -> Path:
+    """Archive what a heavy test measured, under ``<artifact root>/dedup-heavy-measures``.
+
+    The report of a ``DONE`` outcome gives the counts, the storage mode and the time of
+    each pass; ``extra`` adds what only the test knows (sizes, budget). The peak of memory
+    is not recorded here (the test process has run other tests): the benchmark
+    ``dedup_scale.py`` of ``tabalyst-lab`` measures it with a fresh interpreter per case.
+    """
+    folder = artifact_root() / "dedup-heavy-measures"
+    folder.mkdir(exist_ok=True)
+    entry: dict = {
+        "test": name,
+        "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+        "status": outcome.status,
+        "reason": outcome.reason,
+        "wall_seconds": round(wall_seconds, 2),
+        **extra,
+    }
+    report = outcome.report
+    if report is not None and report.status == "complete":
+        document = json.loads(report.model_dump_json())
+        entry["records"] = document["records"]
+        entry["run"] = document["run"]
+        entry["output_sizes_bytes"] = {
+            kind: document["outputs"][kind]["size_bytes"]
+            for kind in ("unique", "duplicates", "duplicates_all")
+            if document["outputs"][kind]
+        }
+    path = folder / f"{name}.json"
+    path.write_text(json.dumps(entry, indent=1), encoding="utf-8")
+    return path
+
+
+def duckdb_stats(path: Path, scratch: Path) -> dict[str, int]:
+    """N, D, G, E, O, S, M, G2 and G3+ of a CSV by a DuckDB group by of every cell.
+
+    An oracle that is independent of Dedup and fits files that a ``Counter`` does not.
+    DuckDB spills to ``scratch`` (its default is a folder in the working directory).
+    """
+    import duckdb
+
+    scratch.mkdir(parents=True, exist_ok=True)
+    connection = duckdb.connect()
+    connection.execute(f"PRAGMA temp_directory='{str(scratch).replace(chr(39), chr(39) * 2)}'")
+    source = str(path).replace("'", "''")
+    connection.execute(
+        f"CREATE VIEW t AS SELECT * FROM read_csv('{source}', header=true, "
+        "all_varchar=true, strict_mode=true)"
+    )
+    row = connection.execute(
+        "WITH g AS (SELECT t.*, count(*) AS n FROM t GROUP BY ALL) "
+        "SELECT sum(n), count(*), count(*) FILTER (WHERE n >= 2), "
+        "max(n), count(*) FILTER (WHERE n = 2), count(*) FILTER (WHERE n >= 3) FROM g"
+    ).fetchone()
+    connection.close()
+    total, distinct, groups, maximum, twice, three = (int(value or 0) for value in row)
+    return {
+        "N": total,
+        "D": distinct,
+        "G": groups,
+        "E": total - distinct,
+        "O": groups + total - distinct,
+        "S": distinct - groups,
+        "M": maximum,
+        "G2": twice,
+        "G3+": three,
+    }
 
 
 # ------------------------------------------------------------ reference

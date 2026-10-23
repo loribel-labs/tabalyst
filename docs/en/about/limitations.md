@@ -87,7 +87,21 @@ a tenth of the time of a scan.
   `scan.limits.max_tracked_records` (2,000,000 rows by default). Beyond it,
   later rows are compared only with the stored ones, so the report shows a
   lower bound such as `≥ 12`. Raise the limit for an exact count, or set
-  `scan.records.duplicates` to `false` to skip the detection.
+  `scan.records.duplicates` to `false` to skip the detection. The count is
+  exact below the limit; to get the exact number of duplicate rows of a larger
+  file, or the rows themselves, use [`tabalyst dedup`](../dedup/index.md).
+- **Dedup compares whole rows, exactly.** [`tabalyst dedup`](../dedup/index.md)
+  reads CSV files only and finds rows whose every cell is identical: it does
+  not look for near duplicates, for duplicates on some columns only, or after a
+  normalization, and it does not remove lines from the source. A source holds
+  10,000,000 records by default. Past the memory budget (512 MiB by default) it
+  continues on disk, which takes about twice as long. It does not check the
+  space for its outputs before it starts, and it does not lock them: do not
+  run two commands on the same outputs at once.
+- **Derived files in patterns.** `tabalyst dedup` skips the files it wrote when
+  a pattern finds them, but `report`, `scan` and `sample` do not yet: a pattern
+  such as `*.csv` also reads `customers.unique.csv`. Name the sources, or write
+  the Dedup outputs to another folder with `-d`.
 - **No row-level progress.** Report and scan progress show the share of the
   file read, not a number of rows.
 - **One reader per file.** Files of 16 MiB or more are analyzed by worker

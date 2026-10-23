@@ -332,7 +332,9 @@ def dedup_command(
         typer.Option(
             "--verbose",
             help="Add the storage mode, the passes, the durations and the memory "
-            "peak, and list the excluded files.",
+            "peak, and list the excluded files. Measuring the memory peak "
+            "makes the first pass two to four times slower and doubles "
+            "the memory used.",
         ),
     ] = False,
     no_progress: Annotated[

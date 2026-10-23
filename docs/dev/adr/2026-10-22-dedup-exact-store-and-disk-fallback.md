@@ -109,3 +109,24 @@ random keys), the page cache takes the memory budget once the dictionary is gone
 optional digest prefix stays off (slower and larger). SQLite is therefore kept; the
 partitioning alternative is not needed. Gate 3 is the maintainer's reading of these
 numbers.
+
+## Measures of lot 10
+
+Done end to end (CSV reading, both passes, publication) with `tabalyst-lab/benchmarks/dedup_scale.py`
+on 50 cases from 100,000 to 10,000,000 records, 4 to 50 cells and long texts, each one recounted by an
+independent DuckDB `GROUP BY` (design dedup 18). The decision is unchanged: SQLite stays the disk
+realization, the budget stays at 512 MiB and `ENTRY_OVERHEAD` at 160 bytes. What the measures settle:
+
+- The in-memory dictionary costs 108 to 135 bytes beyond the key for keys up to 240 bytes (170 to
+  194 for kilobyte keys, where Python leaves its small-object allocator), so the accounted bytes are
+  0.70 to 0.98 of the real cost, and within 3 % below it for keys of 1.2 KB.
+- The peak working set is the budget plus at most 115 MiB in both modes (627 MiB at the default
+  budget, 604 MiB for 10 million records of 20 cells), because the page cache of the disk store takes
+  the budget once the dictionary is dropped.
+- The disk path costs 1.6 to 2.7 times the memory path on the same file (10 million records at 25 %
+  of copies: 96 s in 596 MiB against 35 s in 1,425 MiB), which is why raising the budget is left to the
+  user (`--memory-budget-mb 2048` keeps about 9 million distinct narrow rows in memory).
+- The database holds the key plus 19 to 47 bytes per distinct row, under the floor of
+  `estimate_disk_bytes`.
+- No optimization of the key, of the first-pass loop or of the writers beat the current code
+  (design dedup 18.5); the partitioning alternative is still not needed.

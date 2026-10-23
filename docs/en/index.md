@@ -1,6 +1,6 @@
 ---
 title: Tabalyst documentation
-description: Documentation of Tabalyst 0.7.0, the open-source toolkit for reports, scans, samples and synthetic CSV generation.
+description: Documentation of Tabalyst 0.7.1, the open-source toolkit for reports, scans, samples, exact deduplication and synthetic CSV generation.
 ---
 
 Tabalyst is an open-source, local-first toolkit for understanding unfamiliar
@@ -12,6 +12,8 @@ from Python:
 - **[Tabalyst Scan](scan/index.md)** describes every field of a file in one JSON document.
 - **[Tabalyst Inspect](inspect/index.md)** finds how to read a JSON, JSONL or Excel file.
 - **[Tabalyst Sample](sample/index.md)** samples CSV files to create smaller datasets.
+- **[Tabalyst Dedup](dedup/index.md)** finds the exact duplicate rows of CSV files and writes
+  the unique rows, the repeated rows and every copy to new CSV files.
 - **[Tabalyst Generate](generate/index.md)** creates synthetic CSV datasets.
 
 ```console
@@ -41,6 +43,7 @@ documentation describes the latest release published on PyPI.
 | Choose which sheet or table of a workbook is analyzed | [Inspect Excel workbooks](inspect/excel.md) |
 | Describe every field of a file as JSON | [Scan CSV and JSON files](scan/files.md) |
 | Cut a large CSV down | [Sample CSV files](sample/index.md) |
+| Remove or list the exact duplicate rows of a CSV file | [Tabalyst Dedup](dedup/index.md) |
 | Create synthetic CSV data | [Tabalyst Generate](generate/index.md) |
 | Change delimiter, encoding or detection | [Configuration](reference/configuration.md) |
 | Find a command or an option | [Command line (CLI)](reference/cli/index.md) |
@@ -65,6 +68,9 @@ documentation describes the latest release published on PyPI.
   [changelog](scan/format-changelog.md) and
   [query caches](scan/cache.md).
 - **Tabalyst Sample**: [Sample CSV files](sample/index.md).
+- **Tabalyst Dedup**: [overview](dedup/index.md), [batches and already processed
+  files](dedup/batch.md), [exactness, memory and limits](dedup/limits.md), the
+  [report format](dedup/format.md) and its [changelog](dedup/format-changelog.md).
 - **Tabalyst Generate**: [overview and examples](generate/index.md) and
   [CLI options](reference/cli/generate.md).
 - **[Reference](reference/index.md)**: [command line](reference/cli/index.md),

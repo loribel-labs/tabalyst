@@ -6,8 +6,8 @@
 | `fr/` | French overview of Tabalyst; its links lead to the English pages | Yes, at `/fr/` |
 | `dev/` | Maintainer documentation: architecture, progress, packaging, release notes | No |
 
-`en/` is organized by tool: `get-started/`, `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and
-`about/`. URLs follow the pattern `/tool/subject/`. Pages in `en/` start with a `title` and
+`en/` is organized by tool: `get-started/`, `report/`, `inspect/`, `scan/`, `sample/`, `dedup/`, `generate/`,
+`reference/` and `about/`. URLs follow the pattern `/tool/subject/`. Pages in `en/` start with a `title` and
 `description` frontmatter and have no `# H1` heading; the documentation site
 renders the title.
 
@@ -26,6 +26,7 @@ the reference of its JSON format with its changelog.
 | `inspect/` | Tabalyst Inspect: overview, JSON guide, Inspect format |
 | `scan/` | Tabalyst Scan: overview, guide, scan format, query caches |
 | `sample/` | Tabalyst Sample (one page) |
+| `dedup/` | Tabalyst Dedup: overview, batch guide, exactness and limits, report format and its changelog |
 | `reference/` | Command line (`cli/`), Python API (`python-api/`), shared types and patterns (`types-and-patterns/`), configuration, execution history, glossary |
 | `about/` | Overview, concepts, known limitations, release notes, contributing and issues |
 
