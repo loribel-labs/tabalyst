@@ -10,6 +10,7 @@ import typer
 
 from tabalyst import __version__
 from tabalyst.cli.cache import cache_app
+from tabalyst.cli.dedup import dedup_command
 from tabalyst.cli.generate import generate_command
 from tabalyst.cli.inspect import inspect_command
 from tabalyst.cli.report import report_command
@@ -45,6 +46,7 @@ def root(
     """Understand, explore, clean, and validate structured data."""
 
 
+app.command("dedup")(dedup_command)
 app.command("inspect")(inspect_command)
 app.command("generate")(generate_command)
 app.command("report")(report_command)

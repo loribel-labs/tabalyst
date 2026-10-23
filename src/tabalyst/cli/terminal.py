@@ -91,12 +91,17 @@ class ProgressPrinter:
         self.enabled = enabled
         self._width = 0
 
-    def __call__(self, event: ProgressEvent) -> None:
-        if not self.enabled or event.index is None or event.total is None:
-            return
+    def _label(self, event: ProgressEvent) -> str:
+        """The phase of an event, with the detail the line shows (reading only)."""
         label = self._labels[event.phase]
         if event.detail and event.phase == ProgressPhase.READING:
             label = f"{label} ({event.detail})"
+        return label
+
+    def __call__(self, event: ProgressEvent) -> None:
+        if not self.enabled or event.index is None or event.total is None:
+            return
+        label = self._label(event)
         if event.stage is not None:
             label = f"{event.stage} : {label}"
         message = f"[{event.index}/{event.total}] {event.source.name} - {label}"

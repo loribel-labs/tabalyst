@@ -32,11 +32,11 @@ ENABLED_LOTS: set[str] = {
 
     "6",  # JSON report
 
-    # "7",  # cache, ownership, recovery
+    "7",  # cache, ownership, recovery
 
-    # "8",  # batch runner, batch report, Python API
+    "8",  # batch runner, batch report, Python API
 
-    # "9",  # command line
+    "9",  # command line
 
     # "10",  # hardening, scale
 

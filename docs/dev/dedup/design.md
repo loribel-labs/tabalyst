@@ -99,6 +99,10 @@ maintainer should look at it.
 | DD-16 | Internal entry points `analyze_dedup`, `write_outputs`, `process_source` | 4.3 |
 | DD-17 | The stable `reason` codes of a failure | 12.4 |
 | DD-18 | Paths of the batch report are relative to its folder | 13.1 |
+| DD-19 | A source refused just before its run fails alone with `output_refused` | 13.5 |
+| DD-20 | `results` holds the eligible sources only; the batch status is `complete`, `partial` or `failed` | 4.3, 13.5 |
+| DD-21 | A source refused at run time (`output_refused`) keeps the exit code of the class of its refusal (4 or 1) | 13.6, 17 |
+| DD-22 | `--quiet` with `--no-progress` is refused (the progress is already hidden); one explicit file prints the block of 13.2, a pattern or several inputs the table | 13.6 |
 
 ## 2. Principles
 
@@ -156,7 +160,8 @@ src/tabalyst/
     cache.py              ownership of outputs, SKIPPED decision
     discovery.py          sources, exclusions, planned outputs, collisions
     settings.py           DedupSettings (options effective and validated)
-    report.py             Pydantic models of the report and the batch report
+    report.py             Pydantic models of the report of one source
+    batch_report.py       Pydantic models, schema and writing of dedup.summary.json
     pipeline.py           process_source: one source from decision to report
   cli/dedup.py            thin adapter, progress and summary text
   schemas/tabalyst.dedup.schema.json
@@ -193,17 +198,31 @@ tabalyst.generate_dedups(
 ) -> BatchDedupResult
 ```
 
-- `dedup_csv` processes one explicit file. It returns a `DedupResult` with
-  `status` (`DONE`, `SKIPPED`), the report, the paths of the published files and, for
-  `SKIPPED`, the verification level. A failure raises the `TabalystError` of section
-  14, after the failed report is written when it can be.
-- `generate_dedups` plans and runs a batch. It returns a `BatchDedupResult` with
-  `plan`, `results` (one entry per source, with its status, `DONE`, `SKIPPED`,
-  `EXCLUDED` or `FAILED`), `failures` and the path of the batch report. A failure of
-  one source does not raise; it is in `failures`. A batch-level refusal (collision,
-  foreign output, invalid option) raises before any work.
+- `dedup_csv` processes one file, taken as a path and never as a pattern (a name with
+  brackets is a file, and a derived name such as `x.unique.csv` given explicitly is
+  processed, as T13 wants). It returns a `DedupResult`: `source`, `status` (`DONE` or
+  `SKIPPED`), `reason` (`already_processed` for `SKIPPED`), `files` (the CSV this call
+  created, none for `SKIPPED`), `report` (the one just written, or the one that was
+  already there), `report_path`, `verification` (`metadata` or `digest`, only for
+  `SKIPPED`), `error` and `duration_seconds`. A failure raises the `TabalystError` of
+  section 14, after the failed report is written when it can be. It never writes a batch
+  report.
+- `generate_dedups` plans and runs a batch. It returns a `BatchDedupResult`: `plan` (the
+  `BatchPlan`), `results` (one `DedupResult` per eligible source, in the order of the plan,
+  `DONE`, `SKIPPED` or `FAILED`), `failures` (the `FAILED` results, each with its `error`),
+  `batch_report` (the path written, or `None`), `batch_report_error`, `duration_seconds`,
+  `excluded` (the files found and skipped, as `plan.excluded`) and `succeeded`. A failure of
+  one source does not raise; it is in `failures`. A batch-level refusal (collision, foreign
+  output, foreign `dedup.summary.json`, invalid option) raises before any work. The excluded
+  files are not entries of `results` (DD-20): they have no result of their own, and T10 needs
+  the results of a folder that already holds derived files to be those of the sources.
 - Neither function ever asks a question (project rule). The alias `dedup_files` of
   the specification is not exported (D12); adding it later is a one-line change.
+- The service also offers, for the command line of lot 9, `build_dedup_plan(input_specs,
+  settings, *, literal=False)`, `execute_dedups(input_specs, settings, *, on_progress=None)`
+  (plan and run with options that are already resolved) and `run_dedup_plan(plan, settings,
+  input_specs, ...)`. `DedupResult` and `BatchDedupResult` are exported with the two
+  functions. The details are in section 13.5.
 
 Internal, not exported, and the entry points that the tests of lots 4 to 7 use before
 the public API exists (lot 8):
@@ -254,8 +273,9 @@ the invariants of 12.3 that do not hold and `GroupStats.check()` raises a `Dedup
 `names`, a mapping of `unique`, `duplicates`, `duplicates_all` and `report` to
 paths), `excluded` (tuple of `(path, reason)`), `batch_report` (the path of
 `dedup.summary.json`, section 13.1) and `writes_batch_report` (DD-13).
-`plan_batch(input_specs, settings, *, is_owned=...)` takes the ownership test of
-section 7.4 as `is_owned(path, planned_source) -> bool`.
+`plan_batch(input_specs, settings, *, is_owned=..., literal=False)` takes the ownership test of
+section 7.4 as `is_owned(path, planned_source) -> bool`; with `literal` the inputs are explicit
+paths and never patterns (the API of one file).
 
 `DedupAnalysis` (`dedup/analysis.py`, frozen) holds the `GroupStats` of section 8.2 (`stats`),
 the `RecordMarks` of section 8.4 (`marks`), the `SourceIdentity` of the pass (`source`:
@@ -302,21 +322,49 @@ exception, `KeyboardInterrupt` included, the temporary files are deleted.
 `writer.remove_stale_temporaries(source, destination)` deletes the `.<managed
 name>.*.tmp` files of the four managed names of a source (11.5), and no other.
 
-`publish.publish_csv(staged)` replaces the final names one by one with `os.replace`. If one
-replacement fails, the files published by that call and the staged ones left are deleted
-and `output_unwritable` is raised. This is only the CSV part of 11.5: the recovery report,
-the deletion of the outputs of a previous run that the new set does not contain, and the
-JSON report come with lots 6 and 7. Until then a rerun does not delete a stale
-`duplicates_all` and a crash between two replacements can leave a partial set.
+`publish.py` (lots 5 and 7) holds the publication of 11.5:
 
-`pipeline.process_source(source, settings, *, destination, on_progress=None)` (lot 5) deletes
-the stale temporaries of the source, runs `analyze_dedup`, `writer.write_outputs` and
-`publish_csv` and returns a `SourceOutcome` (`source`, `status` `DONE` or `FAILED`,
-`reason`, `files` published, `analysis`, `error`). `DedupInputError` and `DedupReportError`
-become a `FAILED` outcome with their `reason`; any other exception becomes `FAILED` with
-`unexpected_error` and a fixed message (its cause is chained, not printed, as it may hold a
-cell). `verbose` turns on the memory measure. `SKIPPED`, the report and the ownership of the
-names are added by lots 6 and 7.
+- `publish_csv(staged)` replaces the final names one by one with `os.replace` (step 3). If
+  one replacement fails, the files published by that call and the staged ones left are
+  deleted and `output_unwritable` is raised.
+- `publish_set(staged, *, names, previous, recovery, report, write)` runs steps 2 to 5: the
+  recovery report, `publish_csv`, the deletion of the owned outputs of the previous run that
+  the new set does not hold, and the final report. `previous` is the `cache.Assessment` read
+  before the run; `write` is the function that writes a report (the pipeline passes its own
+  `write_report`, so a test can intercept it); an `OSError` of a report is
+  `output_unwritable`. The recovery report is skipped when there is nothing to protect (no
+  previous output and nothing to publish): a source without duplicate that never produced a
+  CSV writes its complete report alone.
+- `retire_outputs(*, names, current, recovery, write)` is the failure protocol (D2). With
+  owned outputs on disk it writes the recovery report (unless one is already in place),
+  deletes them and returns `True`. It returns `False` when an owned output could not be
+  deleted or the recovery report could not be written, and the caller must then not write a
+  failed report (11.6).
+- `delete_outputs(paths)` tries every path before it raises `output_unwritable`.
+
+`pipeline.process_source(source, settings, *, destination, on_progress=None)` (lots 5 to 7)
+returns a `SourceOutcome` (`source`, `status` `DONE`, `SKIPPED` or `FAILED`, `reason`, `files`
+published, `analysis`, `error`, `report`, `report_path`, `verification`). In this order it:
+
+1. reads the ownership of the four managed names (`cache.assess`, with the SHA-256 of the
+   outputs under `--verify-content`) and refuses what 7.4 refuses, by raising, before
+   anything is written (`cache.refuse_unsafe_outputs`: a name that is a directory or the
+   source is an `InputError` even with `--force`, a foreign name is a `ReportError`
+   without it);
+2. deletes the stale temporaries of the source;
+3. unless `--force`, takes the `SKIPPED` decision of 11.2 (`cache.decide_skip`): a current
+   source returns `SKIPPED` with `reason "already_processed"`, the `verification` level
+   (`metadata` or `digest`), the report that is already there and no file, and nothing is
+   written;
+4. otherwise runs `analyze_dedup` and `writer.write_outputs`, builds the report and calls
+   `publish.publish_set`.
+
+`DedupInputError` and `DedupReportError` become a `FAILED` outcome with their `reason`; any
+other exception becomes `FAILED` with `unexpected_error` and a fixed message (its cause is
+chained, not printed, as it may hold a cell). A failed source runs `retire_outputs`, then
+writes the failed report only if no owned output is left (11.5); `report` is `None` when it
+could not be written. `verification` is `None` unless the status is `SKIPPED`. `verbose`
+turns on the memory measure.
 
 ### 4.4 Shared CSV reading and writing (D16, DD-04)
 
@@ -517,11 +565,13 @@ A managed name is **owned** when the report beside it (`<stem>.dedup.json`, stat
 disk (section 11.3). Anything else that exists under a managed name is foreign,
 including a file whose size changed by hand. The report is itself
 owned only if it reads as a Dedup report of this format (a `failed` report is one);
-a file of that name that does not is foreign. In lot 1 nothing can be owned yet:
-`plan_batch` takes the ownership test as a parameter that defaults to "nothing is
-owned", and lot 7 supplies the real one. Until then a folder that already holds the results of an
-earlier run is refused without `--force`; the exclusion tests of lot 1 pass an ownership
-test that owns everything, to test the exclusions alone. The check covers the four names, not
+a file of that name that does not is foreign. `plan_batch` takes the ownership test as a parameter. Lot 7 supplies the real one,
+`cache.is_owned(path, planned, *, verify_content=False)`, which reads the report beside the
+source (11.3); the default of `plan_batch` still owns nothing, so a caller that passes none
+is refused (the safe direction), and the service of lot 8 passes
+`cache.ownership_test(verify_content=...)`, the same test with the report of each source read once. The
+exclusion tests of lot 1 pass an ownership test that owns everything, to test the exclusions
+alone. The check covers the four names, not
 only the ones the run will write: what the run writes is known only after the first
 pass, and the refusal must come before any work (D9). `--force` allows replacing a
 foreign file the run writes and never deletes a foreign file it does not write. It
@@ -812,6 +862,42 @@ run deletes the stale `.<managed name>.*.tmp` files of its source, and only thos
 No lock file in V1: two simultaneous runs on the same outputs are not protected
 (section 17).
 
+### 11.6 What lot 7 built, and the choices it made
+
+Modules: `cache.py` (`assess` and `Assessment`, `refuse_unsafe_outputs`, `decide_skip` and
+`SkipDecision`, `is_owned`, `file_sha256`), `publish.py` (4.3), `pipeline.py` and `report.py`
+(12.5).
+
+- **Ownership** (`assess`). A CSV under a managed name is owned when the report beside it,
+  `complete` or `in_progress` (both inventories), lists its name and the file is a regular
+  file of the recorded size; with `--verify-content` the SHA-256 must match too, so a
+  same-size rewrite is foreign only at that level. The report is owned when it reads as a
+  Dedup report of this format and revision. A report of another `format_revision` therefore
+  reads as foreign and needs `--force` (beta, no migration; open point 9).
+- **Decision.** Conditions 5 to 7 of 11.2 are read from the `Assessment`: the owned CSV must
+  be exactly the inventory (a missing one reprocesses, a stray one was refused before). At the
+  `digest` level the outputs are hashed too, unless the assessment already matched them by
+  SHA-256 (`--verify-content`). Hashing the source emits a progress line (`stage "Dedup"`,
+  detail "verifying the content of the source") and byte events. An unreadable file means
+  reprocess, never an error.
+- **Order.** The ownership refusal comes before anything is written, then the stale
+  temporaries go, then the decision. A `SKIPPED` source still removes the stale temporaries
+  of its names.
+- **Recovery report.** Written whenever there is something to protect, including the first
+  run of a source: an interruption after its first CSV would otherwise leave an unowned
+  file and the next run would be refused. It is not written for a source with no previous
+  output and no CSV to publish.
+- **Failure.** `retire_outputs` deletes only owned outputs (never a foreign file, with or
+  without `--force`). The failed report replaces the report only when no owned output is
+  left: replacing it earlier would make those outputs foreign. If the recovery report cannot
+  be written, nothing is deleted and the earlier result stays as it was; if an output cannot
+  be deleted, the recovery report stays and the next run repairs the state.
+- **Contract tests.** T14 to T17, T27, T29 and T30 pass unchanged. T10 stays with lot 8
+  (it needs the batch API); its cache part is tested here by running `process_source` on
+  three sources. Two earlier tests changed because the contract of this lot changed what
+  they observe: the order of the report writes (`in_progress` then `complete`) and the
+  three variants of the schema.
+
 ## 12. JSON report of a source (S12, D1, D10, D17)
 
 ### 12.1 Format
@@ -832,18 +918,23 @@ blocks `SourceIdentity`, `FailedSource`, `ReportSettings`, `Records`, `Outputs`,
 `report_json`/`write_report` (atomic, through `batch.write_text_atomic`), the reading API
 (`parse_report(document)` and `read_report(path)`, which raise `DedupDocumentError`, an
 `InputError` whose message names the member and the rule and never a value of the file) and
-`dedup_schema()`/`dedup_schema_text()`. The schema is one document with two variants told apart
-by the constant `status`; it refuses unknown members and any other `format_revision`. The
-`in_progress` variant (12.5) is not parsed yet: it comes with lot 7.
+`dedup_schema()`/`dedup_schema_text()`. The schema is one document with three variants told apart
+by the constant `status` (`complete`, `failed` and, since lot 7, `in_progress`); it refuses
+unknown members and any other `format_revision`. Lot 7 added the models `InProgressReport`,
+`Recovery`, `RecoverySource` and `InventoryEntry` (file, size, SHA-256), the builders
+`recovery_report(...)` and `planned_inventory(staged)`, and `inventory_of(report)` (every
+output file a report vouches for: the inventory of a complete one, both inventories of a
+recovery one, nothing for a failed one). `parse_report` and `read_report` return the union
+`AnyReport`.
 
 The inventory of D10 is the `outputs` block: for each CSV the name, the rows, the size and the
 SHA-256 of what was published, taken from the staged file, not re-read. `process_source`
-publishes the CSV, then the report, last. If the report cannot be written, the CSV just
-published are deleted (without the report they would be unowned) and the source fails with
-`output_unwritable`. A failed source gets a failed report on a best-effort basis; the primary
+publishes the CSV and ends with the complete report (11.5). If a step of the publication
+fails, the owned outputs are retired (the CSV just published included: without a complete
+report they would be unowned) and the source fails with `output_unwritable`. A failed source
+gets its owned outputs deleted and then a failed report, on a best-effort basis; the primary
 failure stays the outcome whatever happens to it. `partial.records_read` is `null` when the
-failure did not know it (an unreadable source). Until lot 7, a failed report replaces an
-earlier report but not the earlier CSV, which stay in place.
+failure did not know it (an unreadable source).
 
 ### 12.2 Complete report
 
@@ -973,11 +1064,17 @@ The stable `reason` codes:
 
 ### 12.5 Recovery report
 
-`status "in_progress"`, the format members, the `source` name, the `settings`, and
-`recovery: {"previous_outputs": [...], "planned_outputs": [...]}` where each item has
-`file`, `size_bytes`, `sha256`. It never counts as a processing: the cache never
-reuses it (S15.2: "an incomplete JSON is reprocessed"). Its role is described in the
-ownership ADR.
+`status "in_progress"` (lot 7), the format members, `generator`, the `source`, the
+`settings`, and `recovery: {"previous_outputs": [...], "planned_outputs": [...]}` where each
+item has `file`, `size_bytes`, `sha256`. The `source` has a `name` and, when the run knew
+them, `size_bytes`, `mtime_ns` and `content_sha256` (the recovery report of a failure may
+know none of them). `previous_outputs` are the outputs of the earlier run that exist and are
+proven (by size, and by SHA-256 under `--verify-content`); `planned_outputs` are the staged
+files, with the size and SHA-256 taken while writing them. It never counts as a processing:
+the cache never reuses it (S15.2: "an incomplete JSON is reprocessed"). Its role is
+described in the ownership ADR. The `file` of an item is only compared with the managed
+names of the source and never used as a path, so a forged report cannot make Dedup touch
+another file.
 
 ## 13. Batch report and command output (S13)
 
@@ -991,14 +1088,19 @@ and has `format "tabalyst.dedup.batch"`, the same version and revision family
 (`0.2.0`, revision 1) and its own schema. An existing file of that name that is not a
 Tabalyst batch report is replaced only with `--force`.
 
-Content: the specs and the destination; the counters (`found`, `eligible`,
-`excluded`, `done`, `skipped`, `failed`); for each source its name, status, reason,
-verification level, path of its report and its main counts; the counters of the
-sources `done` and the ones `reused` from a valid report kept apart so that nothing is
-counted twice; the number of CSV files created by the current run only; the total
-duration; diagnostics. The excluded files are listed with their reason and have no
-report of their own. Paths are relative to the folder of the batch report with `/`
-separators, and absent (name only) when no relative path exists (another drive).
+Content: the specs (`inputs`) and the destination (`output_dir`); the `status` of the
+batch (`complete`, `partial` when some eligible source failed, `failed` when every
+eligible source did); the `counters` (`found`, `eligible`, `excluded`, `done`, `skipped`,
+`failed`); the `totals`, where the sources processed by this run (`processed`) and the
+ones reused from a valid report (`reused`) are kept apart, each with its number of
+sources, records, extra copies and duplicate groups, so that nothing is counted twice;
+`outputs` (the CSV files created by the current run only, the reports a reader can open
+and the ones this run updated); the total duration; the `sources`, one entry per file found
+(`file`, `status`, `reason`, `verification`, `report`, `records` and `csv_files_created`);
+and `diagnostics`. The excluded files are listed with their reason and have no report of
+their own. Paths are relative to the folder of the batch report with `/` separators, and
+the name alone when no relative path exists (another drive). No cell, no absolute path and
+no message of an error is copied into it.
 
 ### 13.2 Command output (D11, S13.2, S13.3)
 
@@ -1063,6 +1165,114 @@ error and never change the exit code.
 | 3 | Not used (Dedup asks no confirmation) |
 | 4 | A source explicitly missing, or every failure of the batch is an `InputError` (as `sample`), the exceeded row limit included |
 
+### 13.5 What lot 8 built, and the choices it made
+
+Modules: `dedup_service.py` (`build_dedup_plan`, `execute_dedups`, `run_dedup_plan`,
+`dedup_csv`, `generate_dedups`, `DedupResult`, `BatchDedupResult`) and `dedup/batch_report.py`
+(`BatchReport` and its blocks, `broken_batch_invariants`, `batch_schema`, `write_batch_report`,
+`is_batch_report`, `relative_path`). The schema is `schemas/tabalyst.dedup.batch.schema.json`,
+generated and compared by a test like the schema of a source.
+
+- **Plan.** `build_dedup_plan` is `plan_batch` with the ownership test of lot 7 (the SHA-256 of
+  the outputs is checked at the plan too under `--verify-content`, so the refusal still comes
+  before any work), then a check of the name `dedup.summary.json` when this invocation writes
+  it: a directory or a source of the batch is an `InputError` even with `--force`; a file that
+  does not announce `format "tabalyst.dedup.batch"` is a `ReportError` without `--force`
+  (open point 7: only `format` decides, so a batch report of another revision is replaced).
+- **Run.** The eligible sources run one at a time, in the order of the plan, each into the
+  folder of its planned names. A `ReportError` or `InputError` raised by `process_source`
+  (a pre-flight refusal that a race with another process made possible after the plan) fails
+  that source alone with the reason `output_refused` (DD-19): nothing of it was written, it has
+  no report, and the batch goes on. Any other exception fails it with `unexpected_error` and a
+  fixed message (the cause is chained, not printed). `KeyboardInterrupt` is not caught: no
+  batch report is written, each source keeps the protocol of 11.5 and the next run recovers.
+- **Results.** `results` holds the eligible sources only (DD-20). `FAILED` results keep the
+  exception, so the CLI maps the exit code of D11 from its class (`InputError` or not). The
+  analysis (which holds the marks of the records) is not kept in a result.
+- **Progress.** The runner gives every event of a source its `index` (from 1) and `total` (the
+  eligible sources), so the events of the passes, of the verification and of the spill carry
+  the position, and `stage "Dedup"`. Each source ends with one `COMPLETE` event
+  (`detail "processed"`, or `already processed, verified by metadata` or `digest`) or one
+  `FAILED` event (`detail` is the reason code), with its `duration_seconds`. An excluded file
+  has no event. No event holds a cell or a path.
+- **Batch report.** Counters by status, `processed` and `reused` tallies from the reports
+  (a reused source brings the counts of the report that was already there; a failed one
+  brings none), `csv_files_created` only from the sources `DONE` in this run, a report
+  counts as available when it exists beside a `DONE`, `SKIPPED` or `FAILED` source and as
+  updated when this run wrote it. The models check the rules that tie them (`found =
+  eligible + excluded`, `eligible = done + skipped + failed`, the counters agree with the
+  statuses of `sources`, the sum of `csv_files_created`, the batch `status`). A `diagnostics`
+  entry is written for a source refused just before its run and for a failed source whose
+  failed report could not be written, with the relative name of the source and no message.
+- **A batch report that cannot be written** does not hide the results: the call returns them,
+  `batch_report` is `None`, `batch_report_error` holds a `ReportError` and `succeeded` is false.
+- **Zero or one source** (open point 6, confirmed): the report is written whenever a pattern
+  or two inputs are given, also when nothing is eligible (the counters are zero and the
+  excluded files are listed). Its place follows D3 from the files found, so a folder that
+  holds derived files only gets its report in that folder. One explicit file never gets one.
+- **No lock** (open point 1, confirmed for V1): two runs on the same outputs at the same time
+  are not protected; the check just before a source's run only narrows the window, and the
+  recovery report of 11.5 keeps the state repairable. The public page of lot 11 says so.
+- **Contract tests.** T10 passes with one change of its scenario: `assert batch.failures == []`
+  became `assert not batch.failures`, because `failures` is a tuple, as in the sample batch;
+  nothing else of it changed. T24 has a batch-level test in `tests/dedup/test_service.py` (two
+  patterns that find one source give one result, one set of events and one entry in the
+  report), beside the plan-level ones of lot 1.
+- **Left for lot 9** (built, see 13.6). The mapping of the results to the exit codes of 13.4,
+  the tables of 13.2 and the options `--quiet`, `--verbose` and `--no-progress`. `DedupSettings` already holds
+  `quiet` and `verbose`; the functions `dedup_csv` and `generate_dedups` do not take them
+  (`verbose` only switches on the memory measure), and the CLI builds its settings with
+  `resolve_dedup_settings` and calls `execute_dedups`.
+
+### 13.6 What lot 9 built, and the choices it made
+
+Module `cli/dedup.py` (`dedup_command`, registered as `tabalyst dedup` in `cli/app.py`), a thin
+adapter: it builds the settings with `resolve_dedup_settings`, calls `execute_dedups` and prints.
+`ProgressPrinter` (`cli/terminal.py`) gained a `_label(event)` hook so that the Dedup line can
+end with how a source ended (`Complete (processed)`, `Complete (already processed, verified by
+metadata)`, `Failed (invalid_csv)`); nothing changes for the other commands. Tests:
+`tests/dedup/test_command.py` and the T28 test of `test_contract_discovery.py`.
+
+- **Options.** `INPUT...`, `-d/--output-dir`, `-c/--config`, `--max-rows`, `--delimiter`,
+  `--encoding`, `--memory-budget-mb`, `--temp-dir`, `-f/--force`, `--verify-content`, `--quiet`,
+  `--verbose`, `--no-progress`. No `-o`, no `--yes` (nothing is ever asked). The rejections of
+  section 10 (`--quiet` with `--verbose`, `--force` with `--verify-content`, values below 1, a
+  `--temp-dir` that is a file) are `ConfigurationError`, exit code 2. DD-22: `--quiet` with
+  `--no-progress` is a usage error (exit code 2), because `--quiet` already hides the progress and
+  the second option would be ignored. Every other combination changes the behavior, so none is
+  refused.
+- **Output.** The result is on `stdout`, errors and progress on `stderr`. One explicit file
+  (no batch report is written) prints the block of the second example of 13.2; a pattern or
+  several inputs print the table of the first, also for one source. Both are the validated
+  shapes, byte for byte, and tests compare them with the text of 13.2. Choices the examples do
+  not fix: the file column is at least 16 wide and grows with the longest name (two sources
+  with one name are told apart by their path), the rows are right aligned in at least 7, a
+  `FAILED` source prints `-` for rows, extra copies and outputs, a pattern that finds nothing
+  eligible prints `No file to process.`, and an `Excluded:` line follows `Eligible files:` only
+  when files were excluded. Paths are relative to the working folder when they lie inside it,
+  absolute otherwise; the table shows file names. The verification level of a `SKIPPED` source
+  is in the block of one file, in the progress line, and in `--verbose`, not in the table (the
+  validated table has no room for it).
+- **Failures.** One line per failed source on `stderr`: `Error [name]: message (reason)`. The
+  message is the fixed text of the failure, so it holds no cell. A refusal of the plan prints
+  `Error: message` before any work. A batch report that cannot be written prints its error and
+  `Batch report: not written`.
+- **`--quiet`** prints the last line of the result only (`Status: ...` for one file,
+  `Result: ...` for a batch), the errors still go to `stderr`. **`--verbose`** adds the storage
+  mode, passes, durations and memory peak (`Details` for a batch, with the excluded files and
+  their reasons). **`--no-progress`** hides the progress line; it is also hidden whenever
+  `stderr` is not a terminal, so a script gets no carriage returns.
+- **Exit codes (D11), open point 11.** A refusal of the plan: `ConfigurationError` 2,
+  `InputError` 4, any other 1. After a run: `batch_exit_code` over the errors of the failed
+  sources: 4 when every failure is an `InputError`, 1 as soon as one is not; an unwritable
+  batch report adds a `ReportError`, so 1. Decision DD-21 for a source refused at run time
+  (`output_refused`): the exception keeps its class, so a collision with a source is 4 and a
+  foreign file is 1, exactly as the same refusal at the plan. Reason: the user fixes the same
+  thing in both cases, a script must not see two codes for one situation, and a fixed code for
+  `output_refused` would hide whether the cause is the input or the output.
+- **No question, ever.** There is no `--yes` and no confirmation (code 3 is unused): the
+  command behaves the same in a terminal and outside one.
+
 ## 14. Errors and situations (S15.2)
 
 | Situation | Status | `reason` | Written | Exit |
@@ -1078,6 +1288,8 @@ error and never change the exit code.
 | Output collides with a source | refused | | nothing | 4 |
 | Two sources with one managed name | refused | | nothing | 1 |
 | Foreign output without `--force` | refused | | nothing | 1 |
+| Foreign `dedup.summary.json` without `--force` | refused | | nothing | 1 |
+| Output refused just before the run of a source | `FAILED` | `output_refused` | nothing | 4 or 1 |
 | Existing report incomplete | reprocessed | | normal | |
 | One source fails among several | the others go on | | | 4 or 1 |
 | Invalid option | refused | | nothing | 2 |
@@ -1121,7 +1333,7 @@ implementation, and that T01 to T30 and the lots of this document are all covere
 | T21 | Memory too small, disk available | 3 (small), 10 | `test_contract_scale.py` | full only |
 | T22 | Temporary storage unavailable | 3 | `test_contract_scale.py` | no |
 | T23 | Source changed between the passes | 5 | `test_contract_integrity.py` | no |
-| T24 | Two patterns, one source | 1 | `test_contract_discovery.py` | no |
+| T24 | Two patterns, one source | 1 (plan), 8 (batch) | `test_contract_discovery.py`, `test_service.py` | no |
 | T25 | Invalid header, irregular rows | 4 | `test_contract_integrity.py` | no |
 | T26 | Output colliding with a source | 1 | `test_contract_discovery.py` | no |
 | T27 | Run after an interruption | 7 | `test_contract_cache.py` | no |
@@ -1164,7 +1376,7 @@ public glossary. The French equivalents are for that later page.
 To read with this document; none blocks lot 1 or lot 2.
 
 1. **Two simultaneous runs** on the same outputs: no lock in V1 (plan, open point).
-   To document, to reopen if a lock file is wanted.
+   Settled by lot 8 (13.5): to document in lot 11, to reopen if a lock file is wanted.
 2. **A stray file under a managed name** that the run does not write (for example a
    hand-made `x.duplicates_all.csv` when `M = 2`) is foreign, and keeps refusing the
    source without `--force` (DD-08). The alternative, checking only the names the run
@@ -1177,8 +1389,16 @@ To read with this document; none blocks lot 1 or lot 2.
    (section 8.5). Gate 3 reads those numbers; the budgets of the whole command are fixed at gate 10.
 5. **Alias `dedup_files`**: not exported (D12).
 6. **Batch report of zero or one source**: written whenever a pattern or two inputs are
-   given (DD-13); lot 8 confirms that a folder with only derived files should get one.
-7. **Foreign `dedup.summary.json`**: recognized by `format "tabalyst.dedup.batch"`
-   (lot 8 confirms).
+   given (DD-13); a folder with only derived files gets one. Settled by lot 8 (13.5).
+7. **Foreign `dedup.summary.json`**: recognized by `format "tabalyst.dedup.batch"`, replaced
+   only with `--force` otherwise. Settled by lot 8 (13.5).
 8. **Numbers of the budgets** (time, memory, disk) are fixed from the measures at gates
    3 and 10, not before (S16.3).
+9. **A report of another `format_revision`** reads as foreign (section 11.6): the user
+   needs `--force` to reprocess after a breaking change of the format. Acceptable during the
+   beta; to reopen when a revision 2 exists.
+10. **Verification progress** is emitted by `decide_skip`; the runner of lot 8 sets the
+    `index` and `total` of those events as it does for the passes (done, 13.5).
+11. **Exit code of a source refused at run time** (`output_refused`): the exception keeps its
+    class, so a collision with a source is 4 and a foreign file is 1 like the same refusal
+    at the plan. Settled by lot 9 (DD-21, 13.6).
