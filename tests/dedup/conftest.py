@@ -30,7 +30,7 @@ ENABLED_LOTS: set[str] = {
 
     "5",  # second pass, CSV outputs
 
-    # "6",  # JSON report
+    "6",  # JSON report
 
     # "7",  # cache, ownership, recovery
 

@@ -1,0 +1,551 @@
+{
+  "$defs": {
+    "CompleteReport": {
+      "additionalProperties": false,
+      "description": "The report of a source that was processed (design dedup 12.2).",
+      "properties": {
+        "format": {
+          "const": "tabalyst.dedup",
+          "default": "tabalyst.dedup",
+          "title": "Format",
+          "type": "string"
+        },
+        "format_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Format Version",
+          "type": "string"
+        },
+        "format_revision": {
+          "const": 1,
+          "default": 1,
+          "title": "Format Revision",
+          "type": "integer"
+        },
+        "generator": {
+          "$ref": "#/$defs/ReportGenerator"
+        },
+        "status": {
+          "const": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/SourceIdentity"
+        },
+        "settings": {
+          "$ref": "#/$defs/ReportSettings"
+        },
+        "records": {
+          "$ref": "#/$defs/Records"
+        },
+        "outputs": {
+          "$ref": "#/$defs/Outputs"
+        },
+        "run": {
+          "$ref": "#/$defs/Run"
+        }
+      },
+      "required": [
+        "generator",
+        "status",
+        "source",
+        "settings",
+        "records",
+        "outputs",
+        "run",
+        "format",
+        "format_version",
+        "format_revision"
+      ],
+      "title": "CompleteReport",
+      "type": "object"
+    },
+    "FailedReport": {
+      "additionalProperties": false,
+      "description": "The report of a source that failed: no count and no output (design dedup 12.4).",
+      "properties": {
+        "format": {
+          "const": "tabalyst.dedup",
+          "default": "tabalyst.dedup",
+          "title": "Format",
+          "type": "string"
+        },
+        "format_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Format Version",
+          "type": "string"
+        },
+        "format_revision": {
+          "const": 1,
+          "default": 1,
+          "title": "Format Revision",
+          "type": "integer"
+        },
+        "generator": {
+          "$ref": "#/$defs/ReportGenerator"
+        },
+        "status": {
+          "const": "failed",
+          "title": "Status",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/FailedSource"
+        },
+        "settings": {
+          "$ref": "#/$defs/ReportSettings"
+        },
+        "failure": {
+          "$ref": "#/$defs/Failure"
+        },
+        "partial": {
+          "$ref": "#/$defs/Partial"
+        }
+      },
+      "required": [
+        "generator",
+        "status",
+        "source",
+        "settings",
+        "failure",
+        "partial",
+        "format",
+        "format_version",
+        "format_revision"
+      ],
+      "title": "FailedReport",
+      "type": "object"
+    },
+    "FailedSource": {
+      "additionalProperties": false,
+      "description": "The source of a failed report: its name, and its size and time when they could be read.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "size_bytes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size Bytes"
+        },
+        "mtime_ns": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mtime Ns"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "FailedSource",
+      "type": "object"
+    },
+    "Failure": {
+      "additionalProperties": false,
+      "description": "Why a source failed: a stable ``reason``, a message without path or cell, the limit if any.",
+      "properties": {
+        "reason": {
+          "enum": [
+            "row_limit_exceeded",
+            "invalid_csv",
+            "encoding_error",
+            "source_unreadable",
+            "source_changed",
+            "insufficient_disk_space",
+            "storage_unavailable",
+            "output_unwritable",
+            "unexpected_error"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limit"
+        }
+      },
+      "required": [
+        "reason",
+        "message"
+      ],
+      "title": "Failure",
+      "type": "object"
+    },
+    "OutputFile": {
+      "additionalProperties": false,
+      "description": "A CSV the run published: the inventory entry that proves what it wrote.",
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "rows": {
+          "minimum": 0,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "size_bytes": {
+          "minimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file",
+        "rows",
+        "size_bytes",
+        "sha256"
+      ],
+      "title": "OutputFile",
+      "type": "object"
+    },
+    "Outputs": {
+      "additionalProperties": false,
+      "description": "The CSV files of the run; an output the run did not write is ``null`` (design dedup 6.2).",
+      "properties": {
+        "csv_files_created": {
+          "maximum": 3,
+          "minimum": 0,
+          "title": "Csv Files Created",
+          "type": "integer"
+        },
+        "unique": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OutputFile"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "duplicates": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OutputFile"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "duplicates_all": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OutputFile"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "csv_files_created",
+        "unique",
+        "duplicates",
+        "duplicates_all"
+      ],
+      "title": "Outputs",
+      "type": "object"
+    },
+    "Partial": {
+      "additionalProperties": false,
+      "description": "What a failed run read before it stopped; its result is never certified.",
+      "properties": {
+        "records_read": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Records Read"
+        },
+        "certified": {
+          "const": false,
+          "default": false,
+          "title": "Certified",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "records_read"
+      ],
+      "title": "Partial",
+      "type": "object"
+    },
+    "Records": {
+      "additionalProperties": false,
+      "description": "The exact counts of the first pass, under the names of the specification.",
+      "properties": {
+        "total": {
+          "minimum": 0,
+          "title": "Total",
+          "type": "integer"
+        },
+        "distinct": {
+          "minimum": 0,
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "singletons": {
+          "minimum": 0,
+          "title": "Singletons",
+          "type": "integer"
+        },
+        "duplicate_groups": {
+          "minimum": 0,
+          "title": "Duplicate Groups",
+          "type": "integer"
+        },
+        "groups_occurring_twice": {
+          "minimum": 0,
+          "title": "Groups Occurring Twice",
+          "type": "integer"
+        },
+        "groups_occurring_three_plus": {
+          "minimum": 0,
+          "title": "Groups Occurring Three Plus",
+          "type": "integer"
+        },
+        "extra_copies": {
+          "minimum": 0,
+          "title": "Extra Copies",
+          "type": "integer"
+        },
+        "duplicate_group_occurrences": {
+          "minimum": 0,
+          "title": "Duplicate Group Occurrences",
+          "type": "integer"
+        },
+        "max_occurrences": {
+          "minimum": 0,
+          "title": "Max Occurrences",
+          "type": "integer"
+        },
+        "extra_copy_percent": {
+          "minimum": 0,
+          "title": "Extra Copy Percent",
+          "type": "number"
+        }
+      },
+      "required": [
+        "total",
+        "distinct",
+        "singletons",
+        "duplicate_groups",
+        "groups_occurring_twice",
+        "groups_occurring_three_plus",
+        "extra_copies",
+        "duplicate_group_occurrences",
+        "max_occurrences",
+        "extra_copy_percent"
+      ],
+      "title": "Records",
+      "type": "object"
+    },
+    "ReportGenerator": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "const": "tabalyst",
+          "default": "tabalyst",
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "title": "ReportGenerator",
+      "type": "object"
+    },
+    "ReportSettings": {
+      "additionalProperties": false,
+      "description": "What decided the result: the limit and the way the source was read.",
+      "properties": {
+        "max_rows": {
+          "minimum": 1,
+          "title": "Max Rows",
+          "type": "integer"
+        },
+        "delimiter": {
+          "title": "Delimiter",
+          "type": "string"
+        },
+        "encoding": {
+          "title": "Encoding",
+          "type": "string"
+        },
+        "identity": {
+          "const": "full_decoded_csv_row_v1",
+          "default": "full_decoded_csv_row_v1",
+          "title": "Identity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "max_rows",
+        "delimiter",
+        "encoding"
+      ],
+      "title": "ReportSettings",
+      "type": "object"
+    },
+    "Run": {
+      "additionalProperties": false,
+      "description": "How the run went. A measure that was not taken is ``null``, never invented.",
+      "properties": {
+        "passes": {
+          "enum": [
+            1,
+            2
+          ],
+          "title": "Passes",
+          "type": "integer"
+        },
+        "storage_mode": {
+          "enum": [
+            "memory",
+            "disk"
+          ],
+          "title": "Storage Mode",
+          "type": "string"
+        },
+        "duration_seconds": {
+          "minimum": 0,
+          "title": "Duration Seconds",
+          "type": "number"
+        },
+        "first_pass_seconds": {
+          "minimum": 0,
+          "title": "First Pass Seconds",
+          "type": "number"
+        },
+        "second_pass_seconds": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Second Pass Seconds"
+        },
+        "memory_peak_bytes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Memory Peak Bytes"
+        }
+      },
+      "required": [
+        "passes",
+        "storage_mode",
+        "duration_seconds",
+        "first_pass_seconds",
+        "second_pass_seconds",
+        "memory_peak_bytes"
+      ],
+      "title": "Run",
+      "type": "object"
+    },
+    "SourceIdentity": {
+      "additionalProperties": false,
+      "description": "The source a complete report describes (design dedup 12.2).",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "size_bytes": {
+          "minimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "mtime_ns": {
+          "minimum": 0,
+          "title": "Mtime Ns",
+          "type": "integer"
+        },
+        "content_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "size_bytes",
+        "mtime_ns",
+        "content_sha256"
+      ],
+      "title": "SourceIdentity",
+      "type": "object"
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/CompleteReport"
+    },
+    {
+      "$ref": "#/$defs/FailedReport"
+    }
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Tabalyst Dedup",
+  "description": "Document tabalyst.dedup, format 0.2.0 revision 1: the report of one source, complete or failed."
+}

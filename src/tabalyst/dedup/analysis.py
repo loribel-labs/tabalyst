@@ -70,7 +70,7 @@ class DedupAnalysis:
         return planned_outputs(self.stats)
 
     @property
-    def passes(self) -> int:
+    def passes(self) -> Literal[1, 2]:
         """One pass when there is no duplicate group, two when the outputs need a second."""
         return 2 if self.stats.duplicate_groups else 1
 

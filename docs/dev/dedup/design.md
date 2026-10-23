@@ -820,8 +820,30 @@ No lock file in V1: two simultaneous runs on the same outputs are not protected
 Pydantic models of `report.py` are the source of truth; the JSON Schema
 `schemas/tabalyst.dedup.schema.json` is generated from them and compared by a
 consistency test, like the other schemas. A change of structure or meaning raises the
-revision and is written in `docs/en/dedup/format-changelog.md` (lot 6 and 11). The
+revision and is written in `docs/dev/dedup/format-changelog.md` (lot 6); its public
+counterpart `docs/en/dedup/format-changelog.md` comes with the public documentation (lot 11). The
 report contains no cell content and no absolute path (S15.3).
+
+The module `dedup/report.py` (lot 6) holds the models (`CompleteReport`, `FailedReport`, and the
+blocks `SourceIdentity`, `FailedSource`, `ReportSettings`, `Records`, `Outputs`, `OutputFile`,
+`Run`, `Failure`, `Partial`), the invariants of 12.3 (`broken_invariants`, run by a validator of
+`CompleteReport`, so a model cannot hold a report that breaks one), the builders
+(`complete_report` from the analysis and the staged files, `failed_report` from the error),
+`report_json`/`write_report` (atomic, through `batch.write_text_atomic`), the reading API
+(`parse_report(document)` and `read_report(path)`, which raise `DedupDocumentError`, an
+`InputError` whose message names the member and the rule and never a value of the file) and
+`dedup_schema()`/`dedup_schema_text()`. The schema is one document with two variants told apart
+by the constant `status`; it refuses unknown members and any other `format_revision`. The
+`in_progress` variant (12.5) is not parsed yet: it comes with lot 7.
+
+The inventory of D10 is the `outputs` block: for each CSV the name, the rows, the size and the
+SHA-256 of what was published, taken from the staged file, not re-read. `process_source`
+publishes the CSV, then the report, last. If the report cannot be written, the CSV just
+published are deleted (without the report they would be unowned) and the source fails with
+`output_unwritable`. A failed source gets a failed report on a best-effort basis; the primary
+failure stays the outcome whatever happens to it. `partial.records_read` is `null` when the
+failure did not know it (an unreadable source). Until lot 7, a failed report replaces an
+earlier report but not the earlier CSV, which stay in place.
 
 ### 12.2 Complete report
 

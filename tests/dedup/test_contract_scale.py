@@ -242,7 +242,9 @@ def test_a_storage_failure_publishes_no_csv_and_reports_the_reason(tmp_path):
     source = write_csv(tmp_path, "nodisk.csv", rows, header=WIDE)
     not_a_folder = tmp_path / "temp-is-a-file"
     not_a_folder.write_text("occupied", encoding="utf-8")
-    outcome = run(source, memory_budget_mb=1, temp_dir=not_a_folder)
+    # A file given as --temp-dir is refused earlier, as an invalid option (design 10);
+    # a folder that cannot be created below it is a storage failure of the run.
+    outcome = run(source, memory_budget_mb=1, temp_dir=not_a_folder / "inside")
     assert outcome.status == "FAILED"
     assert outcome.reason == "storage_unavailable"
     assert load_report(tmp_path, "nodisk")["status"] == "failed"
