@@ -24,9 +24,9 @@ ENABLED_LOTS: set[str] = {
 
     "2",  # canonical key, in-memory store, counters
 
-    # "3",  # disk store, budget, spill
+    "3",  # disk store, budget, spill
 
-    # "4",  # first pass, limit, metrics
+    "4",  # first pass, limit, metrics
 
     # "5",  # second pass, CSV outputs
 

@@ -34,8 +34,10 @@ class Occurrence(NamedTuple):
 class ExactRowStore(Protocol):
     """Counts the occurrences of whole row keys, exactly (design dedup 8.1)."""
 
-    storage_mode: str
-    """``"memory"`` or ``"disk"``."""
+    @property
+    def storage_mode(self) -> str:
+        """``"memory"`` or ``"disk"``."""
+        ...
 
     def observe(self, key: bytes, position: int) -> Occurrence:
         """Add one record with ``key`` at ``position`` and return its occurrence."""
@@ -102,6 +104,18 @@ class MemoryRowStore:
     def items(self) -> Iterator[tuple[bytes, Occurrence]]:
         """Every entry, for the migration to the disk store (ADR exact store, 4)."""
         for key, packed in self._entries.items():
+            yield key, Occurrence(packed & _COUNT_MASK, packed >> _COUNT_BITS)
+
+    def sorted_items(self) -> Iterator[tuple[bytes, Occurrence]]:
+        """Every entry in key order: the migration inserts in B-tree order.
+
+        Random-order inserts into the disk table cost three times more once it is
+        larger than its page cache (measured in lot 3). The sorted list of keys is
+        eight bytes per entry, which the budget does not count.
+        """
+        entries = self._entries
+        for key in sorted(entries):
+            packed = entries[key]
             yield key, Occurrence(packed & _COUNT_MASK, packed >> _COUNT_BITS)
 
     def close(self) -> None:

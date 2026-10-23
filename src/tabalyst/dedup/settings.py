@@ -21,6 +21,14 @@ DEFAULT_MAX_ROWS = DEDUP_DEFAULT_MAX_ROWS
 DEFAULT_MEMORY_BUDGET_MB = DEDUP_DEFAULT_MEMORY_BUDGET_MB
 
 
+def require_positive_int(name: str, value: object) -> None:
+    """Raise ``ConfigurationError`` unless ``value`` is an integer of at least 1."""
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise ConfigurationError(
+            f"{name} must be an integer of at least 1, not {value!r}."
+        )
+
+
 @dataclass(frozen=True)
 class DedupSettings:
     """Options of a run, checked once so that no option is silently ignored.
@@ -44,11 +52,7 @@ class DedupSettings:
 
     def __post_init__(self) -> None:
         for name in ("max_rows", "memory_budget_mb"):
-            value = getattr(self, name)
-            if isinstance(value, bool) or not isinstance(value, int) or value < 1:
-                raise ConfigurationError(
-                    f"{name} must be an integer of at least 1, not {value!r}."
-                )
+            require_positive_int(name, getattr(self, name))
         for name in ("temp_dir", "output_dir"):
             value = getattr(self, name)
             if value is not None:

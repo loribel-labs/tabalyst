@@ -96,3 +96,16 @@ priority of the specification (S17, P0).
   lot 3; the estimate is checked before the migration and during the run.
 - The temporary files are private to the run and are always deleted; an interrupted run
   leaves nothing that a later run could take for a result.
+
+## Measures of lot 3
+
+Done with `tabalyst-lab/benchmarks/dedup_store.py` (full table in design dedup 8.5):
+SQLite holds the exact path at 10 million distinct narrow rows in 52 s (5.2 microseconds
+per row) with a peak working set of 547 MiB and a 728 MiB database, and in 126 s with
+keys in random order (the worst case for a B-tree), 801 MiB of database. The in-memory
+dictionary alone would need 1.4 GiB for 7.5 million distinct rows. Decisions taken from
+the measures: entries migrate in key order (three times faster than insertion order for
+random keys), the page cache takes the memory budget once the dictionary is gone, and the
+optional digest prefix stays off (slower and larger). SQLite is therefore kept; the
+partitioning alternative is not needed. Gate 3 is the maintainer's reading of these
+numbers.

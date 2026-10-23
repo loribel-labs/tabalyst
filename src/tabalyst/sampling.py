@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import codecs
 import csv
 import math
 import os
@@ -17,10 +16,10 @@ from collections.abc import Hashable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import TextIO
 
 from tabalyst.batch import apply_default_file_mode
 from tabalyst.config import CsvConfig
+from tabalyst.csv_records import open_records, output_encoding
 from tabalyst.errors import InputError, ReportError
 from tabalyst.scanner.stratify import allocate_strata
 
@@ -108,78 +107,35 @@ def _validate_paths(source: Path, output: Path, *, force: bool) -> None:
         raise ReportError(f"Output path is not a file: {output}")
 
 
-def _open_reader(path: Path, config: CsvConfig) -> tuple[TextIO, csv.reader]:
-    try:
-        stream = path.open("r", encoding=config.encoding, newline="")
-    except (OSError, UnicodeError) as exc:
-        raise InputError(f"Cannot read CSV file {path}: {exc}") from exc
-    return stream, csv.reader(stream, delimiter=config.delimiter, strict=True)
-
-
-def _output_encoding(source: Path, encoding: str) -> str:
-    """Preserve the presence or absence of a UTF-8 byte-order mark."""
-
-    if codecs.lookup(encoding).name != "utf-8-sig":
-        return encoding
-    try:
-        with source.open("rb") as stream:
-            has_bom = stream.read(len(codecs.BOM_UTF8)) == codecs.BOM_UTF8
-    except OSError as exc:
-        raise InputError(f"Cannot read CSV file {source}: {exc}") from exc
-    return "utf-8-sig" if has_bom else "utf-8"
-
-
 def _scan(
     source: Path,
     config: CsvConfig,
     fields: Sequence[str],
     max_strata: int,
 ) -> _ScanResult:
-    stream, reader = _open_reader(source, config)
     strata: Counter[Hashable] = Counter()
-    try:
-        try:
-            headers = next(reader, None)
-            if not headers:
-                raise InputError("CSV is empty or has no header on its first record.")
-            field_indexes: list[int] = []
-            for field in fields:
-                matches = [index for index, name in enumerate(headers) if name == field]
-                if not matches:
-                    raise InputError(f"Stratification field does not exist: {field}")
-                if len(matches) > 1:
-                    raise InputError(f"Stratification field is ambiguous: {field}")
-                field_indexes.append(matches[0])
+    with open_records(source, config) as records:
+        headers = records.header
+        field_indexes: list[int] = []
+        for field in fields:
+            matches = [index for index, name in enumerate(headers) if name == field]
+            if not matches:
+                raise InputError(f"Stratification field does not exist: {field}")
+            if len(matches) > 1:
+                raise InputError(f"Stratification field is ambiguous: {field}")
+            field_indexes.append(matches[0])
 
-            row_count = 0
-            for row_count, row in enumerate(reader, start=1):
-                if len(row) != len(headers):
+        row_count = 0
+        for row_count, row in enumerate(records, start=1):
+            if field_indexes:
+                key = _stratum_key(row, field_indexes)
+                strata[key] += 1
+                if len(strata) > max_strata:
                     raise InputError(
-                        f"Data record {row_count} (ending at physical line "
-                        f"{reader.line_num}): expected {len(headers)} fields, "
-                        f"found {len(row)}. Verify the delimiter and quoting."
+                        f"Stratification by {', '.join(fields)} found more than "
+                        f"{max_strata:,} strata at data record {row_count}. Use "
+                        "fewer or less detailed fields, or raise --max-strata."
                     )
-                if field_indexes:
-                    key = _stratum_key(row, field_indexes)
-                    strata[key] += 1
-                    if len(strata) > max_strata:
-                        raise InputError(
-                            f"Stratification by {', '.join(fields)} found more than "
-                            f"{max_strata:,} strata at data record {row_count}. Use "
-                            "fewer or less detailed fields, or raise --max-strata."
-                        )
-        except csv.Error as exc:
-            raise InputError(
-                f"Invalid CSV near physical line {reader.line_num}: {exc}"
-            ) from exc
-        except UnicodeError as exc:
-            raise InputError(
-                f"Cannot decode {source.name} as {config.encoding}. Specify --encoding."
-            ) from exc
-        except OSError as exc:
-            raise InputError(f"Cannot read CSV file {source}: {exc}") from exc
-    finally:
-        stream.close()
     return _ScanResult(headers, row_count, strata, tuple(field_indexes))
 
 
@@ -244,11 +200,9 @@ def _select_rows(
     seed: int | None,
     allocations: dict[Hashable, int] | None,
 ) -> list[list[str]]:
-    stream, reader = _open_reader(source, config)
     rng = random.Random(seed)
     selected: list[tuple[int, list[str]]]
-    try:
-        next(reader)
+    with open_records(source, config) as reader:
         if method is SampleMethod.FIRST:
             selected = [(index, row) for index, row in zip(range(size), reader)]
         elif method is SampleMethod.LAST:
@@ -272,18 +226,6 @@ def _select_rows(
                     rng,
                 )
             selected = [item for items in reservoirs.values() for item in items]
-    except csv.Error as exc:
-        raise InputError(
-            f"Invalid CSV near physical line {reader.line_num}: {exc}"
-        ) from exc
-    except UnicodeError as exc:
-        raise InputError(
-            f"Cannot decode {source.name} as {config.encoding}. Specify --encoding."
-        ) from exc
-    except OSError as exc:
-        raise InputError(f"Cannot read CSV file {source}: {exc}") from exc
-    finally:
-        stream.close()
     selected.sort(key=lambda item: item[0])
     return [row for _, row in selected]
 
@@ -298,7 +240,7 @@ def write_sample_csv(
     """Write a sample next to its source's conventions (delimiter, and a byte-order
     mark only if the source had one), through a temporary file that replaces the
     output once complete."""
-    writer_encoding = _output_encoding(source, config.encoding)
+    writer_encoding = output_encoding(source, config.encoding)
     temporary: Path | None = None
     try:
         output.parent.mkdir(parents=True, exist_ok=True)

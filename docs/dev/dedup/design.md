@@ -209,8 +209,8 @@ Internal, not exported, and the entry points that the tests of lots 4 to 7 use b
 the public API exists (lot 8):
 
 ```python
-analyze_dedup(source, *, csv, max_rows, memory_budget_mb, temp_dir, on_progress=None)
-    -> DedupAnalysis                      # lot 4, writes nothing
+analyze_dedup(source, *, csv, max_rows, memory_budget_mb, temp_dir, on_progress=None,
+               measure_memory=False) -> DedupAnalysis   # lot 4, writes nothing
 write_outputs(source, analysis, *, csv, destination, temp_dir=None, on_progress=None)
     -> StagedOutputs                      # lot 5, temporary files, validated
 process_source(source, settings, *, destination, on_progress=None)
@@ -222,7 +222,10 @@ Pure, in `tabalyst.dedup`, and the entry points of the tests of lots 2 and 3:
 ```python
 identity.canonical_key(row: Sequence[str]) -> bytes                # lot 2
 store.MemoryRowStore()                                              # lot 2
-diskstore.SqliteRowStore(directory: Path, *, digest=None)           # lot 3
+diskstore.SqliteRowStore(directory: Path, *, digest=None,
+    cache_bytes=MIGRATION_CACHE_BYTES, reserve_bytes=0)            # lot 3
+tiered.TieredRowStore(budget_bytes: int, temp_dir=None, *,
+    on_spill=None, digest=None)                                     # lot 3
 groups.count_rows(rows: Iterable[Sequence[str]], store=None, *, max_rows=None)
     -> GroupResult(stats: GroupStats, marks: RecordMarks)           # lot 2
 discovery.plan_batch(input_specs, settings) -> BatchPlan            # lot 1
@@ -233,6 +236,13 @@ given store open, and raises `DedupInputError` with `reason "row_limit_exceeded"
 `max_rows + 1` when `max_rows` is passed. The marks it returns are trimmed to the records
 read. The members `count` of `Occurrence` and the `reason` of the errors are those of
 `dedup/store.py` and `dedup/failures.py` (written in lot 2, since the row limit needs them).
+`SqliteRowStore` also offers `distinct`, `disk_bytes`, `load(entries)` (the bulk insert of the
+migration) and `set_cache_bytes`; `TieredRowStore` takes the budget in bytes (the caller converts
+`--memory-budget-mb` with `MIB`), exposes `storage_mode` (`"memory"` then `"disk"`) and calls
+`on_spill(SpillEvent(records, distinct, accounted_bytes, budget_bytes))` once the copy to disk is
+done; `analyze_dedup` (lot 4) turns it into the progress line. The small T21 and T22 run through
+`analyze_dedup` (lot 3 ran them through `count_rows` over a `TieredRowStore`, before the first pass
+existed).
 `MemoryRowStore` also offers `accounted_bytes`, `__len__` and `items()` (every entry, for the
 migration of lot 3), and refuses any use after `close()`. `GroupStats.violations()` lists
 the invariants of 12.3 that do not hold and `GroupStats.check()` raises a `DedupReportError`
@@ -247,10 +257,23 @@ paths), `excluded` (tuple of `(path, reason)`), `batch_report` (the path of
 `plan_batch(input_specs, settings, *, is_owned=...)` takes the ownership test of
 section 7.4 as `is_owned(path, planned_source) -> bool`.
 
-`DedupAnalysis` holds the `GroupStats` of section 8.2, the `RecordMarks` of section
-8.4, the `SourceIdentity` of the pass (`size_bytes`, `mtime_ns`, `content_sha256`),
-the storage mode and the timings. `analyze_dedup` is usable without materializing any
-output (S14.4). `process_source(...)` returns an outcome (status, reason, report,
+`DedupAnalysis` (`dedup/analysis.py`, frozen) holds the `GroupStats` of section 8.2 (`stats`),
+the `RecordMarks` of section 8.4 (`marks`), the `SourceIdentity` of the pass (`source`:
+`size_bytes`, `mtime_ns`, `content_sha256`), the `storage_mode`, `spilled_at_record` (`None` if the
+store stayed in memory), `first_pass_seconds` and `memory_peak_bytes` (`None` unless
+`measure_memory`, which traces the Python allocations with `tracemalloc` and therefore runs only for
+`--verbose`; the page cache of SQLite is not traced, so the figure is a Python-side measure). Its
+properties `outputs` (the files of section 6.2: `()`, `("unique", "duplicates")` or the three) and
+`passes` (1 or 2) give the choice of the outputs; `planned_outputs(stats)` and
+`expected_rows(stats, kind)` (`D`, `G` or `O`) are the same rules as functions. `analyze_dedup`
+validates `max_rows` and `memory_budget_mb` (at least 1, `ConfigurationError`), is usable without
+materializing any output (S14.4) and closes the store, deleting any temporary file, whatever
+happens. Its failures are `DedupInputError` (`invalid_csv`, `encoding_error`, `source_unreadable`,
+`row_limit_exceeded`, `source_changed`) and `DedupReportError` (the storage reasons of 8.5).
+The progress events it emits (`on_progress`) carry `stage "Dedup"`, the phase `READING`, the bytes
+read of the file and, once, the line "memory budget reached at record N, continuing on disk"
+as `detail`; they carry no `index` or `total` (the position in a batch is the business of the
+runner of lot 8, which sets them as it forwards the events) and never a cell. `process_source(...)` returns an outcome (status, reason, report,
 files). An expected per-source failure (invalid CSV, row limit, storage, changed
 source) is an outcome with status `FAILED`, not an exception; the service turns it
 into the exception or the `failures` entry. A refusal that happens before any work
@@ -262,20 +285,28 @@ test can intercept it between the passes (T23).
 
 `tabalyst/csv_records.py` is extracted from `sampling.py` (`_open_reader`,
 `_output_encoding`, the width check of `_scan`) with no change of behavior of
-`sample`, which gets a non-regression test in lot 4. It offers:
+`sample`, which has non-regression tests (`tests/test_sampling.py`, written against the code
+before the extraction) and the unit tests of `tests/test_csv_records.py`. It offers:
 
-- `open_records(path, csv_config)`: a context manager that opens the file as text
-  (`newline=""`, the configured encoding), reads the header and iterates the data
-  records through `csv.reader(strict=True)`. It raises `InputError` for an empty file,
-  an empty first record, a record whose width differs from the header, a `csv.Error`
-  and a `UnicodeError`. The messages give the record number and the physical line
-  (`reader.line_num`), never a cell. A blank line is a record of width 0, hence a width
-  error, as in `sample` and the Scan. A field larger than the `csv` module limit is a
-  `csv.Error` and therefore an input error (raising the limit is out of scope).
-- A digest hook: the byte stream is wrapped so that a SHA-256 of the bytes read is
-  available at the end of the pass without a second read (section 9.1).
-- `output_encoding(source, encoding)`: BOM only if the source had one (D14).
-- `open_writer(path, csv_config, encoding)`: the conventions of section 6.4.
+- `open_records(path, csv_config, *, hash_content=False, on_bytes=None)`: a context manager
+  that opens the file as text (`newline=""`, the configured encoding), reads the header and
+  gives a `CsvRecords`: `header`, the iteration of the data records through
+  `csv.reader(strict=True)` (each of the width of the header), `records_read`, `line_num`. It
+  raises `CsvRecordError` (an `InputError`, with a `kind` of `invalid_csv`, `encoding_error` or
+  `source_unreadable` and the `records_read` accepted so far) for an empty file, an empty first
+  record, a record whose width differs from the header, a `csv.Error`, a `UnicodeError` and an
+  `OSError`. The messages give the record number and the physical line (`reader.line_num`),
+  never a cell. A blank line is a record of width 0, hence a width error, as in `sample` and the
+  Scan. A field larger than the `csv` module limit is a `csv.Error` and therefore an input
+  error (raising the limit is out of scope). `analyze_dedup` maps the `kind` to the `reason` of
+  its `DedupInputError`.
+- The digest hook: with `hash_content` (or `on_bytes`, the progress in bytes) the byte stream is
+  the `HashingStream` of the Scan reader, so `CsvRecords.content_digest()` gives the SHA-256 of
+  the whole file, and `bytes_read` its size as read, without a second read (section 9.1). It
+  reads what remains of the file, so a caller that stopped early still gets the digest of the
+  whole file. Without either, the file is opened as `sample` always did.
+- `output_encoding(source, encoding)`: BOM only if the source had one (D14), used by `sample`.
+- `open_writer(path, csv_config, encoding)`: the conventions of section 6.4 (lot 5).
 
 ## 5. Row identity (S5)
 
@@ -542,27 +573,72 @@ With `G = 0` there is one pass (`passes = 1`) and no temporary CSV. Otherwise
 
 ### 8.5 Disk fallback (D7, D15)
 
-When the budget is exceeded, the store migrates to a temporary SQLite database under
-`--temp-dir` (default: the system temporary folder), in a private subfolder. The
-migration is named in the progress ("memory budget reached at record N, continuing on
-disk") and recorded as `run.storage_mode: "disk"`. Before and during the disk mode
-the free space of the temporary folder (`shutil.disk_usage`) is checked against an
-estimate; an
-`OSError`, an `sqlite3.OperationalError` ("database or disk is full") or a refused
-estimate fails the source with `insufficient_disk_space` or `storage_unavailable`,
-deletes the temporary files and publishes nothing. There is no confirmation prompt and
-no `--yes` in V1 (D15): Dedup is the last step of its command and the progress and the
-summary tell what it did. The decisions are in the
+When the accounted bytes pass the budget, `TieredRowStore` copies the entries into a
+temporary SQLite database under `--temp-dir` (default: the system temporary folder), in a
+private subfolder (`tabalyst-dedup-*`, deleted by `close()`, by garbage collection and at
+exit). The migration is named in the progress ("memory budget reached at record N,
+continuing on disk", from the `SpillEvent`) and recorded as `run.storage_mode: "disk"`.
+
+- **Table.** `rows(key BLOB PRIMARY KEY, count, first) WITHOUT ROWID`, page size 16 KiB,
+  no journal, no sync, exclusive lock, one transaction per `COMMIT_INTERVAL` (100,000)
+  operations. One upsert per record returns the new count and the first position
+  (`RETURNING`; two statements with a SQLite older than 3.35).
+- **Migration.** The entries go in key order (`MemoryRowStore.sorted_items`): inserted at
+  random they cost three times more once the table outgrows its cache (3 million random
+  keys: 28 s, 8.6 s sorted). The page cache is 16 MiB during the copy, then the whole
+  `--memory-budget-mb` once the dictionary is dropped, so the budget bounds the
+  accounted memory in both modes.
+- **Space.** Before the copy, the free space of the temporary volume
+  (`shutil.disk_usage`) must be at least `MIN_FREE_BYTES` (64 MiB) plus
+  `estimate_disk_bytes` of the entries already held (`(key bytes + 24 per entry) * 1.25`);
+  after every commit it must cover the same minimum plus the growth of the last interval.
+  The estimate is a floor, not a forecast of the final size, which only the rest of the
+  file tells. An `OSError` (`ENOSPC`), an `sqlite3.OperationalError` ("database or disk is
+  full"), a refused estimate or a temporary folder that is missing or is a file fail the
+  source with `insufficient_disk_space` or `storage_unavailable`, delete the temporary
+  files and publish nothing. The messages carry no path.
+- **Interruption.** An exception or Ctrl-C during the copy closes the database and
+  deletes its folder before it propagates.
+- **No digest by default.** The optional digest accelerator (`digest=`) is exact but
+  measured slower and larger (5 million rows: 8.4 against 5.3 microseconds per row, 82
+  against 74 bytes per distinct row), so it is off.
+
+There is no confirmation prompt and no `--yes` in V1 (D15): Dedup is the last step of
+its command and the progress and the summary tell what it did. The decisions are in the
 [store ADR](../adr/2026-10-22-dedup-exact-store-and-disk-fallback.md).
+
+Measures of lot 3 (Windows 11, Python 3.12, 31 GB of memory, SSD, narrow rows of 4 cells
+of about 60 bytes of key, default budget 512 MiB, store and key encoding only, no CSV
+reading; script `tabalyst-lab/benchmarks/dedup_store.py`):
+
+| Rows | Extra copies | Distinct | Mode | Store time | Per row | Peak working set | Database |
+| ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| 1 M | 0, 25, 90 % | 1 M, 750 k, 100 k | memory | 1.3 to 1.6 s | 1.3 to 1.6 us | 41 to 183 MiB | |
+| 5 M | 0 % | 5 M | disk | 25 s | 4.9 us | 451 MiB | 360 MiB |
+| 5 M | 25 % | 3.75 M | disk | 26 s | 5.3 us | 468 MiB | 266 MiB |
+| 5 M | 90 % | 500 k | memory | 12 s | 2.5 us | 113 MiB | |
+| 10 M | 0 % | 10 M | disk | 52 s | 5.2 us | 547 MiB | 728 MiB |
+| 10 M | 25 % | 7.5 M | disk | 43 to 71 s | 4.3 to 7.2 us | 556 MiB | 541 MiB |
+| 10 M | 90 % | 1 M | memory | 15 s | 1.5 us | 204 MiB | |
+| 10 M | 0 %, keys in random order | 10 M | disk | 126 s | 12.6 us | 547 MiB | 801 MiB |
+| 10 M | 25 %, keys in random order | 7.5 M | disk | 97 s | 9.7 us | 553 MiB | 604 MiB |
+
+The same 10 million rows with 25 % copies in memory only (budget 100 GB) take 15 s and
+peak at 1.4 GiB, so the budget is what keeps the default under 600 MiB. Twenty-cell rows
+(1 M distinct) stay in memory at 415 MiB. The database holds 66 to 82 bytes per distinct
+narrow row. Timings vary by about 40 % between identical runs on this machine (the
+10 M, 25 % case took 43, 62, 71 and 69 s). The switch happens at 2.5 to 3.3 million
+distinct narrow rows and the copy takes 3 to 5 s.
 
 ## 9. Reading, limits and measures
 
 ### 9.1 Reading (S15.1, D16)
 
 The reading rules are those of section 4.4. A header-only file is valid. The
-SHA-256 of the file is computed from the bytes read in the first pass and again in the
-second pass; the number of records is counted, not the physical lines (a multiline
-cell is one record).
+SHA-256 of the file is computed from the bytes read in the first pass (lot 4) and again in the
+second pass (lot 5); the number of records is counted, not the physical lines (a multiline
+cell is one record). The first pass finishes the reading of the file (`content_digest`) before it
+compares the identity.
 
 ### 9.2 Row limit (S10.1, DEC-15)
 
@@ -576,9 +652,11 @@ of the batch go on.
 ### 9.3 Stability of the source
 
 At the start and at the end of each pass the size and `mtime_ns` of the source are
-read; with the SHA-256 of the two passes, a difference fails the source with
-`source_changed`. A source that is shorter, longer or different between the two reads
-therefore never produces a published set (T23).
+read, and the bytes read are compared with the size; with the SHA-256 of the two passes, a
+difference fails the source with `source_changed`. The first pass makes its own check (lot 4):
+a source that grew, shrank or was touched while it was read fails there, before any second
+pass. A source that is shorter, longer or different between the two reads therefore never
+produces a published set (T23).
 
 ### 9.4 Measures (D17)
 
@@ -1029,7 +1107,8 @@ To read with this document; none blocks lot 1 or lot 2.
    because a `SKIPPED` decision never rewrites the report (DD-14). Updating the
    `mtime_ns` of the report would remove the cost at the price of a write.
 4. **`ENTRY_OVERHEAD`** is measured by lot 2 (160, section 8.3); the spill estimate
-   factor and the SQLite settings are measured in lot 3 and written back here before gate 3.
+   (24 bytes and a 1.25 factor) and the SQLite settings are those measured in lot 3
+   (section 8.5). Gate 3 reads those numbers; the budgets of the whole command are fixed at gate 10.
 5. **Alias `dedup_files`**: not exported (D12).
 6. **Batch report of zero or one source**: written whenever a pattern or two inputs are
    given (DD-13); lot 8 confirms that a folder with only derived files should get one.

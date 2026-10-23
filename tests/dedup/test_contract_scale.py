@@ -108,7 +108,6 @@ def test_ten_million_rows_are_exact_within_the_default_limit(heavy_folder):
 @pytest.mark.dedup_t("T09")
 def test_exactly_max_rows_records_are_allowed_and_one_more_fails(tmp_path):
     from tabalyst.dedup.failures import DedupInputError
-
     from tabalyst.errors import InputError
 
     allowed = write_csv(tmp_path, "allowed.csv", _rows(100, 10), header=WIDE)

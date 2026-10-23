@@ -242,9 +242,8 @@ def settings(**options):
 
 def analyze(path: Path, **options):
     """``analyze_dedup`` (lot 4): the counts and the marks, no output."""
-    from tabalyst.dedup.analysis import analyze_dedup
-
     from tabalyst.config import CsvConfig
+    from tabalyst.dedup.analysis import analyze_dedup
 
     return analyze_dedup(
         path,

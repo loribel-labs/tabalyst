@@ -397,3 +397,63 @@ def test_cli_rejects_an_option_the_method_does_not_read(source, args, message):
     assert result.exit_code == 2
     assert message in result.output
     assert not source.with_suffix(".sample.csv").exists()
+
+
+# The reading rules of sample are shared with Dedup through tabalyst.csv_records
+# (design dedup 4.4): these tests pin what they have always done.
+
+
+def _write_raw(path, text, encoding="utf-8"):
+    path.write_bytes(text.encode(encoding))
+    return path
+
+
+def test_a_record_of_the_wrong_width_names_its_number_and_line(tmp_path):
+    path = _write_raw(tmp_path / "ragged.csv", "id,name\r\n1,a\r\n2,b,c\r\n")
+
+    with pytest.raises(InputError) as caught:
+        tabalyst.sample_csv(path, method="first", rows=1)
+
+    assert str(caught.value) == (
+        "Data record 2 (ending at physical line 3): expected 2 fields, found 3. "
+        "Verify the delimiter and quoting."
+    )
+
+
+def test_a_blank_line_is_a_record_of_width_zero(tmp_path):
+    path = _write_raw(tmp_path / "blank.csv", "id,name\r\n1,a\r\n\r\n2,b\r\n")
+
+    with pytest.raises(InputError, match=r"Data record 2 .*expected 2 fields, found 0"):
+        tabalyst.sample_csv(path, method="first", rows=1)
+
+
+def test_an_unterminated_quote_names_the_physical_line(tmp_path):
+    path = _write_raw(tmp_path / "quote.csv", 'id,name\r\n1,"never closed\r\n')
+
+    with pytest.raises(InputError, match="Invalid CSV near physical line 2"):
+        tabalyst.sample_csv(path, method="first", rows=1)
+
+
+def test_a_file_that_cannot_be_decoded_asks_for_an_encoding(tmp_path):
+    path = _write_raw(tmp_path / "latin.csv", "id,name\r\n1,café\r\n", encoding="latin-1")
+
+    with pytest.raises(InputError) as caught:
+        tabalyst.sample_csv(path, method="first", rows=1)
+
+    assert str(caught.value) == "Cannot decode latin.csv as utf-8-sig. Specify --encoding."
+
+
+def test_a_multiline_cell_is_one_record_and_a_delimiter_option_is_honored(tmp_path):
+    path = _write_raw(
+        tmp_path / "multi.csv", 'id;note\r\n1;"two\r\nlines"\r\n2;plain\r\n3;plain\r\n'
+    )
+
+    result = tabalyst.sample_csv(path, method="first", rows=2, delimiter=";")
+
+    assert result.source_rows == 3
+    assert _read_csv_with(result.output, ";")[1:] == [["1", "two\r\nlines"], ["2", "plain"]]
+
+
+def _read_csv_with(path, delimiter):
+    with path.open("r", encoding="utf-8-sig", newline="") as stream:
+        return list(csv.reader(stream, delimiter=delimiter))
