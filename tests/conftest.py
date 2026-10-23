@@ -47,16 +47,4 @@ def _masked_by_default(request: pytest.FixtureRequest):
         _set_sensitive_values_default("show")
 
 
-@pytest.fixture(autouse=True)
-def _all_sections_written(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch):
-    """Write every section of the report in every test.
 
-    The shipped report hides Observations, Relationships, Insights, Second pass and
-    Limits for now (``reporting.HIDDEN_SECTIONS``), but their code stays tested. A test
-    of the shipped sections carries the ``shipped_sections`` marker.
-    """
-    if not request.node.get_closest_marker("shipped_sections"):
-        from tabalyst import reporting
-
-        monkeypatch.setattr(reporting, "HIDDEN_SECTIONS", frozenset())
-    yield

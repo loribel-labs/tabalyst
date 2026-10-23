@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "executions": [
+    {
+      "timestamp": "2026-10-22T02:36:42.001837Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers-100k.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 100000,
+      "columns": 34,
+      "analysis_seconds": 3.0549,
+      "total_seconds": 4.4007,
+      "git": {
+        "available": true,
+        "commit": "a1f42ba48b627f8d50097a32e7c9afed532ddb80",
+        "dirty": true,
+        "state": "a1f42ba4+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-22T02:39:17.619295Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers-100k.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 100000,
+      "columns": 34,
+      "analysis_seconds": 3.0949,
+      "total_seconds": 3.7879,
+      "git": {
+        "available": true,
+        "commit": "a1f42ba48b627f8d50097a32e7c9afed532ddb80",
+        "dirty": true,
+        "state": "a1f42ba4+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-22T02:49:09.395198Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers-100k.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 100000,
+      "columns": 34,
+      "analysis_seconds": 3.1209,
+      "total_seconds": 4.0484,
+      "git": {
+        "available": true,
+        "commit": "a1f42ba48b627f8d50097a32e7c9afed532ddb80",
+        "dirty": true,
+        "state": "a1f42ba4+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-22T03:03:51.560837Z",
+      "tabalyst_version": "0.7.0",
+      "source_file": "insurance-customers-100k.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 100000,
+      "columns": 34,
+      "analysis_seconds": 3.0856,
+      "total_seconds": 4.3007,
+      "git": {
+        "available": true,
+        "commit": "a1f42ba48b627f8d50097a32e7c9afed532ddb80",
+        "dirty": true,
+        "state": "a1f42ba4+working"
+      }
+    }
+  ]
+}

@@ -27,17 +27,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-19T03:39:01.915505Z",
-    "duration_seconds": 0.006126,
+    "started_at": "2026-10-22T17:55:36.837268Z",
+    "duration_seconds": 0.006063,
     "timings": {
-      "reading": 0.000444,
-      "analysis": 0.00014,
-      "finalize": 0.003486,
-      "derived": 0.001658,
-      "other": 0.000397
+      "reading": 0.000437,
+      "analysis": 0.000142,
+      "finalize": 0.003446,
+      "derived": 0.001629,
+      "other": 0.000409
     },
     "workers": 1,
-    "peak_memory_bytes": 70184960
+    "peak_memory_bytes": 66510848
   },
   "source": {
     "format": "csv",
@@ -747,7 +747,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -1580,7 +1581,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -2414,7 +2416,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -3231,7 +3234,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -4029,7 +4033,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -4826,7 +4831,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null

@@ -18,11 +18,6 @@ column is usually a scalar field path such as `address.city`. Section counts
 refer to this dataset. The optional numeric, date, string, detector, pattern and
 limits sections appear only when they have results to show.
 
-For now the report does not write the sections Observations, Relationships,
-Insights, Second pass and Limits. Their data stays in the
-[JSON profile](json-profile.md), and the paragraphs below that describe them
-apply once they are written again.
-
 ## How counts are qualified
 
 Every figure that could be misread says what it counts. Each label is a word

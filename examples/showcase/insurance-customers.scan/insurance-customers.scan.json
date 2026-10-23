@@ -27,17 +27,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-19T03:39:14.413405Z",
-    "duration_seconds": 2.330187,
+    "started_at": "2026-10-22T17:55:43.128532Z",
+    "duration_seconds": 2.413552,
     "timings": {
-      "reading": 0.337329,
-      "analysis": 0.685678,
-      "finalize": 0.769423,
-      "derived": 0.05079,
-      "other": 0.486968
+      "reading": 0.360069,
+      "analysis": 0.721972,
+      "finalize": 0.797103,
+      "derived": 0.053213,
+      "other": 0.481196
     },
     "workers": 6,
-    "peak_memory_bytes": 164892672
+    "peak_memory_bytes": 163307520
   },
   "source": {
     "format": "csv",
@@ -2629,7 +2629,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -3563,7 +3564,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -5493,7 +5495,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -7468,7 +7471,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -8799,290 +8803,290 @@
           "temporal": {
             "status": "complete",
             "value": {
-              "count": 89137,
-              "ambiguous": 10857,
+              "count": 90006,
+              "ambiguous": 9988,
               "kinds": [
                 {
                   "kind": "date",
-                  "count": 89137,
+                  "count": 90006,
                   "min": "1940-01-01",
                   "max": "2008-09-14",
                   "years": [
                     {
                       "year": 1940,
-                      "count": 1301
+                      "count": 1313
                     },
                     {
                       "year": 1941,
-                      "count": 1314
-                    },
-                    {
-                      "year": 1942,
-                      "count": 1298
-                    },
-                    {
-                      "year": 1943,
-                      "count": 1261
-                    },
-                    {
-                      "year": 1944,
-                      "count": 1268
-                    },
-                    {
-                      "year": 1945,
-                      "count": 1260
-                    },
-                    {
-                      "year": 1946,
-                      "count": 1281
-                    },
-                    {
-                      "year": 1947,
-                      "count": 1293
-                    },
-                    {
-                      "year": 1948,
-                      "count": 1261
-                    },
-                    {
-                      "year": 1949,
-                      "count": 1241
-                    },
-                    {
-                      "year": 1950,
-                      "count": 1307
-                    },
-                    {
-                      "year": 1951,
-                      "count": 1325
-                    },
-                    {
-                      "year": 1952,
-                      "count": 1269
-                    },
-                    {
-                      "year": 1953,
-                      "count": 1345
-                    },
-                    {
-                      "year": 1954,
-                      "count": 1338
-                    },
-                    {
-                      "year": 1955,
-                      "count": 1323
-                    },
-                    {
-                      "year": 1956,
-                      "count": 1278
-                    },
-                    {
-                      "year": 1957,
                       "count": 1324
                     },
                     {
-                      "year": 1958,
-                      "count": 1329
+                      "year": 1942,
+                      "count": 1311
                     },
                     {
-                      "year": 1959,
-                      "count": 1248
+                      "year": 1943,
+                      "count": 1275
                     },
                     {
-                      "year": 1960,
-                      "count": 1327
+                      "year": 1944,
+                      "count": 1277
                     },
                     {
-                      "year": 1961,
-                      "count": 1328
+                      "year": 1945,
+                      "count": 1275
                     },
                     {
-                      "year": 1962,
-                      "count": 1256
-                    },
-                    {
-                      "year": 1963,
-                      "count": 1315
-                    },
-                    {
-                      "year": 1964,
-                      "count": 1283
-                    },
-                    {
-                      "year": 1965,
-                      "count": 1326
-                    },
-                    {
-                      "year": 1966,
-                      "count": 1271
-                    },
-                    {
-                      "year": 1967,
-                      "count": 1397
-                    },
-                    {
-                      "year": 1968,
-                      "count": 1284
-                    },
-                    {
-                      "year": 1969,
-                      "count": 1261
-                    },
-                    {
-                      "year": 1970,
-                      "count": 1260
-                    },
-                    {
-                      "year": 1971,
-                      "count": 1258
-                    },
-                    {
-                      "year": 1972,
-                      "count": 1250
-                    },
-                    {
-                      "year": 1973,
-                      "count": 1246
-                    },
-                    {
-                      "year": 1974,
-                      "count": 1262
-                    },
-                    {
-                      "year": 1975,
-                      "count": 1316
-                    },
-                    {
-                      "year": 1976,
-                      "count": 1362
-                    },
-                    {
-                      "year": 1977,
-                      "count": 1332
-                    },
-                    {
-                      "year": 1978,
-                      "count": 1351
-                    },
-                    {
-                      "year": 1979,
-                      "count": 1327
-                    },
-                    {
-                      "year": 1980,
-                      "count": 1312
-                    },
-                    {
-                      "year": 1981,
-                      "count": 1342
-                    },
-                    {
-                      "year": 1982,
-                      "count": 1348
-                    },
-                    {
-                      "year": 1983,
-                      "count": 1264
-                    },
-                    {
-                      "year": 1984,
+                      "year": 1946,
                       "count": 1292
                     },
                     {
-                      "year": 1985,
-                      "count": 1379
+                      "year": 1947,
+                      "count": 1302
                     },
                     {
-                      "year": 1986,
-                      "count": 1340
+                      "year": 1948,
+                      "count": 1278
                     },
                     {
-                      "year": 1987,
-                      "count": 1291
-                    },
-                    {
-                      "year": 1988,
-                      "count": 1328
-                    },
-                    {
-                      "year": 1989,
-                      "count": 1295
-                    },
-                    {
-                      "year": 1990,
-                      "count": 1271
-                    },
-                    {
-                      "year": 1991,
-                      "count": 1270
-                    },
-                    {
-                      "year": 1992,
-                      "count": 1276
-                    },
-                    {
-                      "year": 1993,
-                      "count": 1252
-                    },
-                    {
-                      "year": 1994,
-                      "count": 1279
-                    },
-                    {
-                      "year": 1995,
-                      "count": 1301
-                    },
-                    {
-                      "year": 1996,
-                      "count": 1267
-                    },
-                    {
-                      "year": 1997,
-                      "count": 1341
-                    },
-                    {
-                      "year": 1998,
-                      "count": 1279
-                    },
-                    {
-                      "year": 1999,
-                      "count": 1280
-                    },
-                    {
-                      "year": 2000,
+                      "year": 1949,
                       "count": 1254
                     },
                     {
-                      "year": 2001,
-                      "count": 1241
+                      "year": 1950,
+                      "count": 1318
                     },
                     {
-                      "year": 2002,
-                      "count": 1306
+                      "year": 1951,
+                      "count": 1327
                     },
                     {
-                      "year": 2003,
-                      "count": 1238
+                      "year": 1952,
+                      "count": 1284
                     },
                     {
-                      "year": 2004,
-                      "count": 1347
+                      "year": 1953,
+                      "count": 1356
                     },
                     {
-                      "year": 2005,
+                      "year": 1954,
+                      "count": 1358
+                    },
+                    {
+                      "year": 1955,
+                      "count": 1333
+                    },
+                    {
+                      "year": 1956,
+                      "count": 1296
+                    },
+                    {
+                      "year": 1957,
+                      "count": 1341
+                    },
+                    {
+                      "year": 1958,
+                      "count": 1340
+                    },
+                    {
+                      "year": 1959,
+                      "count": 1264
+                    },
+                    {
+                      "year": 1960,
+                      "count": 1338
+                    },
+                    {
+                      "year": 1961,
+                      "count": 1341
+                    },
+                    {
+                      "year": 1962,
+                      "count": 1271
+                    },
+                    {
+                      "year": 1963,
+                      "count": 1332
+                    },
+                    {
+                      "year": 1964,
+                      "count": 1296
+                    },
+                    {
+                      "year": 1965,
+                      "count": 1352
+                    },
+                    {
+                      "year": 1966,
+                      "count": 1276
+                    },
+                    {
+                      "year": 1967,
+                      "count": 1410
+                    },
+                    {
+                      "year": 1968,
+                      "count": 1297
+                    },
+                    {
+                      "year": 1969,
+                      "count": 1272
+                    },
+                    {
+                      "year": 1970,
+                      "count": 1269
+                    },
+                    {
+                      "year": 1971,
+                      "count": 1273
+                    },
+                    {
+                      "year": 1972,
+                      "count": 1258
+                    },
+                    {
+                      "year": 1973,
+                      "count": 1261
+                    },
+                    {
+                      "year": 1974,
+                      "count": 1276
+                    },
+                    {
+                      "year": 1975,
+                      "count": 1331
+                    },
+                    {
+                      "year": 1976,
+                      "count": 1377
+                    },
+                    {
+                      "year": 1977,
+                      "count": 1339
+                    },
+                    {
+                      "year": 1978,
+                      "count": 1362
+                    },
+                    {
+                      "year": 1979,
+                      "count": 1339
+                    },
+                    {
+                      "year": 1980,
+                      "count": 1322
+                    },
+                    {
+                      "year": 1981,
+                      "count": 1352
+                    },
+                    {
+                      "year": 1982,
+                      "count": 1362
+                    },
+                    {
+                      "year": 1983,
+                      "count": 1276
+                    },
+                    {
+                      "year": 1984,
+                      "count": 1301
+                    },
+                    {
+                      "year": 1985,
+                      "count": 1388
+                    },
+                    {
+                      "year": 1986,
+                      "count": 1349
+                    },
+                    {
+                      "year": 1987,
+                      "count": 1302
+                    },
+                    {
+                      "year": 1988,
+                      "count": 1348
+                    },
+                    {
+                      "year": 1989,
+                      "count": 1308
+                    },
+                    {
+                      "year": 1990,
                       "count": 1286
                     },
                     {
-                      "year": 2006,
-                      "count": 1346
+                      "year": 1991,
+                      "count": 1287
                     },
                     {
-                      "year": 2007,
+                      "year": 1992,
+                      "count": 1287
+                    },
+                    {
+                      "year": 1993,
+                      "count": 1261
+                    },
+                    {
+                      "year": 1994,
+                      "count": 1296
+                    },
+                    {
+                      "year": 1995,
+                      "count": 1311
+                    },
+                    {
+                      "year": 1996,
+                      "count": 1280
+                    },
+                    {
+                      "year": 1997,
+                      "count": 1354
+                    },
+                    {
+                      "year": 1998,
+                      "count": 1288
+                    },
+                    {
+                      "year": 1999,
                       "count": 1294
                     },
                     {
+                      "year": 2000,
+                      "count": 1262
+                    },
+                    {
+                      "year": 2001,
+                      "count": 1258
+                    },
+                    {
+                      "year": 2002,
+                      "count": 1313
+                    },
+                    {
+                      "year": 2003,
+                      "count": 1244
+                    },
+                    {
+                      "year": 2004,
+                      "count": 1360
+                    },
+                    {
+                      "year": 2005,
+                      "count": 1297
+                    },
+                    {
+                      "year": 2006,
+                      "count": 1366
+                    },
+                    {
+                      "year": 2007,
+                      "count": 1308
+                    },
+                    {
                       "year": 2008,
-                      "count": 942
+                      "count": 958
                     }
                   ]
                 }
@@ -9223,13 +9227,13 @@
               "coverage": {
                 "eligible": 99994,
                 "tested": 99994,
-                "matched": 89137,
-                "ambiguous": 10857,
+                "matched": 90006,
+                "ambiguous": 9988,
                 "invalid": 0,
                 "not_matched": 0,
                 "not_tested": 0,
-                "share_tested": 0.8914,
-                "share_eligible": 0.8914
+                "share_tested": 0.9001,
+                "share_eligible": 0.9001
               },
               "formats": [
                 {
@@ -9283,14 +9287,14 @@
               },
               "details": {
                 "ambiguity": {
-                  "count": 10857,
+                  "count": 9988,
                   "candidates": [
                     {
                       "formats": [
                         "DD-MM-YYYY",
                         "MM-DD-YYYY"
                       ],
-                      "count": 10856
+                      "count": 9987
                     },
                     {
                       "formats": [
@@ -9304,7 +9308,8 @@
                     "DMY": 10937,
                     "MDY": 5483
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 869
                 }
               },
               "adaptive": null
@@ -10209,7 +10214,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -10979,7 +10985,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -12638,7 +12645,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -13748,7 +13756,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -15891,7 +15900,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -16800,7 +16810,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -18411,7 +18422,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -20318,7 +20330,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -21386,7 +21399,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -22453,7 +22467,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -24644,7 +24659,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -25774,7 +25790,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -29589,7 +29606,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -31313,7 +31331,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -32989,7 +33008,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -34061,7 +34081,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -35385,58 +35406,58 @@
           "temporal": {
             "status": "complete",
             "value": {
-              "count": 89236,
-              "ambiguous": 10764,
+              "count": 90125,
+              "ambiguous": 9875,
               "kinds": [
                 {
                   "kind": "date",
-                  "count": 89236,
+                  "count": 90125,
                   "min": "2016-09-18",
                   "max": "2027-09-16",
                   "years": [
                     {
                       "year": 2016,
-                      "count": 2214
+                      "count": 2237
                     },
                     {
                       "year": 2017,
-                      "count": 7635
+                      "count": 7720
                     },
                     {
                       "year": 2018,
-                      "count": 7877
+                      "count": 7950
                     },
                     {
                       "year": 2019,
-                      "count": 8182
+                      "count": 8269
                     },
                     {
                       "year": 2020,
-                      "count": 8276
+                      "count": 8339
                     },
                     {
                       "year": 2021,
-                      "count": 8388
+                      "count": 8476
                     },
                     {
                       "year": 2022,
-                      "count": 8765
+                      "count": 8844
                     },
                     {
                       "year": 2023,
-                      "count": 9173
+                      "count": 9265
                     },
                     {
                       "year": 2024,
-                      "count": 9547
+                      "count": 9645
                     },
                     {
                       "year": 2025,
-                      "count": 10419
+                      "count": 10534
                     },
                     {
                       "year": 2026,
-                      "count": 8745
+                      "count": 8831
                     },
                     {
                       "year": 2027,
@@ -35581,13 +35602,13 @@
               "coverage": {
                 "eligible": 100000,
                 "tested": 100000,
-                "matched": 89236,
-                "ambiguous": 10764,
+                "matched": 90125,
+                "ambiguous": 9875,
                 "invalid": 0,
                 "not_matched": 0,
                 "not_tested": 0,
-                "share_tested": 0.8924,
-                "share_eligible": 0.8924
+                "share_tested": 0.9012,
+                "share_eligible": 0.9012
               },
               "formats": [
                 {
@@ -35627,35 +35648,36 @@
                 "ambiguous": [
                   "11-06-2024",
                   "08-11-2022",
-                  "11-11-2023",
                   "05-12-2026",
                   "07-02-2018",
                   "07-10-2022",
                   "04-07-2023",
                   "06-02-2018",
                   "03-09-2021",
-                  "10-09-2025"
+                  "10-09-2025",
+                  "04-03-2018"
                 ],
                 "invalid": [],
                 "not_matched": []
               },
               "details": {
                 "ambiguity": {
-                  "count": 10764,
+                  "count": 9875,
                   "candidates": [
                     {
                       "formats": [
                         "DD-MM-YYYY",
                         "MM-DD-YYYY"
                       ],
-                      "count": 10764
+                      "count": 9875
                     }
                   ],
                   "evidence": {
                     "DMY": 11037,
                     "MDY": 5476
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 889
                 }
               },
               "adaptive": null
@@ -36988,12 +37010,12 @@
           "temporal": {
             "status": "complete",
             "value": {
-              "count": 74636,
-              "ambiguous": 8956,
+              "count": 75382,
+              "ambiguous": 8210,
               "kinds": [
                 {
                   "kind": "date",
-                  "count": 74636,
+                  "count": 75382,
                   "min": "2016-12-28",
                   "max": "9999-12-31",
                   "years": [
@@ -37003,47 +37025,47 @@
                     },
                     {
                       "year": 2017,
-                      "count": 102
+                      "count": 103
                     },
                     {
                       "year": 2018,
-                      "count": 272
+                      "count": 274
                     },
                     {
                       "year": 2019,
-                      "count": 482
+                      "count": 491
                     },
                     {
                       "year": 2020,
-                      "count": 695
+                      "count": 703
                     },
                     {
                       "year": 2021,
-                      "count": 952
+                      "count": 961
                     },
                     {
                       "year": 2022,
-                      "count": 1263
+                      "count": 1279
                     },
                     {
                       "year": 2023,
-                      "count": 1744
+                      "count": 1759
                     },
                     {
                       "year": 2024,
-                      "count": 2319
+                      "count": 2344
                     },
                     {
                       "year": 2025,
-                      "count": 3504
+                      "count": 3537
                     },
                     {
                       "year": 2026,
-                      "count": 18463
+                      "count": 18636
                     },
                     {
                       "year": 2027,
-                      "count": 44836
+                      "count": 45291
                     },
                     {
                       "year": 9999,
@@ -37188,13 +37210,13 @@
               "coverage": {
                 "eligible": 83592,
                 "tested": 83592,
-                "matched": 74636,
-                "ambiguous": 8956,
+                "matched": 75382,
+                "ambiguous": 8210,
                 "invalid": 0,
                 "not_matched": 0,
                 "not_tested": 0,
-                "share_tested": 0.8929,
-                "share_eligible": 0.8929
+                "share_tested": 0.9018,
+                "share_eligible": 0.9018
               },
               "formats": [
                 {
@@ -37232,30 +37254,30 @@
                   "2027-06-11"
                 ],
                 "ambiguous": [
-                  "06-06-2027",
                   "07-05-2027",
                   "06-02-2027",
-                  "02-02-2027",
                   "06-08-2027",
                   "02-11-2025",
                   "07-08-2024",
                   "06-07-2027",
                   "06-09-2027",
-                  "09-09-2027"
+                  "07-06-2027",
+                  "04-02-2027",
+                  "01-03-2025"
                 ],
                 "invalid": [],
                 "not_matched": []
               },
               "details": {
                 "ambiguity": {
-                  "count": 8956,
+                  "count": 8210,
                   "candidates": [
                     {
                       "formats": [
                         "DD-MM-YYYY",
                         "MM-DD-YYYY"
                       ],
-                      "count": 8955
+                      "count": 8209
                     },
                     {
                       "formats": [
@@ -37269,7 +37291,8 @@
                     "DMY": 9271,
                     "MDY": 4598
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 746
                 }
               },
               "adaptive": null
@@ -38178,7 +38201,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -40002,7 +40026,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -40956,7 +40981,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -41854,7 +41880,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -42917,7 +42944,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -44243,58 +44271,58 @@
           "temporal": {
             "status": "complete",
             "value": {
-              "count": 89362,
-              "ambiguous": 10638,
+              "count": 90243,
+              "ambiguous": 9757,
               "kinds": [
                 {
                   "kind": "date",
-                  "count": 89362,
+                  "count": 90243,
                   "min": "2016-08-20",
                   "max": "2026-09-15",
                   "years": [
                     {
                       "year": 2016,
-                      "count": 2520
+                      "count": 2547
                     },
                     {
                       "year": 2017,
-                      "count": 7583
+                      "count": 7670
                     },
                     {
                       "year": 2018,
-                      "count": 7894
+                      "count": 7969
                     },
                     {
                       "year": 2019,
-                      "count": 8227
+                      "count": 8307
                     },
                     {
                       "year": 2020,
-                      "count": 8308
+                      "count": 8381
                     },
                     {
                       "year": 2021,
-                      "count": 8433
+                      "count": 8511
                     },
                     {
                       "year": 2022,
-                      "count": 8798
+                      "count": 8880
                     },
                     {
                       "year": 2023,
-                      "count": 9131
+                      "count": 9222
                     },
                     {
                       "year": 2024,
-                      "count": 9674
+                      "count": 9761
                     },
                     {
                       "year": 2025,
-                      "count": 10468
+                      "count": 10581
                     },
                     {
                       "year": 2026,
-                      "count": 8326
+                      "count": 8414
                     }
                   ]
                 }
@@ -44435,13 +44463,13 @@
               "coverage": {
                 "eligible": 100000,
                 "tested": 100000,
-                "matched": 89362,
-                "ambiguous": 10638,
+                "matched": 90243,
+                "ambiguous": 9757,
                 "invalid": 0,
                 "not_matched": 0,
                 "not_tested": 0,
-                "share_tested": 0.8936,
-                "share_eligible": 0.8936
+                "share_tested": 0.9024,
+                "share_eligible": 0.9024
               },
               "formats": [
                 {
@@ -44488,28 +44516,29 @@
                   "11-10-2019",
                   "04-08-2017",
                   "06-05-2018",
-                  "04-04-2021"
+                  "02-12-2021"
                 ],
                 "invalid": [],
                 "not_matched": []
               },
               "details": {
                 "ambiguity": {
-                  "count": 10638,
+                  "count": 9757,
                   "candidates": [
                     {
                       "formats": [
                         "DD-MM-YYYY",
                         "MM-DD-YYYY"
                       ],
-                      "count": 10638
+                      "count": 9757
                     }
                   ],
                   "evidence": {
                     "DMY": 11138,
                     "MDY": 5501
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 881
                 }
               },
               "adaptive": null
@@ -45842,58 +45871,58 @@
           "temporal": {
             "status": "complete",
             "value": {
-              "count": 89056,
-              "ambiguous": 10944,
+              "count": 89992,
+              "ambiguous": 10008,
               "kinds": [
                 {
                   "kind": "date",
-                  "count": 89056,
+                  "count": 89992,
                   "min": "2016-10-04",
                   "max": "2026-09-16",
                   "years": [
                     {
                       "year": 2016,
-                      "count": 33
+                      "count": 35
                     },
                     {
                       "year": 2017,
-                      "count": 711
+                      "count": 718
                     },
                     {
                       "year": 2018,
-                      "count": 1590
+                      "count": 1602
                     },
                     {
                       "year": 2019,
-                      "count": 2598
+                      "count": 2622
                     },
                     {
                       "year": 2020,
-                      "count": 3793
+                      "count": 3841
                     },
                     {
                       "year": 2021,
-                      "count": 5283
+                      "count": 5335
                     },
                     {
                       "year": 2022,
-                      "count": 7138
+                      "count": 7221
                     },
                     {
                       "year": 2023,
-                      "count": 9497
+                      "count": 9610
                     },
                     {
                       "year": 2024,
-                      "count": 13012
+                      "count": 13128
                     },
                     {
                       "year": 2025,
-                      "count": 19617
+                      "count": 19805
                     },
                     {
                       "year": 2026,
-                      "count": 25784
+                      "count": 26075
                     }
                   ]
                 }
@@ -46034,13 +46063,13 @@
               "coverage": {
                 "eligible": 100000,
                 "tested": 100000,
-                "matched": 89056,
-                "ambiguous": 10944,
+                "matched": 89992,
+                "ambiguous": 10008,
                 "invalid": 0,
                 "not_matched": 0,
                 "not_tested": 0,
-                "share_tested": 0.8906,
-                "share_eligible": 0.8906
+                "share_tested": 0.8999,
+                "share_eligible": 0.8999
               },
               "formats": [
                 {
@@ -46079,7 +46108,6 @@
                 ],
                 "ambiguous": [
                   "03-09-2026",
-                  "12-12-2022",
                   "12-03-2026",
                   "09-01-2026",
                   "03-11-2026",
@@ -46087,21 +46115,22 @@
                   "08-02-2025",
                   "08-09-2025",
                   "11-06-2024",
-                  "11-10-2025"
+                  "11-10-2025",
+                  "01-10-2021"
                 ],
                 "invalid": [],
                 "not_matched": []
               },
               "details": {
                 "ambiguity": {
-                  "count": 10944,
+                  "count": 10008,
                   "candidates": [
                     {
                       "formats": [
                         "DD-MM-YYYY",
                         "MM-DD-YYYY"
                       ],
-                      "count": 10943
+                      "count": 10007
                     },
                     {
                       "formats": [
@@ -46115,7 +46144,8 @@
                     "DMY": 10998,
                     "MDY": 5335
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 936
                 }
               },
               "adaptive": null
@@ -47442,12 +47472,12 @@
           "temporal": {
             "status": "complete",
             "value": {
-              "count": 12670,
-              "ambiguous": 1570,
+              "count": 12784,
+              "ambiguous": 1456,
               "kinds": [
                 {
                   "kind": "date",
-                  "count": 12670,
+                  "count": 12784,
                   "min": "2016-11-24",
                   "max": "2026-09-16",
                   "years": [
@@ -47457,43 +47487,43 @@
                     },
                     {
                       "year": 2017,
-                      "count": 121
+                      "count": 123
                     },
                     {
                       "year": 2018,
-                      "count": 276
+                      "count": 277
                     },
                     {
                       "year": 2019,
-                      "count": 414
+                      "count": 415
                     },
                     {
                       "year": 2020,
-                      "count": 679
+                      "count": 685
                     },
                     {
                       "year": 2021,
-                      "count": 808
+                      "count": 809
                     },
                     {
                       "year": 2022,
-                      "count": 1093
+                      "count": 1104
                     },
                     {
                       "year": 2023,
-                      "count": 1350
+                      "count": 1359
                     },
                     {
                       "year": 2024,
-                      "count": 1869
+                      "count": 1893
                     },
                     {
                       "year": 2025,
-                      "count": 2656
+                      "count": 2681
                     },
                     {
                       "year": 2026,
-                      "count": 3399
+                      "count": 3433
                     }
                   ]
                 }
@@ -47634,13 +47664,13 @@
               "coverage": {
                 "eligible": 14240,
                 "tested": 14240,
-                "matched": 12670,
-                "ambiguous": 1570,
+                "matched": 12784,
+                "ambiguous": 1456,
                 "invalid": 0,
                 "not_matched": 0,
                 "not_tested": 0,
-                "share_tested": 0.8897,
-                "share_eligible": 0.8897
+                "share_tested": 0.8978,
+                "share_eligible": 0.8978
               },
               "formats": [
                 {
@@ -47670,7 +47700,6 @@
                   "2022-10-23"
                 ],
                 "ambiguous": [
-                  "06-06-2026",
                   "08-06-2022",
                   "06-07-2025",
                   "08-02-2025",
@@ -47679,28 +47708,30 @@
                   "11-02-2025",
                   "06-04-2025",
                   "09-02-2022",
-                  "04-03-2026"
+                  "04-03-2026",
+                  "04-12-2021"
                 ],
                 "invalid": [],
                 "not_matched": []
               },
               "details": {
                 "ambiguity": {
-                  "count": 1570,
+                  "count": 1456,
                   "candidates": [
                     {
                       "formats": [
                         "DD-MM-YYYY",
                         "MM-DD-YYYY"
                       ],
-                      "count": 1570
+                      "count": 1456
                     }
                   ],
                   "evidence": {
                     "DMY": 1590,
                     "MDY": 755
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 114
                 }
               },
               "adaptive": null
@@ -49586,7 +49617,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -50521,7 +50553,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -51318,7 +51351,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -70345,7 +70379,7 @@
         "dataset": "rows",
         "field": "column_5",
         "population": "occurrences",
-        "count": 10857,
+        "count": 9988,
         "of": 99994,
         "accuracy": "exact"
       },
@@ -70469,7 +70503,7 @@
         "dataset": "rows",
         "field": "column_22",
         "population": "occurrences",
-        "count": 10764,
+        "count": 9875,
         "of": 100000,
         "accuracy": "exact"
       },
@@ -70481,7 +70515,7 @@
         "dataset": "rows",
         "field": "column_23",
         "population": "occurrences",
-        "count": 8956,
+        "count": 8210,
         "of": 83592,
         "accuracy": "exact"
       },
@@ -70528,7 +70562,7 @@
         "dataset": "rows",
         "field": "column_29",
         "population": "occurrences",
-        "count": 10638,
+        "count": 9757,
         "of": 100000,
         "accuracy": "exact"
       },
@@ -70540,7 +70574,7 @@
         "dataset": "rows",
         "field": "column_30",
         "population": "occurrences",
-        "count": 10944,
+        "count": 10008,
         "of": 100000,
         "accuracy": "exact"
       },
@@ -70552,7 +70586,7 @@
         "dataset": "rows",
         "field": "column_31",
         "population": "occurrences",
-        "count": 1570,
+        "count": 1456,
         "of": 14240,
         "accuracy": "exact"
       },

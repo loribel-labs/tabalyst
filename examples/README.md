@@ -16,7 +16,7 @@ examples/
 |-- showcase/ (what the website and the documentation publish, nothing else)
 |   |-- basic/
 |   |-- insurance-customers/ (report.html, report.json, scan.json; 100,000 rows)
-|   |-- insurance-customers-scan/ (scan, second pass, smart plan and sample; 100,000 rows)
+|   |-- insurance-customers.scan/ (scan, second pass, smart plan and sample; 100,000 rows)
 |   |-- orders/
 |   |-- sales/
 |   `-- web-events/
@@ -67,7 +67,7 @@ fails when it is stale; `regenerate.py` runs it), so it never drifts.
 | --- | --- | --- | --- |
 | `showcase/basic/` | `report` | no | `get-started/examples.md`, `reference/history.md` |
 | `showcase/insurance-customers/` | `report` | yes | `get-started/examples.md` |
-| `showcase/insurance-customers-scan/` | `scan` | no | `get-started/simple-clear-smart.md` |
+| `showcase/insurance-customers.scan/` | `scan` | no | `get-started/simple-clear-smart.md` |
 | `showcase/orders/` | `report` | yes | `get-started/examples.md` |
 | `showcase/sales/` | `report` | yes | `get-started/examples.md` |
 | `showcase/web-events/` | `report` | yes | `get-started/examples.md` |
@@ -96,17 +96,17 @@ tabalyst report examples/datasets/web-events.jsonl -o examples/showcase/web-even
 tabalyst report examples/datasets/sales.xlsx -o examples/showcase/sales/report.html
 ```
 
-The folder `insurance-customers-scan/` shows the three steps of Tabalyst Scan on
+The folder `insurance-customers.scan/` shows the three steps of Tabalyst Scan on
 `insurance-customers-100k.csv`, the generated base of 100,000 rows (see "Simple, Clear and Smart" in the documentation):
 the scan (Simple, with its web page, Clear), the second pass and the plan of a
 smart sample (Smart), and the smart sample with its report and page. Its four steps
 are in its `demo.json`:
 
 ```console
-tabalyst scan {datasets}/insurance-customers-100k.csv -o examples/showcase/insurance-customers-scan/insurance-customers.scan.json --config examples/config.json --deep --yes --force
+tabalyst scan {datasets}/insurance-customers-100k.csv -o examples/showcase/insurance-customers.scan/insurance-customers.scan.json --config examples/config.json --deep --yes --force
 tabalyst scan {datasets}/insurance-customers-100k.csv --config examples/config.json --deep --yes --force --no-html
 tabalyst scan {datasets}/insurance-customers-100k.csv --plan --smart --sample-size 3000 --config examples/config.json
-tabalyst sample {datasets}/insurance-customers-100k.csv --smart --rows 3000 --seed 42 -o examples/showcase/insurance-customers-scan/insurance-customers.sample.csv --config examples/config.json --force
+tabalyst sample {datasets}/insurance-customers-100k.csv --smart --rows 3000 --seed 42 -o examples/showcase/insurance-customers.scan/insurance-customers.sample.csv --config examples/config.json --force
 ```
 
 `make_datasets.py` generates the base (45 seconds, 27 MB, SHA-256 checked) and leaves it outside the

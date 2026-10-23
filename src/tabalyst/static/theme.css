@@ -1000,3 +1000,12 @@ h3.rcard-title,h4.rcard-title{font-family:var(--f-body)}
 @media print{.dsc>summary::before{display:none}.vstrip{break-inside:avoid}.fnd{break-inside:avoid}.rhead-nav{display:none}}
 
 .dsc-in{margin-top:10px;background:none;box-shadow:none}
+
+.ident{margin-top:var(--joint);display:grid;gap:8px}
+.ident p{margin:0}
+.ident-type{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ident-type .pill{font-size:15px;padding:3px 10px}
+.ident-why{font-size:15px;color:var(--text)}
+.ident-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.ident-k{font:500 11px/1.6 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+.chip{font-size:12px;color:var(--text-2);border:1px solid var(--line);border-radius:999px;padding:1px 9px}

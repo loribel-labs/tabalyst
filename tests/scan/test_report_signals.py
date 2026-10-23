@@ -385,17 +385,6 @@ def test_every_signal_popover_says_in_one_sentence_what_the_finding_is():
     assert set(SIGNAL_NOTES) == set(SIGNAL_TITLES)
 
 
-@pytest.mark.shipped_sections
-def test_the_shipped_report_does_not_write_five_sections_for_now(tmp_path):
-    html = render_report(_dates(tmp_path))
-
-    for name in ("observations", "relationships", "insights", "second-pass", "limits"):
-        assert f'id="{name}"' not in html
-        assert f'href="#{name}"' not in html
-    for kept in ("overview", "summary", "columns", "transformations", "sample", "settings"):
-        assert f'id="{kept}"' in html
-
-
 def test_every_section_is_written_once_nothing_is_hidden(tmp_path):
     html = render_report(_dates(tmp_path))
 

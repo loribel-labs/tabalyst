@@ -27,17 +27,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-19T03:39:59.698851Z",
-    "duration_seconds": 0.034785,
+    "started_at": "2026-10-22T17:56:24.228482Z",
+    "duration_seconds": 0.033525,
     "timings": {
-      "reading": 0.005829,
-      "analysis": 0.008165,
-      "finalize": 0.014668,
-      "derived": 0.005715,
-      "other": 0.000407
+      "reading": 0.00565,
+      "analysis": 0.007488,
+      "finalize": 0.014138,
+      "derived": 0.005823,
+      "other": 0.000426
     },
     "workers": 1,
-    "peak_memory_bytes": 73060352
+    "peak_memory_bytes": 69345280
   },
   "source": {
     "format": "jsonl",
@@ -1675,7 +1675,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -3238,7 +3239,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -4155,7 +4157,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -6002,7 +6005,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -6814,7 +6818,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -7920,7 +7925,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -9135,7 +9141,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -10313,7 +10320,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -11578,7 +11586,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -12680,7 +12689,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null

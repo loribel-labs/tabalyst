@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>insurance-customers.sample.csv | Tabalyst smart sample</title>
-<meta name="description" content="Tabalyst smart sample report for insurance-customers-100k.csv">
+<title>province_code | insurance-customers-100k.csv | Tabalyst</title>
+<meta name="description" content="Column profile for province_code in insurance-customers-100k.csv">
+<meta name="generator" content="Tabalyst column report">
 <meta name="theme-color" content="#00051A">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%2300051a'/%3E%3Cpath%20d='M14%2015h36v10H37v25H27V25H14z'%20fill='%23f98510'/%3E%3C/svg%3E">
 <script>(()=>{let m="auto";try{const s=localStorage.getItem("tabalyst-theme");if(s==="light"||s==="dark")m=s}catch(e){}const r=document.documentElement;r.dataset.themeMode=m;r.dataset.theme=m==="auto"?(window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):m})();</script>
@@ -1011,71 +1012,804 @@ h3.rcard-title,h4.rcard-title{font-family:var(--f-body)}
 
 .dsc-in{margin-top:10px;background:none;box-shadow:none}
 
-.sp{padding:32px 0 56px}
-.sp .panel{margin-top:20px}
-.sp h1{font:600 24px/1.25 var(--f-display);margin:0 0 6px;color:var(--text)}
-.sp .lead{margin:0;color:var(--text-3);font-size:13px;max-width:80ch}
-.sp .dtable th,.sp .dtable td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line)}
-.sp .dtable thead th{position:static;padding:10px 12px}
-.sp .dtable td.num,.sp .dtable th.num{text-align:right;font-variant-numeric:tabular-nums}
-.sp .dtable code{white-space:normal;overflow-wrap:anywhere}
-.sp .guard{margin:0;padding:0;list-style:none;display:grid;gap:8px}
-.sp .guard li{border:1px solid var(--line);border-radius:var(--r-md);padding:10px 14px;font-size:13px;color:var(--text-2);background:var(--g-card)}
-.sp .bar{height:6px;border-radius:2px;background:var(--line);min-width:90px}
-.sp .bar span{display:block;height:100%;border-radius:2px;background:var(--attn)}
-@media (max-width:720px){.sp .wrap{width:calc(100% - 32px)}.sp .metrics{grid-template-columns:minmax(0,1fr)}}
+.ident{margin-top:var(--joint);display:grid;gap:8px}
+.ident p{margin:0}
+.ident-type{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ident-type .pill{font-size:15px;padding:3px 10px}
+.ident-why{font-size:15px;color:var(--text)}
+.ident-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.ident-k{font:500 11px/1.6 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+.chip{font-size:12px;color:var(--text-2);border:1px solid var(--line);border-radius:999px;padding:1px 9px}
 </style>
 </head>
 <body>
-<main class="sp"><div class="wrap">
-<header>
-<p class="eyebrow">Tabalyst smart sample</p>
-<h1>insurance-customers.sample.csv</h1>
-<p class="lead">3,000 rows of 100,000 from <code>insurance-customers-100k.csv</code>, chosen to cover the cases the plan lists. This page reads the sample report alone; it needs neither the source nor the sample.</p>
-</header>
 
-<section class="panel" id="statements" aria-labelledby="statements-h">
-<div class="phead"><div><p class="eyebrow">1 / What it promises</p><h2 id="statements-h">What this sample is, and is not</h2></div></div>
-<div class="pbody"><ul class="guard"><li>The coverage is that of the catalog of targets of the plan, not of every phenomenon of the data: a case no target describes may be missing.</li><li>The proportions of the sample are not those of the population: rare cases are chosen on purpose, so do not estimate the population from it.</li><li>The rows are chosen by a greedy cover of a bounded pool of candidates: the coverage is measured, no optimum is promised.</li></ul></div>
-</section>
 
-<section class="panel" id="coverage" aria-labelledby="coverage-h">
-<div class="phead"><div><p class="eyebrow">2 / Coverage</p><h2 id="coverage-h">What the sample covers of its targets</h2><p>Scope: the 1,459 targets of the plan, of which 1,459 could be tested on a row. A target is covered when the sample holds at least one row that shows it.</p></div></div>
-<div class="pbody">
-<dl class="metrics">
-<div class="metric"><dt>Targets covered</dt><dd><span class="v">1,459</span><span class="s">of 1,459 testable</span></dd></div>
-<div class="metric"><dt>Weighted coverage</dt><dd><span class="v">100.0<small>%</small></span><span class="s">Rarer and more serious targets weigh more</span></dd></div>
-<div class="metric"><dt>Mandatory targets</dt><dd><span class="v">157<small> / 157</small></span><span class="s">Values of an exhaustive catalog and confirmed problems</span></dd></div>
-<div class="metric"><dt>Rows</dt><dd><span class="v">3,000</span><span class="s">519 by cover, 2,478 ordinary</span></dd></div>
-</dl>
-<h3 class="subh">By family<span class="n">(6)</span></h3>
-<div class="tscroll" tabindex="0" role="region" aria-label="Coverage by family"><table class="dtable"><thead><tr><th scope="col">Family</th><th scope="col" class="num">Defined</th><th scope="col" class="num">Testable</th><th scope="col" class="num">Covered</th><th scope="col" class="num">Weighted</th><th scope="col">Share</th></tr></thead><tbody>
-<tr><th scope="row">Few values</th><td class="num">922</td><td class="num">922</td><td class="num">922</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Structured text</th><td class="num">47</td><td class="num">47</td><td class="num">47</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Numbers</th><td class="num">53</td><td class="num">53</td><td class="num">53</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Dates</th><td class="num">70</td><td class="num">70</td><td class="num">70</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Quality</th><td class="num">206</td><td class="num">206</td><td class="num">206</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Relations</th><td class="num">161</td><td class="num">161</td><td class="num">161</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr>
-</tbody></table></div>
+
+
+
+
+
+
+
+
+
+
+<a class="skip" href="#content">Skip to column report</a>
+<div class="shell">
+<aside class="side" aria-label="Column navigation">
+  <a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website"><svg viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M10 10h44v12H38v32H26V22H10z"/><path fill="#F98510" d="M43 29h11v25H43z"/></svg><span class="word">Tabalyst<span class="sub">Report</span></span></a>
+  <p class="side-label">Explore the column</p>
+  <nav class="rep-nav" data-ds="0" aria-label="Column sections">
+    <p class="side-group">Read</p>
+    <a class="rep-tab" href="#summary"><small>01</small>Summary</a>
+    <a class="rep-tab" href="#findings"><small>02</small>Findings<span class="ct attn">1</span></a>
+    <a class="rep-tab" href="#values"><small>03</small>Values<span class="ct">19</span></a>
+    <a class="rep-tab" href="#shape"><small>04</small>Text</a>
+    <p class="side-group">Understand</p>
+    <a class="rep-tab" href="#formats"><small>05</small>Formats and patterns</a>
+    <a class="rep-tab" href="#cleaning"><small>06</small>Cleaning</a>
+    <a class="rep-tab" href="#limits"><small>07</small>Limits</a>
+    <p class="side-group">Evidence</p>
+    <a class="rep-tab" href="#scan-evidence"><small>08</small>Scan evidence</a>
+    <a class="rep-tab" href="#sample"><small>09</small>Data sample<span class="ct">30</span></a>
+    <p class="side-group">Navigation</p>
+    <a class="rep-tab" href="../report.html"><small>↖</small>Full report</a>
+  </nav>
+  <div class="side-foot"><div class="row"><button type="button" id="theme-toggle" class="btn btn-icon" aria-label="Theme: auto (system)" title="Theme: auto (system)"><svg data-icon="auto" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2.5" width="12" height="8.5" rx="1"/><path d="M5.5 14h5M8 11v3"/></svg><svg data-icon="light" viewBox="0 0 16 16" aria-hidden="true" hidden><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg><svg data-icon="dark" viewBox="0 0 16 16" aria-hidden="true" hidden><path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7z"/></svg></button><button type="button" class="btn print" data-print style="flex:1">Print / PDF</button></div></div>
+</aside>
+<div class="main"><div class="ds" data-ds="0">
+<header class="rhead"><div class="wrap">
+  <p class="eyebrow">Column report · insurance-customers-100k.csv</p>
+  <div class="rhead-top">
+    <div>
+      <h1>province_code</h1>
+      <ul class="facts"><li><b>Column 14</b> of 34</li><li><code>province_code</code></li><li>100,000 rows</li></ul>
+    </div>
+    <div class="rhead-nav" role="group" aria-label="Neighbouring columns">
+      <a class="btn" href="col-13-ville.html" rel="prev"><span aria-hidden="true">←</span> <span class="vh">Previous column: </span>ville</a>
+      <a class="btn" href="col-15-province-nom.html" rel="next"><span class="vh">Next column: </span>province_nom <span aria-hidden="true">→</span></a>
+      <a class="btn" href="../report.html">Full report</a>
+    </div>
+  </div>
+  <div class="vstrip">
+
+    <p class="vs-type"><span class="fam-dot fam-categorical" aria-hidden="true"></span><span class="vs-fam">Categorical</span><span class="vs-sep" aria-hidden="true">/</span><b>Enum</b></p>
+    <p class="vs-sentence">19 categories; the most frequent holds 75.3% of present values.</p>
+    <p class="vs-flags">
+      <span class="cst cst-ok">No error detected</span>
+      <a class="cst cst-issue" href="#findings"><b>1</b> kind of issue</a>
+
+    </p>
+  </div>
+</div></header>
+<main id="content" class="wrap content" tabindex="-1">
+
+<section class="panel" id="summary" aria-labelledby="summary-h"><div class="phead"><div><p class="eyebrow">01 / Summary</p><h2 id="summary-h">What this column holds</h2><p>The figures of the column, and how Tabalyst reads its type.</p></div></div><div class="pbody">
+  <dl class="metrics">
+    <div class="metric"><dt>Analyzable values</dt><dd><span class="v">99,997</span><span class="s">in 100,000 rows</span></dd></div>
+    <div class="metric attn"><dt>Missing</dt><dd><span class="v">0.0<small>%</small></span><span class="s">3 values<br>empty 3</span></dd></div>
+    <div class="metric"><dt>Distinct</dt><dd><span class="v">19</span><span class="s"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> 0.02% of values</span></dd></div>
+
+    <div class="metric attn"><dt>Findings</dt><dd><span class="v">1</span><span class="s">0 errors · 1 issue · 1 remark</span></dd></div>
+  </dl>
+  <div class="ident">
+    <p class="ident-type"><span class="pill">Enum</span> <small class="sub-n">established · inferred</small></p>
+    <p class="ident-why">19 categories; the most frequent holds 75.3% of present values.</p>
+    <p class="ident-meta"></p>
+  </div>
+</div></section>
+
+<section class="panel" id="findings" aria-labelledby="findings-h"><div class="phead"><div><p class="eyebrow">02 / Findings</p><h2 id="findings-h">Findings<span class="n">(2)</span></h2><p>What Tabalyst found in this column, each with what it counts, how sure it is and the evidence behind it. Errors first, then issues, then remarks.</p></div></div><div class="pbody">
+
+
+<article class="fnd fnd-issue" aria-labelledby="f1-h">
+  <header class="fnd-h"><span class="fcls fcls-issue">Issue</span><h3 id="f1-h">6 spelling-variant groups</h3></header>
+  <div class="fnd-b">
+    <dl class="fnd-def">
+      <dt>What it is</dt><dd>Groups of values that differ only by case, accents or spacing.</dd>
+      <dt>Counted in</dt><dd>groups</dd>
+      <dt>Accuracy</dt><dd><b>Exact</b>: every value the Scan read was counted</dd>
+      <dt>Limit</dt><dd>Variants are groups of spellings of one text; they do not prove that the spellings mean the same thing.</dd>
+      <dt>Examples</dt><dd><span class="fd-ex"><code class="ws">QC</code><code class="ws">qc</code></span></dd>
+    </dl>
+    <div class="fnd-d"><h4 class="fd-title">Spelling variants</h4><ol class="pg-groups"><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">QC</code><small>×75,256</small></span><span class="pg-sp"><code class="ws">qc</code><small>×16</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">ON</code><small>×14,161</small></span><span class="pg-sp"><code class="ws">on</code><small>×2</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">AB</code><small>×2,615</small></span><span class="pg-sp"><code class="ws">ab</code><small>×2</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">NB</code><small>×1,740</small></span><span class="pg-sp"><code class="ws">nb</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">NS</code><small>×912</small></span><span class="pg-sp"><code class="ws">ns</code><small>×1</small></span></li><li class="pg-group"><span class="pg-sp top" title="Most frequent spelling of its group"><code class="ws">NL</code><small>×355</small></span><span class="pg-sp"><code class="ws">nl</code><small>×1</small></span></li></ol></div>
+  </div>
+</article>
+
+<h3 class="subh">Remarks <span class="n">not defects</span></h3><ul class="remarks"><li><span><span class="st st-info" title="A finding that may be perfectly valid"><i aria-hidden="true"></i>Remark</span> Missing values<small class="sub-n"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · values out of 100,000</small></span><b>3</b></li></ul>
+
+<details class="dsc"><summary><span>Checked, nothing found<span class="n">(6)</span></span></summary><ul class="pv-checks"><li><b>ambiguous dates</b><span class="muted">None detected</span><small>every one of the 99,997 eligible values was tested</small></li><li><b>ambiguous numbers</b><span class="muted">None detected</span><small>every one of the 99,997 eligible values was tested</small></li><li><b>values of a minority length</b><span class="muted">None detected</span></li><li><b>values outside the closest type</b><span class="muted">None detected</span></li><li><b>values with surrounding whitespace</b><span class="muted">None detected</span></li><li><b>values with repeated whitespace</b><span class="muted">None detected</span></li></ul></details>
+</div></section>
+
+<section class="panel" id="values" aria-labelledby="values-h"><div class="phead"><div><p class="eyebrow">03 / Values</p><h2 id="values-h">Values<span class="n">(19)</span></h2><p>Every distinct value of the column, most frequent first, each with its exact count.</p></div></div><div class="pbody">
+
+  <ol class="vbars"><li><code class="ws">QC</code><span class="vb" aria-hidden="true"><i style="width:100.0%"></i></span><b>75,256</b></li><li><code class="ws">ON</code><span class="vb" aria-hidden="true"><i style="width:18.8%"></i></span><b>14,161</b></li><li><code class="ws">BC</code><span class="vb" aria-hidden="true"><i style="width:3.5%"></i></span><b>2,622</b></li><li><code class="ws">AB</code><span class="vb" aria-hidden="true"><i style="width:3.5%"></i></span><b>2,615</b></li><li><code class="ws">NB</code><span class="vb" aria-hidden="true"><i style="width:2.3%"></i></span><b>1,740</b></li><li><code class="ws">NS</code><span class="vb" aria-hidden="true"><i style="width:1.2%"></i></span><b>912</b></li><li><code class="ws">MB</code><span class="vb" aria-hidden="true"><i style="width:1.2%"></i></span><b>889</b></li><li><code class="ws">SK</code><span class="vb" aria-hidden="true"><i style="width:1.2%"></i></span><b>884</b></li><li><code class="ws">NL</code><span class="vb" aria-hidden="true"><i style="width:0.5%"></i></span><b>355</b></li><li><code class="ws">NU</code><span class="vb" aria-hidden="true"><i style="width:0.2%"></i></span><b>180</b></li><li><code class="ws">PE</code><span class="vb" aria-hidden="true"><i style="width:0.2%"></i></span><b>178</b></li><li><code class="ws">YT</code><span class="vb" aria-hidden="true"><i style="width:0.1%"></i></span><b>99</b></li><li><code class="ws">NT</code><span class="vb" aria-hidden="true"><i style="width:0.1%"></i></span><b>83</b></li><li><code class="ws">qc</code><span class="vb" aria-hidden="true"><i style="width:0.0%"></i></span><b>16</b></li><li><code class="ws">ab</code><span class="vb" aria-hidden="true"><i style="width:0.0%"></i></span><b>2</b></li><li><code class="ws">on</code><span class="vb" aria-hidden="true"><i style="width:0.0%"></i></span><b>2</b></li><li><code class="ws">nb</code><span class="vb" aria-hidden="true"><i style="width:0.0%"></i></span><b>1</b></li><li><code class="ws">nl</code><span class="vb" aria-hidden="true"><i style="width:0.0%"></i></span><b>1</b></li><li><code class="ws">ns</code><span class="vb" aria-hidden="true"><i style="width:0.0%"></i></span><b>1</b></li></ol>
+
+
+</div></section>
+
+<section class="panel" id="shape" aria-labelledby="shape-h"><div class="phead"><div><p class="eyebrow">04 / Text</p><h2 id="shape-h">Text</h2><p>Lengths and characters of the values, from the Scan and from the second pass.</p></div></div><div class="pbody">
+
+
+  <dl class="metrics"><div class="metric"><dt>Shortest</dt><dd><span class="v">2</span><span class="s">characters</span></dd></div><div class="metric"><dt>Longest</dt><dd><span class="v">2</span><span class="s">characters</span></dd></div><div class="metric"><dt>Mean length</dt><dd><span class="v">2</span></dd></div><div class="metric"><dt>Median length</dt><dd><span class="v">2</span><span class="s">fixed length 2</span></dd></div></dl>
+
+  <section class="cmap" id="character-map" aria-labelledby="character-map-h"><h3 id="character-map-h" class="cm-title">Character map</h3>
+
+<p class="muted">Counted on every distinct value the scan stored, each weighted by its occurrences. 199,994 characters in 99,997 values, 23 different.</p>
+<p class="rcard-title">Most frequent characters</p><p class="muted">Share of all the characters.</p>
+<ul class="cm-grid"><li class="cm-tile" title="U+0043 LATIN CAPITAL LETTER C: 77,878"><span class="cm-g">C</span><small>U+0043</small><b>38.9%</b><span class="cm-b" aria-hidden="true"><i style="width:38.9%"></i></span></li><li class="cm-tile" title="U+0051 LATIN CAPITAL LETTER Q: 75,256"><span class="cm-g">Q</span><small>U+0051</small><b>37.6%</b><span class="cm-b" aria-hidden="true"><i style="width:37.6%"></i></span></li><li class="cm-tile" title="U+004E LATIN CAPITAL LETTER N: 17,431"><span class="cm-g">N</span><small>U+004E</small><b>8.7%</b><span class="cm-b" aria-hidden="true"><i style="width:8.7%"></i></span></li><li class="cm-tile" title="U+004F LATIN CAPITAL LETTER O: 14,161"><span class="cm-g">O</span><small>U+004F</small><b>7.1%</b><span class="cm-b" aria-hidden="true"><i style="width:7.1%"></i></span></li><li class="cm-tile" title="U+0042 LATIN CAPITAL LETTER B: 7,866"><span class="cm-g">B</span><small>U+0042</small><b>3.9%</b><span class="cm-b" aria-hidden="true"><i style="width:3.9%"></i></span></li><li class="cm-tile" title="U+0041 LATIN CAPITAL LETTER A: 2,615"><span class="cm-g">A</span><small>U+0041</small><b>1.3%</b><span class="cm-b" aria-hidden="true"><i style="width:1.3%"></i></span></li><li class="cm-tile" title="U+0053 LATIN CAPITAL LETTER S: 1,796"><span class="cm-g">S</span><small>U+0053</small><b>0.9%</b><span class="cm-b" aria-hidden="true"><i style="width:0.9%"></i></span></li><li class="cm-tile" title="U+004D LATIN CAPITAL LETTER M: 889"><span class="cm-g">M</span><small>U+004D</small><b>0.4%</b><span class="cm-b" aria-hidden="true"><i style="width:0.4%"></i></span></li><li class="cm-tile" title="U+004B LATIN CAPITAL LETTER K: 884"><span class="cm-g">K</span><small>U+004B</small><b>0.4%</b><span class="cm-b" aria-hidden="true"><i style="width:0.4%"></i></span></li><li class="cm-tile" title="U+004C LATIN CAPITAL LETTER L: 355"><span class="cm-g">L</span><small>U+004C</small><b>0.2%</b><span class="cm-b" aria-hidden="true"><i style="width:0.2%"></i></span></li><li class="cm-tile" title="U+0054 LATIN CAPITAL LETTER T: 182"><span class="cm-g">T</span><small>U+0054</small><b>&lt;0.1%</b><span class="cm-b" aria-hidden="true"><i style="width:0.1%"></i></span></li><li class="cm-tile" title="U+0055 LATIN CAPITAL LETTER U: 180"><span class="cm-g">U</span><small>U+0055</small><b>&lt;0.1%</b><span class="cm-b" aria-hidden="true"><i style="width:0.1%"></i></span></li><li class="cm-tile" title="U+0045 LATIN CAPITAL LETTER E: 178"><span class="cm-g">E</span><small>U+0045</small><b>&lt;0.1%</b><span class="cm-b" aria-hidden="true"><i style="width:0.1%"></i></span></li><li class="cm-tile" title="U+0050 LATIN CAPITAL LETTER P: 178"><span class="cm-g">P</span><small>U+0050</small><b>&lt;0.1%</b><span class="cm-b" aria-hidden="true"><i style="width:0.1%"></i></span></li><li class="cm-tile" title="U+0059 LATIN CAPITAL LETTER Y: 99"><span class="cm-g">Y</span><small>U+0059</small><b>&lt;0.1%</b><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span></li><li class="cm-tile" title="U+0063 LATIN SMALL LETTER C: 16"><span class="cm-g">c</span><small>U+0063</small><b>&lt;0.1%</b><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span></li><li class="cm-tile" title="U+0071 LATIN SMALL LETTER Q: 16"><span class="cm-g">q</span><small>U+0071</small><b>&lt;0.1%</b><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span></li><li class="cm-tile" title="U+006E LATIN SMALL LETTER N: 5"><span class="cm-g">n</span><small>U+006E</small><b>&lt;0.1%</b><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span></li><li class="cm-tile" title="U+0062 LATIN SMALL LETTER B: 3"><span class="cm-g">b</span><small>U+0062</small><b>&lt;0.1%</b><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span></li><li class="cm-tile" title="U+0061 LATIN SMALL LETTER A: 2"><span class="cm-g">a</span><small>U+0061</small><b>&lt;0.1%</b><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span></li></ul>
+<div class="column-grid">
+<div class="rcard"><p class="rcard-title">Scripts of the letters</p><p class="muted">Share of all the characters.</p><ul class="cm-list"><li><span class="cm-n">Latin</span><span class="cm-b" aria-hidden="true"><i style="width:100.0%"></i></span><span class="cm-c"><b>199,994</b> 100.0%</span></li></ul></div>
+<div class="rcard"><p class="rcard-title">Kinds of characters</p><p class="muted">Share of all the characters.</p><ul class="cm-list"><li><span class="cm-n">Uppercase letters <small>Lu</small></span><span class="cm-b" aria-hidden="true"><i style="width:100.0%"></i></span><span class="cm-c"><b>199,948</b> 100.0%</span></li><li><span class="cm-n">Lowercase letters <small>Ll</small></span><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span><span class="cm-c"><b>46</b> &lt;0.1%</span></li></ul></div>
+<div class="rcard"><p class="rcard-title">Case of the values</p><p class="muted">Share of the values.</p><ul class="cm-list"><li><span class="cm-n">Ends with a capital</span><span class="cm-b" aria-hidden="true"><i style="width:100.0%"></i></span><span class="cm-c"><b>99,974</b> 100.0%</span></li><li><span class="cm-n">Ends with a lowercase letter</span><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span><span class="cm-c"><b>23</b> &lt;0.1%</span></li><li><span class="cm-n">Title case</span><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span><span class="cm-c"><b>0</b> 0.0%</span></li></ul></div>
+<div class="rcard"><p class="rcard-title">Emoji</p><p class="muted">No emoji.</p></div>
 </div>
 </section>
+</div></section>
 
-<section class="panel" id="missing" aria-labelledby="missing-h">
-<div class="phead"><div><p class="eyebrow">3 / Gaps</p><h2 id="missing-h">What the sample does not cover<span class="n">(0)</span></h2><p>Mandatory targets first, then the heaviest. A gap is never hidden: each has its reason.</p></div></div>
-<div class="pbody">
-<p>Every testable target is covered.</p>
-</div>
-</section>
+<section class="panel" id="formats" aria-labelledby="formats-h"><div class="phead"><div><p class="eyebrow">05 / Formats and patterns</p><h2 id="formats-h">Formats and patterns</h2><p>The shapes the values take, once each: the formats the detectors recognized, then the patterns inferred from the values.</p></div></div><div class="pbody">
+  <div class="rcard"><h3 class="rcard-title">Formats</h3>
+  <p class="muted">No format was recognized.</p>
+  </div>
+  <details class="dsc" id="detectors"><summary><span>Detectors<span class="n">(1)</span></span></summary><div class="column-grid"><div class="rcard"><h4 class="rcard-title">Enumeration <small class="dprim">primary</small></h4><dl class="schema"><dt>Status</dt><dd>complete</dd><dt>Eligible</dt><dd>99,997</dd><dt>Matched</dt><dd>99,997 (100.0%)</dd><dt>Ambiguous</dt><dd>0</dd><dt>Invalid</dt><dd>0</dd></dl><p class="rcard-title sub">Examples, matched</p><span class="fd-ex"><code class="ws">QC</code><code class="ws">AB</code><code class="ws">NS</code><code class="ws">ON</code><code class="ws">NB</code><code class="ws">BC</code><code class="ws">SK</code><code class="ws">NL</code><code class="ws">MB</code><code class="ws">NU</code></span></div></div></details>
+  <p class="muted"><span class="acc acc-not_computed" title="Not computed by this scan">not computed</span> Plain words without digits or separators.</p>
+</div></section>
 
-<section class="panel" id="verification" aria-labelledby="verification-h">
-<div class="phead"><div><p class="eyebrow">4 / Verification</p><h2 id="verification-h">Counts the plan knew, checked while reading</h2><p>For the targets whose rows the plan counted exactly (from the Scan), the reading counted them again.</p></div></div>
-<div class="pbody">
-<dl class="metrics">
-<div class="metric"><dt>Agreed</dt><dd><span class="v">1,438<small> / 1,438</small></span><span class="s">No difference</span></dd></div>
-<div class="metric"><dt>Candidate pool</dt><dd><span class="v">937.4 KB</span><span class="s">3,521 rows held, 0 refused by the budget</span></dd></div>
-<div class="metric"><dt>Readings of the source</dt><dd><span class="v">1</span><span class="s">Selection only; the stored Scan was current</span></dd></div>
-<div class="metric"><dt>Duration</dt><dd><span class="v">6.9</span><span class="s">100,000 records read</span></dd></div>
-</dl>
+<section class="panel" id="cleaning" aria-labelledby="cleaning-h"><div class="phead"><div><p class="eyebrow">06 / Cleaning</p><h2 id="cleaning-h">Cleaning</h2><p>How the values are normalized before they are compared. The raw values stay in the data sample.</p></div></div><div class="pbody">
+  <table class="ftab"><thead><tr><th scope="col">Stage</th><th scope="col" class="num">Values changed</th><th scope="col" class="num">Distinct after</th></tr></thead><tbody><tr><th scope="row">raw</th><td class="num">–</td><td class="num">19</td></tr><tr><th scope="row">nfc</th><td class="num">0</td><td class="num">19</td></tr><tr><th scope="row">trim</th><td class="num">0</td><td class="num">19</td></tr><tr><th scope="row">collapse whitespace</th><td class="num">0</td><td class="num">19</td></tr><tr class="hit"><th scope="row">casefold</th><td class="num">99,974 <small>99.97%</small></td><td class="num">13</td></tr><tr><th scope="row">strip accents</th><td class="num">0</td><td class="num">13</td></tr></tbody></table>
+  <p class="muted sub">Spelling variants (6 groups) are listed with the findings. <a href="#findings">See Findings</a>.</p>
+</div></section>
 
-</div>
-</section>
+<section class="panel" id="limits" aria-labelledby="limits-h"><div class="phead"><div><p class="eyebrow">07 / Limits</p><h2 id="limits-h">Limits and accuracy</h2><p>What the scan could not establish for this column, and how to read the accuracy marks.</p></div></div><div class="pbody">
+  <p class="empty"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> No measure of this column was limited.</p>
 
-<p class="types-note" style="margin-top:20px">Sample report tabalyst.sample 0.2.0 revision 1, seed 42, Tabalyst 0.7.0. Plan: 1,459 targets in 6 families. The sample CSV keeps the rows in the order of the source.</p>
-</div></main>
-</body>
-</html>
+  <dl class="acc-legend"><div><dt><span class="acc acc-exact" title="Counted on every value of the file">exact</span></dt><dd>Counted on every value of the file</dd></div><div><dt><span class="acc acc-at_least" title="A scan limit stopped the count: the real figure is at least this">at least</span></dt><dd>A scan limit stopped the count: the real figure is at least this</dd></div><div><dt><span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span></dt><dd>Counted on a sample of the distinct values, not on the whole file</dd></div><div><dt><span class="acc acc-estimated" title="Estimated from a sample of the values, with a known error">estimated</span></dt><dd>Estimated from a sample of the values, with a known error</dd></div><div><dt><span class="acc acc-not_computed" title="Not computed by this scan">not computed</span></dt><dd>Not computed by this scan</dd></div></dl>
+</div></section>
+
+
+<section class="panel" id="scan-evidence" aria-labelledby="scan-evidence-h"><div class="phead"><div><p class="eyebrow">08 / Scan evidence</p><h2 id="scan-evidence-h">Scan evidence</h2><p>The facts of the field as the Scan wrote them. Open a group to read it.</p></div></div><div class="pbody ev-groups">
+  <details class="dsc"><summary><span>Type, signals and storage</span></summary>
+    <p class="muted">Stored as <code>text</code>, 100.0% sure.</p>
+    <h3 class="rcard-title">Type counts</h3><div class="column-line"><span>text</span><b>99,997</b></div>
+    <h3 class="rcard-title sub">As stored in the source</h3><div class="column-line"><span>string</span><b>100,000</b></div>
+    <h3 class="rcard-title sub">Signals used<span class="n">(1)</span></h3><div class="column-line"><span><code>enumeration</code></span><small class="sub-n">supports the type</small></div>
+  </details>
+  <details class="dsc"><summary><span>Presence and missing</span></summary><dl class="schema"><dt>First record</dt><dd>1</dd><dt>Occurrences</dt><dd>100,000</dd><dt>Present</dt><dd>100,000</dd><dt>Absent</dt><dd>0</dd></dl><div class="column-line"><span>absent</span><b>0</b></div><div class="column-line"><span>null</span><b>0</b></div><div class="column-line"><span>empty</span><b>3</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><p class="muted">Missing definition: absent, null, empty, blank, marker</p></details>
+  <details class="dsc"><summary><span>First and last values</span></summary><div class="column-line"><span>First · record 1<small class="sub-n"><code>QC</code> · string</small></span></div><div class="column-line"><span>Last · record 100000<small class="sub-n"><code>QC</code> · string</small></span></div></details>
+  <details class="dsc"><summary><span>String categories and characteristics</span></summary><div class="column-line"><span>count</span><b>100,000</b></div><div class="column-line"><span>empty</span><b>3</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><div class="column-line"><span>content</span><b>99,997</b></div><div class="column-line"><span>non ascii</span><b>0</b></div><div class="column-line"><span>with line breaks</span><b>0</b></div><div class="column-line"><span>with control characters</span><b>0</b></div><div class="column-line"><span>with surrounding whitespace</span><b>0</b></div><div class="column-line"><span>with repeated whitespace</span><b>0</b></div><div class="column-line"><span>uppercase</span><b>99,974</b></div><div class="column-line"><span>lowercase</span><b>23</b></div><div class="column-line"><span>mixed case</span><b>0</b></div><div class="column-line"><span>no letters</span><b>0</b></div><div class="column-line"><span>with ascii lowercase</span><b>23</b></div><div class="column-line"><span>with ascii uppercase</span><b>99,974</b></div><div class="column-line"><span>with other latin letters</span><b>0</b></div><div class="column-line"><span>with non latin letters</span><b>0</b></div><div class="column-line"><span>with ascii digits</span><b>0</b></div><div class="column-line"><span>with other digits</span><b>0</b></div><div class="column-line"><span>starts uppercase</span><b>99,974</b></div><div class="column-line"><span>starts lowercase</span><b>23</b></div><div class="column-line"><span>with tabs</span><b>0</b></div><div class="column-line"><span>with non breaking spaces</span><b>0</b></div><div class="column-line"><span>ascii only</span><b>99,997</b></div><div class="column-line"><span>letters only</span><b>99,997</b></div><div class="column-line"><span>digits only</span><b>0</b></div><div class="column-line"><span>alphanumeric only</span><b>99,997</b></div><div class="column-line"><span>letters and digits</span><b>0</b></div><div class="column-line"><span>with invisible characters</span><b>0</b></div><div class="column-line"><span>with replacement character</span><b>0</b></div><div class="column-line"><span>characters</span><b>199,994</b></div><h3 class="rcard-title sub">Scan length histogram</h3><div class="column-line"><span>2 characters</span><b>99,997</b></div></details>
+
+
+
+</div></section>
+
+<section class="panel" id="sample" aria-labelledby="sample-h"><div class="phead"><div><p class="eyebrow">09 / Data sample</p><h2 id="sample-h">Data sample</h2><p>10 rows at the start, 10 sampled from the interior and 10 at the end, with their original row numbers. The sample is not uniform over the file.</p></div></div><div class="pbody"><ol class="srows"><li><b>Row 1</b><span class="pill">Start</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 2</b><span class="pill">Start</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 3</b><span class="pill">Start</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 4</b><span class="pill">Start</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 5</b><span class="pill">Start</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 6</b><span class="pill">Start</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 7</b><span class="pill">Start</span><span class="cellv"><code class="ws">AB</code></span></li><li><b>Row 8</b><span class="pill">Start</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 9</b><span class="pill">Start</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 10</b><span class="pill">Start</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 3378</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 6473</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">SK</code></span></li><li><b>Row 7809</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 16792</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">AB</code></span></li><li><b>Row 35383</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">MB</code></span></li><li><b>Row 54302</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 61892</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 62516</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">ON</code></span></li><li><b>Row 66809</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 91990</b><span class="pill">Sampled</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 99991</b><span class="pill">End</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 99992</b><span class="pill">End</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 99993</b><span class="pill">End</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 99994</b><span class="pill">End</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 99995</b><span class="pill">End</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 99996</b><span class="pill">End</span><span class="cellv"><code class="ws">ON</code></span></li><li><b>Row 99997</b><span class="pill">End</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 99998</b><span class="pill">End</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 99999</b><span class="pill">End</span><span class="cellv"><code class="ws">QC</code></span></li><li><b>Row 100000</b><span class="pill">End</span><span class="cellv"><code class="ws">QC</code></span></li></ol></div></section>
+</main></div>
+<footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">Tabalyst<span class="ver">v0.7.0</span></a><p>Local-first CSV and JSON profiling.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://docs.tabalyst.com/" target="_blank" rel="noopener noreferrer">Documentation <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>Tabalyst © 2026 Gregory Borelli · MPL-2.0 · Open source project by Loribel Labs</span><span>Report generated locally</span></div></div></footer></div></div>
+<script>// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+
+(() => {
+  const root = document.documentElement;
+  const $ = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+
+  /* theme: auto (system preference) -> light -> dark */
+  const themeBtn = $('#theme-toggle');
+  const modes = ['auto', 'light', 'dark'];
+  const media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  const setMode = (m) => {
+    root.dataset.themeMode = m;
+    root.dataset.theme = m === 'auto' ? (media && media.matches ? 'light' : 'dark') : m;
+    if (themeBtn) {
+      const label = 'Theme: ' + (m === 'auto' ? 'auto (system)' : m) + '. Click to change.';
+      themeBtn.setAttribute('aria-label', label);
+      themeBtn.title = label;
+      $$('[data-icon]', themeBtn).forEach((el) => { el.toggleAttribute('hidden', el.dataset.icon !== m); });
+    }
+  };
+  setMode(root.dataset.themeMode || 'auto');
+  media && media.addEventListener && media.addEventListener('change', () => {
+    if (root.dataset.themeMode === 'auto') setMode('auto');
+  });
+  themeBtn && themeBtn.addEventListener('click', () => {
+    const m = modes[(modes.indexOf(root.dataset.themeMode) + 1) % modes.length];
+    setMode(m);
+    try {
+      if (m === 'auto') localStorage.removeItem('tabalyst-theme');
+      else localStorage.setItem('tabalyst-theme', m);
+    } catch (e) { /* storage unavailable */ }
+  });
+
+  /* print: show every section */
+  $$('[data-print]').forEach((b) => b.addEventListener('click', () => window.print()));
+
+  /* collapsible sections */
+  $$('.collapse').forEach((b) => b.addEventListener('click', () => {
+    const body = document.getElementById(b.getAttribute('aria-controls'));
+    const open = b.getAttribute('aria-expanded') === 'true';
+    b.setAttribute('aria-expanded', String(!open));
+    b.setAttribute('aria-label', (open ? 'Expand ' : 'Collapse ') + b.dataset.name);
+    body.hidden = open;
+  }));
+  $$('.phead h2, .subhead .subh').forEach((h) => h.addEventListener('click', () => {
+    const b = $('.collapse', h.closest('.phead, .subhead'));
+    if (b) b.click();
+  }));
+  const openSection = (id) => {
+    const p = document.getElementById(id);
+    const b = p && $('.collapse', p);
+    if (b && b.getAttribute('aria-expanded') === 'false') b.click();
+  };
+  $$('a[href^="#"]').forEach((a) => a.addEventListener('click', () => openSection(a.getAttribute('href').slice(1))));
+
+  /* datasets: one view each, the selector shows one at a time */
+  let links = [];
+  let byId = {};
+  let panels = [];
+  const showDataset = (n) => {
+    $$('.ds, .rep-nav').forEach((el) => { el.hidden = el.dataset.ds !== String(n); });
+    const nav = $('.rep-nav[data-ds="' + n + '"]');
+    const view = $('.ds[data-ds="' + n + '"]');
+    links = nav ? $$('.rep-tab', nav) : [];
+    byId = Object.fromEntries(links.map((a) => [a.getAttribute('href').slice(1), a]));
+    panels = view ? $$('.panel', view) : [];
+  };
+  const dsSelect = $('#ds-select');
+  dsSelect && dsSelect.addEventListener('change', () => { showDataset(dsSelect.value); window.scrollTo(0, 0); spy(); });
+
+  /* scroll spy */
+  const spy = () => {
+    if (!panels.length) return;
+    const y = window.innerHeight * 0.3;
+    let cur = panels[0];
+    for (const p of panels) if (p.getBoundingClientRect().top <= y) cur = p;
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) cur = panels[panels.length - 1];
+    links.forEach((a) => a.removeAttribute('aria-current'));
+    const a = byId[cur.id];
+    if (a) {
+      a.setAttribute('aria-current', 'true');
+      const nav = a.parentElement;
+      if (nav.scrollWidth > nav.clientWidth) {
+        const l = a.offsetLeft - nav.offsetLeft;
+        if (l < nav.scrollLeft || l + a.offsetWidth > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = l - 16;
+      }
+    }
+  };
+  let ticking = false;
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { spy(); ticking = false; }); } }, { passive: true });
+  window.addEventListener('resize', spy);
+  showDataset(dsSelect ? dsSelect.value : 0);
+  spy();
+
+  /* ===== interactive tables: sort + filter per column, hover popups ===== */
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const EDGE = 20; // minimum gap between a popup and the viewport edge
+  const controllers = [];
+  const resetAllBtn = $('#reset-all');
+  const resetAllCount = $('#reset-all-count');
+  const refreshGlobal = () => {
+    const n = controllers.filter((c) => c.isActive()).length;
+    if (!resetAllBtn) return;
+    resetAllBtn.hidden = n === 0;
+    resetAllCount.textContent = n ? String(n) : '';
+    resetAllBtn.setAttribute('aria-label', 'Reset filters and sorting in ' + n + (n > 1 ? ' tables' : ' table'));
+  };
+
+  const OPS = [
+    ['equal', '=', 'Equal to'], ['greater', '>', 'Greater than'], ['greaterOrEqual', '≥', 'Greater than or equal'],
+    ['less', '<', 'Less than'], ['lessOrEqual', '≤', 'Less than or equal'], ['between', '[··]', 'Between (inclusive)'],
+  ];
+  /* Numbers are compared as the text the report wrote: an integer beyond 2^53
+     is compared as a BigInt, so a large counter is never rounded silently. */
+  const INTEGER = /^[+-]?\d+$/;
+  const toNum = (t) => { const n = Number(t); return Number.isNaN(n) ? parseFloat(t) : n; };
+  const numCmp = (x, y) => {
+    x = String(x).trim(); y = String(y).trim();
+    if ((x.length > 15 || y.length > 15) && INTEGER.test(x) && INTEGER.test(y)) {
+      const a = BigInt(x), b = BigInt(y);
+      return a < b ? -1 : a > b ? 1 : 0;
+    }
+    const a = toNum(x), b = toNum(y);
+    return a < b ? -1 : a > b ? 1 : 0;
+  };
+  const numTest = (f) => (raw) => {
+    const t = String(raw).trim();
+    if (t === '' || !Number.isFinite(Number(t))) return false;
+    const c = numCmp(t, f.as);
+    switch (f.op) {
+      case 'equal': return c === 0;
+      case 'greater': return c > 0;
+      case 'greaterOrEqual': return c >= 0;
+      case 'less': return c < 0;
+      case 'lessOrEqual': return c <= 0;
+      default: return c >= 0 && numCmp(t, f.bs) <= 0;
+    }
+  };
+
+  let openMenu = null;
+  const closeMenu = () => {
+    if (!openMenu) return;
+    const { el, btn } = openMenu;
+    el.remove();
+    btn.setAttribute('aria-expanded', 'false');
+    btn.closest('th').classList.remove('menu-open');
+    openMenu = null;
+  };
+  document.addEventListener('pointerdown', (e) => {
+    if (openMenu && !openMenu.el.contains(e.target) && !openMenu.btn.contains(e.target)) closeMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && openMenu) { const b = openMenu.btn; closeMenu(); b.focus(); }
+  });
+
+  const placeMenu = (el, btn) => {
+    if (el.dataset.dragged === 'true') return;
+    const a = btn.getBoundingClientRect();
+    const left = Math.max(EDGE, Math.min(a.right - el.offsetWidth, innerWidth - el.offsetWidth - EDGE));
+    const below = a.bottom + 6;
+    const top = below + el.offsetHeight <= innerHeight - EDGE ? below : a.top - el.offsetHeight - 6;
+    el.style.left = left + 'px';
+    el.style.top = Math.max(EDGE, Math.min(top, innerHeight - el.offsetHeight - EDGE)) + 'px';
+  };
+  document.addEventListener('scroll', () => { if (openMenu) placeMenu(openMenu.el, openMenu.btn); }, { capture: true, passive: true });
+  window.addEventListener('resize', () => { if (openMenu) placeMenu(openMenu.el, openMenu.btn); });
+
+  const makeDraggable = (el, handle) => {
+    handle.addEventListener('pointerdown', (ev) => {
+      if (ev.button !== 0 || ev.target.closest('button')) return;
+      const r = el.getBoundingClientRect();
+      const ox = ev.clientX - r.left, oy = ev.clientY - r.top;
+      el.dataset.dragged = 'true';
+      handle.setPointerCapture(ev.pointerId);
+      const move = (p) => {
+        el.style.left = Math.max(12, Math.min(p.clientX - ox, innerWidth - el.offsetWidth - 12)) + 'px';
+        el.style.top = Math.max(12, Math.min(p.clientY - oy, innerHeight - el.offsetHeight - 12)) + 'px';
+      };
+      const stop = (p) => { move(p); handle.removeEventListener('pointermove', move); handle.removeEventListener('pointerup', stop); handle.removeEventListener('pointercancel', stop); };
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', stop);
+      handle.addEventListener('pointercancel', stop);
+      ev.preventDefault();
+    });
+  };
+
+  const makeTable = (table, extra) => {
+    const heads = $$('thead th', table);
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
+    rows.forEach((r, i) => { r.dataset.i = i; });
+    const noun = table.dataset.noun;
+    const live = document.getElementById(table.id + '-live');
+    const resetBtns = $$('[data-reset="' + table.id + '"]');
+    const filters = new Map();
+    let sort = null;
+    const cellVal = (r, idx) => { const c = r.cells[idx]; return c.dataset.v !== undefined ? c.dataset.v : c.textContent.trim(); };
+    /* a cell may carry a code to filter on (data-v), the words to show (data-l) and a key to sort on (data-s) */
+    const cellLab = (r, idx) => { const c = r.cells[idx]; return c.dataset.l !== undefined ? c.dataset.l : cellVal(r, idx); };
+    const cellKey = (r, idx) => { const c = r.cells[idx]; return c.dataset.s !== undefined ? c.dataset.s : cellLab(r, idx); };
+    /* paged tables show pageSize rows at a time; filters and sorting see every row */
+    const pageSize = Number(table.dataset.pageSize) || 0;
+    const more = document.querySelector('[data-more="' + table.id + '"]');
+    let limit = pageSize;
+
+    const ctrl = {
+      extraActive: () => (extra ? extra.active() : false),
+      isActive: () => filters.size > 0 || sort !== null || ctrl.extraActive(),
+      apply() {
+        let visible = 0;
+        rows.forEach((r) => {
+          let ok = extra ? extra.test(r) : true;
+          if (ok) for (const [idx, f] of filters) { if (!f.test(cellVal(r, idx))) { ok = false; break; } }
+          r.dataset.f = ok ? '' : '1';
+          r.hidden = !ok;
+          if (ok) visible++;
+        });
+        let order = rows.slice();
+        if (sort) {
+          const num = heads[sort.idx].dataset.kind === 'num';
+          const key = (r) => { const v = cellKey(r, sort.idx); return num ? (v === '' ? null : v) : v.toLowerCase(); };
+          order.sort((a, b) => {
+            const x = key(a), y = key(b);
+            if (x === null && y === null) return a.dataset.i - b.dataset.i;
+            if (x === null) return 1;            // empty values always last
+            if (y === null) return -1;
+            const c = num ? numCmp(x, y) : x.localeCompare(y, undefined, { numeric: true });
+            return (sort.dir === 'asc' ? c : -c) || a.dataset.i - b.dataset.i;
+          });
+        }
+        order.forEach((r) => tbody.appendChild(r));
+        let shown = visible;
+        if (pageSize) {
+          shown = Math.min(limit, visible);
+          let n = 0;
+          order.forEach((r) => { if (r.dataset.f !== '1') r.hidden = n++ >= limit; });
+          if (more) more.hidden = visible <= limit;
+        }
+        heads.forEach((th, idx) => {
+          const s = $('.hb-s', th), f = $('.hb-f', th);
+          if (!s) return;
+          const sorted = sort && sort.idx === idx;
+          s.classList.toggle('on', !!sorted);
+          s.dataset.dir = sorted ? sort.dir : '';
+          if (sorted) th.setAttribute('aria-sort', sort.dir === 'asc' ? 'ascending' : 'descending'); else th.removeAttribute('aria-sort');
+          s.setAttribute('aria-label', 'Sort by ' + th.dataset.label + (sorted ? (sort.dir === 'asc' ? ' (ascending)' : ' (descending)') : ''));
+          f.classList.toggle('on', filters.has(idx));
+          th.classList.toggle('filtered', filters.has(idx));
+          f.setAttribute('aria-label', 'Filter ' + th.dataset.label + (filters.has(idx) ? ' (active)' : ''));
+        });
+        if (live) live.textContent = (shown < visible ? shown + ' shown, ' : '') + visible + ' of ' + rows.length + ' ' + noun;
+        resetBtns.forEach((b) => { b.hidden = !ctrl.isActive(); });
+        refreshGlobal();
+      },
+      reset() {
+        filters.clear(); sort = null; limit = pageSize;
+        if (extra) extra.reset();
+        if (openMenu && table.contains(openMenu.btn)) closeMenu();
+        ctrl.apply();
+      },
+    };
+
+    const buildList = (idx, th, body, setTitleClear) => {
+      const counts = new Map();
+      const words = new Map();
+      rows.forEach((r) => { const v = cellVal(r, idx); counts.set(v, (counts.get(v) || 0) + 1); words.set(v, cellLab(r, idx)); });
+      const values = Array.from(counts.keys());
+      const cur = filters.get(idx);
+      const selected = new Set(cur ? cur.values : values);
+      const pillLike = th.dataset.pill === '1';
+      body.innerHTML =
+        '<input type="search" class="fm-search" placeholder="Search" aria-label="Search values" autocomplete="off">' +
+        '<div class="fm-ctl"><button type="button" data-all>Select all</button><button type="button" data-none>Select none</button></div>' +
+        '<div class="fm-list" role="group" aria-label="Values">' +
+        values.map((v) => {
+          const lab = pillLike ? '<span class="pill' + (v === 'mixed' ? ' attn' : '') + '">' + esc(words.get(v).replace(/_/g, ' ')) + '</span>' : '<span class="fm-v">' + esc(v === '' ? '(empty)' : words.get(v)) + '</span>';
+          return '<button type="button" role="checkbox" class="fm-opt" data-v="' + esc(v) + '" aria-checked="' + selected.has(v) + '"><i aria-hidden="true"></i>' + lab + '<small>(' + counts.get(v) + ')</small></button>';
+        }).join('') + '</div>';
+      const opts = $$('.fm-opt', body);
+      const commit = () => {
+        const sel = opts.filter((o) => o.getAttribute('aria-checked') === 'true').map((o) => o.dataset.v);
+        if (sel.length === values.length) filters.delete(idx);
+        else { const set = new Set(sel); filters.set(idx, { values: sel, test: (v) => set.has(v) }); }
+        setTitleClear(filters.has(idx));
+        ctrl.apply();
+      };
+      opts.forEach((o) => o.addEventListener('click', () => { o.setAttribute('aria-checked', String(o.getAttribute('aria-checked') !== 'true')); commit(); }));
+      $('[data-all]', body).addEventListener('click', () => { opts.forEach((o) => { if (!o.hidden) o.setAttribute('aria-checked', 'true'); }); commit(); });
+      $('[data-none]', body).addEventListener('click', () => { opts.forEach((o) => { if (!o.hidden) o.setAttribute('aria-checked', 'false'); }); commit(); });
+      $('.fm-search', body).addEventListener('input', (e) => {
+        const q = e.target.value.trim().toLowerCase();
+        opts.forEach((o) => { o.hidden = q !== '' && !(o.dataset.v + ' ' + o.textContent).toLowerCase().includes(q); });
+      });
+    };
+
+    const buildNum = (idx, th, body, setTitleClear) => {
+      const cur = filters.get(idx) || { op: 'greater', a: NaN, b: NaN };
+      let op = cur.op;
+      body.innerHTML =
+        '<div class="fm-ops" role="group" aria-label="Comparison">' +
+        OPS.map(([v, s, l]) => '<button type="button" data-op="' + v + '" title="' + l + '" aria-label="' + l + '">' + s + '</button>').join('') +
+        '</div><div class="fm-fields"><input type="number" step="any" autocomplete="off" class="fm-a"><input type="number" step="any" autocomplete="off" class="fm-b" placeholder="Maximum" aria-label="Maximum (inclusive)"></div>' +
+        '<div class="fm-err" aria-live="polite" hidden></div>';
+      const a = $('.fm-a', body), b = $('.fm-b', body), err = $('.fm-err', body);
+      if (cur.as !== undefined) a.value = cur.as;
+      if (cur.bs !== undefined) b.value = cur.bs;
+      const update = () => {
+        const between = op === 'between';
+        b.hidden = !between;
+        a.placeholder = between ? 'Minimum' : 'Value';
+        a.setAttribute('aria-label', between ? 'Minimum (inclusive)' : 'Value');
+        $$('[data-op]', body).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.op === op)));
+        const lo = a.valueAsNumber, hi = b.valueAsNumber;
+        const reversed = between && Number.isFinite(lo) && Number.isFinite(hi) && lo > hi;
+        err.hidden = !reversed;
+        err.textContent = reversed ? 'Minimum must not exceed maximum.' : '';
+        a.setAttribute('aria-invalid', String(reversed)); b.setAttribute('aria-invalid', String(reversed));
+        const active = Number.isFinite(lo) && (!between || Number.isFinite(hi)) && !reversed;
+        if (active) { const f = { op, a: lo, b: hi, as: a.value, bs: b.value }; f.test = numTest(f); filters.set(idx, f); } else filters.delete(idx);
+        setTitleClear(filters.has(idx));
+        ctrl.apply();
+      };
+      $$('[data-op]', body).forEach((x) => x.addEventListener('click', () => { op = x.dataset.op; update(); }));
+      [a, b].forEach((x) => x.addEventListener('input', update));
+      $$('[data-op]', body).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.op === op)));
+      b.hidden = op !== 'between';
+      a.placeholder = op === 'between' ? 'Minimum' : 'Value';
+      a.setAttribute('aria-label', op === 'between' ? 'Minimum (inclusive)' : 'Value');
+    };
+
+    const buildText = (idx, th, body, setTitleClear) => {
+      const cur = filters.get(idx);
+      body.innerHTML = '<input type="search" class="fm-search" placeholder="Value" aria-label="Filter values containing" autocomplete="off">';
+      const inp = $('input', body);
+      if (cur) inp.value = cur.q;
+      inp.addEventListener('input', () => {
+        const q = inp.value.trim().toLowerCase();
+        if (q) filters.set(idx, { q: inp.value, test: (v) => v.toLowerCase().includes(q) }); else filters.delete(idx);
+        setTitleClear(filters.has(idx));
+        ctrl.apply();
+      });
+    };
+
+    heads.forEach((th, idx) => {
+      const sBtn = $('.hb-s', th), fBtn = $('.hb-f', th);
+      if (!sBtn) return;
+      sBtn.addEventListener('click', () => {
+        if (!sort || sort.idx !== idx) sort = { idx, dir: 'asc' };
+        else if (sort.dir === 'asc') sort.dir = 'desc';
+        else sort = null;
+        ctrl.apply();
+      });
+      fBtn.addEventListener('click', () => {
+        const same = openMenu && openMenu.btn === fBtn;
+        closeMenu();
+        if (same) return;
+        const kind = th.dataset.kind;
+        const el = document.createElement('div');
+        el.className = 'fmenu';
+        el.setAttribute('role', 'dialog');
+        el.setAttribute('aria-label', 'Filter ' + th.dataset.label);
+        el.innerHTML =
+          '<div class="fm-handle" title="Drag to move this filter"><span>Move filter</span><button type="button" class="fm-close" aria-label="Close filter" title="Close filter">×</button></div>' +
+          '<div class="fm-in"><div class="fm-top"><span class="fm-title">' + esc(th.dataset.label) + '</span>' +
+          '<button type="button" class="fm-clear" hidden>Clear</button></div><div class="fm-body"></div></div>';
+        document.body.appendChild(el);
+        const body = $('.fm-body', el), clear = $('.fm-clear', el);
+        const setTitleClear = (on) => { clear.hidden = !on; };
+        const build = () => {
+          if (kind === 'list') buildList(idx, th, body, setTitleClear);
+          else if (kind === 'num') buildNum(idx, th, body, setTitleClear);
+          else buildText(idx, th, body, setTitleClear);
+          setTitleClear(filters.has(idx));
+        };
+        build();
+        clear.addEventListener('click', () => { filters.delete(idx); build(); ctrl.apply(); });
+        $('.fm-close', el).addEventListener('click', () => { closeMenu(); fBtn.focus(); });
+        makeDraggable(el, $('.fm-handle', el));
+        fBtn.setAttribute('aria-expanded', 'true');
+        th.classList.add('menu-open');
+        openMenu = { el, btn: fBtn };
+        placeMenu(el, fBtn);
+        const first = $('input:not([hidden]), .fm-ops button[aria-pressed="true"]', el);
+        if (first) first.focus({ preventScroll: true });
+      });
+    });
+
+    resetBtns.forEach((b) => b.addEventListener('click', () => ctrl.reset()));
+    if (more) more.addEventListener('click', () => {
+      limit += pageSize;
+      ctrl.apply();
+      // the button hides itself once everything is shown: keep the keyboard in the table
+      if (more.hidden) { const box = table.closest('.tscroll'); if (box) box.focus({ preventScroll: true }); }
+    });
+    controllers.push(ctrl);
+    if (pageSize) ctrl.apply();
+    return ctrl;
+  };
+
+  /* toolbar controls of a table: name search box and segmented filters (rows carry data-name / data-flags) */
+  const toolbarExtra = (id) => {
+    const search = $('[data-search="' + id + '"]');
+    const segs = $$('[data-seg="' + id + '"]').map((g) => ({ btns: $$('button', g), mode: 'all' }));
+    if (!search && !segs.length) return null;
+    return {
+      segs,
+      search,
+      active: () => (search && search.value.trim() !== '') || segs.some((s) => s.mode !== 'all'),
+      test: (r) => {
+        const q = search ? search.value.trim().toLowerCase() : '';
+        const name = r.dataset.name !== undefined ? r.dataset.name : cellVal0(r);
+        if (q && !name.includes(q)) return false;
+        const flags = (r.dataset.flags || '').split(' ');
+        return segs.every((s) => s.mode === 'all' || flags.includes(s.mode));
+      },
+      reset: () => {
+        if (search) search.value = '';
+        segs.forEach((s) => { s.mode = 'all'; s.btns.forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.mode === 'all'))); });
+      },
+    };
+  };
+  const cellVal0 = (r) => { const c = r.cells[0]; return (c.dataset.v !== undefined ? c.dataset.v : c.textContent.trim()).toLowerCase(); };
+  $$('table[data-table]').forEach((t) => {
+    const extra = toolbarExtra(t.id);
+    const c = makeTable(t, extra);
+    if (!extra) return;
+    extra.search && extra.search.addEventListener('input', () => c.apply());
+    extra.segs.forEach((s) => s.btns.forEach((b) => b.addEventListener('click', () => {
+      s.mode = b.dataset.mode;
+      s.btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      c.apply();
+    })));
+  });
+  resetAllBtn && resetAllBtn.addEventListener('click', () => controllers.forEach((c) => { if (c.isActive()) c.reset(); }));
+  refreshGlobal();
+
+  /* pinned name column: show its edge only while the table is scrolled sideways */
+  $$('.tscroll').forEach((w) => {
+    const upd = () => w.classList.toggle('is-scrolled', w.scrollLeft > 0);
+    w.addEventListener('scroll', upd, { passive: true });
+    upd();
+  });
+
+  /* hover / focus popups (values, lengths, formats) */
+  let tipCell = null;
+  const hideTip = () => {
+    if (!tipCell) return;
+    const t = $('.tip', tipCell);
+    if (t) t.classList.remove('show');
+    tipCell = null;
+  };
+  const showTip = (cell) => {
+    const tip = $('.tip', cell);
+    if (!tip) return;
+    if (tipCell && tipCell !== cell) hideTip();
+    tip.classList.add('show');
+    tipCell = cell;
+    const a = cell.getBoundingClientRect();
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    const overlap = 6; // small bridge so the pointer can move from the cell into the popup
+    // align on the cell, shift left when it would come closer than EDGE px to the right edge
+    let left = a.left;
+    if (left + w > innerWidth - EDGE) left = innerWidth - EDGE - w;
+    left = Math.max(EDGE, left);
+    const below = a.bottom - overlap;
+    let top = below + h <= innerHeight - EDGE ? below : a.top - h + overlap;
+    top = Math.max(EDGE, Math.min(top, innerHeight - EDGE - h));
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+    tipRect = a;
+  };
+  $$('td.ex').forEach((cell) => {
+    cell.addEventListener('pointerenter', (e) => { if (e.pointerType !== 'touch') showTip(cell); });
+    cell.addEventListener('pointerleave', () => { if (tipCell === cell) hideTip(); if (document.activeElement === cell) cell.blur(); });
+    cell.addEventListener('focus', () => { if (cell.matches(':focus-visible')) showTip(cell); });
+    cell.addEventListener('blur', () => { if (tipCell === cell) hideTip(); });
+    cell.addEventListener('click', () => { if (tipCell === cell) hideTip(); else showTip(cell); });
+  });
+  // a popup never stays on screen once the page or a table moves
+  let tipRect = null;
+  const onMove = (e) => {
+    if (!tipCell || (e && e.target instanceof Element && e.target.closest('.tip'))) return;
+    requestAnimationFrame(() => {
+      if (!tipCell || !tipRect) return;
+      const r = tipCell.getBoundingClientRect();
+      if (Math.abs(r.top - tipRect.top) > 1 || Math.abs(r.left - tipRect.left) > 1) hideTip();
+    });
+  };
+  document.addEventListener('scroll', onMove, { capture: true, passive: true });
+  window.addEventListener('resize', () => hideTip());
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
+  document.addEventListener('pointerdown', (e) => { if (tipCell && !tipCell.contains(e.target)) hideTip(); });
+
+  /* popovers: the columns and details behind a figure. The page holds one dialog; a button with
+     data-pop names the <template> whose content fills it when it opens (contract 20.6), so the
+     previews of a table are not in the DOM until asked for. Escape, a click outside, the Close
+     button or the button again closes it, and the focus goes back to the button. Tab past either
+     end of the dialog closes it and carries on from the button, since the dialog sits at the end
+     of the body and would otherwise lead the focus out of the page. Nothing depends on hover, so
+     touch and keyboard reach it. */
+  const FOCUSABLE = 'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])';
+  const dialog = document.getElementById('pop');
+  let openPop = null;
+  const placePop = (panel, btn) => {
+    const a = btn.getBoundingClientRect();
+    const left = Math.max(EDGE / 2, Math.min(a.left, innerWidth - panel.offsetWidth - EDGE / 2));
+    const below = a.bottom + 8;
+    const top = below + panel.offsetHeight <= innerHeight - EDGE / 2 ? below : a.top - panel.offsetHeight - 8;
+    panel.style.left = left + 'px';
+    panel.style.top = Math.max(EDGE / 2, Math.min(top, innerHeight - panel.offsetHeight - EDGE / 2)) + 'px';
+  };
+  const closePop = (focusBack) => {
+    if (!openPop) return;
+    const { panel, btn } = openPop;
+    panel.hidden = true;
+    panel.replaceChildren();
+    panel.removeAttribute('aria-label');
+    btn.setAttribute('aria-expanded', 'false');
+    openPop = null;
+    if (focusBack) btn.focus();
+  };
+  if (dialog) $$('[data-pop]').forEach((btn) => btn.addEventListener('click', () => {
+    const source = document.getElementById(btn.getAttribute('data-pop'));
+    if (!source) return;
+    const same = openPop && openPop.btn === btn;
+    closePop(false);
+    if (same) return;
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'pop-x';
+    close.textContent = 'Close';
+    close.addEventListener('click', () => closePop(true));
+    dialog.replaceChildren(close, source.content.cloneNode(true));
+    dialog.setAttribute('aria-label', source.dataset.label || '');
+    dialog.scrollTop = 0;
+    dialog.hidden = false;
+    dialog.tabIndex = -1;
+    btn.setAttribute('aria-expanded', 'true');
+    openPop = { panel: dialog, btn };
+    placePop(dialog, btn);
+    dialog.focus({ preventScroll: true });
+  }));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closePop(true); return; }
+    if (e.key !== 'Tab' || !openPop || !openPop.panel.contains(document.activeElement)) return;
+    const items = $$(FOCUSABLE, openPop.panel).filter((el) => el.offsetParent !== null);
+    const edge = e.shiftKey ? [openPop.panel, items[0]] : [items[items.length - 1]];
+    // the focus lands on the button before the browser moves it, so the default action goes on from there
+    if (!items.length || edge.includes(document.activeElement)) closePop(true);
+  });
+  document.addEventListener('pointerdown', (e) => {
+    if (openPop && !openPop.panel.contains(e.target) && !openPop.btn.contains(e.target)) closePop(false);
+  });
+  document.addEventListener('scroll', (e) => {
+    if (openPop && !openPop.panel.contains(e.target)) placePop(openPop.panel, openPop.btn);
+  }, { capture: true, passive: true });
+  window.addEventListener('resize', () => { if (openPop) placePop(openPop.panel, openPop.btn); });
+  window.addEventListener('beforeprint', () => closePop(false));
+
+  /* overview balance: the lists of the findings card and of the kinds show at least the rows the
+     markup gives them, then as many more as fit under the height of Column types, so that the three
+     blocks end together. The rest stays behind the "+ N" button or in the Findings section. */
+  const balance = () => {
+    const grid = document.querySelector('.ov-grid');
+    const types = grid && grid.querySelector('.types');
+    if (!types) return;
+    const lists = $$('[data-fit]', grid);
+    lists.forEach((list) => $$('.ov-x', list).forEach((li) => li.classList.remove('ov-on')));
+    grid.style.alignItems = 'start';
+    const room = types.offsetHeight;
+    lists.forEach((list) => {
+      const card = list.closest('.rcard, .focus');
+      const extra = $$('.ov-x', list);
+      let shown = 0;
+      if (room > 0 && !grid.closest('[hidden]')) {
+        for (const li of extra) {
+          li.classList.add('ov-on');
+          if (card.offsetHeight > room) { li.classList.remove('ov-on'); break; }
+          shown += 1;
+        }
+      }
+      const rest = extra.length - shown;
+      const more = card.querySelector('.fk-more');
+      if (more) { more.hidden = rest === 0; more.querySelector('[data-n]').textContent = rest; }
+      const text = card.querySelector('[data-rest-text]');
+      if (text) { text.hidden = rest === 0; text.querySelector('[data-n]').textContent = rest; }
+    });
+    grid.style.alignItems = '';
+  };
+  let balancing = 0;
+  const rebalance = () => { cancelAnimationFrame(balancing); balancing = requestAnimationFrame(balance); };
+  window.addEventListener('load', rebalance);
+  // A width change, a panel opened again or a dataset shown are all a change of the grid.
+  const ovGrid = document.querySelector('.ov-grid');
+  if (ovGrid && window.ResizeObserver) new ResizeObserver(rebalance).observe(ovGrid);
+  else window.addEventListener('resize', rebalance);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(rebalance);
+  balance();
+
+  /* copy hash */
+  $$('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
+    const text = b.dataset.copy;
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
+      const t = document.createElement('textarea');
+      t.value = text; document.body.appendChild(t); t.select();
+      try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+      t.remove();
+    }
+    const label = b.textContent;
+    b.textContent = ok ? 'Copied' : 'Select to copy';
+    setTimeout(() => { b.textContent = label; }, 2200);
+  }));
+
+  /* print: temporarily open collapsed sections */
+  window.addEventListener('beforeprint', () => $$('.pbody[hidden]').forEach((b) => { b.dataset.wasHidden = '1'; b.hidden = false; }));
+  window.addEventListener('afterprint', () => $$('.pbody[data-was-hidden]').forEach((b) => { b.hidden = true; delete b.dataset.wasHidden; }));
+  /* the folded groups of a column page are open on paper, then back as the reader left them */
+  window.addEventListener('beforeprint', () => $$('details.dsc:not([open])').forEach((d) => { d.dataset.wasClosed = '1'; d.open = true; }));
+  window.addEventListener('afterprint', () => $$('details.dsc[data-was-closed]').forEach((d) => { d.open = false; delete d.dataset.wasClosed; }));
+})();
+</script>
+</body></html>

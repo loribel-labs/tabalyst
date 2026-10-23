@@ -27,17 +27,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-19T03:39:55.532209Z",
-    "duration_seconds": 0.029898,
+    "started_at": "2026-10-22T17:56:20.687660Z",
+    "duration_seconds": 0.028293,
     "timings": {
-      "reading": 0.003408,
-      "analysis": 0.003371,
-      "finalize": 0.014671,
-      "derived": 0.007998,
-      "other": 0.00045
+      "reading": 0.003086,
+      "analysis": 0.003208,
+      "finalize": 0.01406,
+      "derived": 0.007478,
+      "other": 0.000461
     },
     "workers": 1,
-    "peak_memory_bytes": 73469952
+    "peak_memory_bytes": 70836224
   },
   "source": {
     "format": "json",
@@ -1168,7 +1168,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -2422,7 +2423,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -3653,7 +3655,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -4792,7 +4795,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -6020,7 +6024,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -6860,7 +6865,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -8132,7 +8138,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -9684,7 +9691,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -11729,7 +11737,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -13194,7 +13203,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -14080,7 +14090,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -15517,7 +15528,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -17521,7 +17533,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null

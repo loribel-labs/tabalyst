@@ -486,6 +486,8 @@ def _row(item: AnalysisResult) -> SecondPassRow:
             summary += f" ({DEEP_REASONS.get(item.reason, item.reason)})"
         return SecondPassRow(
             column=item.display,
+            dataset_id=item.dataset,
+            field_id=item.field,
             analysis=label,
             status=item.status,
             kind=kind,  # type: ignore[arg-type]
@@ -494,6 +496,8 @@ def _row(item: AnalysisResult) -> SecondPassRow:
     why = DEEP_REASONS.get(item.reason or "", item.reason or "not computed")
     return SecondPassRow(
         column=item.display,
+        dataset_id=item.dataset,
+        field_id=item.field,
         analysis=label,
         status=item.status,
         kind=_NOT_COMPUTED,

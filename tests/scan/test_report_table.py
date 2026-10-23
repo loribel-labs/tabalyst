@@ -110,7 +110,7 @@ def test_a_row_is_identified_by_dataset_and_field_ids(tmp_path):
     assert first != second
 
 
-def test_the_summary_table_prints_no_link_to_a_column_page(tmp_path):
+def test_the_summary_table_links_each_column_to_its_page(tmp_path):
     source = write_text(tmp_path, "data.csv", "name,name\n1,a\n2,b\n")
     profile = analyze_csv(source)
     dataset = profile.report.datasets[0]
@@ -121,11 +121,9 @@ def test_the_summary_table_prints_no_link_to_a_column_page(tmp_path):
 
     html = render_report(profile, column_links=links)
 
-    # The maintainer does not want the link in Details (R9a): the Columns table keeps
-    # its links, one per field id.
-    assert "column-link" not in columns_table(html).html
-    assert "Column page" not in html
+    # Every column label of every table links to its details page, one per field id.
     for column in dataset.columns:
+        assert f"columns/{column.id}.html" in columns_table(html).html
         assert f"columns/{column.id}.html" in columns_table(html, "columns-table").html
 
 

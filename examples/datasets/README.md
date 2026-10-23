@@ -19,7 +19,7 @@ Who uses each file (generated from the manifests by `tools/make_index.py`):
 | File | Used by |
 | --- | --- |
 | `basic.csv` | `showcase/basic/` |
-| `insurance-customers-100k.json` | `showcase/insurance-customers/`, `showcase/insurance-customers-scan/` |
+| `insurance-customers-100k.json` | `showcase/insurance-customers/`, `showcase/insurance-customers.scan/` |
 | `insurance-customers.csv` | none |
 | `orders.json` | `showcase/orders/` |
 | `sales.xlsx` | `showcase/sales/` |

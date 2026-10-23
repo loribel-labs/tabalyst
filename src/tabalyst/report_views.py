@@ -538,6 +538,8 @@ class SecondPassRow(ResultModel):
     or ``not_computed``)."""
 
     column: str
+    dataset_id: str = ""
+    field_id: str = ""
     analysis: str
     status: Literal["complete", "limited", "failed", "skipped"]
     kind: Literal["exact", "at_least", "not_computed", "fingerprint"]
@@ -667,6 +669,10 @@ class CorrelationRow(ResultModel):
     """The correlation of a pair of numeric columns, in words."""
 
     pair: str
+    dataset_id: str = ""
+    # The two fields of the pair, for the links to their column pages.
+    field_id: str = ""
+    partner_id: str = ""
     coefficient: float | None
     pairs: int
     rows: int

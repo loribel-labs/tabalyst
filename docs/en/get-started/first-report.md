@@ -75,12 +75,11 @@ your data: share them accordingly.
 ## 4. Read what Tabalyst found
 
 The report is organized in numbered sections, listed in the bar at the top:
-**Overview**, **Summary**, **Columns**, **Transformations**, **Dates**,
-**Strings**, **Detectors**, **Patterns**, **Data sample** and **Analysis
-settings**. A section appears only when the data has something to show: a file
-with a numeric column also gets **Numeric**. The sections **Observations**,
-**Relationships**, **Insights**, **Second pass** and **Limits** are not written
-in the report for now; their data stays in the JSON profile.
+**Overview**, **Summary**, **Observations**, **Columns**, **Transformations**,
+**Dates**, **Strings**, **Detectors**, **Patterns**, **Insights**, **Second pass**,
+**Data sample** and **Analysis settings**. A section appears only when the data
+has something to show: a file with a numeric column also gets **Numeric**, and a
+**Limits** section appears when the scan stopped a measure at a limit.
 
 ### Overview
 

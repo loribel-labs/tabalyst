@@ -1,4 +1,4 @@
-Plan for insurance-customers-100k.csv (plan 6a2056d4f30b, planner 1).
+Plan for insurance-customers-100k.csv (plan 8e0fe827b2f6, planner 1).
 296 candidates: 42 selected, 90 already answered by the scan, 164 left out.
 
 Selected:
@@ -134,10 +134,10 @@ Left out:
   missing_matrix [bit_sets]: rows / montant_reclamation: too little expected benefit for an automatic choice
   missing_matrix [bit_sets]: rows / reclamation_status: too little expected benefit for an automatic choice
   date_order [compare]: rows / date_naissance and date_creation: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_creation and date_modification: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_naissance and date_debut: its CPU class is above the automatic limit
   date_order [compare]: rows / date_naissance and date_modification: its CPU class is above the automatic limit
   date_order [compare]: rows / date_creation and date_debut: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_naissance and date_debut: its CPU class is above the automatic limit
+  date_order [compare]: rows / date_creation and date_modification: its CPU class is above the automatic limit
   date_order [compare]: rows / date_creation and date_fin: its CPU class is above the automatic limit
   date_order [compare]: rows / date_naissance and date_fin: its CPU class is above the automatic limit
   date_order [compare]: rows / date_debut and date_fin: its CPU class is above the automatic limit

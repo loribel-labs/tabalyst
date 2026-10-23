@@ -101,7 +101,7 @@ def test_a_shown_column_page_lists_its_values(tmp_path):
 def test_the_page_shows_the_classification_and_the_findings(tmp_path):
     html = _page(tmp_path, _contacts(), "contact")
 
-    assert "Technical type" in html and "% confidence" in html
+    assert "Stored as" in html and "% sure" in html
     assert 'id="findings"' in html and "Type errors" not in html
 
 

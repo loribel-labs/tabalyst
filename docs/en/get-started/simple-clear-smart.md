@@ -14,7 +14,7 @@ Tabalyst works in three steps, and each one is useful on its own.
 The examples below use `examples/datasets/insurance-customers.csv` of the
 repository: 3,000 fictional customer and contract records across 34 columns.
 The same steps, run on a generated file of 100,000 rows with known defects, have
-their outputs in `examples/showcase/insurance-customers-scan/`; the figures
+their outputs in `examples/showcase/insurance-customers.scan/`; the figures
 below are those of the 3,000-row file.
 
 ## Simple: scan the file

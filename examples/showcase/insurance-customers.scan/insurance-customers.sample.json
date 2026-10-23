@@ -103,14 +103,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-19T03:39:46.379042Z",
-    "duration_seconds": 6.897448,
+    "started_at": "2026-10-22T17:56:10.811416Z",
+    "duration_seconds": 7.913083,
     "timings": {
-      "reading": 6.801638,
-      "selection": 0.045041,
-      "other": 0.050769
+      "reading": 7.804437,
+      "selection": 0.048144,
+      "other": 0.060502
     },
-    "peak_memory_bytes": 170364928,
+    "peak_memory_bytes": 167989248,
     "records_read": 100000,
     "cells_read": 3400000,
     "source_verified": true,
@@ -62006,7 +62006,7 @@
     "pool": {
       "per_target": 2,
       "candidate_rows": 3521,
-      "peak_bytes": 959941,
+      "peak_bytes": 959947,
       "budget_bytes": 67108864,
       "refused_rows": 0
     }
@@ -62081,8 +62081,70 @@
     "missing_total": 0,
     "verification": {
       "checked": 1438,
-      "agreed": 1438,
-      "disagreed": []
+      "agreed": 1377,
+      "disagreed": [
+        "quality:rows:column_22+column_23:date_order:date_order:rows:column_22>column_23",
+        "quality:rows:column_29:observation:o20",
+        "quality:rows:column_23:observation:o16",
+        "quality:rows:column_22:observation:o15",
+        "quality:rows:column_5:observation:o4",
+        "quality:rows:column_30:observation:o21",
+        "quality:rows:column_31:observation:o22",
+        "date:rows:column_30:date_year:date:0",
+        "date:rows:column_23:date_year:date:1",
+        "date:rows:column_31:date_year:date:1",
+        "date:rows:column_23:date_year:date:2",
+        "date:rows:column_31:date_year:date:2",
+        "date:rows:column_31:date_year:date:3",
+        "date:rows:column_23:date_year:date:3",
+        "date:rows:column_31:date_year:date:4",
+        "date:rows:column_23:date_year:date:4",
+        "date:rows:column_30:date_year:date:1",
+        "date:rows:column_31:date_year:date:5",
+        "date:rows:column_23:date_year:date:5",
+        "date:rows:column_31:date_year:date:6",
+        "date:rows:column_23:date_year:date:6",
+        "date:rows:column_31:date_year:date:7",
+        "date:rows:column_30:date_year:date:2",
+        "date:rows:column_23:date_year:date:7",
+        "date:rows:column_31:date_year:date:8",
+        "date:rows:column_22:date_year:date:0",
+        "date:rows:column_23:date_year:date:8",
+        "date:rows:column_29:date_year:date:0",
+        "date:rows:column_30:date_year:date:3",
+        "date:rows:column_31:date_year:date:9",
+        "date:rows:column_31:date_year:date:10",
+        "date:rows:column_23:date_year:date:9",
+        "date:rows:column_30:date_year:date:4",
+        "date:rows:column_30:date_year:date:5",
+        "date:rows:column_30:date_year:date:6",
+        "date:rows:column_29:date_year:date:1",
+        "date:rows:column_22:date_year:date:1",
+        "date:rows:column_22:date_year:date:2",
+        "date:rows:column_29:date_year:date:2",
+        "date:rows:column_22:date_year:date:3",
+        "date:rows:column_29:date_year:date:3",
+        "date:rows:column_22:date_year:date:4",
+        "date:rows:column_29:date_year:date:4",
+        "date:rows:column_29:date_year:date:10",
+        "date:rows:column_22:date_year:date:5",
+        "date:rows:column_29:date_year:date:5",
+        "date:rows:column_22:date_year:date:10",
+        "date:rows:column_22:date_year:date:6",
+        "date:rows:column_29:date_year:date:6",
+        "date:rows:column_29:date_year:date:7",
+        "date:rows:column_22:date_year:date:7",
+        "date:rows:column_30:date_year:date:7",
+        "date:rows:column_22:date_year:date:8",
+        "date:rows:column_29:date_year:date:8",
+        "date:rows:column_22:date_year:date:9",
+        "date:rows:column_29:date_year:date:9",
+        "date:rows:column_30:date_year:date:8",
+        "date:rows:column_23:date_year:date:10",
+        "date:rows:column_30:date_year:date:9",
+        "date:rows:column_30:date_year:date:10",
+        "date:rows:column_23:date_year:date:11"
+      ]
     }
   },
   "statements": [
@@ -63734,10 +63796,10 @@
     {
       "id": "quality:rows:column_22+column_23:date_order:date_order:rows:column_22>column_23",
       "status": "covered",
-      "observed": 22,
+      "observed": 23,
       "candidates": 2,
       "expected": 22,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "quality:rows:column_20:observation:o13",
@@ -64750,50 +64812,50 @@
     {
       "id": "quality:rows:column_29:observation:o20",
       "status": "covered",
-      "observed": 10638,
+      "observed": 9757,
       "candidates": 2,
       "expected": 10638,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "quality:rows:column_23:observation:o16",
       "status": "covered",
-      "observed": 8956,
+      "observed": 8210,
       "candidates": 2,
       "expected": 8956,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "quality:rows:column_22:observation:o15",
       "status": "covered",
-      "observed": 10764,
+      "observed": 9875,
       "candidates": 2,
       "expected": 10764,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "quality:rows:column_5:observation:o4",
       "status": "covered",
-      "observed": 10857,
+      "observed": 9988,
       "candidates": 2,
       "expected": 10857,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "quality:rows:column_30:observation:o21",
       "status": "covered",
-      "observed": 10944,
+      "observed": 10008,
       "candidates": 2,
       "expected": 10944,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "quality:rows:column_31:observation:o22",
       "status": "covered",
-      "observed": 1570,
+      "observed": 1456,
       "candidates": 2,
       "expected": 1570,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "quality:rows:column_10:near_value:0",
@@ -69140,10 +69202,10 @@
     {
       "id": "date:rows:column_30:date_year:date:0",
       "status": "covered",
-      "observed": 33,
+      "observed": 35,
       "candidates": 2,
       "expected": 33,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_10:value_equals:107",
@@ -69260,10 +69322,10 @@
     {
       "id": "date:rows:column_23:date_year:date:1",
       "status": "covered",
-      "observed": 102,
+      "observed": 103,
       "candidates": 2,
       "expected": 102,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_3:value_equals:172",
@@ -69332,10 +69394,10 @@
     {
       "id": "date:rows:column_31:date_year:date:1",
       "status": "covered",
-      "observed": 121,
+      "observed": 123,
       "candidates": 2,
       "expected": 121,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_3:value_equals:168",
@@ -69868,10 +69930,10 @@
     {
       "id": "date:rows:column_23:date_year:date:2",
       "status": "covered",
-      "observed": 272,
+      "observed": 274,
       "candidates": 2,
       "expected": 272,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:61",
@@ -69916,10 +69978,10 @@
     {
       "id": "date:rows:column_31:date_year:date:2",
       "status": "covered",
-      "observed": 276,
+      "observed": 277,
       "candidates": 2,
       "expected": 276,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_10:value_equals:91",
@@ -70404,10 +70466,10 @@
     {
       "id": "date:rows:column_31:date_year:date:3",
       "status": "covered",
-      "observed": 414,
+      "observed": 415,
       "candidates": 2,
       "expected": 414,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_4:value_equals:81",
@@ -70692,10 +70754,10 @@
     {
       "id": "date:rows:column_23:date_year:date:3",
       "status": "covered",
-      "observed": 482,
+      "observed": 491,
       "candidates": 2,
       "expected": 482,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_4:value_equals:74",
@@ -71380,10 +71442,10 @@
     {
       "id": "date:rows:column_31:date_year:date:4",
       "status": "covered",
-      "observed": 679,
+      "observed": 685,
       "candidates": 2,
       "expected": 679,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_10:value_equals:55",
@@ -71436,10 +71498,10 @@
     {
       "id": "date:rows:column_23:date_year:date:4",
       "status": "covered",
-      "observed": 695,
+      "observed": 703,
       "candidates": 2,
       "expected": 695,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_4:value_equals:54",
@@ -71468,10 +71530,10 @@
     {
       "id": "date:rows:column_30:date_year:date:1",
       "status": "covered",
-      "observed": 711,
+      "observed": 718,
       "candidates": 2,
       "expected": 711,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_10:value_equals:54",
@@ -71796,10 +71858,10 @@
     {
       "id": "date:rows:column_31:date_year:date:5",
       "status": "covered",
-      "observed": 808,
+      "observed": 809,
       "candidates": 2,
       "expected": 808,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_3:value_equals:38",
@@ -72132,10 +72194,10 @@
     {
       "id": "date:rows:column_23:date_year:date:5",
       "status": "covered",
-      "observed": 952,
+      "observed": 961,
       "candidates": 2,
       "expected": 952,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_3:value_equals:23",
@@ -72364,10 +72426,10 @@
     {
       "id": "date:rows:column_31:date_year:date:6",
       "status": "covered",
-      "observed": 1093,
+      "observed": 1104,
       "candidates": 2,
       "expected": 1093,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_4:value_equals:30",
@@ -72540,10 +72602,10 @@
     {
       "id": "date:rows:column_23:date_year:date:6",
       "status": "covered",
-      "observed": 1263,
+      "observed": 1279,
       "candidates": 2,
       "expected": 1263,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_10:value_equals:27",
@@ -72604,10 +72666,10 @@
     {
       "id": "date:rows:column_31:date_year:date:7",
       "status": "covered",
-      "observed": 1350,
+      "observed": 1359,
       "candidates": 2,
       "expected": 1350,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_10:value_equals:26",
@@ -72732,10 +72794,10 @@
     {
       "id": "date:rows:column_30:date_year:date:2",
       "status": "covered",
-      "observed": 1590,
+      "observed": 1602,
       "candidates": 2,
       "expected": 1590,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_4:value_equals:15",
@@ -72812,10 +72874,10 @@
     {
       "id": "date:rows:column_23:date_year:date:7",
       "status": "covered",
-      "observed": 1744,
+      "observed": 1759,
       "candidates": 2,
       "expected": 1744,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:16",
@@ -72868,10 +72930,10 @@
     {
       "id": "date:rows:column_31:date_year:date:8",
       "status": "covered",
-      "observed": 1869,
+      "observed": 1893,
       "candidates": 2,
       "expected": 1869,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:14",
@@ -73004,10 +73066,10 @@
     {
       "id": "date:rows:column_22:date_year:date:0",
       "status": "covered",
-      "observed": 2214,
+      "observed": 2237,
       "candidates": 2,
       "expected": 2214,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_4:value_equals:4",
@@ -73044,10 +73106,10 @@
     {
       "id": "date:rows:column_23:date_year:date:8",
       "status": "covered",
-      "observed": 2319,
+      "observed": 2344,
       "candidates": 2,
       "expected": 2319,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:11",
@@ -73108,10 +73170,10 @@
     {
       "id": "date:rows:column_29:date_year:date:0",
       "status": "covered",
-      "observed": 2520,
+      "observed": 2547,
       "candidates": 2,
       "expected": 2520,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_10:value_equals:3",
@@ -73132,10 +73194,10 @@
     {
       "id": "date:rows:column_30:date_year:date:3",
       "status": "covered",
-      "observed": 2598,
+      "observed": 2622,
       "candidates": 2,
       "expected": 2598,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:9",
@@ -73156,10 +73218,10 @@
     {
       "id": "date:rows:column_31:date_year:date:9",
       "status": "covered",
-      "observed": 2656,
+      "observed": 2681,
       "candidates": 2,
       "expected": 2656,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:8",
@@ -73228,10 +73290,10 @@
     {
       "id": "date:rows:column_31:date_year:date:10",
       "status": "covered",
-      "observed": 3399,
+      "observed": 3433,
       "candidates": 2,
       "expected": 3399,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "numeric:rows:column_12:numeric_bin:6",
@@ -73276,10 +73338,10 @@
     {
       "id": "date:rows:column_23:date_year:date:9",
       "status": "covered",
-      "observed": 3504,
+      "observed": 3537,
       "candidates": 2,
       "expected": 3504,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "numeric:rows:column_12:numeric_bin:3",
@@ -73340,10 +73402,10 @@
     {
       "id": "date:rows:column_30:date_year:date:4",
       "status": "covered",
-      "observed": 3793,
+      "observed": 3841,
       "candidates": 2,
       "expected": 3793,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:2",
@@ -73356,10 +73418,10 @@
     {
       "id": "date:rows:column_30:date_year:date:5",
       "status": "covered",
-      "observed": 5283,
+      "observed": 5335,
       "candidates": 2,
       "expected": 5283,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "numeric:rows:column_25:numeric_bin:8",
@@ -73372,10 +73434,10 @@
     {
       "id": "date:rows:column_30:date_year:date:6",
       "status": "covered",
-      "observed": 7138,
+      "observed": 7221,
       "candidates": 2,
       "expected": 7138,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:1",
@@ -73388,18 +73450,18 @@
     {
       "id": "date:rows:column_29:date_year:date:1",
       "status": "covered",
-      "observed": 7583,
+      "observed": 7670,
       "candidates": 2,
       "expected": 7583,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_22:date_year:date:1",
       "status": "covered",
-      "observed": 7635,
+      "observed": 7720,
       "candidates": 2,
       "expected": 7635,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "numeric:rows:column_32:numeric_bin:0",
@@ -73412,138 +73474,138 @@
     {
       "id": "date:rows:column_22:date_year:date:2",
       "status": "covered",
-      "observed": 7877,
+      "observed": 7950,
       "candidates": 2,
       "expected": 7877,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_29:date_year:date:2",
       "status": "covered",
-      "observed": 7894,
+      "observed": 7969,
       "candidates": 2,
       "expected": 7894,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_22:date_year:date:3",
       "status": "covered",
-      "observed": 8182,
+      "observed": 8269,
       "candidates": 2,
       "expected": 8182,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_29:date_year:date:3",
       "status": "covered",
-      "observed": 8227,
+      "observed": 8307,
       "candidates": 2,
       "expected": 8227,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_22:date_year:date:4",
       "status": "covered",
-      "observed": 8276,
+      "observed": 8339,
       "candidates": 2,
       "expected": 8276,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_29:date_year:date:4",
       "status": "covered",
-      "observed": 8308,
+      "observed": 8381,
       "candidates": 2,
       "expected": 8308,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_29:date_year:date:10",
       "status": "covered",
-      "observed": 8326,
+      "observed": 8414,
       "candidates": 2,
       "expected": 8326,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_22:date_year:date:5",
       "status": "covered",
-      "observed": 8388,
+      "observed": 8476,
       "candidates": 2,
       "expected": 8388,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_29:date_year:date:5",
       "status": "covered",
-      "observed": 8433,
+      "observed": 8511,
       "candidates": 2,
       "expected": 8433,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_22:date_year:date:10",
       "status": "covered",
-      "observed": 8745,
+      "observed": 8831,
       "candidates": 2,
       "expected": 8745,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_22:date_year:date:6",
       "status": "covered",
-      "observed": 8765,
+      "observed": 8844,
       "candidates": 2,
       "expected": 8765,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_29:date_year:date:6",
       "status": "covered",
-      "observed": 8798,
+      "observed": 8880,
       "candidates": 2,
       "expected": 8798,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_29:date_year:date:7",
       "status": "covered",
-      "observed": 9131,
+      "observed": 9222,
       "candidates": 2,
       "expected": 9131,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_22:date_year:date:7",
       "status": "covered",
-      "observed": 9173,
+      "observed": 9265,
       "candidates": 2,
       "expected": 9173,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_30:date_year:date:7",
       "status": "covered",
-      "observed": 9497,
+      "observed": 9610,
       "candidates": 2,
       "expected": 9497,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_22:date_year:date:8",
       "status": "covered",
-      "observed": 9547,
+      "observed": 9645,
       "candidates": 2,
       "expected": 9547,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_29:date_year:date:8",
       "status": "covered",
-      "observed": 9674,
+      "observed": 9761,
       "candidates": 2,
       "expected": 9674,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "numeric:rows:column_8:numeric_bin:8",
@@ -73628,18 +73690,18 @@
     {
       "id": "date:rows:column_22:date_year:date:9",
       "status": "covered",
-      "observed": 10419,
+      "observed": 10534,
       "candidates": 2,
       "expected": 10419,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_29:date_year:date:9",
       "status": "covered",
-      "observed": 10468,
+      "observed": 10581,
       "candidates": 2,
       "expected": 10468,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:0",
@@ -73652,10 +73714,10 @@
     {
       "id": "date:rows:column_30:date_year:date:8",
       "status": "covered",
-      "observed": 13012,
+      "observed": 13128,
       "candidates": 2,
       "expected": 13012,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "numeric:rows:column_25:numeric_bin:4",
@@ -73676,26 +73738,26 @@
     {
       "id": "date:rows:column_23:date_year:date:10",
       "status": "covered",
-      "observed": 18463,
+      "observed": 18636,
       "candidates": 2,
       "expected": 18463,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_30:date_year:date:9",
       "status": "covered",
-      "observed": 19617,
+      "observed": 19805,
       "candidates": 2,
       "expected": 19617,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "date:rows:column_30:date_year:date:10",
       "status": "covered",
-      "observed": 25784,
+      "observed": 26075,
       "candidates": 2,
       "expected": 25784,
-      "agrees": true
+      "agrees": false
     },
     {
       "id": "numeric:rows:column_25:numeric_bin:6",
@@ -73716,10 +73778,10 @@
     {
       "id": "date:rows:column_23:date_year:date:11",
       "status": "covered",
-      "observed": 44836,
+      "observed": 45291,
       "candidates": 2,
       "expected": 44836,
-      "agrees": true
+      "agrees": false
     }
   ]
 }

@@ -27,7 +27,7 @@ def _dates() -> str:
     rows = ["born,name"]
     rows += [f"{day:02d}/03/2020,a{day}" for day in range(13, 19)]
     rows += [f"03/{day:02d}/2021,b{day}" for day in range(20, 22)]
-    rows += [f"0{day}/04/2020,c{day}" for day in range(1, 6)]
+    rows += [f"0{day}/04/2020,c{day}" for day in (1, 2, 3, 5, 6)]
     rows += [f"2022-01-0{day},d{day}" for day in range(1, 4)]
     return "\n".join(rows) + "\n"
 

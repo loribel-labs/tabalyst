@@ -75,10 +75,8 @@ from tabalyst.scan_reuse import read_json_document
 from tabalyst.scanner.models import FieldResult
 from tabalyst.scanner.secondpass.models import DistinctCount
 
-# Sections of the report that are not written for now: the template skips them, their code and
-# their data stay. TODO: switch them back on (empty this set) once Observations, Relationships,
-# Insights, Second pass and Limits are ready for the default report.
-HIDDEN_SECTIONS = frozenset({"observations", "relationships", "insights", "second-pass", "limits"})
+# Sections of the report that are not written: empty set when every section is active.
+HIDDEN_SECTIONS: frozenset[str] = frozenset()
 
 
 def cell_text(values: list[str | None]) -> str:

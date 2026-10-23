@@ -253,6 +253,9 @@ def _correlations(analyses: list[AnalysisResult]) -> list[CorrelationRow]:
         rows.append(
             CorrelationRow(
                 pair=item.display,
+                dataset_id=item.dataset,
+                field_id=item.field,
+                partner_id=item.partner or "",
                 coefficient=result.coefficient,
                 pairs=result.pairs,
                 rows=result.rows,
