@@ -6,8 +6,9 @@
 
 A configuration file has one object per tool: ``scan`` (what Scan measures
 and keeps), ``report`` (what the report presents) and, at the top level, the
-``csv`` settings of ``tabalyst sample``, the ``output`` settings and the ``deep``
-settings of the second pass (``SettingsFile``). The report is built
+``csv`` settings of ``tabalyst sample`` and ``tabalyst dedup``, the ``output``
+settings, the ``deep`` settings of the second pass and the ``dedup`` settings
+(``SettingsFile``). The report is built
 on Tabalyst Scan, so its analysis settings live in ``scan``, never in
 ``report`` (``tabalyst.report_config``).
 """
@@ -638,11 +639,33 @@ class SmartSettings(BaseModel):
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+DEDUP_DEFAULT_MAX_ROWS = 10_000_000
+DEDUP_DEFAULT_MEMORY_BUDGET_MB = 512
+
+
+class DedupFileSettings(BaseModel):
+    """The ``dedup`` object of a configuration file (``tabalyst dedup``,
+    design dedup 10).
+
+    ``max_rows`` bounds the data records of one file, ``memory_budget_mb`` the
+    accounted memory of the exact row store before it moves to disk and
+    ``verify_content_on_skip`` asks for the digest check of a reused source.
+    The command line options override all three.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_rows: int = Field(default=DEDUP_DEFAULT_MAX_ROWS, ge=1)
+    memory_budget_mb: int = Field(default=DEDUP_DEFAULT_MEMORY_BUDGET_MB, ge=1)
+    verify_content_on_skip: bool = False
+
+
 class SettingsFile(BaseModel):
     """Settings of a configuration file besides its ``scan`` object: ``csv``
-    for ``tabalyst sample``, the ``report`` presentation settings, the
-    ``output`` settings, the ``deep`` settings of the second pass and the
-    ``smart`` settings of the plan of a smart sample."""
+    for ``tabalyst sample`` and ``tabalyst dedup``, the ``report`` presentation
+    settings, the ``output`` settings, the ``deep`` settings of the second pass,
+    the ``smart`` settings of the plan of a smart sample and the ``dedup``
+    settings."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -651,6 +674,7 @@ class SettingsFile(BaseModel):
     output: OutputSettings = Field(default_factory=OutputSettings)
     deep: DeepSection = Field(default_factory=DeepSection)
     smart: SmartSettings = Field(default_factory=SmartSettings)
+    dedup: DedupFileSettings = Field(default_factory=DedupFileSettings)
 
 
 # Settings that moved, with their new location. The analysis settings moved to
