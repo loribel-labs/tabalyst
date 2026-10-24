@@ -6509,7 +6509,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -6633,8 +6633,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 18,
-        "plan_id": "77a0b3ce711b9398b509954a993dd879ff3e0fdd6424150228d1857f0257b29f",
+        "cost_model_version": 19,
+        "plan_id": "cf0c083f9e4d07b1e6026511ce97e5d38b823020277cfd9bc2cd2813ed900e4f",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.1",
@@ -6664,9 +6664,9 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 42,
+          "candidates": 48,
           "selected": 7,
-          "already_satisfied": 23,
+          "already_satisfied": 29,
           "rejected": 12,
           "second_pass_required": true,
           "executable": true,
@@ -6993,6 +6993,114 @@
           {
             "id": "exact_distinct:rows:column_6",
             "analyzer": "exact_distinct",
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "notes",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_6/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_1",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "id",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_1/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_2",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "name",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_2/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_3",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "amount",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_3/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_4",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "joined",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_4/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_5",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "active",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_5/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_6",
+            "analyzer": "analytical_distinct",
             "dataset": "rows",
             "field": "column_6",
             "display": "notes",
@@ -7477,21 +7585,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-24T06:03:57.421239Z",
-        "duration_seconds": 0.0033,
+        "started_at": "2026-10-24T06:41:53.492476Z",
+        "duration_seconds": 0.000112,
         "timings": {
-          "reading": 0.000441,
-          "analysis": 7.2e-05,
-          "other": 0.002787
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000112
         },
         "workers": 1,
-        "peak_memory_bytes": 75366400,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 5,
-        "cells_read": 5,
-        "executed": 7,
-        "reused": 0,
+        "peak_memory_bytes": 75014144,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 7,
         "skipped": 0
       },
       "analyses": [
@@ -7961,12 +8069,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-24T06:03:57.436991Z",
+    "generated_at": "2026-10-24T06:41:53.494988Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.1"
     },
-    "processing_seconds": 0.0347,
+    "processing_seconds": 0.0263,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,

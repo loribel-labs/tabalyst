@@ -3775,6 +3775,7 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `numeric_histogram` | integer, number, and mixed with a numeric measure | constant (`constant_value`: no spread, no division by zero) | no values, exposure, measure not complete, mixed type (`unreliable_type`) | `dense_counts` (an integer field whose minimum and maximum are integers, at most 65,536 integers apart: exact median, mode, quantiles from one state) or `bins` (`deep.bins`, 100 by default, with the `strategy` of `deep.bin_strategy`) |
 | `length_distribution` | text, mixed | the length histogram is complete (`lengths_complete`, always today) | no values, exposure | `dense_counts` |
 | `exact_distinct` | any field | the cardinality is complete (`distinct_exact`) | no values, exposure (unless `deep.sensitive.enabled`, O61: then a masked or hidden field is counted, parameter `exposure`, utility 40), long texts only, values longer than 64 characters (`not_compactable`) | `compact_set`, key `integer` (digit strings, JSON integers) or `text`: the key the expected values take, the firm bound always charges a text (20.8) |
+| `analytical_distinct` | any field (Unique ID lot 7, 20.41) | the Scan has the analytical count (`distinct_exact`) | no values, exposure (unless `deep.sensitive.enabled`), long texts only, values longer than 64 characters (`not_compactable`), no analytical stage changed a value (`stages_unchanged`) | `compact_set`, parameter `key`; utility 40, never automatic |
 | `pattern_validation` | fields with an inferred pattern entry | never (the Scan counts distinct values, not occurrences) | failed or absent inference, exposure, no candidate | `family_recognizer` (20.9); reads no source when the inference read every distinct value (`all_distinct`): the occurrences follow from the exact counts of the samples |
 | `pearson_correlation` | pairs of numeric columns of one dataset (lot 8a, 20.12) | never | a column that is not numeric, hidden by exposure or repeated inside a record (explicit pairs only; the exploration counts the columns it leaves out) | `pairwise_complete`, parameter `min_pairs` |
 | `category_crosstab` | a category column and a column of text, mixed or integer values of one dataset, by feature (lot 8b, 20.13) | never | a category that is not one (no exact frequencies, one value, too many, near unique, an identifier, exposed, repeated), a column without the classes of the feature (no pattern, one length, no listed value), a column that is its own feature | `contingency_table`, parameters `feature`, `max_categories`, `examples`, `rule_purity`, `rule_support` (and `max_classes`, `prefix_length`) |
@@ -5769,6 +5770,41 @@ second-pass document is revision 4.
 **Report.** `identifier_uniqueness/facts.py` reads the result as the third source of `E` (`deep.duplicate_rows_count`); `report_deep.py` prints one line of it.
 
 **Left out.** Sharing the reading with the router, an automatic choice (lot 8), a count per column (cahier 5.4), other formats than CSV.
+
+### 20.41 The analytical distinct count (Unique ID lot 7, UID-013)
+
+`analytical_distinct` (`planner/analyzers/analytical.py`, `secondpass/analytical.py`) counts the distinct analytical values of a field exactly: the
+output of the enabled `nfc`, `trim` and `collapse_whitespace` stages, the domain of the Scan's `analytical_distinct(field)`. It is a separate analyzer from
+`exact_distinct`, which counts the original values (21) and is read by name in `report_classification`: one id per domain keeps a count of one from being
+taken for the other (T19). The decision is in the contract `docs/dev/report/identifier-uniqueness.md` 6.1.
+
+**When.** The Scan has the analytical count only while its table lives; a released table gives `limited` for every stage. The original count does not give it
+when a stage changed a value. `FieldFacts` carries `analytical_distinct` (the Scan's exact count, if any) and `analytical_changed` (an enabled analytical
+stage with `changed > 0`). `assess`: `satisfied` (`distinct_exact`) when the Scan has the count, `not_applicable` for `no_values`, `sensitive_exposure`
+(unless `deep.sensitive.enabled`), `long_texts_only`, `not_compactable` (as `exact_distinct`) and `stages_unchanged` (then the original count is the analytical one),
+else `applicable`, method `compact_set`, parameters `key` (and `exposure`). It subclasses `ExactDistinct` for the sizes; the state key has its own prefix
+(`exact_set:analytical:`) so two analyses of a field hold two sets, and the minimum is the fixed size only (the original values the Scan proved bound the
+analytical count from above, not from below). Utility 40, never automatic (lot 8). `NS_PER_CELL["analytical_distinct"]` is 900; `COST_MODEL_VERSION` is 19.
+
+**Execution.** `AnalyticalSet` (an `ExactSet`) is fed by `FieldRoute.analytical`: `Router._counted` leaves the "original values only" path for the cell path,
+where `Cell.text` is the analytical text the first pass computes (`CellReader.analytical`), and adds the texts merged by value (`add_texts`), so a pool is charged once
+per text. A JSON integer, number or boolean enters through `add_native` as it does in the original set: a string `"123"` and the integer `123` stay two values, as in the
+Scan's stages (a changed string only merges with an unchanged string). The set shares the pool and the stop of the exact sets (`memory_budget`, a lower bound, `distinct_limited`);
+it is not moved to a worker (a route with an exact set stays in the process).
+
+**Checks.** `values` equals the Scan's count. `changed`, the occurrences whose analytical text is not the string, lies between the largest and the sum of the
+Scan's counters of the enabled analytical stages (`stage.changed`, occurrences of content strings): a reading that normalizes otherwise fails with `scan_mismatch`.
+
+**Result.** `AnalyticalDistinctCount` (`kind` `analytical_distinct`, `stages`, `values`, `distinct`, `redundant`, `unique`, `changed`), domain `analytical`; a stop is
+`DistinctLimited`. The second-pass document stays at revision 4 (not published yet).
+
+**Report.** `identifier_uniqueness/facts.py` `_distinct` orders the exact counts: the Scan, the second pass analytical (`deep_analytical_count`, same base, `complete`, same
+values and stages), the second pass original. The first is `UniquenessFacts.distinct`, the others `distinct_alternatives`. The rule compares them: two usable exact counts
+that differ are `evidence_conflict` with `measure: id_cardinality`; an analytical count above an exact original one (stages changed) is `inconsistent_measures`, since
+normalizing only merges values. A stopped count is never `D`.
+
+**Left out.** The automatic choice and the criteria of the planner (lot 8), the other formats' fingerprints for long values (`fingerprint_distinct` counts the original ones), a count per
+casefold or accent key.
 
 ## 21. Original value domain (O32)
 

@@ -33,6 +33,7 @@ from tabalyst.scanner.models import (
     ScanResult,
 )
 from tabalyst.scanner.patterninfer import settings_digest
+from tabalyst.scanner.quality import ANALYTICAL_STAGES, analytical_distinct
 
 
 @dataclass(frozen=True, slots=True)
@@ -288,6 +289,11 @@ class FieldFacts:
     # whole rows (``complete``, ``limited`` or ``disabled``) and the mean bytes of a record.
     rows_duplicates: str = "not_applicable"
     row_bytes: int = 0
+    # The distinct analytical values when the Scan counted them exactly, and whether an enabled
+    # analytical stage (NFC, trim, whitespace) altered a value: then the original values the
+    # Scan could count do not give the analytical ones.
+    analytical_distinct: int | None = None
+    analytical_changed: bool = False
 
     @property
     def withheld(self) -> bool:
@@ -595,6 +601,12 @@ def _facts(
         classified=_classified(field),
         top_characters=top_characters,
         character_map=character_map,
+        analytical_distinct=analytical_distinct(field),
+        analytical_changed=any(
+            stage.changed
+            for stage in field.normalization.stages
+            if stage.stage in ANALYTICAL_STAGES and stage.enabled
+        ),
     )
 
 

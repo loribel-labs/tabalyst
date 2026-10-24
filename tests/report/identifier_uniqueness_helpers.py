@@ -175,12 +175,14 @@ def facts(
     duplicate_accuracy: str = "exact",
     duplicate_source: str = "scan.records.duplicates",
     extra_duplicates: Sequence[tuple[str, int | None, str]] = (),
+    alternatives: Sequence[tuple[str, int, str, bool]] = (),
     identity_name: str = "full_decoded_csv_row_v1",
     sha256: str = "0" * 64,
 ):
     """``UniquenessFacts`` (contract 9) for given counts; ``e=None`` means disabled.
 
-    ``extra_duplicates`` adds sources as ``(source, value, accuracy)``.
+    ``extra_duplicates`` adds sources as ``(source, value, accuracy)``. ``alternatives`` adds
+    other exact counts of ``D`` as ``(source, value, domain, stages_changed_values)``.
     """
     from tabalyst.identifier_uniqueness import (
         DistinctEvidence,
@@ -226,6 +228,16 @@ def facts(
             accuracy=distinct_accuracy,
             domain=domain,
             stages_changed_values=stages_changed_values,
+        ),
+        distinct_alternatives=tuple(
+            DistinctEvidence(
+                value=value,
+                source=source,
+                accuracy="exact",
+                domain=alternative_domain,
+                stages_changed_values=changed,
+            )
+            for source, value, alternative_domain, changed in alternatives
         ),
         duplicates=tuple(sources),
         rejected=(),

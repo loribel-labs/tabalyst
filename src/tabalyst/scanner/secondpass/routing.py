@@ -37,6 +37,7 @@ from tabalyst.scanner.secondpass.accumulators import (
     DenseAccumulator,
     LengthAccumulator,
 )
+from tabalyst.scanner.secondpass.analytical import AnalyticalSet
 from tabalyst.scanner.secondpass.characters import CharacterAccumulator
 from tabalyst.scanner.secondpass.crosstab import CodeFeed, CrosstabAccumulator
 from tabalyst.scanner.secondpass.drift import DriftAccumulator
@@ -119,6 +120,7 @@ class FieldRoute:
     of each raw string, shared by all of them."""
 
     __slots__ = (
+        "analytical",
         "arrays",
         "characters",
         "distinct",
@@ -155,6 +157,8 @@ class FieldRoute:
         # The exact set of the original values and the table of the analytical
         # ones: set by the executor when an analysis of the field needs them.
         self.distinct: ExactSet | None = None
+        # The analytical texts of the strings, in a set of their own (design 20.41).
+        self.analytical: AnalyticalSet | None = None
         self.frequencies: FrequencyAccumulator | None = None
         # The patterns count original values (design 21); the periods read the
         # analytical text with the date detector.
@@ -223,6 +227,7 @@ class FieldRoute:
         numeric = self.numeric
         frequencies = self.frequencies
         distinct = self.distinct
+        analytical = self.analytical
         patterns = self.patterns
         periods = self.periods
         parts = self.parts
@@ -251,6 +256,7 @@ class FieldRoute:
             and parts is None
             and measures is None
             and shape is None
+            and analytical is None
             and not text_wanted
         ):
             # Only the original values: no analytical text, no number.
@@ -336,6 +342,11 @@ class FieldRoute:
                 cell = cells[raw]
                 if cell.length >= 0:
                     parts.add(cell.moment, cell.text, count)
+        if analytical is not None:
+            content = [raw for raw in counts if cells[raw].length >= 0]
+            analytical.add_texts(
+                content, [cells[raw].text for raw in content], [counts[raw] for raw in content]
+            )
         if measures is not None:
             for raw, count in counts.items():
                 cell = cells[raw]
@@ -390,6 +401,7 @@ class FieldRoute:
         if (
             native_type == "boolean"
             and self.distinct is None
+            and self.analytical is None
             and self.frequencies is None
             and self.patterns is None
             and self.measures is None
@@ -409,6 +421,8 @@ class FieldRoute:
                 self.shape.add(number, 1)
         if self.distinct is not None:
             self.distinct.add_native(native_type, value)
+        if self.analytical is not None:
+            self.analytical.add_native(native_type, value)
         if self.frequencies is not None:
             self.frequencies.add_native(native_type, value)
         if self.patterns is not None:

@@ -176,8 +176,11 @@ between distinct records. It holds codes and exact integers only, never a senten
 - `evidence`: where the distinct count and the extra copies come from (the Scan, the second pass, whose
   `duplicate_rows_count` counts the copies with the engine of Dedup and appears as the source
   `deep.duplicate_rows_count`, or a
-  Dedup report, with its file name, revision and origin), the SHA-256 of the source, the proofs that
-  were read and refused (`rejected`) and, when two exact sources disagree, the `conflict`.
+  Dedup report, with its file name, revision and origin; the distinct IDs come from the Scan, from
+  the second pass counting the original values (`deep.exact_distinct`) or from the second pass
+  counting them after `nfc`, `trim` and `collapse_whitespace` (`deep.analytical_distinct`)), the
+  SHA-256 of the source, the proofs that were read and refused (`rejected`) and, when two exact
+  sources disagree, the `conflict` (of the `duplicate_rows` or of the `id_cardinality`).
 
 `identifier.repetition` is unchanged: it keeps counting the raw repetitions. The extra copies come from
 the Scan's count of duplicate records, or from a valid [Dedup](../dedup/index.md) report given with

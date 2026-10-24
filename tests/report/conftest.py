@@ -27,6 +27,8 @@ ENABLED_LOTS: set[str] = {
     "4",  # HTML
 
     "6",  # Deep count of the copies of rows
+
+    "7",  # Deep analytical cardinality
 }
 
 

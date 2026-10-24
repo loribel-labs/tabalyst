@@ -36,6 +36,7 @@ from tabalyst.scanner.planner.reasons import reason_text
 from tabalyst.scanner.secondpass.models import (
     AnalysisOutput,
     AnalysisResult,
+    AnalyticalDistinctCount,
     ArrayProfileResult,
     BinnedHistogram,
     CharacterProfileResult,
@@ -141,6 +142,12 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
     if isinstance(result, DistinctCount):
         return (
             f"{result.distinct:,} distinct values among {result.values:,}"
+            + (", all different" if result.unique else ""),
+            EXACT,
+        )
+    if isinstance(result, AnalyticalDistinctCount):
+        return (
+            f"{result.distinct:,} distinct values among {result.values:,} after normalization"
             + (", all different" if result.unique else ""),
             EXACT,
         )

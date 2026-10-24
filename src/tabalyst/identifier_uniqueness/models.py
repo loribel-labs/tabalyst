@@ -16,7 +16,9 @@ from tabalyst.result_model import ResultModel
 RULE_VERSION = 1
 
 RowIdentity = Literal["full_decoded_csv_row_v1", "scan_record_v1"]
-DistinctSource = Literal["scan.values.cardinality", "deep.exact_distinct"]
+DistinctSource = Literal[
+    "scan.values.cardinality", "deep.exact_distinct", "deep.analytical_distinct"
+]
 DistinctAccuracy = Literal["exact", "estimated", "limited"]
 ValueDomain = Literal["analytical", "original"]
 DuplicateSource = Literal[
@@ -115,6 +117,8 @@ class UniquenessFacts(FrozenModel):
     scope_complete: bool
     source_sha256: str
     distinct: DistinctEvidence | None
+    # The other exact counts of the distinct values, which must agree with ``distinct``.
+    distinct_alternatives: tuple[DistinctEvidence, ...] = ()
     duplicates: tuple[DuplicateEvidence, ...] = ()  # every usable source, Scan first
     rejected: tuple[RejectedProof, ...] = ()
 

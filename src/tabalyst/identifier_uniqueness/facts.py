@@ -43,7 +43,11 @@ from tabalyst.scanner.models import (
 )
 from tabalyst.scanner.planner.models import PlanBase
 from tabalyst.scanner.quality import analytical_distinct
-from tabalyst.scanner.secondpass.models import DuplicateRowsResult
+from tabalyst.scanner.secondpass.analytical import analytical_stages
+from tabalyst.scanner.secondpass.models import (
+    AnalyticalDistinctCount,
+    DuplicateRowsResult,
+)
 
 _IDENTIFIER_ROLES = (ID, UNIQUE_ID)
 
@@ -153,6 +157,7 @@ def facts_from_scan(
     counted = _deep_duplicates(scan, target, analyses, base)
     if counted is not None:
         duplicates.append(counted)
+    distinct, alternatives = _distinct(field, analyses, dataset, base)
     return UniquenessFacts(
         dataset=dataset,
         eligible=True,
@@ -161,7 +166,8 @@ def facts_from_scan(
         missing=records - present,
         scope_complete=_scope_complete(scan, target),
         source_sha256=scan.source.sha256,
-        distinct=_distinct(field, analyses, dataset, base),
+        distinct=distinct,
+        distinct_alternatives=tuple(alternatives),
         duplicates=tuple(duplicates),
         rejected=rejected,
     )
@@ -254,27 +260,79 @@ def _distinct(
     analyses: AnalysesBlock | None,
     dataset: str,
     base: PlanBase | None,
-) -> DistinctEvidence | None:
-    """``D`` in the order of contract 6.1: the Scan, then the second pass, then what is partial."""
+) -> tuple[DistinctEvidence | None, list[DistinctEvidence]]:
+    """``D`` in the order of contract 6.1: the Scan, then the second pass (analytical, then
+    original), then what is partial; the other exact counts follow as alternatives, which the
+    rule compares with the first."""
+    found: list[DistinctEvidence] = []
     exact = analytical_distinct(field)
     if exact is not None:
-        return DistinctEvidence(
-            value=exact,
-            source="scan.values.cardinality",
-            accuracy="exact",
-            domain="analytical",
-            stages_changed_values=False,
+        found.append(
+            DistinctEvidence(
+                value=exact,
+                source="scan.values.cardinality",
+                accuracy="exact",
+                domain="analytical",
+                stages_changed_values=False,
+            )
+        )
+    counted = deep_analytical_count(field, analyses, dataset, base)
+    if counted is not None:
+        found.append(
+            DistinctEvidence(
+                value=counted.distinct,
+                source="deep.analytical_distinct",
+                accuracy="exact",
+                domain="analytical",
+                stages_changed_values=False,
+            )
         )
     count = distinct_count(field, analyses, dataset, base)
     if count is not None and count.values == field.values.count:
-        return DistinctEvidence(
-            value=count.distinct,
-            source="deep.exact_distinct",
-            accuracy="exact",
-            domain="original",
-            stages_changed_values=not analytical_stages_unchanged(field),
+        found.append(
+            DistinctEvidence(
+                value=count.distinct,
+                source="deep.exact_distinct",
+                accuracy="exact",
+                domain="original",
+                stages_changed_values=not analytical_stages_unchanged(field),
+            )
         )
-    return _partial_distinct(field)
+    if not found:
+        return _partial_distinct(field), []
+    return found[0], found[1:]
+
+
+def deep_analytical_count(
+    field: FieldResult,
+    analyses: AnalysesBlock | None,
+    dataset: str,
+    base: PlanBase | None,
+) -> AnalyticalDistinctCount | None:
+    """The exact count of the analytical values the second pass holds for the field, if usable.
+
+    Same conditions as ``distinct_count``: a second-pass document standing on this Scan and an
+    analysis that ended ``complete`` (a stopped one is only a lower bound, never ``D``). The
+    count must also be of the values the Scan counted and of the stages it applies now.
+    """
+    if analyses is None or analyses.deep is None:
+        return None
+    deep = analyses.deep
+    if base is not None and deep.base != base:
+        return None
+    for item in deep.analyses:
+        result = item.result
+        if (
+            item.analyzer == "analytical_distinct"
+            and item.field == field.id
+            and item.dataset == dataset
+            and item.status == "complete"
+            and isinstance(result, AnalyticalDistinctCount)
+            and result.values == field.values.count
+            and result.stages == analytical_stages(field)
+        ):
+            return result
+    return None
 
 
 def _partial_distinct(field: FieldResult) -> DistinctEvidence | None:

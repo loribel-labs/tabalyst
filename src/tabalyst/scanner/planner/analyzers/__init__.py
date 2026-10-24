@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from tabalyst.scanner.planner.analyzer import Analyzer
+from tabalyst.scanner.planner.analyzers.analytical import AnalyticalDistinct
 from tabalyst.scanner.planner.analyzers.characters import CharacterProfile
 from tabalyst.scanner.planner.analyzers.copies import DuplicateRows
 from tabalyst.scanner.planner.analyzers.crosstab import CategoryCrosstab
@@ -35,6 +36,7 @@ BUILT_INS: tuple[type[Analyzer], ...] = (
     NumericHistogram,
     LengthDistribution,
     ExactDistinct,
+    AnalyticalDistinct,
     PatternValidation,
     TemporalDistribution,
     MeasureExtraction,

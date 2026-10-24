@@ -269,7 +269,10 @@ source. The entry *Identifier uniqueness* of [Analysis settings](#analysis-setti
 the rule version and the sources actually used. Deciding whether an ID is *nearly* unique is
 not available yet. When the scan could only bound the copies of rows, a second pass counts
 them with [`duplicate_rows_count`](../scan/deep.md#extra-copies-of-whole-rows) if you force it
-(`--deep`); the report never chooses that reading by itself.
+(`--deep`); the report never chooses that reading by itself. The same holds for the number of
+distinct IDs when the scan stopped counting them and the normalization stages (trim, whitespace) changed
+some of the values: [`analytical_distinct`](../scan/deep.md#exact-distinct-count-after-normalization)
+counts them after the normalization.
 
 **A finding card.** The left side states what the finding is and how far to trust it. The
 right side holds the detail that explains it: the groups of spelling variants, the formats

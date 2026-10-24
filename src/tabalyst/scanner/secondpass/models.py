@@ -266,6 +266,25 @@ class DistinctCount(ScanModel):
     unique: bool
 
 
+class AnalyticalDistinctCount(ScanModel):
+    """Exact number of distinct analytical values of a field (design 20.41): the
+    values after the enabled stages ``stages`` (``nfc``, ``trim``,
+    ``collapse_whitespace``), the domain of the Scan's ``analytical_distinct`` and not
+    that of ``DistinctCount``. ``values``, ``redundant`` and ``unique`` read as
+    there, in this domain; ``changed`` is the number of occurrences whose
+    analytical text differs from the original, which the reading checked against the
+    Scan's counters of the stages."""
+
+    kind: Literal["analytical_distinct"] = "analytical_distinct"
+    accuracy: Literal["exact"] = "exact"
+    stages: list[str]
+    values: int
+    distinct: int
+    redundant: int
+    unique: bool
+    changed: int
+
+
 class DistinctLimited(ScanModel):
     """What a stopped exact count proves (D08): the distinct values met in the
     ``values_read`` values before the memory budget stopped the field. It is a
@@ -1687,6 +1706,7 @@ AnalysisOutput = Annotated[
     | BinnedHistogram
     | LengthDistribution
     | DistinctCount
+    | AnalyticalDistinctCount
     | DistinctLimited
     | FrequencyTable
     | PatternCounts

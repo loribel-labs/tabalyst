@@ -271,6 +271,7 @@
             {
               "discriminator": {
                 "mapping": {
+                  "analytical_distinct": "#/$defs/AnalyticalDistinctCount",
                   "array_profile": "#/$defs/ArrayProfileResult",
                   "bins": "#/$defs/BinnedHistogram",
                   "category_stats": "#/$defs/StatsResult",
@@ -313,6 +314,9 @@
                 },
                 {
                   "$ref": "#/$defs/DistinctCount"
+                },
+                {
+                  "$ref": "#/$defs/AnalyticalDistinctCount"
                 },
                 {
                   "$ref": "#/$defs/DistinctLimited"
@@ -406,6 +410,61 @@
         "status"
       ],
       "title": "AnalysisResult",
+      "type": "object"
+    },
+    "AnalyticalDistinctCount": {
+      "additionalProperties": false,
+      "description": "Exact number of distinct analytical values of a field (design 20.41): the\nvalues after the enabled stages ``stages`` (``nfc``, ``trim``,\n``collapse_whitespace``), the domain of the Scan's ``analytical_distinct`` and not\nthat of ``DistinctCount``. ``values``, ``redundant`` and ``unique`` read as\nthere, in this domain; ``changed`` is the number of occurrences whose\nanalytical text differs from the original, which the reading checked against the\nScan's counters of the stages.",
+      "properties": {
+        "kind": {
+          "const": "analytical_distinct",
+          "default": "analytical_distinct",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "stages": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Stages",
+          "type": "array"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "redundant": {
+          "title": "Redundant",
+          "type": "integer"
+        },
+        "unique": {
+          "title": "Unique",
+          "type": "boolean"
+        },
+        "changed": {
+          "title": "Changed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "stages",
+        "values",
+        "distinct",
+        "redundant",
+        "unique",
+        "changed"
+      ],
+      "title": "AnalyticalDistinctCount",
       "type": "object"
     },
     "Applicability": {

@@ -66164,7 +66164,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -66288,8 +66288,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 18,
-        "plan_id": "4789fd2be3af09e9507b1c95ed775511e4f4508dd52730b96e5a41a6f507df1f",
+        "cost_model_version": 19,
+        "plan_id": "96bf7c764fdce05ba46187483de87c276dd5258ced81bf59ec73ede117263e20",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.1",
@@ -66319,9 +66319,9 @@
           "cpu": "low"
         },
         "summary": {
-          "candidates": 297,
+          "candidates": 331,
           "selected": 42,
-          "already_satisfied": 91,
+          "already_satisfied": 125,
           "rejected": 164,
           "second_pass_required": true,
           "executable": true,
@@ -68162,6 +68162,618 @@
           {
             "id": "exact_distinct:rows:column_34",
             "analyzer": "exact_distinct",
+            "dataset": "rows",
+            "field": "column_34",
+            "display": "filiale",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_34/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_1",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "id_client",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_1/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_2",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "civilite",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_2/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_3",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "prenom",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_3/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_4",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "nom",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_4/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_5",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "date_naissance",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_5/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_6",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "sexe",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_6/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_7",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_7",
+            "display": "langue_preferee",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_7/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_8",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "numero_voie",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_8/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_9",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_9",
+            "display": "type_voie",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_9/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_10",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_10",
+            "display": "nom_voie",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_10/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_11",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_11",
+            "display": "orientation",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_11/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_12",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_12",
+            "display": "appartement",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_12/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_13",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_13",
+            "display": "ville",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_13/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_14",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_14",
+            "display": "province_code",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_14/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_15",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_15",
+            "display": "province_nom",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_15/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_16",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_16",
+            "display": "code_postal",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_16/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_17",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_17",
+            "display": "pays_code",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_17/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_18",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_18",
+            "display": "courriel",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_18/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_19",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_19",
+            "display": "telephone",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_19/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_20",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_20",
+            "display": "id_contrat",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_20/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_21",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_21",
+            "display": "type_contrat",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_21/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_22",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_22",
+            "display": "date_debut",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_22/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_23",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_23",
+            "display": "date_fin",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_23/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_24",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_24",
+            "display": "statut_contrat",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_24/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_25",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_25",
+            "display": "prime_annuelle",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_25/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_26",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_26",
+            "display": "frequence_paiement",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_26/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_27",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_27",
+            "display": "mode_paiement",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_27/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_28",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_28",
+            "display": "agence_code",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_28/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_29",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_29",
+            "display": "date_creation",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_29/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_30",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_30",
+            "display": "date_modification",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_30/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_31",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_31",
+            "display": "date_reclamation",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_31/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_32",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_32",
+            "display": "montant_reclamation",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_32/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_33",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_33",
+            "display": "reclamation_status",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_33/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_34",
+            "analyzer": "analytical_distinct",
             "dataset": "rows",
             "field": "column_34",
             "display": "filiale",
@@ -71912,21 +72524,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-24T06:03:59.750076Z",
-        "duration_seconds": 4.716124,
+        "started_at": "2026-10-24T06:41:55.529680Z",
+        "duration_seconds": 0.000462,
         "timings": {
-          "reading": 0.444318,
-          "analysis": 3.194195,
-          "other": 1.077612
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000462
         },
-        "workers": 6,
-        "peak_memory_bytes": 159252480,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 100000,
-        "cells_read": 3400000,
-        "executed": 42,
-        "reused": 0,
+        "workers": 1,
+        "peak_memory_bytes": 122560512,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 42,
         "skipped": 0
       },
       "analyses": [
@@ -141087,12 +141699,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-24T06:04:05.383782Z",
+    "generated_at": "2026-10-24T06:41:56.044344Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.1"
     },
-    "processing_seconds": 8.3564,
+    "processing_seconds": 3.2726,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,

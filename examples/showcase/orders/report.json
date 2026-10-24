@@ -21462,7 +21462,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -21586,8 +21586,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 18,
-        "plan_id": "308e76cc51283171e714a3cc6053e62ab01da0fa0c1c83fc0e4d1705140367dc",
+        "cost_model_version": 19,
+        "plan_id": "684a73df6635382c5b316e72e269eb773424b619b6224ebe385d5d39afb71788",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.1",
@@ -21617,10 +21617,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 155,
+          "candidates": 178,
           "selected": 16,
-          "already_satisfied": 60,
-          "rejected": 79,
+          "already_satisfied": 77,
+          "rejected": 85,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -22792,6 +22792,432 @@
           {
             "id": "exact_distinct:$.customers[]:f23",
             "analyzer": "exact_distinct",
+            "dataset": "$.customers[]",
+            "field": "f23",
+            "display": "orders[].currency",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f23/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f1",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f1",
+            "display": "id",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f1/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f2",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f2",
+            "display": "name",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f2/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f3",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f3",
+            "display": "email",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f3/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f4",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f4",
+            "display": "phone",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f4/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f5",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f5",
+            "display": "address",
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f6",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f6",
+            "display": "address.city",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f6/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f7",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f7",
+            "display": "address.postal_code",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f7/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f8",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f8",
+            "display": "signup_date",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f8/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f9",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f9",
+            "display": "newsletter",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f9/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f10",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f10",
+            "display": "tags",
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f11",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f11",
+            "display": "tags[]",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f11/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f12",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f12",
+            "display": "orders",
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f13",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f13",
+            "display": "orders[]",
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f14",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f14",
+            "display": "orders[].order_id",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f14/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f15",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f15",
+            "display": "orders[].ordered_at",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f15/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f16",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f16",
+            "display": "orders[].status",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f16/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f17",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f17",
+            "display": "orders[].items",
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f18",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f18",
+            "display": "orders[].items[]",
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f19",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f19",
+            "display": "orders[].items[].product",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f19/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f20",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f20",
+            "display": "orders[].items[].quantity",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f20/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f21",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f21",
+            "display": "orders[].items[].unit_price",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f21/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f22",
+            "analyzer": "analytical_distinct",
+            "dataset": "$.customers[]",
+            "field": "f22",
+            "display": "orders[].total",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f22/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:$.customers[]:f23",
+            "analyzer": "analytical_distinct",
             "dataset": "$.customers[]",
             "field": "f23",
             "display": "orders[].currency",
@@ -24609,21 +25035,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-24T06:05:00.845176Z",
-        "duration_seconds": 0.042062,
+        "started_at": "2026-10-24T06:42:16.867437Z",
+        "duration_seconds": 0.000171,
         "timings": {
-          "reading": 0.003357,
-          "analysis": 0.004759,
-          "other": 0.033946
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000171
         },
         "workers": 1,
-        "peak_memory_bytes": 79745024,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 60,
-        "cells_read": 866,
-        "executed": 16,
-        "reused": 0,
+        "peak_memory_bytes": 81371136,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 16,
         "skipped": 0
       },
       "analyses": [
@@ -28108,12 +28534,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-24T06:05:00.987850Z",
+    "generated_at": "2026-10-24T06:42:16.964445Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.1"
     },
-    "processing_seconds": 0.2024,
+    "processing_seconds": 0.1529,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,

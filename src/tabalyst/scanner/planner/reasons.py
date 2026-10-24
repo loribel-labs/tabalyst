@@ -56,6 +56,7 @@ NOT_APPLICABLE = {
     "hidden_exposure": "exposure hides the values of this field, so even their masks are kept out of the document",
     "duplicates_disabled": "the scan was set not to count the copies of rows (records.duplicates), and a second pass does not override that",
     "records_left_out": "the scan left records out of the file, which Dedup refuses to count",
+    "stages_unchanged": "no analytical stage (NFC, trim, whitespace) changed a value, so the exact count of the original values is the analytical count",
     "nothing_left_out": "no pattern leaves values out and no detector that reads most of the column finds invalid or unmatched ones",
 }
 
@@ -116,6 +117,7 @@ UTILITY = {
     "drift_by_position": "shows whether the missing values and the values of the column change along the file",
     "missing_together": "shows which columns lack a value in the same records",
     "array_lengths": "shows how long the arrays of the field are",
+    "analytical_distinct": "counts the distinct values after NFC, trim and whitespace, which the scan stopped counting and the original values do not give",
     "duplicate_rows": "counts the extra copies of whole rows exactly, which the scan could only bound",
     "key_sets": "shows which keys the objects have together",
     "text_shape": "shows the words, lines and digits of the texts",

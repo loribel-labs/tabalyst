@@ -10985,7 +10985,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -11109,8 +11109,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 18,
-        "plan_id": "fcd3c4ee226f029b5632ef6b87fd21b8136e17d3797a19bea44824025d27a9d4",
+        "cost_model_version": 19,
+        "plan_id": "55e68030a332d32ce6660f35633833e3a7c5d47716c413d335ca0d66ad4db776",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.1",
@@ -11140,9 +11140,9 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 75,
+          "candidates": 84,
           "selected": 10,
-          "already_satisfied": 26,
+          "already_satisfied": 35,
           "rejected": 39,
           "second_pass_required": true,
           "executable": true,
@@ -11657,6 +11657,168 @@
           {
             "id": "exact_distinct:rows:column_9",
             "analyzer": "exact_distinct",
+            "dataset": "rows",
+            "field": "column_9",
+            "display": "paid",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_9/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_1",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "order_id",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_1/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_2",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "order_date",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_2/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_3",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "customer",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_3/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_4",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "email",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_4/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_5",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "region",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_5/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_6",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "channel",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_6/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_7",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_7",
+            "display": "quantity",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_7/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_8",
+            "analyzer": "analytical_distinct",
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "unit_price",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_8/values/cardinality"
+            }
+          },
+          {
+            "id": "analytical_distinct:rows:column_9",
+            "analyzer": "analytical_distinct",
             "dataset": "rows",
             "field": "column_9",
             "display": "paid",
@@ -12611,21 +12773,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-24T06:05:03.088576Z",
-        "duration_seconds": 0.012653,
+        "started_at": "2026-10-24T06:42:18.963039Z",
+        "duration_seconds": 0.000131,
         "timings": {
-          "reading": 0.002972,
-          "analysis": 0.003876,
-          "other": 0.005805
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000131
         },
         "workers": 1,
-        "peak_memory_bytes": 77959168,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 120,
-        "cells_read": 840,
-        "executed": 10,
-        "reused": 0,
+        "peak_memory_bytes": 78135296,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 10,
         "skipped": 0
       },
       "analyses": [
@@ -16779,12 +16941,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-24T06:05:03.159686Z",
+    "generated_at": "2026-10-24T06:42:19.001419Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.1"
     },
-    "processing_seconds": 0.1082,
+    "processing_seconds": 0.0762,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,

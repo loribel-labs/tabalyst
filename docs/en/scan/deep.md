@@ -48,6 +48,7 @@ stored.
 | `numeric_histogram` | Numeric fields | The count of every integer when they span at most 65,536 values, with the exact mode, median and quantiles; otherwise the count in each of 100 bins, with estimated median and quantiles |
 | `length_distribution` | Text fields whose scan has no length histogram | The exact count of every length |
 | `exact_distinct` | Fields whose scan stopped counting distinct values | The exact number of distinct values, the number of values it counts over and how many of them repeat an earlier one |
+| `analytical_distinct` | Fields whose scan stopped counting distinct values and whose normalization stages changed a value | The exact number of distinct values after `nfc`, `trim` and `collapse_whitespace`, the number of values it counts over and how many of them repeat an earlier one. Asked for, or run with `--deep`, never by itself |
 | `exact_frequencies` | Fields of at most 1,000 distinct values whose scan lists only the most frequent | The exact count of every value |
 | `pattern_validation` | Text fields with inferred patterns | How many values of the whole file each pattern reads, how many none reads, and how many were not tested |
 | `residual_values` | Fields whose patterns leave values out, or that a detector mostly reads but finds some invalid or unmatched values in | The values themselves with their exact counts and first records, and for each pattern an example and its distinct values |
@@ -1088,7 +1089,7 @@ array, the Report classifies it `identifier/unique_id` and lists the count in
 settles the question only when the cleaning stages (`nfc`, `trim` and
 `collapse_whitespace`) changed none of them: `"A"` and `" A "` are two values here and
 one after the trim, so the column then stays `identifier/id` and the count is kept
-as context. A second pass that is absent, was made for another scan, ended
+as context (the [count after normalization](#exact-distinct-count-after-normalization) settles it). A second pass that is absent, was made for another scan, ended
 `limited` or `failed` changes nothing: the Report keeps the classification of the
 scan, and the Scan document never changes.
 
@@ -1107,6 +1108,42 @@ scan's lengths do not show), the field **stops**: its result is `limited`, with 
 reason `memory_budget`, and only says how many values were read and how many
 distinct values were proven so far. That number is a lower bound, never the count.
 The other analyses of the run are not affected.
+
+## Exact distinct count after normalization
+
+`exact_distinct` counts the original values. The Scan's own cardinality, when it kept its table,
+counts the **analytical** ones: the values after the enabled `nfc`, `trim` and
+`collapse_whitespace` stages, so `"A"` and `" A "` are one value. When the scan stopped counting
+and one of these stages changed a value, neither number is available:
+`analytical_distinct` counts the analytical values exactly, with the same sets, the same memory
+and the same stop as `exact_distinct`.
+
+```json
+{"kind": "analytical_distinct", "accuracy": "exact",
+ "stages": ["nfc", "trim", "collapse_whitespace"],
+ "values": 1000000, "distinct": 996120, "redundant": 3880,
+ "unique": false, "changed": 5210}
+```
+
+- **Same reading as the scan.** The cells are normalized the way the first pass normalizes them.
+  `changed` is the number of values whose normalized text differs from the written one. The scan
+  counts, for each stage, the values the stage changed, so `changed` must lie between the
+  largest of those counts and their sum. If it does not, the analysis fails with the reason
+  `scan_mismatch` and no number is given. A JSON integer, number or boolean has nothing to
+  normalize and stays what it is, so the JSON integer `123` and the text `"123"` are still two values.
+- **Exact or stopped.** When the memory the plan gave the field is not enough, the result is
+  `limited` with the reason `memory_budget` and holds a lower bound, never the count.
+- **Not needed.** The plan marks it `already_satisfied` when the scan kept its table
+  (`distinct_exact`), and does not apply it when no stage changed a value
+  (`stages_unchanged`): the count of the original values is then the analytical count. The
+  same rules as `exact_distinct` hold for long texts and for sensitive columns.
+- **When it runs.** It is never chosen by itself: ask for it with
+  `tabalyst.AnalysisRequest("analytical_distinct")` or run it with `--deep`.
+
+The Report uses it for the [uniqueness of an identifier](../report/read-report.md): it is the
+number of distinct IDs (`D`) when the scan has none, with the source
+`deep.analytical_distinct` and the domain `analytical`. If two exact counts of the distinct
+values that should agree differ, the uniqueness is `failed` with the reason `evidence_conflict`.
 
 ## Exact or estimated
 

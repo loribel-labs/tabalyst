@@ -45,6 +45,9 @@ class ExactDistinct(Analyzer):
     id: ClassVar[str] = "exact_distinct"
     outputs: ClassVar[tuple[str, ...]] = ("distinct_count", "uniqueness")
     available: ClassVar[bool] = True
+    # Names the set of the analysis in the plan, so two analyses of one field hold two sets.
+    state_name: ClassVar[str] = ""
+    cell_ns: ClassVar[int] = NS_PER_CELL["distinct_set"]
 
     def relevant(self, facts: FieldFacts) -> bool:
         return True
@@ -91,8 +94,11 @@ class ExactDistinct(Analyzer):
             ),
         )
         return costs(
-            NS_PER_CELL["distinct_set"],
-            [State(key=f"{EXACT_SET_STATE_PREFIX}{facts.where}", memory=size), result_state(self.id, facts)],
+            self.cell_ns,
+            [
+                State(key=f"{EXACT_SET_STATE_PREFIX}{self.state_name}{facts.where}", memory=size),
+                result_state(self.id, facts),
+            ],
         )
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:

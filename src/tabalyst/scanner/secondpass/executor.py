@@ -63,6 +63,7 @@ from tabalyst.scanner.secondpass.accumulators import (
     LengthAccumulator,
     ScanMismatch,
 )
+from tabalyst.scanner.secondpass.analytical import AnalyticalSet
 from tabalyst.scanner.secondpass.boundaries import place_edges
 from tabalyst.scanner.secondpass.characters import CharacterAccumulator
 from tabalyst.scanner.secondpass.copies import count_copies
@@ -142,6 +143,7 @@ Accumulator = (
     | BinAccumulator
     | LengthAccumulator
     | ExactSet
+    | AnalyticalSet
     | FrequencyAccumulator
     | PatternAccumulator
     | PeriodAccumulator
@@ -736,6 +738,9 @@ def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> N
     if candidate.analyzer == "exact_distinct":
         job.accumulator = ExactSet(pool)
         return
+    if candidate.analyzer == "analytical_distinct":
+        job.accumulator = AnalyticalSet(pool)
+        return
     if candidate.analyzer == "exact_frequencies":
         frequencies = field.values.frequencies
         if frequencies.status != "complete":
@@ -786,6 +791,19 @@ def _finish(job: _Job) -> _Finished:
     accumulator, field = job.accumulator, job.field
     if isinstance(accumulator, LengthAccumulator):
         return _Finished("complete", accumulator.result(field.strings.content))
+    if isinstance(accumulator, AnalyticalSet):
+        analytic = accumulator.analytical_result(field)
+        if isinstance(analytic, DistinctLimited):
+            return _Finished(
+                "limited",
+                analytic,
+                reason=MEMORY_BUDGET,
+                detail=(
+                    f"stopped after {analytic.values_read} values, "
+                    f"at least {analytic.lower_bound} distinct analytical"
+                ),
+            )
+        return _Finished("complete", analytic)
     if isinstance(accumulator, ExactSet):
         cardinality = field.values.cardinality
         bound = cardinality.lower_bound if cardinality.status == "limited" else None
@@ -1195,6 +1213,7 @@ def run_second_pass(
                 if job.candidate.analyzer
                 in (
                     "exact_distinct",
+                    "analytical_distinct",
                     "residual_values",
                     "duplicates_report",
                     "fingerprint_distinct",
@@ -1253,6 +1272,8 @@ def run_second_pass(
             accumulator = job.accumulator
             if isinstance(accumulator, LengthAccumulator):
                 route.lengths = accumulator
+            elif isinstance(accumulator, AnalyticalSet):
+                route.analytical = accumulator
             elif isinstance(accumulator, ExactSet):
                 route.distinct = accumulator
             elif isinstance(accumulator, FrequencyAccumulator):

@@ -49,6 +49,7 @@ the analyses that concern it:
 | `numeric_histogram` | The spread of the numbers, with exact median and quantiles when the integers have a small range (runs with `--deep`) |
 | `length_distribution` | The lengths of the text (runs with `--deep`) |
 | `exact_distinct` | The exact number of distinct values of an identifier-like field (runs with `--deep`) |
+| `analytical_distinct` | The exact number of distinct values of a field after `nfc`, `trim` and `collapse_whitespace`, when the scan stopped counting and one of those stages changed a value. Already satisfied when the scan kept its table, not applicable when no stage changed a value. Asked for, or run with `--deep`, never by itself |
 | `pattern_validation` | The structural patterns counted on every occurrence, not only on a sample of the distinct values (runs with `--deep`). Needs no reading when the scan holds every distinct value with its exact count |
 | `temporal_distribution` | The dates counted by day, month or year, as written (runs with `--deep`). Also for a column of datetimes |
 | `datetime_parts` | The dates by year-month, day of the week and hour, with the ambiguous dates read under each order, the invalid ones by reason and the dates after a bound you give. Asked for, or run with `--deep`, never by itself |

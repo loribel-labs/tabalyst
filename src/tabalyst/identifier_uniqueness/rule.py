@@ -10,6 +10,7 @@ It reads ``UniquenessFacts`` only: no file, no worker, exact integers, determini
 from tabalyst.identifier_uniqueness.models import (
     CardinalityEvidence,
     ConflictValue,
+    DistinctEvidence,
     DuplicateEvidence,
     DuplicateRowsEvidence,
     EvidenceConflict,
@@ -56,8 +57,13 @@ def _assess(facts: UniquenessFacts) -> IdentifierUniqueness:
     d = _usable_distinct(facts)
 
     # A broken invariant is reported whatever else is missing (contract 4).
+    counts = _exact_counts(facts)
+    if len({s.value for s in counts}) > 1:
+        return _failed(facts, "evidence_conflict", conflict=_cardinality_conflict(counts))
     if len({s.value for s in exact}) > 1:
         return _failed(facts, "evidence_conflict", conflict=_conflict(exact))
+    if _above_original(facts, d):
+        return _failed(facts, "inconsistent_measures")
     e = exact[0].value if exact else None
     floor = max((s.value for s in bounds if s.value is not None), default=None)
     if _inconsistent(n, p, m, d, e, floor):
@@ -159,6 +165,32 @@ def _usable_distinct(facts: UniquenessFacts) -> int | None:
     return distinct.value
 
 
+def _exact_counts(facts: UniquenessFacts) -> list[DistinctEvidence]:
+    """The exact counts of ``D`` that can stand for it: analytical, or original with no value changed."""
+    return [
+        count
+        for count in (facts.distinct, *facts.distinct_alternatives)
+        if count is not None
+        and count.value is not None
+        and count.accuracy == "exact"
+        and not (count.domain == "original" and count.stages_changed_values)
+    ]
+
+
+def _above_original(facts: UniquenessFacts, d: int | None) -> bool:
+    """Whether ``D`` exceeds an exact count of the original values: normalizing only merges values."""
+    if d is None:
+        return False
+    return any(
+        count.value is not None and count.value < d
+        for count in (facts.distinct, *facts.distinct_alternatives)
+        if count is not None
+        and count.accuracy == "exact"
+        and count.domain == "original"
+        and count.stages_changed_values
+    )
+
+
 def _inconsistent(
     n: int, p: int, m: int, d: int | None, e: int | None, floor: int | None
 ) -> bool:
@@ -189,6 +221,13 @@ def _selected(
     if bounds:
         return max(bounds, key=lambda source: source.value or 0)
     return facts.duplicates[0] if facts.duplicates else None
+
+
+def _cardinality_conflict(counts: list[DistinctEvidence]) -> EvidenceConflict:
+    return EvidenceConflict(
+        measure="id_cardinality",
+        values=tuple(ConflictValue(source=c.source, value=c.value) for c in counts),
+    )
 
 
 def _conflict(sources: list[DuplicateEvidence]) -> EvidenceConflict:

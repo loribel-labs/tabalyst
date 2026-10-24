@@ -96,7 +96,8 @@ the pair in the order of the dataset.
 
 `domain` is `analytical`: values are those of the scan after its normalization,
 so `" 1 "` and `"1"` are the same value. It is `original` for `exact_distinct`, which
-counts the values as they are in the file, as the cardinality of the scan does.
+counts the values as they are in the file, as the cardinality of the scan does; the
+analyzer `analytical_distinct` counts the analytical ones when the scan could not.
 `key` identifies what the result
 depends on (see below). `status` is one of:
 
@@ -105,7 +106,7 @@ depends on (see below). `status` is one of:
 | `complete` | The result is there and agrees with the scan |
 | `failed` | The analysis did not give a result; `reason` says why and `detail` gives counts or the type of an exception, never a value of your data |
 | `skipped` | The analysis was selected but did not run: it needs the source and the report was built without reading it (`source_not_read` for a report of a scan document, `source_unavailable` when the source is not beside it), or it has no executor (`not_available`) |
-| `limited` | The analysis met a limit and says what it holds. Only `exact_distinct` does (reason `memory_budget`): its result is a lower bound. The histograms never do, their size does not depend on the data |
+| `limited` | The analysis met a limit and says what it holds. Only the exact sets (`exact_distinct`, `analytical_distinct`) do (reason `memory_budget`): its result is a lower bound. The histograms never do, their size does not depend on the data |
 
 The reasons of a failure are `scan_mismatch` (the counts of the second pass are
 not those the scan reported, or a value cannot be read as the scan read it, such
@@ -193,6 +194,21 @@ format](format.md): `count`, `min_length`, `max_length`, `mean_length`,
 `values` is the number of values the count is taken over (content strings and
 JSON integers, numbers and booleans; empty, blank, marker and null cells are not
 values), `redundant` is `values - distinct` and `unique` is `distinct == values`.
+
+**`analytical_distinct`**: the exact number of distinct analytical values of a field.
+
+```json
+{"kind": "analytical_distinct", "accuracy": "exact",
+ "stages": ["nfc", "trim", "collapse_whitespace"],
+ "values": 1000000, "distinct": 996120, "redundant": 3880,
+ "unique": false, "changed": 5210}
+```
+
+The members `values`, `distinct`, `redundant` and `unique` read as in `distinct`, in the domain of
+the scan's cardinality after the enabled stages `stages`. `changed` is the number of values whose
+normalized text differs from the written one; it is checked against the counters of the stages in the
+scan (between the largest and their sum), and a count that disagrees fails with `scan_mismatch`. The
+analysis has the domain `analytical`. A stopped count is a `distinct_limited` result.
 
 **`distinct_limited`**: what a stopped count proves.
 
@@ -1064,6 +1080,8 @@ as the writer. It describes what a reader accepts.
 
 ### Version 0.2.0, revision 4
 
+The result `analytical_distinct` of the analyzer `analytical_distinct` (the exact number of distinct values
+after `nfc`, `trim` and `collapse_whitespace`, `complete`, or `limited` as a `distinct_limited` result).
 The result `duplicate_rows` of the analyzer `duplicate_rows_count` (the extra copies of whole rows of a
 CSV file, counted with the engine of Dedup in a reading of its own, `complete` or `limited`) and the
 settings member `deep.copies` (`memory_mb`, `disk_mb`, `max_rows`). The plan names the analysis

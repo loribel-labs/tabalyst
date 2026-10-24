@@ -127,8 +127,11 @@ support is not yet required. Record format changes in the relevant changelogs.
   fingerprints (20.34); `secondpass/forms.py` the masks and classes of a masked sensitive field without a value, with
   a floor (decision O61, 20.35); `secondpass/copies.py` and `planner/analyzers/copies.py` the analyzer
   `duplicate_rows_count`, the extra copies of whole rows of a CSV file counted with the Dedup engine in a reading of its
-  own (`Analyzer.rows`, `facts.rows_facts`; 20.40). `planner/facts.root_facts` gives the root of the records, the field `$`, to the
-  analyzers that set `roots`. `exact_distinct` is the one analysis that also reads a masked or hidden field.
+  own (`Analyzer.rows`, `facts.rows_facts`; 20.40); `secondpass/analytical.py` and `planner/analyzers/analytical.py` the analyzer
+  `analytical_distinct`, the exact count of the distinct values after NFC, trim and whitespace for a field the Scan stopped
+  counting (`AnalyticalSet`, a separate analyzer from `exact_distinct`, which counts the original values; 20.41).
+  `planner/facts.root_facts` gives the root of the records, the field `$`, to the
+  analyzers that set `roots`. `exact_distinct` and `analytical_distinct` are the analyses that also read a masked or hidden field.
 - `src/tabalyst/report_chain.py`: the second pass inside Report (who decides,
   plan, confirmation, run, the `analyses` member; design 20.11);
   `src/tabalyst/deep_store.py` writes the second-pass document beside its Scan

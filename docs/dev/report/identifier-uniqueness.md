@@ -3,7 +3,8 @@
 Status: contract written at lot 0 of the Unique ID plan (`tabalyst-gb`,
 `KANBAN/05-PROGRESS/2026-10-23-tabalyst-unique-id-plan.md`); implemented by lots 1 to 4; P0
 finalized at lot 5 (sections 12 and 13). Lot 6 (P1) adds the Deep count of the copies of rows
-(6.2, 6.6). The other P1 lots and P2 are not delivered.
+(6.2, 6.6); lot 7 the Deep count of the distinct analytical values (6.1, 6.7). The other P1 lots and
+P2 are not delivered.
 Requirements: `KANBAN/04-SRS/2026-10-23-unique-id/Tabalyst_Unique_ID_Cahier_des_Charges_v1.md`
 (UID-001 to UID-010 are P0, UID-011 to UID-015 are P1 and P2 and out of this contract).
 Decision record: ADR `2026-10-23-identifier-uniqueness-derived-in-report`. Tests:
@@ -177,7 +178,8 @@ or `null`; `null` is never replaced by `0`. No sentence is stored.
 
 - `scope.row_identity`: `full_decoded_csv_row_v1` for a CSV (the Scan's digest is equivalent, 6.5),
   `scan_record_v1` for any other source (the Scan's comparison of path, native type and raw value).
-- `evidence.id_cardinality.source`: `scan.values.cardinality` or `deep.exact_distinct`.
+- `evidence.id_cardinality.source`: `scan.values.cardinality`, `deep.exact_distinct` or
+  `deep.analytical_distinct` (lot 7).
   `accuracy`: `exact`, `estimated` or `limited`; `domain`: `analytical` or `original`.
 - `evidence.duplicate_rows.source`: `scan.records.duplicates`, `dedup.report` or
   `deep.duplicate_rows_count` (lot 6); `accuracy`:
@@ -204,10 +206,12 @@ change nothing. No ID value, example or path other than file names is stored.
 
 1. `values.cardinality` of the Scan, exact and complete in the analytical domain
    (`analytical_distinct`). An estimate or a `limited` envelope is never `D` (T18).
-2. `exact_distinct` of the second pass, only when `report_classification._distinct_count` would
+2. `analytical_distinct` of the second pass (lot 7, 6.7): exact, in the analytical domain, same Scan `base`,
+   status `complete`, the values and the stages of the Scan. It needs no condition on the stages.
+3. `exact_distinct` of the second pass, only when `report_classification._distinct_count` would
    accept it (same Scan `base`, status `complete`) **and** `_analytical_stages_unchanged` (T19, T20).
    Lot 1 reuses both and does not copy them.
-3. Otherwise `D` is unknown (`distinct_*`).
+4. Otherwise `D` is unknown (`distinct_*`).
 
 ### 6.2 `E`, the extra copies of whole rows
 
@@ -242,6 +246,12 @@ from the Scan and from the second pass are both exact in the same domain and dif
 rule applies. The three sources of `E` (Scan, Dedup report, Deep count) are compared in that order:
 the first exact one is the evidence shown, any other exact one that differs is a conflict, and
 among the lower bounds the highest is shown and used as the floor. A proof that is merely refused (7) is not a conflict.
+
+The same holds for `D` (lot 7): the exact counts of 6.1 are compared in the order of 6.1. The first is
+`UniquenessFacts.distinct`, the others `distinct_alternatives`; two usable exact counts that differ are
+`failed` with `evidence_conflict` and `evidence.conflict.measure` `id_cardinality`. An exact original count
+whose stages changed a value is no `D`, yet it bounds `D` from above (normalizing only merges values): an analytical `D` above
+it is `inconsistent_measures`. A stopped analytical count (a lower bound) is never `D`.
 
 ### 6.5 Identity of the rows, A1 (D7)
 
@@ -299,6 +309,21 @@ engine to the planner:
 `facts_from_scan` appends the result as the third `DuplicateEvidence` when the second-pass document stands on this
 Scan (same base). An exact result also needs the Scan's SHA-256 and `records == N`; otherwise it is ignored, as a foreign
 proof would be. `rule_version` stays 1: the P0 object was never published, so adding a source does not break a reader.
+
+### 6.7 The Deep count of the distinct analytical values (lot 7, UID-013)
+
+The Scan's `analytical_distinct` exists only while its table of values lives. When the table was released and a
+cleaning stage (`nfc`, `trim`, `collapse_whitespace`) changed a value, `exact_distinct` (original values) is no `D` (T19).
+The analyzer `analytical_distinct` (`scanner/planner/analyzers/analytical.py`, `scanner/secondpass/analytical.py`,
+design 20.41) counts the analytical values exactly, with the sets and the memory stop of `exact_distinct`:
+
+- a separate analyzer, so the original and the analytical counts are never mixed under one name; both can run on a field;
+- applicable when the Scan has no analytical count and a stage changed a value; `already_satisfied`
+  (`distinct_exact`) when the Scan has it; `not_applicable` (`stages_unchanged`) when `exact_distinct` is enough;
+- utility 40, so never chosen by itself: asked for or forced (the lot 8 decides the automatic criteria);
+- the result `AnalyticalDistinctCount` (`stages`, `values`, `distinct`, `redundant`, `unique`, `changed`), or `distinct_limited`
+  at the memory budget; `changed` is checked against the Scan's counters of the stages, and `values` against its count;
+- in the Report it is `D` with `domain: analytical`, `stages_changed_values: false`, source `deep.analytical_distinct`.
 
 ## 7. Dedup proof (UID-005)
 
@@ -384,7 +409,7 @@ can be built in parallel. Models are frozen Pydantic models; the rule reads no f
 ```python
 class DistinctEvidence:   # D
     value: int | None
-    source: Literal["scan.values.cardinality", "deep.exact_distinct"]
+    source: Literal["scan.values.cardinality", "deep.exact_distinct", "deep.analytical_distinct"]
     accuracy: Literal["exact", "estimated", "limited"]
     domain: Literal["analytical", "original"]
     stages_changed_values: bool   # an analytical stage altered a value (T19)
@@ -405,6 +430,7 @@ class UniquenessFacts:
     scope_complete: bool
     source_sha256: str
     distinct: DistinctEvidence | None
+    distinct_alternatives: tuple[DistinctEvidence, ...]   # the other exact counts of D (lot 7)
     duplicates: tuple[DuplicateEvidence, ...]   # every usable source, Scan first
     rejected: tuple[RejectedProof, ...]
 
@@ -451,6 +477,7 @@ evidence of 6 and the proof of 7.
 | 4 | T29 (HTML and JSON agree), cases A to E rendered, no double count, no automatic Error |
 | 5 | The whole suite, the reference measures of 12 and the conformance of 13 |
 | 6 | T33 (`test_t33_...`), `tests/dedup/test_count_only.py`, `tests/scan/test_duplicate_rows_count.py`, `tests/report/test_identifier_uniqueness_deep_copies.py` |
+| 7 | `tests/scan/test_analytical_distinct.py`, `tests/report/test_identifier_uniqueness_deep_distinct.py` (T19, T20 completed by the analytical count, conflict of two `D`) |
 | P1 | The planner criteria (lot 8); out of the P0 gate |
 
 ## 11. Open points kept for later lots
@@ -507,7 +534,9 @@ State after lot 5. Maintainer documentation, never published.
 Delivered at lot 6 (P1): the count-only mode of the Dedup engine and the Deep analyzer of the copies of
 rows (UID-012), asked for or forced, never chosen by itself.
 
-Not delivered and not described as available: the Deep analytical cardinality (UID-013), the planner
+Delivered at lot 7 (P1): the Deep analytical cardinality (UID-013, 6.7), asked for or forced, never chosen by itself.
+
+Not delivered and not described as available: the planner
 criteria and the cache (UID-011), near-uniqueness (UID-014), the composite keys, the discovery of
 candidates and the Smart or Explore recommendations (P2, UID-015).
 

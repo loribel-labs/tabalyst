@@ -220,6 +220,7 @@ ANALYSIS_LABELS = {
     "length_distribution": "Length distribution",
     "exact_frequencies": "Exact frequencies",
     "exact_distinct": "Exact distinct count",
+    "analytical_distinct": "Exact distinct count after normalization",
     "pattern_validation": "Pattern validation",
     "temporal_distribution": "Distribution over time",
     "measure_extraction": "Numbers of the values with a unit",
@@ -976,6 +977,7 @@ UNIQUENESS_PROOF_SOURCES = {
 UNIQUENESS_CARDINALITY_SOURCES = {
     "scan.values.cardinality": "the Scan",
     "deep.exact_distinct": "the second pass",
+    "deep.analytical_distinct": "the second pass, which counted the values after NFC, trim and whitespace",
 }
 UNIQUENESS_ORIGINS = {"colocated": "found beside the source", "explicit": "given with --dedup-report"}
 UNIQUENESS_REJECTIONS = {

@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 18
+COST_MODEL_VERSION = 19
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -201,6 +201,12 @@ NS_PER_CELL = {
     "bin": 1_800,
     "period": 800,
     "distinct_set": 400,
+    # The set of the analytical texts (Unique ID lot 7): the set of the original values plus
+    # the reading of the analytical text of each distinct raw string. Measured on 300,000
+    # identifiers of 10 characters, a fifth of them padded with blanks, in a run of its own
+    # (one process, the reading included): 2,513 ns a record against 1,067 for `distinct_set`,
+    # so about 1,450 ns more than the original set. Rounded up.
+    "analytical_distinct": 2_000,
     "matcher_base": 800,
     "matcher": 100,
     # The validation of the hierarchy of patterns (lot P6): a value is read once in
