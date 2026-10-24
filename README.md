@@ -106,6 +106,10 @@ Details: [Tabalyst Report](https://docs.tabalyst.com/report/),
 - Dataset dimensions, missing cells, duplicates, and quality observations.
 - A family and a type for each column (identifier, text, date, boolean...),
   with the evidence behind them, and the technical type with its error rates.
+- For an identifier column, whether the ID is unique across all rows and after
+  row deduplication: the repetitions that exact copies of whole rows explain
+  are told apart from those between distinct records, with the evidence (the
+  Scan or a [Dedup](https://docs.tabalyst.com/dedup/) report).
 - A summary table with one row per column: its type, a sentence about its
   values, the missing share, its Errors and Issues with a preview of each, and
   its details; above it, the Column quality and Signals cards.

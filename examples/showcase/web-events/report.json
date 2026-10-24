@@ -1,9 +1,9 @@
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 4,
+  "format_revision": 5,
   "engine": {
-    "version": "0.7.0",
+    "version": "0.7.1",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,17 +27,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-19T03:39:58.262487Z",
-    "duration_seconds": 0.033386,
+    "started_at": "2026-10-24T03:55:15.094336Z",
+    "duration_seconds": 0.038989,
     "timings": {
-      "reading": 0.005444,
-      "analysis": 0.007779,
-      "finalize": 0.014186,
-      "derived": 0.005539,
-      "other": 0.000438
+      "reading": 0.007635,
+      "analysis": 0.008498,
+      "finalize": 0.015863,
+      "derived": 0.006525,
+      "other": 0.000468
     },
     "workers": 1,
-    "peak_memory_bytes": 75325440
+    "peak_memory_bytes": 79912960
   },
   "source": {
     "format": "jsonl",
@@ -1405,7 +1405,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -2968,7 +2969,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -3885,7 +3887,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -5732,7 +5735,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -6544,7 +6548,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -7650,7 +7655,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -8865,7 +8871,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -10043,7 +10050,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -11308,7 +11316,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -12410,7 +12419,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -15524,10 +15534,10 @@
       "status": "complete",
       "base": {
         "format_revision": 4,
-        "engine_version": "0.7.0",
+        "engine_version": "0.7.1",
         "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
         "config_sha256": "39483c95af5cdebb6bf797a9a03bdb74ef94a425da646d67c69e9bc9f054130f",
-        "facts_sha256": "ac9e3993e6a6ae08add3d067be9e59e803ee2e73955f54497c3598ce1bb8004a"
+        "facts_sha256": "392756d2c51d29b92445db90d9610674b8de06da498d0d702f9daf7c82488f94"
       },
       "settings": {
         "bins": 100,
@@ -15636,13 +15646,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 17,
-        "plan_id": "db8360044ad4f42e22bb0fffb45700e62ac420e369fd2da810b7c4fa8099bd6e",
+        "plan_id": "a4bd608416decee50c598b600618f9f4c1d87a31e8e435a4433613d54778bdc4",
         "base": {
           "format_revision": 4,
-          "engine_version": "0.7.0",
+          "engine_version": "0.7.1",
           "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
           "config_sha256": "39483c95af5cdebb6bf797a9a03bdb74ef94a425da646d67c69e9bc9f054130f",
-          "facts_sha256": "ac9e3993e6a6ae08add3d067be9e59e803ee2e73955f54497c3598ce1bb8004a"
+          "facts_sha256": "392756d2c51d29b92445db90d9610674b8de06da498d0d702f9daf7c82488f94"
         },
         "objective": {
           "automatic": true,
@@ -18141,15 +18151,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-23T15:24:19.129507Z",
-        "duration_seconds": 0.000143,
+        "started_at": "2026-10-24T05:26:27.894624Z",
+        "duration_seconds": 0.000185,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000143
+          "other": 0.000185
         },
         "workers": 1,
-        "peak_memory_bytes": 79441920,
+        "peak_memory_bytes": 79601664,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -18171,7 +18181,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "1e67855e95900618b9ee458562aff2eb1a3657b6d76551c47b11f77ac08ce30f",
+          "key": "2041c6a326a6c7bb92fb7bf9f9fced9c201a2b67a9be570cf52647deaf36043e",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -19746,7 +19756,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "a4f796f32354c68a75e31fda1aeac702eae2a42bae6565d0da7a085b30f592d6",
+          "key": "eeacf15c7f4de8f58b05183cc8b17f9cdc6cfbc6d524677b916b6b66f7f6cb08",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -21321,7 +21331,7 @@
             "domain": 60
           },
           "domain": "analytical",
-          "key": "06fb9f183b8f881f55a8577a492dcfb5026809bbd04380b48bd6b46ccb019b96",
+          "key": "8dcc45dc08737ce7093ecf579aa8484d521a241cd4ea4baf79afe2e7938776e9",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -21622,7 +21632,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "a0d8f7577502b48e02ddf252bd1e966bb8a3e9c3354936252652eaad7231e17a",
+          "key": "0e5d81d2b5c931b4833e74b4f9205c0010fb474b17df889d8214a2c6c753339f",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -21899,7 +21909,7 @@
             "domain": 100
           },
           "domain": "analytical",
-          "key": "531708808dcf6d650baabcb9a8595b0969cd7d495166a976e89c0ec81450b663",
+          "key": "221d3aa880c192eeea72f776bfaea18660d3d9ef22d2031673f77879256cf2c6",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -21978,7 +21988,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "5321040c9fd24f55bc0f532d9f956fa97acd891c46cda2c01e7417441d8d6bf3",
+          "key": "432ec8d8fcdab79fd884613ba60e18fce2b395a28d7e97d9df0bfded4a98d63c",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22099,7 +22109,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "a6bdb8f514cfbf809ff91b1cd1407208270c6987bfb919de9dad2c1748d7dfce",
+          "key": "7a2cc7d65c5521ca521f4b2ccabca98f48fa3a640fd88c83e8522db17a5b4606",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22286,7 +22296,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "f694cc262b6b53fdc772d83d32a1dcc8476e3443d1b34ee3c1bcf9c517c3395b",
+          "key": "2213240312087afe5416888dbe21e98438d9b4e0c0d6510ac66c279d7d0ec8df",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22395,7 +22405,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "d34082c9da7450ffa07e2e4c5273be68e43e5a9fe0e8dcdfa7198c26dfca2642",
+          "key": "8218685e7a78ac1b448cffbcc03272681e1ce7ca39e5ee5410d01a28bd812416",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22559,7 +22569,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "0571fdb50537629dccda3a964c1b708e74ce2f76e59fe6cef3b9c4499f202e84",
+          "key": "636102080170ce5b7ced4f7c4d685e0facb045ea3ad1027a60d3e84f3077a7cf",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -22603,7 +22613,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "16e2b4ade51b71436517f4e6f1d56c4dbd1adced4e5c8db5c3c877ff00ce6a64",
+          "key": "0e38aee8bf09a6ae79a34af5e1584dc836aab13762a03323993be67fc1505613",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -22635,12 +22645,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-23T15:24:19.406183Z",
+    "generated_at": "2026-10-24T05:26:28.165790Z",
     "generator": {
       "name": "tabalyst",
-      "version": "0.7.0"
+      "version": "0.7.1"
     },
-    "processing_seconds": 0.3602,
+    "processing_seconds": 0.3634,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -22661,16 +22671,17 @@
         "start": 10,
         "middle": 10,
         "end": 10
-      }
+      },
+      "dedup_report": null
     },
     "base_scan": {
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
       "format_revision": 4,
-      "engine_version": "0.7.0",
+      "engine_version": "0.7.1",
       "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
       "config_sha256": "39483c95af5cdebb6bf797a9a03bdb74ef94a425da646d67c69e9bc9f054130f",
-      "facts_sha256": "ac9e3993e6a6ae08add3d067be9e59e803ee2e73955f54497c3598ce1bb8004a"
+      "facts_sha256": "392756d2c51d29b92445db90d9610674b8de06da498d0d702f9daf7c82488f94"
     },
     "datasets": [
       {
@@ -23218,7 +23229,55 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": {
+                "rule_version": 1,
+                "status": "limited",
+                "interpretation": "not_assessed",
+                "reason": "scope_partial",
+                "scope": {
+                  "dataset": "$[]",
+                  "population": "source_records",
+                  "source_records": 300,
+                  "distinct_records": 300,
+                  "eligible_id_values": 300,
+                  "missing_id_positions": 0,
+                  "id_value_domain": "analytical",
+                  "row_identity": "scan_record_v1",
+                  "complete": false
+                },
+                "raw": {
+                  "unique": null,
+                  "id_distinct": null,
+                  "id_redundant": null
+                },
+                "after_row_deduplication": {
+                  "unique": null,
+                  "id_distinct": null,
+                  "id_redundant": null
+                },
+                "explanation": {
+                  "duplicate_row_extra_copies": null,
+                  "id_repetitions_explained": null,
+                  "id_repetitions_residual": null
+                },
+                "evidence": {
+                  "id_cardinality": {
+                    "source": "scan.values.cardinality",
+                    "accuracy": "exact",
+                    "domain": "analytical"
+                  },
+                  "duplicate_rows": {
+                    "source": "scan.records.duplicates",
+                    "accuracy": "exact",
+                    "identity": "scan_record_v1",
+                    "report": null
+                  },
+                  "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
+                  "rejected": [],
+                  "conflict": null
+                }
+              }
             }
           },
           {
@@ -23397,7 +23456,8 @@
                       "DMY": 0,
                       "MDY": 0
                     },
-                    "resolution": null
+                    "resolution": null,
+                    "same_day": 0
                   }
                 },
                 "adaptive": null
@@ -23727,7 +23787,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -24113,7 +24174,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -24568,7 +24630,55 @@
               "flags": [
                 "issue",
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": {
+                "rule_version": 1,
+                "status": "limited",
+                "interpretation": "not_assessed",
+                "reason": "scope_partial",
+                "scope": {
+                  "dataset": "$[]",
+                  "population": "source_records",
+                  "source_records": 300,
+                  "distinct_records": 300,
+                  "eligible_id_values": 229,
+                  "missing_id_positions": 71,
+                  "id_value_domain": "analytical",
+                  "row_identity": "scan_record_v1",
+                  "complete": false
+                },
+                "raw": {
+                  "unique": null,
+                  "id_distinct": null,
+                  "id_redundant": null
+                },
+                "after_row_deduplication": {
+                  "unique": null,
+                  "id_distinct": null,
+                  "id_redundant": null
+                },
+                "explanation": {
+                  "duplicate_row_extra_copies": null,
+                  "id_repetitions_explained": null,
+                  "id_repetitions_residual": null
+                },
+                "evidence": {
+                  "id_cardinality": {
+                    "source": "scan.values.cardinality",
+                    "accuracy": "exact",
+                    "domain": "analytical"
+                  },
+                  "duplicate_rows": {
+                    "source": "scan.records.duplicates",
+                    "accuracy": "exact",
+                    "identity": "scan_record_v1",
+                    "report": null
+                  },
+                  "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
+                  "rejected": [],
+                  "conflict": null
+                }
+              }
             }
           },
           {
@@ -24942,7 +25052,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -25318,7 +25429,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -25702,7 +25814,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -26032,7 +26145,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -26430,7 +26544,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -26814,7 +26929,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -27254,7 +27370,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -27575,7 +27692,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -27935,7 +28053,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -28290,7 +28409,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           }
         ],

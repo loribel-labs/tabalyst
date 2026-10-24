@@ -34,7 +34,11 @@ Keep these exactly as written in every language:
 | Issue | point d'attention | A finding that is an ambiguity or a deviation worth a look, never proof of an error. The report has no Warning class |
 | signal | signal | A tile of the dataset overview that sums one kind of finding over the columns that have it |
 | classification | classification | The family and the type of a column (for example Identifier / ID, Text / Short), decided from the evidence of the scan and refined by the second pass |
-| Unique ID | identifiant unique | An identifier column with no missing value and an exact count proving that every value is distinct |
+| Unique ID | identifiant unique | An identifier column with no missing value and an exact count proving that every value is distinct across all the rows (raw uniqueness) |
+| identifier uniqueness | unicité de l'identifiant | The report's reading of an identifier column that separates the repetitions of the ID that exact copies of whole rows explain from those that remain between distinct records (`identifier_uniqueness` in the JSON profile) |
+| raw uniqueness | unicité brute | Every value of the ID is distinct across all the source records, copies of rows included; the Unique ID of the Scan |
+| unique after row deduplication | unique après déduplication des lignes | Every value of the ID is distinct among the distinct rows: the only repetitions come from exact copies of whole rows. It is not a Unique ID, which is the raw reading |
+| explained repetition | répétition expliquée | A repetition of an ID that an exact extra copy of a whole row accounts for; the unexplained ones are residual repetitions, between distinct records |
 | data sample | échantillon de données | The rows of the row sample shown in the report: the start, sampled rows and the end |
 | raw values | valeurs brutes | Source values before normalization |
 | missing value | valeur manquante | An empty value or a configured missing marker |

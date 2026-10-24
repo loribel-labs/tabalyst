@@ -21,6 +21,7 @@ from tabalyst.report_labels import (
 from tabalyst.report_overview import overview_sentence
 from tabalyst.report_preview import CheckLine, FindingPreview, check_lines
 from tabalyst.report_table import FindingDetailView, column_finding_views, page_findings
+from tabalyst.report_uniqueness import UniquenessView, page_type_name, uniqueness_view
 from tabalyst.report_views import ColumnView, QualityItem
 from tabalyst.result_model import ResultModel
 from tabalyst.summary_models import VariantDetails
@@ -32,6 +33,8 @@ class PageFinding(ResultModel):
     preview: FindingPreview
     detail: FindingDetailView | None
     variants: VariantDetails | None
+    # Set on the raw repetition finding: it points to the decomposition of the block.
+    uniqueness_link: bool = False
 
 
 class PageRemark(ResultModel):
@@ -78,6 +81,9 @@ class ColumnPage(ResultModel):
     formats: list[FormatRow]
     shape: ShapeBlock | None
     values_lead: str
+    uniqueness: UniquenessView | None = None
+    # Replaces the usual type name where the uniqueness was assessed.
+    type_name: str | None = None
     previous: Neighbour | None = None
     next: Neighbour | None = None
 
@@ -137,6 +143,7 @@ def column_page(
     told: set[str] = set()
     findings = []
     found = summary.findings
+    uniqueness = uniqueness_view(summary.identifier_uniqueness)
     for listing, cell in ((found.errors, errors), (found.issues, issues)):
         # The previews follow the order of the items of their list.
         for finding, preview in zip(listing.items, cell.previews):
@@ -149,6 +156,9 @@ def column_page(
                     preview=preview,
                     detail=details.get(rule) if rule else None,
                     variants=summary.finding_details.variants if rule == "variant_groups" else None,
+                    uniqueness_link=uniqueness is not None
+                    and uniqueness.case != "A"
+                    and preview.code == "identifier.repetition",
                 )
             )
     remarks = [
@@ -176,6 +186,8 @@ def column_page(
             summary.values.selection,
             column.distinct_count,
         ),
+        uniqueness=uniqueness,
+        type_name=page_type_name(uniqueness),
         previous=previous,
         next=following,
     )

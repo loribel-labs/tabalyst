@@ -4,7 +4,7 @@
   "format_revision": 1,
   "status": "complete",
   "engine": {
-    "version": "0.7.0",
+    "version": "0.7.1",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -103,14 +103,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-23T15:24:07.360958Z",
-    "duration_seconds": 6.942841,
+    "started_at": "2026-10-24T05:26:15.578095Z",
+    "duration_seconds": 7.326081,
     "timings": {
-      "reading": 6.831236,
-      "selection": 0.05072,
-      "other": 0.060885
+      "reading": 7.227187,
+      "selection": 0.047211,
+      "other": 0.051683
     },
-    "peak_memory_bytes": 171622400,
+    "peak_memory_bytes": 172859392,
     "records_read": 100000,
     "cells_read": 3400000,
     "source_verified": true,
@@ -124,13 +124,13 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "6554a95d8b4e5aa5caabd40d78503a596fb7b683efb39baf0e776579294ebff8",
+    "plan_id": "851075ac8158c0c2cdec621d843a1d96f5b86be2527b7f74414651fa684c6854",
     "base": {
       "format_revision": 4,
-      "engine_version": "0.7.0",
+      "engine_version": "0.7.1",
       "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
       "config_sha256": "5207449bf6401632967c0f84560f9589c4b97c422a4f6be9431fe90325ebeb5e",
-      "facts_sha256": "66f6d9ab9dcf49f81e2bce98bfb6700d2ff2dafaa66f7bfd6d19eb79346e2ccd"
+      "facts_sha256": "9a0e7494505c0cb00b18efaca952723afe28dc94cc0eac64013f1011f73eef7b"
     },
     "settings": {
       "max_enum_values": 100,
@@ -230,7 +230,7 @@
       "optional": 1302,
       "not_evaluable": 0,
       "dropped": 124,
-      "total_weight": 6732.02568,
+      "total_weight": 6732.160431,
       "families": [
         {
           "family": "low_cardinality",
@@ -262,7 +262,7 @@
           "mandatory": 0,
           "not_evaluable": 0,
           "dropped": 0,
-          "total_weight": 220.899311
+          "total_weight": 220.815816
         },
         {
           "family": "quality",
@@ -270,7 +270,7 @@
           "mandatory": 0,
           "not_evaluable": 0,
           "dropped": 124,
-          "total_weight": 1485.343433
+          "total_weight": 1485.561679
         },
         {
           "family": "relations",
@@ -9109,15 +9109,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 22,
-          "share": 0.000318356125,
+          "count": 23,
+          "share": 0.000328365028,
           "method": "date_order"
         },
         "weight": {
           "version": 1,
-          "value": 9.497087,
+          "value": 9.483643,
           "base": 6.0,
-          "rarity": 0.582848,
+          "rarity": 0.580607,
           "capped": false
         },
         "obligation": "optional",
@@ -9192,14 +9192,14 @@
         "frequency": {
           "accuracy": "exact",
           "count": 5,
-          "share": 0.000425025502,
+          "share": 0.00041963911,
           "method": "date_order"
         },
         "weight": {
           "version": 1,
-          "value": 9.371585,
+          "value": 9.377124,
           "base": 6.0,
-          "rarity": 0.561931,
+          "rarity": 0.562854,
           "capped": false
         },
         "obligation": "optional",
@@ -9233,14 +9233,14 @@
         "frequency": {
           "accuracy": "exact",
           "count": 5,
-          "share": 0.000506996552,
+          "share": 0.000500500501,
           "method": "date_order"
         },
         "weight": {
           "version": 1,
-          "value": 9.294995,
+          "value": 9.300595,
           "base": 6.0,
-          "rarity": 0.549166,
+          "rarity": 0.550099,
           "capped": false
         },
         "obligation": "optional",
@@ -14542,6 +14542,211 @@
         ]
       },
       {
+        "id": "quality:rows:column_29:observation:o20",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_29"
+        ],
+        "displays": [
+          "date_creation"
+        ],
+        "predicate": {
+          "kind": "observation",
+          "version": 1,
+          "source": "scan",
+          "ref": "observations/items/o20",
+          "params": {
+            "rule": "ambiguous_dates"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 9757,
+          "share": 0.09757,
+          "method": "ambiguous_dates"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.010684,
+          "base": 6.0,
+          "rarity": 0.168447,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "origin": "o20",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
+        "id": "quality:rows:column_23:observation:o16",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_23"
+        ],
+        "displays": [
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "observation",
+          "version": 1,
+          "source": "scan",
+          "ref": "observations/items/o16",
+          "params": {
+            "rule": "ambiguous_dates"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 8210,
+          "share": 0.098215140205,
+          "method": "ambiguous_dates"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.007822,
+          "base": 6.0,
+          "rarity": 0.16797,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "origin": "o16",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
+        "id": "quality:rows:column_22:observation:o15",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_22"
+        ],
+        "displays": [
+          "date_debut"
+        ],
+        "predicate": {
+          "kind": "observation",
+          "version": 1,
+          "source": "scan",
+          "ref": "observations/items/o15",
+          "params": {
+            "rule": "ambiguous_dates"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 9875,
+          "share": 0.09875,
+          "method": "ambiguous_dates"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.005463,
+          "base": 6.0,
+          "rarity": 0.167577,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "origin": "o15",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
+        "id": "quality:rows:column_5:observation:o4",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_5"
+        ],
+        "displays": [
+          "date_naissance"
+        ],
+        "predicate": {
+          "kind": "observation",
+          "version": 1,
+          "source": "scan",
+          "ref": "observations/items/o4",
+          "params": {
+            "rule": "ambiguous_dates"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 9988,
+          "share": 0.09988599316,
+          "method": "ambiguous_dates"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.000495,
+          "base": 6.0,
+          "rarity": 0.166749,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "origin": "o4",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
+        "id": "quality:rows:column_30:observation:o21",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_30"
+        ],
+        "displays": [
+          "date_modification"
+        ],
+        "predicate": {
+          "kind": "observation",
+          "version": 1,
+          "source": "scan",
+          "ref": "observations/items/o21",
+          "params": {
+            "rule": "ambiguous_dates"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 10008,
+          "share": 0.10008,
+          "method": "ambiguous_dates"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.999653,
+          "base": 6.0,
+          "rarity": 0.166609,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "origin": "o21",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:10",
         "family": "relations",
         "dataset": "rows",
@@ -14587,6 +14792,47 @@
         ]
       },
       {
+        "id": "quality:rows:column_31:observation:o22",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "observation",
+          "version": 1,
+          "source": "scan",
+          "ref": "observations/items/o22",
+          "params": {
+            "rule": "ambiguous_dates"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1456,
+          "share": 0.102247191011,
+          "method": "ambiguous_dates"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.990349,
+          "base": 6.0,
+          "rarity": 0.165058,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "origin": "o22",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
         "id": "relations:rows:column_7+column_9:relation_exception:category_crosstab:rows:column_7>column_9:prefix:11",
         "family": "relations",
         "dataset": "rows",
@@ -14629,252 +14875,6 @@
         "needs": [
           "scan",
           "second_pass"
-        ]
-      },
-      {
-        "id": "quality:rows:column_29:observation:o20",
-        "family": "quality",
-        "dataset": "rows",
-        "fields": [
-          "column_29"
-        ],
-        "displays": [
-          "date_creation"
-        ],
-        "predicate": {
-          "kind": "observation",
-          "version": 1,
-          "source": "scan",
-          "ref": "observations/items/o20",
-          "params": {
-            "rule": "ambiguous_dates"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 10638,
-          "share": 0.10638,
-          "method": "ambiguous_dates"
-        },
-        "weight": {
-          "version": 1,
-          "value": 6.97314,
-          "base": 6.0,
-          "rarity": 0.16219,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "origin": "o20",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
-        "id": "quality:rows:column_23:observation:o16",
-        "family": "quality",
-        "dataset": "rows",
-        "fields": [
-          "column_23"
-        ],
-        "displays": [
-          "date_fin"
-        ],
-        "predicate": {
-          "kind": "observation",
-          "version": 1,
-          "source": "scan",
-          "ref": "observations/items/o16",
-          "params": {
-            "rule": "ambiguous_dates"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 8956,
-          "share": 0.107139439181,
-          "method": "ambiguous_dates"
-        },
-        "weight": {
-          "version": 1,
-          "value": 6.970051,
-          "base": 6.0,
-          "rarity": 0.161675,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "origin": "o16",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
-        "id": "quality:rows:column_22:observation:o15",
-        "family": "quality",
-        "dataset": "rows",
-        "fields": [
-          "column_22"
-        ],
-        "displays": [
-          "date_debut"
-        ],
-        "predicate": {
-          "kind": "observation",
-          "version": 1,
-          "source": "scan",
-          "ref": "observations/items/o15",
-          "params": {
-            "rule": "ambiguous_dates"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 10764,
-          "share": 0.10764,
-          "method": "ambiguous_dates"
-        },
-        "weight": {
-          "version": 1,
-          "value": 6.968026,
-          "base": 6.0,
-          "rarity": 0.161338,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "origin": "o15",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
-        "id": "quality:rows:column_5:observation:o4",
-        "family": "quality",
-        "dataset": "rows",
-        "fields": [
-          "column_5"
-        ],
-        "displays": [
-          "date_naissance"
-        ],
-        "predicate": {
-          "kind": "observation",
-          "version": 1,
-          "source": "scan",
-          "ref": "observations/items/o4",
-          "params": {
-            "rule": "ambiguous_dates"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 10857,
-          "share": 0.108576514591,
-          "method": "ambiguous_dates"
-        },
-        "weight": {
-          "version": 1,
-          "value": 6.964264,
-          "base": 6.0,
-          "rarity": 0.160711,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "origin": "o4",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
-        "id": "quality:rows:column_30:observation:o21",
-        "family": "quality",
-        "dataset": "rows",
-        "fields": [
-          "column_30"
-        ],
-        "displays": [
-          "date_modification"
-        ],
-        "predicate": {
-          "kind": "observation",
-          "version": 1,
-          "source": "scan",
-          "ref": "observations/items/o21",
-          "params": {
-            "rule": "ambiguous_dates"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 10944,
-          "share": 0.10944,
-          "method": "ambiguous_dates"
-        },
-        "weight": {
-          "version": 1,
-          "value": 6.960824,
-          "base": 6.0,
-          "rarity": 0.160137,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "origin": "o21",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
-        "id": "quality:rows:column_31:observation:o22",
-        "family": "quality",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_reclamation"
-        ],
-        "predicate": {
-          "kind": "observation",
-          "version": 1,
-          "source": "scan",
-          "ref": "observations/items/o22",
-          "params": {
-            "rule": "ambiguous_dates"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 1570,
-          "share": 0.110252808989,
-          "method": "ambiguous_dates"
-        },
-        "weight": {
-          "version": 1,
-          "value": 6.95761,
-          "base": 6.0,
-          "rarity": 0.159602,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "origin": "o22",
-        "needs": [
-          "scan"
         ]
       },
       {
@@ -38002,15 +38002,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 33,
-          "share": 0.00033,
+          "count": 35,
+          "share": 0.00035,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 3.160495,
+          "value": 3.151977,
           "base": 2.0,
-          "rarity": 0.580248,
+          "rarity": 0.575989,
           "capped": false
         },
         "obligation": "optional",
@@ -38629,15 +38629,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 102,
-          "share": 0.00102,
+          "count": 103,
+          "share": 0.00103,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.997133,
+          "value": 2.995721,
           "base": 2.0,
-          "rarity": 0.498567,
+          "rarity": 0.49786,
           "capped": false
         },
         "obligation": "optional",
@@ -38985,47 +38985,6 @@
         ]
       },
       {
-        "id": "date:rows:column_31:date_year:date:1",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_reclamation"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/1",
-          "params": {
-            "kind": "date",
-            "index": 1
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 121,
-          "share": 0.00121,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.972405,
-          "base": 2.0,
-          "rarity": 0.486202,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_3:value_equals:168",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -39107,6 +39066,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_31:date_year:date:1",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/1",
+          "params": {
+            "kind": "date",
+            "index": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 123,
+          "share": 0.00123,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.970032,
+          "base": 2.0,
+          "rarity": 0.485016,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -41798,47 +41798,6 @@
         ]
       },
       {
-        "id": "date:rows:column_23:date_year:date:2",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_23"
-        ],
-        "displays": [
-          "date_fin"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/2",
-          "params": {
-            "kind": "date",
-            "index": 2
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 272,
-          "share": 0.00272,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.855144,
-          "base": 2.0,
-          "rarity": 0.427572,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_13:value_equals:61",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -42007,6 +41966,47 @@
         ]
       },
       {
+        "id": "date:rows:column_23:date_year:date:2",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_23"
+        ],
+        "displays": [
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/2",
+          "params": {
+            "kind": "date",
+            "index": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 274,
+          "share": 0.00274,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.854083,
+          "base": 2.0,
+          "rarity": 0.427042,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
         "id": "low_cardinality:rows:column_3:value_equals:142",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -42070,15 +42070,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 276,
-          "share": 0.00276,
+          "count": 277,
+          "share": 0.00277,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.85303,
+          "value": 2.852507,
           "base": 2.0,
-          "rarity": 0.426515,
+          "rarity": 0.426253,
           "capped": false
         },
         "obligation": "optional",
@@ -44610,47 +44610,6 @@
         ]
       },
       {
-        "id": "date:rows:column_31:date_year:date:3",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_reclamation"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/3",
-          "params": {
-            "kind": "date",
-            "index": 3
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 414,
-          "share": 0.00414,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.794333,
-          "base": 2.0,
-          "rarity": 0.397167,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_4:value_equals:81",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -44690,6 +44649,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_31:date_year:date:3",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/3",
+          "params": {
+            "kind": "date",
+            "index": 3
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 415,
+          "share": 0.00415,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.793984,
+          "base": 2.0,
+          "rarity": 0.396992,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -46121,47 +46121,6 @@
         ]
       },
       {
-        "id": "date:rows:column_23:date_year:date:3",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_23"
-        ],
-        "displays": [
-          "date_fin"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/3",
-          "params": {
-            "kind": "date",
-            "index": 3
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 482,
-          "share": 0.00482,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.772318,
-          "base": 2.0,
-          "rarity": 0.386159,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_4:value_equals:74",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -46411,6 +46370,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_23:date_year:date:3",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_23"
+        ],
+        "displays": [
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/3",
+          "params": {
+            "kind": "date",
+            "index": 3
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 491,
+          "share": 0.00491,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.76964,
+          "base": 2.0,
+          "rarity": 0.38482,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -49732,47 +49732,6 @@
         ]
       },
       {
-        "id": "date:rows:column_31:date_year:date:4",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_reclamation"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/4",
-          "params": {
-            "kind": "date",
-            "index": 4
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 679,
-          "share": 0.00679,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.72271,
-          "base": 2.0,
-          "rarity": 0.361355,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_10:value_equals:55",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -49854,6 +49813,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_31:date_year:date:4",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/4",
+          "params": {
+            "kind": "date",
+            "index": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 685,
+          "share": 0.00685,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.721436,
+          "base": 2.0,
+          "rarity": 0.360718,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -50025,47 +50025,6 @@
         ]
       },
       {
-        "id": "date:rows:column_23:date_year:date:4",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_23"
-        ],
-        "displays": [
-          "date_fin"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/4",
-          "params": {
-            "kind": "date",
-            "index": 4
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 695,
-          "share": 0.00695,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.719338,
-          "base": 2.0,
-          "rarity": 0.359669,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_4:value_equals:54",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -50105,6 +50064,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_23:date_year:date:4",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_23"
+        ],
+        "displays": [
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/4",
+          "params": {
+            "kind": "date",
+            "index": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 703,
+          "share": 0.00703,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.717682,
+          "base": 2.0,
+          "rarity": 0.358841,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -50192,47 +50192,6 @@
         ]
       },
       {
-        "id": "date:rows:column_30:date_year:date:1",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_30"
-        ],
-        "displays": [
-          "date_modification"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_30/temporal/kinds/0/years/1",
-          "params": {
-            "kind": "date",
-            "index": 1
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 711,
-          "share": 0.00711,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.716043,
-          "base": 2.0,
-          "rarity": 0.358022,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_10:value_equals:54",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -50272,6 +50231,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_30:date_year:date:1",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_30"
+        ],
+        "displays": [
+          "date_modification"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_30/temporal/kinds/0/years/1",
+          "params": {
+            "kind": "date",
+            "index": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 718,
+          "share": 0.00718,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.714625,
+          "base": 2.0,
+          "rarity": 0.357313,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -51934,15 +51934,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 808,
-          "share": 0.00808,
+          "count": 809,
+          "share": 0.00809,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.69753,
+          "value": 2.69735,
           "base": 2.0,
-          "rarity": 0.348765,
+          "rarity": 0.348675,
           "capped": false
         },
         "obligation": "optional",
@@ -53676,47 +53676,6 @@
         ]
       },
       {
-        "id": "date:rows:column_23:date_year:date:5",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_23"
-        ],
-        "displays": [
-          "date_fin"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/5",
-          "params": {
-            "kind": "date",
-            "index": 5
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 952,
-          "share": 0.00952,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.673788,
-          "base": 2.0,
-          "rarity": 0.336894,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_3:value_equals:23",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -53840,6 +53799,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_23:date_year:date:5",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_23"
+        ],
+        "displays": [
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/5",
+          "params": {
+            "kind": "date",
+            "index": 5
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 961,
+          "share": 0.00961,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.672426,
+          "base": 2.0,
+          "rarity": 0.336213,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -54893,47 +54893,6 @@
         ]
       },
       {
-        "id": "date:rows:column_31:date_year:date:6",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_reclamation"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/6",
-          "params": {
-            "kind": "date",
-            "index": 6
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 1093,
-          "share": 0.01093,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.653793,
-          "base": 2.0,
-          "rarity": 0.326897,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_4:value_equals:30",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -55015,6 +54974,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_31:date_year:date:6",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/6",
+          "params": {
+            "kind": "date",
+            "index": 6
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1104,
+          "share": 0.01104,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.652344,
+          "base": 2.0,
+          "rarity": 0.326172,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -55816,47 +55816,6 @@
         ]
       },
       {
-        "id": "date:rows:column_23:date_year:date:6",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_23"
-        ],
-        "displays": [
-          "date_fin"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/6",
-          "params": {
-            "kind": "date",
-            "index": 6
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 1263,
-          "share": 0.01263,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.632866,
-          "base": 2.0,
-          "rarity": 0.316433,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_10:value_equals:27",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -55938,6 +55897,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_23:date_year:date:6",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_23"
+        ],
+        "displays": [
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/6",
+          "params": {
+            "kind": "date",
+            "index": 6
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1279,
+          "share": 0.01279,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.631043,
+          "base": 2.0,
+          "rarity": 0.315522,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -56151,47 +56151,6 @@
         ]
       },
       {
-        "id": "date:rows:column_31:date_year:date:7",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_reclamation"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/7",
-          "params": {
-            "kind": "date",
-            "index": 7
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 1350,
-          "share": 0.0135,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.623222,
-          "base": 2.0,
-          "rarity": 0.311611,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_10:value_equals:26",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -56273,6 +56232,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_31:date_year:date:7",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/7",
+          "params": {
+            "kind": "date",
+            "index": 7
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1359,
+          "share": 0.01359,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.62226,
+          "base": 2.0,
+          "rarity": 0.31113,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -56843,15 +56843,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 1590,
-          "share": 0.0159,
+          "count": 1602,
+          "share": 0.01602,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.599534,
+          "value": 2.598446,
           "base": 2.0,
-          "rarity": 0.299767,
+          "rarity": 0.299223,
           "capped": false
         },
         "obligation": "optional",
@@ -57262,15 +57262,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 1744,
-          "share": 0.01744,
+          "count": 1759,
+          "share": 0.01759,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.586151,
+          "value": 2.584911,
           "base": 2.0,
-          "rarity": 0.293076,
+          "rarity": 0.292456,
           "capped": false
         },
         "obligation": "optional",
@@ -57534,47 +57534,6 @@
         ]
       },
       {
-        "id": "date:rows:column_31:date_year:date:8",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_reclamation"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/8",
-          "params": {
-            "kind": "date",
-            "index": 8
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 1869,
-          "share": 0.01869,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.57613,
-          "base": 2.0,
-          "rarity": 0.288065,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_13:value_equals:14",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -57614,6 +57573,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_31:date_year:date:8",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/8",
+          "params": {
+            "kind": "date",
+            "index": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1893,
+          "share": 0.01893,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.574283,
+          "base": 2.0,
+          "rarity": 0.287142,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -58247,47 +58247,6 @@
         ]
       },
       {
-        "id": "date:rows:column_22:date_year:date:0",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_22"
-        ],
-        "displays": [
-          "date_debut"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_22/temporal/kinds/0/years/0",
-          "params": {
-            "kind": "date",
-            "index": 0
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2214,
-          "share": 0.02214,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.551607,
-          "base": 2.0,
-          "rarity": 0.275804,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_4:value_equals:4",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -58327,6 +58286,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_22:date_year:date:0",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_22"
+        ],
+        "displays": [
+          "date_debut"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_22/temporal/kinds/0/years/0",
+          "params": {
+            "kind": "date",
+            "index": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2237,
+          "share": 0.02237,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.550111,
+          "base": 2.0,
+          "rarity": 0.275056,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -58456,47 +58456,6 @@
         ]
       },
       {
-        "id": "date:rows:column_23:date_year:date:8",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_23"
-        ],
-        "displays": [
-          "date_fin"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/8",
-          "params": {
-            "kind": "date",
-            "index": 8
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2319,
-          "share": 0.02319,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.5449,
-          "base": 2.0,
-          "rarity": 0.27245,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_13:value_equals:11",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -58536,6 +58495,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_23:date_year:date:8",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_23"
+        ],
+        "displays": [
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/8",
+          "params": {
+            "kind": "date",
+            "index": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2344,
+          "share": 0.02344,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.543347,
+          "base": 2.0,
+          "rarity": 0.271674,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -58791,47 +58791,6 @@
         ]
       },
       {
-        "id": "date:rows:column_29:date_year:date:0",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_29"
-        ],
-        "displays": [
-          "date_creation"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_29/temporal/kinds/0/years/0",
-          "params": {
-            "kind": "date",
-            "index": 0
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2520,
-          "share": 0.0252,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.532866,
-          "base": 2.0,
-          "rarity": 0.266433,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_10:value_equals:3",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -58871,6 +58830,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_29:date_year:date:0",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_29"
+        ],
+        "displays": [
+          "date_creation"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_29/temporal/kinds/0/years/0",
+          "params": {
+            "kind": "date",
+            "index": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2547,
+          "share": 0.02547,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.531324,
+          "base": 2.0,
+          "rarity": 0.265662,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -58916,47 +58916,6 @@
         ]
       },
       {
-        "id": "date:rows:column_30:date_year:date:3",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_30"
-        ],
-        "displays": [
-          "date_modification"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_30/temporal/kinds/0/years/3",
-          "params": {
-            "kind": "date",
-            "index": 3
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2598,
-          "share": 0.02598,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.528454,
-          "base": 2.0,
-          "rarity": 0.264227,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_13:value_equals:9",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -58999,6 +58958,47 @@
         ]
       },
       {
+        "id": "date:rows:column_30:date_year:date:3",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_30"
+        ],
+        "displays": [
+          "date_modification"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_30/temporal/kinds/0/years/3",
+          "params": {
+            "kind": "date",
+            "index": 3
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2622,
+          "share": 0.02622,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.527122,
+          "base": 2.0,
+          "rarity": 0.263561,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
         "id": "low_cardinality:rows:column_10:value_equals:2",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -59038,47 +59038,6 @@
         "needs": [
           "scan",
           "second_pass"
-        ]
-      },
-      {
-        "id": "date:rows:column_31:date_year:date:9",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_reclamation"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/9",
-          "params": {
-            "kind": "date",
-            "index": 9
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2656,
-          "share": 0.02656,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.525257,
-          "base": 2.0,
-          "rarity": 0.262629,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
         ]
       },
       {
@@ -59163,6 +59122,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_31:date_year:date:9",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/9",
+          "params": {
+            "kind": "date",
+            "index": 9
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2681,
+          "share": 0.02681,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.523901,
+          "base": 2.0,
+          "rarity": 0.261951,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -59418,47 +59418,6 @@
         ]
       },
       {
-        "id": "date:rows:column_31:date_year:date:10",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_reclamation"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/10",
-          "params": {
-            "kind": "date",
-            "index": 10
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 3399,
-          "share": 0.03399,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.48955,
-          "base": 2.0,
-          "rarity": 0.244775,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "numeric:rows:column_12:numeric_bin:6",
         "family": "numeric",
         "dataset": "rows",
@@ -59540,6 +59499,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_31:date_year:date:10",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_31/temporal/kinds/0/years/10",
+          "params": {
+            "kind": "date",
+            "index": 10
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3433,
+          "share": 0.03433,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.488109,
+          "base": 2.0,
+          "rarity": 0.244054,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -59669,47 +59669,6 @@
         ]
       },
       {
-        "id": "date:rows:column_23:date_year:date:9",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_23"
-        ],
-        "displays": [
-          "date_fin"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/9",
-          "params": {
-            "kind": "date",
-            "index": 9
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 3504,
-          "share": 0.03504,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.485145,
-          "base": 2.0,
-          "rarity": 0.242573,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "numeric:rows:column_12:numeric_bin:3",
         "family": "numeric",
         "dataset": "rows",
@@ -59833,6 +59792,47 @@
         "needs": [
           "scan",
           "second_pass"
+        ]
+      },
+      {
+        "id": "date:rows:column_23:date_year:date:9",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_23"
+        ],
+        "displays": [
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_23/temporal/kinds/0/years/9",
+          "params": {
+            "kind": "date",
+            "index": 9
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 3537,
+          "share": 0.03537,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.483788,
+          "base": 2.0,
+          "rarity": 0.241894,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
         ]
       },
       {
@@ -60025,15 +60025,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 3793,
-          "share": 0.03793,
+          "count": 3841,
+          "share": 0.03841,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.473672,
+          "value": 2.471852,
           "base": 2.0,
-          "rarity": 0.236836,
+          "rarity": 0.235926,
           "capped": false
         },
         "obligation": "optional",
@@ -60108,15 +60108,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 5283,
-          "share": 0.05283,
+          "count": 5335,
+          "share": 0.05335,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.425706,
+          "value": 2.424289,
           "base": 2.0,
-          "rarity": 0.212853,
+          "rarity": 0.212144,
           "capped": false
         },
         "obligation": "optional",
@@ -60170,47 +60170,6 @@
         ]
       },
       {
-        "id": "date:rows:column_30:date_year:date:6",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_30"
-        ],
-        "displays": [
-          "date_modification"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_30/temporal/kinds/0/years/6",
-          "params": {
-            "kind": "date",
-            "index": 6
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 7138,
-          "share": 0.07138,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.382141,
-          "base": 2.0,
-          "rarity": 0.191071,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
         "id": "low_cardinality:rows:column_13:value_equals:1",
         "family": "low_cardinality",
         "dataset": "rows",
@@ -60253,6 +60212,47 @@
         ]
       },
       {
+        "id": "date:rows:column_30:date_year:date:6",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_30"
+        ],
+        "displays": [
+          "date_modification"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_30/temporal/kinds/0/years/6",
+          "params": {
+            "kind": "date",
+            "index": 6
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 7221,
+          "share": 0.07221,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.380468,
+          "base": 2.0,
+          "rarity": 0.190234,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
         "id": "date:rows:column_29:date_year:date:1",
         "family": "date",
         "dataset": "rows",
@@ -60274,56 +60274,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 7583,
-          "share": 0.07583,
+          "count": 7670,
+          "share": 0.0767,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.373386,
+          "value": 2.371735,
           "base": 2.0,
-          "rarity": 0.186693,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "exact",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
-        "id": "date:rows:column_22:date_year:date:1",
-        "family": "date",
-        "dataset": "rows",
-        "fields": [
-          "column_22"
-        ],
-        "displays": [
-          "date_debut"
-        ],
-        "predicate": {
-          "kind": "date_year",
-          "version": 1,
-          "source": "scan",
-          "ref": "datasets/rows/fields/column_22/temporal/kinds/0/years/1",
-          "params": {
-            "kind": "date",
-            "index": 1
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 7635,
-          "share": 0.07635,
-          "method": "temporal_years"
-        },
-        "weight": {
-          "version": 1,
-          "value": 2.372397,
-          "base": 2.0,
-          "rarity": 0.186198,
+          "rarity": 0.185867,
           "capped": false
         },
         "obligation": "optional",
@@ -60377,6 +60336,47 @@
         ]
       },
       {
+        "id": "date:rows:column_22:date_year:date:1",
+        "family": "date",
+        "dataset": "rows",
+        "fields": [
+          "column_22"
+        ],
+        "displays": [
+          "date_debut"
+        ],
+        "predicate": {
+          "kind": "date_year",
+          "version": 1,
+          "source": "scan",
+          "ref": "datasets/rows/fields/column_22/temporal/kinds/0/years/1",
+          "params": {
+            "kind": "date",
+            "index": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 7720,
+          "share": 0.0772,
+          "method": "temporal_years"
+        },
+        "weight": {
+          "version": 1,
+          "value": 2.370794,
+          "base": 2.0,
+          "rarity": 0.185397,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "exact",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
         "id": "date:rows:column_22:date_year:date:2",
         "family": "date",
         "dataset": "rows",
@@ -60398,15 +60398,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 7877,
-          "share": 0.07877,
+          "count": 7950,
+          "share": 0.0795,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.36788,
+          "value": 2.366544,
           "base": 2.0,
-          "rarity": 0.18394,
+          "rarity": 0.183272,
           "capped": false
         },
         "obligation": "optional",
@@ -60439,15 +60439,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 7894,
-          "share": 0.07894,
+          "count": 7969,
+          "share": 0.07969,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.367568,
+          "value": 2.366199,
           "base": 2.0,
-          "rarity": 0.183784,
+          "rarity": 0.183099,
           "capped": false
         },
         "obligation": "optional",
@@ -60480,15 +60480,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 8182,
-          "share": 0.08182,
+          "count": 8269,
+          "share": 0.08269,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.36238,
+          "value": 2.360849,
           "base": 2.0,
-          "rarity": 0.18119,
+          "rarity": 0.180425,
           "capped": false
         },
         "obligation": "optional",
@@ -60521,15 +60521,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 8227,
-          "share": 0.08227,
+          "count": 8307,
+          "share": 0.08307,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.361586,
+          "value": 2.360185,
           "base": 2.0,
-          "rarity": 0.180793,
+          "rarity": 0.180093,
           "capped": false
         },
         "obligation": "optional",
@@ -60562,15 +60562,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 8276,
-          "share": 0.08276,
+          "count": 8339,
+          "share": 0.08339,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.360727,
+          "value": 2.359629,
           "base": 2.0,
-          "rarity": 0.180363,
+          "rarity": 0.179814,
           "capped": false
         },
         "obligation": "optional",
@@ -60603,15 +60603,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 8308,
-          "share": 0.08308,
+          "count": 8381,
+          "share": 0.08381,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.360168,
+          "value": 2.358901,
           "base": 2.0,
-          "rarity": 0.180084,
+          "rarity": 0.179451,
           "capped": false
         },
         "obligation": "optional",
@@ -60644,15 +60644,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 8326,
-          "share": 0.08326,
+          "count": 8414,
+          "share": 0.08414,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.359855,
+          "value": 2.358332,
           "base": 2.0,
-          "rarity": 0.179927,
+          "rarity": 0.179166,
           "capped": false
         },
         "obligation": "optional",
@@ -60685,15 +60685,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 8388,
-          "share": 0.08388,
+          "count": 8476,
+          "share": 0.08476,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.358781,
+          "value": 2.35727,
           "base": 2.0,
-          "rarity": 0.17939,
+          "rarity": 0.178635,
           "capped": false
         },
         "obligation": "optional",
@@ -60726,15 +60726,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 8433,
-          "share": 0.08433,
+          "count": 8511,
+          "share": 0.08511,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.358006,
+          "value": 2.356673,
           "base": 2.0,
-          "rarity": 0.179003,
+          "rarity": 0.178337,
           "capped": false
         },
         "obligation": "optional",
@@ -60767,15 +60767,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 8745,
-          "share": 0.08745,
+          "count": 8831,
+          "share": 0.08831,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.352747,
+          "value": 2.35133,
           "base": 2.0,
-          "rarity": 0.176373,
+          "rarity": 0.175665,
           "capped": false
         },
         "obligation": "optional",
@@ -60808,15 +60808,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 8765,
-          "share": 0.08765,
+          "count": 8844,
+          "share": 0.08844,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.352416,
+          "value": 2.351117,
           "base": 2.0,
-          "rarity": 0.176208,
+          "rarity": 0.175559,
           "capped": false
         },
         "obligation": "optional",
@@ -60849,15 +60849,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 8798,
-          "share": 0.08798,
+          "count": 8880,
+          "share": 0.0888,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.351872,
+          "value": 2.350529,
           "base": 2.0,
-          "rarity": 0.175936,
+          "rarity": 0.175265,
           "capped": false
         },
         "obligation": "optional",
@@ -60890,15 +60890,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 9131,
-          "share": 0.09131,
+          "count": 9222,
+          "share": 0.09222,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.346494,
+          "value": 2.345058,
           "base": 2.0,
-          "rarity": 0.173247,
+          "rarity": 0.172529,
           "capped": false
         },
         "obligation": "optional",
@@ -60931,15 +60931,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 9173,
-          "share": 0.09173,
+          "count": 9265,
+          "share": 0.09265,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.34583,
+          "value": 2.344385,
           "base": 2.0,
-          "rarity": 0.172915,
+          "rarity": 0.172192,
           "capped": false
         },
         "obligation": "optional",
@@ -60972,15 +60972,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 9497,
-          "share": 0.09497,
+          "count": 9610,
+          "share": 0.0961,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.340805,
+          "value": 2.339092,
           "base": 2.0,
-          "rarity": 0.170402,
+          "rarity": 0.169546,
           "capped": false
         },
         "obligation": "optional",
@@ -61013,15 +61013,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 9547,
-          "share": 0.09547,
+          "count": 9645,
+          "share": 0.09645,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.340044,
+          "value": 2.338566,
           "base": 2.0,
-          "rarity": 0.170022,
+          "rarity": 0.169283,
           "capped": false
         },
         "obligation": "optional",
@@ -61054,15 +61054,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 9674,
-          "share": 0.09674,
+          "count": 9761,
+          "share": 0.09761,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.338131,
+          "value": 2.336835,
           "base": 2.0,
-          "rarity": 0.169066,
+          "rarity": 0.168418,
           "capped": false
         },
         "obligation": "optional",
@@ -61515,15 +61515,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 10419,
-          "share": 0.10419,
+          "count": 10534,
+          "share": 0.10534,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.327391,
+          "value": 2.325802,
           "base": 2.0,
-          "rarity": 0.163696,
+          "rarity": 0.162901,
           "capped": false
         },
         "obligation": "optional",
@@ -61556,15 +61556,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 10468,
-          "share": 0.10468,
+          "count": 10581,
+          "share": 0.10581,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.326712,
+          "value": 2.325158,
           "base": 2.0,
-          "rarity": 0.163356,
+          "rarity": 0.162579,
           "capped": false
         },
         "obligation": "optional",
@@ -61639,15 +61639,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 13012,
-          "share": 0.13012,
+          "count": 13128,
+          "share": 0.13128,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.295219,
+          "value": 2.293934,
           "base": 2.0,
-          "rarity": 0.147609,
+          "rarity": 0.146967,
           "capped": false
         },
         "obligation": "optional",
@@ -61764,15 +61764,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 18463,
-          "share": 0.18463,
+          "count": 18636,
+          "share": 0.18636,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.244566,
+          "value": 2.243216,
           "base": 2.0,
-          "rarity": 0.122283,
+          "rarity": 0.121608,
           "capped": false
         },
         "obligation": "optional",
@@ -61805,15 +61805,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 19617,
-          "share": 0.19617,
+          "count": 19805,
+          "share": 0.19805,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.235789,
+          "value": 2.234408,
           "base": 2.0,
-          "rarity": 0.117895,
+          "rarity": 0.117204,
           "capped": false
         },
         "obligation": "optional",
@@ -61846,15 +61846,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 25784,
-          "share": 0.25784,
+          "count": 26075,
+          "share": 0.26075,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.196217,
+          "value": 2.194592,
           "base": 2.0,
-          "rarity": 0.098108,
+          "rarity": 0.097296,
           "capped": false
         },
         "obligation": "optional",
@@ -61971,15 +61971,15 @@
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 44836,
-          "share": 0.44836,
+          "count": 45291,
+          "share": 0.45291,
           "method": "temporal_years"
         },
         "weight": {
           "version": 1,
-          "value": 2.116124,
+          "value": 2.114663,
           "base": 2.0,
-          "rarity": 0.058062,
+          "rarity": 0.057331,
           "capped": false
         },
         "obligation": "optional",
@@ -62018,8 +62018,8 @@
     "observed": 1459,
     "covered": 1459,
     "weighted": {
-      "total": 6732.02568,
-      "covered": 6732.02568,
+      "total": 6732.160431,
+      "covered": 6732.160431,
       "share": 1.0
     },
     "mandatory": {
@@ -62057,16 +62057,16 @@
         "defined": 70,
         "evaluable": 70,
         "covered": 70,
-        "weight": 220.899311,
-        "weight_covered": 220.899311
+        "weight": 220.815816,
+        "weight_covered": 220.815816
       },
       {
         "family": "quality",
         "defined": 206,
         "evaluable": 206,
         "covered": 206,
-        "weight": 1485.343433,
-        "weight_covered": 1485.343433
+        "weight": 1485.561679,
+        "weight_covered": 1485.561679
       },
       {
         "family": "relations",
@@ -62081,70 +62081,8 @@
     "missing_total": 0,
     "verification": {
       "checked": 1438,
-      "agreed": 1377,
-      "disagreed": [
-        "quality:rows:column_22+column_23:date_order:date_order:rows:column_22>column_23",
-        "quality:rows:column_29:observation:o20",
-        "quality:rows:column_23:observation:o16",
-        "quality:rows:column_22:observation:o15",
-        "quality:rows:column_5:observation:o4",
-        "quality:rows:column_30:observation:o21",
-        "quality:rows:column_31:observation:o22",
-        "date:rows:column_30:date_year:date:0",
-        "date:rows:column_23:date_year:date:1",
-        "date:rows:column_31:date_year:date:1",
-        "date:rows:column_23:date_year:date:2",
-        "date:rows:column_31:date_year:date:2",
-        "date:rows:column_31:date_year:date:3",
-        "date:rows:column_23:date_year:date:3",
-        "date:rows:column_31:date_year:date:4",
-        "date:rows:column_23:date_year:date:4",
-        "date:rows:column_30:date_year:date:1",
-        "date:rows:column_31:date_year:date:5",
-        "date:rows:column_23:date_year:date:5",
-        "date:rows:column_31:date_year:date:6",
-        "date:rows:column_23:date_year:date:6",
-        "date:rows:column_31:date_year:date:7",
-        "date:rows:column_30:date_year:date:2",
-        "date:rows:column_23:date_year:date:7",
-        "date:rows:column_31:date_year:date:8",
-        "date:rows:column_22:date_year:date:0",
-        "date:rows:column_23:date_year:date:8",
-        "date:rows:column_29:date_year:date:0",
-        "date:rows:column_30:date_year:date:3",
-        "date:rows:column_31:date_year:date:9",
-        "date:rows:column_31:date_year:date:10",
-        "date:rows:column_23:date_year:date:9",
-        "date:rows:column_30:date_year:date:4",
-        "date:rows:column_30:date_year:date:5",
-        "date:rows:column_30:date_year:date:6",
-        "date:rows:column_29:date_year:date:1",
-        "date:rows:column_22:date_year:date:1",
-        "date:rows:column_22:date_year:date:2",
-        "date:rows:column_29:date_year:date:2",
-        "date:rows:column_22:date_year:date:3",
-        "date:rows:column_29:date_year:date:3",
-        "date:rows:column_22:date_year:date:4",
-        "date:rows:column_29:date_year:date:4",
-        "date:rows:column_29:date_year:date:10",
-        "date:rows:column_22:date_year:date:5",
-        "date:rows:column_29:date_year:date:5",
-        "date:rows:column_22:date_year:date:10",
-        "date:rows:column_22:date_year:date:6",
-        "date:rows:column_29:date_year:date:6",
-        "date:rows:column_29:date_year:date:7",
-        "date:rows:column_22:date_year:date:7",
-        "date:rows:column_30:date_year:date:7",
-        "date:rows:column_22:date_year:date:8",
-        "date:rows:column_29:date_year:date:8",
-        "date:rows:column_22:date_year:date:9",
-        "date:rows:column_29:date_year:date:9",
-        "date:rows:column_30:date_year:date:8",
-        "date:rows:column_23:date_year:date:10",
-        "date:rows:column_30:date_year:date:9",
-        "date:rows:column_30:date_year:date:10",
-        "date:rows:column_23:date_year:date:11"
-      ]
+      "agreed": 1438,
+      "disagreed": []
     }
   },
   "statements": [
@@ -63798,8 +63736,8 @@
       "status": "covered",
       "observed": 23,
       "candidates": 2,
-      "expected": 22,
-      "agrees": false
+      "expected": 23,
+      "agrees": true
     },
     {
       "id": "quality:rows:column_20:observation:o13",
@@ -64794,11 +64732,59 @@
       "agrees": true
     },
     {
+      "id": "quality:rows:column_29:observation:o20",
+      "status": "covered",
+      "observed": 9757,
+      "candidates": 2,
+      "expected": 9757,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_23:observation:o16",
+      "status": "covered",
+      "observed": 8210,
+      "candidates": 2,
+      "expected": 8210,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_22:observation:o15",
+      "status": "covered",
+      "observed": 9875,
+      "candidates": 2,
+      "expected": 9875,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_5:observation:o4",
+      "status": "covered",
+      "observed": 9988,
+      "candidates": 2,
+      "expected": 9988,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_30:observation:o21",
+      "status": "covered",
+      "observed": 10008,
+      "candidates": 2,
+      "expected": 10008,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_7+column_15:relation_exception:category_crosstab:rows:column_7>column_15:value:10",
       "status": "covered",
       "observed": 403,
       "candidates": 2,
       "expected": 403,
+      "agrees": true
+    },
+    {
+      "id": "quality:rows:column_31:observation:o22",
+      "status": "covered",
+      "observed": 1456,
+      "candidates": 2,
+      "expected": 1456,
       "agrees": true
     },
     {
@@ -64808,54 +64794,6 @@
       "candidates": 2,
       "expected": 427,
       "agrees": true
-    },
-    {
-      "id": "quality:rows:column_29:observation:o20",
-      "status": "covered",
-      "observed": 9757,
-      "candidates": 2,
-      "expected": 10638,
-      "agrees": false
-    },
-    {
-      "id": "quality:rows:column_23:observation:o16",
-      "status": "covered",
-      "observed": 8210,
-      "candidates": 2,
-      "expected": 8956,
-      "agrees": false
-    },
-    {
-      "id": "quality:rows:column_22:observation:o15",
-      "status": "covered",
-      "observed": 9875,
-      "candidates": 2,
-      "expected": 10764,
-      "agrees": false
-    },
-    {
-      "id": "quality:rows:column_5:observation:o4",
-      "status": "covered",
-      "observed": 9988,
-      "candidates": 2,
-      "expected": 10857,
-      "agrees": false
-    },
-    {
-      "id": "quality:rows:column_30:observation:o21",
-      "status": "covered",
-      "observed": 10008,
-      "candidates": 2,
-      "expected": 10944,
-      "agrees": false
-    },
-    {
-      "id": "quality:rows:column_31:observation:o22",
-      "status": "covered",
-      "observed": 1456,
-      "candidates": 2,
-      "expected": 1570,
-      "agrees": false
     },
     {
       "id": "quality:rows:column_10:near_value:0",
@@ -69204,8 +69142,8 @@
       "status": "covered",
       "observed": 35,
       "candidates": 2,
-      "expected": 33,
-      "agrees": false
+      "expected": 35,
+      "agrees": true
     },
     {
       "id": "low_cardinality:rows:column_10:value_equals:107",
@@ -69324,8 +69262,8 @@
       "status": "covered",
       "observed": 103,
       "candidates": 2,
-      "expected": 102,
-      "agrees": false
+      "expected": 103,
+      "agrees": true
     },
     {
       "id": "low_cardinality:rows:column_3:value_equals:172",
@@ -69392,14 +69330,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_31:date_year:date:1",
-      "status": "covered",
-      "observed": 123,
-      "candidates": 2,
-      "expected": 121,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_3:value_equals:168",
       "status": "covered",
       "observed": 121,
@@ -69413,6 +69343,14 @@
       "observed": 122,
       "candidates": 2,
       "expected": 122,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_31:date_year:date:1",
+      "status": "covered",
+      "observed": 123,
+      "candidates": 2,
+      "expected": 123,
       "agrees": true
     },
     {
@@ -69928,14 +69866,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_23:date_year:date:2",
-      "status": "covered",
-      "observed": 274,
-      "candidates": 2,
-      "expected": 272,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_13:value_equals:61",
       "status": "covered",
       "observed": 272,
@@ -69968,6 +69898,14 @@
       "agrees": true
     },
     {
+      "id": "date:rows:column_23:date_year:date:2",
+      "status": "covered",
+      "observed": 274,
+      "candidates": 2,
+      "expected": 274,
+      "agrees": true
+    },
+    {
       "id": "low_cardinality:rows:column_3:value_equals:142",
       "status": "covered",
       "observed": 274,
@@ -69980,8 +69918,8 @@
       "status": "covered",
       "observed": 277,
       "candidates": 2,
-      "expected": 276,
-      "agrees": false
+      "expected": 277,
+      "agrees": true
     },
     {
       "id": "low_cardinality:rows:column_10:value_equals:91",
@@ -70464,19 +70402,19 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_31:date_year:date:3",
-      "status": "covered",
-      "observed": 415,
-      "candidates": 2,
-      "expected": 414,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_4:value_equals:81",
       "status": "covered",
       "observed": 414,
       "candidates": 2,
       "expected": 414,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_31:date_year:date:3",
+      "status": "covered",
+      "observed": 415,
+      "candidates": 2,
+      "expected": 415,
       "agrees": true
     },
     {
@@ -70752,14 +70690,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_23:date_year:date:3",
-      "status": "covered",
-      "observed": 491,
-      "candidates": 2,
-      "expected": 482,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_4:value_equals:74",
       "status": "covered",
       "observed": 482,
@@ -70805,6 +70735,14 @@
       "observed": 489,
       "candidates": 2,
       "expected": 489,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_23:date_year:date:3",
+      "status": "covered",
+      "observed": 491,
+      "candidates": 2,
+      "expected": 491,
       "agrees": true
     },
     {
@@ -71440,14 +71378,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_31:date_year:date:4",
-      "status": "covered",
-      "observed": 685,
-      "candidates": 2,
-      "expected": 679,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_10:value_equals:55",
       "status": "covered",
       "observed": 681,
@@ -71461,6 +71391,14 @@
       "observed": 683,
       "candidates": 2,
       "expected": 683,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_31:date_year:date:4",
+      "status": "covered",
+      "observed": 685,
+      "candidates": 2,
+      "expected": 685,
       "agrees": true
     },
     {
@@ -71496,19 +71434,19 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_23:date_year:date:4",
-      "status": "covered",
-      "observed": 703,
-      "candidates": 2,
-      "expected": 695,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_4:value_equals:54",
       "status": "covered",
       "observed": 697,
       "candidates": 2,
       "expected": 697,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_23:date_year:date:4",
+      "status": "covered",
+      "observed": 703,
+      "candidates": 2,
+      "expected": 703,
       "agrees": true
     },
     {
@@ -71528,19 +71466,19 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_30:date_year:date:1",
-      "status": "covered",
-      "observed": 718,
-      "candidates": 2,
-      "expected": 711,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_10:value_equals:54",
       "status": "covered",
       "observed": 711,
       "candidates": 2,
       "expected": 711,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_30:date_year:date:1",
+      "status": "covered",
+      "observed": 718,
+      "candidates": 2,
+      "expected": 718,
       "agrees": true
     },
     {
@@ -71860,8 +71798,8 @@
       "status": "covered",
       "observed": 809,
       "candidates": 2,
-      "expected": 808,
-      "agrees": false
+      "expected": 809,
+      "agrees": true
     },
     {
       "id": "low_cardinality:rows:column_3:value_equals:38",
@@ -72192,14 +72130,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_23:date_year:date:5",
-      "status": "covered",
-      "observed": 961,
-      "candidates": 2,
-      "expected": 952,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_3:value_equals:23",
       "status": "covered",
       "observed": 959,
@@ -72221,6 +72151,14 @@
       "observed": 960,
       "candidates": 2,
       "expected": 960,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_23:date_year:date:5",
+      "status": "covered",
+      "observed": 961,
+      "candidates": 2,
+      "expected": 961,
       "agrees": true
     },
     {
@@ -72424,14 +72362,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_31:date_year:date:6",
-      "status": "covered",
-      "observed": 1104,
-      "candidates": 2,
-      "expected": 1093,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_4:value_equals:30",
       "status": "covered",
       "observed": 1097,
@@ -72445,6 +72375,14 @@
       "observed": 1101,
       "candidates": 2,
       "expected": 1101,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_31:date_year:date:6",
+      "status": "covered",
+      "observed": 1104,
+      "candidates": 2,
+      "expected": 1104,
       "agrees": true
     },
     {
@@ -72600,14 +72538,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_23:date_year:date:6",
-      "status": "covered",
-      "observed": 1279,
-      "candidates": 2,
-      "expected": 1263,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_10:value_equals:27",
       "status": "covered",
       "observed": 1275,
@@ -72621,6 +72551,14 @@
       "observed": 1278,
       "candidates": 2,
       "expected": 1278,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_23:date_year:date:6",
+      "status": "covered",
+      "observed": 1279,
+      "candidates": 2,
+      "expected": 1279,
       "agrees": true
     },
     {
@@ -72664,14 +72602,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_31:date_year:date:7",
-      "status": "covered",
-      "observed": 1359,
-      "candidates": 2,
-      "expected": 1350,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_10:value_equals:26",
       "status": "covered",
       "observed": 1351,
@@ -72685,6 +72615,14 @@
       "observed": 1351,
       "candidates": 2,
       "expected": 1351,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_31:date_year:date:7",
+      "status": "covered",
+      "observed": 1359,
+      "candidates": 2,
+      "expected": 1359,
       "agrees": true
     },
     {
@@ -72796,8 +72734,8 @@
       "status": "covered",
       "observed": 1602,
       "candidates": 2,
-      "expected": 1590,
-      "agrees": false
+      "expected": 1602,
+      "agrees": true
     },
     {
       "id": "low_cardinality:rows:column_4:value_equals:15",
@@ -72876,8 +72814,8 @@
       "status": "covered",
       "observed": 1759,
       "candidates": 2,
-      "expected": 1744,
-      "agrees": false
+      "expected": 1759,
+      "agrees": true
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:16",
@@ -72928,19 +72866,19 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_31:date_year:date:8",
-      "status": "covered",
-      "observed": 1893,
-      "candidates": 2,
-      "expected": 1869,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_13:value_equals:14",
       "status": "covered",
       "observed": 1881,
       "candidates": 2,
       "expected": 1881,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_31:date_year:date:8",
+      "status": "covered",
+      "observed": 1893,
+      "candidates": 2,
+      "expected": 1893,
       "agrees": true
     },
     {
@@ -73064,19 +73002,19 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_22:date_year:date:0",
-      "status": "covered",
-      "observed": 2237,
-      "candidates": 2,
-      "expected": 2214,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_4:value_equals:4",
       "status": "covered",
       "observed": 2232,
       "candidates": 2,
       "expected": 2232,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_22:date_year:date:0",
+      "status": "covered",
+      "observed": 2237,
+      "candidates": 2,
+      "expected": 2237,
       "agrees": true
     },
     {
@@ -73104,19 +73042,19 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_23:date_year:date:8",
-      "status": "covered",
-      "observed": 2344,
-      "candidates": 2,
-      "expected": 2319,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_13:value_equals:11",
       "status": "covered",
       "observed": 2342,
       "candidates": 2,
       "expected": 2342,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_23:date_year:date:8",
+      "status": "covered",
+      "observed": 2344,
+      "candidates": 2,
+      "expected": 2344,
       "agrees": true
     },
     {
@@ -73168,19 +73106,19 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_29:date_year:date:0",
-      "status": "covered",
-      "observed": 2547,
-      "candidates": 2,
-      "expected": 2520,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_10:value_equals:3",
       "status": "covered",
       "observed": 2530,
       "candidates": 2,
       "expected": 2530,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_29:date_year:date:0",
+      "status": "covered",
+      "observed": 2547,
+      "candidates": 2,
+      "expected": 2547,
       "agrees": true
     },
     {
@@ -73192,19 +73130,19 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_30:date_year:date:3",
-      "status": "covered",
-      "observed": 2622,
-      "candidates": 2,
-      "expected": 2598,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_13:value_equals:9",
       "status": "covered",
       "observed": 2608,
       "candidates": 2,
       "expected": 2608,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_30:date_year:date:3",
+      "status": "covered",
+      "observed": 2622,
+      "candidates": 2,
+      "expected": 2622,
       "agrees": true
     },
     {
@@ -73214,14 +73152,6 @@
       "candidates": 2,
       "expected": 2653,
       "agrees": true
-    },
-    {
-      "id": "date:rows:column_31:date_year:date:9",
-      "status": "covered",
-      "observed": 2681,
-      "candidates": 2,
-      "expected": 2656,
-      "agrees": false
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:8",
@@ -73237,6 +73167,14 @@
       "observed": 2674,
       "candidates": 2,
       "expected": 2674,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_31:date_year:date:9",
+      "status": "covered",
+      "observed": 2681,
+      "candidates": 2,
+      "expected": 2681,
       "agrees": true
     },
     {
@@ -73288,14 +73226,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_31:date_year:date:10",
-      "status": "covered",
-      "observed": 3433,
-      "candidates": 2,
-      "expected": 3399,
-      "agrees": false
-    },
-    {
       "id": "numeric:rows:column_12:numeric_bin:6",
       "status": "covered",
       "observed": 3400,
@@ -73309,6 +73239,14 @@
       "observed": 3432,
       "candidates": 2,
       "expected": 3432,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_31:date_year:date:10",
+      "status": "covered",
+      "observed": 3433,
+      "candidates": 2,
+      "expected": 3433,
       "agrees": true
     },
     {
@@ -73336,14 +73274,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_23:date_year:date:9",
-      "status": "covered",
-      "observed": 3537,
-      "candidates": 2,
-      "expected": 3504,
-      "agrees": false
-    },
-    {
       "id": "numeric:rows:column_12:numeric_bin:3",
       "status": "covered",
       "observed": 3506,
@@ -73365,6 +73295,14 @@
       "observed": 3519,
       "candidates": 2,
       "expected": 3519,
+      "agrees": true
+    },
+    {
+      "id": "date:rows:column_23:date_year:date:9",
+      "status": "covered",
+      "observed": 3537,
+      "candidates": 2,
+      "expected": 3537,
       "agrees": true
     },
     {
@@ -73404,8 +73342,8 @@
       "status": "covered",
       "observed": 3841,
       "candidates": 2,
-      "expected": 3793,
-      "agrees": false
+      "expected": 3841,
+      "agrees": true
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:2",
@@ -73420,8 +73358,8 @@
       "status": "covered",
       "observed": 5335,
       "candidates": 2,
-      "expected": 5283,
-      "agrees": false
+      "expected": 5335,
+      "agrees": true
     },
     {
       "id": "numeric:rows:column_25:numeric_bin:8",
@@ -73432,14 +73370,6 @@
       "agrees": true
     },
     {
-      "id": "date:rows:column_30:date_year:date:6",
-      "status": "covered",
-      "observed": 7221,
-      "candidates": 2,
-      "expected": 7138,
-      "agrees": false
-    },
-    {
       "id": "low_cardinality:rows:column_13:value_equals:1",
       "status": "covered",
       "observed": 7198,
@@ -73448,20 +73378,20 @@
       "agrees": true
     },
     {
+      "id": "date:rows:column_30:date_year:date:6",
+      "status": "covered",
+      "observed": 7221,
+      "candidates": 2,
+      "expected": 7221,
+      "agrees": true
+    },
+    {
       "id": "date:rows:column_29:date_year:date:1",
       "status": "covered",
       "observed": 7670,
       "candidates": 2,
-      "expected": 7583,
-      "agrees": false
-    },
-    {
-      "id": "date:rows:column_22:date_year:date:1",
-      "status": "covered",
-      "observed": 7720,
-      "candidates": 2,
-      "expected": 7635,
-      "agrees": false
+      "expected": 7670,
+      "agrees": true
     },
     {
       "id": "numeric:rows:column_32:numeric_bin:0",
@@ -73472,140 +73402,148 @@
       "agrees": true
     },
     {
+      "id": "date:rows:column_22:date_year:date:1",
+      "status": "covered",
+      "observed": 7720,
+      "candidates": 2,
+      "expected": 7720,
+      "agrees": true
+    },
+    {
       "id": "date:rows:column_22:date_year:date:2",
       "status": "covered",
       "observed": 7950,
       "candidates": 2,
-      "expected": 7877,
-      "agrees": false
+      "expected": 7950,
+      "agrees": true
     },
     {
       "id": "date:rows:column_29:date_year:date:2",
       "status": "covered",
       "observed": 7969,
       "candidates": 2,
-      "expected": 7894,
-      "agrees": false
+      "expected": 7969,
+      "agrees": true
     },
     {
       "id": "date:rows:column_22:date_year:date:3",
       "status": "covered",
       "observed": 8269,
       "candidates": 2,
-      "expected": 8182,
-      "agrees": false
+      "expected": 8269,
+      "agrees": true
     },
     {
       "id": "date:rows:column_29:date_year:date:3",
       "status": "covered",
       "observed": 8307,
       "candidates": 2,
-      "expected": 8227,
-      "agrees": false
+      "expected": 8307,
+      "agrees": true
     },
     {
       "id": "date:rows:column_22:date_year:date:4",
       "status": "covered",
       "observed": 8339,
       "candidates": 2,
-      "expected": 8276,
-      "agrees": false
+      "expected": 8339,
+      "agrees": true
     },
     {
       "id": "date:rows:column_29:date_year:date:4",
       "status": "covered",
       "observed": 8381,
       "candidates": 2,
-      "expected": 8308,
-      "agrees": false
+      "expected": 8381,
+      "agrees": true
     },
     {
       "id": "date:rows:column_29:date_year:date:10",
       "status": "covered",
       "observed": 8414,
       "candidates": 2,
-      "expected": 8326,
-      "agrees": false
+      "expected": 8414,
+      "agrees": true
     },
     {
       "id": "date:rows:column_22:date_year:date:5",
       "status": "covered",
       "observed": 8476,
       "candidates": 2,
-      "expected": 8388,
-      "agrees": false
+      "expected": 8476,
+      "agrees": true
     },
     {
       "id": "date:rows:column_29:date_year:date:5",
       "status": "covered",
       "observed": 8511,
       "candidates": 2,
-      "expected": 8433,
-      "agrees": false
+      "expected": 8511,
+      "agrees": true
     },
     {
       "id": "date:rows:column_22:date_year:date:10",
       "status": "covered",
       "observed": 8831,
       "candidates": 2,
-      "expected": 8745,
-      "agrees": false
+      "expected": 8831,
+      "agrees": true
     },
     {
       "id": "date:rows:column_22:date_year:date:6",
       "status": "covered",
       "observed": 8844,
       "candidates": 2,
-      "expected": 8765,
-      "agrees": false
+      "expected": 8844,
+      "agrees": true
     },
     {
       "id": "date:rows:column_29:date_year:date:6",
       "status": "covered",
       "observed": 8880,
       "candidates": 2,
-      "expected": 8798,
-      "agrees": false
+      "expected": 8880,
+      "agrees": true
     },
     {
       "id": "date:rows:column_29:date_year:date:7",
       "status": "covered",
       "observed": 9222,
       "candidates": 2,
-      "expected": 9131,
-      "agrees": false
+      "expected": 9222,
+      "agrees": true
     },
     {
       "id": "date:rows:column_22:date_year:date:7",
       "status": "covered",
       "observed": 9265,
       "candidates": 2,
-      "expected": 9173,
-      "agrees": false
+      "expected": 9265,
+      "agrees": true
     },
     {
       "id": "date:rows:column_30:date_year:date:7",
       "status": "covered",
       "observed": 9610,
       "candidates": 2,
-      "expected": 9497,
-      "agrees": false
+      "expected": 9610,
+      "agrees": true
     },
     {
       "id": "date:rows:column_22:date_year:date:8",
       "status": "covered",
       "observed": 9645,
       "candidates": 2,
-      "expected": 9547,
-      "agrees": false
+      "expected": 9645,
+      "agrees": true
     },
     {
       "id": "date:rows:column_29:date_year:date:8",
       "status": "covered",
       "observed": 9761,
       "candidates": 2,
-      "expected": 9674,
-      "agrees": false
+      "expected": 9761,
+      "agrees": true
     },
     {
       "id": "numeric:rows:column_8:numeric_bin:8",
@@ -73692,16 +73630,16 @@
       "status": "covered",
       "observed": 10534,
       "candidates": 2,
-      "expected": 10419,
-      "agrees": false
+      "expected": 10534,
+      "agrees": true
     },
     {
       "id": "date:rows:column_29:date_year:date:9",
       "status": "covered",
       "observed": 10581,
       "candidates": 2,
-      "expected": 10468,
-      "agrees": false
+      "expected": 10581,
+      "agrees": true
     },
     {
       "id": "low_cardinality:rows:column_13:value_equals:0",
@@ -73716,8 +73654,8 @@
       "status": "covered",
       "observed": 13128,
       "candidates": 2,
-      "expected": 13012,
-      "agrees": false
+      "expected": 13128,
+      "agrees": true
     },
     {
       "id": "numeric:rows:column_25:numeric_bin:4",
@@ -73740,24 +73678,24 @@
       "status": "covered",
       "observed": 18636,
       "candidates": 2,
-      "expected": 18463,
-      "agrees": false
+      "expected": 18636,
+      "agrees": true
     },
     {
       "id": "date:rows:column_30:date_year:date:9",
       "status": "covered",
       "observed": 19805,
       "candidates": 2,
-      "expected": 19617,
-      "agrees": false
+      "expected": 19805,
+      "agrees": true
     },
     {
       "id": "date:rows:column_30:date_year:date:10",
       "status": "covered",
       "observed": 26075,
       "candidates": 2,
-      "expected": 25784,
-      "agrees": false
+      "expected": 26075,
+      "agrees": true
     },
     {
       "id": "numeric:rows:column_25:numeric_bin:6",
@@ -73780,8 +73718,8 @@
       "status": "covered",
       "observed": 45291,
       "candidates": 2,
-      "expected": 44836,
-      "agrees": false
+      "expected": 45291,
+      "agrees": true
     }
   ]
 }

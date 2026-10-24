@@ -100,7 +100,7 @@ one unit.
 | Minority patterns | Issue | Distinct values in less-common patterns | distinct values | The patterns of a column |
 | Minority lengths | Issue | Values with less-common lengths | values | The string lengths of a column |
 | Mixed types | Issue | Values outside the closest type | values | A column whose values fit more than one type |
-| ID repetitions | Issue | Repetitions beyond the first occurrence | values | An identifier whose distinct count is exact |
+| ID repetitions | Issue | Repetitions beyond the first occurrence | values | An identifier whose distinct count is exact. The count is raw; the [column page](#column-page) separates the repetitions that copied rows explain |
 | Surrounding whitespace | Issue | Values with leading or trailing whitespace | values | The scan observation of trimmed cells |
 | Repeated whitespace | Issue | Values with repeated whitespace | values | The scan observation of collapsed whitespace |
 
@@ -236,7 +236,7 @@ Findings block). A column whose values are masked or hidden says so there.
 
 | Block | What it shows | What to check |
 | --- | --- | --- |
-| 01 Summary | Analyzable values, Missing (with what counts as missing), Distinct and the number of findings; the Interpretation of the type (state, basis, traits, alternatives, evidence, technical type and its confidence) and the types counted. | The type is a reading of the values, not a promise: check **state** and **basis**. |
+| 01 Summary | Analyzable values, Missing (with what counts as missing), Distinct and the number of findings; the Interpretation of the type (state, basis, traits, alternatives, evidence, technical type and its confidence) and the types counted. An identifier column also has the card *Identifier uniqueness* (see below). | The type is a reading of the values, not a promise: check **state** and **basis**. |
 | 02 Findings | One card per Error, then per Issue: what it is, what it counts, how sure the count is, its limit, examples, and the detail beside it (see below). Remarks follow, and a folded list says which checks ran and found nothing. | Start here. A count marked *at least* or *sample* is not exact; see [How counts are qualified](#how-counts-are-qualified). |
 | 03 Values | The stored values, most frequent first, with their exact counts and a bar that compares them. | A list can be every distinct value or a sample; the first line says which. |
 | 04 Shape | The block takes the name of the type: Numbers (range, mean, median), Dates (valid, ambiguous, invalid), Text (lengths, character map) or Distribution. It holds the insight cards of the second pass. | Not drawn when there is nothing to show. |
@@ -245,6 +245,29 @@ Findings block). A column whose values are masked or hidden says so there.
 | 07 Limits | The measures the scan could not establish for this column, its diagnostics and the meaning of each accuracy mark. | Read it before relying on a figure marked *at least*. |
 | 08 Scan evidence | The facts of the field as the Scan wrote them, in folded groups. | Raw material, for checking a figure. |
 | 09 Data sample | The rows of the sample, for this column only, with their original row numbers. | The sample is not uniform over the file. |
+
+**Identifier uniqueness.** A column the Scan classifies as an identifier can repeat an ID
+because whole rows are copied, not because two different records share it. The card
+*Identifier uniqueness* in 01 Summary separates the two, from figures the report already
+holds and, when you give one, a [Dedup](../dedup/index.md) report. It never reads the source
+again and never runs Dedup. It shows one of five readings:
+
+| Title | When | What it says |
+| --- | --- | --- |
+| Unique ID | Every ID is distinct across all the source records, none is missing, and the counts are exact. | The ID is unique before any deduplication. |
+| Unique after row deduplication | The repetitions are exactly the extra copies of whole rows. | The ID repeats only because rows are copied; no ID conflict remains among the distinct rows. It is not called *Unique ID*, because the raw count still shows the repetitions. |
+| ID repetitions | Some repetitions remain between distinct rows. | The figures give the repetitions explained by copies and those that remain. |
+| Uniqueness not fully assessed | A needed count is estimated, limited, disabled or missing, or the scan did not cover every record. | No conclusion; the reason is stated. |
+| Missing IDs | Some records have no ID. | Uniqueness after deduplication cannot be established. |
+
+The card gives the evidence of each figure (the Scan, the second pass or a Dedup report with
+its file name) and the proofs it refused, with the reason. A repetition is an observation of
+quality, not an Error: the finding *ID repetitions* stays raw and links to this card. Only a
+Dedup report that matches the SHA-256 of the scanned source, is complete and counts the same
+records is used; give it with `--dedup-report`, or keep `<name>.dedup.json` beside a CSV
+source. The entry *Identifier uniqueness* of [Analysis settings](#analysis-settings) gives
+the rule version and the sources actually used. Deciding whether an ID is *nearly* unique, and
+counting the copies with a second pass of the report itself, are not available yet.
 
 **A finding card.** The left side states what the finding is and how far to trust it. The
 right side holds the detail that explains it: the groups of spelling variants, the formats
@@ -538,6 +561,7 @@ analysis, and sorting and filtering the table only change the display.
 **Purpose:** reproduce and interpret the report. This final section gives the
 effective scope, missing markers, normalization, type and date rules, detector
 thresholds, exposure policy, value representation, row sample and source
-SHA-256. Consult it whenever a count or match differs from your expectation;
+SHA-256, and for the identifier columns the rule version, the sources of the
+copies of rows actually used and the Dedup reports read or refused. Consult it whenever a count or match differs from your expectation;
 the [configuration reference](../reference/configuration.md) explains how to
 change the settings.

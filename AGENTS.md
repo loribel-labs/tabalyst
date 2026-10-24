@@ -69,6 +69,7 @@ support is not yet required. Record format changes in the relevant changelogs.
   measures derived from the Scan), each figure with its accuracy, computed at render time from
   `analyses` alone; `templates/insights.html` is their macro, shared by the report and the column
   pages.
+- `src/tabalyst/identifier_uniqueness/`: the uniqueness of an identifier column after row deduplication (`docs/dev/report/identifier-uniqueness.md` is the contract; ADR `2026-10-23-identifier-uniqueness-derived-in-report`). `models.py` holds the models and `RULE_VERSION`, `rule.py` the pure rule, `proof.py` the reading and validation of a Dedup report, `facts.py` the facts built from the Scan, the second pass and the proof. The result is `ColumnSummary.identifier_uniqueness`; `report_uniqueness.py` prints it (card, Summary line, Analysis settings).
 - `src/tabalyst/report_column_page.py`: the blocks of a column page that the stored summary does not
   hold as they are (findings with their details, remarks, formats, shape block, neighbour links); the
   contract is `docs/dev/report/column-page.md`. `templates/column.html` prints them and computes nothing.

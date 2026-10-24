@@ -378,11 +378,11 @@ TYPE_LABELS = {
     "web_network/url": "URL",
     "web_network/ip_address": "IP address",
     "web_network/uuid": "UUID",
-    "text/text_very_short": "Very short",
-    "text/text_short": "Short",
-    "text/text_medium": "Medium",
-    "text/text_long": "Long",
-    "text/text_very_long": "Very long",
+    "text/text_very_short": "Very short string",
+    "text/text_short": "Short string",
+    "text/text_medium": "Medium string",
+    "text/text_long": "Long string",
+    "text/text_very_long": "Very long string",
     "text/text": "Text",
     "other/mixed": "Mixed",
     "other/empty": "Empty",
@@ -929,3 +929,71 @@ def values_lead(shown: int, stored: int, selection: str, distinct: int | None) -
         f"{shown:,} of the {stored:,} distinct values the Scan stored (a {kind} out of {total}). "
         "Each count is the exact frequency of that value in the column."
     )
+
+
+# Identifier uniqueness (contract identifier-uniqueness.md 8): the JSON holds codes, these are
+# the words. The five cases of the specification 11.2 are keyed ``identifier_uniqueness.*``.
+UNIQUENESS_CASES = {
+    "A": "identifier_uniqueness.raw_unique",
+    "B": "identifier_uniqueness.unique_after_row_deduplication",
+    "C": "identifier_uniqueness.repeated_between_distinct_records",
+    "D": "identifier_uniqueness.not_assessed",
+    "E": "identifier_uniqueness.missing_ids",
+}
+UNIQUENESS_TITLES = {
+    "identifier_uniqueness.raw_unique": "Unique ID",
+    "identifier_uniqueness.unique_after_row_deduplication": "Unique after row deduplication",
+    "identifier_uniqueness.repeated_between_distinct_records": "ID repetitions",
+    "identifier_uniqueness.not_assessed": "Uniqueness not fully assessed",
+    "identifier_uniqueness.missing_ids": "Missing IDs",
+}
+UNIQUENESS_STATUS_WORDS = {
+    "complete": "Complete",
+    "limited": "Limited",
+    "not_assessed": "Not assessed",
+    "failed": "Contradictory",
+}
+UNIQUENESS_REASONS = {
+    "missing_ids": "Some records have no ID, so the repetitions among distinct rows cannot be counted.",
+    "too_few_records": "The dataset has fewer than two records.",
+    "too_few_distinct_records": "Fewer than two distinct rows: a conclusion needs at least two.",
+    "scope_partial": "The Scan did not cover every record, so the figures are not a conclusion.",
+    "distinct_estimated": "The distinct IDs are only estimated or limited.",
+    "distinct_not_exact": "The exact distinct count is of the original values, and a normalization changed some of them.",
+    "distinct_unavailable": "The number of distinct IDs was not computed.",
+    "duplicates_limited": "The duplicate rows were counted only up to a limit, and no complete Dedup report proves the rest.",
+    "duplicates_disabled": "Duplicate row comparison is disabled, and no complete Dedup report proves the copies.",
+    "inconsistent_measures": "The measures contradict each other; no figure is drawn from them.",
+    "evidence_conflict": "Two exact sources disagree; no figure is drawn from them.",
+    "computation_error": "The rule could not run on this column.",
+}
+UNIQUENESS_PROOF_SOURCES = {
+    "scan.records.duplicates": "the Scan's comparison of whole records",
+    "dedup.report": "a Dedup report",
+}
+UNIQUENESS_CARDINALITY_SOURCES = {
+    "scan.values.cardinality": "the Scan",
+    "deep.exact_distinct": "the second pass",
+}
+UNIQUENESS_ORIGINS = {"colocated": "found beside the source", "explicit": "given with --dedup-report"}
+UNIQUENESS_REJECTIONS = {
+    "dedup_unreadable": "not readable as a Dedup report of a supported format",
+    "dedup_not_complete": "the Dedup run is not complete",
+    "dedup_source_mismatch": "it describes another file (different SHA-256)",
+    "dedup_not_csv": "the source is not a single CSV dataset",
+    "dedup_dialect_mismatch": "its delimiter or encoding differs from the Scan's",
+    "dedup_identity_unsupported": "its row identity is not supported",
+    "dedup_total_mismatch": "its record total differs from the dataset's",
+    "dedup_invariants_broken": "its own counts do not add up",
+}
+UNIQUENESS_IDENTITIES = {
+    "full_decoded_csv_row_v1": "whole decoded CSV rows",
+    "scan_record_v1": "whole records (path, native type and raw value)",
+}
+UNIQUENESS_ACCURACY = {
+    "exact": "exact",
+    "lower_bound": "at least",
+    "disabled": "not computed",
+    "estimated": "estimated",
+    "limited": "limited",
+}

@@ -68,7 +68,7 @@
     </div>
   </div>
   <div class="vstrip">
-  {% set type_name = column.type_label %}{% if column.classification.family == 'identifier' and column.distinct.kind == 'exact' and column.field.values.count %}{% set uniq = 100 * column.distinct.value / column.field.values.count %}{% if uniq >= 100 %}{% set type_name = 'Unique ID' %}{% elif uniq >= 99 %}{% set type_name = 'Probable unique ID' %}{% else %}{% set type_name = 'ID' %}{% endif %}{% endif %}
+  {% set type_name = column.type_label %}{% if page.type_name %}{% set type_name = page.type_name %}{% elif column.classification.family == 'identifier' and column.distinct.kind == 'exact' and column.field.values.count %}{% set uniq = 100 * column.distinct.value / column.field.values.count %}{% if uniq >= 100 %}{% set type_name = 'Unique ID' %}{% elif uniq >= 99 %}{% set type_name = 'Probable unique ID' %}{% else %}{% set type_name = 'ID' %}{% endif %}{% endif %}
     <p class="vs-type"><span class="fam-dot fam-{{ column.classification.family }}" aria-hidden="true"></span><span class="vs-fam">{{ family_labels[column.classification.family] }}</span><span class="vs-sep" aria-hidden="true">/</span><b>{{ type_name }}</b></p>
     <p class="vs-sentence">{{ page.sentence }}</p>
     <p class="vs-flags">
@@ -91,8 +91,18 @@
   <div class="ident">
     <p class="ident-type"><span class="pill">{{ type_name }}</span> <small class="sub-n">{{ column.classification.state }} · {{ column.classification.basis }}</small>{% if column.exposure in ('mask', 'hide') %} <span class="pill attn">{{ 'Masked' if column.exposure == 'mask' else 'Hidden' }}</span>{% endif %}</p>
     <p class="ident-why">{{ page.sentence }}</p>
-    <p class="ident-meta">{% if column.classification.traits %}<span class="ident-k">Traits</span>{% for t in column.classification.traits %}<span class="chip">{{ t | replace('_',' ') }}</span>{% endfor %}{% endif %}{% if column.classification.alternatives %}<span class="ident-k">Could also be</span>{% for alt in column.classification.alternatives %}<span class="chip">{{ type_labels.get(alt.family ~ '/' ~ alt.type, alt.type | replace('_',' ')) }}<small class="sub-n"> {{ alt.reason | replace('_',' ') }}</small></span>{% endfor %}{% endif %}</p>
+    <p class="ident-meta">{% if column.classification.traits %}<span class="ident-k">Traits</span>{% for t in column.classification.traits %}<span class="chip">{{ t | replace('_',' ') }}</span>{% endfor %}{% endif %}{% if column.classification.alternatives %}<span class="ident-k">Could also be</span>{% for alt in column.classification.alternatives %}<span class="chip">{{ type_labels.get(alt.family ~ '/' ~ alt.type, alt.type | replace('_',' ')) }}</span>{% endfor %}{% endif %}</p>
   </div>
+{% set uq = page.uniqueness %}{% if uq %}
+  <div class="uqb uq-{{ uq.case }}" id="uniqueness">
+    <h3 class="subh">Identifier uniqueness <span class="st st-{{ 'ok' if uq.status == 'complete' else 'warn' }}"><i aria-hidden="true"></i>{{ uq.status_word }}</span></h3>
+    <p class="uq-t"><b>{{ uq.title }}</b></p>
+    <p>{{ uq.text }}</p>
+    {% if uq.caveat %}<p class="muted">{{ uq.caveat }}</p>{% endif %}
+    {% if uq.rows %}<dl class="column-list">{% for r in uq.rows %}<div class="column-line"><span>{{ r.label }}</span><b>{% if r.figure is none %}not established{% else %}{{ r.figure | count }}{% endif %}</b></div>{% endfor %}</dl>{% endif %}
+    {% if uq.evidence or uq.rejected %}<ul class="uq-ev">{% for line in uq.evidence %}<li>{{ line }}</li>{% endfor %}{% for line in uq.rejected %}<li>{{ line }}</li>{% endfor %}</ul>{% endif %}
+  </div>
+{% endif %}
 </div></section>
 
 <section class="panel" id="findings" aria-labelledby="findings-h"><div class="phead"><div><p class="eyebrow">02 / Findings</p><h2 id="findings-h">Findings<span class="n">({{ n_err + n_iss + n_rem }})</span></h2><p>What Tabalyst found in this column, each with what it counts, how sure it is and the evidence behind it. Errors first, then issues, then remarks.</p></div></div><div class="pbody">
@@ -108,6 +118,7 @@
       {% for limit in p.limits %}<dt>Limit</dt><dd>{{ limit }}</dd>{% endfor %}
       {% if p.examples %}<dt>Examples</dt><dd><span class="fd-ex">{% for value in p.examples %}<code class="ws">{{ value }}</code>{% endfor %}</span>{% if p.examples_note %}<small class="sub-n">{{ p.examples_note }}</small>{% endif %}</dd>{% elif not (f.detail or f.variants) %}<dt>Examples</dt><dd class="muted">{{ p.examples_note or no_example }}</dd>{% endif %}
     </dl>
+    {% if f.uniqueness_link %}<p class="fnd-link">Some of these repetitions may come from copied rows: <a href="#uniqueness">see how they split</a>.</p>{% endif %}
     {% if f.detail or f.variants %}<div class="fnd-d"><h4 class="fd-title">{{ f.detail.title if f.detail else 'Spelling variants' }}</h4>{% if f.detail %}{{ detail_body(f.detail) }}{% else %}{{ variant_body(f.variants) }}{% endif %}</div>{% endif %}
   </div>
 </article>

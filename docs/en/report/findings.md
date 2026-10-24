@@ -221,9 +221,16 @@ on whatever column it found it. An ambiguous date in a Text column is an Issue.
 - **Source:** the exact distinct count of the analytical values. When it is not
   exact, the check is `not_assessed` (reason `cardinality_not_exact`). A Unique
   ID has proved its uniqueness and has none.
-- **Detail:** none.
+- **Detail:** none. The card of the [column page](read-report.md#column-page)
+  links to the block *Identifier uniqueness*, which separates the repetitions
+  that exact copies of whole rows explain from those that remain between
+  distinct records.
 - **Limits:** it is neither the number of duplicated occurrences nor the number
-  of identifiers that repeat.
+  of identifiers that repeat. The count is raw: it stays the same whether the
+  repetitions come from copied rows or from two different records sharing an ID.
+  The decomposition is in `summary.identifier_uniqueness` of the
+  [JSON profile](profile-changelog.md); it never turns this Issue into an Error
+  and never hides it.
 
 ### `text.surrounding_whitespace` and `text.repeated_whitespace`
 

@@ -166,6 +166,17 @@ bounded: past `scan.limits.max_tracked_records` it is a lower bound such as
 `≥ 12`. Use Dedup when you need the exact count, or the rows themselves. Under
 the Scan limit the two numbers agree. Dedup never starts a Scan.
 
+## Used by the Report
+
+The Report can tell the repetitions of an ID that exact copies of rows explain from
+those between distinct records (see [Identifier uniqueness](../report/read-report.md#column-page)).
+It takes the number of copies from the Scan when that count is complete. When it is
+limited or disabled, it reads the report `<name>.dedup.json` of this tool, found beside a
+CSV source or given with `--dedup-report`, and uses it only when it is complete, describes the
+same file (same SHA-256), the same delimiter and encoding and the same number of records,
+and its counts add up. The Report never runs Dedup, never reads the CSV files Dedup wrote
+and never changes the Dedup report.
+
 ## Pages
 
 - [Batch and already processed files](batch.md): patterns, skipped files,

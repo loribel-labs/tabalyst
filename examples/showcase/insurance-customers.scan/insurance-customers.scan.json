@@ -3,7 +3,7 @@
   "format_version": "0.2.0",
   "format_revision": 4,
   "engine": {
-    "version": "0.7.0",
+    "version": "0.7.1",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,17 +27,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-23T15:23:59.329216Z",
-    "duration_seconds": 2.20585,
+    "started_at": "2026-10-24T05:26:06.318860Z",
+    "duration_seconds": 2.614985,
     "timings": {
-      "reading": 0.293941,
-      "analysis": 0.666188,
-      "finalize": 0.729537,
-      "derived": 0.049263,
-      "other": 0.466922
+      "reading": 0.347554,
+      "analysis": 0.830899,
+      "finalize": 0.809348,
+      "derived": 0.122608,
+      "other": 0.504576
     },
     "workers": 6,
-    "peak_memory_bytes": 166338560
+    "peak_memory_bytes": 166969344
   },
   "source": {
     "format": "csv",

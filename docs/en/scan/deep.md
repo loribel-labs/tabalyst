@@ -1053,6 +1053,13 @@ as context. A second pass that is absent, was made for another scan, ended
 `limited` or `failed` changes nothing: the Report keeps the classification of the
 scan, and the Scan document never changes.
 
+A column that stays `identifier/id` because its ID repeats may repeat only because whole rows are
+copied. The Report then separates the two with the number of exact copies of rows, taken from the
+Scan or from a [Dedup](../dedup/index.md) report, in `identifier_uniqueness` (see the
+[profile changelog](../report/profile-changelog.md#version-020-revision-5)). This count of copies
+is not a second-pass analysis: no analysis of the second pass counts the copies of rows for this
+purpose yet.
+
 The count has to fit in memory. Tabalyst plans the memory of each field from the
 scan, and counts a field's values in sets of the compact integers of the digit
 strings and of the strings themselves. If a field needs more than the plan gave

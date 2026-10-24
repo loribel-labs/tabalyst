@@ -11,6 +11,7 @@ Dedup report (contract 6, 7 and 9.1).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 from pathlib import Path
 
 from tabalyst.errors import InputError
@@ -27,8 +28,8 @@ from tabalyst.identifier_uniqueness.models import (
 from tabalyst.identifier_uniqueness.rule import assess_identifier_uniqueness
 from tabalyst.models import AnalysesBlock
 from tabalyst.report_classification import (
-    _analytical_stages_unchanged,
-    _distinct_count,
+    analytical_stages_unchanged,
+    distinct_count,
     refine,
 )
 from tabalyst.scanner.classify.identifiers import ID, UNIQUE_ID, under_array
@@ -56,6 +57,10 @@ class UniquenessSources:
     dedup_report: Path | None = None
     # The folder searched for the colocated ``<stem>.dedup.json``.
     source_dir: Path | None = None
+    # Proofs already read, by dataset: one Dedup report serves every identifier column of it.
+    proofs: dict[str, DuplicateEvidence | RejectedProof | None] = dataclass_field(
+        default_factory=dict, compare=False, repr=False
+    )
 
 
 def identifier_uniqueness_of(
@@ -74,6 +79,7 @@ def identifier_uniqueness_of(
         base=sources.base,
         dedup_report=sources.dedup_report,
         source_dir=sources.source_dir,
+        proofs=sources.proofs,
     )
     return None if facts is None else assess_identifier_uniqueness(facts)
 
@@ -106,13 +112,15 @@ def facts_from_scan(
     base: PlanBase | None = None,
     dedup_report: Path | None = None,
     source_dir: Path | None = None,
+    proofs: dict[str, DuplicateEvidence | RejectedProof | None] | None = None,
 ) -> UniquenessFacts | None:
     """The facts of one column of one dataset, or ``None`` when it is not an identifier.
 
     The column is an identifier when the Report's classification (the Scan's, refined by the
     second pass) says so and it is not under a JSON array. ``dedup_report`` is the file or folder
     the user named and ``source_dir`` the folder searched for the colocated ``<stem>.dedup.json``
-    (a CSV source only). ``base`` tells which Scan the second pass must stand on.
+    (a CSV source only). ``base`` tells which Scan the second pass must stand on. ``proofs``
+    memoizes the Dedup proof by dataset across the columns of one Report.
     """
     target = next((item for item in scan.datasets if item.id == dataset), None)
     field = None if target is None else next((f for f in target.fields if f.id == field_id), None)
@@ -131,7 +139,12 @@ def facts_from_scan(
     present = field.values.count
     duplicates = [_scan_duplicates(scan, target)]
     rejected: tuple[RejectedProof, ...] = ()
-    proof = _dedup_proof(scan, dataset, dedup_report, source_dir)
+    if proofs is not None and dataset in proofs:
+        proof = proofs[dataset]
+    else:
+        proof = _dedup_proof(scan, dataset, dedup_report, source_dir)
+        if proofs is not None:
+            proofs[dataset] = proof
     if isinstance(proof, DuplicateEvidence):
         duplicates.append(proof)
     elif proof is not None:
@@ -195,14 +208,14 @@ def _distinct(
             domain="analytical",
             stages_changed_values=False,
         )
-    count = _distinct_count(field, analyses, dataset, base)
+    count = distinct_count(field, analyses, dataset, base)
     if count is not None and count.values == field.values.count:
         return DistinctEvidence(
             value=count.distinct,
             source="deep.exact_distinct",
             accuracy="exact",
             domain="original",
-            stages_changed_values=not _analytical_stages_unchanged(field),
+            stages_changed_values=not analytical_stages_unchanged(field),
         )
     return _partial_distinct(field)
 

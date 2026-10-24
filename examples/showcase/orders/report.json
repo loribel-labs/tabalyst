@@ -1,9 +1,9 @@
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 4,
+  "format_revision": 5,
   "engine": {
-    "version": "0.7.0",
+    "version": "0.7.1",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,17 +27,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-19T03:39:54.221561Z",
-    "duration_seconds": 0.028642,
+    "started_at": "2026-10-24T03:55:10.733053Z",
+    "duration_seconds": 0.029257,
     "timings": {
-      "reading": 0.003532,
-      "analysis": 0.003393,
-      "finalize": 0.013714,
-      "derived": 0.00757,
-      "other": 0.000434
+      "reading": 0.003072,
+      "analysis": 0.003252,
+      "finalize": 0.014135,
+      "derived": 0.008389,
+      "other": 0.000409
     },
     "workers": 1,
-    "peak_memory_bytes": 77389824
+    "peak_memory_bytes": 79450112
   },
   "source": {
     "format": "json",
@@ -1128,7 +1128,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -2382,7 +2383,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -3613,7 +3615,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -4752,7 +4755,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -5980,7 +5984,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -6820,7 +6825,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -8092,7 +8098,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -9644,7 +9651,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -11689,7 +11697,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -13154,7 +13163,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -14040,7 +14050,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -15477,7 +15488,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -17481,7 +17493,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -21457,10 +21470,10 @@
       "status": "complete",
       "base": {
         "format_revision": 4,
-        "engine_version": "0.7.0",
+        "engine_version": "0.7.1",
         "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
         "config_sha256": "dd55baf37a922cc0bcce589a10912160784ef1ef91226cab2da63d8208f9f341",
-        "facts_sha256": "4a7b06fc99389aa4c0c8b34a8445049d2b1387850c4cfc89193fadfe2b652924"
+        "facts_sha256": "9cd32198f5fff9300cc837dc50638b79b26f4b94a2d5e2e6cb34e879573f9db2"
       },
       "settings": {
         "bins": 100,
@@ -21569,13 +21582,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 17,
-        "plan_id": "f81fd14d07b9aae7c5d02980760fab0a139917f41775f7245453d8ec927f674d",
+        "plan_id": "4636cc9b3f957d7622b8f6d3564348cce75c1f01c0b5280294bc9daa9a39ff15",
         "base": {
           "format_revision": 4,
-          "engine_version": "0.7.0",
+          "engine_version": "0.7.1",
           "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
           "config_sha256": "dd55baf37a922cc0bcce589a10912160784ef1ef91226cab2da63d8208f9f341",
-          "facts_sha256": "4a7b06fc99389aa4c0c8b34a8445049d2b1387850c4cfc89193fadfe2b652924"
+          "facts_sha256": "9cd32198f5fff9300cc837dc50638b79b26f4b94a2d5e2e6cb34e879573f9db2"
         },
         "objective": {
           "automatic": true,
@@ -24591,15 +24604,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-23T15:24:15.146490Z",
-        "duration_seconds": 0.000178,
+        "started_at": "2026-10-24T05:26:23.867464Z",
+        "duration_seconds": 0.000222,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000178
+          "other": 0.000222
         },
         "workers": 1,
-        "peak_memory_bytes": 79933440,
+        "peak_memory_bytes": 80437248,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -24621,7 +24634,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "1cc7d67a5f944bb9812def43a6d0ebe9dcbf1dda56402a50f34be9311f54fb85",
+          "key": "30b4035cd3ef3f9fc63f88f765546a9d611a91f54e5e70f13fe7173efa0ba81c",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -25291,7 +25304,7 @@
             "domain": 3
           },
           "domain": "analytical",
-          "key": "fd68bb41fd0207c4367f9595ad1fce65cea6b3b6e5d6ce7a0aa8414958beb20c",
+          "key": "4673543e8a288374dd1acf31009749055b9e34f32ba8740c9d16750619556ab6",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -25364,7 +25377,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "e1ff6b6d28298f38cf6fd74f2ff41e4755212f796f10c910118f5ef853cd5039",
+          "key": "daf8cb4a4822aa544e339cba561361dbf5980a9d0040ab937389056a55ccfd8b",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -25642,7 +25655,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "48b689535ba0c10146c1d1b7338a10f996319ce0f04d7e4e2578ac504fe8af68",
+          "key": "b1fc80c21a9660a5ae9e8e0a43bbd4556662390c35adb05c9b9a764929aa055c",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -25926,7 +25939,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "6a9542fed89e4d7b161d398c06bac76065d8369e4e0fac8459282e13231444f3",
+          "key": "8f0d202e51d5451a2949e6ccdd7538914dd06185344abee82839302e3895910f",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26085,7 +26098,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "fc7d2819979d0f8dc78ef41a0829a649896ebc5e5f1fafe8688a7532fffda698",
+          "key": "7ca300edac624f3a8a16745579d88cc72a56b0462451c18f1866c47d2e34f140",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26149,7 +26162,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "b8b713808e0ed905974bc6db84a83da9b93488d00f588f08296a492a96d107c1",
+          "key": "19b254b49fdbc3c8bc028b1bcb524cc136a5ff3885e535f960bab8dc4f9154ea",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26238,7 +26251,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "896729c46dd63b9d0826ae85f51e99b9cebfe1b52898cc3c7697579b02a29eac",
+          "key": "ada551df677fafc13c21da5e9bab21f4e8fa070376fc7a951610140baaa8473e",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26361,7 +26374,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "ba84b6b8dc009319f3844a11a0cd99c8106c60624270df95430bb3d6a7a495d3",
+          "key": "1f22e425baad3aa4adb492c7e0524b6d9ff2c5656d753c88aafcae0d7e2fe124",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26540,7 +26553,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "4fec8ac593b258fbc1dcb2ce46556f669fe84cfbdb93d4c0a4642acffd7de9b5",
+          "key": "8398256b3920965d888f90fb2f819dcb0f5c4df94346b86680da5e827c53ca8f",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -26742,7 +26755,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "1e99776cbc4349a10484642136bfb27b90a246083520f39da4ab685f54692fc4",
+          "key": "b8ca5075c5e343df26036d222a25ff6a4d61ba12e60c1aea6a0a9c0800e79f25",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -27007,7 +27020,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "5a9323c342be3f626d54c835058b93959164ae6c9fcf48668180902be89ebf18",
+          "key": "25cf40df99445ee8d9e4deb22be70a2bbbea50bae32a2ef1e9a32187a1a30dd6",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -27410,7 +27423,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "e7b76cd8589bd94202610b49540f7e71b62b9d80793143562878463d0f6ca32e",
+          "key": "fab0fb7eb8fba08836f6ae0598b57270a4eb3b7dc8dc31b7ba5102efc315b377",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -27452,7 +27465,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "e25a11800a060120ba534b2a17ed4ffa4894a7d8043a414416226f44e40d2cad",
+          "key": "ef77eeda130cc508d8caa8537d6260122c50695828d2e3153c8ee128c4e9c17b",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -27511,7 +27524,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "7fb4eda0597d58853b64921bf1a0813605ceb2fde2dee1d445ccf5e0939c42a0",
+          "key": "1adc96d4f2d91db8a8e2b5d952655b4f4caaec1837f0f0baf5b921f86f45f98f",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -27814,7 +27827,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "49a6ea34e76c2957f96bec8826d1a4046d8800723093603d22d8028bc9efd34f",
+          "key": "a6a5b8ed0f680c62492117a5bbec7b213ef043df86ca2f2b0a81e6a9948deceb",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -28090,12 +28103,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-23T15:24:15.214101Z",
+    "generated_at": "2026-10-24T05:26:23.977853Z",
     "generator": {
       "name": "tabalyst",
-      "version": "0.7.0"
+      "version": "0.7.1"
     },
-    "processing_seconds": 0.1488,
+    "processing_seconds": 0.1607,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -28116,16 +28129,17 @@
         "start": 10,
         "middle": 10,
         "end": 10
-      }
+      },
+      "dedup_report": null
     },
     "base_scan": {
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
       "format_revision": 4,
-      "engine_version": "0.7.0",
+      "engine_version": "0.7.1",
       "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
       "config_sha256": "dd55baf37a922cc0bcce589a10912160784ef1ef91226cab2da63d8208f9f341",
-      "facts_sha256": "4a7b06fc99389aa4c0c8b34a8445049d2b1387850c4cfc89193fadfe2b652924"
+      "facts_sha256": "9cd32198f5fff9300cc837dc50638b79b26f4b94a2d5e2e6cb34e879573f9db2"
     },
     "datasets": [
       {
@@ -28683,7 +28697,55 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": {
+                "rule_version": 1,
+                "status": "complete",
+                "interpretation": "raw_unique",
+                "reason": null,
+                "scope": {
+                  "dataset": "$.customers[]",
+                  "population": "source_records",
+                  "source_records": 60,
+                  "distinct_records": 60,
+                  "eligible_id_values": 60,
+                  "missing_id_positions": 0,
+                  "id_value_domain": "analytical",
+                  "row_identity": "scan_record_v1",
+                  "complete": true
+                },
+                "raw": {
+                  "unique": true,
+                  "id_distinct": 60,
+                  "id_redundant": 0
+                },
+                "after_row_deduplication": {
+                  "unique": true,
+                  "id_distinct": 60,
+                  "id_redundant": 0
+                },
+                "explanation": {
+                  "duplicate_row_extra_copies": 0,
+                  "id_repetitions_explained": 0,
+                  "id_repetitions_residual": 0
+                },
+                "evidence": {
+                  "id_cardinality": {
+                    "source": "scan.values.cardinality",
+                    "accuracy": "exact",
+                    "domain": "analytical"
+                  },
+                  "duplicate_rows": {
+                    "source": "scan.records.duplicates",
+                    "accuracy": "exact",
+                    "identity": "scan_record_v1",
+                    "report": null
+                  },
+                  "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
+                  "rejected": [],
+                  "conflict": null
+                }
+              }
             }
           },
           {
@@ -29127,7 +29189,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -29639,7 +29702,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -30239,7 +30303,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -30627,7 +30692,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -31214,7 +31280,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -31392,7 +31459,8 @@
                       "DMY": 0,
                       "MDY": 0
                     },
-                    "resolution": null
+                    "resolution": null,
+                    "same_day": 0
                   }
                 },
                 "adaptive": null
@@ -31722,7 +31790,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -32054,7 +32123,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -32438,7 +32508,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -32883,7 +32954,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -33056,7 +33128,8 @@
                       "DMY": 0,
                       "MDY": 0
                     },
-                    "resolution": null
+                    "resolution": null,
+                    "same_day": 0
                   }
                 },
                 "adaptive": null
@@ -33386,7 +33459,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -33762,7 +33836,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -34146,7 +34221,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -34510,7 +34586,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -34882,7 +34959,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -35290,7 +35368,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -35611,7 +35690,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           }
         ],

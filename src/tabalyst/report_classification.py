@@ -33,7 +33,7 @@ from tabalyst.scanner.secondpass.models import DistinctCount
 DISTINCT = "exact_distinct.distinct"
 
 
-def _distinct_count(
+def distinct_count(
     field: FieldResult,
     analyses: AnalysesBlock | None,
     dataset: str | None,
@@ -68,7 +68,7 @@ def _distinct_count(
     return None
 
 
-def _analytical_stages_unchanged(field: FieldResult) -> bool:
+def analytical_stages_unchanged(field: FieldResult) -> bool:
     """Whether no enabled analytical stage (NFC, trim, whitespace) altered a value.
 
     Then the analytical values are the original ones and the second pass, which
@@ -129,7 +129,7 @@ def refine(
         or analytical_distinct(field) is not None
     ):
         return classification
-    count = _distinct_count(field, analyses, dataset, base)
+    count = distinct_count(field, analyses, dataset, base)
     if (
         count is None
         or count.values != field.values.count
@@ -138,7 +138,7 @@ def refine(
         or not positions_complete(field)
     ):
         return classification
-    if not _analytical_stages_unchanged(field):
+    if not analytical_stages_unchanged(field):
         return classification.model_copy(
             update={"evidence": [*classification.evidence, _context(count)]}
         )

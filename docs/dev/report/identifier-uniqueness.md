@@ -1,7 +1,8 @@
 # Identifier uniqueness (Unique ID plan, lot 0)
 
 Status: contract written at lot 0 of the Unique ID plan (`tabalyst-gb`,
-`KANBAN/05-PROGRESS/2026-10-23-tabalyst-unique-id-plan.md`); implemented by lots 1 to 5.
+`KANBAN/05-PROGRESS/2026-10-23-tabalyst-unique-id-plan.md`); implemented by lots 1 to 4; P0
+finalized at lot 5 (sections 12 and 13). P1 and P2 are not delivered.
 Requirements: `KANBAN/04-SRS/2026-10-23-unique-id/Tabalyst_Unique_ID_Cahier_des_Charges_v1.md`
 (UID-001 to UID-010 are P0, UID-011 to UID-015 are P1 and P2 and out of this contract).
 Decision record: ADR `2026-10-23-identifier-uniqueness-derived-in-report`. Tests:
@@ -311,6 +312,29 @@ least one exact copy of a row (`E > 0` or `E` unknown with `D < N`). A repetitio
 of quality, not an Error: no finding of class Error is created, the raw finding stays and links to
 the decomposition, and the same occurrences are never counted twice in a summary indicator.
 
+### 8.1 Where the words are printed (lot 4)
+
+Texts come from `report_labels.py` (`UNIQUENESS_*`), the view models from `report_uniqueness.py`
+(never serialized, nothing computed beyond the case of 8). English texts, fixed at lot 4:
+
+| Case | Title | Text |
+| --- | --- | --- |
+| A | Unique ID | Unique across all N source records. No missing IDs. |
+| B | Unique after row deduplication | E repeated ID occurrences are fully explained by E exact duplicate rows. No ID conflicts remain among U distinct records. |
+| C | ID repetitions | T repetitions: E explained by exact duplicate rows, R remain between distinct records. |
+| D | Uniqueness not fully assessed | The exact number of distinct IDs or duplicate rows is unavailable. No conclusion about uniqueness after deduplication. (plus the sentence of the `reason`) |
+| E | Missing IDs | Uniqueness after deduplication cannot be established: some records have no ID. |
+
+- **Column page**: a card `#uniqueness` in 01 Summary (no renumbering), absent outside identifiers,
+  with the figures (`null` printed as "not established"; none for `failed`), the evidence and the
+  refused proofs. The type name of the strip and the pill comes from `ColumnPage.type_name`: Unique ID
+  (A), Unique after row deduplication (B), ID otherwise; never "Probable unique ID" for such a column.
+- **Findings**: the raw `identifier.repetition` card stays and gets a link to `#uniqueness`
+  (`PageFinding.uniqueness_link`). No finding and no Error is created.
+- **Summary table**: a short line under the overview for the concluding cases A to C only.
+- **Analysis settings**: `Identifier uniqueness` entry with the rule version, the sources of the
+  copies actually used, the Dedup report names and origins, and the refused proofs.
+
 ## 9. Python interface (for lots 1 and 2)
 
 Lot 1 owns the pure rule; lot 2 owns the proofs. They share these inputs, fixed here so that they
@@ -384,11 +408,67 @@ evidence of 6 and the proof of 7.
 | 2 | T07, T13 to T17, T32 (JSON alone), T34 and the Dedup `reason` codes of 7 |
 | 3 | T12, T25, T26, T27, T29 (JSON), T30, T31, no extra reading of the source, Scan unchanged |
 | 4 | T29 (HTML and JSON agree), cases A to E rendered, no double count, no automatic Error |
+| 5 | The whole suite, the reference measures of 12 and the conformance of 13 |
 | P1 | T33 and the planner; out of the P0 gate |
 
 ## 11. Open points kept for later lots
 
 - Exact figure of `scope.complete` for multi-collection JSON with exclusions (P0 is conservative).
-- The final English texts of the five cases (lot 4, gate 4).
+- Gate 4: the maintainer reads the five texts of 8.1.
 - Whether `report --scan` finds the colocated Dedup report beside the scan document (7.1, lot 3).
 - P1: `E_present_id` per column (cahier 5.4), near-unique signal (cahier 13).
+
+## 12. Reference measures, P0 (lot 5, cahier 15.3)
+
+Measured on 24 October 2026 on the maintainer's Windows 11 machine, with a generated CSV of
+100,000 records and 6 columns (`customer_id` distinct per row, 500 exact copies of rows), through
+the command line, median of 3 runs, peak resident memory of the process tree. The baseline is the
+commit `8c0065d` (0.7.1) in a temporary worktree. The script and the files stay outside the
+checkout (`D:\GIT.test\tabalyst\artifacts\uid-lot5`). The seconds depend on the machine and are
+not a target: only the comparison between lines is read.
+
+| Measure | 0.7.1 | Now | Peak memory (now) |
+| --- | --- | --- | --- |
+| `scan --no-html` | 3.08 s | 2.61 s | 179 MiB |
+| `report` from the source, with no scan to reuse | 1.51 s | 1.23 s | 134 MiB |
+| `report --scan` from a Scan document (facts alone) | 1.64 s | 1.34 s | 138 MiB |
+| `report --scan --dedup-report` (Dedup report of the same file) | not available | 1.36 s | 137 MiB |
+
+- **Scan:** the Scan does not import `identifier_uniqueness`; its standard path is unchanged and no
+  slower within the noise of the machine. There is no "with qualification" Scan to compare.
+- **Report from facts:** the qualification costs less than the noise between runs (the Report is not
+  slower than 0.7.1). The JSON of the 100,000-row file gives `customer_id` as `complete`,
+  `unique_after_row_deduplication`, 500 extra copies, 500 explained, `R_residual = 0`, from the Scan's
+  exact counts (`scan.records.duplicates`), without reading the CSV again (test T12, gate 3).
+- **Report with Dedup:** reading a valid `<stem>.dedup.json` adds a JSON read and its checks (7); the
+  measure is not distinguishable from the run without it. The memory is that of the Report.
+- **Not measured:** the count-only mode and the 1 M, 5 M and 10 M rows runs belong to P1 (lots 6 to 8).
+  No objective in seconds or in overhead is declared validated (cahier 15.3).
+
+## 13. Conformance to the criteria of the cahier 18 (P0)
+
+State after lot 5. Maintainer documentation, never published.
+
+| # | Criterion | Evidence | State |
+| --- | --- | --- | --- |
+| 1 | No regression of `identifier/id` and `identifier/unique_id` | `test_the_scan_classification_and_the_raw_finding_do_not_change`, T21 to T24 tests; the classification tests of `tests/scan/` | Met |
+| 2 | A repetition explained by a copy is not shown as an ID conflict between distinct rows | T02, T05, `test_the_porte_3_deliverable_100000_rows_500_copies`; case B of the Report | Met |
+| 3 | The raw reality stays and the adjusted reading is separate | `identifier.repetition` unchanged (`test_a_repetition_is_never_an_automatic_error`); the `raw` and `after_row_deduplication` blocks | Met |
+| 4 | No strict `true` from an estimated, limited, incomplete, inconsistent or foreign proof | T14, T18, T25, T28, `test_no_false_is_ever_emitted_without_a_demonstrated_repetition`, the properties of 15.2 | Met |
+| 5 | The usual case, a Scan entirely exact, needs no new reading | T12 (`test_t12_the_report_does_not_read_the_source_again`), the measures of 12 | Met |
+| 6 | A Dedup 0.7.1 report is used with identity validation, Dedup unchanged | T13, T15 to T17, T32, T34, `test_a_refusal_never_writes_the_dedup_report`; `src/tabalyst/dedup/` untouched | Met |
+| 7 | The JSON is versioned, verifiable and consistent with the HTML | `format_revision` 5, schema, T29 (`test_t29_the_html_and_the_json_say_the_same`), `profile-changelog.md` | Met |
+| 8 | The functional, invariant, security and non-regression tests pass | the suite (T31 exposure, properties, A1); T33 is P1 and stays skipped | Met for P0 |
+| 9 | The documentation tells raw Unique ID from Unique after row deduplication and, later, near-unique | `read-report.md` (Column page), `findings.md`, `json-profile.md`, `profile-changelog.md`, the glossary, `dedup/index.md` | Met; near-unique is not available and is not described as such |
+| 10 | The P1 and P2 requirements not delivered are identified and not described as available | the pages say that no second-pass analysis counts the copies and that near-uniqueness is not available; plan lots 6 to 9 | Met |
+
+Not delivered and not described as available: the count-only mode of the Dedup engine and the Deep
+analyzer of the copies of rows (UID-012), the Deep analytical cardinality (UID-013), the planner
+criteria and the cache (UID-011), near-uniqueness (UID-014), the composite keys, the discovery of
+candidates and the Smart or Explore recommendations (P2, UID-015).
+
+Follow-up for `tabalyst-studio` (nothing was edited there): no new page, so `src/navigation.ts` does
+not change. The documentation site imports the edited pages (`docs/en/report/`, `docs/en/dedup/index.md`,
+`docs/en/scan/deep.md`, `docs/en/reference/`) at the next release tag. The website advertises only
+what the README documents, so any claim about the uniqueness after row deduplication waits for the
+README line and the release.

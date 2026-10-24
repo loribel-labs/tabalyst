@@ -3,7 +3,7 @@
   "format_version": "0.2.0",
   "format_revision": 4,
   "engine": {
-    "version": "0.7.0",
+    "version": "0.7.1",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,17 +27,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-23T15:24:18.349102Z",
-    "duration_seconds": 0.022767,
+    "started_at": "2026-10-24T05:26:26.988036Z",
+    "duration_seconds": 0.018465,
     "timings": {
-      "reading": 0.00631,
-      "analysis": 0.002177,
-      "finalize": 0.009621,
-      "derived": 0.004249,
-      "other": 0.00041
+      "reading": 0.002822,
+      "analysis": 0.002114,
+      "finalize": 0.009022,
+      "derived": 0.004093,
+      "other": 0.000414
     },
     "workers": 1,
-    "peak_memory_bytes": 74690560
+    "peak_memory_bytes": 74723328
   },
   "source": {
     "format": "excel",

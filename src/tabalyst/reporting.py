@@ -61,6 +61,7 @@ from tabalyst.report_sections import (
 )
 from tabalyst.report_summary import attach_summaries, has_summaries
 from tabalyst.report_table import column_table, finding_detail_views
+from tabalyst.report_uniqueness import uniqueness_settings
 from tabalyst.report_views import (
     ColumnAnalyses,
     ColumnView,
@@ -404,6 +405,7 @@ def _page_view(
         ],
         # The limits section is shown only when something was limited.
         "has_limits": dataset.limits.present,
+        "uniqueness_settings": uniqueness_settings(dataset.columns),
         "pattern_columns": pattern_columns,
         "pattern_rows": pattern_rows,
         "pattern_missing": len(dataset.columns) - len(pattern_columns),

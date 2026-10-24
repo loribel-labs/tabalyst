@@ -1,9 +1,9 @@
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 4,
+  "format_revision": 5,
   "engine": {
-    "version": "0.7.0",
+    "version": "0.7.1",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,17 +27,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-19T03:39:00.946307Z",
-    "duration_seconds": 0.006289,
+    "started_at": "2026-10-24T03:54:16.211084Z",
+    "duration_seconds": 0.007073,
     "timings": {
-      "reading": 0.000565,
-      "analysis": 0.000145,
-      "finalize": 0.003271,
-      "derived": 0.001919,
-      "other": 0.000389
+      "reading": 0.000417,
+      "analysis": 0.000156,
+      "finalize": 0.004244,
+      "derived": 0.001826,
+      "other": 0.00043
     },
     "workers": 1,
-    "peak_memory_bytes": 72667136
+    "peak_memory_bytes": 74248192
   },
   "source": {
     "format": "csv",
@@ -747,7 +747,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -1580,7 +1581,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -2414,7 +2416,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -3231,7 +3234,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -4029,7 +4033,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -4826,7 +4831,8 @@
                     "DMY": 0,
                     "MDY": 0
                   },
-                  "resolution": null
+                  "resolution": null,
+                  "same_day": 0
                 }
               },
               "adaptive": null
@@ -6511,10 +6517,10 @@
       "status": "complete",
       "base": {
         "format_revision": 4,
-        "engine_version": "0.7.0",
+        "engine_version": "0.7.1",
         "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
         "config_sha256": "5207449bf6401632967c0f84560f9589c4b97c422a4f6be9431fe90325ebeb5e",
-        "facts_sha256": "246867f9dcc6f777c51ba5f04574227a72a9ace34472a9eca0d309a960a38f36"
+        "facts_sha256": "f18b0e0e31cc8a12843200b8ee8b86870e5d983ff9cec5544f661239533eb659"
       },
       "settings": {
         "bins": 100,
@@ -6623,13 +6629,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 17,
-        "plan_id": "3279027abb16456708b8dec87e22e23782eb86c01615e24bbe200df05cd3a392",
+        "plan_id": "a03e7cfff54ed39c5fecaa98e2fd9b1bdbd1d68a7a9f95b740a98d0b79f1915c",
         "base": {
           "format_revision": 4,
-          "engine_version": "0.7.0",
+          "engine_version": "0.7.1",
           "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
           "config_sha256": "5207449bf6401632967c0f84560f9589c4b97c422a4f6be9431fe90325ebeb5e",
-          "facts_sha256": "246867f9dcc6f777c51ba5f04574227a72a9ace34472a9eca0d309a960a38f36"
+          "facts_sha256": "f18b0e0e31cc8a12843200b8ee8b86870e5d983ff9cec5544f661239533eb659"
         },
         "objective": {
           "automatic": true,
@@ -7448,15 +7454,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-23T15:23:52.294731Z",
-        "duration_seconds": 9.7e-05,
+        "started_at": "2026-10-24T05:25:58.209718Z",
+        "duration_seconds": 0.000111,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 9.7e-05
+          "other": 0.000111
         },
         "workers": 1,
-        "peak_memory_bytes": 73175040,
+        "peak_memory_bytes": 73822208,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -7485,7 +7491,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "6cc9f3937661ecfed419ebf4b95926341879797d5a7ce01048a36d6d8536a42d",
+          "key": "7f81d725e427325523884252f64c28533204103fc5598e4c54f3110cbd3dab40",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7549,7 +7555,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "9eba9d5eb67954b7a94eb030f78f4279d119a471bbf7098eef1c4dae812eb854",
+          "key": "20bd6cd5eacef96a7448fde194faf6c47ea1ab38cac02eaa06190d95fecbc214",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7638,7 +7644,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "06612bba571e02cadda90b57e82132fdd81fe1c350a882c9b95bc6d2b5b59775",
+          "key": "468472da1599e51983d2c26829e32426b88c46652cb74274728913d60f2446f0",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7702,7 +7708,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "11d2a3db98170717180e6df31fb61c6bc5fbcb850e6beb0dd5ebec68ca1cc4bc",
+          "key": "d767f2da3d25d50f523e53f966d2c607a4180c2e592a639506369969a7e73d3c",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7796,7 +7802,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "ec4598d407e4a86d530184b1bfc914a1c2988593627fb06b997f4983cc53a398",
+          "key": "f674d881a84ae87af9a5f613a5016bbb84c1ae5bdb32c2e7aaf92df7502d522c",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -7847,7 +7853,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "127241abfa39bcaeb5cee6619f206b9df50c4a394ab107a343cb802a5836dfac",
+          "key": "7c2d7b2dddc3d966b9933a8ac19199ad16ccba5d80fdb5cb6ab8849cf61f7cea",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -7901,7 +7907,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "63a8146f05b75034570ecf608eda1c01ac009d2972f52be6bb940db07b07dec6",
+          "key": "635ebeb1d486a68990abb98b2e84a0b3844b75b5bb0b511c732acc7aa627e963",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -7932,12 +7938,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-23T15:23:52.294731Z",
+    "generated_at": "2026-10-24T05:25:58.212756Z",
     "generator": {
       "name": "tabalyst",
-      "version": "0.7.0"
+      "version": "0.7.1"
     },
-    "processing_seconds": 0.0219,
+    "processing_seconds": 0.0245,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -7958,16 +7964,17 @@
         "start": 10,
         "middle": 10,
         "end": 10
-      }
+      },
+      "dedup_report": null
     },
     "base_scan": {
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
       "format_revision": 4,
-      "engine_version": "0.7.0",
+      "engine_version": "0.7.1",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
       "config_sha256": "5207449bf6401632967c0f84560f9589c4b97c422a4f6be9431fe90325ebeb5e",
-      "facts_sha256": "246867f9dcc6f777c51ba5f04574227a72a9ace34472a9eca0d309a960a38f36"
+      "facts_sha256": "f18b0e0e31cc8a12843200b8ee8b86870e5d983ff9cec5544f661239533eb659"
     },
     "datasets": [
       {
@@ -8449,7 +8456,55 @@
               },
               "flags": [
                 "issue"
-              ]
+              ],
+              "identifier_uniqueness": {
+                "rule_version": 1,
+                "status": "complete",
+                "interpretation": "unique_after_row_deduplication",
+                "reason": null,
+                "scope": {
+                  "dataset": "rows",
+                  "population": "source_records",
+                  "source_records": 5,
+                  "distinct_records": 4,
+                  "eligible_id_values": 5,
+                  "missing_id_positions": 0,
+                  "id_value_domain": "analytical",
+                  "row_identity": "full_decoded_csv_row_v1",
+                  "complete": true
+                },
+                "raw": {
+                  "unique": false,
+                  "id_distinct": 4,
+                  "id_redundant": 1
+                },
+                "after_row_deduplication": {
+                  "unique": true,
+                  "id_distinct": 4,
+                  "id_redundant": 0
+                },
+                "explanation": {
+                  "duplicate_row_extra_copies": 1,
+                  "id_repetitions_explained": 1,
+                  "id_repetitions_residual": 0
+                },
+                "evidence": {
+                  "id_cardinality": {
+                    "source": "scan.values.cardinality",
+                    "accuracy": "exact",
+                    "domain": "analytical"
+                  },
+                  "duplicate_rows": {
+                    "source": "scan.records.duplicates",
+                    "accuracy": "exact",
+                    "identity": "full_decoded_csv_row_v1",
+                    "report": null
+                  },
+                  "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
+                  "rejected": [],
+                  "conflict": null
+                }
+              }
             }
           },
           {
@@ -8829,7 +8884,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -9295,7 +9351,8 @@
               "flags": [
                 "issue",
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -9456,7 +9513,8 @@
                       "DMY": 0,
                       "MDY": 0
                     },
-                    "resolution": null
+                    "resolution": null,
+                    "same_day": 0
                   }
                 },
                 "adaptive": null
@@ -9722,7 +9780,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -10106,7 +10165,8 @@
                 "whitespace": null,
                 "types": null
               },
-              "flags": []
+              "flags": [],
+              "identifier_uniqueness": null
             }
           },
           {
@@ -10497,7 +10557,8 @@
               },
               "flags": [
                 "obs"
-              ]
+              ],
+              "identifier_uniqueness": null
             }
           }
         ],

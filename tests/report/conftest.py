@@ -24,7 +24,7 @@ ENABLED_LOTS: set[str] = {
 
     "3",  # Report integration
 
-    # "4",  # HTML
+    "4",  # HTML
 }
 
 

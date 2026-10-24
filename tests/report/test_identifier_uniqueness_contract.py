@@ -820,7 +820,7 @@ def test_t29_the_html_and_the_json_say_the_same(tmp_path):
     source = _unique_csv(tmp_path, distinct_ids=495, shared_id_rows=5, copies=5)
     generate_reports([source], output_dir=tmp_path / "out")
     html = next((tmp_path / "out").glob("*.html")).read_text(encoding="utf-8")
-    document = json.loads(next((tmp_path / "out").glob("*.json")).read_text(encoding="utf-8"))
+    document = json.loads((tmp_path / "out" / "r.json").read_text(encoding="utf-8"))
     item = uniqueness_of(document, "customer_id")
 
     assert item["explanation"]["id_repetitions_residual"] == 5

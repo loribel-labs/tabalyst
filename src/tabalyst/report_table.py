@@ -73,6 +73,7 @@ from tabalyst.report_preview import (
     percent_text,
     preview_of,
 )
+from tabalyst.report_uniqueness import uniqueness_view
 from tabalyst.report_views import ColumnView, DatasetView
 from tabalyst.result_model import ResultModel
 from tabalyst.summary_models import (
@@ -160,6 +161,9 @@ class ColumnRow(ResultModel):
     # The groups of spelling variants behind the Issue of the same name, for the hover.
     variants: VariantDetails | None
     flags: list[Flag]
+    # The short qualification of an identifier's uniqueness, when the rule concluded.
+    uniqueness: str | None = None
+    uniqueness_case: str | None = None
 
     @property
     def flag_text(self) -> str:
@@ -479,6 +483,7 @@ def column_row(column: ColumnView, dataset_id: str) -> ColumnRow:
     """The row of a column, written from its stored summary."""
     summary = _summary(column)
     classification = column.classification
+    uniqueness = uniqueness_view(summary.identifier_uniqueness)
     return ColumnRow(
         dataset_id=dataset_id,
         field_id=column.id,
@@ -496,6 +501,8 @@ def column_row(column: ColumnView, dataset_id: str) -> ColumnRow:
         details=summary.details,
         variants=summary.finding_details.variants,
         flags=list(summary.flags),
+        uniqueness=uniqueness.short if uniqueness else None,
+        uniqueness_case=uniqueness.case if uniqueness else None,
     )
 
 
