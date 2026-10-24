@@ -26,7 +26,7 @@ from tabalyst.execution_log import (
     append_execution,
     build_execution_entry,
 )
-from tabalyst.identifier_uniqueness.facts import check_dedup_option
+from tabalyst.identifier_uniqueness.facts import check_dedup_option, proved_copies
 from tabalyst.inspector.resolution import (
     check_result,
     inspect_notice,
@@ -133,6 +133,11 @@ def _profile_from_scan(
         reads_source=False,
         shared=False,
         indent=settings.output.json_indent,
+        proved_copies=proved_copies(
+            result,
+            None if config.dedup_report is None else Path(config.dedup_report),
+            scan_path.parent,
+        ),
     )
     analyses = run_chain(chain, result, on_progress=on_progress, progress_source=scan_path)
     profile = build_profile(
@@ -449,6 +454,11 @@ def plan_report_chain(
         shared=scanned.shared,
         indent=scanned.indent,
         workers=scanned.workers,
+        proved_copies=proved_copies(
+            scanned.result,
+            None if scanned.config.dedup_report is None else Path(scanned.config.dedup_report),
+            scanned.scan_path.parent if scanned.from_scan else scanned.source.parent,
+        ),
     )
 
 

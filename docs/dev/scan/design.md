@@ -3775,7 +3775,7 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `numeric_histogram` | integer, number, and mixed with a numeric measure | constant (`constant_value`: no spread, no division by zero) | no values, exposure, measure not complete, mixed type (`unreliable_type`) | `dense_counts` (an integer field whose minimum and maximum are integers, at most 65,536 integers apart: exact median, mode, quantiles from one state) or `bins` (`deep.bins`, 100 by default, with the `strategy` of `deep.bin_strategy`) |
 | `length_distribution` | text, mixed | the length histogram is complete (`lengths_complete`, always today) | no values, exposure | `dense_counts` |
 | `exact_distinct` | any field | the cardinality is complete (`distinct_exact`) | no values, exposure (unless `deep.sensitive.enabled`, O61: then a masked or hidden field is counted, parameter `exposure`, utility 40), long texts only, values longer than 64 characters (`not_compactable`) | `compact_set`, key `integer` (digit strings, JSON integers) or `text`: the key the expected values take, the firm bound always charges a text (20.8) |
-| `analytical_distinct` | any field (Unique ID lot 7, 20.41) | the Scan has the analytical count (`distinct_exact`) | no values, exposure (unless `deep.sensitive.enabled`), long texts only, values longer than 64 characters (`not_compactable`), no analytical stage changed a value (`stages_unchanged`) | `compact_set`, parameter `key`; utility 40, never automatic |
+| `analytical_distinct` | any field (Unique ID lot 7, 20.41) | the Scan has the analytical count (`distinct_exact`) | no values, exposure (unless `deep.sensitive.enabled`), long texts only, values longer than 64 characters (`not_compactable`), no analytical stage changed a value (`stages_unchanged`) | `compact_set`, parameter `key`; utility 50 for an identifier candidate (20.42), else 40 and never automatic |
 | `pattern_validation` | fields with an inferred pattern entry | never (the Scan counts distinct values, not occurrences) | failed or absent inference, exposure, no candidate | `family_recognizer` (20.9); reads no source when the inference read every distinct value (`all_distinct`): the occurrences follow from the exact counts of the samples |
 | `pearson_correlation` | pairs of numeric columns of one dataset (lot 8a, 20.12) | never | a column that is not numeric, hidden by exposure or repeated inside a record (explicit pairs only; the exploration counts the columns it leaves out) | `pairwise_complete`, parameter `min_pairs` |
 | `category_crosstab` | a category column and a column of text, mixed or integer values of one dataset, by feature (lot 8b, 20.13) | never | a category that is not one (no exact frequencies, one value, too many, near unique, an identifier, exposed, repeated), a column without the classes of the feature (no pattern, one length, no listed value), a column that is its own feature | `contingency_table`, parameters `feature`, `max_categories`, `examples`, `rule_purity`, `rule_support` (and `max_classes`, `prefix_length`) |
@@ -3792,7 +3792,7 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `temporal_distribution` | date, a column of datetimes (the technical type of the Scan is `text` for them: at least 80% of the values are of one datetime kind), mixed with a temporal measure | single date, or granularity `year` and years already counted (`years_counted`) | no values, exposure, mixed type, several kinds, times only | `period_counts` by `day` (span up to 2 years), `month` (60 years) or `year` (20.10) |
 | `measure_extraction` | a field where the `currency`, `percentage` or `quantity` detector matched a value (lot 14, 20.19) | never | no values, exposure, the detector that matched the most values matched fewer than half of the values (`low_coverage`) | `value_table`, parameters `detector`, `max_groups`, `max_values`, `bins`; reads no source when every distinct value is in the samples with its exact count |
 | `residual_values` | a field whose patterns leave values out or may (found in a sample), or that a replayable detector reads for at least half of its values while finding some `invalid` or `not_matched` (lot 15, 20.20) | never | no values, exposure, nothing left out (`nothing_left_out`) | `residual_table`, parameters `sources`, `max_listed`, `max_tracked`, `max_value_length`, `records`; reads no source when every distinct value is in the samples with its exact count and `records` is 0 |
-| `duplicate_rows_count` | the rows of a CSV file with a single dataset and at least one record (Unique ID lot 6, 20.40) | the Scan counted the extra copies exactly (`copies_exact`) | the Scan was set not to count them (`duplicates_disabled`); records left out (`records_left_out`); no candidate for another source | `extra_copies`, parameters `memory_mb`, `disk_mb`, `max_rows`; utility 40, never automatic |
+| `duplicate_rows_count` | the rows of a CSV file with a single dataset and at least one record (Unique ID lot 6, 20.40) | the Scan counted the extra copies exactly (`copies_exact`) | the Scan was set not to count them (`duplicates_disabled`); records left out (`records_left_out`); no candidate for another source | `extra_copies`, parameters `memory_mb`, `disk_mb`, `max_rows`; utility 50 for a dataset with an identifier candidate whose Scan count is limited (20.42), else 40 and never automatic; `copies_proved` when a valid Dedup report proves the copies |
 | `duplicates_report` | a field of text, integer or mixed values, at least 90% distinct (50% under a name that suggests an identifier), and the combinations of two columns a request names (lot 15, 20.21) | the cardinality is complete and equal to the values (`all_distinct`) | no values, exposure, long texts only, a combination of a withheld column or one inside the items of an array | `digest_table`, parameters `max_listed`, `max_tracked`, `records` (a combination: the first two); reads no source for a field when every distinct value is in the samples and `records` is 0 |
 
 A mixed type never gets a typed analysis automatically (specification 11.2):
@@ -5759,8 +5759,8 @@ the end has the SHA-256 of the whole file from the same reading. A file or size 
 dataset, `rows_duplicates` (the state of the Scan's count: `complete`, `limited`, `disabled`) and `row_bytes` (mean bytes of a record). `assess`: `satisfied`
 (`copies_exact`) when the Scan is exact, `not_applicable` when it was set not to count or left records out, else `applicable` with the three ceilings as
 parameters (part of the key of the result). The memory is the reader plus the table up to `memory_mb`; `NS_PER_CELL["rows"]` (6,000) is the nanoseconds a
-record costs, measured at 2,095 in memory and 5,812 on disk (300,000 records of 6 columns), so the CPU class is above the automatic limit and a forced run
-asks first. `COST_MODEL_VERSION` is 18.
+record costs, measured at 2,095 in memory and 5,812 on disk (300,000 records of 6 columns), so the CPU class (that of a cell of the record, 20.42) is above the automatic limit
+for a table of two columns. `COST_MODEL_VERSION` was 18 here; see 20.42.
 
 **Execution.** Outside the router and the workers: `_count_copies` (executor) calls `count_copies`, which checks the source before (size), counts, and checks the
 SHA-256 after an exact count (`StaleSource`), then the records against `record_count` and the Scan's lower bound against the count (`scan_mismatch`). The
@@ -5769,7 +5769,7 @@ second-pass document is revision 4.
 
 **Report.** `identifier_uniqueness/facts.py` reads the result as the third source of `E` (`deep.duplicate_rows_count`); `report_deep.py` prints one line of it.
 
-**Left out.** Sharing the reading with the router, an automatic choice (lot 8), a count per column (cahier 5.4), other formats than CSV.
+**Left out.** Sharing the reading with the router (decided against in lot 8, 20.42), a count per column (cahier 5.4), other formats than CSV. The automatic choice is 20.42.
 
 ### 20.41 The analytical distinct count (Unique ID lot 7, UID-013)
 
@@ -5784,7 +5784,7 @@ stage with `changed > 0`). `assess`: `satisfied` (`distinct_exact`) when the Sca
 (unless `deep.sensitive.enabled`), `long_texts_only`, `not_compactable` (as `exact_distinct`) and `stages_unchanged` (then the original count is the analytical one),
 else `applicable`, method `compact_set`, parameters `key` (and `exposure`). It subclasses `ExactDistinct` for the sizes; the state key has its own prefix
 (`exact_set:analytical:`) so two analyses of a field hold two sets, and the minimum is the fixed size only (the original values the Scan proved bound the
-analytical count from above, not from below). Utility 40, never automatic (lot 8). `NS_PER_CELL["analytical_distinct"]` is 900; `COST_MODEL_VERSION` is 19.
+analytical count from above, not from below). Utility 40, automatic only for an identifier candidate (20.42). `NS_PER_CELL["analytical_distinct"]` is 2,000 (20.41 measured at lot 7).
 
 **Execution.** `AnalyticalSet` (an `ExactSet`) is fed by `FieldRoute.analytical`: `Router._counted` leaves the "original values only" path for the cell path,
 where `Cell.text` is the analytical text the first pass computes (`CellReader.analytical`), and adds the texts merged by value (`add_texts`), so a pool is charged once
@@ -5803,8 +5803,44 @@ values and stages), the second pass original. The first is `UniquenessFacts.dist
 that differ are `evidence_conflict` with `measure: id_cardinality`; an analytical count above an exact original one (stages changed) is `inconsistent_measures`, since
 normalizing only merges values. A stopped count is never `D`.
 
-**Left out.** The automatic choice and the criteria of the planner (lot 8), the other formats' fingerprints for long values (`fingerprint_distinct` counts the original ones), a count per
+**Left out.** The criteria of the planner are 20.42; the other formats' fingerprints for long values (`fingerprint_distinct` counts the original ones), a count per
 casefold or accent key.
+
+### 20.42 The planner and the uniqueness of an identifier (Unique ID lot 8, UID-011)
+
+The two analyses of lots 6 and 7 (`duplicate_rows_count`, `analytical_distinct`) are chosen by the planner when they settle the uniqueness of an identifier
+and the budgets allow it. The decision is the ADR `2026-10-24-unique-id-planner-criteria`; the contract of use is `docs/dev/report/identifier-uniqueness.md` 6.8.
+
+**Candidate.** `FieldFacts.uniqueness_candidate` (from the Scan alone): classification `identifier/id`, `positions_complete` (every position has a value, not under an
+array), no record left out (`excluded == 0`) and two records at least. A raw `unique_id` is not a candidate (`E = 0` follows from `D = N`). The rows of a table carry
+`rows_candidates` (how many columns are candidates), `rows_distinct_known` (one has the Scan's exact analytical count) and `rows_proved` (a valid Dedup report proves the copies).
+
+**Utility.** `AUTOMATIC_IDENTIFIER_SCORE` (50, above `AUTOMATIC_MIN_UTILITY` 45) for `analytical_distinct` on a candidate (reason `identifier_uniqueness`) and for
+`duplicate_rows_count` on a dataset with a candidate whose Scan count is `limited` (reason `identifier_copies`); 40 and never automatic otherwise. Memory, CPU
+class and cells decide as for any analysis.
+
+**Order and dependency.** `_decide` takes the analyses of whole rows (`Analyzer.rows`) last. `Analyzer.gives_distinct(facts)` says whether a selected analysis gives the
+exact analytical distinct count of a candidate (`exact_distinct` when no stage changed a value, `analytical_distinct`); `try_select` records the datasets that have one.
+An automatic `duplicate_rows_count` needs `rows_distinct_known` or such a dataset, else it is rejected `distinct_unknown`: a count of the copies without a distinct
+count settles nothing. A request or a forced plan ignores the dependency.
+
+**CPU class of the rows.** `NS_PER_CELL["rows"]` is the nanoseconds of a record, so `DuplicateRows.estimate` sets `Costs.cpu` to `cpu_class_for(rows / dataset_fields)`: the class
+of the share of a cell, as the classes mean. `cell_ns` stays per record, which `estimate_time` multiplies by the records. Three columns or more is `moderate`, two columns
+`high` (not automatic, and a forced run asks), one column `high`. `COST_MODEL_VERSION` is 20. The automatic count is expected to stay in memory (a table larger than estimated meets the ceilings of `deep.copies`, the disk included): the table (`records * (row_bytes + 160)`) must fit
+the automatic memory (128 MiB), which the measures of the contract (12.1) put at about 500,000 records of 50 bytes.
+
+**Proof.** `plan_analyses(..., proved_copies=frozenset(datasets))` (also `plan_second_pass`, `plan_chain`): `rows_facts(scan, proved)` marks the rows and the analyzer answers
+`satisfied`, `copies_proved`, `satisfied_by: "dedup report"`. The Report computes it with `identifier_uniqueness.facts.proved_copies(scan, dedup_report, source_dir)` before it plans (explicit
+option, then the colocated `<stem>.dedup.json`); a refused proof is not looked at there and stays in `evidence.rejected`.
+
+**Cache (CACHE-02 to CACHE-05, cahier 12.5).** The key of a result holds the base of the Scan, the analyzer and its version, the dataset, the field, the method and the parameters.
+`DuplicateRows.version` is `dedup.calculation.CALCULATION_VERSION` and `AnalyticalDistinct.version` its own `CALCULATION_VERSION`: a change of what the count means is a new key. The base
+holds the source SHA-256 and the configuration (so the normalization stages), the parameters of the copies hold the three ceilings. `reusable_results` (executor) also keeps a
+`limited` result of `DETERMINISTIC_STOP` (`duplicate_rows_count`): its ceilings are bytes and records in the key, so the same key stops at the same place. A stopped set of values is not
+kept (the memory the plan granted is not in the key). A Dedup report is not part of the second-pass document; the derived object is rebuilt with the summary.
+
+**Left out.** Sharing the reading with the router (decided against: the strict CSV reading of Dedup is not the router's), a budget of its own for the automatic count or the disk in an automatic
+run (the measures of 12.1 of the contract show that, with the default Scan limit of 2,000,000 records, the count of the copies is automatic only when that limit was lowered), a count of the copies per column.
 
 ## 21. Original value domain (O32)
 

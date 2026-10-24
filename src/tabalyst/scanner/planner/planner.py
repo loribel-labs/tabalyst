@@ -285,6 +285,9 @@ def _decide(
     """
     ledger = _Ledger()
     priority = 0
+    # The datasets with an identifier column whose distinct count is selected (UID-011): the count
+    # of the copies of rows is worth it only beside one (or when the Scan already has it).
+    distinct_planned: set[str] = set()
     automatic_memory = min(budgets.automatic_memory_bytes, budgets.memory_bytes)
 
     def reject(entry: _Entry, reason: str) -> None:
@@ -298,6 +301,8 @@ def _decide(
             reject(entry, "budget")
             return
         ledger.add(entry.costs, reads_source)
+        if entry.analyzer.gives_distinct(entry.facts):
+            distinct_planned.add(entry.facts.dataset)
         priority += 1
         entry.selection = Selection(
             state="selected", reason=reason, requested=entry.requested, priority=priority
@@ -335,15 +340,20 @@ def _decide(
         return entry.partner is not None or CPU_ORDER.index(entry.costs.cpu) <= 1
 
     cheap = sorted(
-        (e for e in rest if e.costs is not None and is_cheap(e)),
+        (e for e in rest if e.costs is not None and is_cheap(e) and not e.analyzer.rows),
         key=lambda e: (-(e.utility.score if e.utility else 0), e.order),
     )
     costly = sorted(
-        (e for e in rest if e.costs is not None and not is_cheap(e)),
+        (e for e in rest if e.costs is not None and not is_cheap(e) and not e.analyzer.rows),
         key=lambda e: (
             -((e.utility.score if e.utility else 0) * 1_000_000 // max(1, e.costs.memory.max)),
             e.order,
         ),
+    )
+    # The analyses of whole rows come last: the count of the copies depends on the distinct counts
+    # chosen before it (UID-011).
+    whole_rows = sorted(
+        (e for e in rest if e.costs is not None and e.analyzer.rows), key=lambda e: e.order
     )
     limit = CPU_ORDER.index(budgets.automatic_max_cpu)
     reading_too_long = CPU_ORDER.index(cell_class(cells)) > limit
@@ -370,6 +380,12 @@ def _decide(
             reject(entry, "cells_budget")
         elif entry.assessment.requires_source and reading_too_long:
             reject(entry, "cpu_class")
+        elif (
+            entry.analyzer.rows
+            and not entry.facts.rows_distinct_known
+            and entry.facts.dataset not in distinct_planned
+        ):
+            reject(entry, "distinct_unknown")
         elif pair is not None and chosen_pairs.get(analyzer.id, 0) >= pair.automatic_limit(budgets):
             reject(entry, pair.budget_reason)
         else:
@@ -382,7 +398,7 @@ def _decide(
     # it is chosen only when that one was not (budget, CPU class), so a relation
     # is not lost for being told twice.
     deferred: list[_Entry] = []
-    for entry in [*cheap, *costly]:
+    for entry in [*cheap, *costly, *whole_rows]:
         assert entry.costs is not None and entry.utility is not None
         if forced:
             try_select(entry, "forced", budgets.memory_bytes)
@@ -504,6 +520,7 @@ def plan_analyses(
     registry: AnalyzerRegistry | None = None,
     deep: DeepSettings | None = None,
     stratify: Stratify | None = None,
+    proved_copies: frozenset[str] = frozenset(),
 ) -> AnalysisPlan:
     """Plan the analyses that could be added to a finished Scan.
 
@@ -515,7 +532,9 @@ def plan_analyses(
     ``ConfigurationError`` for a request that names an unknown analyzer,
     dataset or field. ``deep`` holds the settings that parametrize the methods
     (the bins of a histogram). ``stratify`` adds the advice on stratified
-    sampling (design 20.14). Reads the Scan only; nothing is run or written.
+    sampling (design 20.14). ``proved_copies`` names the datasets whose copies of rows a
+    valid Dedup report already proves: their count is not planned (UID-011). Reads the Scan
+    only; nothing is run or written.
     """
     registry = default_registry() if registry is None else registry
     deep = DeepSettings() if deep is None else deep
@@ -524,7 +543,7 @@ def plan_analyses(
     analyzers = [analyzer(deep) for analyzer in registry]
     facts_list = scan_facts(scan)
     roots = root_facts(scan)
-    rows = rows_facts(scan)
+    rows = rows_facts(scan, proved_copies)
 
     entries: list[_Entry] = []
     matched = [0] * len(requests)

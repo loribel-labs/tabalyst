@@ -70,8 +70,8 @@ def _candidate(plan):
     return found[0]
 
 
-def _limited_csv(tmp_path, rows=5_000, copies=1_500):
-    source = write_csv(tmp_path, "limited.csv", generated_rows(rows, copies, width=3), header=WIDE)
+def _limited_csv(tmp_path, rows=5_000, copies=1_500, header=WIDE):
+    source = write_csv(tmp_path, "limited.csv", generated_rows(rows, copies, width=3), header=header)
     result = _scan(source, max_tracked_records=1_000)
     assert result.datasets[0].records.duplicates.count.status == "limited"
     return source, result
@@ -114,8 +114,9 @@ def test_a_source_that_is_not_a_csv_has_no_candidate(tmp_path):
     assert not [c for c in plan.candidates if c.analyzer == ANALYZER]
 
 
-def test_the_analyzer_is_never_chosen_by_itself(tmp_path):
-    _, result = _limited_csv(tmp_path)
+def test_the_analyzer_is_not_chosen_by_itself_without_an_identifier(tmp_path):
+    # Without an identifier column the count settles no uniqueness: asked for, or forced (lot 8).
+    _, result = _limited_csv(tmp_path, header=["a", "b", "c"])
 
     automatic = plan_analyses(result, registry=default_registry().runnable())
     asked = _plan(result)

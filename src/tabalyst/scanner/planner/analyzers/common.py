@@ -23,6 +23,10 @@ from tabalyst.scanner.planner.identifiers import (  # noqa: F401 - re-exported f
 )
 from tabalyst.scanner.planner.models import State
 
+# The utility of an analysis that decides the uniqueness of an identifier (UID-011): just above
+# the lowest utility the planner picks by itself, so the budgets and the CPU class still decide.
+AUTOMATIC_IDENTIFIER_SCORE = 50
+
 
 def blocked(facts: FieldFacts) -> Assessment | None:
     """The assessment that stops every analysis of a field, or ``None``: no

@@ -151,6 +151,13 @@ class Analyzer(ABC):
         """Whether the analyzer concerns this kind of field at all. A field it
         does not concern has no candidate, which keeps the plan readable."""
 
+    def gives_distinct(self, facts: FieldFacts) -> bool:
+        """Whether, once run, the analysis gives the exact distinct count of the
+        analytical values that the uniqueness of an identifier needs. The planner
+        chooses the count of the copies of rows only when one such count is there
+        or planned (UID-011, design 20.42)."""
+        return False
+
     @abstractmethod
     def assess(self, facts: FieldFacts) -> Assessment:
         """Whether it applies, is already answered, or does not apply and why."""

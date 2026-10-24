@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 19
+COST_MODEL_VERSION = 20
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -205,7 +205,10 @@ NS_PER_CELL = {
     # the reading of the analytical text of each distinct raw string. Measured on 300,000
     # identifiers of 10 characters, a fifth of them padded with blanks, in a run of its own
     # (one process, the reading included): 2,513 ns a record against 1,067 for `distinct_set`,
-    # so about 1,450 ns more than the original set. Rounded up.
+    # so about 1,450 ns more than the original set. Rounded up. Lot 8 measured the whole run (the
+    # reading of the three columns and the guard of the source included) on three profiles of 1 M
+    # identifiers (10 characters, digits, 36 characters; a fifth padded): 2,336 to 2,763 ns a
+    # record, of which about 350 are the reading, so 2,000 stands for the analysis itself.
     "analytical_distinct": 2_000,
     "matcher_base": 800,
     "matcher": 100,
@@ -330,7 +333,12 @@ NS_PER_CELL = {
     # its own reading of a CSV file (300,000 records of 6 columns and 69 bytes,
     # one process): 2,095 ns a record while the table stays in memory and 5,812 once it
     # lives in the temporary database (1 MiB of budget). The unit is the record, not a cell,
-    # and the figure is the dearer one, rounded up.
+    # and the figure is the dearer one, rounded up. Lot 8 measured it again at 1 M, 5 M and 10 M
+    # records of 4 columns (`tabalyst-lab/benchmarks/copies_scale.py`): 1,500 to 1,800 ns in
+    # memory, 5,600 to 6,300 on disk at 5 M and 10 M, and 7,981 at 10 M with a quarter of the
+    # rows copied (a table that gets large pays its database); 6,000 stays, inside the range of
+    # the estimate. The CPU class of this analysis is that of its share of a cell
+    # (``DuplicateRows.estimate``: this figure over the columns of the record), the unit of the classes.
     "rows": 6_000,
     # The order of two dates (lot S3b), measured on the executor (1 pair then 6 and 12 pairs
     # of the 100,000-row insurance base, one process, the reading of the cell included):

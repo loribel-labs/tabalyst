@@ -48,12 +48,12 @@ stored.
 | `numeric_histogram` | Numeric fields | The count of every integer when they span at most 65,536 values, with the exact mode, median and quantiles; otherwise the count in each of 100 bins, with estimated median and quantiles |
 | `length_distribution` | Text fields whose scan has no length histogram | The exact count of every length |
 | `exact_distinct` | Fields whose scan stopped counting distinct values | The exact number of distinct values, the number of values it counts over and how many of them repeat an earlier one |
-| `analytical_distinct` | Fields whose scan stopped counting distinct values and whose normalization stages changed a value | The exact number of distinct values after `nfc`, `trim` and `collapse_whitespace`, the number of values it counts over and how many of them repeat an earlier one. Asked for, or run with `--deep`, never by itself |
+| `analytical_distinct` | Fields whose scan stopped counting distinct values and whose normalization stages changed a value | The exact number of distinct values after `nfc`, `trim` and `collapse_whitespace`, the number of values it counts over and how many of them repeat an earlier one. Chosen by `tabalyst report` by itself for an [identifier](../report/read-report.md) that a stage changed, otherwise asked for or run with `--deep` |
 | `exact_frequencies` | Fields of at most 1,000 distinct values whose scan lists only the most frequent | The exact count of every value |
 | `pattern_validation` | Text fields with inferred patterns | How many values of the whole file each pattern reads, how many none reads, and how many were not tested |
 | `residual_values` | Fields whose patterns leave values out, or that a detector mostly reads but finds some invalid or unmatched values in | The values themselves with their exact counts and first records, and for each pattern an example and its distinct values |
 | `duplicates_report` | Columns of almost all different values, and combinations of two columns you ask for | The values found more than once, with their counts and first records |
-| `duplicate_rows_count` | CSV files whose scan could only bound the copies of rows | The exact number of extra copies of whole rows, counted with the engine of [Dedup](../dedup/index.md) without writing a file. Asked for, or run with `--deep`, never by itself |
+| `duplicate_rows_count` | CSV files whose scan could only bound the copies of rows | The exact number of extra copies of whole rows, counted with the engine of [Dedup](../dedup/index.md) without writing a file. Chosen by `tabalyst report` by itself for a small table with an identifier, otherwise asked for or run with `--deep` |
 | `temporal_distribution` | Date fields, and columns of datetimes | The dates counted per day, month or year |
 | `datetime_parts` | Date fields, columns of datetimes and of times | The dates counted by year-month, day of the week and hour, counted after a bound you give, with the ambiguous dates read under each order and the invalid ones counted by reason |
 | `numeric_shape` | Numeric fields | The asymmetry and kurtosis, the outliers of Tukey, the decimals the numbers are written with, and a logarithmic and an equal-count histogram |
@@ -858,10 +858,18 @@ from a conflict between two rows.
   (`records.duplicates: false`) is not overridden: the analysis does not apply, and the file has
   to be scanned again with the count on. A source that is not a CSV file has no such candidate,
   and neither has a file whose scan left records out.
-- **When it runs.** It is never chosen by itself: ask for it with
-  `tabalyst.AnalysisRequest("duplicate_rows_count")` or run it with `--deep`. Reading the whole
-  file again, it is above the automatic CPU limit, so a forced run asks first
-  ([Asking first](#asking-first)).
+- **When it runs.** `tabalyst report` counts the copies by itself only when it settles the
+  uniqueness of an identifier: the dataset has a column the scan calls an ID (not a Unique ID),
+  with a value in every record, the scan's count is a lower bound, the exact number of distinct
+  IDs is known or counted in the same pass, the table of distinct rows fits the memory an
+  automatic choice may take (about 128 MiB, a few hundred thousand records: the count is
+  expected to stay in memory, and the usual ceilings still apply if the table turns out larger),
+  and the file has three columns or more. A valid [Dedup](../dedup/index.md) report
+  given with `--dedup-report`, or found beside the source, replaces the count and nothing is
+  read. Otherwise ask for it with `tabalyst.AnalysisRequest("duplicate_rows_count")` or run it
+  with `--deep`, which asks first when the file is large ([Asking first](#asking-first)).
+  A count that stopped at a ceiling is kept in the second-pass document and reused as long as
+  the ceilings are the same.
 
 ## The order of two dates
 
@@ -1137,8 +1145,11 @@ and the same stop as `exact_distinct`.
   (`distinct_exact`), and does not apply it when no stage changed a value
   (`stages_unchanged`): the count of the original values is then the analytical count. The
   same rules as `exact_distinct` hold for long texts and for sensitive columns.
-- **When it runs.** It is never chosen by itself: ask for it with
-  `tabalyst.AnalysisRequest("analytical_distinct")` or run it with `--deep`.
+- **When it runs.** `tabalyst report` runs it by itself for a column the scan calls an ID (not a
+  Unique ID) with a value in every record, when the memory of the set fits what an automatic
+  choice may take. Otherwise ask for it with `tabalyst.AnalysisRequest("analytical_distinct")`
+  or run it with `--deep`. A stored count is reused while the scan, its normalization settings
+  and the count itself are unchanged.
 
 The Report uses it for the [uniqueness of an identifier](../report/read-report.md): it is the
 number of distinct IDs (`D`) when the scan has none, with the source

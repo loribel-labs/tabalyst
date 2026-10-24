@@ -10,7 +10,11 @@ from __future__ import annotations
 from typing import ClassVar
 
 from tabalyst.scanner.planner.analyzer import COMPACT_MAX_LENGTH, Assessment, costs
-from tabalyst.scanner.planner.analyzers.common import replay_state, result_state
+from tabalyst.scanner.planner.analyzers.common import (
+    AUTOMATIC_IDENTIFIER_SCORE,
+    replay_state,
+    result_state,
+)
 from tabalyst.scanner.planner.analyzers.distinct import ExactDistinct
 from tabalyst.scanner.planner.costmodel import (
     EXACT_SET_FIXED_BYTES,
@@ -19,6 +23,10 @@ from tabalyst.scanner.planner.costmodel import (
 )
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, State, Utility
+
+# Changes with what the count means (the stages it applies, the key it compares): a stored
+# result is keyed by it, so a change makes the results of an older run stale (cahier 12.5).
+CALCULATION_VERSION = 1
 
 
 class AnalyticalDistinct(ExactDistinct):
@@ -32,6 +40,7 @@ class AnalyticalDistinct(ExactDistinct):
     """
 
     id: ClassVar[str] = "analytical_distinct"
+    version: ClassVar[int] = CALCULATION_VERSION
     outputs: ClassVar[tuple[str, ...]] = ("analytical_distinct_count",)
     state_name: ClassVar[str] = "analytical:"
     cell_ns: ClassVar[int] = NS_PER_CELL["analytical_distinct"]
@@ -71,6 +80,12 @@ class AnalyticalDistinct(ExactDistinct):
         ]
         return costs(self.cell_ns, [*floor, replay_state(facts), result_state(self.id, facts)])
 
+    def gives_distinct(self, facts: FieldFacts) -> bool:
+        return facts.uniqueness_candidate
+
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
-        # Below the automatic threshold: asked for, or run by a forced pass (lot 8 decides).
+        # Above the automatic threshold only for an identifier whose uniqueness this count
+        # decides (UID-011); below it, asked for or run by a forced pass.
+        if facts.uniqueness_candidate and not facts.withheld:
+            return Utility(score=AUTOMATIC_IDENTIFIER_SCORE, reasons=["identifier_uniqueness"])
         return Utility(score=40, reasons=["analytical_distinct"])

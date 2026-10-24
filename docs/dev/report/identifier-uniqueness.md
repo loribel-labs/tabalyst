@@ -3,8 +3,8 @@
 Status: contract written at lot 0 of the Unique ID plan (`tabalyst-gb`,
 `KANBAN/05-PROGRESS/2026-10-23-tabalyst-unique-id-plan.md`); implemented by lots 1 to 4; P0
 finalized at lot 5 (sections 12 and 13). Lot 6 (P1) adds the Deep count of the copies of rows
-(6.2, 6.6); lot 7 the Deep count of the distinct analytical values (6.1, 6.7). The other P1 lots and
-P2 are not delivered.
+(6.2, 6.6); lot 7 the Deep count of the distinct analytical values (6.1, 6.7); lot 8 the criteria of the planner, the cache and the versions (6.8, 12). Near-uniqueness
+and P2 are not delivered.
 Requirements: `KANBAN/04-SRS/2026-10-23-unique-id/Tabalyst_Unique_ID_Cahier_des_Charges_v1.md`
 (UID-001 to UID-010 are P0, UID-011 to UID-015 are P1 and P2 and out of this contract).
 Decision record: ADR `2026-10-23-identifier-uniqueness-derived-in-report`. Tests:
@@ -298,8 +298,8 @@ engine to the planner:
   (`Analyzer.rows`, `facts.rows_facts`); no candidate for JSON or Excel;
 - `already_satisfied` (`copies_exact`) when the Scan counted exactly; `not_applicable` when the Scan was set not to
   count (`duplicates_disabled`, never overridden, forced or not) or left records out (`records_left_out`);
-- utility 40, so never chosen by itself: asked for or forced (the lot 8 decides the automatic criteria). Its cost
-  is the whole file, CPU class above the automatic limit, so a forced run asks first (R1);
+- utility 40, or 50 for a dataset with an identifier candidate whose Scan count is a lower bound (6.8): asked for,
+  forced, or chosen by the planner by the criteria of 6.8. Its cost is the whole file, in memory up to the ceiling;
 - it reads the file on its own, outside the router and the workers, so the result does not depend on their
   number; an exact result is checked against the Scan (SHA-256 and size through the source guard, `records`
   against `record_count`, the Scan's lower bound), a stopped one only against the size and time of the file;
@@ -320,10 +320,36 @@ design 20.41) counts the analytical values exactly, with the sets and the memory
 - a separate analyzer, so the original and the analytical counts are never mixed under one name; both can run on a field;
 - applicable when the Scan has no analytical count and a stage changed a value; `already_satisfied`
   (`distinct_exact`) when the Scan has it; `not_applicable` (`stages_unchanged`) when `exact_distinct` is enough;
-- utility 40, so never chosen by itself: asked for or forced (the lot 8 decides the automatic criteria);
+- utility 40, or 50 for an identifier candidate (6.8): asked for, forced, or chosen by the planner by the criteria of 6.8;
 - the result `AnalyticalDistinctCount` (`stages`, `values`, `distinct`, `redundant`, `unique`, `changed`), or `distinct_limited`
   at the memory budget; `changed` is checked against the Scan's counters of the stages, and `values` against its count;
 - in the Report it is `D` with `domain: analytical`, `stages_changed_values: false`, source `deep.analytical_distinct`.
+
+### 6.8 When the planner runs the two counts by itself (lot 8, UID-011, cahier 12)
+
+Decision: ADR `2026-10-24-unique-id-planner-criteria`; design 20.42. The planner reads the Scan only. A column is a
+**candidate** when the Scan gives it `identifier/id` (a raw `unique_id` needs no count: `E = 0` follows), every position
+holds a value, it is not under an array, no record was left out and the dataset has two records at least. The cases of the
+cahier 12.1 (an exact `D` and `E`, a valid Dedup report, an ineligible column, missing IDs, an unique raw ID) are exactly
+the columns that are not candidates or the candidates that are `already_satisfied`.
+
+| Analysis | Chosen by itself when | Else |
+| --- | --- | --- |
+| `analytical_distinct` | the field is a candidate, the Scan has no analytical count and a stage changed a value (utility 50) | utility 40: asked for, forced |
+| `duplicate_rows_count` | the dataset has a candidate, the Scan's count is a lower bound (not exact, not disabled), the table fits the automatic memory, the class of the record is at most `moderate` (three columns or more) and a distinct count of a candidate is exact in the Scan or selected in the plan (utility 50) | `distinct_unknown`, `budget`, `cpu_class`, `low_utility` |
+
+Everything else of the automatic choice applies unchanged. A valid Dedup report makes the count of the copies
+`already_satisfied` (`copies_proved`). The automatic count is expected to stay in memory (the ceilings of `deep.copies` still apply to a table larger than estimated): with the defaults it covers a file of up to a
+few hundred thousand records, and a larger one needs `--deep` (which asks), a Dedup report or a Scan that tracked it whole
+(`limits.max_tracked_records`, 2,000,000 by default).
+
+**Cache and versions (cahier 12.5).** A stored result is reused when its key is the one the run would give it: the Scan it
+stands on (source SHA-256, configuration, so the normalization stages), the analyzer and its version, the dataset, the
+field, the method and its parameters (the ceilings of the copies). The version of `duplicate_rows_count` is
+`CALCULATION_VERSION` of the count (`dedup/calculation.py`) and that of `analytical_distinct` is its own constant
+(`analyzers/analytical.py`); a change of what a count means raises it and makes older results stale. A stopped count of the
+copies is reused at the same key (its ceilings are bytes and records); a stopped set of values is not. A Dedup report is no
+part of the second-pass document: the derived object is rebuilt with the summary each time, so no cache holds it.
 
 ## 7. Dedup proof (UID-005)
 
@@ -478,7 +504,8 @@ evidence of 6 and the proof of 7.
 | 5 | The whole suite, the reference measures of 12 and the conformance of 13 |
 | 6 | T33 (`test_t33_...`), `tests/dedup/test_count_only.py`, `tests/scan/test_duplicate_rows_count.py`, `tests/report/test_identifier_uniqueness_deep_copies.py` |
 | 7 | `tests/scan/test_analytical_distinct.py`, `tests/report/test_identifier_uniqueness_deep_distinct.py` (T19, T20 completed by the analytical count, conflict of two `D`) |
-| P1 | The planner criteria (lot 8); out of the P0 gate |
+| 8 | `tests/scan/test_unique_id_planner.py`, `tests/report/test_identifier_uniqueness_planner.py` (UID-011: the criteria, the proof, the cache and the versions) |
+| P1 | Near-uniqueness (lot 9); out of the P0 gate |
 
 ## 11. Open points kept for later lots
 
@@ -511,8 +538,43 @@ not a target: only the comparison between lines is read.
   exact counts (`scan.records.duplicates`), without reading the CSV again (test T12, gate 3).
 - **Report with Dedup:** reading a valid `<stem>.dedup.json` adds a JSON read and its checks (7); the
   measure is not distinguishable from the run without it. The memory is that of the Report.
-- **Not measured:** the count-only mode and the 1 M, 5 M and 10 M rows runs belong to P1 (lots 6 to 8).
+- **Not measured at lot 5:** the count-only mode and the 1 M, 5 M and 10 M rows runs, which 12.1 gives.
   No objective in seconds or in overhead is declared validated (cahier 15.3).
+
+### 12.1 Reference measures, P1 (lot 8, cahier 15.3 and T32)
+
+Measured on 24 October 2026 on the same machine, with `tabalyst-lab/benchmarks/copies_scale.py`: a generated CSV of
+4 columns (about 50 bytes a record), each case in a fresh interpreter, one process, the default ceilings of
+`deep.copies` (256 MiB, 2,048 MiB of disk, 10,000,000 records) unless said. The count agrees with the generator in
+every case. The seconds depend on the machine and are not a target.
+
+| Records | Copied | Storage | Seconds | ns a record | Peak memory | Temporary disk |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 M | 0, 1, 25 % | memory | 1.6, 1.7, 1.8 | 1,634, 1,646, 1,765 | 226, 225, 210 MiB | none |
+| 5 M | 0, 1, 25 % | disk | 28.0, 28.0, 31.3 | 5,595, 5,599, 6,250 | 330, 345, 332 MiB | 357, 355, 268 MiB |
+| 10 M | 0, 1, 25 % | disk | 57.1, 62.6, 79.8 | 5,709, 6,260, 7,981 | 328, 350, 332 MiB | 725, 718, 544 MiB |
+
+- **Memory against disk.** In memory the count costs 1,500 to 1,800 ns a record; once the table moves to the temporary
+  database (past about 1.2 M records at 256 MiB) it costs 5,600 to 8,000. `NS_PER_CELL["rows"]` stays at 6,000: inside
+  the range of the estimate, above the typical disk figure, under the worst one (10 M records, a quarter of them copies).
+- **What an automatic choice covers.** The table is accounted at the key bytes plus 160 bytes an entry. With the disk
+  forbidden and 128 MiB (the memory of an automatic choice) the count is exact up to 500,000 records of 50 bytes
+  (0.82 s, 143 MiB), and a file of 1,000,000 stops at the memory ceiling after 638,609 records. The default Scan keeps
+  the copies exact up to 2,000,000 records (`limits.max_tracked_records`): the two ranges do not meet, so with the
+  defaults the count of the copies is chosen by itself only when that limit was lowered; a larger file needs `--deep`
+  (which asks first), a Dedup report or a Scan that tracked it whole. D13 holds; whether to give the automatic count its
+  own budget or the disk is a decision for the maintainer.
+- **Ceilings** (5 M records, a quarter copied): `max_rows` 2,000,000 stops with `row_limit` after 7.9 s (300 MiB,
+  104 MiB of disk); `memory_mb` 64 with no disk stops with `memory_budget` after 423,097 records (0.66 s, 112 MiB);
+  `disk_mb` 100 stops with `disk_budget` after 1,678,257 records (5.4 s, 79 MiB of disk). Each gives a lower bound.
+- **T32 at scale** (the Scan of the file, its Dedup report, then `report --scan --dedup-report`): at 1 M records the
+  Report takes 0.73 s and 155 MiB; at 10 M records (a quarter copied) 0.77 s and 156 MiB, the CSV not opened once
+  (watched), the Scan document 4.8 MiB. The Scan took 5.0 and 45.8 s, Dedup 4.1 and 81.0 s. The uniqueness of the
+  column is still `limited` (`distinct_estimated`): the proof gives `E`, but the Scan only estimated `D` for a column
+  of more than 100,000 distinct IDs, and an exact `D` of 10 M IDs needs a set of about 1.2 GiB.
+- **The exact count of the analytical values** costs 2,336 to 2,763 ns a record on three profiles of 1 M identifiers
+  (10 characters, digits, 36 characters; a fifth padded), the reading of the three columns included (about 350 ns); the
+  plan's maximum memory is 125 to 152 MiB per million IDs. `NS_PER_CELL["analytical_distinct"]` stays at 2,000.
 
 ## 13. Conformance to the criteria of the cahier 18 (P0)
 
@@ -529,15 +591,17 @@ State after lot 5. Maintainer documentation, never published.
 | 7 | The JSON is versioned, verifiable and consistent with the HTML | `format_revision` 5, schema, T29 (`test_t29_the_html_and_the_json_say_the_same`), `profile-changelog.md` | Met |
 | 8 | The functional, invariant, security and non-regression tests pass | the suite (T31 exposure, properties, A1); T33 is P1 and runs since lot 6 | Met for P0 |
 | 9 | The documentation tells raw Unique ID from Unique after row deduplication and, later, near-unique | `read-report.md` (Column page), `findings.md`, `json-profile.md`, `profile-changelog.md`, the glossary, `dedup/index.md` | Met; near-unique is not available and is not described as such |
-| 10 | The P1 and P2 requirements not delivered are identified and not described as available | the pages say that near-uniqueness is not available; the Deep count of the copies is documented as asked for, never automatic (lot 6); plan lots 7 to 9 | Met |
+| 10 | The P1 and P2 requirements not delivered are identified and not described as available | the pages say that near-uniqueness is not available; the criteria under which the two Deep counts run by themselves are documented as they are (6.8, lot 8); plan lot 9 | Met |
 
 Delivered at lot 6 (P1): the count-only mode of the Dedup engine and the Deep analyzer of the copies of
-rows (UID-012), asked for or forced, never chosen by itself.
+rows (UID-012).
 
-Delivered at lot 7 (P1): the Deep analytical cardinality (UID-013, 6.7), asked for or forced, never chosen by itself.
+Delivered at lot 7 (P1): the Deep analytical cardinality (UID-013, 6.7).
 
-Not delivered and not described as available: the planner
-criteria and the cache (UID-011), near-uniqueness (UID-014), the composite keys, the discovery of
+Delivered at lot 8 (P1): the criteria of the planner, the Dedup proof that spares the count, the cache and the
+versions (UID-011, 6.8) and the measures at 1 M, 5 M and 10 M records (12.1).
+
+Not delivered and not described as available: near-uniqueness (UID-014), the composite keys, the discovery of
 candidates and the Smart or Explore recommendations (P2, UID-015).
 
 Follow-up for `tabalyst-studio` (nothing was edited there): no new page, so `src/navigation.ts` does

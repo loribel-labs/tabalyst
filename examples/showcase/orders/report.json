@@ -21586,8 +21586,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 19,
-        "plan_id": "684a73df6635382c5b316e72e269eb773424b619b6224ebe385d5d39afb71788",
+        "cost_model_version": 20,
+        "plan_id": "6acf5b80304ad7ffe3681dce0a8de85f8c5f65b2003527892c306df1e7acdf46",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.1",
@@ -25035,15 +25035,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-24T06:42:16.867437Z",
-        "duration_seconds": 0.000171,
+        "started_at": "2026-10-24T11:53:54.196179Z",
+        "duration_seconds": 0.000205,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000171
+          "other": 0.000205
         },
         "workers": 1,
-        "peak_memory_bytes": 81371136,
+        "peak_memory_bytes": 80838656,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -28534,12 +28534,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-24T06:42:16.964445Z",
+    "generated_at": "2026-10-24T11:53:54.301884Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.1"
     },
-    "processing_seconds": 0.1529,
+    "processing_seconds": 0.166,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,

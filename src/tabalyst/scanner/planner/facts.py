@@ -14,6 +14,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from datetime import datetime
 
+from tabalyst.scanner.classify.identifiers import ID, positions_complete
 from tabalyst.scanner.config import DetectorSettings
 from tabalyst.scanner.convention_rule import NumberRule, single_reading
 from tabalyst.scanner.detectors.registry import replayable
@@ -294,6 +295,16 @@ class FieldFacts:
     # Scan could count do not give the analytical ones.
     analytical_distinct: int | None = None
     analytical_changed: bool = False
+    # An identifier column whose uniqueness after row deduplication is worth qualifying: the
+    # Scan gives it the role ``id`` (not ``unique_id``, whose raw uniqueness already settles
+    # it), every position holds a value and no record was left out (UID-011, design 20.42).
+    uniqueness_candidate: bool = False
+    # The rows of a table (``rows_facts``): how many columns of the dataset are such
+    # candidates, whether one of them has an exact analytical distinct count in the Scan, and
+    # whether an exact proof outside the Scan (a Dedup report) already gives the copies.
+    rows_candidates: int = 0
+    rows_distinct_known: bool = False
+    rows_proved: bool = False
 
     @property
     def withheld(self) -> bool:
@@ -607,6 +618,22 @@ def _facts(
             for stage in field.normalization.stages
             if stage.stage in ANALYTICAL_STAGES and stage.enabled
         ),
+        uniqueness_candidate=_uniqueness_candidate(dataset, field, excluded),
+    )
+
+
+def _uniqueness_candidate(dataset: DatasetResult, field: FieldResult, excluded: int) -> bool:
+    """Whether the Scan alone makes the column an identifier worth qualifying (UID-011).
+
+    The Report's classification may refine the role with a second pass, but the planner reads
+    the Scan only: a raw ``unique_id`` needs no count of the copies, and a column with a missing
+    position, under an array or in a scan that left records out can never conclude (cahier 12.1).
+    """
+    return (
+        (field.classification.family, field.classification.type) == ID
+        and positions_complete(field)
+        and excluded == 0
+        and dataset.record_count >= 2
     )
 
 
@@ -629,10 +656,13 @@ def root_facts(scan: ScanResult) -> list[FieldFacts]:
     ]
 
 
-def rows_facts(scan: ScanResult) -> list[FieldFacts]:
+def rows_facts(scan: ScanResult, proved: frozenset[str] = frozenset()) -> list[FieldFacts]:
     """The facts of the rows of a CSV file with a single dataset and at least one
     record, under the name of the root (``$``): what the analyzers of whole rows read
-    (``Analyzer.rows``). None for any other source."""
+    (``Analyzer.rows``). None for any other source.
+
+    ``proved`` holds the datasets whose copies a proof outside the Scan already gives (a
+    valid Dedup report, UID-011): nothing then needs counting again."""
     if scan.source.format != "csv" or len(scan.datasets) != 1:
         return []
     dataset = scan.datasets[0]
@@ -641,11 +671,20 @@ def rows_facts(scan: ScanResult) -> list[FieldFacts]:
     # ``IntMeasure`` is built by a function, which mypy cannot narrow.
     status = dataset.records.duplicates.count.status  # type: ignore[attr-defined]
     state = status if status in ("complete", "limited") else "disabled"
+    excluded = scan.scope.records_excluded
+    candidates = [
+        field
+        for field in dataset.fields
+        if _uniqueness_candidate(dataset, field, excluded)
+    ]
     return [
         replace(
             _root(scan, dataset),
             rows_duplicates=state,
             row_bytes=max(1, scan.source.size_bytes // dataset.record_count),
+            rows_candidates=len(candidates),
+            rows_distinct_known=any(analytical_distinct(field) is not None for field in candidates),
+            rows_proved=dataset.id in proved,
         )
     ]
 

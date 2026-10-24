@@ -29,6 +29,8 @@ ENABLED_LOTS: set[str] = {
     "6",  # Deep count of the copies of rows
 
     "7",  # Deep analytical cardinality
+
+    "8",  # planner criteria, cache and versions
 }
 
 

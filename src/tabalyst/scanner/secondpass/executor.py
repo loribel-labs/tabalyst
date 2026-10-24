@@ -1103,14 +1103,30 @@ def _collect(
             job.accumulator = getattr(route, part_name(job.accumulator))
 
 
+# The analyzers whose stopped result is as reusable as a complete one: it stopped at a ceiling
+# that is part of its key and is counted in bytes and records, so the same key stops at the same
+# place on any machine (Unique ID lot 8, cahier 12.5). A set of values stopped at the share of
+# memory the plan granted is not: the grant is no part of the key.
+DETERMINISTIC_STOP = frozenset({"duplicate_rows_count"})
+
+
+def reusable_results(plan: AnalysisPlan, previous: DeepResult | None) -> dict[str, AnalysisResult]:
+    """The stored results a run may keep, by key: those that ended ``complete`` and the stopped
+    ones of ``DETERMINISTIC_STOP``, of a document that stands on the same Scan."""
+    if previous is None or previous.base != plan.base:
+        return {}
+    return {
+        a.key: a
+        for a in previous.analyses
+        if a.status == "complete"
+        or (a.status == "limited" and a.analyzer in DETERMINISTIC_STOP)
+    }
+
+
 def pending_candidates(plan: AnalysisPlan, previous: DeepResult | None) -> list[Candidate]:
     """The selected analyses that a run has to compute: those with an executor
     whose result ``previous`` does not hold under the same key (CACHE-04)."""
-    usable = (
-        {a.key for a in previous.analyses if a.status == "complete"}
-        if previous is not None and previous.base == plan.base
-        else set()
-    )
+    usable = reusable_results(plan, previous)
     return [
         candidate
         for candidate in plan.candidates
@@ -1163,11 +1179,7 @@ def run_second_pass(
     started_at = datetime.now(UTC)
     start = perf_counter()
     selected = [c for c in plan.candidates if c.selection.state == "selected"]
-    usable = (
-        {a.key: a for a in previous.analyses if a.status == "complete"}
-        if previous is not None and previous.base == plan.base
-        else {}
-    )
+    usable = reusable_results(plan, previous)
     entries: dict[str, AnalysisResult] = {}
     jobs: list[_Job] = []
     reused: list[str] = []

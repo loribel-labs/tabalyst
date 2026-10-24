@@ -129,7 +129,10 @@ support is not yet required. Record format changes in the relevant changelogs.
   `duplicate_rows_count`, the extra copies of whole rows of a CSV file counted with the Dedup engine in a reading of its
   own (`Analyzer.rows`, `facts.rows_facts`; 20.40); `secondpass/analytical.py` and `planner/analyzers/analytical.py` the analyzer
   `analytical_distinct`, the exact count of the distinct values after NFC, trim and whitespace for a field the Scan stopped
-  counting (`AnalyticalSet`, a separate analyzer from `exact_distinct`, which counts the original values; 20.41).
+  counting (`AnalyticalSet`, a separate analyzer from `exact_distinct`, which counts the original values; 20.41). The planner
+  chooses both by itself for an identifier candidate (`FieldFacts.uniqueness_candidate`, the copies only beside a known distinct
+  count and within the automatic memory; a valid Dedup report spares the copies, `plan_analyses(proved_copies=)`; 20.42, ADR
+  `2026-10-24-unique-id-planner-criteria`).
   `planner/facts.root_facts` gives the root of the records, the field `$`, to the
   analyzers that set `roots`. `exact_distinct` and `analytical_distinct` are the analyses that also read a masked or hidden field.
 - `src/tabalyst/report_chain.py`: the second pass inside Report (who decides,

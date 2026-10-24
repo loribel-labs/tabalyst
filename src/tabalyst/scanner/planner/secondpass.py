@@ -183,9 +183,11 @@ def plan_second_pass(
     registry: AnalyzerRegistry | None = None,
     deep: DeepSettings | None = None,
     threshold_seconds: float = DEFAULT_CONFIRM_SECONDS,
+    proved_copies: frozenset[str] = frozenset(),
 ) -> SecondPassPlan:
     """Plan the second pass of a finished Scan with its estimate and its
-    confirmation. Runs nothing, asks nothing and writes nothing."""
+    confirmation. Runs nothing, asks nothing and writes nothing. ``proved_copies``
+    is passed to the planner (``plan_analyses``)."""
     plan = plan_analyses(
         scan,
         requests=requests,
@@ -194,6 +196,7 @@ def plan_second_pass(
         budgets=budgets,
         registry=registry,
         deep=deep,
+        proved_copies=proved_copies,
     )
     estimate = estimate_time(plan, scan)
     return SecondPassPlan(

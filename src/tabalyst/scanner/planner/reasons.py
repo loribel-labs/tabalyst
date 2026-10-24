@@ -71,6 +71,7 @@ SATISFIED = {
     "years_counted": "the scan already counts the values by year",
     "lengths_constant": "every array has the same length, already in the scan",
     "copies_exact": "the scan already counts the extra copies of rows exactly",
+    "copies_proved": "a valid Dedup report already proves the extra copies of rows",
 }
 
 # The decision on a candidate that is not satisfied.
@@ -87,6 +88,7 @@ SELECTION = {
     "tables_budget": "enough tables were already chosen automatically",
     "stats_budget": "enough numbers by category were already chosen automatically",
     "redundant_feature": "another feature of the same two columns says more",
+    "distinct_unknown": "the distinct count of the identifier columns is neither known nor planned, so the count of the copies could not settle their uniqueness",
     "budget": "its memory does not fit in the budget with the analyses already selected",
 }
 
@@ -118,6 +120,8 @@ UTILITY = {
     "missing_together": "shows which columns lack a value in the same records",
     "array_lengths": "shows how long the arrays of the field are",
     "analytical_distinct": "counts the distinct values after NFC, trim and whitespace, which the scan stopped counting and the original values do not give",
+    "identifier_uniqueness": "counts the distinct values of an identifier after NFC, trim and whitespace, which decides whether it is unique once copies of rows are set aside",
+    "identifier_copies": "counts the extra copies of rows, which explains the repeated values of an identifier",
     "duplicate_rows": "counts the extra copies of whole rows exactly, which the scan could only bound",
     "key_sets": "shows which keys the objects have together",
     "text_shape": "shows the words, lines and digits of the texts",

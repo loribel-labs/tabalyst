@@ -101,6 +101,10 @@ class ExactDistinct(Analyzer):
             ],
         )
 
+    def gives_distinct(self, facts: FieldFacts) -> bool:
+        # The original count is the analytical one only when no stage changed a value.
+        return facts.uniqueness_candidate and not facts.analytical_changed
+
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
         if facts.withheld:
             # Below the automatic threshold: a sensitive field is counted when asked for.

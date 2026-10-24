@@ -110,8 +110,12 @@ def plan_chain(
     shared: bool,
     indent: bool,
     workers: int | None = None,
+    proved_copies: frozenset[str] = frozenset(),
 ) -> ChainPlan:
     """Plan the second pass of a Report, running nothing.
+
+    ``proved_copies`` are the datasets whose copies of rows a valid Dedup report proves: the
+    planner does not count them again (UID-011).
 
     ``reads_source`` is false for a Report built from a scan document without
     ``--deep``: it promises not to read the source. ``source`` is None when the
@@ -139,6 +143,7 @@ def plan_chain(
         forced=mode == "forced",
         registry=default_registry().runnable(),
         deep=settings,
+        proved_copies=proved_copies,
     )
     return ChainPlan(
         mode,

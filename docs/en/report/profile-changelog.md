@@ -185,5 +185,6 @@ between distinct records. It holds codes and exact integers only, never a senten
 `identifier.repetition` is unchanged: it keeps counting the raw repetitions. The extra copies come from
 the Scan's count of duplicate records, or from a valid [Dedup](../dedup/index.md) report given with
 `--dedup-report` (the setting `report.dedup_report`) or found beside a CSV source as
-`<name>.dedup.json`, or from the second pass when it was forced (`--deep`) and the Scan could only bound them.
+`<name>.dedup.json`, or from the second pass, which counts them by itself for a small CSV table with an identifier column (or when it
+was forced with `--deep`) and the Scan could only bound them. A valid Dedup report spares that count.
 The report never runs Dedup and reads the source again only through that second pass.

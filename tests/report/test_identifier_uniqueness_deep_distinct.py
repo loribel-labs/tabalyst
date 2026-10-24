@@ -171,15 +171,38 @@ def test_a_forced_report_counts_the_ids_after_trim_and_tells_the_residual_repeti
     assert item["evidence"]["id_cardinality"]["domain"] == "analytical"
 
 
-def test_a_report_that_does_not_force_the_second_pass_never_counts_them(tmp_path):
+def test_a_plain_report_counts_the_ids_after_trim_by_itself(tmp_path):
     document = _report(tmp_path, padded_rows(), deep=False)
 
     item = uniqueness_of(document, "customer_id")
-    # The automatic second pass counts the original values, which trim made differ from the
-    # analytical ones: that count is not D, and nothing counts the analytical ones unasked.
-    assert item["status"] == "limited" and item["reason"] == "distinct_not_exact"
+    # The planner chooses the exact count of the analytical values for an identifier a stage
+    # changed (UID-011): the original count would not be D.
+    assert item["status"] == "complete"
+    assert item["raw"]["id_distinct"] == 1_200
+    assert item["evidence"]["id_cardinality"]["source"] == ANALYTICAL
+
+
+def test_a_report_with_the_second_pass_off_never_counts_them(tmp_path):
+    scan = ScanConfig.model_validate(
+        {"limits": {"max_distinct_per_field": 300, "max_samples": 100}}
+    )
+    config = tmp_path / "off.json"
+    config.write_text(
+        json.dumps(
+            {
+                "scan": scan.model_dump(by_alias=True, mode="json", exclude_defaults=True),
+                "deep": {"mode": "off"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    source = write_csv(tmp_path, "r.csv", padded_rows())
+    generate_reports([source], output_dir=tmp_path / "out", config_path=config)
+    document = json.loads((tmp_path / "out" / "r.json").read_text(encoding="utf-8"))
+
+    item = uniqueness_of(document, "customer_id")
+    assert item["status"] != "complete"
     assert item["raw"]["unique"] is None
-    assert item["evidence"]["id_cardinality"]["source"] == ORIGINAL
 
 
 def test_the_second_pass_document_holds_the_analytical_count_beside_the_original_one(tmp_path):

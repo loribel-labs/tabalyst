@@ -17,6 +17,7 @@ from tabalyst.dedup.analysis import (
     stat_differs,
     stat_source,
 )
+from tabalyst.dedup.calculation import CALCULATION_VERSION
 from tabalyst.dedup.diskstore import MIB
 from tabalyst.dedup.failures import DedupInputError
 from tabalyst.dedup.groups import GroupCounters
@@ -26,9 +27,6 @@ from tabalyst.dedup.store import ExactRowStore, MemoryRowStore
 from tabalyst.dedup.tiered import TieredRowStore, estimate_disk_bytes
 from tabalyst.errors import ConfigurationError
 from tabalyst.progress import ProgressCallback, byte_progress
-
-# Changes with any change of what the count means (identity, ceilings, order of the checks).
-CALCULATION_VERSION = 1
 
 CopyStatus = Literal["exact", "limited"]
 LimitReason = Literal["memory_budget", "disk_budget", "row_limit"]

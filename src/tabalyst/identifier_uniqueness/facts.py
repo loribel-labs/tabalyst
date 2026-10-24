@@ -108,6 +108,24 @@ def check_dedup_option(option: Path, source_format: str, source_name: str) -> No
     )
 
 
+def proved_copies(
+    scan: ScanResult, dedup_report: Path | None, source_dir: Path | None
+) -> frozenset[str]:
+    """The datasets whose copies of rows a valid Dedup report proves (UID-011).
+
+    The planner reads it before it chooses a second pass: a proof makes the Deep count of the
+    copies useless (cahier 12.1). A refused proof is not looked at here; the Report lists it.
+    """
+    found: set[str] = set()
+    if scan.source.format != "csv":
+        return frozenset()
+    for dataset in scan.datasets:
+        proof = _dedup_proof(scan, dataset.id, dedup_report, source_dir)
+        if isinstance(proof, DuplicateEvidence) and proof.accuracy == "exact":
+            found.add(dataset.id)
+    return frozenset(found)
+
+
 def facts_from_scan(
     scan: ScanResult,
     dataset: str,
