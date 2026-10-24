@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 17
+COST_MODEL_VERSION = 18
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -320,6 +320,12 @@ NS_PER_CELL = {
     # of the pairs included, measured the same way on 300,000 rows: 82 ns for 4 and
     # 20 columns, 105 for 100 (4,950 pairs). Rounded up to one figure.
     "matrix": 200,
+    # The extra copies of whole rows (lot 6 of Unique ID), counted by the engine of Dedup in
+    # its own reading of a CSV file (300,000 records of 6 columns and 69 bytes,
+    # one process): 2,095 ns a record while the table stays in memory and 5,812 once it
+    # lives in the temporary database (1 MiB of budget). The unit is the record, not a cell,
+    # and the figure is the dearer one, rounded up.
+    "rows": 6_000,
     # The order of two dates (lot S3b), measured on the executor (1 pair then 6 and 12 pairs
     # of the 100,000-row insurance base, one process, the reading of the cell included):
     # 0.49 s a pair, 4.9 microseconds a row for the two columns, of which the date detector
@@ -398,6 +404,9 @@ DRIFT_VALUE_BYTES = 560
 MATRIX_BYTES = 64 * 1024
 MATRIX_COLUMN_BYTES = 2_048
 MATRIX_PAIR_BYTES = 160
+# The count of the extra copies of rows: the counters, the reader of the records and its
+# buffers, whatever the file holds. The table of distinct rows is charged per record.
+ROWS_COPIES_BYTES = 256 * 1024
 # The counters of the parts of the dates: weekdays, hours and the readings of
 # the ambiguous dates, and what a month of dates adds (a dictionary entry).
 PARTS_BYTES = 32 * 1024

@@ -726,6 +726,15 @@ narrow row. Timings vary by about 40 % between identical runs on this machine (t
 10 M, 25 % case took 43, 62, 71 and 69 s). The switch happens at 2.5 to 3.3 million
 distinct narrow rows and the copy takes 3 to 5 s.
 
+### 8.6 Count-only mode (Unique ID lot 6)
+
+`dedup/count_only.py` reuses the first pass for a caller that wants the number of extra copies and nothing else (the
+second pass of Scan, `duplicate_rows_count`, `docs/dev/scan/design.md` 20.40). `count_extra_copies` has the same key,
+store and reading as `analyze_dedup`, keeps no marks, writes no file and, instead of failing at `max_rows` or going to
+disk without bound, stops at three ceilings (`memory_budget_mb`, `disk_budget_mb`, `max_rows`) and returns a lower
+bound (`limited`). It is internal: no command, no report, no change to the contract of `tabalyst dedup`. The ADR is
+`2026-10-24-dedup-count-only-for-deep`.
+
 ## 9. Reading, limits and measures
 
 ### 9.1 Reading (S15.1, D16)

@@ -25,6 +25,8 @@ ENABLED_LOTS: set[str] = {
     "3",  # Report integration
 
     "4",  # HTML
+
+    "6",  # Deep count of the copies of rows
 }
 
 

@@ -9,7 +9,7 @@ medians and quantiles, the exact number of distinct values of an identifier-like
 field, the exact counts of a field whose scan lists only some of them, the
 length distribution of a text field when the scan lacks it, the inferred patterns
 counted on every value, the values that patterns and detectors leave out, the
-repeated values of identifiers, the dates counted per period, the shape of the numbers
+repeated values of identifiers, the extra copies of whole rows of a CSV file, the dates counted per period, the shape of the numbers
 (asymmetry, outliers, decimals), the parts of the dates (year-month, weekday, hour), the missing
 values and the values of a column along the file, the columns that miss a value together, the lengths of the arrays and the
 sets of keys of the objects of a JSON file, the words and lines of long texts, the masks of sensitive columns, the numbers of amounts,
@@ -52,6 +52,7 @@ stored.
 | `pattern_validation` | Text fields with inferred patterns | How many values of the whole file each pattern reads, how many none reads, and how many were not tested |
 | `residual_values` | Fields whose patterns leave values out, or that a detector mostly reads but finds some invalid or unmatched values in | The values themselves with their exact counts and first records, and for each pattern an example and its distinct values |
 | `duplicates_report` | Columns of almost all different values, and combinations of two columns you ask for | The values found more than once, with their counts and first records |
+| `duplicate_rows_count` | CSV files whose scan could only bound the copies of rows | The exact number of extra copies of whole rows, counted with the engine of [Dedup](../dedup/index.md) without writing a file. Asked for, or run with `--deep`, never by itself |
 | `temporal_distribution` | Date fields, and columns of datetimes | The dates counted per day, month or year |
 | `datetime_parts` | Date fields, columns of datetimes and of times | The dates counted by year-month, day of the week and hour, counted after a bound you give, with the ambiguous dates read under each order and the invalid ones counted by reason |
 | `numeric_shape` | Numeric fields | The asymmetry and kurtosis, the outliers of Tukey, the decimals the numbers are written with, and a logarithmic and an equal-count histogram |
@@ -823,6 +824,44 @@ It shows that values go missing together, not why.
 It is not chosen by `tabalyst report` by itself: ask for it with `--deep` or
 `tabalyst.AnalysisRequest("missing_matrix")`.
 
+## Extra copies of whole rows
+
+The scan counts the rows that repeat an earlier row (`records.duplicates`), but it keeps a digest
+of each row in memory and stops storing them at `limits.max_tracked_records`: past that limit its
+count is only a lower bound. `duplicate_rows_count` counts them exactly with the engine of
+[`tabalyst dedup`](../dedup/index.md), for a CSV file with a single dataset, and writes no file: no
+`.unique.csv`, no `.duplicates.csv`, no report. It is what lets the report of an
+[identifier](../report/read-report.md) tell a repetition caused by a copied row
+from a conflict between two rows.
+
+```json
+{"kind": "duplicate_rows", "accuracy": "exact",
+ "identity": "full_decoded_csv_row_v1", "calculation_version": 1,
+ "records": 2600, "distinct_rows": 2000, "extra_copies": 600, "duplicate_groups": 540,
+ "storage": "memory", "source_sha256": "6d4d860f..."}
+```
+
+- **Exact or stopped.** The count reads the file once, on its own, whatever the workers of the
+  run. When it reaches the end, `accuracy` is `exact`, `extra_copies` is what `tabalyst dedup`
+  reports for the file and `source_sha256` is the digest of the whole file, which must be the
+  one the scan read. When it meets a ceiling it stops: the result is `limited` with the reason
+  `memory_budget`, `disk_budget` or `row_limit`, `accuracy` is `lower_bound`, and
+  `extra_copies` and `duplicate_groups` are lower bounds. A stopped count is never a count.
+- **The ceilings** are `deep.copies.memory_mb` (256), `deep.copies.disk_mb` (2,048, `0` forbids the
+  disk) and `deep.copies.max_rows` (10,000,000). The table of distinct rows lives in memory
+  until it passes `memory_mb`, then in a temporary database that is deleted at the end; the
+  count stops when that database is estimated to pass `disk_mb`. The ceilings are bytes and
+  records, never seconds, so the same file stops at the same record on any machine.
+- **Not needed.** When the scan counted the copies exactly, the plan marks the analysis
+  `already_satisfied` and reads nothing. A scan that was set not to count them
+  (`records.duplicates: false`) is not overridden: the analysis does not apply, and the file has
+  to be scanned again with the count on. A source that is not a CSV file has no such candidate,
+  and neither has a file whose scan left records out.
+- **When it runs.** It is never chosen by itself: ask for it with
+  `tabalyst.AnalysisRequest("duplicate_rows_count")` or run it with `--deep`. Reading the whole
+  file again, it is above the automatic CPU limit, so a forced run asks first
+  ([Asking first](#asking-first)).
+
 ## The order of two dates
 
 A contract that ends before it starts, a modification dated before the creation: the
@@ -1055,10 +1094,10 @@ scan, and the Scan document never changes.
 
 A column that stays `identifier/id` because its ID repeats may repeat only because whole rows are
 copied. The Report then separates the two with the number of exact copies of rows, taken from the
-Scan or from a [Dedup](../dedup/index.md) report, in `identifier_uniqueness` (see the
-[profile changelog](../report/profile-changelog.md#version-020-revision-5)). This count of copies
-is not a second-pass analysis: no analysis of the second pass counts the copies of rows for this
-purpose yet.
+Scan, from a [Dedup](../dedup/index.md) report or from the second pass
+([`duplicate_rows_count`](#extra-copies-of-whole-rows)), in `identifier_uniqueness` (see the
+[profile changelog](../report/profile-changelog.md#version-020-revision-5)). The three sources are
+compared: two exact counts that differ are a conflict, not a choice.
 
 The count has to fit in memory. Tabalyst plans the memory of each field from the
 scan, and counts a field's values in sets of the compact integers of the digit
@@ -1107,7 +1146,7 @@ sets how many currencies or units get metrics of their own and how many numbers
 are counted exactly. The `deep.residuals` and `deep.duplicates` objects set how many
 values are listed and tracked, and whether to read the source for the records. The `deep.drift` object
 sets how many different values a column may have to be followed along the file and how many are listed,
-and `deep.missing` how many columns a matrix of missing values may hold and how many partners are listed. The `deep.arrays`,
+and `deep.missing` how many columns a matrix of missing values may hold and how many partners are listed. The `deep.copies` object sets the memory, the disk and the records the count of the copies of rows may use. The `deep.arrays`,
 `deep.structure`, `deep.texts` and `deep.sensitive` objects set the lengths counted, the sets of keys tracked and listed, the length of a text and the
 texts listed, and the floor under which a mask or a class is summed up. See [Deep
 settings](../reference/configuration.md#deep-settings).

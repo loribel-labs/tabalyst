@@ -28,6 +28,7 @@ from identifier_uniqueness_helpers import (
 )
 
 from tabalyst import scan
+from tabalyst.config import CsvConfig
 from tabalyst.scanner import ScanConfig
 from tabalyst.scanner.quality import analytical_distinct
 
@@ -838,11 +839,26 @@ def test_a_repetition_is_never_an_automatic_error(tmp_path):
     assert not [item for item in errors if item["code"].startswith("identifier")]
 
 
-# ------------------------------------------------------------------------ P1 (not planned)
+# ------------------------------------------------------------------------ P1
 
 
-@pytest.mark.uid_lot("P1")
+@pytest.mark.uid_lot("6")
 @pytest.mark.uid_t("T33")
-def test_t33_a_count_only_deep_analysis_writes_no_dedup_csv():
+def test_t33_a_count_only_deep_analysis_writes_no_dedup_csv(tmp_path):
     """Lot 6: counts the copies with the Dedup engine, exact or limited, no output file."""
-    pytest.fail("P1: written when lot 6 is detailed")
+    from tabalyst.dedup.count_only import CopyLimits, count_extra_copies
+
+    source = _unique_csv(tmp_path, distinct_ids=2_000, copies=300)
+    before = sorted(p.name for p in tmp_path.iterdir())
+
+    exact = count_extra_copies(
+        source, csv=CsvConfig(), limits=CopyLimits(10_000_000, 256, 2_048)
+    )
+    limited = count_extra_copies(source, csv=CsvConfig(), limits=CopyLimits(1_000, 256, 2_048))
+
+    assert (exact.status, exact.extra_copies) == ("exact", 300)
+    assert (limited.status, limited.reason) == ("limited", "row_limit")
+    assert limited.extra_copies <= 300
+    assert sorted(p.name for p in tmp_path.iterdir()) == before
+    assert not list(tmp_path.glob("*.unique.csv")) + list(tmp_path.glob("*.duplicates*.csv"))
+    assert not list(tmp_path.glob("*.dedup.json"))

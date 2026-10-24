@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.analyzer import Analyzer
 from tabalyst.scanner.planner.analyzers.characters import CharacterProfile
+from tabalyst.scanner.planner.analyzers.copies import DuplicateRows
 from tabalyst.scanner.planner.analyzers.crosstab import CategoryCrosstab
 from tabalyst.scanner.planner.analyzers.date_order import DateOrder
 from tabalyst.scanner.planner.analyzers.distinct import ExactDistinct
@@ -53,4 +54,5 @@ BUILT_INS: tuple[type[Analyzer], ...] = (
     FingerprintDistinct,
     SensitiveForms,
     CharacterProfile,
+    DuplicateRows,
 )

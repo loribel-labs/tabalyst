@@ -63,6 +63,7 @@ the analyses that concern it:
 | `fingerprint_distinct` | The distinct values of a field whose values are too long for the exact set, told apart by a 128-bit fingerprint, and the texts found more than once. Asked for, or run with `--deep`, never by itself |
 | `sensitive_forms` | The masks of the values of a masked field and their classes, without a value or a count below a floor. Asked for, or run with `--deep`, never by itself. `exact_distinct` also applies to a masked or hidden field, as two numbers. Both are off until `deep.sensitive.enabled` is set |
 | `residual_values` | The values that patterns and detectors leave out, with their exact counts, and each pattern's example and distinct values (runs with `--deep`). Needs no reading when the scan holds every distinct value with its exact count, and then gives no record |
+| `duplicate_rows_count` | The exact number of extra copies of whole rows of a CSV file with one dataset, counted with the engine of Dedup in a reading of its own and writing no file. The candidate is named `duplicate_rows_count:<dataset>:$`. Already satisfied when the scan counted them exactly, not applicable when it was set not to. Asked for, or run with `--deep`, never by itself |
 | `duplicates_report` | The values found more than once in a column of almost all different values, with their counts (runs with `--deep`). Also the repeated combinations of two columns, when you ask for them |
 
 Each candidate gets one decision:

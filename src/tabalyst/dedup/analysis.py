@@ -123,7 +123,7 @@ def analyze_dedup(
     path = Path(source)
     started = time.perf_counter()
     before = stat_source(path)
-    forward = _staged(on_progress)
+    forward = staged(on_progress)
     spilled_at: int | None = None
 
     def spilled(event: SpillEvent) -> None:
@@ -204,7 +204,7 @@ def source_changed_error(records_read: int) -> DedupInputError:
     )
 
 
-def _staged(callback: ProgressCallback | None) -> ProgressCallback | None:
+def staged(callback: ProgressCallback | None) -> ProgressCallback | None:
     """Name the stage on every event that the pass emits."""
     if callback is None:
         return None

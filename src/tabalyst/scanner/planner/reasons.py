@@ -54,6 +54,8 @@ NOT_APPLICABLE = {
     "uniform_keys": "every key is in every object, so there is one set of keys",
     "array_lengths_too_wide": "the lengths of the arrays are spread over too wide a range to be counted one by one",
     "hidden_exposure": "exposure hides the values of this field, so even their masks are kept out of the document",
+    "duplicates_disabled": "the scan was set not to count the copies of rows (records.duplicates), and a second pass does not override that",
+    "records_left_out": "the scan left records out of the file, which Dedup refuses to count",
     "nothing_left_out": "no pattern leaves values out and no detector that reads most of the column finds invalid or unmatched ones",
 }
 
@@ -67,6 +69,7 @@ SATISFIED = {
     "distinct_exact": "the distinct values are already counted exactly",
     "years_counted": "the scan already counts the values by year",
     "lengths_constant": "every array has the same length, already in the scan",
+    "copies_exact": "the scan already counts the extra copies of rows exactly",
 }
 
 # The decision on a candidate that is not satisfied.
@@ -113,6 +116,7 @@ UTILITY = {
     "drift_by_position": "shows whether the missing values and the values of the column change along the file",
     "missing_together": "shows which columns lack a value in the same records",
     "array_lengths": "shows how long the arrays of the field are",
+    "duplicate_rows": "counts the extra copies of whole rows exactly, which the scan could only bound",
     "key_sets": "shows which keys the objects have together",
     "text_shape": "shows the words, lines and digits of the texts",
     "character_map": "shows the most frequent characters, their Unicode families, the case of the ends and the emoji of every value",

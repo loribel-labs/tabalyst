@@ -20,6 +20,7 @@ from pathlib import Path
 from time import perf_counter
 
 from tabalyst.config import DeepSettings
+from tabalyst.dedup.failures import DedupInputError, DedupReportError
 from tabalyst.progress import (
     ProgressCallback,
     ProgressPhase,
@@ -64,6 +65,7 @@ from tabalyst.scanner.secondpass.accumulators import (
 )
 from tabalyst.scanner.secondpass.boundaries import place_edges
 from tabalyst.scanner.secondpass.characters import CharacterAccumulator
+from tabalyst.scanner.secondpass.copies import count_copies
 from tabalyst.scanner.secondpass.crosstab import (
     MAX_EXCEPTION_CELLS,
     CodeFeed,
@@ -205,6 +207,8 @@ class _Job:
     children: list[FieldResult] | None = None
     # Why the job could not be set up: it fails without reading.
     failure: tuple[str, str] | None = None
+    # The end of an analysis that reads the source on its own, outside the router.
+    finished: _Finished | None = None
 
 
 def _timed(items: Iterable[StreamItem], spent: list[float]) -> Iterator[StreamItem]:
@@ -948,12 +952,39 @@ def _fail(job: _Job, exc: Exception) -> AnalysisResult:
     )
 
 
+def _count_copies(
+    job: _Job, scan: ScanResult, source: Path, on_progress: ProgressCallback | None
+) -> None:
+    """Count the extra copies of the rows of a dataset with the engine of Dedup, on a
+    reading of the file of its own (design 20.40). A source that is not the one the Scan
+    read stops the pass (``StaleSource``); the other failures end this analysis alone."""
+    try:
+        outcome = count_copies(job.candidate, scan, job.dataset, source, on_progress)
+    except (ScanMismatch, DedupInputError, DedupReportError) as exc:
+        if isinstance(exc, ScanMismatch):
+            job.failure = ("scan_mismatch", str(exc))
+        else:
+            job.failure = ("analysis_error", exc.reason)
+        return
+    job.finished = _Finished(outcome.status, outcome.result, outcome.reason, outcome.detail)
+
+
 def _conclude(job: _Job) -> AnalysisResult:
     """The entry of a job once the source has been read."""
     candidate, key = job.candidate, job.key
     if job.failure is not None:
         reason, detail = job.failure
         return _entry(candidate, key, "failed", reason=reason, detail=detail)
+    if job.finished is not None:
+        finished = job.finished
+        return _entry(
+            candidate,
+            key,
+            finished.status,
+            reason=finished.reason,
+            detail=finished.detail,
+            result=finished.output,
+        )
     if job.route is not None and job.route.failure is not None:
         return _entry(candidate, key, "failed", reason="analysis_error", detail=job.route.failure)
     pair = job.accumulator
@@ -1152,6 +1183,8 @@ def run_second_pass(
     router = Router({})
     used = 1
     verified = False
+    copies_read = False
+    copies_verified = False
     if jobs:
         cells = CellReader(scan.config)
         # The exact sets of the run share what the plan gave them (MEM-06).
@@ -1173,6 +1206,7 @@ def run_second_pass(
         edge_cache: dict[tuple[str, str, int], RankEdges] = {}
         stats_cache: dict[tuple[str, str, int, str], StatsEdges] = {}
         matrices: dict[str, MatrixAccumulator] = {}
+        copy_jobs: list[_Job] = []
         structures: dict[str, StructureAccumulator] = {}
         orders: list[tuple[str, OrderAccumulator]] = []
         # An analysis the Scan can answer alone (the patterns of a field whose
@@ -1193,6 +1227,9 @@ def run_second_pass(
                     continue
                 if job.candidate.analyzer == "date_order":
                     _setup_order(job, cells, orders)
+                    continue
+                if job.candidate.analyzer == "duplicate_rows_count":
+                    copy_jobs.append(job)
                     continue
                 if job.candidate.analyzer == "structure_variants":
                     _setup_structure(job, structures)
@@ -1297,6 +1334,13 @@ def run_second_pass(
             summary = reader.summary()
             guard.finish(summary.sha256, summary.bytes_read)
             verified = True
+        for job in copy_jobs:
+            _count_copies(job, scan, source, on_progress)
+        copies_read = any(job.finished is not None for job in copy_jobs)
+        # Only a count that went to the end of the file hashed it and could be compared.
+        copies_verified = any(
+            job.finished is not None and job.finished.status == "complete" for job in copy_jobs
+        )
         for job in jobs:
             entries[job.candidate.id] = _conclude(job)
 
@@ -1319,8 +1363,8 @@ def run_second_pass(
             ),
             workers=used,
             peak_memory_bytes=peak_memory_bytes(),
-            source_read=bool(read_jobs),
-            source_verified=verified,
+            source_read=bool(read_jobs) or copies_read,
+            source_verified=verified or copies_verified,
             records_read=router.records_read,
             cells_read=router.cells_read,
             executed=len(jobs),
@@ -1334,6 +1378,6 @@ def run_second_pass(
         executed=tuple(job.candidate.id for job in jobs),
         reused=tuple(reused),
         skipped=tuple(skipped),
-        read_source=bool(read_jobs),
+        read_source=bool(read_jobs) or copies_read,
     )
 

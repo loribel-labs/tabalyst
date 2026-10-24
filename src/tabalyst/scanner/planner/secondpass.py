@@ -21,7 +21,7 @@ from tabalyst.scanner.planner.costmodel import (
     READING_CELLS_PER_SECOND,
     READING_LOW_SHARE,
 )
-from tabalyst.scanner.planner.facts import root_facts, scan_facts
+from tabalyst.scanner.planner.facts import root_facts, rows_facts, scan_facts
 from tabalyst.scanner.planner.models import AnalysisPlan, Budgets
 from tabalyst.scanner.planner.planner import AnalysisRequest, plan_analyses
 from tabalyst.scanner.planner.registry import AnalyzerRegistry
@@ -95,7 +95,7 @@ def estimate_time(plan: AnalysisPlan, scan: ScanResult) -> TimeEstimate | None:
     # occurrence, and the root of the records once per record.
     values = {
         (facts.dataset, facts.field): facts.cells
-        for facts in (*scan_facts(scan), *root_facts(scan))
+        for facts in (*scan_facts(scan), *root_facts(scan), *rows_facts(scan))
     }
     nanoseconds = sum(
         (

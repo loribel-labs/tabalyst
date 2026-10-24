@@ -113,6 +113,7 @@ def test_the_default_registry_lists_the_built_in_analyzers_in_plan_order():
         "fingerprint_distinct",
         "sensitive_forms",
         "character_profile",
+        "duplicate_rows_count",
     ]
 
 
@@ -166,6 +167,7 @@ def test_only_the_analyzers_with_an_executor_are_runnable():
         "fingerprint_distinct",
         "sensitive_forms",
         "character_profile",
+        "duplicate_rows_count",
     }
     assert [a.id for a in registry if a.available] == [a.id for a in runnable]
 

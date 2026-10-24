@@ -40,6 +40,7 @@ from tabalyst.scanner.planner.facts import (
     ROOT_FIELD,
     FieldFacts,
     root_facts,
+    rows_facts,
     scan_facts,
 )
 from tabalyst.scanner.planner.models import (
@@ -523,6 +524,7 @@ def plan_analyses(
     analyzers = [analyzer(deep) for analyzer in registry]
     facts_list = scan_facts(scan)
     roots = root_facts(scan)
+    rows = rows_facts(scan)
 
     entries: list[_Entry] = []
     matched = [0] * len(requests)
@@ -543,7 +545,11 @@ def plan_analyses(
             explored.setdefault(analyzer.relations, []).extend(blocks)
             if not analyzer.per_field:
                 continue
-        for facts in (*facts_list, *roots) if analyzer.roots else facts_list:
+        for facts in (
+            *facts_list,
+            *(roots if analyzer.roots else ()),
+            *(rows if analyzer.rows else ()),
+        ):
             if not analyzer.relevant(facts):
                 continue
             assessment = analyzer.assess(facts)

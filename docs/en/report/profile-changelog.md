@@ -173,11 +173,14 @@ between distinct records. It holds codes and exact integers only, never a senten
   is not known;
 - `explanation`: `duplicate_row_extra_copies`, `id_repetitions_explained` and
   `id_repetitions_residual`;
-- `evidence`: where the distinct count and the extra copies come from (the Scan, the second pass or a
+- `evidence`: where the distinct count and the extra copies come from (the Scan, the second pass, whose
+  `duplicate_rows_count` counts the copies with the engine of Dedup and appears as the source
+  `deep.duplicate_rows_count`, or a
   Dedup report, with its file name, revision and origin), the SHA-256 of the source, the proofs that
   were read and refused (`rejected`) and, when two exact sources disagree, the `conflict`.
 
 `identifier.repetition` is unchanged: it keeps counting the raw repetitions. The extra copies come from
 the Scan's count of duplicate records, or from a valid [Dedup](../dedup/index.md) report given with
 `--dedup-report` (the setting `report.dedup_report`) or found beside a CSV source as
-`<name>.dedup.json`. Nothing is read again from the source and Dedup is never run by the report.
+`<name>.dedup.json`, or from the second pass when it was forced (`--deep`) and the Scan could only bound them.
+The report never runs Dedup and reads the source again only through that second pass.

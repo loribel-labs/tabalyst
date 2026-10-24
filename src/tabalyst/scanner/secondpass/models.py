@@ -35,7 +35,7 @@ from tabalyst.scanner.planner.models import AnalysisPlan, PlanBase
 # values are JSON data, as in ``scanner/models.py``.
 FORMAT = "tabalyst.scan.deep"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 3
+FORMAT_REVISION = 4
 
 # Quantile levels of every histogram, as (numerator, denominator) of the rank
 # fraction: 5%, 25%, 50% (the median), 75% and 95%.
@@ -882,6 +882,34 @@ class DuplicatesLimited(ScanModel):
     repeated: int
 
 
+class DuplicateRowsResult(ScanModel):
+    """The extra copies of whole rows of a table, counted with the engine of Dedup
+    without writing a file (design 20.40).
+
+    ``exact`` counts every record: ``extra_copies`` equals what ``tabalyst dedup``
+    reports for the file, and ``source_sha256`` is the digest of the whole file the
+    reading hashed (the one the Scan recorded). ``lower_bound`` stopped at a ceiling
+    after ``records`` records: the copies and the groups are lower bounds, and
+    ``distinct_rows`` counts the distinct rows among the records read. ``identity``
+    says how two rows are compared and ``calculation_version`` which count this is.
+    """
+
+    kind: Literal["duplicate_rows"] = "duplicate_rows"
+    accuracy: Literal["exact", "lower_bound"]
+    identity: Literal["full_decoded_csv_row_v1"]
+    calculation_version: int
+    records: int
+    distinct_rows: int
+    extra_copies: int
+    duplicate_groups: int
+    storage: Literal["memory", "disk"]
+    source_sha256: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("source_sha256",))
+
+
 class PearsonExclusions(ScanModel):
     """The rows a pair leaves out, because a value is missing: ``first_missing``
     has a number in the second column only, ``second_missing`` in the first only,
@@ -1669,6 +1697,7 @@ AnalysisOutput = Annotated[
     | ResidualResult
     | DuplicateResult
     | DuplicatesLimited
+    | DuplicateRowsResult
     | PearsonResult
     | CrosstabResult
     | StatsResult

@@ -125,7 +125,9 @@ support is not yet required. Record format changes in the relevant changelogs.
   objects and of the records (`KeySets`, swept by `StructureAccumulator`, which the `Router` feeds record by record)
   of a JSON source (20.33); `secondpass/texts.py` the words, lines and digits of long texts and their 128-bit
   fingerprints (20.34); `secondpass/forms.py` the masks and classes of a masked sensitive field without a value, with
-  a floor (decision O61, 20.35). `planner/facts.root_facts` gives the root of the records, the field `$`, to the
+  a floor (decision O61, 20.35); `secondpass/copies.py` and `planner/analyzers/copies.py` the analyzer
+  `duplicate_rows_count`, the extra copies of whole rows of a CSV file counted with the Dedup engine in a reading of its
+  own (`Analyzer.rows`, `facts.rows_facts`; 20.40). `planner/facts.root_facts` gives the root of the records, the field `$`, to the
   analyzers that set `roots`. `exact_distinct` is the one analysis that also reads a masked or hidden field.
 - `src/tabalyst/report_chain.py`: the second pass inside Report (who decides,
   plan, confirmation, run, the `analyses` member; design 20.11);
@@ -162,7 +164,9 @@ support is not yet required. Record format changes in the relevant changelogs.
   `2026-10-22-dedup-output-ownership-and-recovery`); `discovery.py` the sources, the exclusions of derived
   files and the planned outputs; `settings.py` the validated options; `report.py` and `batch_report.py` the
   models, schemas and writing of `<stem>.dedup.json` and `dedup.summary.json`; `failures.py` the stable
-  `reason` codes; `pipeline.py` one source from decision to report. Nothing there prints or reads the
+  `reason` codes; `pipeline.py` one source from decision to report; `count_only.py` the count-only mode
+  (`count_extra_copies`: the same exact count with ceilings of its own, `limited` at a ceiling, no output of any
+  kind; ADR `2026-10-24-dedup-count-only-for-deep`). Nothing there prints or reads the
   terminal. `src/tabalyst/dedup_service.py` is its boundary for the CLI and the API (`dedup_csv`,
   `generate_dedups`, `DedupResult`, `BatchDedupResult`); the schemas are
   `src/tabalyst/schemas/tabalyst.dedup.schema.json` and `tabalyst.dedup.batch.schema.json`; the tests are in

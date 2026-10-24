@@ -19,7 +19,9 @@ RowIdentity = Literal["full_decoded_csv_row_v1", "scan_record_v1"]
 DistinctSource = Literal["scan.values.cardinality", "deep.exact_distinct"]
 DistinctAccuracy = Literal["exact", "estimated", "limited"]
 ValueDomain = Literal["analytical", "original"]
-DuplicateSource = Literal["scan.records.duplicates", "dedup.report"]
+DuplicateSource = Literal[
+    "scan.records.duplicates", "dedup.report", "deep.duplicate_rows_count"
+]
 DuplicateAccuracy = Literal["exact", "lower_bound", "disabled"]
 ProofOrigin = Literal["colocated", "explicit"]
 Status = Literal["complete", "limited", "not_assessed", "failed"]

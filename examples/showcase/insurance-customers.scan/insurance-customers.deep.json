@@ -1,7 +1,7 @@
 {
   "format": "tabalyst.scan.deep",
   "format_version": "0.2.0",
-  "format_revision": 3,
+  "format_revision": 4,
   "status": "complete",
   "base": {
     "format_revision": 4,
@@ -75,6 +75,11 @@
       "max_tracked": 10000,
       "records": false
     },
+    "copies": {
+      "memory_mb": 256,
+      "disk_mb": 2048,
+      "max_rows": 10000000
+    },
     "drift": {
       "max_tracked": 1000,
       "max_listed": 12
@@ -111,13 +116,13 @@
       "max_tracked": 10000
     }
   },
-  "settings_sha256": "0e257bc8bd73e0338a6753d664b8d2ee9c728ab01a86048a0e0a6fe91fb12fa9",
+  "settings_sha256": "c17aadfe131d5ebc1043582c92c3738012ea10c9032b6bff7e8e188896a798b0",
   "plan": {
     "planner": "tabalyst.planner",
     "planner_version": 1,
     "utility_version": 1,
-    "cost_model_version": 17,
-    "plan_id": "b2797a496f80e89a581cd10b2eff7839a0fdb4b075ba1fe449f112ef9073f26a",
+    "cost_model_version": 18,
+    "plan_id": "dfb03a39ce3afc6bdcb83fa239df343aa9a6eb1bfc4c0d9e89d05a92773bf13f",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.1",
@@ -147,9 +152,9 @@
       "cpu": "low"
     },
     "summary": {
-      "candidates": 296,
+      "candidates": 297,
       "selected": 162,
-      "already_satisfied": 90,
+      "already_satisfied": 91,
       "rejected": 44,
       "second_pass_required": true,
       "executable": true,
@@ -19367,19 +19372,52 @@
           "reusable": true,
           "on_limit": "limited"
         }
+      },
+      {
+        "id": "duplicate_rows_count:rows:$",
+        "analyzer": "duplicate_rows_count",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "$",
+        "display": "$",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "duplicate_rows"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "copies_exact",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "datasets/rows/records/duplicates"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
       }
     ]
   },
   "run": {
-    "started_at": "2026-10-24T03:54:34.877942Z",
-    "duration_seconds": 13.166315,
+    "started_at": "2026-10-24T06:04:15.894758Z",
+    "duration_seconds": 17.654793,
     "timings": {
-      "reading": 0.445921,
-      "analysis": 11.69114,
-      "other": 1.029254
+      "reading": 0.542076,
+      "analysis": 15.874054,
+      "other": 1.238662
     },
     "workers": 6,
-    "peak_memory_bytes": 290361344,
+    "peak_memory_bytes": 272089088,
     "source_read": true,
     "source_verified": true,
     "records_read": 100000,

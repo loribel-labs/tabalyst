@@ -3791,12 +3791,16 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `temporal_distribution` | date, a column of datetimes (the technical type of the Scan is `text` for them: at least 80% of the values are of one datetime kind), mixed with a temporal measure | single date, or granularity `year` and years already counted (`years_counted`) | no values, exposure, mixed type, several kinds, times only | `period_counts` by `day` (span up to 2 years), `month` (60 years) or `year` (20.10) |
 | `measure_extraction` | a field where the `currency`, `percentage` or `quantity` detector matched a value (lot 14, 20.19) | never | no values, exposure, the detector that matched the most values matched fewer than half of the values (`low_coverage`) | `value_table`, parameters `detector`, `max_groups`, `max_values`, `bins`; reads no source when every distinct value is in the samples with its exact count |
 | `residual_values` | a field whose patterns leave values out or may (found in a sample), or that a replayable detector reads for at least half of its values while finding some `invalid` or `not_matched` (lot 15, 20.20) | never | no values, exposure, nothing left out (`nothing_left_out`) | `residual_table`, parameters `sources`, `max_listed`, `max_tracked`, `max_value_length`, `records`; reads no source when every distinct value is in the samples with its exact count and `records` is 0 |
+| `duplicate_rows_count` | the rows of a CSV file with a single dataset and at least one record (Unique ID lot 6, 20.40) | the Scan counted the extra copies exactly (`copies_exact`) | the Scan was set not to count them (`duplicates_disabled`); records left out (`records_left_out`); no candidate for another source | `extra_copies`, parameters `memory_mb`, `disk_mb`, `max_rows`; utility 40, never automatic |
 | `duplicates_report` | a field of text, integer or mixed values, at least 90% distinct (50% under a name that suggests an identifier), and the combinations of two columns a request names (lot 15, 20.21) | the cardinality is complete and equal to the values (`all_distinct`) | no values, exposure, long texts only, a combination of a withheld column or one inside the items of an array | `digest_table`, parameters `max_listed`, `max_tracked`, `records` (a combination: the first two); reads no source for a field when every distinct value is in the samples and `records` is 0 |
 
 A mixed type never gets a typed analysis automatically (specification 11.2):
 the rejection is explained, not silent (PLAN-01). Exposure `mask` or `hide`
 withholds the values: no analysis is proposed for such a field, but the counts of
 decision O61 (`exact_distinct` and `sensitive_forms`) when `deep.sensitive.enabled` is set (20.35).
+
+**Whole rows (Unique ID lot 6).** `duplicate_rows_count` is the first analyzer of whole rows (`Analyzer.rows`, `facts.rows_facts`): its one
+candidate per CSV source with a single dataset is named `duplicate_rows_count:<dataset>:$` (20.40).
 
 **Candidate and decision.** One candidate per (analyzer, dataset, field) the
 analyzer is relevant to, with `id` `analyzer:dataset:field`, its method and
@@ -5735,6 +5739,36 @@ cost 0.4 to 3 classes of anomalies. The weight 4 is the smallest that gains at 1
 
 **Left out.** Two edits, a typo that changes the length by more than one character, the neighbours of a number or a date, a
 group that names the frequent value in the report, and a target per rare value.
+
+### 20.40 The extra copies of whole rows (Unique ID lot 6, UID-012, T33)
+
+`duplicate_rows_count` (`planner/analyzers/copies.py`, `secondpass/copies.py`, `dedup/count_only.py`) counts the rows that repeat an earlier row,
+exactly, with the engine of Dedup and without writing a file. The Scan counts them too (`records.duplicates`), bounded by `limits.max_tracked_records`;
+this is for the file where that count is `limited`. The contract of use is `docs/dev/report/identifier-uniqueness.md` 6.6; the decision is the ADR
+`2026-10-24-dedup-count-only-for-deep`.
+
+**Engine.** `count_extra_copies(source, csv=, limits=)` reads the CSV with `csv_records.open_records` (strict, as `analyze_dedup`), keys each row with
+`canonical_key` (`full_decoded_csv_row_v1`) and counts in `MemoryRowStore`, or in `TieredRowStore` when the disk is allowed. It keeps no `RecordMarks`.
+`CopyLimits` has `memory_budget_mb` (the accounted table; with the disk forbidden the count stops there, `memory_budget`), `disk_budget_mb`
+(`estimate_disk_bytes` of the key bytes and distinct rows; `disk_budget`) and `max_rows` (`row_limit`). A stop leaves `extra_copies` and
+`duplicate_groups` as lower bounds (the first `k` records hold at most the copies of the file), no digest, and `status` `limited`; a count to
+the end has the SHA-256 of the whole file from the same reading. A file or size that changed during the reading is `source_changed`.
+
+**Plan.** The candidate belongs to the dataset under the field `$`. `Analyzer.rows` makes the planner offer it `rows_facts(scan)`: for a CSV with one
+dataset, `rows_duplicates` (the state of the Scan's count: `complete`, `limited`, `disabled`) and `row_bytes` (mean bytes of a record). `assess`: `satisfied`
+(`copies_exact`) when the Scan is exact, `not_applicable` when it was set not to count or left records out, else `applicable` with the three ceilings as
+parameters (part of the key of the result). The memory is the reader plus the table up to `memory_mb`; `NS_PER_CELL["rows"]` (6,000) is the nanoseconds a
+record costs, measured at 2,095 in memory and 5,812 on disk (300,000 records of 6 columns), so the CPU class is above the automatic limit and a forced run
+asks first. `COST_MODEL_VERSION` is 18.
+
+**Execution.** Outside the router and the workers: `_count_copies` (executor) calls `count_copies`, which checks the source before (size), counts, and checks the
+SHA-256 after an exact count (`StaleSource`), then the records against `record_count` and the Scan's lower bound against the count (`scan_mismatch`). The
+result `DuplicateRowsResult` (`kind` `duplicate_rows`) holds `accuracy`, `identity`, `calculation_version`, the counts, `storage` and the SHA-256. The
+second-pass document is revision 4.
+
+**Report.** `identifier_uniqueness/facts.py` reads the result as the third source of `E` (`deep.duplicate_rows_count`); `report_deep.py` prints one line of it.
+
+**Left out.** Sharing the reading with the router, an automatic choice (lot 8), a count per column (cahier 5.4), other formats than CSV.
 
 ## 21. Original value domain (O32)
 

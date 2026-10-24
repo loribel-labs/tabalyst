@@ -353,6 +353,23 @@ class DuplicateSettings(BaseModel):
     records: bool = False
 
 
+class CopySettings(BaseModel):
+    """The ceilings of the count of the extra copies of rows (design 20.40).
+
+    ``memory_mb`` is the accounted size of the table of distinct rows, ``disk_mb``
+    the estimated size of the temporary database that takes over when the table
+    passes it (``0`` forbids the disk), ``max_rows`` the records read. A count that
+    meets a ceiling stops and is ``limited``: its copies are a lower bound. All are
+    part of the key of a result, and none depends on a clock or a machine.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    memory_mb: int = Field(default=256, ge=1, le=1_048_576)
+    disk_mb: int = Field(default=2_048, ge=0, le=16_777_216)
+    max_rows: int = Field(default=10_000_000, ge=1)
+
+
 class PatternCountSettings(BaseModel):
     """How the validation of the patterns is bounded in memory (design 20.9).
 
@@ -524,6 +541,7 @@ class DeepSettings(BaseModel):
     patterns: PatternCountSettings = Field(default_factory=PatternCountSettings)
     residuals: ResidualSettings = Field(default_factory=ResidualSettings)
     duplicates: DuplicateSettings = Field(default_factory=DuplicateSettings)
+    copies: CopySettings = Field(default_factory=CopySettings)
     drift: DriftSettings = Field(default_factory=DriftSettings)
     date_order: DateOrderSettings = Field(default_factory=DateOrderSettings)
     missing: MissingSettings = Field(default_factory=MissingSettings)

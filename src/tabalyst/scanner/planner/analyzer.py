@@ -139,6 +139,9 @@ class Analyzer(ABC):
     # Whether the analyzer also concerns the root of the records of a JSON
     # source, which the Scan holds as no field (``facts.root_facts``).
     roots: ClassVar[bool] = False
+    # Whether the analyzer reads the whole rows of a CSV file, which the Scan holds as no
+    # field either: it is offered the rows (facts.rows_facts), named $ like the root.
+    rows: ClassVar[bool] = False
 
     def __init__(self, settings: DeepSettings | None = None) -> None:
         self.settings = DeepSettings() if settings is None else settings

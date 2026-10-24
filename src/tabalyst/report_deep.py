@@ -46,6 +46,7 @@ from tabalyst.scanner.secondpass.models import (
     DistinctCount,
     DistinctLimited,
     DuplicateResult,
+    DuplicateRowsResult,
     DuplicatesLimited,
     FingerprintResult,
     FormsResult,
@@ -228,6 +229,13 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         return _residuals_summary(result), EXACT
     if isinstance(result, DuplicateResult):
         return _duplicates_summary(result), EXACT
+    if isinstance(result, DuplicateRowsResult):
+        return (
+            f"{result.extra_copies:,} extra copies of whole rows in "
+            f"{_plural(result.records, 'record')}, {result.distinct_rows:,} distinct"
+            + ("" if result.accuracy == "exact" else "; stopped before the end of the file"),
+            EXACT if result.accuracy == "exact" else _AT_LEAST,
+        )
     if isinstance(result, DuplicatesLimited):
         return (
             (

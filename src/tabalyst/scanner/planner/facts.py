@@ -11,7 +11,7 @@ immutable view, so no analyzer walks the document or sees a sampled value.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 
 from tabalyst.scanner.config import DetectorSettings
@@ -284,6 +284,10 @@ class FieldFacts:
     top_characters: int = 20
     # Status of the Scan's character map of the field (``complete`` when it has none to say).
     character_map: str = "complete"
+    # The rows of a table (``rows_facts``): the state of the Scan's count of the extra copies of
+    # whole rows (``complete``, ``limited`` or ``disabled``) and the mean bytes of a record.
+    rows_duplicates: str = "not_applicable"
+    row_bytes: int = 0
 
     @property
     def withheld(self) -> bool:
@@ -605,54 +609,77 @@ def root_facts(scan: ScanResult) -> list[FieldFacts]:
     objects (JSON and JSONL), one per dataset; none for a table."""
     if scan.source.format not in ("json", "jsonl"):
         return []
-    roots: list[FieldFacts] = []
-    for dataset in scan.datasets:
-        if not dataset.record_count or dataset.record_types.get("object", 0) != dataset.record_count:
-            continue
-        top = [field for field in dataset.fields if field.parent is None]
-        roots.append(
-            FieldFacts(
-                dataset=dataset.id,
-                field=ROOT_FIELD,
-                display=ROOT_FIELD,
-                name=ROOT_FIELD,
-                where=f"datasets/{dataset.id}/fields/{ROOT_FIELD}",
-                values=0,
-                technical_type="object",
-                exposure=None,
-                cardinality="not_applicable",
-                distinct=None,
-                distinct_lower_bound=None,
-                distinct_estimate=None,
-                frequencies="not_applicable",
-                frequencies_distinct=None,
-                frequencies_truncated=False,
-                numeric="not_applicable",
-                numeric_min=None,
-                numeric_max=None,
-                numeric_count=0,
-                repeated=False,
-                lengths="not_applicable",
-                min_length=None,
-                mean_length=None,
-                max_length=None,
-                long_text_occurrences=0,
-                samples_listed=0,
-                samples_all=False,
-                temporal=None,
-                temporal_status="not_applicable",
-                patterns=None,
-                records=dataset.record_count,
-                records_excluded=scan.scope.records_excluded,
-                objects=dataset.record_count,
-                object_keys=len(top),
-                object_varies=any(child.presence.absent != 0 for child in top),
-                source_format=scan.source.format,
-                untracked_paths=dataset.structure.untracked_observations > 0,
-                dataset_fields=len(dataset.fields),
-            )
+    return [
+        _root(scan, dataset)
+        for dataset in scan.datasets
+        if dataset.record_count
+        and dataset.record_types.get("object", 0) == dataset.record_count
+    ]
+
+
+def rows_facts(scan: ScanResult) -> list[FieldFacts]:
+    """The facts of the rows of a CSV file with a single dataset and at least one
+    record, under the name of the root (``$``): what the analyzers of whole rows read
+    (``Analyzer.rows``). None for any other source."""
+    if scan.source.format != "csv" or len(scan.datasets) != 1:
+        return []
+    dataset = scan.datasets[0]
+    if not dataset.record_count:
+        return []
+    # ``IntMeasure`` is built by a function, which mypy cannot narrow.
+    status = dataset.records.duplicates.count.status  # type: ignore[attr-defined]
+    state = status if status in ("complete", "limited") else "disabled"
+    return [
+        replace(
+            _root(scan, dataset),
+            rows_duplicates=state,
+            row_bytes=max(1, scan.source.size_bytes // dataset.record_count),
         )
-    return roots
+    ]
+
+
+def _root(scan: ScanResult, dataset: DatasetResult) -> FieldFacts:
+    top = [field for field in dataset.fields if field.parent is None]
+    return FieldFacts(
+        dataset=dataset.id,
+        field=ROOT_FIELD,
+        display=ROOT_FIELD,
+        name=ROOT_FIELD,
+        where=f"datasets/{dataset.id}/fields/{ROOT_FIELD}",
+        values=0,
+        technical_type="object",
+        exposure=None,
+        cardinality="not_applicable",
+        distinct=None,
+        distinct_lower_bound=None,
+        distinct_estimate=None,
+        frequencies="not_applicable",
+        frequencies_distinct=None,
+        frequencies_truncated=False,
+        numeric="not_applicable",
+        numeric_min=None,
+        numeric_max=None,
+        numeric_count=0,
+        repeated=False,
+        lengths="not_applicable",
+        min_length=None,
+        mean_length=None,
+        max_length=None,
+        long_text_occurrences=0,
+        samples_listed=0,
+        samples_all=False,
+        temporal=None,
+        temporal_status="not_applicable",
+        patterns=None,
+        records=dataset.record_count,
+        records_excluded=scan.scope.records_excluded,
+        objects=dataset.record_count,
+        object_keys=len(top),
+        object_varies=any(child.presence.absent != 0 for child in top),
+        source_format=scan.source.format,
+        untracked_paths=dataset.structure.untracked_observations > 0,
+        dataset_fields=len(dataset.fields),
+    )
 
 
 def scan_facts(scan: ScanResult) -> list[FieldFacts]:

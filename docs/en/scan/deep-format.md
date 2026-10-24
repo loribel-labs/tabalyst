@@ -5,7 +5,7 @@ description: Structure of the deep.json document written by tabalyst scan --deep
 
 `tabalyst scan --deep` and `tabalyst report` write a JSON document beside the scan: `deep.json` next
 to a stored `scan.json`, or `<stem>.deep.json` next to a `<stem>.scan.json`. This
-page describes format `tabalyst.scan.deep`, version `0.2.0`, revision `3`. The
+page describes format `tabalyst.scan.deep`, version `0.2.0`, revision `4`. The
 format is **experimental**: it can change incompatibly between releases. Always
 check `format`, `format_version` and `format_revision` first. Tabalyst does not
 migrate a document of another revision; it makes it again. See [Add histograms and
@@ -17,7 +17,7 @@ exact medians](deep.md) for what the command does.
 {
   "format": "tabalyst.scan.deep",
   "format_version": "0.2.0",
-  "format_revision": 3,
+  "format_revision": 4,
   "status": "complete",
   "base": {
     "format_revision": 4,
@@ -848,6 +848,37 @@ column that looks like an identifier, or in a combination of two columns.
   1; `first` and `second` are ISO 8601. `truncated` is true when `broken` exceeds the list.
 - Plan parameter: `max_listed`. It is part of the key of the result.
 
+**`duplicate_rows`**: the extra copies of whole rows of a CSV file, counted with the engine of Dedup.
+
+```json
+{
+  "kind": "duplicate_rows",
+  "accuracy": "exact",
+  "identity": "full_decoded_csv_row_v1",
+  "calculation_version": 1,
+  "records": 2600, "distinct_rows": 2000, "extra_copies": 600, "duplicate_groups": 540,
+  "storage": "memory",
+  "source_sha256": "6d4d860f..."
+}
+```
+
+- The analysis belongs to the dataset, under the field `$` (`duplicate_rows_count:<dataset>:$`),
+  and only a CSV source with one dataset has it. `identity` says how two rows are compared: the
+  decoded cells of the whole row, without normalization, as `tabalyst dedup` compares them.
+  `calculation_version` changes with the meaning of the count.
+- `accuracy` `exact`: the reading went to the end of the file. `extra_copies` is what Dedup
+  reports for it, `records` the number of data records (checked against the scan,
+  `scan_mismatch`), and `source_sha256` the SHA-256 the reading hashed, which must be the scan's
+  (`StaleSource` otherwise, and no document is written). The analysis is `complete`.
+- `accuracy` `lower_bound`: the reading stopped at a ceiling after `records` records. The
+  analysis is `limited` with the `reason` `memory_budget`, `disk_budget` or `row_limit`,
+  `extra_copies` and `duplicate_groups` are lower bounds, `distinct_rows` counts the rows read,
+  and there is no `source_sha256`.
+- `storage` is `memory` or `disk`: where the table of distinct rows ended. No file is written
+  beside the source.
+- Plan parameters: `memory_mb`, `disk_mb` and `max_rows` (the settings `deep.copies`). They are
+  part of the key of the result.
+
 **`array_profile`**: the lengths of the arrays of a field.
 
 ```json
@@ -1030,6 +1061,13 @@ The package contains the JSON Schema of the document,
 as the writer. It describes what a reader accepts.
 
 ## Changelog
+
+### Version 0.2.0, revision 4
+
+The result `duplicate_rows` of the analyzer `duplicate_rows_count` (the extra copies of whole rows of a
+CSV file, counted with the engine of Dedup in a reading of its own, `complete` or `limited`) and the
+settings member `deep.copies` (`memory_mb`, `disk_mb`, `max_rows`). The plan names the analysis
+`duplicate_rows_count:<dataset>:$`. A document of revision 3 is made again.
 
 ### Version 0.2.0, revision 3 (Tabalyst 0.7.0)
 

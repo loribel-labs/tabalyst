@@ -289,6 +289,7 @@
                   "dense_counts": "#/$defs/DenseHistogram",
                   "distinct": "#/$defs/DistinctCount",
                   "distinct_limited": "#/$defs/DistinctLimited",
+                  "duplicate_rows": "#/$defs/DuplicateRowsResult",
                   "duplicates": "#/$defs/DuplicateResult",
                   "duplicates_limited": "#/$defs/DuplicatesLimited",
                   "fingerprint_distinct": "#/$defs/FingerprintResult",
@@ -350,6 +351,9 @@
                 },
                 {
                   "$ref": "#/$defs/DuplicatesLimited"
+                },
+                {
+                  "$ref": "#/$defs/DuplicateRowsResult"
                 },
                 {
                   "$ref": "#/$defs/PearsonResult"
@@ -2934,6 +2938,34 @@
       "title": "ConflictValue",
       "type": "object"
     },
+    "CopySettings": {
+      "additionalProperties": false,
+      "description": "The ceilings of the count of the extra copies of rows (design 20.40).\n\n``memory_mb`` is the accounted size of the table of distinct rows, ``disk_mb``\nthe estimated size of the temporary database that takes over when the table\npasses it (``0`` forbids the disk), ``max_rows`` the records read. A count that\nmeets a ceiling stops and is ``limited``: its copies are a lower bound. All are\npart of the key of a result, and none depends on a clock or a machine.",
+      "properties": {
+        "memory_mb": {
+          "default": 256,
+          "maximum": 1048576,
+          "minimum": 1,
+          "title": "Memory Mb",
+          "type": "integer"
+        },
+        "disk_mb": {
+          "default": 2048,
+          "maximum": 16777216,
+          "minimum": 0,
+          "title": "Disk Mb",
+          "type": "integer"
+        },
+        "max_rows": {
+          "default": 10000000,
+          "minimum": 1,
+          "title": "Max Rows",
+          "type": "integer"
+        }
+      },
+      "title": "CopySettings",
+      "type": "object"
+    },
     "Coverage": {
       "additionalProperties": false,
       "description": "Design 12.2: ``tested = eligible - not_tested`` and ``tested = matched +\nambiguous + invalid + not_matched``. ``share_tested`` is ``null`` when no\nvalue was tested.",
@@ -4403,6 +4435,9 @@
         "duplicates": {
           "$ref": "#/$defs/DuplicateSettings"
         },
+        "copies": {
+          "$ref": "#/$defs/CopySettings"
+        },
         "drift": {
           "$ref": "#/$defs/DriftSettings"
         },
@@ -5658,7 +5693,8 @@
         "source": {
           "enum": [
             "scan.records.duplicates",
-            "dedup.report"
+            "dedup.report",
+            "deep.duplicate_rows_count"
           ],
           "title": "Source",
           "type": "string"
@@ -5698,6 +5734,83 @@
         "identity"
       ],
       "title": "DuplicateRowsEvidence",
+      "type": "object"
+    },
+    "DuplicateRowsResult": {
+      "additionalProperties": false,
+      "description": "The extra copies of whole rows of a table, counted with the engine of Dedup\nwithout writing a file (design 20.40).\n\n``exact`` counts every record: ``extra_copies`` equals what ``tabalyst dedup``\nreports for the file, and ``source_sha256`` is the digest of the whole file the\nreading hashed (the one the Scan recorded). ``lower_bound`` stopped at a ceiling\nafter ``records`` records: the copies and the groups are lower bounds, and\n``distinct_rows`` counts the distinct rows among the records read. ``identity``\nsays how two rows are compared and ``calculation_version`` which count this is.",
+      "properties": {
+        "kind": {
+          "const": "duplicate_rows",
+          "default": "duplicate_rows",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "lower_bound"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "identity": {
+          "const": "full_decoded_csv_row_v1",
+          "title": "Identity",
+          "type": "string"
+        },
+        "calculation_version": {
+          "title": "Calculation Version",
+          "type": "integer"
+        },
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "distinct_rows": {
+          "title": "Distinct Rows",
+          "type": "integer"
+        },
+        "extra_copies": {
+          "title": "Extra Copies",
+          "type": "integer"
+        },
+        "duplicate_groups": {
+          "title": "Duplicate Groups",
+          "type": "integer"
+        },
+        "storage": {
+          "enum": [
+            "memory",
+            "disk"
+          ],
+          "title": "Storage",
+          "type": "string"
+        },
+        "source_sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Sha256"
+        }
+      },
+      "required": [
+        "accuracy",
+        "identity",
+        "calculation_version",
+        "records",
+        "distinct_rows",
+        "extra_copies",
+        "duplicate_groups",
+        "storage"
+      ],
+      "title": "DuplicateRowsResult",
       "type": "object"
     },
     "DuplicateSettings": {
@@ -13652,7 +13765,7 @@
           "type": "string"
         },
         "format_revision": {
-          "default": 3,
+          "default": 4,
           "title": "Format Revision",
           "type": "integer"
         },

@@ -2,7 +2,8 @@
 
 Status: contract written at lot 0 of the Unique ID plan (`tabalyst-gb`,
 `KANBAN/05-PROGRESS/2026-10-23-tabalyst-unique-id-plan.md`); implemented by lots 1 to 4; P0
-finalized at lot 5 (sections 12 and 13). P1 and P2 are not delivered.
+finalized at lot 5 (sections 12 and 13). Lot 6 (P1) adds the Deep count of the copies of rows
+(6.2, 6.6). The other P1 lots and P2 are not delivered.
 Requirements: `KANBAN/04-SRS/2026-10-23-unique-id/Tabalyst_Unique_ID_Cahier_des_Charges_v1.md`
 (UID-001 to UID-010 are P0, UID-011 to UID-015 are P1 and P2 and out of this contract).
 Decision record: ADR `2026-10-23-identifier-uniqueness-derived-in-report`. Tests:
@@ -178,7 +179,8 @@ or `null`; `null` is never replaced by `0`. No sentence is stored.
   `scan_record_v1` for any other source (the Scan's comparison of path, native type and raw value).
 - `evidence.id_cardinality.source`: `scan.values.cardinality` or `deep.exact_distinct`.
   `accuracy`: `exact`, `estimated` or `limited`; `domain`: `analytical` or `original`.
-- `evidence.duplicate_rows.source`: `scan.records.duplicates` or `dedup.report`; `accuracy`:
+- `evidence.duplicate_rows.source`: `scan.records.duplicates`, `dedup.report` or
+  `deep.duplicate_rows_count` (lot 6); `accuracy`:
   `exact`, `lower_bound` or `disabled`; `report` is `null` or
   `{"name", "format_revision", "settings_identity", "content_sha256", "origin"}` with `origin`
   `colocated` or `explicit`. No path outside the file name is stored.
@@ -211,7 +213,8 @@ change nothing. No ID value, example or path other than file names is stored.
 
 1. `datasets[].records.duplicates.count` when `complete` (T12).
 2. A validated Dedup report (7), when 1 is `limited` or `disabled` (T13).
-3. P1 only: a Deep count of the copies (T33).
+3. The Deep count of the copies (`duplicate_rows_count`, lot 6, T33, 6.6), when the second pass was
+   forced or asked for and stands on this Scan.
 
 `limited` is a lower bound and `disabled` has no value: neither is `E`.
 
@@ -236,7 +239,9 @@ The Scan's exact count comes first. When a valid Dedup report is also present it
 `records.extra_copies` must be equal; if not, the evidence is contradictory: `failed` with
 `evidence_conflict`, both values in `evidence.conflict` for the diagnosis, no choice made (T28). When `D`
 from the Scan and from the second pass are both exact in the same domain and differ, the same
-rule applies. A proof that is merely refused (7) is not a conflict.
+rule applies. The three sources of `E` (Scan, Dedup report, Deep count) are compared in that order:
+the first exact one is the evidence shown, any other exact one that differs is a conflict, and
+among the lower bounds the highest is shown and used as the floor. A proof that is merely refused (7) is not a conflict.
 
 ### 6.5 Identity of the rows, A1 (D7)
 
@@ -258,6 +263,42 @@ and an independent oracle. They cannot differ for a CSV that both accept, becaus
 probabilistic by construction and documented as such; the Dedup report is the exact counterpart,
 and both are labelled with `row_identity: full_decoded_csv_row_v1`. For other sources the Scan's
 count is the only `E` and carries `scan_record_v1`. A Dedup report is never used for a non-CSV.
+
+### 6.6 The Deep count of the copies (lot 6, UID-012, T33)
+
+`count_extra_copies` (`dedup/count_only.py`) is the count-only mode of the Dedup engine: the same
+canonical key (`full_decoded_csv_row_v1`), the same exact store (memory, then SQLite), the same strict
+reading, and no output of any kind (no CSV, no report, no marks of records; the temporary database is
+deleted). It stops cleanly at three ceilings and then returns a lower bound, never a count:
+
+| Ceiling | Setting | Default | Stops with |
+| --- | --- | --- | --- |
+| accounted size of the table of distinct rows | `deep.copies.memory_mb` | 256 | `memory_budget` (only when the disk is forbidden) |
+| estimated size of the temporary database | `deep.copies.disk_mb` | 2,048 (`0` forbids the disk) | `disk_budget` |
+| records read | `deep.copies.max_rows` | 10,000,000 | `row_limit` |
+
+The ceilings are bytes and records; the disk is estimated from the accounted key bytes (`estimate_disk_bytes`),
+not measured on the volume, so a file stops at the same record on any machine. `CALCULATION_VERSION` (1) changes
+with any change of what the count means.
+
+The analyzer `duplicate_rows_count` (`scanner/planner/analyzers/copies.py`, `scanner/secondpass/copies.py`) gives the
+engine to the planner:
+
+- one candidate per CSV source with one dataset and at least one record, named `duplicate_rows_count:<dataset>:$`
+  (`Analyzer.rows`, `facts.rows_facts`); no candidate for JSON or Excel;
+- `already_satisfied` (`copies_exact`) when the Scan counted exactly; `not_applicable` when the Scan was set not to
+  count (`duplicates_disabled`, never overridden, forced or not) or left records out (`records_left_out`);
+- utility 40, so never chosen by itself: asked for or forced (the lot 8 decides the automatic criteria). Its cost
+  is the whole file, CPU class above the automatic limit, so a forced run asks first (R1);
+- it reads the file on its own, outside the router and the workers, so the result does not depend on their
+  number; an exact result is checked against the Scan (SHA-256 and size through the source guard, `records`
+  against `record_count`, the Scan's lower bound), a stopped one only against the size and time of the file;
+- the result `duplicate_rows` holds the counts, the identity, `calculation_version`, `storage` and, when exact, the
+  SHA-256; the analysis is `complete`, or `limited` with the ceiling as `reason`.
+
+`facts_from_scan` appends the result as the third `DuplicateEvidence` when the second-pass document stands on this
+Scan (same base). An exact result also needs the Scan's SHA-256 and `records == N`; otherwise it is ignored, as a foreign
+proof would be. `rule_version` stays 1: the P0 object was never published, so adding a source does not break a reader.
 
 ## 7. Dedup proof (UID-005)
 
@@ -409,7 +450,8 @@ evidence of 6 and the proof of 7.
 | 3 | T12, T25, T26, T27, T29 (JSON), T30, T31, no extra reading of the source, Scan unchanged |
 | 4 | T29 (HTML and JSON agree), cases A to E rendered, no double count, no automatic Error |
 | 5 | The whole suite, the reference measures of 12 and the conformance of 13 |
-| P1 | T33 and the planner; out of the P0 gate |
+| 6 | T33 (`test_t33_...`), `tests/dedup/test_count_only.py`, `tests/scan/test_duplicate_rows_count.py`, `tests/report/test_identifier_uniqueness_deep_copies.py` |
+| P1 | The planner criteria (lot 8); out of the P0 gate |
 
 ## 11. Open points kept for later lots
 
@@ -456,14 +498,16 @@ State after lot 5. Maintainer documentation, never published.
 | 3 | The raw reality stays and the adjusted reading is separate | `identifier.repetition` unchanged (`test_a_repetition_is_never_an_automatic_error`); the `raw` and `after_row_deduplication` blocks | Met |
 | 4 | No strict `true` from an estimated, limited, incomplete, inconsistent or foreign proof | T14, T18, T25, T28, `test_no_false_is_ever_emitted_without_a_demonstrated_repetition`, the properties of 15.2 | Met |
 | 5 | The usual case, a Scan entirely exact, needs no new reading | T12 (`test_t12_the_report_does_not_read_the_source_again`), the measures of 12 | Met |
-| 6 | A Dedup 0.7.1 report is used with identity validation, Dedup unchanged | T13, T15 to T17, T32, T34, `test_a_refusal_never_writes_the_dedup_report`; `src/tabalyst/dedup/` untouched | Met |
+| 6 | A Dedup 0.7.1 report is used with identity validation, Dedup unchanged | T13, T15 to T17, T32, T34, `test_a_refusal_never_writes_the_dedup_report`; `src/tabalyst/dedup/` unchanged at P0 (lot 6 adds `count_only.py` and makes the helper `staged` public, no behavior change) | Met |
 | 7 | The JSON is versioned, verifiable and consistent with the HTML | `format_revision` 5, schema, T29 (`test_t29_the_html_and_the_json_say_the_same`), `profile-changelog.md` | Met |
-| 8 | The functional, invariant, security and non-regression tests pass | the suite (T31 exposure, properties, A1); T33 is P1 and stays skipped | Met for P0 |
+| 8 | The functional, invariant, security and non-regression tests pass | the suite (T31 exposure, properties, A1); T33 is P1 and runs since lot 6 | Met for P0 |
 | 9 | The documentation tells raw Unique ID from Unique after row deduplication and, later, near-unique | `read-report.md` (Column page), `findings.md`, `json-profile.md`, `profile-changelog.md`, the glossary, `dedup/index.md` | Met; near-unique is not available and is not described as such |
-| 10 | The P1 and P2 requirements not delivered are identified and not described as available | the pages say that no second-pass analysis counts the copies and that near-uniqueness is not available; plan lots 6 to 9 | Met |
+| 10 | The P1 and P2 requirements not delivered are identified and not described as available | the pages say that near-uniqueness is not available; the Deep count of the copies is documented as asked for, never automatic (lot 6); plan lots 7 to 9 | Met |
 
-Not delivered and not described as available: the count-only mode of the Dedup engine and the Deep
-analyzer of the copies of rows (UID-012), the Deep analytical cardinality (UID-013), the planner
+Delivered at lot 6 (P1): the count-only mode of the Dedup engine and the Deep analyzer of the copies of
+rows (UID-012), asked for or forced, never chosen by itself.
+
+Not delivered and not described as available: the Deep analytical cardinality (UID-013), the planner
 criteria and the cache (UID-011), near-uniqueness (UID-014), the composite keys, the discovery of
 candidates and the Smart or Explore recommendations (P2, UID-015).
 

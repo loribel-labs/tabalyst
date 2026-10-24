@@ -183,11 +183,11 @@ def _selected(
     exact: list[DuplicateEvidence],
     bounds: list[DuplicateEvidence],
 ) -> DuplicateEvidence | None:
-    """The source of ``E`` shown as evidence: exact first, then a bound, then what exists."""
+    """The source of ``E`` shown as evidence: exact first, then the highest bound, then what exists."""
     if exact:
         return exact[0]
     if bounds:
-        return bounds[0]
+        return max(bounds, key=lambda source: source.value or 0)
     return facts.duplicates[0] if facts.duplicates else None
 
 

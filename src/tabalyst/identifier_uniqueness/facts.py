@@ -43,6 +43,7 @@ from tabalyst.scanner.models import (
 )
 from tabalyst.scanner.planner.models import PlanBase
 from tabalyst.scanner.quality import analytical_distinct
+from tabalyst.scanner.secondpass.models import DuplicateRowsResult
 
 _IDENTIFIER_ROLES = (ID, UNIQUE_ID)
 
@@ -149,6 +150,9 @@ def facts_from_scan(
         duplicates.append(proof)
     elif proof is not None:
         rejected = (proof,)
+    counted = _deep_duplicates(scan, target, analyses, base)
+    if counted is not None:
+        duplicates.append(counted)
     return UniquenessFacts(
         dataset=dataset,
         eligible=True,
@@ -190,6 +194,59 @@ def _scan_duplicates(scan: ScanResult, dataset: DatasetResult) -> DuplicateEvide
             value=count.lower_bound or 0, source=source, accuracy="lower_bound", identity=identity
         )
     return DuplicateEvidence(value=None, source=source, accuracy="disabled", identity=identity)
+
+
+def _deep_duplicates(
+    scan: ScanResult,
+    dataset: DatasetResult,
+    analyses: AnalysesBlock | None,
+    base: PlanBase | None,
+) -> DuplicateEvidence | None:
+    """``E`` as the second pass counted it with the engine of Dedup (contract 6.2, point 3).
+
+    Used only when the second-pass document stands on this Scan and, for an exact count, read
+    the very file the Scan did (same SHA-256 and same number of records). A stopped count is a
+    lower bound; the highest one among the results of a document is kept.
+    """
+    if analyses is None or analyses.deep is None:
+        return None
+    deep = analyses.deep
+    if base is not None and deep.base != base:
+        return None
+    exact: DuplicateRowsResult | None = None
+    bound: DuplicateRowsResult | None = None
+    for item in deep.analyses:
+        found = item.result
+        if (
+            item.analyzer != "duplicate_rows_count"
+            or item.dataset != dataset.id
+            or not isinstance(found, DuplicateRowsResult)
+        ):
+            continue
+        if (
+            item.status == "complete"
+            and found.accuracy == "exact"
+            and found.source_sha256 == scan.source.sha256
+            and found.records == dataset.record_count
+        ):
+            exact = found
+        elif (
+            item.status == "limited"
+            # A stopped count has no digest to tie it to this file: it cannot have read more
+            # records than the Scan counted.
+            and found.records <= dataset.record_count
+            and (bound is None or found.extra_copies > bound.extra_copies)
+        ):
+            bound = found
+    chosen = exact or bound
+    if chosen is None:
+        return None
+    return DuplicateEvidence(
+        value=chosen.extra_copies,
+        source="deep.duplicate_rows_count",
+        accuracy="exact" if chosen is exact else "lower_bound",
+        identity=chosen.identity,
+    )
 
 
 def _distinct(

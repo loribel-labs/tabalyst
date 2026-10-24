@@ -266,8 +266,10 @@ quality, not an Error: the finding *ID repetitions* stays raw and links to this 
 Dedup report that matches the SHA-256 of the scanned source, is complete and counts the same
 records is used; give it with `--dedup-report`, or keep `<name>.dedup.json` beside a CSV
 source. The entry *Identifier uniqueness* of [Analysis settings](#analysis-settings) gives
-the rule version and the sources actually used. Deciding whether an ID is *nearly* unique, and
-counting the copies with a second pass of the report itself, are not available yet.
+the rule version and the sources actually used. Deciding whether an ID is *nearly* unique is
+not available yet. When the scan could only bound the copies of rows, a second pass counts
+them with [`duplicate_rows_count`](../scan/deep.md#extra-copies-of-whole-rows) if you force it
+(`--deep`); the report never chooses that reading by itself.
 
 **A finding card.** The left side states what the finding is and how far to trust it. The
 right side holds the detail that explains it: the groups of spelling variants, the formats

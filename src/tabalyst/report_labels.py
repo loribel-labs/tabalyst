@@ -239,6 +239,7 @@ ANALYSIS_LABELS = {
     "character_profile": "Characters of the values",
     "fingerprint_distinct": "Distinct long texts by fingerprint",
     "sensitive_forms": "Masks and classes of a sensitive column",
+    "duplicate_rows_count": "Extra copies of whole rows",
 }
 # The names of the days of the week, by the value of a part.
 WEEKDAYS = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
@@ -970,6 +971,7 @@ UNIQUENESS_REASONS = {
 UNIQUENESS_PROOF_SOURCES = {
     "scan.records.duplicates": "the Scan's comparison of whole records",
     "dedup.report": "a Dedup report",
+    "deep.duplicate_rows_count": "the second pass, which counted the copies with the engine of Dedup",
 }
 UNIQUENESS_CARDINALITY_SOURCES = {
     "scan.values.cardinality": "the Scan",
