@@ -80,6 +80,8 @@ markers = [
     "dedup_lot(name): Tabalyst Dedup implementation lot (plan 2026-10-22) that provides the tested behavior; skipped until the lot is enabled in tests/dedup/conftest.py",
     "dedup_t(*ids): requirement tests (T01 to T30 of the Dedup specification) that the test covers",
     "dedup_heavy: Dedup large-scale test, never run by default; select it with -m dedup_heavy",
+    "uid_lot(name): Unique ID plan (2026-10-23) lot that provides the tested behavior; skipped until the lot is enabled in tests/report/conftest.py",
+    "uid_t(*ids): requirement tests (T01 to T34 of the Unique ID specification) that the test covers",
     "shipped_exposure_default: the test reads the shipped default of scan.exposure.sensitive_values (show), not the masking default the suite runs with",
 ]
 
