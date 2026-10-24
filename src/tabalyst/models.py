@@ -40,7 +40,7 @@ from tabalyst.summary_models import ColumnSummary, TableSummary
 
 FORMAT = "tabalyst.report"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 4
+FORMAT_REVISION = 5
 
 
 MeasureStatus = Literal["complete", "limited", "not_applicable", "disabled", "failed"]
@@ -359,7 +359,7 @@ class ReportProfile(ResultModel):
 
     format: Literal["tabalyst.report"] = FORMAT
     format_version: Literal["0.2.0"] = FORMAT_VERSION
-    format_revision: Literal[4] = FORMAT_REVISION
+    format_revision: Literal[5] = FORMAT_REVISION
     engine: EngineInfo
     status: Literal["complete", "partial"]
     run: RunInfo

@@ -717,7 +717,7 @@ def test_t27_a_report_from_a_scan_document_without_the_source_uses_stored_proofs
     document_path = next((tmp_path / "scans").glob("*.scan.json"))
 
     generate_reports([document_path], output_dir=tmp_path / "out", from_scan=True)
-    report = json.loads(next((tmp_path / "out").glob("*.json")).read_text(encoding="utf-8"))
+    report = json.loads((tmp_path / "out" / "r.json").read_text(encoding="utf-8"))
 
     assert uniqueness_of(report, "customer_id")["interpretation"] == "unique_after_row_deduplication"
 
@@ -742,12 +742,23 @@ def test_t31_the_object_holds_no_id_value_whatever_the_exposure(tmp_path, exposu
 
     rows = population(distinct_ids=40, copies=3)
     source = write_csv(tmp_path, "s.csv", rows)
-    config = ReportConfig(scan=ScanConfig.model_validate({"exposure": {"sensitive_values": exposure}}))
+    # A sensitive pattern makes the ID column itself sensitive, so mask and hide really apply.
+    sensitive_ids = {"id": "customer", "regex": r"^A-\d{7}$", "sensitive": True}
+    config = ReportConfig(
+        scan=ScanConfig.model_validate(
+            {"exposure": {"sensitive_values": exposure}, "patterns": [sensitive_ids]}
+        )
+    )
     from tabalyst import analyze_csv
 
     profile = analyze_csv(source, config)
-    item = uniqueness_of(json.loads(profile.model_dump_json()), "customer_id")
+    document = json.loads(profile.model_dump_json())
+    column = next(c for c in document["report"]["datasets"][0]["columns"] if c["name"] == "customer_id")
+    item = uniqueness_of(document, "customer_id")
     text = json.dumps(item)
+
+    assert column["exposure"] == exposure
+    assert item["interpretation"] == "unique_after_row_deduplication"
 
     assert not any(row[0] in text for row in rows)
     assert item["explanation"]["duplicate_row_extra_copies"] == 3

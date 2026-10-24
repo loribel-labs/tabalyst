@@ -104,7 +104,8 @@ def field_traits(field: FieldResult) -> list[str]:
     return traits
 
 
-def _under_array(field: FieldResult) -> bool:
+def under_array(field: FieldResult) -> bool:
+    """Whether the field sits under a JSON array, so one record holds several of its values."""
     from tabalyst.scanner.models import ItemsSegment
 
     return any(isinstance(item, ItemsSegment) for item in field.path)
@@ -128,7 +129,7 @@ def positions_complete(field: FieldResult) -> bool:
     """The conditions of Unique ID about the positions of the field (3.8): not
     under a JSON array and every position of the scanned scope holds a value."""
     return (
-        not _under_array(field)
+        not under_array(field)
         and field.missing.count == 0
         # A record without the field is a missing position even when the
         # configuration does not count ``absent`` as missing.

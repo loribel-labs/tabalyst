@@ -187,7 +187,7 @@ PUBLIC_PARAMETERS = {
     "analyze_scan": "scan_path config_path on_progress",
     "generate_reports": (
         "input_specs output output_dir separator encoding collections config_path force"
-        " details on_progress from_scan workers all_collections deep confirmed confirm"
+        " details on_progress from_scan workers all_collections deep confirmed confirm dedup_report"
     ),
     "render_report": "profile column_links views",
 }

@@ -358,6 +358,7 @@ def generate_reports(
     deep: bool = False,
     confirmed: bool = False,
     confirm: Callable[[Confirmation], bool] | None = None,
+    dedup_report: str | Path | None = None,
 ) -> BatchReportResult:
     """Plan and execute one or more reports without depending on the CLI.
 
@@ -380,6 +381,12 @@ def generate_reports(
     either ``ConfirmationRequired`` is raised after the sources are scanned and
     before any is read again. This function never prompts. With ``from_scan``
     no source is read unless ``deep`` forces it.
+
+    ``dedup_report`` is a Dedup report (a file, for one source) or a folder holding
+    ``<source stem>.dedup.json``: when it is valid for the Scan it proves the copies of rows
+    behind ``identifier_uniqueness`` (it replaces the ``report.dedup_report`` setting). A source
+    that is not a CSV, or a path that does not exist, is an error, not a silence. Without it a
+    ``<stem>.dedup.json`` beside the source is tried.
     """
     if from_scan and (separator is not None or encoding is not None):
         raise ConfigurationError(
@@ -433,12 +440,21 @@ def generate_reports(
     top_level, scan_layer = load_config_layers(config_paths)
     settings = settings_from_layer(top_level)
     deep_section = settings.deep
+    dedup_option = str(dedup_report) if dedup_report is not None else None
+    effective_option = dedup_option if dedup_option is not None else settings.report.dedup_report
+    if effective_option is not None and not Path(effective_option).is_dir() and len(plan.jobs) > 1:
+        raise ConfigurationError(
+            "--dedup-report names one file, which proves one source: give a folder "
+            "to report several sources."
+        )
     if not from_scan:
         config = resolve_report_config(
             config_paths,
             separator=separator,
             encoding=encoding,
         )
+        if dedup_option is not None:
+            config = config.model_copy(update={"dedup_report": dedup_option})
     successes: list[ReportSuccess] = []
     failures: list[ReportFailure] = []
     total = len(plan.jobs)
@@ -513,6 +529,7 @@ def generate_reports(
                     config_paths,
                     force=force,
                     on_progress=forward,
+                    dedup_report=dedup_option,
                 )
             else:
                 scanned = _scan_resolved(

@@ -118,6 +118,10 @@ class PresentationSettings(BaseModel):
         default_factory=ValueExamplesSettings
     )
     row_sample: RowSampleSettings = Field(default_factory=RowSampleSettings)
+    # A Dedup report (file) or the folder holding ``<source stem>.dedup.json``: the proof of
+    # the copies of rows behind ``identifier_uniqueness``. A CSV source only; the path is not
+    # stored in the Report, which names the file only.
+    dedup_report: str | None = None
 
 
 class OutputSettings(BaseModel):

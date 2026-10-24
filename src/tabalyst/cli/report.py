@@ -250,6 +250,18 @@ def report_command(
             ),
         ),
     ] = False,
+    dedup_report: Annotated[
+        Path | None,
+        typer.Option(
+            "--dedup-report",
+            help=(
+                "A Dedup report (.dedup.json), or the folder holding the one of each "
+                "source, that proves the copies of rows behind the uniqueness of "
+                "identifier columns. CSV sources only. Without it, the report beside "
+                "each source is tried."
+            ),
+        ),
+    ] = None,
     yes: Annotated[
         bool,
         typer.Option(
@@ -292,6 +304,7 @@ def report_command(
             all_collections=all_collections,
             deep=deep,
             confirm=confirm,
+            dedup_report=dedup_report,
         )
     except ConfirmationRequired as exc:
         if decisions and decisions[-1] is Decision.DECLINED:

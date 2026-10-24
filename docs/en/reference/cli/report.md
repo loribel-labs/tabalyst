@@ -53,6 +53,7 @@ options each kind of file uses.
 | `--workers N` | Worker processes that analyze values: `1` for one process. Files of 16 MiB or more use one per spare processor by default. Not with `--scan` |
 | `--deep` | Force the [second pass](#second-pass): every applicable exact analysis, whatever the planner thinks of its cost. Asks first when it is costly |
 | `-y`, `--yes` | Start a costly forced second pass without asking. Outside a terminal, a costly forced second pass needs it |
+| `--dedup-report PATH` | A [Dedup](../../dedup/index.md) report (`<name>.dedup.json`), or the folder holding the one of each source. When it matches the scan, it proves how many rows are exact copies, so that the report can tell the repetitions of an identifier that copies explain from the others (`identifier_uniqueness` in the [JSON profile](../../report/profile-changelog.md)). CSV sources only; a file serves a single source. Without it, the report beside each source (or beside the scan document with `--scan`) is tried. A path that does not exist, or a source that is not a CSV file, is an error |
 | `--help` | Show the options and exit |
 
 ### Options for CSV files

@@ -10,7 +10,7 @@ contract with two fields:
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 4
+  "format_revision": 5
 }
 ```
 
@@ -155,3 +155,29 @@ carries `population`: what its sum is out of, the values every column the check 
 when a column with the finding has no population (groups of spelling variants). A finding of a quality column
 (`table.quality`) carries its `cls` (`error` or `issue`) and its `percent` (the share of its population, `null` without one), so that the figures of each class are counted
 without guessing it from the code. The report shows up to eight signals instead of six.
+
+## Version 0.2.0, revision 5
+
+Each column of an identifier role (`identifier/id` or `identifier/unique_id`, not under a JSON array)
+gets `summary.identifier_uniqueness`, built with the summary and `null` for any other column. It
+separates the repetitions of the ID that exact copies of whole rows explain from those that remain
+between distinct records. It holds codes and exact integers only, never a sentence or an ID value:
+
+- `rule_version`, `status` (`complete`, `limited`, `not_assessed`, `failed`), `interpretation`
+  (`raw_unique`, `unique_after_row_deduplication`, `repeated_between_distinct_records`,
+  `not_assessed`) and `reason`, a stable code that says why a conclusion is missing or refused;
+- `scope`: the dataset, the records (`source_records`), the distinct records, the ID values and missing
+  positions, the domain of the values, the `row_identity` (`full_decoded_csv_row_v1` for a CSV,
+  `scan_record_v1` for other sources) and whether the scope is `complete`;
+- `raw`, `after_row_deduplication`: `unique`, `id_distinct` and `id_redundant`, with `null` for what
+  is not known;
+- `explanation`: `duplicate_row_extra_copies`, `id_repetitions_explained` and
+  `id_repetitions_residual`;
+- `evidence`: where the distinct count and the extra copies come from (the Scan, the second pass or a
+  Dedup report, with its file name, revision and origin), the SHA-256 of the source, the proofs that
+  were read and refused (`rejected`) and, when two exact sources disagree, the `conflict`.
+
+`identifier.repetition` is unchanged: it keeps counting the raw repetitions. The extra copies come from
+the Scan's count of duplicate records, or from a valid [Dedup](../dedup/index.md) report given with
+`--dedup-report` (the setting `report.dedup_report`) or found beside a CSV source as
+`<name>.dedup.json`. Nothing is read again from the source and Dedup is never run by the report.

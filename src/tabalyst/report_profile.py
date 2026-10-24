@@ -26,10 +26,12 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from itertools import combinations
+from pathlib import Path
 
 from tabalyst._version import __version__
 from tabalyst.config import PresentationSettings, RowSampleSettings
 from tabalyst.errors import ConfigurationError
+from tabalyst.identifier_uniqueness.facts import UniquenessSources
 from tabalyst.models import (
     AnalysesBlock,
     ArrayProfile,
@@ -769,10 +771,12 @@ def build_profile(
     result: ScanResult,
     config: ReportConfig,
     analyses: AnalysesBlock | None = None,
+    source_dir: Path | None = None,
 ) -> ReportProfile:
     """The report profile of a scan: one dataset per scan dataset holding at
     least one column. ``config.scan`` must be the configuration of the scan.
-    ``analyses`` is what the second pass added, if it was planned."""
+    ``analyses`` is what the second pass added, if it was planned. ``source_dir`` is the
+    folder searched for the Dedup report beside the source (``identifier_uniqueness``)."""
     # The scan of the document carries its own bounds: check them against the
     # distribution setting here, since the config was only copied onto them.
     check_length_distribution(config, config.scan)
@@ -833,7 +837,7 @@ def build_profile(
             generator=ReportGenerator(version=__version__),
             processing_seconds=result.run.duration_seconds,
             config=PresentationSettings.model_validate(
-                config.model_dump(exclude={"scan"})
+                config.model_dump(exclude={"scan", "dedup_report"})
             ),
             base_scan=BaseScan(
                 format=base.format,
@@ -849,7 +853,15 @@ def build_profile(
     )
     # The summaries are part of the document (contract summary-table.md 20): the
     # pages print them and compute nothing.
-    return attach_summaries(profile, result)
+    return attach_summaries(
+        profile,
+        result,
+        UniquenessSources(
+            base=refinement.base,
+            dedup_report=None if config.dedup_report is None else Path(config.dedup_report),
+            source_dir=source_dir,
+        ),
+    )
 
 
 def _without_members(block: ByLength) -> ByLength:

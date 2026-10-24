@@ -26,6 +26,7 @@ from tabalyst.execution_log import (
     append_execution,
     build_execution_entry,
 )
+from tabalyst.identifier_uniqueness.facts import check_dedup_option
 from tabalyst.inspector.resolution import (
     check_result,
     inspect_notice,
@@ -85,6 +86,8 @@ def analyze_csv(
         )
     source = Path(path)
     started = perf_counter()
+    if config.dedup_report is not None:
+        check_dedup_option(Path(config.dedup_report), source_format_of(source), source.name)
 
     def forward(event: ProgressEvent) -> None:
         # The profile is not complete when the scan is.
@@ -94,7 +97,11 @@ def analyze_csv(
     result = scan(source, config=config.scan, on_progress=forward, workers=workers)
     emit_progress(on_progress, source, ProgressPhase.ANALYZING)
     # The profile records the rules the scan applied, defaults resolved.
-    profile = build_profile(result, config.model_copy(update={"scan": result.config}))
+    profile = build_profile(
+        result,
+        config.model_copy(update={"scan": result.config}),
+        source_dir=source.parent,
+    )
     profile.report.processing_seconds = round(perf_counter() - started, 4)
     return profile
 
@@ -115,6 +122,8 @@ def _profile_from_scan(
     checked = check_source(scan_path, result)
     emit_progress(on_progress, scan_path, ProgressPhase.ANALYZING)
     config = ReportConfig.from_settings(settings, result.config)
+    if config.dedup_report is not None:
+        check_dedup_option(Path(config.dedup_report), result.source.format, result.source.name)
     chain = plan_chain(
         result,
         scan_path=scan_path,
@@ -126,7 +135,9 @@ def _profile_from_scan(
         indent=settings.output.json_indent,
     )
     analyses = run_chain(chain, result, on_progress=on_progress, progress_source=scan_path)
-    profile = build_profile(result, config, analyses=analyses)
+    profile = build_profile(
+        result, config, analyses=analyses, source_dir=scan_path.parent
+    )
     # The scan and the report: as long as a report of the source itself.
     profile.report.processing_seconds = round(
         result.run.duration_seconds + perf_counter() - started, 4
@@ -293,6 +304,9 @@ def _scan_resolved(
     """The first pass of a Report of a source: validate the paths and scan it, or
     reuse the current Scan of the shared storage."""
     started = perf_counter()
+    if config.dedup_report is not None:
+        # Before any reading: an option the source cannot use is an error, not a silence.
+        check_dedup_option(Path(config.dedup_report), source_format_of(source), source.name)
     indent = json_indent(config_paths)
     json_report, execution_report = _validate_paths(
         source,
@@ -369,10 +383,12 @@ def _scan_document_resolved(
     *,
     force: bool,
     on_progress: ProgressCallback | None,
+    dedup_report: str | None = None,
 ) -> ScannedReport:
     """The Scan of a Report of a scan document: load it and check that it is
     current. A source beside it that is not the one it read is an error; a
-    source that is not there is not checked."""
+    source that is not there is not checked. ``dedup_report`` replaces the
+    ``report.dedup_report`` setting."""
     started = perf_counter()
     indent = json_indent(config_paths)
     emit_progress(on_progress, scan_path, ProgressPhase.READING)
@@ -392,12 +408,17 @@ def _scan_document_resolved(
         for warning in (engine_warning(result), inspect_notice(source, result))
         if warning is not None
     ]
+    config = ReportConfig.from_settings(settings, result.config)
+    if dedup_report is not None:
+        config = config.model_copy(update={"dedup_report": dedup_report})
+    if config.dedup_report is not None:
+        check_dedup_option(Path(config.dedup_report), result.source.format, result.source.name)
     return ScannedReport(
         source=source,
         progress_source=scan_path,
         scan_path=scan_path,
         result=result,
-        config=ReportConfig.from_settings(settings, result.config),
+        config=config,
         report=report,
         json_report=json_report,
         execution_report=execution_report,
@@ -450,7 +471,13 @@ def write_scanned_report(
             on_progress=on_progress,
             progress_source=scanned.progress_source,
         )
-    profile = build_profile(scanned.result, scanned.config, analyses=analyses)
+    profile = build_profile(
+        scanned.result,
+        scanned.config,
+        analyses=analyses,
+        # A report of a scan document looks beside the document, as it may not have its source.
+        source_dir=scanned.scan_path.parent if scanned.from_scan else scanned.source.parent,
+    )
     scan_seconds = scanned.result.run.duration_seconds
     profile.report.processing_seconds = round(
         scan_seconds + scanned.spent + perf_counter() - started, 4
@@ -577,6 +604,7 @@ def analyze(
     details: bool = False,
     deep: bool = False,
     confirmed: bool = False,
+    dedup_report: str | Path | None = None,
 ) -> dict[str, Any]:
     """Analyze one CSV, write sibling JSON/HTML reports and return the result.
 
@@ -590,6 +618,9 @@ def analyze(
     ``scan.csv`` values, which in turn override Tabalyst's built-in defaults.
     Existing report artifacts require ``force=True`` before replacement.
     Set ``details=True`` to generate standalone pages for each column.
+    ``dedup_report`` is a Dedup report, or the folder holding the one of the
+    source, that proves the copies of rows behind ``identifier_uniqueness``; it
+    replaces the ``report.dedup_report`` setting.
     """
     source = Path(csv_path)
     report = Path(report_path)
@@ -599,6 +630,8 @@ def analyze(
         separator=separator,
         encoding=encoding,
     )
+    if dedup_report is not None:
+        config = config.model_copy(update={"dedup_report": str(dedup_report)})
     top_level, scan_layer = load_config_layers(config_paths)
     scanned = _scan_resolved(
         source,

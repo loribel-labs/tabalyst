@@ -14,6 +14,11 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from tabalyst.identifier_uniqueness.facts import (
+    UniquenessSources,
+    identifier_uniqueness_of,
+)
+from tabalyst.identifier_uniqueness.models import IdentifierUniqueness
 from tabalyst.models import ColumnProfile, ReportProfile
 from tabalyst.report_details import STATES, details_for, exposed_values
 from tabalyst.report_finding_details import ExampleSource, finding_details
@@ -40,12 +45,15 @@ def _exposed(column: ColumnView, listing: FindingList) -> FindingList:
 
 
 def column_summary(
-    column: ColumnView, source: ExampleSource | None = None
+    column: ColumnView,
+    source: ExampleSource | None = None,
+    uniqueness: IdentifierUniqueness | None = None,
 ) -> ColumnSummary:
     """Everything the Summary table and the previews say about a column. ``source`` is
     where the examples of the finding details are taken: the whole sample of the Scan and
     its normalization (contract summary-table.md 22.5). Without it the details that need an
-    example or a normalized text have none."""
+    example or a normalized text have none. ``uniqueness`` is the derived uniqueness of an
+    identifier column, kept as it is."""
     found = column_findings(column)
     findings = ColumnFindings(
         field=found.field,
@@ -67,6 +75,7 @@ def column_summary(
         values=exposed_values(column),
         finding_details=finding_details(column, source),
         flags=flags,
+        identifier_uniqueness=uniqueness,
     )
 
 
@@ -104,14 +113,18 @@ def has_summaries(profile: ReportProfile) -> bool:
 
 
 def attach_summaries(
-    profile: ReportProfile, scan: ScanResult | None = None
+    profile: ReportProfile,
+    scan: ScanResult | None = None,
+    sources: UniquenessSources | None = None,
 ) -> ReportProfile:
     """Fill the summary of every column and the table summary of every dataset of
     ``profile``, in place, from the views of the document, and return it.
 
     ``scan`` is the Scan the Report is built from. Its samples are whole, where the base the
     Report keeps holds fewer values, so the examples of the finding details come from it;
-    without it (a document attached at render) they come from the base.
+    without it (a document attached at render) they come from the base. The same Scan gives the
+    uniqueness of the identifier columns, with the proofs ``sources`` names; without a Scan they
+    have none.
     """
     # Imported here: ``reporting`` renders what this module builds.
     from tabalyst.reporting import build_dataset_views
@@ -123,11 +136,18 @@ def attach_summaries(
         for field in dataset.fields
     }
     normalizer = Normalizer(profile.config.normalization)
+    sources = sources or UniquenessSources()
     for dataset in profile.report.datasets:
         view = views[dataset.id]
         summaries = [
             column_summary(
-                column, ExampleSource(whole.get((dataset.id, column.id)), normalizer)
+                column,
+                ExampleSource(whole.get((dataset.id, column.id)), normalizer),
+                None
+                if scan is None
+                else identifier_uniqueness_of(
+                    scan, dataset.id, column.id, profile.analyses, sources
+                ),
             )
             for column in view.columns
         ]

@@ -1224,6 +1224,44 @@
       "title": "CardinalityEstimate",
       "type": "object"
     },
+    "CardinalityEvidence": {
+      "additionalProperties": false,
+      "description": "Where ``D`` comes from.",
+      "properties": {
+        "source": {
+          "enum": [
+            "scan.values.cardinality",
+            "deep.exact_distinct"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "limited"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "domain": {
+          "enum": [
+            "analytical",
+            "original"
+          ],
+          "title": "Domain",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "accuracy",
+        "domain"
+      ],
+      "title": "CardinalityEvidence",
+      "type": "object"
+    },
     "CardinalityLimited": {
       "additionalProperties": false,
       "description": "Distinct count that stopped being tracked (design 9.1).\n\n``upper_bound`` is the certain maximum (the analyzed values);\n``threshold_reached_at_record`` and ``overflow_detected_at_record`` are the\nrecords where the table reached its limit T and where T + 1 values were\nproven, for the reason ``distinct_limit`` only.",
@@ -2383,6 +2421,17 @@
           },
           "title": "Flags",
           "type": "array"
+        },
+        "identifier_uniqueness": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IdentifierUniqueness"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -2856,6 +2905,33 @@
         "status"
       ],
       "title": "Complete[int]",
+      "type": "object"
+    },
+    "ConflictValue": {
+      "additionalProperties": false,
+      "description": "One exact value of a measure two sources disagree on.",
+      "properties": {
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "source",
+        "value"
+      ],
+      "title": "ConflictValue",
       "type": "object"
     },
     "Coverage": {
@@ -4162,6 +4238,45 @@
         "mixed"
       ],
       "title": "DecimalScale",
+      "type": "object"
+    },
+    "DedupReportRef": {
+      "additionalProperties": false,
+      "description": "Which Dedup report supplied a count; only a file name, never a path.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "format_revision": {
+          "title": "Format Revision",
+          "type": "integer"
+        },
+        "settings_identity": {
+          "title": "Settings Identity",
+          "type": "string"
+        },
+        "content_sha256": {
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "colocated",
+            "explicit"
+          ],
+          "title": "Origin",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "format_revision",
+        "settings_identity",
+        "content_sha256",
+        "origin"
+      ],
+      "title": "DedupReportRef",
       "type": "object"
     },
     "DeepRun": {
@@ -5536,6 +5651,55 @@
       "title": "DuplicateResult",
       "type": "object"
     },
+    "DuplicateRowsEvidence": {
+      "additionalProperties": false,
+      "description": "Where ``E`` comes from.",
+      "properties": {
+        "source": {
+          "enum": [
+            "scan.records.duplicates",
+            "dedup.report"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "lower_bound",
+            "disabled"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "identity": {
+          "enum": [
+            "full_decoded_csv_row_v1",
+            "scan_record_v1"
+          ],
+          "title": "Identity",
+          "type": "string"
+        },
+        "report": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DedupReportRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "source",
+        "accuracy",
+        "identity"
+      ],
+      "title": "DuplicateRowsEvidence",
+      "type": "object"
+    },
     "DuplicateSettings": {
       "additionalProperties": false,
       "description": "How the repeated values of an identifier or of a key are reported\n(design 20.21).\n\n``max_listed`` repeated values are listed, the most repeated first;\n``max_tracked`` distinct repeated values at most are counted (beyond, the\noccurrences of new ones are only counted). ``records`` asks for the first\nrecord of each value even when the Scan already holds every distinct value,\nwhich makes the second pass read the source. All are part of the key of a\nresult.",
@@ -5885,6 +6049,33 @@
         "not_matched"
       ],
       "title": "Evidence",
+      "type": "object"
+    },
+    "EvidenceConflict": {
+      "additionalProperties": false,
+      "description": "The exact values that disagree, for the diagnosis.",
+      "properties": {
+        "measure": {
+          "enum": [
+            "duplicate_rows",
+            "id_cardinality"
+          ],
+          "title": "Measure",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "$ref": "#/$defs/ConflictValue"
+          },
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "measure",
+        "values"
+      ],
+      "title": "EvidenceConflict",
       "type": "object"
     },
     "Example": {
@@ -7878,6 +8069,89 @@
         "modes_truncated"
       ],
       "title": "FrequencyTable",
+      "type": "object"
+    },
+    "IdentifierUniqueness": {
+      "additionalProperties": false,
+      "description": "The derived uniqueness of one identifier column (contract 5).",
+      "properties": {
+        "rule_version": {
+          "default": 1,
+          "title": "Rule Version",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "limited",
+            "not_assessed",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "interpretation": {
+          "enum": [
+            "raw_unique",
+            "unique_after_row_deduplication",
+            "repeated_between_distinct_records",
+            "not_assessed"
+          ],
+          "title": "Interpretation",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "missing_ids",
+                "too_few_records",
+                "too_few_distinct_records",
+                "scope_partial",
+                "distinct_estimated",
+                "distinct_not_exact",
+                "distinct_unavailable",
+                "duplicates_limited",
+                "duplicates_disabled",
+                "inconsistent_measures",
+                "evidence_conflict",
+                "computation_error"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
+        },
+        "scope": {
+          "$ref": "#/$defs/UniquenessScope"
+        },
+        "raw": {
+          "$ref": "#/$defs/UniquenessBlock"
+        },
+        "after_row_deduplication": {
+          "$ref": "#/$defs/UniquenessBlock"
+        },
+        "explanation": {
+          "$ref": "#/$defs/UniquenessExplanation"
+        },
+        "evidence": {
+          "$ref": "#/$defs/UniquenessEvidence"
+        }
+      },
+      "required": [
+        "status",
+        "interpretation",
+        "reason",
+        "scope",
+        "raw",
+        "after_row_deduplication",
+        "explanation",
+        "evidence"
+      ],
+      "title": "IdentifierUniqueness",
       "type": "object"
     },
     "InterpretationCandidate": {
@@ -12472,6 +12746,18 @@
         },
         "row_sample": {
           "$ref": "#/$defs/tabalyst__config__RowSampleSettings"
+        },
+        "dedup_report": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dedup Report"
         }
       },
       "title": "PresentationSettings",
@@ -13116,6 +13402,37 @@
         "duplicates"
       ],
       "title": "Records",
+      "type": "object"
+    },
+    "RejectedProof": {
+      "additionalProperties": false,
+      "description": "A proof that was read and refused, kept as a diagnostic.",
+      "properties": {
+        "source": {
+          "const": "dedup.report",
+          "title": "Source",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "dedup_unreadable",
+            "dedup_not_complete",
+            "dedup_source_mismatch",
+            "dedup_not_csv",
+            "dedup_dialect_mismatch",
+            "dedup_identity_unsupported",
+            "dedup_total_mismatch",
+            "dedup_invariants_broken"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "reason"
+      ],
+      "title": "RejectedProof",
       "type": "object"
     },
     "Relations": {
@@ -17473,6 +17790,239 @@
       "title": "TypeSettings",
       "type": "object"
     },
+    "UniquenessBlock": {
+      "additionalProperties": false,
+      "description": "Uniqueness of the identifier over a set of rows; ``null`` is never ``0``.",
+      "properties": {
+        "unique": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Unique"
+        },
+        "id_distinct": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Id Distinct"
+        },
+        "id_redundant": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Id Redundant"
+        }
+      },
+      "required": [
+        "unique",
+        "id_distinct",
+        "id_redundant"
+      ],
+      "title": "UniquenessBlock",
+      "type": "object"
+    },
+    "UniquenessEvidence": {
+      "additionalProperties": false,
+      "description": "The provenance of the measures.",
+      "properties": {
+        "id_cardinality": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CardinalityEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "duplicate_rows": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DuplicateRowsEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_sha256": {
+          "title": "Source Sha256",
+          "type": "string"
+        },
+        "rejected": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/RejectedProof"
+          },
+          "title": "Rejected",
+          "type": "array"
+        },
+        "conflict": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EvidenceConflict"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id_cardinality",
+        "duplicate_rows",
+        "source_sha256"
+      ],
+      "title": "UniquenessEvidence",
+      "type": "object"
+    },
+    "UniquenessExplanation": {
+      "additionalProperties": false,
+      "description": "The repetitions explained by row copies and those left between distinct records.",
+      "properties": {
+        "duplicate_row_extra_copies": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duplicate Row Extra Copies"
+        },
+        "id_repetitions_explained": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Id Repetitions Explained"
+        },
+        "id_repetitions_residual": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Id Repetitions Residual"
+        }
+      },
+      "required": [
+        "duplicate_row_extra_copies",
+        "id_repetitions_explained",
+        "id_repetitions_residual"
+      ],
+      "title": "UniquenessExplanation",
+      "type": "object"
+    },
+    "UniquenessScope": {
+      "additionalProperties": false,
+      "description": "What the figures count.",
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "population": {
+          "const": "source_records",
+          "default": "source_records",
+          "title": "Population",
+          "type": "string"
+        },
+        "source_records": {
+          "title": "Source Records",
+          "type": "integer"
+        },
+        "distinct_records": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Distinct Records"
+        },
+        "eligible_id_values": {
+          "title": "Eligible Id Values",
+          "type": "integer"
+        },
+        "missing_id_positions": {
+          "title": "Missing Id Positions",
+          "type": "integer"
+        },
+        "id_value_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "analytical",
+                "original"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Id Value Domain"
+        },
+        "row_identity": {
+          "anyOf": [
+            {
+              "enum": [
+                "full_decoded_csv_row_v1",
+                "scan_record_v1"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Row Identity"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "dataset",
+        "source_records",
+        "distinct_records",
+        "eligible_id_values",
+        "missing_id_positions",
+        "id_value_domain",
+        "row_identity",
+        "complete"
+      ],
+      "title": "UniquenessScope",
+      "type": "object"
+    },
     "UrlSettings": {
       "additionalProperties": false,
       "properties": {
@@ -18433,7 +18983,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Document tabalyst.report, format 0.2.0 revision 4: the Scan base at the same paths, plus the report block.",
+  "description": "Document tabalyst.report, format 0.2.0 revision 5: the Scan base at the same paths, plus the report block.",
   "properties": {
     "format": {
       "const": "tabalyst.report",
@@ -18448,7 +18998,7 @@
       "type": "string"
     },
     "format_revision": {
-      "const": 4
+      "const": 5
     },
     "engine": {
       "$ref": "#/$defs/EngineInfo"

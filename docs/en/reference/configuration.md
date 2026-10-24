@@ -63,10 +63,16 @@ presentation: changing them never scans the source again.
       "truncation_suffix": "...",
       "inline_display_size": 3
     },
-    "row_sample": {"start": 10, "middle": 10, "end": 10}
+    "row_sample": {"start": 10, "middle": 10, "end": 10},
+    "dedup_report": null
   }
 }
 ```
+
+`report.dedup_report` is the file or folder of the Dedup report that proves the
+copies of rows behind the uniqueness of identifier columns, like the option
+`--dedup-report` of [`tabalyst report`](cli/report.md), which replaces it. CSV
+sources only; the path is not stored in the report.
 
 ### Row sample
 

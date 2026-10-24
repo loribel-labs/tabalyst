@@ -13,6 +13,7 @@ from typing import Literal
 
 from pydantic import Field
 
+from tabalyst.identifier_uniqueness.models import IdentifierUniqueness
 from tabalyst.result_model import ResultModel
 from tabalyst.scanner.classify.catalog import (
     FindingClass,
@@ -528,6 +529,9 @@ class ColumnSummary(ResultModel):
     # The evidence behind the Issues of the Findings table (spelling variants, dates...).
     finding_details: FindingDetails
     flags: list[Flag]
+    # What the repetitions of an identifier column owe to copied rows (contract
+    # identifier-uniqueness.md 5); ``None`` for any other column.
+    identifier_uniqueness: IdentifierUniqueness | None = None
 
 
 # Dataset --------------------------------------------------------------------

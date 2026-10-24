@@ -22,7 +22,7 @@ ENABLED_LOTS: set[str] = {
 
     "2",  # Dedup proof
 
-    # "3",  # Report integration
+    "3",  # Report integration
 
     # "4",  # HTML
 }
