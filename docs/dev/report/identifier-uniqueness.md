@@ -657,9 +657,10 @@ every case. The seconds depend on the machine and are not a target.
   (10 characters, digits, 36 characters; a fifth padded), the reading of the three columns included (about 350 ns); the
   plan's maximum memory is 125 to 152 MiB per million IDs. `NS_PER_CELL["analytical_distinct"]` stays at 2,000.
 
-## 13. Conformance to the criteria of the cahier 18 (P0)
+## 13. Conformance to the criteria of the cahier 18 (P0 and P1)
 
-State after lot 5. Maintainer documentation, never published.
+State after lot 5, rechecked at gate P1 (26 October 2026, release 0.7.2, P0 and P1 published together).
+Maintainer documentation, never published.
 
 | # | Criterion | Evidence | State |
 | --- | --- | --- | --- |
@@ -670,7 +671,7 @@ State after lot 5. Maintainer documentation, never published.
 | 5 | The usual case, a Scan entirely exact, needs no new reading | T12 (`test_t12_the_report_does_not_read_the_source_again`), the measures of 12 | Met |
 | 6 | A Dedup 0.7.1 report is used with identity validation, Dedup unchanged | T13, T15 to T17, T32, T34, `test_a_refusal_never_writes_the_dedup_report`; `src/tabalyst/dedup/` unchanged at P0 (lot 6 adds `count_only.py` and makes the helper `staged` public, no behavior change) | Met |
 | 7 | The JSON is versioned, verifiable and consistent with the HTML | `format_revision` 5, schema, T29 (`test_t29_the_html_and_the_json_say_the_same`), `profile-changelog.md` | Met |
-| 8 | The functional, invariant, security and non-regression tests pass | the suite (T31 exposure, properties, A1); T33 is P1 and runs since lot 6 | Met for P0 |
+| 8 | The functional, invariant, security and non-regression tests pass | the suite (T31 exposure, properties, A1); T33 is P1 and runs since lot 6 | Met (P0 and P1; T33 runs since lot 6) |
 | 9 | The documentation tells raw Unique ID from Unique after row deduplication and, later, near-unique | `read-report.md` (Column page), `findings.md`, `json-profile.md`, `profile-changelog.md`, the glossary, `dedup/index.md` | Met; near-unique is documented since lot 9 (14), as a reading and never as a guarantee |
 | 10 | The P1 and P2 requirements not delivered are identified and not described as available | the criteria under which the two Deep counts run by themselves are documented as they are (6.8, lot 8); plan lot 9 | Met |
 
@@ -687,6 +688,24 @@ Delivered at lot 9 (P1): the near-unique reading (UID-014, 14).
 Delivered at lot 10 (P1): the decomposition despite missing IDs (cahier 5.4, 2.2 and 6.9).
 
 Not delivered and not described as available: the composite keys, the discovery of candidates and the Smart or Explore recommendations (P2, UID-015).
+
+### 13.1 Questions of the cahier 17, as decided (gate P1)
+
+| Subject | Decision |
+| --- | --- |
+| Name of the JSON object | `identifier_uniqueness`, member of `ColumnSummary` (D5, D10) |
+| Provenance | Structured `evidence`: sources, accuracies, SHA-256, rejected proofs, conflict |
+| Access to a Dedup report | `report --dedup-report` (API `dedup_report`, key `report.dedup_report`); automatic discovery only of the colocated `<stem>.dedup.json` of the same source (D2) |
+| Non identical exact proofs | Local `failed` / `evidence_conflict`; the Report is still generated (D8) |
+| One distinct row | Not assessed: `U >= 2` for any conclusion (D4) |
+| Deep trigger when `E` is limited | Planner criteria of 6.8 (D13 to D17): cost against value, deterministic budgets, a valid Dedup report spares the count |
+| Near-unique | Fixed model decided on 24 October 2026, provisional constants (14) |
+| Dedicated finding for residual conflicts | Not created; the raw finding links to the card |
+
+Open at release: the constants of 14 are not calibrated on real files; with the defaults the automatic
+count of the copies and the Scan's exact range do not meet (12.1, D13); the second-pass document moved from
+revision 3 (published) to 4 together with the planner changes; `refine` does not promote an `id` to
+`unique_id` from the analytical count (UID-001).
 
 Follow-up for `tabalyst-studio` (nothing was edited there): no new page, so `src/navigation.ts` does
 not change. The documentation site imports the edited pages (`docs/en/report/`, `docs/en/dedup/index.md`,

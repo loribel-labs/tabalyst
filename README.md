@@ -109,7 +109,9 @@ Details: [Tabalyst Report](https://docs.tabalyst.com/report/),
 - For an identifier column, whether the ID is unique across all rows and after
   row deduplication: the repetitions that exact copies of whole rows explain
   are told apart from those between distinct records, with the evidence (the
-  Scan or a [Dedup](https://docs.tabalyst.com/dedup/) report).
+  Scan, the second pass or a [Dedup](https://docs.tabalyst.com/dedup/) report),
+  the case of missing IDs, and a non-binding near-unique reading of the few
+  repetitions that remain.
 - A summary table with one row per column: its type, a sentence about its
   values, the missing share, its Errors and Issues with a preview of each, and
   its details; above it, the Column quality and Signals cards.

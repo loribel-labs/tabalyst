@@ -1,7 +1,16 @@
 ---
 title: Release notes
-description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.1.
+description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.2.
 ---
+
+## 0.7.2
+
+Report tells the repetitions of an identifier column that exact copies of whole
+rows explain from those between distinct records (`identifier_uniqueness`,
+`report --dedup-report`), with a non-binding near-unique reading. The second
+pass can count the copies of rows and the distinct values after normalization
+(`scan --deep`). Report moves to format revision 5 and the second pass to
+revision 4, so older documents must be made again.
 
 ## 0.7.1
 

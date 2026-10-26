@@ -3,7 +3,7 @@
   "format_version": "0.2.0",
   "format_revision": 5,
   "engine": {
-    "version": "0.7.1",
+    "version": "0.7.2",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,17 +27,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-24T03:55:15.094336Z",
-    "duration_seconds": 0.038989,
+    "started_at": "2026-10-26T11:40:41.905998Z",
+    "duration_seconds": 0.057133,
     "timings": {
-      "reading": 0.007635,
-      "analysis": 0.008498,
-      "finalize": 0.015863,
-      "derived": 0.006525,
-      "other": 0.000468
+      "reading": 0.005615,
+      "analysis": 0.007845,
+      "finalize": 0.014715,
+      "derived": 0.028552,
+      "other": 0.000405
     },
     "workers": 1,
-    "peak_memory_bytes": 79912960
+    "peak_memory_bytes": 79601664
   },
   "source": {
     "format": "jsonl",
@@ -15526,7 +15526,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -15534,10 +15534,10 @@
       "status": "complete",
       "base": {
         "format_revision": 4,
-        "engine_version": "0.7.1",
+        "engine_version": "0.7.2",
         "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
         "config_sha256": "39483c95af5cdebb6bf797a9a03bdb74ef94a425da646d67c69e9bc9f054130f",
-        "facts_sha256": "392756d2c51d29b92445db90d9610674b8de06da498d0d702f9daf7c82488f94"
+        "facts_sha256": "8e8097b26b882887aa335a0f66bab6eb05399b5eff290ad9b7fe4f80970b9e2a"
       },
       "settings": {
         "bins": 100,
@@ -15651,13 +15651,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 21,
-        "plan_id": "ed8bc3a41c538aebd6b6058195fdbb36f5723431d0bbfa5ec8877525208b054f",
+        "plan_id": "620d4cae5206f55c362064fa80cd2793ace18d088a98a6730711335584b4122d",
         "base": {
           "format_revision": 4,
-          "engine_version": "0.7.1",
+          "engine_version": "0.7.2",
           "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
           "config_sha256": "39483c95af5cdebb6bf797a9a03bdb74ef94a425da646d67c69e9bc9f054130f",
-          "facts_sha256": "392756d2c51d29b92445db90d9610674b8de06da498d0d702f9daf7c82488f94"
+          "facts_sha256": "8e8097b26b882887aa335a0f66bab6eb05399b5eff290ad9b7fe4f80970b9e2a"
         },
         "objective": {
           "automatic": true,
@@ -18468,21 +18468,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-26T01:46:47.818349Z",
-        "duration_seconds": 0.000145,
+        "started_at": "2026-10-26T11:40:42.019293Z",
+        "duration_seconds": 0.02016,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000145
+          "reading": 0.004893,
+          "analysis": 0.007775,
+          "other": 0.007491
         },
         "workers": 1,
-        "peak_memory_bytes": 80490496,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 11,
+        "peak_memory_bytes": 85565440,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 300,
+        "cells_read": 876,
+        "executed": 11,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -18498,7 +18498,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "2041c6a326a6c7bb92fb7bf9f9fced9c201a2b67a9be570cf52647deaf36043e",
+          "key": "35ad417fce1c1a5203f5a2b8ff327d486e95077007bf163ace54333c88caa68e",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -20073,7 +20073,7 @@
             "distinct": 300
           },
           "domain": "analytical",
-          "key": "eeacf15c7f4de8f58b05183cc8b17f9cdc6cfbc6d524677b916b6b66f7f6cb08",
+          "key": "bebeb42b9fc3420139e56f0f19fac2398a4bb34ad0f3265773779f86e6b99f4f",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -21648,7 +21648,7 @@
             "domain": 60
           },
           "domain": "analytical",
-          "key": "8dcc45dc08737ce7093ecf579aa8484d521a241cd4ea4baf79afe2e7938776e9",
+          "key": "a6915d413e554afd26563f40094a95f39323667b1c203f6f81883d062e7c3cb8",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -21949,7 +21949,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "0e5d81d2b5c931b4833e74b4f9205c0010fb474b17df889d8214a2c6c753339f",
+          "key": "fb6aad3198ed558e86d321a76be1902b609e9c254b113620226d3929c811096d",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -22226,7 +22226,7 @@
             "domain": 100
           },
           "domain": "analytical",
-          "key": "221d3aa880c192eeea72f776bfaea18660d3d9ef22d2031673f77879256cf2c6",
+          "key": "c43e6e26c25f0507312a3b9664a094fe936e0e3c911946360b90ab9d566ad8d2",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -22305,7 +22305,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "432ec8d8fcdab79fd884613ba60e18fce2b395a28d7e97d9df0bfded4a98d63c",
+          "key": "273d4875bc5565aab88248171904c4643e9c1cac100354655a3526b650e17d3b",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22426,7 +22426,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "7a2cc7d65c5521ca521f4b2ccabca98f48fa3a640fd88c83e8522db17a5b4606",
+          "key": "92a78130b490035c5ac23c95649de522b9605ff49c17312b97ba281b518f18e7",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22613,7 +22613,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "2213240312087afe5416888dbe21e98438d9b4e0c0d6510ac66c279d7d0ec8df",
+          "key": "f43e98351d7040610721f66b4e0f78d33cfd4f0a3712b3fd33f1eb43ee5a4fbd",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22722,7 +22722,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "8218685e7a78ac1b448cffbcc03272681e1ce7ca39e5ee5410d01a28bd812416",
+          "key": "1c64cdca69a7184f5f21c0bddd28141d91c4768dac0b7de0c5f5d805d524c71b",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22886,7 +22886,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "636102080170ce5b7ced4f7c4d685e0facb045ea3ad1027a60d3e84f3077a7cf",
+          "key": "4cebcad35774f860cafa26355999be5342c8c6cfe24c04ac6fdca1da92a22568",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -22930,7 +22930,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "0e38aee8bf09a6ae79a34af5e1584dc836aab13762a03323993be67fc1505613",
+          "key": "2479464d40e640c5f47650ed0c6701d3d46e79269bbe2f4ef0ce489357e44ce5",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -22962,12 +22962,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-26T01:46:48.099703Z",
+    "generated_at": "2026-10-26T11:40:42.322317Z",
     "generator": {
       "name": "tabalyst",
-      "version": "0.7.1"
+      "version": "0.7.2"
     },
-    "processing_seconds": 0.351,
+    "processing_seconds": 0.4721,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -22995,10 +22995,10 @@
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
       "format_revision": 4,
-      "engine_version": "0.7.1",
+      "engine_version": "0.7.2",
       "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
       "config_sha256": "39483c95af5cdebb6bf797a9a03bdb74ef94a425da646d67c69e9bc9f054130f",
-      "facts_sha256": "392756d2c51d29b92445db90d9610674b8de06da498d0d702f9daf7c82488f94"
+      "facts_sha256": "8e8097b26b882887aa335a0f66bab6eb05399b5eff290ad9b7fe4f80970b9e2a"
     },
     "datasets": [
       {
