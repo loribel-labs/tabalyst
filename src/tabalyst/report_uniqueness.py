@@ -13,11 +13,21 @@ from __future__ import annotations
 from typing import Literal
 
 from tabalyst.identifier_uniqueness.models import IdentifierUniqueness
+from tabalyst.identifier_uniqueness.near_unique import (
+    ABSOLUTE_CAP,
+    MIN_POPULATION,
+    RELATIVE_DIVISOR,
+)
 from tabalyst.report_labels import (
     UNIQUENESS_ACCURACY,
     UNIQUENESS_CARDINALITY_SOURCES,
     UNIQUENESS_CASES,
     UNIQUENESS_IDENTITIES,
+    UNIQUENESS_MISSING_SOURCES,
+    UNIQUENESS_NEAR_BOUNDS,
+    UNIQUENESS_NEAR_CAVEAT,
+    UNIQUENESS_NEAR_TITLES,
+    UNIQUENESS_NEAR_TOO_SMALL,
     UNIQUENESS_ORIGINS,
     UNIQUENESS_PROOF_SOURCES,
     UNIQUENESS_REASONS,
@@ -38,6 +48,15 @@ class UniquenessRow(ResultModel):
     figure: int | None
 
 
+class UniquenessNear(ResultModel):
+    """The non-binding near-unique reading under the figures of case C."""
+
+    signal: str
+    title: str
+    text: str
+    caveat: str | None
+
+
 class UniquenessView(ResultModel):
     """The block of a column page and the short line of the Summary."""
 
@@ -50,6 +69,7 @@ class UniquenessView(ResultModel):
     status_word: str
     caveat: str | None
     rows: list[UniquenessRow]
+    near: UniquenessNear | None
     evidence: list[str]
     rejected: list[str]
 
@@ -71,14 +91,19 @@ def _plural(n: int, one: str, many: str) -> str:
 
 
 def uniqueness_case(item: IdentifierUniqueness) -> Case:
-    """The case A to E of the specification 11.2 for a stored object."""
+    """The case A to E of the specification 11.2 for a stored object.
+
+    A column that lacks a value is case E whatever the rule concluded among the records that have
+    one: the figures are printed with it (lot 10)."""
+    if item.reason == "missing_ids":
+        return "E"
     if item.interpretation == "raw_unique":
         return "A"
     if item.interpretation == "unique_after_row_deduplication":
         return "B"
     if item.interpretation == "repeated_between_distinct_records":
         return "C"
-    return "E" if item.reason == "missing_ids" else "D"
+    return "D"
 
 
 def _text(case: Case, item: IdentifierUniqueness) -> str:
@@ -102,9 +127,7 @@ def _text(case: Case, item: IdentifierUniqueness) -> str:
             f"duplicate rows, {_n(residual)} remain between distinct records."
         )
     if case == "E":
-        return (
-            "Uniqueness after deduplication cannot be established: some records have no ID."
-        )
+        return _missing_text(item)
     if item.status == "failed":
         return (
             "The measures of this column contradict each other. "
@@ -113,6 +136,31 @@ def _text(case: Case, item: IdentifierUniqueness) -> str:
     return (
         "The exact number of distinct IDs or duplicate rows is unavailable. "
         "No conclusion about uniqueness after deduplication."
+    )
+
+
+def _missing_text(item: IdentifierUniqueness) -> str:
+    """Case E: the records without an ID, and, when the copies were counted, what is left of the
+    repetitions among the rows that have one (cahier 5.4)."""
+    scope, why = item.scope, item.explanation
+    base = "Uniqueness after deduplication cannot be established: some records have no ID."
+    if item.interpretation not in ("unique_among_present_ids", "repeated_between_distinct_records"):
+        return base
+    copies = why.id_repetitions_explained or 0
+    residual = why.id_repetitions_residual or 0
+    present = scope.eligible_id_values
+    rows = present - copies
+    head = (
+        f"{_plural(scope.missing_id_positions, 'record has', 'records have')} no ID. "
+        f"Among the {_plural(present, 'record', 'records')} that "
+        f"{'has' if present == 1 else 'have'} one, "
+        f"{_plural(copies, 'is an exact copy of a row', 'are exact copies of rows')}. "
+    )
+    if residual == 0:
+        return head + f"No ID repeats between the {_n(rows)} distinct rows that have one."
+    return head + (
+        f"{_plural(residual, 'ID repetition remains', 'ID repetitions remain')} between "
+        f"the {_n(rows)} distinct rows that have one."
     )
 
 
@@ -130,6 +178,41 @@ def _short(case: Case, item: IdentifierUniqueness) -> str | None:
     return None
 
 
+def _near(item: IdentifierUniqueness) -> UniquenessNear | None:
+    """The near-unique reading, which only the case C stores (contract 14)."""
+    near = item.near_unique
+    if near is None:
+        return None
+    repetitions = _plural(near.residual_repetitions, "repetition", "repetitions")
+    records = _n(near.distinct_records)
+    if near.signal == "population_too_small":
+        text = (
+            f"{repetitions} among {records} distinct records: "
+            + UNIQUENESS_NEAR_TOO_SMALL.format(minimum=_n(MIN_POPULATION))
+        )
+        caveat = None
+    else:
+        bound = (
+            UNIQUENESS_NEAR_BOUNDS[near.limiting_bound].format(
+                divisor=_n(RELATIVE_DIVISOR), cap=_n(ABSOLUTE_CAP)
+            )
+            if near.limiting_bound
+            else ""
+        )
+        verdict = "within" if near.signal == "near_unique" else "above"
+        text = (
+            f"{repetitions} among {records} distinct records, {verdict} the tolerance of "
+            f"{_n(near.tolerance)} (set by {bound})."
+        )
+        caveat = UNIQUENESS_NEAR_CAVEAT
+    return UniquenessNear(
+        signal=near.signal,
+        title=UNIQUENESS_NEAR_TITLES[near.signal],
+        text=text,
+        caveat=caveat,
+    )
+
+
 def _evidence(item: IdentifierUniqueness) -> list[str]:
     lines = []
     cardinality = item.evidence.id_cardinality
@@ -140,6 +223,7 @@ def _evidence(item: IdentifierUniqueness) -> list[str]:
             f"{UNIQUENESS_CARDINALITY_SOURCES[cardinality.source]}, "
             f"{cardinality.domain} values."
         )
+    counted = item.evidence.missing_id_copies
     rows = item.evidence.duplicate_rows
     if rows:
         line = (
@@ -150,6 +234,13 @@ def _evidence(item: IdentifierUniqueness) -> list[str]:
         if rows.report:
             line += f" Report {rows.report.name}, {UNIQUENESS_ORIGINS[rows.report.origin]}."
         lines.append(line)
+    if counted:
+        lines.append(
+            "Copies of rows without an ID: "
+            f"{UNIQUENESS_ACCURACY[counted.accuracy]}, from "
+            f"{UNIQUENESS_MISSING_SOURCES[counted.source]}, "
+            f"comparing {UNIQUENESS_IDENTITIES[counted.identity]}."
+        )
     return lines
 
 
@@ -168,7 +259,8 @@ def uniqueness_view(item: IdentifierUniqueness | None) -> UniquenessView | None:
     scope, why = item.scope, item.explanation
     caveat = None
     if item.status != "complete" and item.reason:
-        caveat = UNIQUENESS_REASONS[item.reason]
+        counted = item.reason == "missing_ids" and item.explanation.id_repetitions_residual is not None
+        caveat = UNIQUENESS_REASONS["missing_ids_counted" if counted else item.reason]
     failed = item.status == "failed"
     return UniquenessView(
         case=case,
@@ -187,11 +279,22 @@ def uniqueness_view(item: IdentifierUniqueness | None) -> UniquenessView | None:
             UniquenessRow(
                 label="Explained by exact duplicate rows", figure=why.id_repetitions_explained
             ),
+            *(
+                [
+                    UniquenessRow(
+                        label="Copies of rows without an ID",
+                        figure=why.duplicate_row_extra_copies_without_id,
+                    )
+                ]
+                if why.duplicate_row_extra_copies_without_id is not None
+                else []
+            ),
             UniquenessRow(label="Distinct rows", figure=scope.distinct_records),
             UniquenessRow(
                 label="Left between distinct records", figure=why.id_repetitions_residual
             ),
         ],
+        near=_near(item),
         evidence=_evidence(item),
         rejected=_rejected(item),
     )
@@ -234,6 +337,13 @@ def uniqueness_settings(columns: list[ColumnView]) -> UniquenessSettings | None:
     lines += [f"Dedup report {name}, {origin}." for name, origin in sorted(reports)]
     refused = sorted({p.reason for i in items for p in i.evidence.rejected})
     lines += [f"A Dedup report was not used: {UNIQUENESS_REJECTIONS[r]}." for r in refused]
+    models = sorted({i.near_unique.model_version for i in items if i.near_unique})
+    if models:
+        lines.append(
+            "Near-unique reading, model version " + " and ".join(map(str, models)) + "."
+        )
+    if any(i.evidence.missing_id_copies for i in items):
+        lines.append("Copies of the rows without an ID counted by the second pass.")
     lines.append("The qualification reads no data and does not run Dedup.")
     return UniquenessSettings(
         rule_version=items[0].rule_version, columns=len(items), lines=lines

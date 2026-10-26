@@ -289,6 +289,7 @@
                   "frequencies": "#/$defs/FrequencyTable",
                   "lengths": "#/$defs/LengthDistribution",
                   "measures": "#/$defs/MeasureResult",
+                  "missing_id_copies": "#/$defs/MissingIdCopiesResult",
                   "missing_matrix": "#/$defs/MissingMatrixResult",
                   "numeric_shape": "#/$defs/ShapeResult",
                   "pattern_counts": "#/$defs/PatternCounts",
@@ -350,6 +351,9 @@
                 },
                 {
                   "$ref": "#/$defs/DuplicateRowsResult"
+                },
+                {
+                  "$ref": "#/$defs/MissingIdCopiesResult"
                 },
                 {
                   "$ref": "#/$defs/PearsonResult"
@@ -4488,6 +4492,106 @@
         "max"
       ],
       "title": "Memory",
+      "type": "object"
+    },
+    "MissingIdColumn": {
+      "additionalProperties": false,
+      "description": "The rows of a file that lack a value in one column: how many records, how many of them are\ndistinct rows and how many repeat an earlier row (``E_missing`` of the identifier column).",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "rows_without_id": {
+          "title": "Rows Without Id",
+          "type": "integer"
+        },
+        "distinct_rows_without_id": {
+          "title": "Distinct Rows Without Id",
+          "type": "integer"
+        },
+        "extra_copies_without_id": {
+          "title": "Extra Copies Without Id",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "field",
+        "rows_without_id",
+        "distinct_rows_without_id",
+        "extra_copies_without_id"
+      ],
+      "title": "MissingIdColumn",
+      "type": "object"
+    },
+    "MissingIdCopiesResult": {
+      "additionalProperties": false,
+      "description": "The copies of the rows that have no ID, counted per identifier column with the engine of Dedup\nwithout writing a file (design 20.43).\n\nA copy of a row repeats the whole row, so its absent cells are the same: ``extra_copies_without_id``\nis exactly the extra copies of the rows without an ID. ``exact`` read the whole file\n(``source_sha256`` is its digest); ``lower_bound`` stopped at a ceiling after ``records`` records\nand every count of ``columns`` is a lower bound. ``identity`` says how two rows are compared and\n``calculation_version`` which count this is.",
+      "properties": {
+        "kind": {
+          "const": "missing_id_copies",
+          "default": "missing_id_copies",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "lower_bound"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "identity": {
+          "const": "full_decoded_csv_row_v1",
+          "title": "Identity",
+          "type": "string"
+        },
+        "calculation_version": {
+          "title": "Calculation Version",
+          "type": "integer"
+        },
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "storage": {
+          "enum": [
+            "memory",
+            "disk"
+          ],
+          "title": "Storage",
+          "type": "string"
+        },
+        "columns": {
+          "items": {
+            "$ref": "#/$defs/MissingIdColumn"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "source_sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Sha256"
+        }
+      },
+      "required": [
+        "accuracy",
+        "identity",
+        "calculation_version",
+        "records",
+        "storage",
+        "columns"
+      ],
+      "title": "MissingIdCopiesResult",
       "type": "object"
     },
     "MissingMatrixResult": {

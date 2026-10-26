@@ -48,6 +48,9 @@ class DuplicateRows(Analyzer):
     def relevant(self, facts: FieldFacts) -> bool:
         return facts.rows_duplicates != "not_applicable"
 
+    def gives_copies(self, facts: FieldFacts) -> bool:
+        return True
+
     def assess(self, facts: FieldFacts) -> Assessment:
         if facts.rows_duplicates == "complete":
             return Assessment(

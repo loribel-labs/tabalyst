@@ -31,6 +31,10 @@ ENABLED_LOTS: set[str] = {
     "7",  # Deep analytical cardinality
 
     "8",  # planner criteria, cache and versions
+
+    "9",  # near-uniqueness
+
+    "10",  # copies of the rows without an ID
 }
 
 

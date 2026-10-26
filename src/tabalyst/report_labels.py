@@ -241,6 +241,7 @@ ANALYSIS_LABELS = {
     "fingerprint_distinct": "Distinct long texts by fingerprint",
     "sensitive_forms": "Masks and classes of a sensitive column",
     "duplicate_rows_count": "Extra copies of whole rows",
+    "missing_id_copies": "Extra copies of the rows without an ID",
 }
 # The names of the days of the week, by the value of a part.
 WEEKDAYS = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
@@ -957,6 +958,7 @@ UNIQUENESS_STATUS_WORDS = {
 }
 UNIQUENESS_REASONS = {
     "missing_ids": "Some records have no ID, so the repetitions among distinct rows cannot be counted.",
+    "missing_ids_counted": "Records without an ID remain among the distinct rows, so no ID is strictly unique.",
     "too_few_records": "The dataset has fewer than two records.",
     "too_few_distinct_records": "Fewer than two distinct rows: a conclusion needs at least two.",
     "scope_partial": "The Scan did not cover every record, so the figures are not a conclusion.",
@@ -974,6 +976,9 @@ UNIQUENESS_PROOF_SOURCES = {
     "dedup.report": "a Dedup report",
     "deep.duplicate_rows_count": "the second pass, which counted the copies with the engine of Dedup",
 }
+UNIQUENESS_MISSING_SOURCES = {
+    "deep.missing_id_copies": "the second pass, which counted the copies of the rows without an ID",
+}
 UNIQUENESS_CARDINALITY_SOURCES = {
     "scan.values.cardinality": "the Scan",
     "deep.exact_distinct": "the second pass",
@@ -990,6 +995,23 @@ UNIQUENESS_REJECTIONS = {
     "dedup_total_mismatch": "its record total differs from the dataset's",
     "dedup_invariants_broken": "its own counts do not add up",
 }
+# Near-uniqueness (contract 14): a non-binding reading, always told apart from a unique ID.
+UNIQUENESS_NEAR_TITLES = {
+    "near_unique": "Near-unique",
+    "not_near_unique": "Not near-unique",
+    "population_too_small": "Too few distinct records to tell",
+}
+# Formatted with the constants of the model (``identifier_uniqueness/near_unique.py``).
+UNIQUENESS_NEAR_BOUNDS = {
+    "relative": "one in {divisor} of the distinct records",
+    "root": "the square root of the distinct records",
+    "cap": "the cap of {cap}",
+}
+UNIQUENESS_NEAR_TOO_SMALL = "fewer than {minimum}, too few to tell whether they are few."
+UNIQUENESS_NEAR_CAVEAT = (
+    "This is a statistical reading, not a guarantee: the repetitions stay listed "
+    "and the column is not a unique ID."
+)
 UNIQUENESS_IDENTITIES = {
     "full_decoded_csv_row_v1": "whole decoded CSV rows",
     "scan_record_v1": "whole records (path, native type and raw value)",

@@ -15650,8 +15650,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 20,
-        "plan_id": "d0af9eaaa9c7f17ca5647702bd7e47030f53341b4b28de053a1083bfff80be7b",
+        "cost_model_version": 21,
+        "plan_id": "ed8bc3a41c538aebd6b6058195fdbb36f5723431d0bbfa5ec8877525208b054f",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.1",
@@ -18468,15 +18468,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-24T11:53:59.056855Z",
-        "duration_seconds": 0.000142,
+        "started_at": "2026-10-26T01:46:47.818349Z",
+        "duration_seconds": 0.000145,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000142
+          "other": 0.000145
         },
         "workers": 1,
-        "peak_memory_bytes": 80429056,
+        "peak_memory_bytes": 80490496,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -22962,12 +22962,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-24T11:53:59.346013Z",
+    "generated_at": "2026-10-26T01:46:48.099703Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.1"
     },
-    "processing_seconds": 0.3584,
+    "processing_seconds": 0.351,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -23593,7 +23593,8 @@
                   "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
                   "rejected": [],
                   "conflict": null
-                }
+                },
+                "near_unique": null
               }
             }
           },
@@ -24994,7 +24995,8 @@
                   "source_sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
                   "rejected": [],
                   "conflict": null
-                }
+                },
+                "near_unique": null
               }
             }
           },

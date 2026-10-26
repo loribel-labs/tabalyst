@@ -14,7 +14,8 @@ explicit when costly" forbids a silent long operation and any decision from a me
 ## Decision
 
 - **Which column.** `FieldFacts.uniqueness_candidate`: the Scan gives the column the role `identifier/id` (a raw
-  `unique_id` needs no count of the copies), every position holds a value, it is not under an array, no record was left
+  `unique_id` needs no count of the copies), every position holds a value (lot 10 widens this for a CSV file to a column
+  that lacks a value, ADR `2026-10-25-missing-id-copies`), it is not under an array, no record was left
   out and the dataset has two records at least. These are the cases of the cahier 12.1 that need no second pass.
 - **Utility.** For a candidate, `analytical_distinct` has a utility of 50 (`identifier_uniqueness`) and
   `duplicate_rows_count` 50 (`identifier_copies`) when the Scan's count is a lower bound. Everything else of the

@@ -288,6 +288,10 @@ def _decide(
     # The datasets with an identifier column whose distinct count is selected (UID-011): the count
     # of the copies of rows is worth it only beside one (or when the Scan already has it).
     distinct_planned: set[str] = set()
+    # The columns whose distinct count is selected, and the datasets whose copies of rows are (lot 10:
+    # the copies of the rows without an ID are worth counting only beside both).
+    distinct_columns: set[tuple[str, str]] = set()
+    copies_planned: set[str] = set()
     automatic_memory = min(budgets.automatic_memory_bytes, budgets.memory_bytes)
 
     def reject(entry: _Entry, reason: str) -> None:
@@ -303,6 +307,9 @@ def _decide(
         ledger.add(entry.costs, reads_source)
         if entry.analyzer.gives_distinct(entry.facts):
             distinct_planned.add(entry.facts.dataset)
+            distinct_columns.add((entry.facts.dataset, entry.facts.field))
+        if entry.analyzer.gives_copies(entry.facts):
+            copies_planned.add(entry.facts.dataset)
         priority += 1
         entry.selection = Selection(
             state="selected", reason=reason, requested=entry.requested, priority=priority
@@ -362,6 +369,16 @@ def _decide(
     # same two columns is (REL-16).
     covered: set[tuple[str, str, str, str]] = set()
 
+    def distinct_settled(entry: _Entry) -> bool:
+        """Whether the distinct count an analysis of whole rows needs is in the Scan or planned."""
+        facts, analyzer = entry.facts, entry.analyzer
+        if analyzer.distinct_known(facts):
+            return True
+        wanted = analyzer.distinct_fields(facts)
+        if wanted is None:
+            return facts.dataset in distinct_planned
+        return any((facts.dataset, name) in distinct_columns for name in wanted)
+
     def automatic_choice(entry: _Entry) -> None:
         assert entry.costs is not None and entry.utility is not None
         analyzer = entry.analyzer
@@ -380,12 +397,15 @@ def _decide(
             reject(entry, "cells_budget")
         elif entry.assessment.requires_source and reading_too_long:
             reject(entry, "cpu_class")
+        elif entry.analyzer.rows and not distinct_settled(entry):
+            reject(entry, "distinct_unknown")
         elif (
             entry.analyzer.rows
-            and not entry.facts.rows_distinct_known
-            and entry.facts.dataset not in distinct_planned
+            and entry.analyzer.needs_copies(entry.facts)
+            and not entry.facts.rows_copies_known
+            and entry.facts.dataset not in copies_planned
         ):
-            reject(entry, "distinct_unknown")
+            reject(entry, "copies_unknown")
         elif pair is not None and chosen_pairs.get(analyzer.id, 0) >= pair.automatic_limit(budgets):
             reject(entry, pair.budget_reason)
         else:

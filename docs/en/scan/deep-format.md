@@ -895,6 +895,37 @@ column that looks like an identifier, or in a combination of two columns.
 - Plan parameters: `memory_mb`, `disk_mb` and `max_rows` (the settings `deep.copies`). They are
   part of the key of the result.
 
+**`missing_id_copies`**: the extra copies of the rows that lack a value, per identifier column of a CSV file.
+
+```json
+{
+  "kind": "missing_id_copies",
+  "accuracy": "exact",
+  "identity": "full_decoded_csv_row_v1",
+  "calculation_version": 1,
+  "records": 2280,
+  "storage": "memory",
+  "columns": [
+    {"field": "column_1", "rows_without_id": 40,
+     "distinct_rows_without_id": 25,
+     "extra_copies_without_id": 15}
+  ],
+  "source_sha256": "da113752..."
+}
+```
+
+- The analysis belongs to the dataset, under the field `$` (`missing_id_copies:<dataset>:$`), and
+  one reading counts every column of `columns`. A cell has a value when the scan counted it in
+  `values.count`; `rows_without_id` is checked against the scan (`scan_mismatch`) and `records`
+  against its record count. A copy repeats the whole row, so `extra_copies_without_id` is exactly the
+  extra copies of the rows that lack a value in that column, and `distinct_rows_without_id` the
+  distinct ones.
+- `accuracy` `exact`: the reading went to the end of the file and `source_sha256` is the one of the
+  scan. `lower_bound`: it stopped at a ceiling (`memory_budget`, `disk_budget` or `row_limit`, the
+  analysis is `limited`), every count is a lower bound and there is no `source_sha256`.
+- Plan parameters: `memory_mb`, `disk_mb`, `max_rows` and `columns` (a JSON list of the field id and
+  the 1-based position of each column). They are part of the key of the result.
+
 **`array_profile`**: the lengths of the arrays of a field.
 
 ```json
@@ -1085,7 +1116,9 @@ after `nfc`, `trim` and `collapse_whitespace`, `complete`, or `limited` as a `di
 The result `duplicate_rows` of the analyzer `duplicate_rows_count` (the extra copies of whole rows of a
 CSV file, counted with the engine of Dedup in a reading of its own, `complete` or `limited`) and the
 settings member `deep.copies` (`memory_mb`, `disk_mb`, `max_rows`). The plan names the analysis
-`duplicate_rows_count:<dataset>:$`. A document of revision 3 is made again.
+`duplicate_rows_count:<dataset>:$`. The result `missing_id_copies` of the analyzer `missing_id_copies`
+(the extra copies of the rows that lack a value in each identifier column, `complete` or `limited`;
+the plan names it `missing_id_copies:<dataset>:$`). A document of revision 3 is made again.
 
 ### Version 0.2.0, revision 3 (Tabalyst 0.7.0)
 

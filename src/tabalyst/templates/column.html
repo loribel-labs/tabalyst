@@ -100,6 +100,7 @@
     <p>{{ uq.text }}</p>
     {% if uq.caveat %}<p class="muted">{{ uq.caveat }}</p>{% endif %}
     {% if uq.rows %}<dl class="column-list">{% for r in uq.rows %}<div class="column-line"><span>{{ r.label }}</span><b>{% if r.figure is none %}not established{% else %}{{ r.figure | count }}{% endif %}</b></div>{% endfor %}</dl>{% endif %}
+    {% if uq.near %}<p class="uq-near uq-near-{{ uq.near.signal }}"><b>{{ uq.near.title }}.</b> {{ uq.near.text }}{% if uq.near.caveat %} <span class="muted">{{ uq.near.caveat }}</span>{% endif %}</p>{% endif %}
     {% if uq.evidence or uq.rejected %}<ul class="uq-ev">{% for line in uq.evidence %}<li>{{ line }}</li>{% endfor %}{% for line in uq.rejected %}<li>{{ line }}</li>{% endfor %}</ul>{% endif %}
   </div>
 {% endif %}

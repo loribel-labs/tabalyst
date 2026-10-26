@@ -112,14 +112,16 @@ def test_a_unique_id_needs_no_count_of_the_copies(tmp_path):
     assert (chosen.selection.state, chosen.selection.reason) == ("rejected", "low_utility")
 
 
-def test_an_identifier_with_a_missing_value_cannot_conclude_so_the_copies_are_not_counted(tmp_path):
+def test_an_identifier_with_a_missing_value_is_a_candidate_too(tmp_path):
+    # The copies of the rows that have an ID are counted apart (lot 10), so the column can conclude.
     rows = with_copies(5_000, 1_500)
     rows[10] = ("", rows[10][1], rows[10][2])
     _, result = limited_copies(tmp_path, rows=rows)
 
     chosen = candidate(planned(result), COPIES)
 
-    assert (chosen.selection.state, chosen.selection.reason) == ("rejected", "low_utility")
+    assert (chosen.selection.state, chosen.selection.reason) == ("selected", "automatic")
+    assert chosen.utility.reasons == ["identifier_copies"]
 
 
 def test_the_copies_wait_for_a_distinct_count_that_is_known_or_planned(tmp_path):

@@ -176,6 +176,7 @@ def facts(
     duplicate_source: str = "scan.records.duplicates",
     extra_duplicates: Sequence[tuple[str, int | None, str]] = (),
     alternatives: Sequence[tuple[str, int, str, bool]] = (),
+    missing_copies: tuple[int, str] | None = None,
     identity_name: str = "full_decoded_csv_row_v1",
     sha256: str = "0" * 64,
 ):
@@ -183,12 +184,14 @@ def facts(
 
     ``extra_duplicates`` adds sources as ``(source, value, accuracy)``. ``alternatives`` adds
     other exact counts of ``D`` as ``(source, value, domain, stages_changed_values)``.
+    ``missing_copies`` is ``(E_missing, accuracy)``, the copies of the rows without an ID (lot 10).
     """
     from tabalyst.identifier_uniqueness import (
         DistinctEvidence,
         DuplicateEvidence,
         UniquenessFacts,
     )
+    from tabalyst.identifier_uniqueness.models import MissingCopiesEvidence
 
     present = n if present is None else present
     sources = []
@@ -240,6 +243,14 @@ def facts(
             for source, value, alternative_domain, changed in alternatives
         ),
         duplicates=tuple(sources),
+        missing_copies=None
+        if missing_copies is None
+        else MissingCopiesEvidence(
+            value=missing_copies[0],
+            source="deep.missing_id_copies",
+            accuracy=missing_copies[1],
+            identity=identity_name,
+        ),
         rejected=(),
     )
 

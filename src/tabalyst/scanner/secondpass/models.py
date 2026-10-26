@@ -929,6 +929,41 @@ class DuplicateRowsResult(ScanModel):
         return _omit_none(handler(self), ("source_sha256",))
 
 
+class MissingIdColumn(ScanModel):
+    """The rows of a file that lack a value in one column: how many records, how many of them are
+    distinct rows and how many repeat an earlier row (``E_missing`` of the identifier column)."""
+
+    field: str
+    rows_without_id: int
+    distinct_rows_without_id: int
+    extra_copies_without_id: int
+
+
+class MissingIdCopiesResult(ScanModel):
+    """The copies of the rows that have no ID, counted per identifier column with the engine of Dedup
+    without writing a file (design 20.43).
+
+    A copy of a row repeats the whole row, so its absent cells are the same: ``extra_copies_without_id``
+    is exactly the extra copies of the rows without an ID. ``exact`` read the whole file
+    (``source_sha256`` is its digest); ``lower_bound`` stopped at a ceiling after ``records`` records
+    and every count of ``columns`` is a lower bound. ``identity`` says how two rows are compared and
+    ``calculation_version`` which count this is.
+    """
+
+    kind: Literal["missing_id_copies"] = "missing_id_copies"
+    accuracy: Literal["exact", "lower_bound"]
+    identity: Literal["full_decoded_csv_row_v1"]
+    calculation_version: int
+    records: int
+    storage: Literal["memory", "disk"]
+    columns: list[MissingIdColumn]
+    source_sha256: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("source_sha256",))
+
+
 class PearsonExclusions(ScanModel):
     """The rows a pair leaves out, because a value is missing: ``first_missing``
     has a number in the second column only, ``second_missing`` in the first only,
@@ -1718,6 +1753,7 @@ AnalysisOutput = Annotated[
     | DuplicateResult
     | DuplicatesLimited
     | DuplicateRowsResult
+    | MissingIdCopiesResult
     | PearsonResult
     | CrosstabResult
     | StatsResult

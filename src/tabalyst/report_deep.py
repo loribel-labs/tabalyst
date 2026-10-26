@@ -54,6 +54,7 @@ from tabalyst.scanner.secondpass.models import (
     FrequencyTable,
     LengthDistribution,
     MeasureResult,
+    MissingIdCopiesResult,
     MissingMatrixResult,
     NumberResolution,
     PartsResult,
@@ -243,6 +244,11 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
             + ("" if result.accuracy == "exact" else "; stopped before the end of the file"),
             EXACT if result.accuracy == "exact" else _AT_LEAST,
         )
+    if isinstance(result, MissingIdCopiesResult):
+        return (
+            _missing_copies_summary(result),
+            EXACT if result.accuracy == "exact" else _AT_LEAST,
+        )
     if isinstance(result, DuplicatesLimited):
         return (
             (
@@ -258,6 +264,17 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         + _resolution_text(result.resolution, result.resolved),
         EXACT,
     )
+
+
+def _missing_copies_summary(result: MissingIdCopiesResult) -> str:
+    """One line for the copies of the rows without an ID, one clause per column."""
+    clauses = [
+        f"{column.field}: {column.extra_copies_without_id:,} extra copies among "
+        f"{_plural(column.rows_without_id, 'row')} without a value"
+        for column in result.columns
+    ]
+    stopped = "" if result.accuracy == "exact" else "; stopped before the end of the file"
+    return "; ".join(clauses) + stopped
 
 
 # What the numbers of each detector of values with a marker are, and the word

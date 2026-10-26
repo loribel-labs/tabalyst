@@ -3793,6 +3793,7 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `measure_extraction` | a field where the `currency`, `percentage` or `quantity` detector matched a value (lot 14, 20.19) | never | no values, exposure, the detector that matched the most values matched fewer than half of the values (`low_coverage`) | `value_table`, parameters `detector`, `max_groups`, `max_values`, `bins`; reads no source when every distinct value is in the samples with its exact count |
 | `residual_values` | a field whose patterns leave values out or may (found in a sample), or that a replayable detector reads for at least half of its values while finding some `invalid` or `not_matched` (lot 15, 20.20) | never | no values, exposure, nothing left out (`nothing_left_out`) | `residual_table`, parameters `sources`, `max_listed`, `max_tracked`, `max_value_length`, `records`; reads no source when every distinct value is in the samples with its exact count and `records` is 0 |
 | `duplicate_rows_count` | the rows of a CSV file with a single dataset and at least one record (Unique ID lot 6, 20.40) | the Scan counted the extra copies exactly (`copies_exact`) | the Scan was set not to count them (`duplicates_disabled`); records left out (`records_left_out`); no candidate for another source | `extra_copies`, parameters `memory_mb`, `disk_mb`, `max_rows`; utility 50 for a dataset with an identifier candidate whose Scan count is limited (20.42), else 40 and never automatic; `copies_proved` when a valid Dedup report proves the copies |
+| `missing_id_copies` | the rows of a CSV file with one dataset, when an identifier candidate lacks a value (Unique ID lot 10, 20.43) | none (the Scan counts no copies per column) | no such column (`no_missing_id_candidate`); records left out (`records_left_out`); the Scan was set not to count the copies and no valid Dedup report gives the total (`duplicates_disabled`) | `extra_copies_without_id`, parameters `memory_mb`, `disk_mb`, `max_rows`, `columns`; utility 50, automatic only beside an exact total of the copies and an exact distinct count of the column (`copies_unknown`, `distinct_unknown`) |
 | `duplicates_report` | a field of text, integer or mixed values, at least 90% distinct (50% under a name that suggests an identifier), and the combinations of two columns a request names (lot 15, 20.21) | the cardinality is complete and equal to the values (`all_distinct`) | no values, exposure, long texts only, a combination of a withheld column or one inside the items of an array | `digest_table`, parameters `max_listed`, `max_tracked`, `records` (a combination: the first two); reads no source for a field when every distinct value is in the samples and `records` is 0 |
 
 A mixed type never gets a typed analysis automatically (specification 11.2):
@@ -5769,7 +5770,7 @@ second-pass document is revision 4.
 
 **Report.** `identifier_uniqueness/facts.py` reads the result as the third source of `E` (`deep.duplicate_rows_count`); `report_deep.py` prints one line of it.
 
-**Left out.** Sharing the reading with the router (decided against in lot 8, 20.42), a count per column (cahier 5.4), other formats than CSV. The automatic choice is 20.42.
+**Left out.** Sharing the reading with the router (decided against in lot 8, 20.42), a count per column (done by `missing_id_copies`, 20.43), other formats than CSV. The automatic choice is 20.42.
 
 ### 20.41 The analytical distinct count (Unique ID lot 7, UID-013)
 
@@ -5812,7 +5813,7 @@ The two analyses of lots 6 and 7 (`duplicate_rows_count`, `analytical_distinct`)
 and the budgets allow it. The decision is the ADR `2026-10-24-unique-id-planner-criteria`; the contract of use is `docs/dev/report/identifier-uniqueness.md` 6.8.
 
 **Candidate.** `FieldFacts.uniqueness_candidate` (from the Scan alone): classification `identifier/id`, `positions_complete` (every position has a value, not under an
-array), no record left out (`excluded == 0`) and two records at least. A raw `unique_id` is not a candidate (`E = 0` follows from `D = N`). The rows of a table carry
+array; since lot 10 a column of a CSV file that lacks a value is a candidate too, 20.43), no record left out (`excluded == 0`) and two records at least. A raw `unique_id` is not a candidate (`E = 0` follows from `D = N`). The rows of a table carry
 `rows_candidates` (how many columns are candidates), `rows_distinct_known` (one has the Scan's exact analytical count) and `rows_proved` (a valid Dedup report proves the copies).
 
 **Utility.** `AUTOMATIC_IDENTIFIER_SCORE` (50, above `AUTOMATIC_MIN_UTILITY` 45) for `analytical_distinct` on a candidate (reason `identifier_uniqueness`) and for
@@ -5840,7 +5841,38 @@ holds the source SHA-256 and the configuration (so the normalization stages), th
 kept (the memory the plan granted is not in the key). A Dedup report is not part of the second-pass document; the derived object is rebuilt with the summary.
 
 **Left out.** Sharing the reading with the router (decided against: the strict CSV reading of Dedup is not the router's), a budget of its own for the automatic count or the disk in an automatic
-run (the measures of 12.1 of the contract show that, with the default Scan limit of 2,000,000 records, the count of the copies is automatic only when that limit was lowered), a count of the copies per column.
+run (the measures of 12.1 of the contract show that, with the default Scan limit of 2,000,000 records, the count of the copies is automatic only when that limit was lowered), a count of the copies per column (20.43).
+
+### 20.43 The copies of the rows without an ID (Unique ID lot 10, cahier 5.4)
+
+`missing_id_copies` (`planner/analyzers/missing_copies.py`, `secondpass/missing_copies.py`, `dedup/count_only.py`) counts, for each identifier column that lacks a value,
+the extra copies of the rows that lack it. With a missing ID, `E` (20.40, the Scan's `records.duplicates`) mixes the copies of rows that have an ID, which explain a repetition of the ID, with the copies of rows
+that have none. A copy repeats the whole row, so its absent cell is the same: `E_missing` is counted on the rows that lack a value alone and `E_present = E - E_missing`. The decision is the ADR
+`2026-10-25-missing-id-copies`; the contract of use is `docs/dev/report/identifier-uniqueness.md` 2.2 and 6.9.
+
+**Engine.** `count_missing_id_copies(source, csv=, limits=, columns=, is_present=)` is the light mode of the engine of 20.40: the same strict reading, `canonical_key`, stores and ceilings
+(`_read` is shared with `count_extra_copies`). For each record it asks `is_present` of the cell of each named column (`IdColumn(key, index)`); a record with a value in all of them is neither keyed nor stored, so the table
+follows the rows that lack a value and not the file. Per column it counts `rows_without_id`, `distinct_rows_without_id` and `extra_copies_without_id`. `MISSING_CALCULATION_VERSION` (`dedup/calculation.py`) is its version.
+A cell has a value when the Scan counted it in `values.count`: `count_missing_copies` replays `CellReader(scan.config).strings.category` (empty, blank and the null markers of the configuration are absent).
+
+**Plan.** `rows_facts` adds `rows_copies_known` (the Scan's count is exact or a proof gives it), `rows_missing_columns` (field id, 1-based position from `path[0].column`, whether the Scan has the exact analytical distinct
+count of the column) and `rows_missing_records` (the records that lack a value, capped at the records, which sizes the table). `_uniqueness_candidate` widens, for a CSV, to an identifier that lacks a value
+(`positions_complete` is no longer needed): the automatic `analytical_distinct` and `duplicate_rows_count` follow (20.42). `assess`: `not_applicable` (`no_missing_id_candidate`, `records_left_out`, `duplicates_disabled` without a
+proof), else `applicable`, method `extra_copies_without_id`, parameters the three ceilings and `columns` (JSON, part of the key). Memory: the reader plus the table of `rows_missing_records` rows up to `memory_mb`.
+`NS_PER_CELL["rows_without_id"]` is 1,500 a record (measured 546 to 1,085 in memory, 754 at 5 M records with 2 % kept; the full count costs 1,650 in memory and 5,600 on disk); `COST_MODEL_VERSION` is 21. Utility 50.
+
+**Order and dependency.** The analyzer follows `duplicate_rows_count` in the registry, so the planner knows whether the total of the copies is planned (`Analyzer.gives_copies`, `copies_planned`). An automatic
+choice needs `rows_copies_known` or such a dataset (`Analyzer.needs_copies`, else `copies_unknown`) and the exact distinct count of one of its columns, in the Scan or selected for that column
+(`Analyzer.distinct_fields`, `distinct_columns`; else `distinct_unknown`). A request or a forced plan ignores both dependencies.
+
+**Execution.** Outside the router and the workers, in the same loop as `duplicate_rows_count` (`_count_missing`): the source is checked before (size) and after an exact count (SHA-256, `StaleSource`), `records` against `record_count`
+and `rows_without_id` of each column against `record_count - values.count` of the Scan (`scan_mismatch`). The result `MissingIdCopiesResult` (`kind` `missing_id_copies`) holds `accuracy`, `identity`, `calculation_version`,
+`records`, `storage`, `columns[]` and, when exact, `source_sha256`. A stop at a ceiling is `limited` and `lower_bound`; both are reusable at the same key (`DETERMINISTIC_STOP`). The second-pass document stays at revision 4.
+
+**Report.** `identifier_uniqueness/facts.py` `_deep_missing_copies` reads it as `UniquenessFacts.missing_copies` (an exact count only for the Scan's file and number of rows without a value); the rule of 2.2 composes
+`E_present`. `report_deep.py` prints one line of it.
+
+**Left out.** Sharing the reading with `duplicate_rows_count` (two readings when the total is also to count), a JSON or Excel source, a composite key.
 
 ## 21. Original value domain (O32)
 

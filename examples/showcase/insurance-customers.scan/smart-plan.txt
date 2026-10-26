@@ -1,5 +1,5 @@
-Plan for insurance-customers-100k.csv (plan 9c367908d867, planner 1).
-331 candidates: 42 selected, 125 already answered by the scan, 164 left out.
+Plan for insurance-customers-100k.csv (plan 1f6e5d856030, planner 1).
+332 candidates: 43 selected, 125 already answered by the scan, 164 left out.
 
 Selected:
   1. category_crosstab [contingency_table]: rows / civilite and sexe (prefix) (up to 996.6 KiB, CPU low, automatic)
@@ -44,6 +44,7 @@ Selected:
   40. temporal_distribution [period_counts]: rows / date_creation (up to 3.8 MiB, CPU moderate, automatic)
   41. duplicates_report [digest_table]: rows / id_client (up to 21.1 MiB, CPU moderate, automatic)
   42. duplicates_report [digest_table]: rows / code_postal (up to 21.1 MiB, CPU moderate, automatic)
+  43. missing_id_copies [extra_copies_without_id]: rows / $ (up to 260.8 KiB, CPU very_low, automatic)
 
 Left out:
   residual_values [residual_table]: rows / id_client: its CPU class is above the automatic limit
@@ -173,8 +174,8 @@ Not applicable:
   19 x a pattern would describe its values poorly, so the scan did not look for one
   10 x the field misses no value and has too many distinct values to follow by position
 
-A second reading of the source is needed (3,400,000 cells, CPU low). Memory: 28.3 MiB to 112.2 MiB, about 56.8 MiB.
-Estimated time: 2 s to 8 s (a guide from the first pass, not a promise).
+A second reading of the source is needed (3,400,000 cells, CPU low). Memory: 28.6 MiB to 112.4 MiB, about 57.1 MiB.
+Estimated time: 2 s to 9 s (a guide from the first pass, not a promise).
 Running it would not ask for a confirmation.
 
 Smart sample plan for insurance-customers-100k.csv (dataset rows, 100,000 rows)

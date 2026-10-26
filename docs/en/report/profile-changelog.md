@@ -164,15 +164,16 @@ separates the repetitions of the ID that exact copies of whole rows explain from
 between distinct records. It holds codes and exact integers only, never a sentence or an ID value:
 
 - `rule_version`, `status` (`complete`, `limited`, `not_assessed`, `failed`), `interpretation`
-  (`raw_unique`, `unique_after_row_deduplication`, `repeated_between_distinct_records`,
-  `not_assessed`) and `reason`, a stable code that says why a conclusion is missing or refused;
+  (`raw_unique`, `unique_after_row_deduplication`, `unique_among_present_ids`,
+  `repeated_between_distinct_records`, `not_assessed`) and `reason`, a stable code that says why a conclusion is missing or refused;
 - `scope`: the dataset, the records (`source_records`), the distinct records, the ID values and missing
   positions, the domain of the values, the `row_identity` (`full_decoded_csv_row_v1` for a CSV,
   `scan_record_v1` for other sources) and whether the scope is `complete`;
 - `raw`, `after_row_deduplication`: `unique`, `id_distinct` and `id_redundant`, with `null` for what
   is not known;
 - `explanation`: `duplicate_row_extra_copies`, `id_repetitions_explained` and
-  `id_repetitions_residual`;
+  `id_repetitions_residual`, and, for a column that lacks a value whose copies were counted,
+  `duplicate_row_extra_copies_without_id` (the member is absent otherwise);
 - `evidence`: where the distinct count and the extra copies come from (the Scan, the second pass, whose
   `duplicate_rows_count` counts the copies with the engine of Dedup and appears as the source
   `deep.duplicate_rows_count`, or a
@@ -180,7 +181,26 @@ between distinct records. It holds codes and exact integers only, never a senten
   the second pass counting the original values (`deep.exact_distinct`) or from the second pass
   counting them after `nfc`, `trim` and `collapse_whitespace` (`deep.analytical_distinct`)), the
   SHA-256 of the source, the proofs that were read and refused (`rejected`) and, when two exact
-  sources disagree, the `conflict` (of the `duplicate_rows` or of the `id_cardinality`).
+  sources disagree, the `conflict` (of the `duplicate_rows` or of the `id_cardinality`). A column that
+  lacks a value also has `missing_id_copies` (`source` `deep.missing_id_copies`, `accuracy`,
+  `identity`), absent otherwise.
+
+With missing IDs (`reason` `missing_ids`) the object stays `limited` and no `unique` is ever `true`:
+a record without an ID stays among the distinct rows. When the second pass counted the copies of the
+rows without an ID (`missing_id_copies`) and the total of the copies is exact, the figures are
+given: `id_repetitions_explained` is `E - E_missing` (the copies of rows that have an ID),
+`id_repetitions_residual` is `P - (E - E_missing) - D`, `raw` holds `D` and `P - D`, and the
+interpretation is `repeated_between_distinct_records` (then `after_row_deduplication.unique` is
+`false`) or `unique_among_present_ids`; with fewer than two distinct rows that have an ID it stays
+`not_assessed`. Without that count nothing is subtracted and every figure stays `null`.
+
+- `near_unique`, `null` unless the interpretation is `repeated_between_distinct_records` and no ID is missing: a non-binding
+  reading of the residual repetitions, never a guarantee and never a role. It holds `model_version`,
+  `signal` (`near_unique`, `not_near_unique`, or `population_too_small` below 100 distinct rows),
+  `residual_repetitions` (`R_residual`), `distinct_records` (`U`), `tolerance` and `limiting_bound`
+  (`relative`, `root` or `cap`, the term of the model that sets the tolerance). The tolerance is
+  `min(U // 100, isqrt(U), 1000)`: repetitions up to it are `near_unique`. The constants are
+  provisional and a change of one raises `model_version`.
 
 `identifier.repetition` is unchanged: it keeps counting the raw repetitions. The extra copies come from
 the Scan's count of duplicate records, or from a valid [Dedup](../dedup/index.md) report given with

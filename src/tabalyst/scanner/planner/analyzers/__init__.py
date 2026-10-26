@@ -21,6 +21,7 @@ from tabalyst.scanner.planner.analyzers.histogram import NumericHistogram
 from tabalyst.scanner.planner.analyzers.lengths import LengthDistribution
 from tabalyst.scanner.planner.analyzers.matrix import MissingMatrix
 from tabalyst.scanner.planner.analyzers.measures import MeasureExtraction
+from tabalyst.scanner.planner.analyzers.missing_copies import MissingIdCopies
 from tabalyst.scanner.planner.analyzers.parts import DatetimeParts
 from tabalyst.scanner.planner.analyzers.patterns import PatternValidation
 from tabalyst.scanner.planner.analyzers.pearson import PearsonCorrelation
@@ -57,4 +58,5 @@ BUILT_INS: tuple[type[Analyzer], ...] = (
     SensitiveForms,
     CharacterProfile,
     DuplicateRows,
+    MissingIdCopies,
 )

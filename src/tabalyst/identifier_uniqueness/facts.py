@@ -20,6 +20,7 @@ from tabalyst.identifier_uniqueness.models import (
     DuplicateEvidence,
     DuplicateSource,
     IdentifierUniqueness,
+    MissingCopiesEvidence,
     ProofOrigin,
     RejectedProof,
     RowIdentity,
@@ -47,6 +48,7 @@ from tabalyst.scanner.secondpass.analytical import analytical_stages
 from tabalyst.scanner.secondpass.models import (
     AnalyticalDistinctCount,
     DuplicateRowsResult,
+    MissingIdCopiesResult,
 )
 
 _IDENTIFIER_ROLES = (ID, UNIQUE_ID)
@@ -187,6 +189,7 @@ def facts_from_scan(
         distinct=distinct,
         distinct_alternatives=tuple(alternatives),
         duplicates=tuple(duplicates),
+        missing_copies=_deep_missing_copies(scan, target, field, analyses, base),
         rejected=rejected,
     )
 
@@ -271,6 +274,65 @@ def _deep_duplicates(
         accuracy="exact" if chosen is exact else "lower_bound",
         identity=chosen.identity,
     )
+
+
+def _deep_missing_copies(
+    scan: ScanResult,
+    dataset: DatasetResult,
+    field: FieldResult,
+    analyses: AnalysesBlock | None,
+    base: PlanBase | None,
+) -> MissingCopiesEvidence | None:
+    """``E_missing`` as the second pass counted it (contract 6.9), for a column that lacks a value.
+
+    Used only when the second-pass document stands on this Scan. An exact count must also have read
+    the very file the Scan did (same SHA-256 and number of records) and found as many records
+    without a value in the column as the Scan did; otherwise it is ignored, as a foreign proof would
+    be. A stopped count is a lower bound.
+    """
+    missing = dataset.record_count - field.values.count
+    if missing <= 0 or analyses is None or analyses.deep is None:
+        return None
+    deep = analyses.deep
+    if base is not None and deep.base != base:
+        return None
+    bound: MissingCopiesEvidence | None = None
+    for item in deep.analyses:
+        found = item.result
+        if (
+            item.analyzer != "missing_id_copies"
+            or item.dataset != dataset.id
+            or not isinstance(found, MissingIdCopiesResult)
+        ):
+            continue
+        column = next((c for c in found.columns if c.field == field.id), None)
+        if column is None:
+            continue
+        if (
+            item.status == "complete"
+            and found.accuracy == "exact"
+            and found.source_sha256 == scan.source.sha256
+            and found.records == dataset.record_count
+            and column.rows_without_id == missing
+        ):
+            return MissingCopiesEvidence(
+                value=column.extra_copies_without_id,
+                source="deep.missing_id_copies",
+                accuracy="exact",
+                identity=found.identity,
+            )
+        if (
+            item.status == "limited"
+            and found.records <= dataset.record_count
+            and (bound is None or (bound.value or 0) < column.extra_copies_without_id)
+        ):
+            bound = MissingCopiesEvidence(
+                value=column.extra_copies_without_id,
+                source="deep.missing_id_copies",
+                accuracy="lower_bound",
+                identity=found.identity,
+            )
+    return bound
 
 
 def _distinct(

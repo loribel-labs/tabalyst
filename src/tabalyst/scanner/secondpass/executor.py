@@ -90,6 +90,7 @@ from tabalyst.scanner.secondpass.measures import MeasureAccumulator
 from tabalyst.scanner.secondpass.measures import (
     derive_from_samples as measures_from_samples,
 )
+from tabalyst.scanner.secondpass.missing_copies import count_missing_copies
 from tabalyst.scanner.secondpass.models import (
     AnalysisOutput,
     AnalysisResult,
@@ -987,6 +988,22 @@ def _count_copies(
     job.finished = _Finished(outcome.status, outcome.result, outcome.reason, outcome.detail)
 
 
+def _count_missing(
+    job: _Job, scan: ScanResult, source: Path, on_progress: ProgressCallback | None
+) -> None:
+    """Count the copies of the rows that have no ID on a reading of the file of its own
+    (design 20.43); the failures are those of ``_count_copies``."""
+    try:
+        outcome = count_missing_copies(job.candidate, scan, job.dataset, source, on_progress)
+    except (ScanMismatch, DedupInputError, DedupReportError) as exc:
+        if isinstance(exc, ScanMismatch):
+            job.failure = ("scan_mismatch", str(exc))
+        else:
+            job.failure = ("analysis_error", exc.reason)
+        return
+    job.finished = _Finished(outcome.status, outcome.result, outcome.reason, outcome.detail)
+
+
 def _conclude(job: _Job) -> AnalysisResult:
     """The entry of a job once the source has been read."""
     candidate, key = job.candidate, job.key
@@ -1107,7 +1124,7 @@ def _collect(
 # that is part of its key and is counted in bytes and records, so the same key stops at the same
 # place on any machine (Unique ID lot 8, cahier 12.5). A set of values stopped at the share of
 # memory the plan granted is not: the grant is no part of the key.
-DETERMINISTIC_STOP = frozenset({"duplicate_rows_count"})
+DETERMINISTIC_STOP = frozenset({"duplicate_rows_count", "missing_id_copies"})
 
 
 def reusable_results(plan: AnalysisPlan, previous: DeepResult | None) -> dict[str, AnalysisResult]:
@@ -1259,7 +1276,7 @@ def run_second_pass(
                 if job.candidate.analyzer == "date_order":
                     _setup_order(job, cells, orders)
                     continue
-                if job.candidate.analyzer == "duplicate_rows_count":
+                if job.candidate.analyzer in ("duplicate_rows_count", "missing_id_copies"):
                     copy_jobs.append(job)
                     continue
                 if job.candidate.analyzer == "structure_variants":
@@ -1368,7 +1385,10 @@ def run_second_pass(
             guard.finish(summary.sha256, summary.bytes_read)
             verified = True
         for job in copy_jobs:
-            _count_copies(job, scan, source, on_progress)
+            if job.candidate.analyzer == "missing_id_copies":
+                _count_missing(job, scan, source, on_progress)
+            else:
+                _count_copies(job, scan, source, on_progress)
         copies_read = any(job.finished is not None for job in copy_jobs)
         # Only a count that went to the end of the file hashed it and could be compared.
         copies_verified = any(

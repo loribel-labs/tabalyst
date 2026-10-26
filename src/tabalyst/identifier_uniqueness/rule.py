@@ -7,6 +7,8 @@
 It reads ``UniquenessFacts`` only: no file, no worker, exact integers, deterministic.
 """
 
+from collections.abc import Callable
+
 from tabalyst.identifier_uniqueness.models import (
     CardinalityEvidence,
     ConflictValue,
@@ -16,6 +18,8 @@ from tabalyst.identifier_uniqueness.models import (
     EvidenceConflict,
     IdentifierUniqueness,
     Interpretation,
+    MissingCopiesRowsEvidence,
+    NearUnique,
     Reason,
     Status,
     UniquenessBlock,
@@ -24,6 +28,7 @@ from tabalyst.identifier_uniqueness.models import (
     UniquenessFacts,
     UniquenessScope,
 )
+from tabalyst.identifier_uniqueness.near_unique import assess_near_unique
 
 _UNKNOWN = UniquenessBlock(unique=None, id_distinct=None, id_redundant=None)
 _NO_EXPLANATION = UniquenessExplanation(
@@ -66,7 +71,10 @@ def _assess(facts: UniquenessFacts) -> IdentifierUniqueness:
         return _failed(facts, "inconsistent_measures")
     e = exact[0].value if exact else None
     floor = max((s.value for s in bounds if s.value is not None), default=None)
-    if _inconsistent(n, p, m, d, e, floor):
+    missing = facts.missing_copies
+    # ``E_missing`` stands only when it is exact; a lower bound says nothing about ``E_present``.
+    e_missing = missing.value if missing is not None and missing.accuracy == "exact" else None
+    if _inconsistent(n, p, m, d, e, floor, e_missing):
         return _failed(facts, "inconsistent_measures")
 
     selected = _selected(facts, exact, bounds)
@@ -81,6 +89,7 @@ def _assess(facts: UniquenessFacts) -> IdentifierUniqueness:
         after: UniquenessBlock = _UNKNOWN,
         explanation: UniquenessExplanation = _NO_EXPLANATION,
         distinct_records: int | None = scope_distinct,
+        near_unique: NearUnique | None = None,
     ) -> IdentifierUniqueness:
         return _build(
             facts,
@@ -92,6 +101,7 @@ def _assess(facts: UniquenessFacts) -> IdentifierUniqueness:
             explanation=explanation,
             distinct_records=distinct_records,
             selected=selected,
+            near_unique=near_unique,
         )
 
     distinct = facts.distinct
@@ -104,7 +114,9 @@ def _assess(facts: UniquenessFacts) -> IdentifierUniqueness:
     if not facts.scope_complete:
         return result("limited", "not_assessed", "scope_partial")
     if m > 0:
-        return result("limited", "not_assessed", "missing_ids")
+        if e is None or e_missing is None:
+            return result("limited", "not_assessed", "missing_ids")
+        return _with_missing_ids(result, n, p, d, e, e_missing)
     if n < 2:
         return result("limited", "not_assessed", "too_few_records")
 
@@ -152,6 +164,51 @@ def _assess(facts: UniquenessFacts) -> IdentifierUniqueness:
         raw=raw,
         after=UniquenessBlock(unique=residual == 0, id_distinct=d, id_redundant=residual),
         explanation=explanation,
+        near_unique=assess_near_unique(residual, distinct_rows) if residual > 0 else None,
+    )
+
+
+def _with_missing_ids(
+    result: Callable[..., IdentifierUniqueness],
+    n: int,
+    p: int,
+    d: int,
+    e: int,
+    e_missing: int,
+) -> IdentifierUniqueness:
+    """The decomposition of the repetitions of an ID that some records lack (cahier 5.4, lot 10).
+
+    ``E`` counts the copies of rows that have an ID and of rows that have none; only the first
+    explain a repetition of an ID. ``E_present = E - E_missing`` leaves ``U_present = P - E_present``
+    distinct rows that have an ID, among which ``R_residual = U_present - D`` repeat an ID. The status
+    stays ``limited`` with the reason ``missing_ids``: a record without an ID remains among the
+    distinct rows (its first occurrence is never removed), so no ID is strictly unique and no
+    ``unique`` is ever ``true``. A repetition among the rows that have an ID is demonstrated, hence
+    ``false``.
+    """
+    present_copies = e - e_missing
+    present_rows = p - present_copies
+    residual = present_rows - d
+    explanation = UniquenessExplanation(
+        duplicate_row_extra_copies=e,
+        id_repetitions_explained=present_copies,
+        id_repetitions_residual=residual,
+        duplicate_row_extra_copies_without_id=e_missing,
+    )
+    raw = UniquenessBlock(unique=False if d < p else None, id_distinct=d, id_redundant=p - d)
+    after = UniquenessBlock(unique=False if residual > 0 else None, id_distinct=d, id_redundant=residual)
+    interpretation: Interpretation = "not_assessed"
+    if present_rows >= 2:
+        interpretation = (
+            "repeated_between_distinct_records" if residual > 0 else "unique_among_present_ids"
+        )
+    return result(
+        "limited",
+        interpretation,
+        "missing_ids",
+        raw=raw,
+        after=after,
+        explanation=explanation,
     )
 
 
@@ -192,10 +249,18 @@ def _above_original(facts: UniquenessFacts, d: int | None) -> bool:
 
 
 def _inconsistent(
-    n: int, p: int, m: int, d: int | None, e: int | None, floor: int | None
+    n: int,
+    p: int,
+    m: int,
+    d: int | None,
+    e: int | None,
+    floor: int | None,
+    e_missing: int | None = None,
 ) -> bool:
-    """Whether the measures break an invariant of contract 2."""
+    """Whether the measures break an invariant of contract 2 (and 2.2 for ``E_missing``)."""
     if n < 0 or not 0 <= p <= n or m != n - p:
+        return True
+    if e_missing is not None and _missing_copies_broken(m, d, e, e_missing, p):
         return True
     if d is not None and not 0 <= d <= p:
         return True
@@ -208,6 +273,22 @@ def _inconsistent(
         if m == 0 and d is not None and copies > n - d:
             return True
     return e is not None and floor is not None and e < floor
+
+
+def _missing_copies_broken(m: int, d: int | None, e: int | None, e_missing: int, p: int) -> bool:
+    """Whether ``E_missing`` breaks an invariant of contract 2.2.
+
+    Copies of rows without an ID need that many records without an ID and leave one distinct row
+    without it at least; they are part of ``E``; the other copies repeat an ID, so they cannot
+    exceed ``P - D``.
+    """
+    if e_missing < 0 or e_missing > max(m - 1, 0):
+        return True
+    if e is None:
+        return False
+    if e_missing > e:
+        return True
+    return d is not None and e - e_missing > p - d
 
 
 def _selected(
@@ -266,9 +347,11 @@ def _build(
     distinct_records: int | None,
     selected: DuplicateEvidence | None,
     conflict: EvidenceConflict | None = None,
+    near_unique: NearUnique | None = None,
 ) -> IdentifierUniqueness:
     distinct = facts.distinct
     return IdentifierUniqueness(
+        near_unique=near_unique,
         status=status,
         interpretation=interpretation,
         reason=reason,
@@ -298,6 +381,13 @@ def _build(
                 accuracy=selected.accuracy,
                 identity=selected.identity,
                 report=selected.report,
+            ),
+            missing_id_copies=None
+            if facts.missing_copies is None or facts.missing == 0
+            else MissingCopiesRowsEvidence(
+                source=facts.missing_copies.source,
+                accuracy=facts.missing_copies.accuracy,
+                identity=facts.missing_copies.identity,
             ),
             source_sha256=facts.source_sha256,
             rejected=facts.rejected,

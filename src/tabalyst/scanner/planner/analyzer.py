@@ -158,6 +158,26 @@ class Analyzer(ABC):
         or planned (UID-011, design 20.42)."""
         return False
 
+    def gives_copies(self, facts: FieldFacts) -> bool:
+        """Whether, once run, the analysis gives the exact count of the extra copies of whole
+        rows of the dataset. The planner chooses the count of the copies of the rows that have
+        no ID only when that count is there or planned (lot 10, design 20.43)."""
+        return False
+
+    def needs_copies(self, facts: FieldFacts) -> bool:
+        """Whether the analysis of whole rows is worth it only beside an exact count of the
+        extra copies of the dataset."""
+        return False
+
+    def distinct_fields(self, facts: FieldFacts) -> tuple[str, ...] | None:
+        """The columns whose exact distinct count the analysis of whole rows settles
+        nothing without, or ``None`` when any identifier column of the dataset will do."""
+        return None
+
+    def distinct_known(self, facts: FieldFacts) -> bool:
+        """Whether the Scan has the exact distinct count that the analysis of whole rows needs."""
+        return facts.rows_distinct_known
+
     @abstractmethod
     def assess(self, facts: FieldFacts) -> Assessment:
         """Whether it applies, is already answered, or does not apply and why."""

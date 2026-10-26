@@ -38,6 +38,8 @@ Keep these exactly as written in every language:
 | identifier uniqueness | unicité de l'identifiant | The report's reading of an identifier column that separates the repetitions of the ID that exact copies of whole rows explain from those that remain between distinct records (`identifier_uniqueness` in the JSON profile) |
 | raw uniqueness | unicité brute | Every value of the ID is distinct across all the source records, copies of rows included; the Unique ID of the Scan |
 | unique after row deduplication | unique après déduplication des lignes | Every value of the ID is distinct among the distinct rows: the only repetitions come from exact copies of whole rows. It is not a Unique ID, which is the raw reading |
+| unique among present IDs | unique parmi les ID présents | The reading of an identifier that lacks a value in some records: after the exact copies of rows are set aside, no ID repeats between the distinct rows that have one. It is never a Unique ID, because the records without an ID remain |
+| near-unique | quasi-unique | A non-binding reading of an identifier whose remaining repetitions between distinct rows are few for their number (at most the smaller of 1% of them, their square root and 1,000). It is never a guarantee and never makes the column a Unique ID |
 | explained repetition | répétition expliquée | A repetition of an ID that an exact extra copy of a whole row accounts for; the unexplained ones are residual repetitions, between distinct records |
 | data sample | échantillon de données | The rows of the row sample shown in the report: the start, sampled rows and the end |
 | raw values | valeurs brutes | Source values before normalization |

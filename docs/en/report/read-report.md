@@ -258,7 +258,22 @@ again and never runs Dedup. It shows one of five readings:
 | Unique after row deduplication | The repetitions are exactly the extra copies of whole rows. | The ID repeats only because rows are copied; no ID conflict remains among the distinct rows. It is not called *Unique ID*, because the raw count still shows the repetitions. |
 | ID repetitions | Some repetitions remain between distinct rows. | The figures give the repetitions explained by copies and those that remain. |
 | Uniqueness not fully assessed | A needed count is estimated, limited, disabled or missing, or the scan did not cover every record. | No conclusion; the reason is stated. |
-| Missing IDs | Some records have no ID. | Uniqueness after deduplication cannot be established. |
+| Missing IDs | Some records have no ID. | Uniqueness after deduplication cannot be established. When the copies of the rows without an ID were counted, the card also gives the repetitions that copies explain and those that remain between the distinct rows that have an ID. |
+
+Under *Missing IDs* a record without an ID stays among the distinct rows, so the ID is never
+called unique. The second pass can still count the copies of the rows that have no ID
+([`missing_id_copies`](../scan/deep.md#extra-copies-of-the-rows-without-an-id)); the card
+then says how many of the rows that have an ID are exact copies of another row, and either that
+no ID repeats between the distinct rows that have one, or how many repetitions remain.
+
+Under *ID repetitions* the card adds a **near-unique** reading, which says whether the
+repetitions that remain are few for the number of distinct rows. The tolerance is the smallest
+of one in a hundred distinct rows, the square root of them and 1,000, so a fixed share does not
+decide: 10 repetitions among 1,000 distinct rows are *Near-unique*, 11 are *Not near-unique*, and
+below 100 distinct rows the card says it cannot tell. It is a statistical reading, not a
+guarantee: the column stays an ID, the repetitions stay listed and the finding *ID repetitions*
+stays. The model is provisional; see `near_unique` in the
+[JSON profile](profile-changelog.md#version-020-revision-5).
 
 The card gives the evidence of each figure (the Scan, the second pass or a Dedup report with
 its file name) and the proofs it refused, with the reason. A repetition is an observation of
@@ -266,8 +281,7 @@ quality, not an Error: the finding *ID repetitions* stays raw and links to this 
 Dedup report that matches the SHA-256 of the scanned source, is complete and counts the same
 records is used; give it with `--dedup-report`, or keep `<name>.dedup.json` beside a CSV
 source. The entry *Identifier uniqueness* of [Analysis settings](#analysis-settings) gives
-the rule version and the sources actually used. Deciding whether an ID is *nearly* unique is
-not available yet. When the scan could only bound the copies of rows, the report counts them
+the rule version and the sources actually used. When the scan could only bound the copies of rows, the report counts them
 by itself with [`duplicate_rows_count`](../scan/deep.md#extra-copies-of-whole-rows) if the
 table is small enough to be counted in memory and the number of distinct IDs is known; a larger
 file needs `--deep` or a Dedup report. The same holds for the number of distinct IDs when the

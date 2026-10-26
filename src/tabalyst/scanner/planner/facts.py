@@ -14,13 +14,14 @@ from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from datetime import datetime
 
-from tabalyst.scanner.classify.identifiers import ID, positions_complete
+from tabalyst.scanner.classify.identifiers import ID, positions_complete, under_array
 from tabalyst.scanner.config import DetectorSettings
 from tabalyst.scanner.convention_rule import NumberRule, single_reading
 from tabalyst.scanner.detectors.registry import replayable
 from tabalyst.scanner.models import (
     CardinalityComplete,
     CardinalityLimited,
+    ColumnSegment,
     DatasetResult,
     DetectorComplete,
     FamilyPattern,
@@ -305,6 +306,14 @@ class FieldFacts:
     rows_candidates: int = 0
     rows_distinct_known: bool = False
     rows_proved: bool = False
+    # The rows of a table (``rows_facts``): whether the copies of whole rows are known exactly
+    # without a count of the second pass (the Scan's count is exact or a Dedup report proves it),
+    # the candidate columns that lack a value somewhere (field id, 1-based CSV position, whether the
+    # Scan has their exact analytical distinct count) and the records that lack a value in one of
+    # them at most (UID-011, lot 10).
+    rows_copies_known: bool = False
+    rows_missing_columns: tuple[tuple[str, int, bool], ...] = ()
+    rows_missing_records: int = 0
 
     @property
     def withheld(self) -> bool:
@@ -618,23 +627,44 @@ def _facts(
             for stage in field.normalization.stages
             if stage.stage in ANALYTICAL_STAGES and stage.enabled
         ),
-        uniqueness_candidate=_uniqueness_candidate(dataset, field, excluded),
+        uniqueness_candidate=_uniqueness_candidate(
+            dataset, field, excluded, source_format == "csv"
+        ),
     )
 
 
-def _uniqueness_candidate(dataset: DatasetResult, field: FieldResult, excluded: int) -> bool:
+def _uniqueness_candidate(
+    dataset: DatasetResult, field: FieldResult, excluded: int, csv: bool
+) -> bool:
     """Whether the Scan alone makes the column an identifier worth qualifying (UID-011).
 
     The Report's classification may refine the role with a second pass, but the planner reads
-    the Scan only: a raw ``unique_id`` needs no count of the copies, and a column with a missing
-    position, under an array or in a scan that left records out can never conclude (cahier 12.1).
+    the Scan only: a raw ``unique_id`` needs no count of the copies, and a column under an array
+    or in a scan that left records out can never conclude (cahier 12.1). A column of a CSV file
+    that lacks a value somewhere can: the copies of the rows that have an ID are counted apart
+    (``missing_id_copies``, lot 10), so it is a candidate too.
     """
     return (
         (field.classification.family, field.classification.type) == ID
-        and positions_complete(field)
+        and (positions_complete(field) or (csv and not under_array(field)))
         and excluded == 0
         and dataset.record_count >= 2
     )
+
+
+def _missing_columns(
+    dataset: DatasetResult, candidates: Sequence[FieldResult]
+) -> tuple[tuple[str, int, bool], ...]:
+    """The candidate columns of a CSV file that lack a value, with their position in a record."""
+    found: list[tuple[str, int, bool]] = []
+    for field in candidates:
+        if positions_complete(field) or len(field.path) != 1:
+            continue
+        segment = field.path[0]
+        if not isinstance(segment, ColumnSegment):
+            continue
+        found.append((field.id, segment.column, analytical_distinct(field) is not None))
+    return tuple(found)
 
 
 # The root of the records of a JSON source is no field of the Scan, yet the sets
@@ -675,8 +705,10 @@ def rows_facts(scan: ScanResult, proved: frozenset[str] = frozenset()) -> list[F
     candidates = [
         field
         for field in dataset.fields
-        if _uniqueness_candidate(dataset, field, excluded)
+        if _uniqueness_candidate(dataset, field, excluded, True)
     ]
+    missing = _missing_columns(dataset, candidates)
+    absent = sum(dataset.record_count - field.values.count for field in candidates)
     return [
         replace(
             _root(scan, dataset),
@@ -685,6 +717,9 @@ def rows_facts(scan: ScanResult, proved: frozenset[str] = frozenset()) -> list[F
             rows_candidates=len(candidates),
             rows_distinct_known=any(analytical_distinct(field) is not None for field in candidates),
             rows_proved=dataset.id in proved,
+            rows_copies_known=state == "complete" or dataset.id in proved,
+            rows_missing_columns=missing,
+            rows_missing_records=min(dataset.record_count, absent) if missing else 0,
         )
     ]
 

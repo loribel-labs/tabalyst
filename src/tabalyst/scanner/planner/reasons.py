@@ -56,6 +56,7 @@ NOT_APPLICABLE = {
     "hidden_exposure": "exposure hides the values of this field, so even their masks are kept out of the document",
     "duplicates_disabled": "the scan was set not to count the copies of rows (records.duplicates), and a second pass does not override that",
     "records_left_out": "the scan left records out of the file, which Dedup refuses to count",
+    "no_missing_id_candidate": "no identifier column of the file lacks a value, so every copy of a row repeats an ID",
     "stages_unchanged": "no analytical stage (NFC, trim, whitespace) changed a value, so the exact count of the original values is the analytical count",
     "nothing_left_out": "no pattern leaves values out and no detector that reads most of the column finds invalid or unmatched ones",
 }
@@ -89,6 +90,7 @@ SELECTION = {
     "stats_budget": "enough numbers by category were already chosen automatically",
     "redundant_feature": "another feature of the same two columns says more",
     "distinct_unknown": "the distinct count of the identifier columns is neither known nor planned, so the count of the copies could not settle their uniqueness",
+    "copies_unknown": "the extra copies of rows are neither known exactly nor planned, so the copies of the rows without an ID could not settle the uniqueness",
     "budget": "its memory does not fit in the budget with the analyses already selected",
 }
 
@@ -123,6 +125,7 @@ UTILITY = {
     "identifier_uniqueness": "counts the distinct values of an identifier after NFC, trim and whitespace, which decides whether it is unique once copies of rows are set aside",
     "identifier_copies": "counts the extra copies of rows, which explains the repeated values of an identifier",
     "duplicate_rows": "counts the extra copies of whole rows exactly, which the scan could only bound",
+    "identifier_missing_copies": "counts the copies of the rows that have no ID, which tells the repetitions of the other IDs that copies explain",
     "key_sets": "shows which keys the objects have together",
     "text_shape": "shows the words, lines and digits of the texts",
     "character_map": "shows the most frequent characters, their Unicode families, the case of the ends and the emoji of every value",

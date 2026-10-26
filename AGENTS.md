@@ -69,7 +69,7 @@ support is not yet required. Record format changes in the relevant changelogs.
   measures derived from the Scan), each figure with its accuracy, computed at render time from
   `analyses` alone; `templates/insights.html` is their macro, shared by the report and the column
   pages.
-- `src/tabalyst/identifier_uniqueness/`: the uniqueness of an identifier column after row deduplication (`docs/dev/report/identifier-uniqueness.md` is the contract; ADR `2026-10-23-identifier-uniqueness-derived-in-report`). `models.py` holds the models and `RULE_VERSION`, `rule.py` the pure rule, `proof.py` the reading and validation of a Dedup report, `facts.py` the facts built from the Scan, the second pass and the proof. The result is `ColumnSummary.identifier_uniqueness`; `report_uniqueness.py` prints it (card, Summary line, Analysis settings).
+- `src/tabalyst/identifier_uniqueness/`: the uniqueness of an identifier column after row deduplication (`docs/dev/report/identifier-uniqueness.md` is the contract; ADR `2026-10-23-identifier-uniqueness-derived-in-report`). `models.py` holds the models and `RULE_VERSION`, `rule.py` the pure rule, `proof.py` the reading and validation of a Dedup report, `facts.py` the facts built from the Scan, the second pass and the proof, `near_unique.py` the non-binding near-unique reading of the residual repetitions (ADR `2026-10-24-near-unique-reading`). The result is `ColumnSummary.identifier_uniqueness`; `report_uniqueness.py` prints it (card, Summary line, Analysis settings).
 - `src/tabalyst/report_column_page.py`: the blocks of a column page that the stored summary does not
   hold as they are (findings with their details, remarks, formats, shape block, neighbour links); the
   contract is `docs/dev/report/column-page.md`. `templates/column.html` prints them and computes nothing.
@@ -132,7 +132,9 @@ support is not yet required. Record format changes in the relevant changelogs.
   counting (`AnalyticalSet`, a separate analyzer from `exact_distinct`, which counts the original values; 20.41). The planner
   chooses both by itself for an identifier candidate (`FieldFacts.uniqueness_candidate`, the copies only beside a known distinct
   count and within the automatic memory; a valid Dedup report spares the copies, `plan_analyses(proved_copies=)`; 20.42, ADR
-  `2026-10-24-unique-id-planner-criteria`).
+  `2026-10-24-unique-id-planner-criteria`). `secondpass/missing_copies.py` and `planner/analyzers/missing_copies.py` the analyzer
+  `missing_id_copies`, the copies of the rows that lack an ID per identifier column, counted with the light mode of the Dedup
+  engine (a table of those rows only, `E_present = E - E_missing`; 20.43, ADR `2026-10-25-missing-id-copies`).
   `planner/facts.root_facts` gives the root of the records, the field `$`, to the
   analyzers that set `roots`. `exact_distinct` and `analytical_distinct` are the analyses that also read a masked or hidden field.
 - `src/tabalyst/report_chain.py`: the second pass inside Report (who decides,
@@ -172,7 +174,8 @@ support is not yet required. Record format changes in the relevant changelogs.
   models, schemas and writing of `<stem>.dedup.json` and `dedup.summary.json`; `failures.py` the stable
   `reason` codes; `pipeline.py` one source from decision to report; `count_only.py` the count-only mode
   (`count_extra_copies`: the same exact count with ceilings of its own, `limited` at a ceiling, no output of any
-  kind; ADR `2026-10-24-dedup-count-only-for-deep`). Nothing there prints or reads the
+  kind; `count_missing_id_copies`: the light mode that follows the rows lacking a value in identifier columns only;
+  ADR `2026-10-24-dedup-count-only-for-deep`, `2026-10-25-missing-id-copies`). Nothing there prints or reads the
   terminal. `src/tabalyst/dedup_service.py` is its boundary for the CLI and the API (`dedup_csv`,
   `generate_dedups`, `DedupResult`, `BatchDedupResult`); the schemas are
   `src/tabalyst/schemas/tabalyst.dedup.schema.json` and `tabalyst.dedup.batch.schema.json`; the tests are in

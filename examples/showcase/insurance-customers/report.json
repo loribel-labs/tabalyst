@@ -66164,7 +66164,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -66288,8 +66288,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 20,
-        "plan_id": "9c367908d8671c91cb2d22d46c9047269dab574e1aca8cb8e9cc394b25e1c219",
+        "cost_model_version": 21,
+        "plan_id": "1f6e5d856030f391198e110ac3302ea0c6d994357ad583a671443c8540c55d84",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.1",
@@ -66319,16 +66319,16 @@
           "cpu": "low"
         },
         "summary": {
-          "candidates": 331,
-          "selected": 42,
+          "candidates": 332,
+          "selected": 43,
           "already_satisfied": 125,
           "rejected": 164,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 29704114,
-            "expected": 59600878,
-            "max": 117642922
+            "min": 29967282,
+            "expected": 59866003,
+            "max": 117910005
           },
           "beyond_automatic": []
         },
@@ -72520,24 +72520,42 @@
               "priority": null,
               "satisfied_by": "datasets/rows/records/duplicates"
             }
+          },
+          {
+            "id": "missing_id_copies:rows:$",
+            "analyzer": "missing_id_copies",
+            "dataset": "rows",
+            "field": "$",
+            "display": "$",
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 43,
+              "satisfied_by": null
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-24T11:53:29.224352Z",
-        "duration_seconds": 0.000513,
+        "started_at": "2026-10-26T01:46:19.969454Z",
+        "duration_seconds": 0.254041,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000513
+          "other": 0.254041
         },
         "workers": 1,
-        "peak_memory_bytes": 123027456,
-        "source_read": false,
-        "source_verified": false,
+        "peak_memory_bytes": 122994688,
+        "source_read": true,
+        "source_verified": true,
         "records_read": 0,
         "cells_read": 0,
-        "executed": 0,
+        "executed": 1,
         "reused": 42,
         "skipped": 0
       },
@@ -141694,17 +141712,52 @@
               "score": 0.5882745367462464
             }
           }
+        },
+        {
+          "id": "missing_id_copies:rows:$",
+          "analyzer": "missing_id_copies",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "$",
+          "display": "$",
+          "method": "extra_copies_without_id",
+          "parameters": {
+            "memory_mb": 256,
+            "disk_mb": 2048,
+            "max_rows": 10000000,
+            "columns": "[[\"column_20\", 20]]"
+          },
+          "domain": "analytical",
+          "key": "6f3783e675616ab9b25988fc1365f79f381230a1a786299f70a75a1967e8537f",
+          "status": "complete",
+          "result": {
+            "kind": "missing_id_copies",
+            "accuracy": "exact",
+            "identity": "full_decoded_csv_row_v1",
+            "calculation_version": 1,
+            "records": 100000,
+            "storage": "memory",
+            "columns": [
+              {
+                "field": "column_20",
+                "rows_without_id": 9,
+                "distinct_rows_without_id": 9,
+                "extra_copies_without_id": 0
+              }
+            ],
+            "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2"
+          }
         }
       ]
     }
   },
   "report": {
-    "generated_at": "2026-10-24T11:53:29.811996Z",
+    "generated_at": "2026-10-26T01:46:21.046108Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.1"
     },
-    "processing_seconds": 3.296,
+    "processing_seconds": 3.7786,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -142381,7 +142434,8 @@
                   "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
                   "rejected": [],
                   "conflict": null
-                }
+                },
+                "near_unique": null
               }
             }
           },
@@ -155391,7 +155445,7 @@
               "identifier_uniqueness": {
                 "rule_version": 1,
                 "status": "limited",
-                "interpretation": "not_assessed",
+                "interpretation": "unique_among_present_ids",
                 "reason": "missing_ids",
                 "scope": {
                   "dataset": "rows",
@@ -155405,19 +155459,20 @@
                   "complete": true
                 },
                 "raw": {
-                  "unique": null,
-                  "id_distinct": null,
-                  "id_redundant": null
+                  "unique": false,
+                  "id_distinct": 99983,
+                  "id_redundant": 8
                 },
                 "after_row_deduplication": {
                   "unique": null,
-                  "id_distinct": null,
-                  "id_redundant": null
+                  "id_distinct": 99983,
+                  "id_redundant": 0
                 },
                 "explanation": {
-                  "duplicate_row_extra_copies": null,
-                  "id_repetitions_explained": null,
-                  "id_repetitions_residual": null
+                  "duplicate_row_extra_copies": 8,
+                  "id_repetitions_explained": 8,
+                  "id_repetitions_residual": 0,
+                  "duplicate_row_extra_copies_without_id": 0
                 },
                 "evidence": {
                   "id_cardinality": {
@@ -155432,9 +155487,15 @@
                     "report": null
                   },
                   "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
+                  "missing_id_copies": {
+                    "source": "deep.missing_id_copies",
+                    "accuracy": "exact",
+                    "identity": "full_decoded_csv_row_v1"
+                  },
                   "rejected": [],
                   "conflict": null
-                }
+                },
+                "near_unique": null
               }
             }
           },

@@ -6633,8 +6633,8 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 20,
-        "plan_id": "d979c6d386810a7f955f45810afbd826a79886f3fa57dd04d587f20717cd5d5a",
+        "cost_model_version": 21,
+        "plan_id": "8c3e78ddc69bd54e4d640f6aef209acf5c80b0244314f627ab02e0dd0083237c",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.1",
@@ -6664,10 +6664,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 48,
+          "candidates": 49,
           "selected": 7,
           "already_satisfied": 29,
-          "rejected": 12,
+          "rejected": 13,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -7581,19 +7581,39 @@
               "priority": null,
               "satisfied_by": "datasets/rows/records/duplicates"
             }
+          },
+          {
+            "id": "missing_id_copies:rows:$",
+            "analyzer": "missing_id_copies",
+            "dataset": "rows",
+            "field": "$",
+            "display": "$",
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_missing_id_candidate"
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-24T11:53:26.964361Z",
-        "duration_seconds": 0.000112,
+        "started_at": "2026-10-26T01:46:17.753974Z",
+        "duration_seconds": 0.000109,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000112
+          "other": 0.000109
         },
         "workers": 1,
-        "peak_memory_bytes": 74018816,
+        "peak_memory_bytes": 74452992,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -8069,12 +8089,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-24T11:53:26.972523Z",
+    "generated_at": "2026-10-26T01:46:17.753974Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.1"
     },
-    "processing_seconds": 0.0233,
+    "processing_seconds": 0.0227,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -8634,7 +8654,8 @@
                   "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
                   "rejected": [],
                   "conflict": null
-                }
+                },
+                "near_unique": null
               }
             }
           },

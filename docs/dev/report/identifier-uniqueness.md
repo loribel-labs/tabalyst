@@ -3,8 +3,8 @@
 Status: contract written at lot 0 of the Unique ID plan (`tabalyst-gb`,
 `KANBAN/05-PROGRESS/2026-10-23-tabalyst-unique-id-plan.md`); implemented by lots 1 to 4; P0
 finalized at lot 5 (sections 12 and 13). Lot 6 (P1) adds the Deep count of the copies of rows
-(6.2, 6.6); lot 7 the Deep count of the distinct analytical values (6.1, 6.7); lot 8 the criteria of the planner, the cache and the versions (6.8, 12). Near-uniqueness
-and P2 are not delivered.
+(6.2, 6.6); lot 7 the Deep count of the distinct analytical values (6.1, 6.7); lot 8 the criteria of the planner, the cache and the versions (6.8, 12); lot 9 the near-unique reading (14); lot 10 the decomposition despite missing IDs (2.2, 6.9).
+P2 is not delivered.
 Requirements: `KANBAN/04-SRS/2026-10-23-unique-id/Tabalyst_Unique_ID_Cahier_des_Charges_v1.md`
 (UID-001 to UID-010 are P0, UID-011 to UID-015 are P1 and P2 and out of this contract).
 Decision record: ADR `2026-10-23-identifier-uniqueness-derived-in-report`. Tests:
@@ -78,9 +78,36 @@ unique ID needs no duplicate count (T01).
 threshold is `U >= 2` for any conclusion after deduplication (decision D4, T11). A dataset of
 one distinct row repeated has `R_residual = 0` and yet no conclusion (example F).
 
-With `M > 0` the exact `R_residual` is not computable (`E` may count copies of rows without an
-ID; the Dedup report has no per-column count), so nothing is subtracted and no `unique` is
-emitted (cahier 5.4, T09, T10). The `raw` block is then all `null` as well.
+With `M > 0` `E` mixes copies of rows that have an ID and copies of rows that have none, and neither
+the Scan nor a Dedup report counts them apart: without the count of 2.2, nothing is subtracted and no
+`unique` is emitted (cahier 5.4, T09, T10). The `raw` block is then all `null` as well.
+
+### 2.2 Missing IDs (lot 10, cahier 5.4)
+
+A copy of a row repeats the whole row, so its ID cell is absent or present as in the original: the
+copies of the rows that have no ID (`E_missing`) are counted on those rows alone, and the rest of `E`
+is the copies of rows that have an ID:
+
+```text
+E_present  = E - E_missing        U_present = P - E_present        R_residual = U_present - D
+```
+
+`E_missing` is the second-pass count of 6.9 (exact only). `E` is the exact total of 6.2 (any source).
+Invariants (a violation is `failed` with `inconsistent_measures`):
+
+```text
+0 <= E_missing <= E        E_missing <= M - 1        E_present <= P - D
+```
+
+`E_missing <= M - 1` because a row without an ID that is copied leaves its first occurrence among the
+distinct rows. That is also why no ID is ever strictly unique with `M > 0`, whatever `R_residual` is:
+`after.unique` is `false` when `R_residual > 0` (a repetition among the rows that have an ID is
+demonstrated) and `null` otherwise, never `true`; `raw.unique` is `false` when `D < P` and `null`
+otherwise. The threshold is `U_present >= 2` for a conclusion (decision D4 applied to the rows that
+have an ID). The status stays `limited` with the reason `missing_ids`: it is the definition of `limited`
+(a threshold blocks the strict conclusion, exact figures are still given). The cahier's example E
+(`,Alice` twice and `B-002,Bob`) has `E = 1`, `E_missing = 1`, `E_present = 0`, `U_present = 1`: no
+conclusion. `near_unique` stays `null`.
 
 ## 3. Eligibility
 
@@ -105,7 +132,8 @@ and the classification is never modified (UID-001, UID-010).
 | --- | --- |
 | `raw_unique` | `raw.unique` is true (then `E = 0` or unknown) |
 | `unique_after_row_deduplication` | `raw.unique` false, `after.unique` true |
-| `repeated_between_distinct_records` | `R_residual > 0` |
+| `unique_among_present_ids` | `M > 0`, `E_present` known, `U_present >= 2` and `R_residual = 0` (2.2) |
+| `repeated_between_distinct_records` | `R_residual > 0` (with `M > 0` too, then `status` is `limited`) |
 | `not_assessed` | everything else, with a `reason` |
 
 `not_applicable` is not a stored status: the object is absent (3). The `reason` codes are stable
@@ -113,7 +141,7 @@ and listed here (D9). An empty `reason` (`null`) goes with `complete`.
 
 | `reason` | With status | Meaning |
 | --- | --- | --- |
-| `missing_ids` | `limited` | `M > 0` (case E) |
+| `missing_ids` | `limited` | `M > 0` (case E); the figures of 2.2 are given when `E_missing` and `E` are exact |
 | `too_few_records` | `limited` | `N < 2`: raw not concluded |
 | `too_few_distinct_records` | `limited` | `U < 2` (case F) |
 | `scope_partial` | `limited` | `scope.complete` is false (6.3) |
@@ -190,6 +218,13 @@ or `null`; `null` is never replaced by `0`. No sentence is stored.
   Dedup `reason` codes of 7. A refused proof is a diagnostic, never an error of the Report.
 - `evidence.conflict`: `null`, or for `evidence_conflict` `{"measure": "duplicate_rows" | "id_cardinality",
   "values": [{"source", "value"}, ...]}` with the exact values that disagree.
+- `near_unique`: `null`, or for `repeated_between_distinct_records` the non-binding reading of 14 (`model_version`, `signal`,
+  `residual_repetitions`, `distinct_records`, `tolerance`, `limiting_bound`).
+- `explanation.duplicate_row_extra_copies_without_id`: `E_missing` (2.2). Present only for a column that
+  lacks a value whose copies were counted (the member is omitted otherwise, not `null`). With `M > 0` and
+  the figures given, `duplicate_row_extra_copies` stays `E`, `id_repetitions_explained` is `E_present`.
+- `evidence.missing_id_copies`: `{"source": "deep.missing_id_copies", "accuracy": "exact" | "lower_bound",
+  "identity"}`, omitted when the column has no missing ID or no count.
 - `evidence.source_sha256`: the Scan's SHA-256 (the reference of every proof).
 - `rule_version` changes with any change of formula, threshold, reason or source order; the
   derived object is recomputed from the document each time it is built, so no cache holds it
@@ -329,13 +364,14 @@ design 20.41) counts the analytical values exactly, with the sets and the memory
 
 Decision: ADR `2026-10-24-unique-id-planner-criteria`; design 20.42. The planner reads the Scan only. A column is a
 **candidate** when the Scan gives it `identifier/id` (a raw `unique_id` needs no count: `E = 0` follows), every position
-holds a value, it is not under an array, no record was left out and the dataset has two records at least. The cases of the
+holds a value (a column of a CSV file that lacks one is a candidate too since lot 10, 6.9), it is not under an array, no record was left out and the dataset has two records at least. The cases of the
 cahier 12.1 (an exact `D` and `E`, a valid Dedup report, an ineligible column, missing IDs, an unique raw ID) are exactly
 the columns that are not candidates or the candidates that are `already_satisfied`.
 
 | Analysis | Chosen by itself when | Else |
 | --- | --- | --- |
 | `analytical_distinct` | the field is a candidate, the Scan has no analytical count and a stage changed a value (utility 50) | utility 40: asked for, forced |
+| `missing_id_copies` | an identifier candidate lacks a value (6.9), the total of the copies is exact in the Scan or proved or selected, an exact distinct count of that column is in the Scan or selected, the table of the rows without an ID fits the automatic memory, the class of the record is at most `moderate` (utility 50) | `copies_unknown`, `distinct_unknown`, `budget`, `cpu_class`, `low_utility` |
 | `duplicate_rows_count` | the dataset has a candidate, the Scan's count is a lower bound (not exact, not disabled), the table fits the automatic memory, the class of the record is at most `moderate` (three columns or more) and a distinct count of a candidate is exact in the Scan or selected in the plan (utility 50) | `distinct_unknown`, `budget`, `cpu_class`, `low_utility` |
 
 Everything else of the automatic choice applies unchanged. A valid Dedup report makes the count of the copies
@@ -350,6 +386,36 @@ field, the method and its parameters (the ceilings of the copies). The version o
 (`analyzers/analytical.py`); a change of what a count means raises it and makes older results stale. A stopped count of the
 copies is reused at the same key (its ceilings are bytes and records); a stopped set of values is not. A Dedup report is no
 part of the second-pass document: the derived object is rebuilt with the summary each time, so no cache holds it.
+
+### 6.9 The Deep count of the copies of the rows without an ID (lot 10, cahier 5.4)
+
+Decision: ADR `2026-10-25-missing-id-copies`; design 20.43. `count_missing_id_copies` (`dedup/count_only.py`)
+is the light mode of the engine: the same strict reading, canonical key (`full_decoded_csv_row_v1`), exact
+store, three ceilings (`deep.copies`) and SHA-256 as 6.6, with a table of the rows that lack a value in at
+least one of the named columns only, so its memory follows those rows and not the file. Per column it counts
+the records without a value (`rows_without_id`, checked against `N - values.count` of the Scan), the distinct
+ones and the extra copies (`extra_copies_without_id`, `E_missing`). A cell holds a value when the Scan counted
+it in `values.count` (the classifier and null markers of the Scan's configuration, replayed). Its version of
+calculation is `MISSING_CALCULATION_VERSION` (1).
+
+The analyzer `missing_id_copies` (`scanner/planner/analyzers/missing_copies.py`,
+`scanner/secondpass/missing_copies.py`) gives it to the planner:
+
+- one candidate per CSV source with one dataset, named `missing_id_copies:<dataset>:$`, whose parameters are
+  the three ceilings and `columns` (JSON list of field id and 1-based position, part of the key); one
+  reading counts every identifier column that lacks a value;
+- `not_applicable` (`no_missing_id_candidate`, `records_left_out`, or `duplicates_disabled` when the Scan did
+  not count the copies and no Dedup report proves them: there would be no total);
+- it needs an exact total of `E` (the Scan's exact count, a Dedup report or `duplicate_rows_count`), which the
+  planner checks like the distinct count (`copies_unknown`);
+- the result `MissingIdCopiesResult` (`accuracy` `exact` or `lower_bound`, `columns[]`, `source_sha256` when
+  exact). A stopped count is a lower bound and never `E_missing`. Both are reusable at the same key
+  (`DETERMINISTIC_STOP`).
+
+`facts_from_scan` appends `UniquenessFacts.missing_copies` (`MissingCopiesEvidence`) when the second-pass
+document stands on this Scan and the count is exact, read the very file of the Scan (SHA-256, records) and
+found as many rows without a value in the column as the Scan did; otherwise it is ignored. `rule_version`
+stays 1 (the P0 object was never published).
 
 ## 7. Dedup proof (UID-005)
 
@@ -397,7 +463,7 @@ cahier 11.2 map to label keys (the English text is fixed at lot 4, the keys now)
 | B | `unique_after_row_deduplication` | `identifier_uniqueness.unique_after_row_deduplication` |
 | C | `repeated_between_distinct_records` | `identifier_uniqueness.repeated_between_distinct_records` |
 | D | `not_assessed`, any reason but `missing_ids` | `identifier_uniqueness.not_assessed` |
-| E | reason `missing_ids` | `identifier_uniqueness.missing_ids` |
+| E | reason `missing_ids`, whatever the interpretation (lot 10: with the figures of 2.2 it is `unique_among_present_ids` or `repeated_between_distinct_records`) | `identifier_uniqueness.missing_ids` |
 
 Language rule: never write "Unique ID" without "after row deduplication" when the dataset has at
 least one exact copy of a row (`E > 0` or `E` unknown with `D < N`). A repetition is an observation
@@ -415,7 +481,7 @@ Texts come from `report_labels.py` (`UNIQUENESS_*`), the view models from `repor
 | B | Unique after row deduplication | E repeated ID occurrences are fully explained by E exact duplicate rows. No ID conflicts remain among U distinct records. |
 | C | ID repetitions | T repetitions: E explained by exact duplicate rows, R remain between distinct records. |
 | D | Uniqueness not fully assessed | The exact number of distinct IDs or duplicate rows is unavailable. No conclusion about uniqueness after deduplication. (plus the sentence of the `reason`) |
-| E | Missing IDs | Uniqueness after deduplication cannot be established: some records have no ID. |
+| E | Missing IDs | Uniqueness after deduplication cannot be established: some records have no ID. With the copies of the rows without an ID counted (2.2): `M records have no ID. Among the P records that have one, E_present are exact copies of rows. No ID repeats between the U_present distinct rows that have one.` or `... R ID repetitions remain between the U_present distinct rows that have one.` |
 
 - **Column page**: a card `#uniqueness` in 01 Summary (no renumbering), absent outside identifiers,
   with the figures (`null` printed as "not established"; none for `failed`), the evidence and the
@@ -505,14 +571,16 @@ evidence of 6 and the proof of 7.
 | 6 | T33 (`test_t33_...`), `tests/dedup/test_count_only.py`, `tests/scan/test_duplicate_rows_count.py`, `tests/report/test_identifier_uniqueness_deep_copies.py` |
 | 7 | `tests/scan/test_analytical_distinct.py`, `tests/report/test_identifier_uniqueness_deep_distinct.py` (T19, T20 completed by the analytical count, conflict of two `D`) |
 | 8 | `tests/scan/test_unique_id_planner.py`, `tests/report/test_identifier_uniqueness_planner.py` (UID-011: the criteria, the proof, the cache and the versions) |
-| P1 | Near-uniqueness (lot 9); out of the P0 gate |
+| 9 | `tests/report/test_identifier_uniqueness_near_unique.py` (the tolerance, its bounds, the cases without a reading, the JSON, the page, the classification unchanged) |
+| 10 | `tests/dedup/test_count_missing_id_copies.py`, `tests/scan/test_missing_id_copies.py`, `tests/report/test_identifier_uniqueness_missing_ids.py` (the light count against a brute-force oracle, the analyzer and its planner criteria, the rule of 2.2 and its invariants, the whole Report and the page) |
 
 ## 11. Open points kept for later lots
 
 - Exact figure of `scope.complete` for multi-collection JSON with exclusions (P0 is conservative).
 - Gate 4: the maintainer reads the five texts of 8.1.
 - Whether `report --scan` finds the colocated Dedup report beside the scan document (7.1, lot 3).
-- P1: `E_present_id` per column (cahier 5.4), near-unique signal (cahier 13).
+- Near-unique (14): calibrate the constants on real files (the lab holds none), and measure the number of distinct
+  repeated IDs and the concentration of the repetitions, which the cahier 13 asks to tell from the extra occurrences.
 
 ## 12. Reference measures, P0 (lot 5, cahier 15.3)
 
@@ -572,6 +640,19 @@ every case. The seconds depend on the machine and are not a target.
   (watched), the Scan document 4.8 MiB. The Scan took 5.0 and 45.8 s, Dedup 4.1 and 81.0 s. The uniqueness of the
   column is still `limited` (`distinct_estimated`): the proof gives `E`, but the Scan only estimated `D` for a column
   of more than 100,000 distinct IDs, and an exact `D` of 10 M IDs needs a set of about 1.2 GiB.
+- **The copies of the rows without an ID** (lot 10, 6.9), generated CSV of 4 columns, in one
+  process, memory only, measured on 25 October 2026 with the same default ceilings. The light count against the full
+  count of the same file:
+
+  | Records | Rows without an ID | Light count | Full count |
+  | --- | --- | --- | --- |
+  | 1 M | 0.5 % | 0.55 s, 546 ns a record | 1.69 s |
+  | 1 M | 10 % | 0.68 s, 678 ns a record | 1.65 s |
+  | 1 M | 50 % | 1.09 s, 1,085 ns a record | 1.84 s |
+  | 5 M | 2 % | 3.77 s, 754 ns a record, in memory | 28.05 s, 5,609 ns a record, on disk |
+
+  The table of the light count holds the rows without an ID, so it stays in memory long after the full table has moved
+  to the disk (5 M records: 100,140 rows kept against 5 M). `NS_PER_CELL["rows_without_id"]` stays at 1,500.
 - **The exact count of the analytical values** costs 2,336 to 2,763 ns a record on three profiles of 1 M identifiers
   (10 characters, digits, 36 characters; a fifth padded), the reading of the three columns included (about 350 ns); the
   plan's maximum memory is 125 to 152 MiB per million IDs. `NS_PER_CELL["analytical_distinct"]` stays at 2,000.
@@ -590,8 +671,8 @@ State after lot 5. Maintainer documentation, never published.
 | 6 | A Dedup 0.7.1 report is used with identity validation, Dedup unchanged | T13, T15 to T17, T32, T34, `test_a_refusal_never_writes_the_dedup_report`; `src/tabalyst/dedup/` unchanged at P0 (lot 6 adds `count_only.py` and makes the helper `staged` public, no behavior change) | Met |
 | 7 | The JSON is versioned, verifiable and consistent with the HTML | `format_revision` 5, schema, T29 (`test_t29_the_html_and_the_json_say_the_same`), `profile-changelog.md` | Met |
 | 8 | The functional, invariant, security and non-regression tests pass | the suite (T31 exposure, properties, A1); T33 is P1 and runs since lot 6 | Met for P0 |
-| 9 | The documentation tells raw Unique ID from Unique after row deduplication and, later, near-unique | `read-report.md` (Column page), `findings.md`, `json-profile.md`, `profile-changelog.md`, the glossary, `dedup/index.md` | Met; near-unique is not available and is not described as such |
-| 10 | The P1 and P2 requirements not delivered are identified and not described as available | the pages say that near-uniqueness is not available; the criteria under which the two Deep counts run by themselves are documented as they are (6.8, lot 8); plan lot 9 | Met |
+| 9 | The documentation tells raw Unique ID from Unique after row deduplication and, later, near-unique | `read-report.md` (Column page), `findings.md`, `json-profile.md`, `profile-changelog.md`, the glossary, `dedup/index.md` | Met; near-unique is documented since lot 9 (14), as a reading and never as a guarantee |
+| 10 | The P1 and P2 requirements not delivered are identified and not described as available | the criteria under which the two Deep counts run by themselves are documented as they are (6.8, lot 8); plan lot 9 | Met |
 
 Delivered at lot 6 (P1): the count-only mode of the Dedup engine and the Deep analyzer of the copies of
 rows (UID-012).
@@ -601,11 +682,57 @@ Delivered at lot 7 (P1): the Deep analytical cardinality (UID-013, 6.7).
 Delivered at lot 8 (P1): the criteria of the planner, the Dedup proof that spares the count, the cache and the
 versions (UID-011, 6.8) and the measures at 1 M, 5 M and 10 M records (12.1).
 
-Not delivered and not described as available: near-uniqueness (UID-014), the composite keys, the discovery of
-candidates and the Smart or Explore recommendations (P2, UID-015).
+Delivered at lot 9 (P1): the near-unique reading (UID-014, 14).
+
+Delivered at lot 10 (P1): the decomposition despite missing IDs (cahier 5.4, 2.2 and 6.9).
+
+Not delivered and not described as available: the composite keys, the discovery of candidates and the Smart or Explore recommendations (P2, UID-015).
 
 Follow-up for `tabalyst-studio` (nothing was edited there): no new page, so `src/navigation.ts` does
 not change. The documentation site imports the edited pages (`docs/en/report/`, `docs/en/dedup/index.md`,
 `docs/en/scan/deep.md`, `docs/en/reference/`) at the next release tag. The website advertises only
 what the README documents, so any claim about the uniqueness after row deduplication waits for the
 README line and the release.
+
+## 14. Near-uniqueness (lot 9, UID-014)
+
+Decision: ADR `2026-10-24-near-unique-reading`; model and constants decided by the maintainer on 24 October 2026
+(provisional: no real file to calibrate them on). A near-unique reading is a **separate diagnostic**, stored in the
+member `near_unique` of `identifier_uniqueness`. It is never a guarantee: the column is no `unique_id`, `unique` stays
+`false`, `R_residual` and the finding `identifier.repetition` stay, and the Scan's classification is not touched (the
+cahier 13 forbids a role from a percentage below 100 %, and forbids hiding a residual anomaly because it is rare).
+
+**Model.** For `R = R_residual >= 1` among `U` distinct rows, in exact integers:
+
+```text
+T(U) = min( U // 100, isqrt(U), 1000 )        # relative, root, cap
+signal = population_too_small      if U < 100
+         near_unique               if R <= T(U)
+         not_near_unique           otherwise
+```
+
+A fixed share is no definition of rarity: 1 % decides below 10,000 distinct rows, the square root from 10,000 to
+1,000,000 and the cap above, so the tolerated share falls from 1 % to 0.1 % and less. Examples of `T`: 100 -> 1,
+1,000 -> 10, 10,000 -> 100, 100,000 -> 316, 1,000,000 -> 1,000, 10,000,000 -> 1,000. Below 100 distinct rows one
+repetition is already above 1 %, so there is no verdict (`population_too_small`, tolerance 0). `limiting_bound` names
+the term that sets `T` (`relative`, `root`, `cap`; the first on a tie).
+
+**When.** Only when the object is `complete` and `interpretation` is `repeated_between_distinct_records` (`R >= 1`,
+`U >= 2`, no missing ID, exact `D` and `E`, complete scope). Everywhere else `near_unique` is `null`: nothing is
+read from an estimate, a lower bound, a partial scope or contradictory measures (cahier 5.5). `U` is the number of
+distinct rows, so the copies of rows (`E`) never count against the tolerance.
+
+**JSON.** `near_unique`: `{"model_version": 1, "signal", "residual_repetitions", "distinct_records", "tolerance",
+"limiting_bound"}`, integers and codes only. `NEAR_UNIQUE_VERSION` rises with any constant (`RELATIVE_DIVISOR`,
+`ABSOLUTE_CAP`, `MIN_POPULATION` in `identifier_uniqueness/near_unique.py`) or formula; `RULE_VERSION` and
+the Report `format_revision` (5, unpublished) do not move.
+
+**Words.** `report_labels.py` (`UNIQUENESS_NEAR_*`), printed by the card `#uniqueness` of the column page under the
+figures of case C: *Near-unique*, *Not near-unique* or *Too few distinct records to tell*, each with the figures, the
+tolerance and its limiting term, and (for the first two) the sentence "This is a statistical reading, not a guarantee:
+the repetitions stay listed and the column is not a unique ID." Not in the Summary of the dataset, not in the Findings,
+not in the type name.
+
+**Not done.** The number of distinct IDs that repeat and the concentration of the repetitions (cahier 13): after the
+deduplication of the rows no per-ID frequency is held (the Scan's repeated values count raw occurrences, copies
+included), so the reading uses the extra occurrences only. The constants are not calibrated on real files.

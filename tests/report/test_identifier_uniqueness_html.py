@@ -74,9 +74,21 @@ def test_case_d_unavailable_measures_conclude_nothing(tmp_path):
 
 def test_case_e_missing_ids_cannot_establish_uniqueness(tmp_path):
     rows = population(distinct_ids=100) + [("", "active")] * 3
-    _, page, _ = _pages(tmp_path, rows)
+    config = tmp_path / "off.json"
+    config.write_text(json.dumps({"deep": {"mode": "off"}}), encoding="utf-8")
+    _, page, _ = _pages(tmp_path, rows, config_path=config)
 
     assert "some records have no ID" in _block(page)
+
+
+def test_case_e_with_the_copies_counted_says_what_is_left_among_the_ids_present(tmp_path):
+    rows = population(distinct_ids=100) + [("", "active")] * 3
+    _, page, _ = _pages(tmp_path, rows)
+
+    block = _block(page)
+    assert "3 records have no ID" in block
+    assert "No ID repeats between the 100 distinct rows that have one." in block
+    assert "no ID is strictly unique" in block
 
 
 def test_a_dedup_report_shows_in_the_page_and_the_analysis_settings(tmp_path):

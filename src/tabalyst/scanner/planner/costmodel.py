@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 20
+COST_MODEL_VERSION = 21
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -340,6 +340,11 @@ NS_PER_CELL = {
     # the estimate. The CPU class of this analysis is that of its share of a cell
     # (``DuplicateRows.estimate``: this figure over the columns of the record), the unit of the classes.
     "rows": 6_000,
+    # The copies of the rows that lack an ID (lot 10), measured in one process on records of 4 columns
+    # and about 50 bytes: 546 ns a record with 0.5 % of the rows kept in the table, 678 with 10 %, 1,085
+    # with 50 %, 754 at 5 M records with 2 % (all in memory). 1,500 stays above those and under the
+    # 5,600 of a table that lives on disk, which a table of the rows without an ID rarely reaches.
+    "rows_without_id": 1_500,
     # The order of two dates (lot S3b), measured on the executor (1 pair then 6 and 12 pairs
     # of the 100,000-row insurance base, one process, the reading of the cell included):
     # 0.49 s a pair, 4.9 microseconds a row for the two columns, of which the date detector

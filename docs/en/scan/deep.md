@@ -54,6 +54,7 @@ stored.
 | `residual_values` | Fields whose patterns leave values out, or that a detector mostly reads but finds some invalid or unmatched values in | The values themselves with their exact counts and first records, and for each pattern an example and its distinct values |
 | `duplicates_report` | Columns of almost all different values, and combinations of two columns you ask for | The values found more than once, with their counts and first records |
 | `duplicate_rows_count` | CSV files whose scan could only bound the copies of rows | The exact number of extra copies of whole rows, counted with the engine of [Dedup](../dedup/index.md) without writing a file. Chosen by `tabalyst report` by itself for a small table with an identifier, otherwise asked for or run with `--deep` |
+| `missing_id_copies` | CSV files with an identifier column that lacks a value somewhere | For each such column, the exact number of extra copies of the rows that have no value in it, counted with the engine of [Dedup](../dedup/index.md) without writing a file. It is what lets the report tell the repetitions that copied rows explain from those that remain, despite the missing IDs. Chosen by `tabalyst report` by itself beside an exact count of the copies, otherwise asked for or run with `--deep` |
 | `temporal_distribution` | Date fields, and columns of datetimes | The dates counted per day, month or year |
 | `datetime_parts` | Date fields, columns of datetimes and of times | The dates counted by year-month, day of the week and hour, counted after a bound you give, with the ambiguous dates read under each order and the invalid ones counted by reason |
 | `numeric_shape` | Numeric fields | The asymmetry and kurtosis, the outliers of Tukey, the decimals the numbers are written with, and a logarithmic and an equal-count histogram |
@@ -859,8 +860,8 @@ from a conflict between two rows.
   to be scanned again with the count on. A source that is not a CSV file has no such candidate,
   and neither has a file whose scan left records out.
 - **When it runs.** `tabalyst report` counts the copies by itself only when it settles the
-  uniqueness of an identifier: the dataset has a column the scan calls an ID (not a Unique ID),
-  with a value in every record, the scan's count is a lower bound, the exact number of distinct
+  uniqueness of an identifier: the dataset has a column the scan calls an ID (not a Unique ID,
+  and with or without missing values), the scan's count is a lower bound, the exact number of distinct
   IDs is known or counted in the same pass, the table of distinct rows fits the memory an
   automatic choice may take (about 128 MiB, a few hundred thousand records: the count is
   expected to stay in memory, and the usual ceilings still apply if the table turns out larger),
@@ -870,6 +871,49 @@ from a conflict between two rows.
   with `--deep`, which asks first when the file is large ([Asking first](#asking-first)).
   A count that stopped at a ceiling is kept in the second-pass document and reused as long as
   the ceilings are the same.
+
+## Extra copies of the rows without an ID
+
+When an identifier column lacks a value in some records, the extra copies of whole rows
+(`records.duplicates`, `duplicate_rows_count`) mix two kinds: copies of rows that have an ID, which
+explain a repetition of the ID, and copies of rows that have none, which explain nothing. A copy
+repeats the whole row, so a row without an ID is copied with its absent cell: only the rows that lack
+a value need to be followed. `missing_id_copies` reads a CSV file with a single dataset once, keeps a
+table of those rows only (not of the file) and counts, for each identifier column that lacks a value,
+how many of them repeat an earlier row. It writes no file.
+
+```json
+{"kind": "missing_id_copies", "accuracy": "exact",
+ "identity": "full_decoded_csv_row_v1", "calculation_version": 1,
+ "records": 2280, "storage": "memory",
+ "columns": [
+   {"field": "column_1", "rows_without_id": 40,
+    "distinct_rows_without_id": 25,
+    "extra_copies_without_id": 15}],
+ "source_sha256": "da113752..."}
+```
+
+- **What a cell holds.** A cell has a value when the scan counted it in `values.count`: not empty,
+  not blank and not a null marker, with the markers of the scan's configuration. The count of
+  rows without a value is checked against the scan (`scan_mismatch`).
+- **Exact or stopped.** As for the [extra copies of whole rows](#extra-copies-of-whole-rows): the
+  reading goes to the end of the file and `source_sha256` must be the scan's (`exact`), or it meets a
+  ceiling (`deep.copies.memory_mb`, `disk_mb`, `max_rows`) and every count is a lower bound
+  (`lower_bound`, the analysis is `limited`).
+- **What the report does with it.** `E_present = E - E_missing`: the total `E` comes from the scan, a
+  [Dedup](../dedup/index.md) report or `duplicate_rows_count`, and `E_missing` is this count. The
+  report then gives the repetitions of the ID that copies explain and those that remain between the
+  distinct rows that have an ID, but never calls the ID unique: a record without an ID stays among the
+  distinct rows ([Identifier uniqueness](../report/read-report.md)).
+- **Not needed.** No candidate for a file whose identifiers all hold a value, a source that is not a
+  CSV file, a file whose scan left records out, or a scan set not to count the copies
+  (`records.duplicates: false`) when no valid Dedup report gives the total.
+- **When it runs.** `tabalyst report` runs it by itself under the criteria of
+  `duplicate_rows_count`: an ID column that lacks a value, the total of the copies exact in the scan or
+  proved by a Dedup report or counted in the same pass, the exact number of distinct IDs of that
+  column known or counted in the same pass, the table of the rows without an ID within the memory an
+  automatic choice may take, and a file of three columns or more. Otherwise ask for it with
+  `tabalyst.AnalysisRequest("missing_id_copies")` or run with `--deep`.
 
 ## The order of two dates
 
