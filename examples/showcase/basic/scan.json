@@ -3,7 +3,7 @@
   "format_version": "0.2.0",
   "format_revision": 4,
   "engine": {
-    "version": "0.7.2",
+    "version": "0.7.3",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,24 +27,24 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-26T11:39:36.914172Z",
-    "duration_seconds": 0.006273,
+    "started_at": "2026-10-29T23:15:02.420800Z",
+    "duration_seconds": 0.012823,
     "timings": {
-      "reading": 0.000554,
-      "analysis": 0.000157,
-      "finalize": 0.00353,
-      "derived": 0.001621,
-      "other": 0.000411
+      "reading": 0.000354,
+      "analysis": 0.000327,
+      "finalize": 0.008092,
+      "derived": 0.003312,
+      "other": 0.000738
     },
     "workers": 1,
-    "peak_memory_bytes": 70807552
+    "peak_memory_bytes": 67518464
   },
   "source": {
     "format": "csv",
     "name": "basic.csv",
-    "size_bytes": 280,
-    "modified_at": "2026-10-16T05:33:33.607029Z",
-    "sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
+    "size_bytes": 274,
+    "modified_at": "2026-10-29T17:23:08.348429Z",
+    "sha256": "7d426449e1217d4dbcad1e7e4c862d360c63d927cb775caa48007d70ac36c0c8",
     "encoding": "utf-8-sig",
     "shape": {
       "lines": 6,
@@ -70,7 +70,7 @@
         "notes"
       ],
       "bom": false,
-      "line_ending": "crlf"
+      "line_ending": "lf"
     },
     "excel": null
   },

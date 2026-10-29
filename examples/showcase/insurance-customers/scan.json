@@ -3,7 +3,7 @@
   "format_version": "0.2.0",
   "format_revision": 4,
   "engine": {
-    "version": "0.7.2",
+    "version": "0.7.3",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,23 +27,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-26T11:39:48.660294Z",
-    "duration_seconds": 2.529964,
+    "started_at": "2026-10-29T23:16:15.656079Z",
+    "duration_seconds": 4.903338,
     "timings": {
-      "reading": 0.333143,
-      "analysis": 0.804425,
-      "finalize": 0.787886,
-      "derived": 0.099671,
-      "other": 0.504839
+      "reading": 0.560624,
+      "analysis": 1.466236,
+      "finalize": 2.026126,
+      "derived": 0.085471,
+      "other": 0.76488
     },
-    "workers": 6,
-    "peak_memory_bytes": 167444480
+    "workers": 3,
+    "peak_memory_bytes": 158904320
   },
   "source": {
     "format": "csv",
     "name": "insurance-customers-100k.csv",
     "size_bytes": 27540101,
-    "modified_at": "2026-10-14T22:56:12.835198Z",
+    "modified_at": "2026-10-29T23:15:58.990500Z",
     "sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
     "encoding": "utf-8-sig",
     "shape": {

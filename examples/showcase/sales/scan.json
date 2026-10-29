@@ -3,7 +3,7 @@
   "format_version": "0.2.0",
   "format_revision": 4,
   "engine": {
-    "version": "0.7.2",
+    "version": "0.7.3",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,23 +27,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-26T11:40:41.089318Z",
-    "duration_seconds": 0.018498,
+    "started_at": "2026-10-29T23:17:33.163102Z",
+    "duration_seconds": 0.03057,
     "timings": {
-      "reading": 0.002717,
-      "analysis": 0.002041,
-      "finalize": 0.009105,
-      "derived": 0.004232,
-      "other": 0.000404
+      "reading": 0.003177,
+      "analysis": 0.003005,
+      "finalize": 0.018423,
+      "derived": 0.005362,
+      "other": 0.000603
     },
     "workers": 1,
-    "peak_memory_bytes": 75739136
+    "peak_memory_bytes": 69918720
   },
   "source": {
     "format": "excel",
     "name": "sales.xlsx",
     "size_bytes": 17717,
-    "modified_at": "2026-10-16T05:33:33.607029Z",
+    "modified_at": "2026-10-29T17:23:08.350902Z",
     "sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
     "encoding": null,
     "shape": {
