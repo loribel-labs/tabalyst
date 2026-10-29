@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import bisect
 import hashlib
 import math
 import random
@@ -59,12 +60,11 @@ def _dataset(package: DatasetPackage, dataset_id: str) -> list[SelectionStep]:
 
 
 def _parts_hash(parts: tuple[str, ...]) -> int:
-    digest = hashlib.sha256()
-    for part in parts:
-        encoded = part.encode("utf-8")
-        digest.update(len(encoded).to_bytes(8, "big"))
-        digest.update(encoded)
-    return int.from_bytes(digest.digest(), "big")
+    # One hash call over the same length-prefixed bytes: parts hashed one by one would cost more.
+    encoded = [part.encode("utf-8") for part in parts]
+    return int.from_bytes(hashlib.sha256(b"".join(
+        [len(item).to_bytes(8, "big") + item for item in encoded]
+    )).digest(), "big")
 
 
 def _stream(seed: int, dataset_id: str, row_index: int, decision_id: str,
@@ -240,19 +240,27 @@ def _conflicts(values: dict[str, Cell], constraints: tuple[tuple[str, Cell, str,
                for condition, condition_id, target, target_id in constraints)
 
 
-def _choose(candidates: list[tuple[Cell, Fraction]], rng: random.Random) -> Cell:
-    denominator = 1
-    for _, weight in candidates:
-        denominator = math.lcm(denominator, weight.denominator)
-    counts = [int(weight * denominator) for _, weight in candidates]
-    common = math.gcd(*counts)
-    counts = [count // common for count in counts]
-    roll = rng.randrange(sum(counts))
-    for (candidate, _), count in zip(candidates, counts, strict=True):
-        if roll < count:
-            return candidate
-        roll -= count
-    raise AssertionError("positive candidate weights must cover the draw")
+class _Weighted:
+    """Feasible candidates of one step with the integer weights `_choose` would use."""
+
+    __slots__ = ("candidates", "cumulative")
+
+    def __init__(self, candidates: list[tuple[Cell, Fraction]]) -> None:
+        denominator = 1
+        for _, weight in candidates:
+            denominator = math.lcm(denominator, weight.denominator)
+        counts = [int(weight * denominator) for _, weight in candidates]
+        common = math.gcd(*counts)
+        self.candidates = [candidate for candidate, _ in candidates]
+        self.cumulative = [0] * len(counts)
+        total = 0
+        for index, count in enumerate(counts):
+            total += count // common
+            self.cumulative[index] = total
+
+    def pick(self, rng: random.Random) -> Cell:
+        """Draw like a left-to-right scan of the weights: the first candidate whose running total exceeds the roll."""
+        return self.candidates[bisect.bisect_right(self.cumulative, rng.randrange(self.cumulative[-1]))]
 
 
 class _SelectionPlan:
@@ -270,6 +278,8 @@ class _SelectionPlan:
         self.feasible: dict[tuple[int, tuple[Cell | None, ...]], bool] = {}
         self.candidates: dict[tuple[int, tuple[Cell | None, ...]], list[tuple[Cell, Fraction]]] = {}
         self.derived: dict[tuple[str, Cell], Cell] = {}
+        self.choices: dict[tuple[int, tuple[Cell | None, ...]], _Weighted] = {}
+        self.contexts: dict[int, tuple[str, ...]] = {}
         # Earlier choices already passed every constraint, so only those touching
         # the field just chosen can newly conflict.
         self.by_field: dict[str, tuple[tuple[str, Cell, str, Cell], ...]] = {}
@@ -397,32 +407,41 @@ def _select(plan: _SelectionPlan, dataset_id: str, seed: int, row_index: int,
         if step["kind"] == "derive":
             values[output] = _cached_derive(plan, step, values)
             continue
-        candidates = []
-        for candidate, weight in _cached_candidates(plan, position, values):
-            next_values = {**values, output: candidate}
-            if (not _conflicts(next_values, plan.by_field.get(output, ()))
-                    and feasible(position + 1, next_values)):
-                candidates.append((candidate, weight))
-        if not candidates:
-            context_values = deepest_dead_end if len(deepest_dead_end) > len(values) else values
-            generation = context_values.get("generation_id", "unknown")
-            detail = ",".join(f"{key}={value}" for key, value in sorted(context_values.items()))
-            blocked_step = steps[dead_end_position] if dead_end_position > position else step
-            raise ConfigurationError(
-                f"GENERATION_IMPOSSIBLE_CONFIGURATION: dataset={dataset_id} "
-                f"generation={generation} step={blocked_step['id']} "
-                f"field={blocked_step['output']} choices={detail}"
-            )
-        context_fields = set(step.get("where", {}).values())
-        for relation in (*step.get("filters", []), *step.get("influences", [])):
-            context_fields.update(relation["where"].values())
-        for condition, _, target, _ in constraints:
-            if condition == output and target in values:
-                context_fields.add(target)
-            if target == output and condition in values:
-                context_fields.add(condition)
-        context = tuple(f"{field}={values[field]}" for field in sorted(context_fields))
-        values[output] = _choose(candidates, _stream(seed, dataset_id, row_index, step["id"], context))
+        key = (position, tuple(values.get(field) for field in plan.live[position]))
+        choice = plan.choices.get(key)
+        if choice is None:
+            candidates = []
+            for candidate, weight in _cached_candidates(plan, position, values):
+                next_values = {**values, output: candidate}
+                if (not _conflicts(next_values, plan.by_field.get(output, ()))
+                        and feasible(position + 1, next_values)):
+                    candidates.append((candidate, weight))
+            if not candidates:
+                context_values = deepest_dead_end if len(deepest_dead_end) > len(values) else values
+                generation = context_values.get("generation_id", "unknown")
+                detail = ",".join(f"{key}={value}" for key, value in sorted(context_values.items()))
+                blocked_step = steps[dead_end_position] if dead_end_position > position else step
+                raise ConfigurationError(
+                    f"GENERATION_IMPOSSIBLE_CONFIGURATION: dataset={dataset_id} "
+                    f"generation={generation} step={blocked_step['id']} "
+                    f"field={blocked_step['output']} choices={detail}"
+                )
+            choice = plan.choices[key] = _Weighted(candidates)
+        context_fields = plan.contexts.get(position)
+        if context_fields is None:
+            fields = set(step.get("where", {}).values())
+            for relation in (*step.get("filters", []), *step.get("influences", [])):
+                fields.update(relation["where"].values())
+            for condition, _, target, _ in constraints:
+                if condition == output and target in values:
+                    fields.add(target)
+                if target == output and condition in values:
+                    fields.add(condition)
+            # The same steps ran before this position for every row, so the fields
+            # present in `values` here never differ between rows.
+            context_fields = plan.contexts[position] = tuple(sorted(fields))
+        context = tuple(f"{field}={values[field]}" for field in context_fields)
+        values[output] = choice.pick(_stream(seed, dataset_id, row_index, step["id"], context))
     values.pop("generation_profile_id", None)
     return values
 

@@ -636,7 +636,9 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
             paths = {artifact.kind: stages[artifact.path] for artifact in plan.artifacts}
             # What the destination does not publish (for -o: the clean copy, the
             # metadata and the summary) is still needed to build the rest.
-            scratch = Path(stack.enter_context(tempfile.TemporaryDirectory(prefix=".generate-")))
+            # It sits beside the staged files: millions of rows would fill a small system temp.
+            scratch = Path(stack.enter_context(tempfile.TemporaryDirectory(
+                prefix=".generate-", dir=next(iter(stages.values())).parent)))
             for locale in plan.locales:
                 paths.setdefault(locale, scratch / f"computers-{locale}.csv")
                 paths.setdefault(f"{locale}_summary", scratch / f"{locale}.summary.json")

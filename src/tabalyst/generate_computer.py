@@ -26,12 +26,11 @@ MARKET_CURRENCY = {"ca": "CAD", "us": "USD"}
 
 
 def _digest(parts: tuple[str, ...]) -> str:
-    digest = hashlib.sha256()
-    for part in parts:
-        encoded = part.encode("utf-8")
-        digest.update(len(encoded).to_bytes(8, "big"))
-        digest.update(encoded)
-    return digest.hexdigest()[:40]
+    # One hash call over the same length-prefixed bytes: parts hashed one by one would cost more.
+    encoded = [part.encode("utf-8") for part in parts]
+    return hashlib.sha256(b"".join(
+        [len(item).to_bytes(8, "big") + item for item in encoded]
+    )).hexdigest()[:40]
 
 
 def _stream(seed: int, dataset_id: str, row_index: int, decision: str,
@@ -39,11 +38,43 @@ def _stream(seed: int, dataset_id: str, row_index: int, decision: str,
     return random.Random(int(_digest((str(seed), dataset_id, str(row_index), decision, *context)), 16))
 
 
+_ID_INDEXES: dict[tuple[int, str], tuple[DatasetPackage, dict[Cell, list[dict[str, Cell]]]]] = {}
+_MARKET_CHOICES: dict[tuple[int, str, str], tuple[DatasetPackage, tuple[str, ...], tuple[str, ...]]] = {}
+
+
 def _entry(package: DatasetPackage, table_id: str, selected_id: Cell) -> dict[str, Cell]:
-    matches = [row for row in package.tables[table_id].rows if row["id"] == selected_id]
+    key = (id(package), table_id)
+    cached = _ID_INDEXES.get(key)
+    # The cache keeps the package alive, so a matching id is always the same object.
+    if cached is None or cached[0] is not package:
+        index: dict[Cell, list[dict[str, Cell]]] = {}
+        for row in package.tables[table_id].rows:
+            index.setdefault(row["id"], []).append(row)
+        cached = _ID_INDEXES[key] = (package, index)
+    matches = cached[1].get(selected_id, [])
     if len(matches) != 1:
         raise ConfigurationError(f"PACKAGE_STEP_REFERENCE: unknown {table_id} ID {selected_id!r}")
     return matches[0]
+
+
+def _market_choices(package: DatasetPackage, market: str, brand_id: str
+                    ) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Sellers a brand may use and warehouses of a market, in the order the draws index them."""
+    key = (id(package), market, brand_id)
+    cached = _MARKET_CHOICES.get(key)
+    if cached is None or cached[0] is not package:
+        sellers = tuple(sorted(
+            str(row["id"]) for row in package.tables["seller"].rows
+            if row["market"] == market
+            and (row["seller_type_id"] != "manufacturer"
+                 or row["id"] == f"{brand_id}_direct_{market}")
+        ))
+        warehouses = tuple(sorted(
+            str(row["id"]) for row in package.tables["warehouse"].rows
+            if row["market"] == market
+        ))
+        cached = _MARKET_CHOICES[key] = (package, sellers, warehouses)
+    return cached[1], cached[2]
 
 
 def _integer(value: Cell, field: str) -> int:
@@ -274,18 +305,9 @@ def derive_computer_row(package: DatasetPackage, selected: dict[str, Cell],
     return_rate = (Decimal("0.10") - (rating_value - 3) * Decimal("0.02")
                    + Decimal(_stream(seed, dataset_id, row_index, "returns", context).randrange(0, 6))
                    / 1000).quantize(Decimal("0.001"))
-    seller_ids = tuple(sorted(
-        str(row["id"]) for row in package.tables["seller"].rows
-        if row["market"] == market
-        and (row["seller_type_id"] != "manufacturer"
-             or row["id"] == f"{values['brand_id']}_direct_{market}")
-    ))
+    seller_ids, warehouse_ids = _market_choices(package, market, str(values["brand_id"]))
     seller_id = _stream(seed, dataset_id, row_index, "seller", context).choice(seller_ids)
     seller = _entry(package, "seller", seller_id)
-    warehouse_ids = tuple(sorted(
-        str(row["id"]) for row in package.tables["warehouse"].rows
-        if row["market"] == market
-    ))
     warehouse_id = _stream(seed, dataset_id, row_index, "warehouse", context).choice(
         warehouse_ids
     )
