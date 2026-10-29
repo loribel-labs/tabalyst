@@ -354,7 +354,8 @@ def _choose_rows(clean: Path, delimiter: str, operations: Sequence[Mapping[str, 
 def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                      dataset: str, profile: Mapping[str, object], seed: int, count: int,
                      delimiter: str, locale: str = "en",
-                     unit_suffixes: Mapping[str, tuple[str, str]] | None = None) -> dict[str, object]:
+                     unit_suffixes: Mapping[str, tuple[str, str]] | None = None,
+                     on_row: Callable[[int], None] | None = None) -> dict[str, object]:
     """Write altered CSV and cell log; return requested and actual counts.
 
     Computer unit suffixes are supplied by its output register. An operation
@@ -369,6 +370,7 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     row had already received are then gone from the file, so their journal
     entries are dropped and their operations count the row as skipped: the
     journal always describes the file.
+    ``on_row`` receives the number of rows written, about 200 times per file and at the end.
     """
     # Imported here because generate_values reaches generate_definition, which
     # imports this module for the operation rules.
@@ -416,8 +418,11 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
         writer.writeheader()
         log.writeheader()
         observed = 0
+        report_every = max(1, count // 200)
         for row_index, clean_row in enumerate(reader):
             observed += 1
+            if on_row is not None and row_index % report_every == 0:
+                on_row(row_index)
             row = clean_row.copy()
             # (operation index, cell updates) of this row, written once it is final.
             pending: list[tuple[int, list[tuple[str, str, str, str]]]] = []
@@ -488,6 +493,8 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                     history[field].append(value)
         if observed != count:
             raise ValueError(f"Clean row count changed for {dataset}: {observed} != {count}")
+        if on_row is not None:
+            on_row(observed)
     return {
         "dataset": dataset, "profile": profile_id, "seed": seed,
         "total_rows": count, "affected_rows": affected_rows,

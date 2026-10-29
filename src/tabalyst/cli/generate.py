@@ -4,6 +4,7 @@
 
 """CLI adapter for Tabalyst Generate."""
 
+import sys
 from pathlib import Path
 from typing import Annotated
 
@@ -11,7 +12,71 @@ import typer
 
 from tabalyst.cli.terminal import error_exit_code
 from tabalyst.errors import TabalystError
-from tabalyst.generate_service import build_generate_plan, generate_datasets
+from tabalyst.generate_service import (
+    GenerateProgress,
+    GenerateResult,
+    build_generate_plan,
+    generate_datasets,
+)
+
+PHASE_NAMES = {"rows": "generating rows", "errors": "injecting errors", "publish": "writing files"}
+# Below this, a phase is noise in the report.
+MIN_REPORTED_SECONDS = 0.05
+
+
+def format_duration(seconds: float) -> str:
+    """A duration for people: tenths of a second under a minute, then minutes and seconds."""
+    if seconds < 60:
+        return f"{seconds:.1f}s"
+    minutes, rest = divmod(round(seconds), 60)
+    if minutes < 60:
+        return f"{minutes}m {rest:02d}s"
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours}h {minutes:02d}m"
+
+
+class GenerateProgressPrinter:
+    """One rewritten standard error line per stage, with the time left once it is known."""
+
+    def __init__(self, enabled: bool) -> None:
+        self.enabled = enabled
+        self._stage: str | None = None
+        self._stage_start = 0.0
+        self._width = 0
+
+    def __call__(self, event: GenerateProgress) -> None:
+        if not self.enabled or not event.total:
+            return
+        if event.stage != self._stage:
+            self._stage = event.stage
+            self._stage_start = event.elapsed_seconds
+        spent = event.elapsed_seconds - self._stage_start
+        message = f"{event.stage} {event.done:,}/{event.total:,} ({100 * event.done // event.total}%)"
+        if event.done >= event.total:
+            message += f" - {format_duration(spent)}"
+        elif event.done and spent >= 1:
+            message += (f" - {format_duration(spent)}, "
+                        f"about {format_duration(spent * (event.total - event.done) / event.done)} left")
+        finished = event.done >= event.total
+        typer.echo(f"\r{message.ljust(self._width)}", nl=finished, err=True)
+        self._width = 0 if finished else max(self._width, len(message))
+
+
+def timing_report(result: GenerateResult) -> str:
+    """The closing line: rows, total time, rate and where the time went."""
+    rows = sum(result.row_counts.values()) if len(result.row_counts) == 1 else None
+    text = f"Done in {format_duration(result.seconds)}"
+    if rows is not None:
+        text = f"{rows:,} rows in {format_duration(result.seconds)}"
+        if result.seconds > 0:
+            text += f" ({rows / result.seconds:,.0f} rows/s)"
+    changed = sum(result.anomaly_counts.values())
+    if changed:
+        text += f", {changed:,} cells changed"
+    parts = [f"{PHASE_NAMES[name]} {format_duration(value)}"
+             for name, value in result.timings.items()
+             if name in PHASE_NAMES and value >= MIN_REPORTED_SECONDS]
+    return f"{text}: {', '.join(parts)}" if len(parts) > 1 else text
 
 
 def generate_command(
@@ -83,6 +148,10 @@ def generate_command(
         bool,
         typer.Option("--force", "-f", help="Replace existing artifacts."),
     ] = False,
+    no_progress: Annotated[
+        bool,
+        typer.Option("--no-progress", help="Hide the progress line. It is also hidden outside a terminal."),
+    ] = False,
 ) -> None:
     """Validate and generate datasets from a definition or package."""
     try:
@@ -98,9 +167,12 @@ def generate_command(
         if validate_only:
             typer.echo("Valid Generate package.", err=True)
             return
-        result = generate_datasets(plan)
+        result = generate_datasets(
+            plan, on_progress=GenerateProgressPrinter(not no_progress and sys.stderr.isatty()),
+        )
     except TabalystError as exc:
         typer.echo(f"Error: {exc}", err=True)
         raise typer.Exit(error_exit_code(exc)) from exc
     for path in result.paths:
         typer.echo(f"Created: {path}", err=True)
+    typer.echo(timing_report(result), err=True)

@@ -37,6 +37,25 @@ destination is required, except with `--validate-only`. A
 | `--unit-columns A,B` | Computer: the measurement columns to write with units; implies `localized`. |
 | `--validate-only` | Validate the package and write nothing. |
 | `-f`, `--force` | Replace existing generated artifacts. |
+| `--no-progress` | Hide the progress line. It is also hidden outside a terminal. |
+
+In a terminal, the command shows its progress on one line that is rewritten
+as the work advances, with the time spent and an estimate of the time left:
+
+```text
+Generating rows 8,000/20,000 (40%) - 4.4s, about 6.6s left
+Injecting errors (en) 20,000/20,000 (100%) - 0.6s
+```
+
+When it ends, it prints the files it created and a closing line with the
+number of rows, the total time, the rate, the number of changed cells and where
+the time went. This line is printed outside a terminal too, so a log keeps it:
+
+```text
+Created: pcs.csv
+Created: pcs.changes.csv
+20,000 rows in 9.2s (2,170 rows/s), 5,672 cells changed: generating rows 8.7s, injecting errors 0.5s
+```
 
 Explicit options override package defaults. Paths are checked before generation;
 the package and packaged resources cannot be overwritten. A selected

@@ -7,6 +7,7 @@
 import csv
 import hashlib
 import json
+import re
 import shutil
 from collections.abc import Iterable
 from importlib.resources import files
@@ -17,11 +18,18 @@ from typer.testing import CliRunner
 
 from tabalyst.batch import validate_outputs
 from tabalyst.cli.app import app
+from tabalyst.cli.generate import (
+    GenerateProgressPrinter,
+    format_duration,
+    timing_report,
+)
 from tabalyst.errors import ConfigurationError, InputError, ReportError
 from tabalyst.generate_computer_output import UNIT_COLUMNS
 from tabalyst.generate_package import load_generate_package
 from tabalyst.generate_service import (
     ComputerPlan,
+    GenerateProgress,
+    GenerateResult,
     build_generate_plan,
     generate_datasets,
     validate_generate_package,
@@ -589,3 +597,92 @@ def test_generate_help_names_every_computer_anomaly_profile() -> None:
     output = CliRunner().invoke(app, ["generate", "--help"], terminal_width=400).output
     for name in profiles:
         assert name in output
+
+
+def test_progress_reports_rows_then_errors_and_the_result_splits_the_time(tmp_path: Path) -> None:
+    """Events end at 100 % for each stage and the timings add up to the total."""
+    events: list[GenerateProgress] = []
+    result = generate_datasets(
+        build_generate_plan(PACKAGE, output=tmp_path / "pcs.csv", rows=400, seed=3,
+                            anomaly_profile="dirty_realistic"),
+        on_progress=events.append,
+    )
+    stages = list(dict.fromkeys(event.stage for event in events))
+    assert stages == ["Generating rows", "Injecting errors (en)"]
+    for stage in stages:
+        done = [event.done for event in events if event.stage == stage]
+        assert done == sorted(done) and done[0] == 0 and done[-1] == 400
+        assert {event.total for event in events if event.stage == stage} == {400}
+    elapsed = [event.elapsed_seconds for event in events]
+    assert elapsed == sorted(elapsed)
+    assert result.seconds > 0
+    assert set(result.timings) == {"rows", "errors", "publish"}
+    assert sum(result.timings.values()) == pytest.approx(result.seconds)
+
+
+def test_progress_is_optional_and_a_clean_run_reports_no_error_time(tmp_path: Path) -> None:
+    """Without a callback nothing changes; without anomalies the errors phase is empty."""
+    result = generate_datasets(build_generate_plan(PACKAGE, output=tmp_path / "pcs.csv", rows=20))
+    assert result.timings["errors"] == 0.0
+    assert result.seconds >= result.timings["rows"]
+
+
+def test_other_packages_report_one_step_per_file_and_only_the_total_time(tmp_path: Path) -> None:
+    """CRM tells which file it writes; its result has no phase split."""
+    events: list[GenerateProgress] = []
+    result = generate_datasets(
+        build_generate_plan(example="crm", output=tmp_path / "crm.csv", rows=30),
+        on_progress=events.append,
+    )
+    assert [(event.stage, event.done, event.total) for event in events] == [
+        ("Writing crm.csv", 0, 1)]
+    assert result.seconds > 0 and result.timings == {}
+
+
+def test_cli_prints_a_timing_report_and_no_progress_line_outside_a_terminal(tmp_path: Path) -> None:
+    """The report always closes the run; the rewritten line needs a terminal."""
+    result = CliRunner().invoke(app, ["generate", "--example", "computer", "-o",
+                                      str(tmp_path / "pcs.csv"), "--rows", "300",
+                                      "--anomaly-profile", "dirty_realistic"])
+    assert result.exit_code == 0, result.output
+    assert "\r" not in result.output and "Generating rows" not in result.output
+    last = result.output.strip().splitlines()[-1]
+    assert re.fullmatch(r"300 rows in [\d.]+s \([\d,]+ rows/s\), [\d,]+ cells changed(: .*)?", last)
+
+
+def test_progress_printer_rewrites_one_line_per_stage_with_time_left(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A stage shows its count, then its time left, and ends with its duration."""
+    printer = GenerateProgressPrinter(enabled=True)
+    for done, elapsed in ((0, 0.0), (250, 2.0), (1000, 8.0)):
+        printer(GenerateProgress("Generating rows", done, 1000, elapsed))
+    err = capsys.readouterr().err
+    assert "Generating rows 250/1,000 (25%) - 2.0s, about 6.0s left" in err
+    # The last line is padded with spaces to wipe the longer line it replaces.
+    assert err.rstrip().endswith("Generating rows 1,000/1,000 (100%) - 8.0s")
+    silent = GenerateProgressPrinter(enabled=False)
+    silent(GenerateProgress("Generating rows", 5, 10, 1.0))
+    assert capsys.readouterr().err == ""
+
+
+@pytest.mark.parametrize(("seconds", "text"), [
+    (0.04, "0.0s"), (9.46, "9.5s"), (59.9, "59.9s"), (60.0, "1m 00s"),
+    (125.0, "2m 05s"), (3725.0, "1h 02m"),
+])
+def test_durations_are_written_for_people(seconds: float, text: str) -> None:
+    assert format_duration(seconds) == text
+
+
+def test_timing_report_names_the_phases_that_took_time() -> None:
+    """Rows, total, rate, changed cells and the split, leaving out phases under 50 ms."""
+    result = GenerateResult(
+        (), {"computers": 30000}, {"en": 8506}, seconds=31.4,
+        timings={"rows": 22.1, "errors": 8.9, "publish": 0.4},
+    )
+    assert timing_report(result) == (
+        "30,000 rows in 31.4s (955 rows/s), 8,506 cells changed: "
+        "generating rows 22.1s, injecting errors 8.9s, writing files 0.4s")
+    brief = GenerateResult((), {"computers": 10}, {}, seconds=0.2,
+                           timings={"rows": 0.19, "errors": 0.0, "publish": 0.01})
+    assert timing_report(brief) == "10 rows in 0.2s (50 rows/s)"

@@ -11,9 +11,10 @@ import json
 import os
 import shutil
 import tempfile
+import time
 from collections.abc import Callable
 from contextlib import ExitStack
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from datetime import date
 from importlib.resources import files
 from pathlib import Path
@@ -94,9 +95,31 @@ class ValidationResult:
 
 @dataclass(frozen=True)
 class GenerateResult:
+    """Paths written, row and changed-cell counts, and how long each part took.
+
+    `timings` splits `seconds` into `rows` (generation), `errors` (anomaly
+    injection) and `publish` (staging, checks and replacing the files); it is
+    empty for packages that report only the total.
+    """
+
     paths: tuple[Path, ...]
     row_counts: dict[str, int]
     anomaly_counts: dict[str, int]
+    seconds: float = 0.0
+    timings: dict[str, float] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class GenerateProgress:
+    """One progress step of a run: what is being done and how far it is."""
+
+    stage: str
+    done: int
+    total: int
+    elapsed_seconds: float
+
+
+GenerateProgressCallback = Callable[[GenerateProgress], None]
 
 
 def _example_path(example: str) -> Path:
@@ -526,8 +549,13 @@ def _publish_artifacts(
     writer: Callable[[GenerateArtifact, Path], None],
     anomaly_counts: dict[str, int] | None = None,
     batch_writer: Callable[[dict[Path, Path]], None] | None = None,
+    on_artifact: Callable[[str, int, int], None] | None = None,
 ) -> GenerateResult:
-    """Stage all files then replace finals, restoring earlier files on failure."""
+    """Stage all files then replace finals, restoring earlier files on failure.
+
+    `on_artifact` is told the name and place of each file before it is staged,
+    when the files are written one by one (no `batch_writer`).
+    """
     if isinstance(plan, ComputerPlan):
         source = plan.package.root / "dataset.yaml"
         sources = set(plan.package.input_paths)
@@ -549,9 +577,11 @@ def _publish_artifacts(
     preserve_backups = False
     publishing = False
     try:
-        for artifact in plan.artifacts:
+        for position, artifact in enumerate(plan.artifacts):
             target = artifact.path
             target.parent.mkdir(parents=True, exist_ok=True)
+            if on_artifact is not None and batch_writer is None:
+                on_artifact(target.name, position, len(plan.artifacts))
             descriptor, name = tempfile.mkstemp(dir=target.parent, prefix=f".{target.name}.", suffix=".tmp")
             os.close(descriptor)
             stage = Path(name)
@@ -623,14 +653,39 @@ def _publish_artifacts(
     )
 
 
-def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
-    """Generate clean datasets, shared entities and ordered combines."""
+def generate_datasets(plan: GeneratePlan | ComputerPlan,
+                      on_progress: GenerateProgressCallback | None = None) -> GenerateResult:
+    """Generate clean datasets, shared entities and ordered combines.
+
+    `on_progress` is called with the stage, the work done and the work to do:
+    rows for Computer, files for the other packages. The result carries the
+    total time and, for Computer, its split.
+    """
+    started = time.perf_counter()
+
+    def report(stage: str, done: int, total: int) -> None:
+        if on_progress is not None:
+            on_progress(GenerateProgress(stage, done, total, time.perf_counter() - started))
+
+    result = _generate(plan, report)
+    seconds = time.perf_counter() - started
+    if not result.timings:
+        return replace(result, seconds=seconds)
+    timings = dict(result.timings)
+    timings["publish"] = max(0.0, seconds - timings.get("rows", 0.0) - timings.get("errors", 0.0))
+    return replace(result, seconds=seconds, timings=timings)
+
+
+def _generate(plan: GeneratePlan | ComputerPlan,
+              report: Callable[[str, int, int], None]) -> GenerateResult:
     if isinstance(plan, ComputerPlan):
         if not plan.artifacts:
             raise ConfigurationError("A validation-only plan has no outputs to generate.")
         from tabalyst.generate_anomalies import inject_anomalies
 
         computer_anomaly_counts: dict[str, int] = {}
+        timings: dict[str, float] = {"rows": 0.0, "errors": 0.0}
+        rows_total = plan.rows["computers"]
 
         def write_computer(stages: dict[Path, Path]) -> None:
             paths = {artifact.kind: stages[artifact.path] for artifact in plan.artifacts}
@@ -643,6 +698,7 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
                 paths.setdefault(locale, scratch / f"computers-{locale}.csv")
                 paths.setdefault(f"{locale}_summary", scratch / f"{locale}.summary.json")
             paths.setdefault("metadata", scratch / "computers.meta.json")
+            began = time.perf_counter()
             metadata = write_computer_csvs(
                 plan.package, {locale: paths[locale] for locale in plan.locales}, paths["metadata"],
                 rows=plan.rows["computers"], seed=plan.seed,
@@ -651,9 +707,12 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
                 output_profile=plan.output_profile, market=plan.market,
                 unit_style=plan.unit_style,
                 unit_columns=plan.unit_columns if plan.unit_style == "localized" else None,
+                on_rows=lambda done: report("Generating rows", done, rows_total),
             )
+            timings["rows"] = time.perf_counter() - began
             if plan.anomaly_profile is None:
                 return
+            began = time.perf_counter()
             profile = _computer_anomaly_profile(
                 plan.package, plan.anomaly_profile, plan.output_profile,
             )
@@ -664,6 +723,8 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
                     paths[f"{locale}_changes"], dataset="computers",
                     profile=profile, seed=plan.seed, count=plan.rows["computers"],
                     delimiter=",", locale=locale, unit_suffixes=UNIT_COLUMNS,
+                    on_row=lambda done, locale=locale: report(
+                        f"Injecting errors ({locale})", done, rows_total),
                 )
                 summary.update({
                     "locale": locale, "definition_id": plan.package.id,
@@ -690,11 +751,13 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
                 json.dumps(metadata, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
                 encoding="utf-8", newline="\n",
             )
+            timings["errors"] = time.perf_counter() - began
 
         with ExitStack() as stack:
-            return _publish_artifacts(plan, lambda _artifact, _stage: None,
-                                      anomaly_counts=computer_anomaly_counts,
-                                      batch_writer=write_computer)
+            published = _publish_artifacts(plan, lambda _artifact, _stage: None,
+                                           anomaly_counts=computer_anomaly_counts,
+                                           batch_writer=write_computer)
+        return replace(published, timings=timings)
     if not plan.artifacts:
         raise ConfigurationError("A validation-only plan has no outputs to generate.")
     from tabalyst.generate_anomalies import inject_anomalies
@@ -808,7 +871,10 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
             raise ReportError(f"Generated row count differs for {artifact.dataset_id}")
         staged_clean[artifact.dataset_id] = stage
     try:
-        return _publish_artifacts(plan, writer, anomaly_counts)
+        return _publish_artifacts(
+            plan, writer, anomaly_counts,
+            on_artifact=lambda name, done, total: report(f"Writing {name}", done, total),
+        )
     finally:
         for journal in staged_changes.values():
             journal.unlink(missing_ok=True)

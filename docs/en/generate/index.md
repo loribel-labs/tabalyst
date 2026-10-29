@@ -42,7 +42,9 @@ tabalyst generate --example computer --rows 30000 -o pcs.csv --anomaly-profile d
 
 This writes `pcs.csv`, which holds the errors, and `pcs.changes.csv`, which
 lists every changed cell. No clean copy, summary or metadata file is written:
-use `-d` to get them.
+use `-d` to get them. A terminal shows the progress with the time left, and the
+command ends with a line giving the total time, the rate and where the time
+went. `--no-progress` hides the progress line.
 
 By default, measurements are plain numbers. `--unit-style localized` writes
 them with localized units (`64 Go` in the French file, `64 GB` in the

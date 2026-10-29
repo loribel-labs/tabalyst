@@ -10,6 +10,7 @@ import csv
 import hashlib
 import json
 import sys
+from collections.abc import Callable
 from contextlib import ExitStack
 from datetime import date
 from pathlib import Path
@@ -216,12 +217,14 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
                         generation_profile: str = "balanced",
                         output_profile: str = "compact", market: str = "ca",
                         unit_style: str = "numeric",
-                        unit_columns: tuple[str, ...] | None = None) -> dict[str, object]:
+                        unit_columns: tuple[str, ...] | None = None,
+                        on_rows: Callable[[int], None] | None = None) -> dict[str, object]:
     """Write paired CSVs and reproducible metadata to caller supplied paths.
 
     The caller owns path planning, staging, collision checks, and publication.
     One selected and derived record feeds every requested locale writer per iteration.
     `outputs` holds `en`, `fr` or both; a single locale writes only that file.
+    `on_rows` receives the number of rows written, about 200 times and at the end.
     Localized units are recorded with the effective column selection.
     """
     locales = tuple(locale for locale in ("en", "fr") if locale in outputs)
@@ -252,7 +255,10 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
                                     extrasaction="raise", lineterminator="\n")
             writer.writeheader()
             writers[locale] = writer
+        report_every = max(1, rows // 200)
         for index in range(rows):
+            if on_rows is not None and index % report_every == 0:
+                on_rows(index)
             selected = select_catalog_row(package, dataset_id, seed, index,
                                           generation_profile)
             internal = derive_computer_row(package, selected, dataset_id, seed,
@@ -261,6 +267,8 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
                 writers[locale].writerow(render_computer_row(
                     package, internal, locale, output_profile, unit_style, selected_units,
                 ))
+    if on_rows is not None:
+        on_rows(rows)
     resources: dict[str, str] = {}
     for path in sorted(package.input_paths):
         with path.open("rb") as source:
