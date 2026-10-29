@@ -5,6 +5,9 @@ description: How to create synthetic CSV datasets from the packaged CRM, insuran
 
 Tabalyst Generate creates synthetic CSV datasets for tests, demonstrations and
 teaching. Install Tabalyst 0.7.0 or later to use the packages described here.
+Writing one Computer CSV with `-o`, one language with `--locales en` or `fr`,
+several anomaly profiles, `--workers`, the progress line and the timing report
+need Tabalyst 0.7.3 or later.
 
 ```console
 tabalyst generate --example crm -o crm-contacts.csv

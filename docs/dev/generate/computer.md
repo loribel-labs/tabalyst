@@ -26,8 +26,8 @@ tabalyst generate --example crm -o OUTPUT_DIR/contacts.csv --rows 500
 tabalyst generate --example insurance -d OUTPUT_DIR/insurance --rows 3000 --anomaly-profile dirty_realistic
 ```
 
-Computer writes `computers-en.csv`, `computers-fr.csv`, and
-`computers.meta.json`. The two CSVs project the same internal offer; only
+With `-d`, Computer writes `computers-en.csv`, `computers-fr.csv`, and
+`computers.meta.json` (see the next section for `-o` and one locale). The two CSVs project the same internal offer; only
 localized labels differ. The default `compact`, `standard`, and `extended`
 profiles contain 40, 70, and 111 columns. `--request FILE` accepts a JSON
 object with `rows`, `seed`, `as_of_date`, `generation_profile`,
@@ -68,6 +68,45 @@ possible; whole-batch atomicity is not promised. Both interfaces reject an old
 conversion: author a `dataset.yaml`, `catalog.yaml`, and schemas, then verify
 the domain outputs against the old definition before release. The published
 0.6.2 release still accepts the old definition and does not support packages.
+
+### Destinations, locales, anomaly profiles, progress and workers
+
+Since 0.7.3 the Computer package accepts both destinations:
+
+- `-d DIR` writes `computers-<locale>.csv` for each requested locale and
+  `computers.meta.json`; with anomaly profiles it also writes, per locale and
+  profile, `computers-<locale>.<profile>.csv`, `.changes.csv` and
+  `.summary.json`. `--locales` takes `en`, `fr` or `en,fr` (default `en,fr`).
+- `-o FILE.csv` writes one file in one locale (default `en`; two locales are an
+  error). With one anomaly profile the file holds the errors and
+  `FILE.changes.csv` lists the changed cells. The clean copy, the summary and
+  the metadata are built in a scratch folder beside the output and not
+  published.
+- `--anomaly-profile` and the request key `anomaly_profile` take one name, a
+  comma-separated list, or (request only) a JSON list. Several profiles need
+  `-d`, each name once. The rows are generated once and each profile makes its
+  variant with its own random streams, so a variant is byte for byte what a run
+  with that profile alone writes. The metadata of one profile keeps its layout
+  (`request.anomaly_profile`, `anomalies.<locale>`); with several, they sit in
+  `request.anomaly_profiles` and `anomalies.<locale>.<profile>`, and
+  `GenerateResult.anomaly_counts` is keyed `<locale>/<profile>`.
+- Unknown anomaly and generation profile names list the available names.
+
+`generate_datasets(plan, on_progress=...)` reports `GenerateProgress(stage, done,
+total, elapsed_seconds)`: rows for Computer (stages `Generating rows` and
+`Injecting errors (<locale>[, <profile>])`, about 200 events per stage, per span
+with workers) and one step per file for the other packages. The result carries
+`seconds`, `timings` (`rows`, `errors`, `publish`; empty for other packages) and
+`workers`. The CLI shows a rewritten line on a terminal (`--no-progress` hides
+it) and always ends with a timing line.
+
+From 5,000 rows the rows are rendered by worker processes
+(`generate_computer_parallel.py`; `--workers N`, default one per spare processor
+up to 6, 1 in a frozen program). A worker renders spans of row numbers to part
+files beside the outputs and the parts are appended in row order, so the files
+do not depend on the number of workers. The workers reuse the subprocess helper
+of Scan, not `multiprocessing`: a calling script needs no main guard. The
+decision is in ADR `2026-10-29-generate-computer-workers-and-single-file`.
 
 ## Package identity and files
 

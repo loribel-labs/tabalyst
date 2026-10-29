@@ -16,7 +16,8 @@ The two definition sources are exclusive; exactly one destination is required.
 Options are `--rows N`, `--seed INTEGER`, `--as-of-date YYYY-MM-DD`,
 `--anomaly-profile NAME`, and `--force`. Explicit options override `defaults`
 without editing the YAML. `-o` is valid only for one clean CSV. Multiple CSVs
-or any selected anomaly profile require `-d`. Nothing writes beside the YAML
+or any selected anomaly profile require `-d`; the Computer package is the
+exception (see `computer.md`: `-o` writes one locale, with one anomaly profile). Nothing writes beside the YAML
 or into the current directory by default. `--example` reads YAML packaged in
 the installed wheel.
 

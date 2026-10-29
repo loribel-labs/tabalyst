@@ -5,7 +5,9 @@ description: The inputs, outputs and options of the tabalyst generate command.
 
 `tabalyst generate` validates a Generate package and writes synthetic CSV data.
 The command exists since Tabalyst 0.6.2; packages, `--example computer` and the
-options marked Computer need 0.7.0 or later. See
+options marked Computer need 0.7.0 or later. `-o` and `--locales en` or `fr` for
+Computer, several names in `--anomaly-profile`, `--workers`, `--no-progress` and
+the progress and timing output need 0.7.3 or later. See
 [Tabalyst Generate](../../generate/index.md) for a walkthrough.
 
 ```text
