@@ -19,6 +19,7 @@ from tabalyst.batch import validate_outputs
 from tabalyst.cli.app import app
 from tabalyst.errors import ConfigurationError, InputError, ReportError
 from tabalyst.generate_computer_output import UNIT_COLUMNS
+from tabalyst.generate_package import load_generate_package
 from tabalyst.generate_service import (
     ComputerPlan,
     build_generate_plan,
@@ -489,3 +490,102 @@ def test_publication_failure_restores_previous_files(tmp_path: Path,
     assert all((destination / name).read_bytes() == b"old" for name in (
         "computers-en.csv", "computers-fr.csv", "computers.meta.json",
     ))
+
+
+def _read_rows(path: Path) -> list[dict[str, str]]:
+    with path.open(encoding="utf-8", newline="") as stream:
+        return list(csv.DictReader(stream))
+
+
+def test_output_file_writes_one_english_csv_by_default(tmp_path: Path) -> None:
+    """-o gives the single CSV asked for, in English, and nothing else."""
+    target = tmp_path / "pcs.csv"
+    result = CliRunner().invoke(app, ["generate", "--example", "computer", "-o",
+                                      str(target), "--rows", "7", "--seed", "42"])
+    assert result.exit_code == 0, result.output
+    assert [path.name for path in tmp_path.iterdir()] == ["pcs.csv"]
+    assert len(_read_rows(target)) == 7
+
+
+def test_output_file_matches_the_english_csv_of_directory_mode(tmp_path: Path) -> None:
+    """The same seed gives the same rows whichever destination is used."""
+    generate_datasets(build_generate_plan(
+        PACKAGE, output_dir=tmp_path / "dir", rows=50, seed=7, locales="en,fr"))
+    generate_datasets(build_generate_plan(PACKAGE, output=tmp_path / "one.csv", rows=50, seed=7))
+    assert (tmp_path / "one.csv").read_bytes() == (tmp_path / "dir" / "computers-en.csv").read_bytes()
+
+
+def test_output_file_with_anomaly_profile_writes_errors_and_a_journal(tmp_path: Path) -> None:
+    """-o holds the CSV with errors, with its change journal beside it."""
+    dirty_dir = tmp_path / "dir"
+    generate_datasets(build_generate_plan(
+        PACKAGE, output_dir=dirty_dir, rows=300, seed=42, anomaly_profile="dirty_realistic"))
+    target = tmp_path / "out" / "pcs.csv"
+    result = generate_datasets(build_generate_plan(
+        PACKAGE, output=target, rows=300, seed=42, anomaly_profile="dirty_realistic"))
+    assert sorted(path.name for path in target.parent.iterdir()) == ["pcs.changes.csv", "pcs.csv"]
+    assert result.paths == (target, target.with_name("pcs.changes.csv"))
+    assert target.read_bytes() == (dirty_dir / "computers-en.dirty_realistic.csv").read_bytes()
+    assert target.with_name("pcs.changes.csv").read_bytes() == (
+        dirty_dir / "computers-en.dirty_realistic.changes.csv").read_bytes()
+    assert result.anomaly_counts["en"] > 0
+
+
+def test_french_locale_alone_writes_only_the_french_csv(tmp_path: Path) -> None:
+    """--locales fr skips the English files and records the locale in the metadata."""
+    result = CliRunner().invoke(app, ["generate", "--example", "computer", "-d",
+                                      str(tmp_path), "--rows", "5", "--locales", "fr"])
+    assert result.exit_code == 0, result.output
+    assert sorted(path.name for path in tmp_path.iterdir()) == [
+        "computers-fr.csv", "computers.meta.json"]
+    metadata = json.loads((tmp_path / "computers.meta.json").read_text(encoding="utf-8"))
+    assert metadata["request"]["locales"] == ["fr"]
+    assert list(metadata["outputs"]) == ["fr"]
+
+
+def test_locales_with_anomaly_profile_limit_every_artifact_to_that_locale(tmp_path: Path) -> None:
+    """Altered CSV, journal and summary exist for the requested locale only."""
+    plan = build_generate_plan(PACKAGE, output_dir=tmp_path, rows=100, seed=1,
+                               locales="en", anomaly_profile="dirty_realistic")
+    assert isinstance(plan, ComputerPlan)
+    assert sorted(path.name for path in (artifact.path for artifact in plan.artifacts)) == [
+        "computers-en.csv", "computers-en.dirty_realistic.changes.csv",
+        "computers-en.dirty_realistic.csv", "computers-en.dirty_realistic.summary.json",
+        "computers.meta.json",
+    ]
+
+
+@pytest.mark.parametrize(("options", "message"), [
+    ({"output": "x.csv", "locales": "en,fr"}, "-o writes one locale"),
+    ({"output": "x.csv", "locales": "de"}, "locales must be en, fr or en,fr"),
+    ({"output_dir": "d", "locales": "en,en"}, "locales must be en, fr or en,fr"),
+    ({"output": "x.txt"}, "-o must name a .csv file"),
+    ({"output": "x.csv", "output_dir": "d"}, "exactly one destination"),
+])
+def test_invalid_destination_or_locales_fail_before_writing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    options: dict[str, str], message: str,
+) -> None:
+    """Bad -o, -d and --locales combinations stop with a clear message."""
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ConfigurationError, match=message):
+        build_generate_plan(PACKAGE, rows=5, **options)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_unknown_profiles_list_the_available_names(tmp_path: Path) -> None:
+    """A mistyped profile name tells which names exist."""
+    with pytest.raises(ConfigurationError, match="Available: dirty_realistic, dirty_stress"):
+        build_generate_plan(PACKAGE, output=tmp_path / "x.csv", anomaly_profile="dirty")
+    with pytest.raises(ConfigurationError, match="Available: balanced, consumer"):
+        build_generate_plan(PACKAGE, output=tmp_path / "x.csv", generation_profile="home")
+
+
+def test_generate_help_names_every_computer_anomaly_profile() -> None:
+    """The option help stays in step with the profiles the package defines."""
+    package = load_generate_package(PACKAGE)
+    profiles = package.manifest["anomaly_profiles"]
+    assert isinstance(profiles, dict)
+    output = CliRunner().invoke(app, ["generate", "--help"], terminal_width=400).output
+    for name in profiles:
+        assert name in output

@@ -25,7 +25,7 @@ def generate_command(
     ] = None,
     output: Annotated[
         Path | None,
-        typer.Option("--output", "-o", help="One clean CSV file."),
+        typer.Option("--output", "-o", help="One CSV file (with --anomaly-profile: the CSV with errors, plus FILE.changes.csv)."),
     ] = None,
     output_dir: Annotated[
         Path | None,
@@ -45,7 +45,7 @@ def generate_command(
     ] = None,
     anomaly_profile: Annotated[
         str | None,
-        typer.Option("--anomaly-profile", help="Selected anomaly profile."),
+        typer.Option("--anomaly-profile", help="Inject errors. Computer: dirty_realistic, dirty_stress, unit_variants, unit_variants_extended."),
     ] = None,
     request: Annotated[
         Path | None,
@@ -65,7 +65,7 @@ def generate_command(
     ] = None,
     locales: Annotated[
         str | None,
-        typer.Option("--locales", help="Computer locales: en,fr."),
+        typer.Option("--locales", help="Computer locales: en, fr or en,fr (default en with -o, en,fr with -d)."),
     ] = None,
     unit_style: Annotated[
         str | None,

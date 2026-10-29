@@ -220,11 +220,14 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
     """Write paired CSVs and reproducible metadata to caller supplied paths.
 
     The caller owns path planning, staging, collision checks, and publication.
-    One selected and derived record feeds both locale writers per iteration.
+    One selected and derived record feeds every requested locale writer per iteration.
+    `outputs` holds `en`, `fr` or both; a single locale writes only that file.
     Localized units are recorded with the effective column selection.
     """
-    if set(outputs) != {"en", "fr"} or len(set(outputs.values()) | {metadata_path}) != 3:
-        raise ValueError("Computer outputs need distinct en, fr, and metadata paths")
+    locales = tuple(locale for locale in ("en", "fr") if locale in outputs)
+    if (not locales or len(locales) != len(outputs)
+            or len(set(outputs.values()) | {metadata_path}) != len(outputs) + 1):
+        raise ValueError("Computer outputs need distinct en or fr paths and a metadata path")
     if type(rows) is not int or rows < 1:
         raise ValueError("rows must be positive")
     if output_profile not in PROFILE_COLUMNS:
@@ -243,7 +246,7 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
         raise ValueError("invalid Computer unit columns")
     with ExitStack() as stack:
         writers: dict[str, csv.DictWriter] = {}
-        for locale in ("en", "fr"):
+        for locale in locales:
             stream = stack.enter_context(outputs[locale].open("w", encoding="utf-8", newline=""))
             writer = csv.DictWriter(stream, fieldnames=columns,
                                     extrasaction="raise", lineterminator="\n")
@@ -254,7 +257,7 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
                                           generation_profile)
             internal = derive_computer_row(package, selected, dataset_id, seed,
                                            index, as_of_date, market)
-            for locale in ("en", "fr"):
+            for locale in locales:
                 writers[locale].writerow(render_computer_row(
                     package, internal, locale, output_profile, unit_style, selected_units,
                 ))
@@ -273,10 +276,10 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
         "request": {"dataset": dataset_id, "rows": rows, "seed": seed,
                     "as_of_date": as_of_date.isoformat(),
                     "generation_profile": generation_profile,
-                    "output_profile": output_profile, "locales": ["en", "fr"],
+                    "output_profile": output_profile, "locales": list(locales),
                     "market": market},
         "outputs": {locale: {"rows": rows, "profile": output_profile,
-                             "columns": len(columns)} for locale in ("en", "fr")},
+                             "columns": len(columns)} for locale in locales},
         "engine_version": __version__,
         "python_version": f"{sys.version_info.major}.{sys.version_info.minor}",
     }

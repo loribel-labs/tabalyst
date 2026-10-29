@@ -81,6 +81,7 @@ class ComputerPlan:
     anomaly_profile: str | None
     force: bool
     request_path: Path | None
+    locales: tuple[str, ...] = ("en", "fr")
 
 
 @dataclass(frozen=True)
@@ -147,7 +148,8 @@ def _computer_anomaly_profile(
     """Validate a Computer mutation profile against both localized outputs."""
     profiles = package.manifest.get("anomaly_profiles", {})
     if not isinstance(profiles, dict) or name not in profiles:
-        raise ConfigurationError(f"Unknown anomaly profile: {name}")
+        available = ", ".join(profiles) if isinstance(profiles, dict) else "none"
+        raise ConfigurationError(f"Unknown anomaly profile: {name}. Available: {available}")
     profile = profiles[name]
     if not isinstance(profile, dict) or set(profile) != {"targets", "operations"}:
         raise ConfigurationError(f"PACKAGE_ANOMALY: invalid profile {name}")
@@ -218,10 +220,10 @@ def _computer_plan(
 ) -> ComputerPlan:
     package = load_generate_package(path)
     _validate_computer_anomaly_profiles(package)
-    if output is not None or (output_dir is None and not validate_only):
-        raise ConfigurationError("Computer produces multiple artifacts; use -d.")
-    if validate_only and output_dir is not None:
+    if validate_only and (output_dir is not None or output is not None):
         raise ConfigurationError("--validate-only does not take a destination.")
+    if (output is None) == (output_dir is None) and not validate_only:
+        raise ConfigurationError("Give exactly one destination: -o or -d.")
     if request is not None:
         request_path = Path(request)
         try:
@@ -255,7 +257,7 @@ def _computer_plan(
     effective_generation = generation_profile if generation_profile is not None else raw.get("generation_profile", "balanced")
     effective_output = output_profile if output_profile is not None else raw.get("output_profile", "compact")
     effective_market = market if market is not None else raw.get("market", "ca")
-    effective_locales = locales.split(",") if locales is not None else raw.get("locales", ["en", "fr"])
+    requested_locales = locales.split(",") if locales is not None else raw.get("locales")
     requested_columns = unit_columns if unit_columns is not None else raw.get("unit_columns")
     effective_units = (unit_style if unit_style is not None else
                        raw.get("unit_style", "localized" if requested_columns is not None else "numeric"))
@@ -271,7 +273,9 @@ def _computer_plan(
         raise ConfigurationError("--as-of-date must be YYYY-MM-DD.") from exc
     generation_profiles = package.manifest.get("generation_profiles")
     if not isinstance(effective_generation, str) or not isinstance(generation_profiles, dict) or effective_generation not in generation_profiles:
-        raise ConfigurationError(f"Unknown generation profile: {effective_generation}")
+        available = ", ".join(generation_profiles) if isinstance(generation_profiles, dict) else "none"
+        raise ConfigurationError(
+            f"Unknown generation profile: {effective_generation}. Available: {available}")
     if not isinstance(effective_output, str) or effective_output not in PROFILE_COLUMNS:
         raise ConfigurationError(f"Unsupported Computer output profile: {effective_output}")
     profiles = package.manifest.get("output_profiles")
@@ -279,8 +283,16 @@ def _computer_plan(
         raise ConfigurationError(f"PACKAGE_OUTPUT: {effective_output} profile differs from Computer register")
     if not isinstance(effective_market, str) or effective_market not in {"ca", "us"}:
         raise ConfigurationError(f"Unsupported Computer market: {effective_market}")
-    if effective_locales != ["en", "fr"]:
-        raise ConfigurationError("Computer currently requires locales en,fr.")
+    if requested_locales is None:
+        # A single file is the point of -o, so it defaults to English; -d keeps both.
+        requested_locales = ["en"] if output is not None else ["en", "fr"]
+    if (not isinstance(requested_locales, list) or not requested_locales
+            or any(item not in {"en", "fr"} for item in requested_locales)
+            or len(set(requested_locales)) != len(requested_locales)):
+        raise ConfigurationError("Computer locales must be en, fr or en,fr.")
+    effective_locales = tuple(item for item in ("en", "fr") if item in requested_locales)
+    if output is not None and len(effective_locales) != 1:
+        raise ConfigurationError("-o writes one locale; use --locales en or --locales fr, or use -d.")
     if not isinstance(effective_units, str) or effective_units not in {"numeric", "localized"}:
         raise ConfigurationError(f"Unsupported Computer unit style: {effective_units}")
     if isinstance(requested_columns, str):
@@ -316,20 +328,39 @@ def _computer_plan(
     destination = Path(output_dir) if output_dir is not None else None
     if destination is not None and destination.exists() and not destination.is_dir():
         raise InputError(f"Output directory path is a file: {destination}")
+    artifacts_list: list[GenerateArtifact] = []
+    if output is not None:
+        target = Path(output)
+        if target.suffix.lower() != ".csv":
+            raise ConfigurationError("-o must name a .csv file.")
+        locale = effective_locales[0]
+        if effective_anomaly is None:
+            artifacts_list.append(GenerateArtifact("computers", locale, target))
+        else:
+            # The file asked for holds the errors; the clean copy and the summary stay internal.
+            artifacts_list.extend((
+                GenerateArtifact("computers", f"{locale}_altered", target),
+                GenerateArtifact("computers", f"{locale}_changes",
+                                 target.with_name(f"{target.stem}.changes.csv")),
+            ))
+        destination = target.parent
+    elif destination is not None:
+        artifacts_list.extend(
+            GenerateArtifact("computers", locale, destination / f"computers-{locale}.csv")
+            for locale in effective_locales
+        )
+        artifacts_list.append(
+            GenerateArtifact("computers", "metadata", destination / "computers.meta.json"))
+        if effective_anomaly is not None:
+            for locale in effective_locales:
+                prefix = f"computers-{locale}.{effective_anomaly}"
+                artifacts_list.extend((
+                    GenerateArtifact("computers", f"{locale}_altered", destination / f"{prefix}.csv"),
+                    GenerateArtifact("computers", f"{locale}_changes", destination / f"{prefix}.changes.csv"),
+                    GenerateArtifact("computers", f"{locale}_summary", destination / f"{prefix}.summary.json"),
+                ))
     if destination is not None and destination.resolve().is_relative_to(package.root):
         raise InputError("Generate output directory cannot be inside its source package.")
-    artifacts_list = [GenerateArtifact("computers", kind, destination / name) for kind, name in (
-        ("en", "computers-en.csv"), ("fr", "computers-fr.csv"),
-        ("metadata", "computers.meta.json"),
-    )] if destination is not None else []
-    if destination is not None and effective_anomaly is not None:
-        for locale in ("en", "fr"):
-            prefix = f"computers-{locale}.{effective_anomaly}"
-            artifacts_list.extend((
-                GenerateArtifact("computers", f"{locale}_altered", destination / f"{prefix}.csv"),
-                GenerateArtifact("computers", f"{locale}_changes", destination / f"{prefix}.changes.csv"),
-                GenerateArtifact("computers", f"{locale}_summary", destination / f"{prefix}.summary.json"),
-            ))
     artifacts = tuple(artifacts_list)
     sources = set(package.input_paths)
     if request_path is not None:
@@ -341,7 +372,7 @@ def _computer_plan(
                         effective_output, effective_market, effective_units,
                         ordered_units,
                         effective_anomaly,
-                        force, request_path)
+                        force, request_path, effective_locales)
 
 
 def build_generate_plan(
@@ -422,7 +453,8 @@ def build_generate_plan(
         raise ConfigurationError("--as-of-date must be YYYY-MM-DD.") from exc
     profiles = {profile["id"]: profile for profile in definition.anomaly_profiles}
     if anomaly_profile is not None and anomaly_profile not in profiles:
-        raise ConfigurationError(f"Unknown anomaly profile: {anomaly_profile}")
+        raise ConfigurationError(
+            f"Unknown anomaly profile: {anomaly_profile}. Available: {', '.join(profiles) or 'none'}")
     dataset_by_id = {dataset["id"]: dataset for dataset in definition.datasets}
     counts = {
         name: dataset["rows"] for name, dataset in dataset_by_id.items()
@@ -602,8 +634,15 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
 
         def write_computer(stages: dict[Path, Path]) -> None:
             paths = {artifact.kind: stages[artifact.path] for artifact in plan.artifacts}
+            # What the destination does not publish (for -o: the clean copy, the
+            # metadata and the summary) is still needed to build the rest.
+            scratch = Path(stack.enter_context(tempfile.TemporaryDirectory(prefix=".generate-")))
+            for locale in plan.locales:
+                paths.setdefault(locale, scratch / f"computers-{locale}.csv")
+                paths.setdefault(f"{locale}_summary", scratch / f"{locale}.summary.json")
+            paths.setdefault("metadata", scratch / "computers.meta.json")
             metadata = write_computer_csvs(
-                plan.package, {"en": paths["en"], "fr": paths["fr"]}, paths["metadata"],
+                plan.package, {locale: paths[locale] for locale in plan.locales}, paths["metadata"],
                 rows=plan.rows["computers"], seed=plan.seed,
                 as_of_date=date.fromisoformat(plan.as_of_date),
                 generation_profile=plan.generation_profile,
@@ -617,7 +656,7 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
                 plan.package, plan.anomaly_profile, plan.output_profile,
             )
             summaries: dict[str, object] = {}
-            for locale in ("en", "fr"):
+            for locale in plan.locales:
                 summary = inject_anomalies(
                     paths[locale], paths[f"{locale}_altered"],
                     paths[f"{locale}_changes"], dataset="computers",
@@ -650,9 +689,10 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
                 encoding="utf-8", newline="\n",
             )
 
-        return _publish_artifacts(plan, lambda _artifact, _stage: None,
-                                  anomaly_counts=computer_anomaly_counts,
-                                  batch_writer=write_computer)
+        with ExitStack() as stack:
+            return _publish_artifacts(plan, lambda _artifact, _stage: None,
+                                      anomaly_counts=computer_anomaly_counts,
+                                      batch_writer=write_computer)
     if not plan.artifacts:
         raise ConfigurationError("A validation-only plan has no outputs to generate.")
     from tabalyst.generate_anomalies import inject_anomalies

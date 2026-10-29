@@ -26,11 +26,23 @@ The Computer example has three output profiles: `compact` (40 columns),
 with `--output-profile`. `--generation-profile` biases the catalog towards a
 kind of product (`balanced`, `consumer`, `business`, `gaming`, `creator`,
 `workstation`, `enterprise`, `mixed` or `portable_only`), `--market ca|us`
-selects the offer market and `--locales en,fr` the languages written.
+selects the offer market and `--locales en`, `--locales fr` or
+`--locales en,fr` the languages written. With `-d`, both languages are written
+unless you choose one; with `-o`, the default is English.
 
 ```console
-tabalyst generate --example computer -d out/ \n  --output-profile extended
+tabalyst generate --example computer -d out/ --output-profile extended
 ```
+
+For a single CSV with errors, for example 30,000 rows:
+
+```console
+tabalyst generate --example computer --rows 30000 -o pcs.csv --anomaly-profile dirty_realistic
+```
+
+This writes `pcs.csv`, which holds the errors, and `pcs.changes.csv`, which
+lists every changed cell. No clean copy, summary or metadata file is written:
+use `-d` to get them.
 
 By default, measurements are plain numbers. `--unit-style localized` writes
 them with localized units (`64 Go` in the French file, `64 GB` in the
@@ -70,8 +82,9 @@ in lower case, 8 duplicated rows) however many rows you generate, with a
 `class` column in the change log. It needs enough rows for its classes and
 stops with an error on a file that is too small (about 1,000 rows or more).
 
-Computer offers `dirty_realistic`, `dirty_stress`, `unit_variants` and
-`unit_variants_extended`. `dirty_realistic` and `dirty_stress` also write
+Computer offers `dirty_realistic` (a few percent of cells), `dirty_stress` (more),
+`unit_variants` and `unit_variants_extended`. An unknown name stops the command
+with the list of available profiles. `dirty_realistic` and `dirty_stress` also write
 `GB` after a share of the memory, storage and VRAM numbers (`16` becomes `16 GB`),
 so those columns hold a mix of numbers and text. `unit_variants` does only that;
 `unit_variants_extended` does it for 14 measured columns and needs
@@ -139,8 +152,10 @@ equals the text. With `rate`, a request that cannot apply, such as
 `double_hyphen` on a cell without a hyphen, is not counted as a defect. The
 summary reports the rows requested, applied and skipped for every operation.
 
-Choose `-o` only when the result is one clean CSV. Use `-d` for multiple CSVs
-or an anomaly profile. Existing output files require `--force`. Nothing is
+Choose `-o` when the result is one CSV. Only Computer accepts an anomaly
+profile with `-o` (it adds a `.changes.csv` file beside the CSV); the CRM and
+insurance examples need `-d` for that. Use `-d` for several CSVs, the clean
+copy and the summary. Existing output files require `--force`. Nothing is
 written beside the package or into the current directory by default.
 
 Use `--seed` and `--as-of-date YYYY-MM-DD` to override the package defaults.

@@ -22,17 +22,17 @@ destination is required, except with `--validate-only`. A
 | Option | Meaning |
 | --- | --- |
 | `--example NAME` | Use the packaged `crm`, `insurance` or `computer` example. |
-| `-o`, `--output FILE` | Write one clean CSV. |
+| `-o`, `--output FILE` | Write one CSV. Computer: one locale (English unless `--locales fr`); with `--anomaly-profile`, the CSV holds the errors and `FILE.changes.csv` lists the changed cells, with no clean copy, summary or metadata. |
 | `-d`, `--output-dir DIR` | Write all planned artifacts to a directory. |
 | `--rows N` | Override the generated row count; for insurance, allocate the combined total across its branches. |
 | `--seed INTEGER` | Override the root random seed. |
 | `--as-of-date YYYY-MM-DD` | Override the reference date. |
-| `--anomaly-profile NAME` | Produce the selected anomaly variant, cell change log and summary. Requires `-d`. |
+| `--anomaly-profile NAME` | Produce the selected anomaly variant, cell change log and summary (with `-d`). Computer: `dirty_realistic`, `dirty_stress`, `unit_variants`, `unit_variants_extended`. An unknown name lists the available ones. |
 | `--request FILE` | Read `rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`, `locales`, `unit_style`, `unit_columns` and `anomaly_profile` from a JSON object. Explicit options win. |
 | `--generation-profile NAME` | Computer: bias the catalog selection. |
 | `--output-profile NAME` | Computer: choose the columns written (`compact`, `standard`, `extended`). |
 | `--market ca\|us` | Computer: the offer market. |
-| `--locales en,fr` | Computer: the languages written. |
+| `--locales en\|fr\|en,fr` | Computer: the languages written. Default `en,fr` with `-d`, `en` with `-o`. |
 | `--unit-style numeric\|localized` | Computer: plain numbers or values with units. |
 | `--unit-columns A,B` | Computer: the measurement columns to write with units; implies `localized`. |
 | `--validate-only` | Validate the package and write nothing. |
