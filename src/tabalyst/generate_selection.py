@@ -255,6 +255,82 @@ def _choose(candidates: list[tuple[Cell, Fraction]], rng: random.Random) -> Cell
     raise AssertionError("positive candidate weights must cover the draw")
 
 
+class _SelectionPlan:
+    """Per-package caches shared by every row of one dataset and generation profile.
+
+    Feasibility, candidates and derivations depend only on the fields the remaining
+    steps and constraints read, never on the seed or the row index, so one row's
+    search serves all later rows. Cached values are never mutated.
+    """
+
+    def __init__(self, package: DatasetPackage, dataset_id: str, profile: str | None) -> None:
+        self.package = package
+        self.steps = _dataset(package, dataset_id)
+        self.constraints = _constraints(package, self.steps, profile)
+        self.feasible: dict[tuple[int, tuple[Cell | None, ...]], bool] = {}
+        self.candidates: dict[tuple[int, tuple[Cell | None, ...]], list[tuple[Cell, Fraction]]] = {}
+        self.derived: dict[tuple[str, Cell], Cell] = {}
+        # Earlier choices already passed every constraint, so only those touching
+        # the field just chosen can newly conflict.
+        self.by_field: dict[str, tuple[tuple[str, Cell, str, Cell], ...]] = {}
+        for constraint in self.constraints:
+            for field in {constraint[0], constraint[2]}:
+                self.by_field[field] = (*self.by_field.get(field, ()), constraint)
+        constraint_fields = {field for condition, _, target, _ in self.constraints
+                             for field in (condition, target)}
+        step_fields: list[set[str]] = []
+        for step in self.steps:
+            fields: set[str] = set()
+            if step["kind"] == "derive":
+                fields.add(step["selected"])
+            else:
+                fields.update(step.get("where", {}).values())
+                for relation in (*step.get("filters", []), *step.get("influences", [])):
+                    fields.update(relation["where"].values())
+            step_fields.append(fields)
+        self.step_fields = [tuple(sorted(fields)) for fields in step_fields]
+        # Fields read from a position on; a past field that no later step or
+        # constraint reads cannot change what remains feasible.
+        self.live: list[tuple[str, ...]] = []
+        later: set[str] = set(constraint_fields)
+        for fields in reversed(step_fields):
+            later |= fields
+            self.live.append(tuple(sorted(later)))
+        self.live.reverse()
+        self.live.append(tuple(sorted(constraint_fields)))
+
+
+_PLANS: dict[tuple[int, str, str | None], _SelectionPlan] = {}
+_MAX_PLANS = 8
+
+
+def _plan_for(package: DatasetPackage, dataset_id: str, profile: str | None) -> _SelectionPlan:
+    key = (id(package), dataset_id, profile)
+    plan = _PLANS.get(key)
+    # The plan keeps its package alive, so a matching id is always the same object.
+    if plan is None or plan.package is not package:
+        if len(_PLANS) >= _MAX_PLANS:
+            _PLANS.pop(next(iter(_PLANS)))
+        plan = _PLANS[key] = _SelectionPlan(package, dataset_id, profile)
+    return plan
+
+
+def _cached_candidates(plan: _SelectionPlan, position: int, values: dict[str, Cell]
+                       ) -> list[tuple[Cell, Fraction]]:
+    key = (position, tuple(values[field] for field in plan.step_fields[position]))
+    found = plan.candidates.get(key)
+    if found is None:
+        found = plan.candidates[key] = _candidates(plan.package, plan.steps[position], values)
+    return found
+
+
+def _cached_derive(plan: _SelectionPlan, step: SelectionStep, values: dict[str, Cell]) -> Cell:
+    key = (step["id"], values[step["selected"]])
+    if key not in plan.derived:
+        plan.derived[key] = _derive(plan.package, step, values)
+    return plan.derived[key]
+
+
 def select_catalog_row(package: DatasetPackage, dataset_id: str, seed: int,
                        row_index: int, generation_profile: str | None = None) -> dict[str, Cell]:
     """Choose one feasible internal row without changing global random state.
@@ -265,31 +341,52 @@ def select_catalog_row(package: DatasetPackage, dataset_id: str, seed: int,
     """
     if type(seed) is not int or type(row_index) is not int or row_index < 0:
         raise ValueError("seed must be an integer and row_index must be nonnegative")
-    steps = _dataset(package, dataset_id)
-    constraints = _constraints(package, steps, generation_profile)
+    try:
+        return _select(_plan_for(package, dataset_id, generation_profile),
+                       dataset_id, seed, row_index, generation_profile)
+    except ConfigurationError as exc:
+        if not str(exc).startswith("GENERATION_IMPOSSIBLE_CONFIGURATION"):
+            raise
+    # Cached dead ends skip the search that names the blocked step, so the error
+    # is rebuilt by a fresh, uncached search.
+    return _select(_SelectionPlan(package, dataset_id, generation_profile),
+                   dataset_id, seed, row_index, generation_profile)
+
+
+def _select(plan: _SelectionPlan, dataset_id: str, seed: int, row_index: int,
+            generation_profile: str | None) -> dict[str, Cell]:
+    package, steps, constraints = plan.package, plan.steps, plan.constraints
     visited = 0
     deepest_dead_end: dict[str, Cell] = {}
     dead_end_position = 0
 
     def feasible(position: int, values: dict[str, Cell]) -> bool:
         nonlocal visited, deepest_dead_end, dead_end_position
+        if position == len(steps):
+            return True
+        key = (position, tuple(values.get(field) for field in plan.live[position]))
+        known = plan.feasible.get(key)
+        if known is not None:
+            return known
         visited += 1
         if visited > MAX_SEARCH_NODES:
             raise ConfigurationError(f"GENERATION_SEARCH_LIMIT: dataset={dataset_id} row={row_index}")
-        if position == len(steps):
-            return True
         step = steps[position]
         output = step["output"]
         if step["kind"] == "derive":
-            value = _derive(package, step, values)
-            return feasible(position + 1, {**values, output: value})
-        for candidate, _ in _candidates(package, step, values):
+            result = feasible(position + 1, {**values, output: _cached_derive(plan, step, values)})
+            plan.feasible[key] = result
+            return result
+        for candidate, _ in _cached_candidates(plan, position, values):
             next_values = {**values, output: candidate}
-            if not _conflicts(next_values, constraints) and feasible(position + 1, next_values):
+            if (not _conflicts(next_values, plan.by_field.get(output, ()))
+                    and feasible(position + 1, next_values)):
+                plan.feasible[key] = True
                 return True
         if position > dead_end_position:
             deepest_dead_end = values.copy()
             dead_end_position = position
+        plan.feasible[key] = False
         return False
 
     # A profile is execution context for relation weights, not an output field.
@@ -298,12 +395,13 @@ def select_catalog_row(package: DatasetPackage, dataset_id: str, seed: int,
     for position, step in enumerate(steps):
         output = step["output"]
         if step["kind"] == "derive":
-            values[output] = _derive(package, step, values)
+            values[output] = _cached_derive(plan, step, values)
             continue
         candidates = []
-        for candidate, weight in _candidates(package, step, values):
+        for candidate, weight in _cached_candidates(plan, position, values):
             next_values = {**values, output: candidate}
-            if not _conflicts(next_values, constraints) and feasible(position + 1, next_values):
+            if (not _conflicts(next_values, plan.by_field.get(output, ()))
+                    and feasible(position + 1, next_values)):
                 candidates.append((candidate, weight))
         if not candidates:
             context_values = deepest_dead_end if len(deepest_dead_end) > len(values) else values
