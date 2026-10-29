@@ -38,6 +38,7 @@ destination is required, except with `--validate-only`. A
 | `--validate-only` | Validate the package and write nothing. |
 | `-f`, `--force` | Replace existing generated artifacts. |
 | `--no-progress` | Hide the progress line. It is also hidden outside a terminal. |
+| `--workers N` | Computer: processes that generate the rows; 1 uses one process. By default, 5,000 rows or more use one per spare processor, at most 6. |
 
 In a terminal, the command shows its progress on one line that is rewritten
 as the work advances, with the time spent and an estimate of the time left:
@@ -56,6 +57,10 @@ Created: pcs.csv
 Created: pcs.changes.csv
 20,000 rows in 9.2s (2,170 rows/s), 5,672 cells changed: generating rows 8.7s, injecting errors 0.5s
 ```
+
+With several processes, the line gives their number, for example
+`(5,495 rows/s, 3 processes)`. The files are the same whatever the number of
+processes, so a seed still gives the same data.
 
 Explicit options override package defaults. Paths are checked before generation;
 the package and packaged resources cannot be overwritten. A selected

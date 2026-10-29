@@ -69,7 +69,8 @@ def timing_report(result: GenerateResult) -> str:
     if rows is not None:
         text = f"{rows:,} rows in {format_duration(result.seconds)}"
         if result.seconds > 0:
-            text += f" ({rows / result.seconds:,.0f} rows/s)"
+            processes = f", {result.workers} processes" if result.workers > 1 else ""
+            text += f" ({rows / result.seconds:,.0f} rows/s{processes})"
     changed = sum(result.anomaly_counts.values())
     if changed:
         text += f", {changed:,} cells changed"
@@ -152,6 +153,14 @@ def generate_command(
         bool,
         typer.Option("--no-progress", help="Hide the progress line. It is also hidden outside a terminal."),
     ] = False,
+    workers: Annotated[
+        int | None,
+        typer.Option(
+            "--workers", min=1,
+            help=("Computer: processes that generate the rows, 1 for one process. By default, "
+                  "5,000 rows or more use one per spare processor, at most 6."),
+        ),
+    ] = None,
 ) -> None:
     """Validate and generate datasets from a definition or package."""
     try:
@@ -162,7 +171,7 @@ def generate_command(
             generation_profile=generation_profile, output_profile=output_profile,
             market=market, locales=locales, unit_style=unit_style,
             unit_columns=unit_columns,
-            validate_only=validate_only,
+            validate_only=validate_only, workers=workers,
         )
         if validate_only:
             typer.echo("Valid Generate package.", err=True)

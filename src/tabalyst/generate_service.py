@@ -16,6 +16,7 @@ from collections.abc import Callable
 from contextlib import ExitStack
 from dataclasses import dataclass, field, replace
 from datetime import date
+from functools import partial
 from importlib.resources import files
 from pathlib import Path
 from typing import cast
@@ -38,6 +39,7 @@ from tabalyst.generate_computer_output import (
     UNIT_COLUMNS,
     write_computer_csvs,
 )
+from tabalyst.generate_computer_parallel import worker_count
 from tabalyst.generate_csv import write_csv
 from tabalyst.generate_definition import GenerateDefinition
 from tabalyst.generate_insurance import InsuranceProvider
@@ -83,6 +85,7 @@ class ComputerPlan:
     force: bool
     request_path: Path | None
     locales: tuple[str, ...] = ("en", "fr")
+    workers: int | None = None
 
 
 @dataclass(frozen=True)
@@ -99,7 +102,8 @@ class GenerateResult:
 
     `timings` splits `seconds` into `rows` (generation), `errors` (anomaly
     injection) and `publish` (staging, checks and replacing the files); it is
-    empty for packages that report only the total.
+    empty for packages that report only the total. `workers` is the number of
+    processes that generated the rows.
     """
 
     paths: tuple[Path, ...]
@@ -107,6 +111,7 @@ class GenerateResult:
     anomaly_counts: dict[str, int]
     seconds: float = 0.0
     timings: dict[str, float] = field(default_factory=dict)
+    workers: int = 1
 
 
 @dataclass(frozen=True)
@@ -214,6 +219,10 @@ def _computer_anomaly_profile(
     return {"id": name, "operations": operations}
 
 
+def _report_errors(report: Callable[[str, int, int], None], locale: str, total: int, done: int) -> None:
+    report(f"Injecting errors ({locale})", done, total)
+
+
 def _check_counts(operations: list[dict[str, object]], rows: int, where: str) -> None:
     """Reject an absolute anomaly count larger than the dataset before any write."""
     try:
@@ -239,7 +248,7 @@ def _computer_plan(
     market: str | None, locales: str | None, unit_style: str | None,
     unit_columns: str | None,
     anomaly_profile: str | None, force: bool,
-    validate_only: bool,
+    validate_only: bool, workers: int | None = None,
 ) -> ComputerPlan:
     package = load_generate_package(path)
     _validate_computer_anomaly_profiles(package)
@@ -287,6 +296,8 @@ def _computer_plan(
     effective_anomaly = anomaly_profile if anomaly_profile is not None else raw.get("anomaly_profile")
     if type(effective_rows) is not int or not 1 <= effective_rows <= MAX_ROWS:
         raise ConfigurationError("--rows must be an integer from 1 to 10000000.")
+    if workers is not None and (type(workers) is not int or workers < 1):
+        raise ConfigurationError("--workers must be an integer of 1 or more.")
     if type(effective_seed) is not int:
         raise ConfigurationError("--seed must be an integer.")
     try:
@@ -395,7 +406,7 @@ def _computer_plan(
                         effective_output, effective_market, effective_units,
                         ordered_units,
                         effective_anomaly,
-                        force, request_path, effective_locales)
+                        force, request_path, effective_locales, workers)
 
 
 def build_generate_plan(
@@ -418,6 +429,7 @@ def build_generate_plan(
     unit_style: str | None = None,
     unit_columns: str | None = None,
     validate_only: bool = False,
+    workers: int | None = None,
 ) -> GeneratePlan | ComputerPlan:
     """Validate a Generate source and plan every artifact before writing."""
     if package_path is not None:
@@ -445,6 +457,7 @@ def build_generate_plan(
                 anomaly_profile=anomaly_profile,
                 force=force,
                 validate_only=validate_only,
+                workers=workers,
             )
         definition = load_columns_definition(package)
         if validate_only:
@@ -462,6 +475,8 @@ def build_generate_plan(
         or market is not None or locales is not None or unit_style is not None
         or unit_columns is not None):
         raise ConfigurationError("Package request and profile options require a package path.")
+    if workers is not None:
+        raise ConfigurationError("--workers applies to the Computer package only.")
     if (output is None) == (output_dir is None):
         raise ConfigurationError("Give exactly one destination: -o or -d.")
     if rows is not None and (type(rows) is not int or not 1 <= rows <= 10_000_000):
@@ -686,6 +701,7 @@ def _generate(plan: GeneratePlan | ComputerPlan,
         computer_anomaly_counts: dict[str, int] = {}
         timings: dict[str, float] = {"rows": 0.0, "errors": 0.0}
         rows_total = plan.rows["computers"]
+        workers = worker_count(plan.workers, rows_total)
 
         def write_computer(stages: dict[Path, Path]) -> None:
             paths = {artifact.kind: stages[artifact.path] for artifact in plan.artifacts}
@@ -708,6 +724,7 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 unit_style=plan.unit_style,
                 unit_columns=plan.unit_columns if plan.unit_style == "localized" else None,
                 on_rows=lambda done: report("Generating rows", done, rows_total),
+                workers=workers,
             )
             timings["rows"] = time.perf_counter() - began
             if plan.anomaly_profile is None:
@@ -723,8 +740,7 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                     paths[f"{locale}_changes"], dataset="computers",
                     profile=profile, seed=plan.seed, count=plan.rows["computers"],
                     delimiter=",", locale=locale, unit_suffixes=UNIT_COLUMNS,
-                    on_row=lambda done, locale=locale: report(
-                        f"Injecting errors ({locale})", done, rows_total),
+                    on_row=partial(_report_errors, report, locale, rows_total),
                 )
                 summary.update({
                     "locale": locale, "definition_id": plan.package.id,
@@ -757,7 +773,7 @@ def _generate(plan: GeneratePlan | ComputerPlan,
             published = _publish_artifacts(plan, lambda _artifact, _stage: None,
                                            anomaly_counts=computer_anomaly_counts,
                                            batch_writer=write_computer)
-        return replace(published, timings=timings)
+        return replace(published, timings=timings, workers=workers)
     if not plan.artifacts:
         raise ConfigurationError("A validation-only plan has no outputs to generate.")
     from tabalyst.generate_anomalies import inject_anomalies

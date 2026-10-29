@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import io
 import json
 import sys
+import tempfile
 from collections.abc import Callable
 from contextlib import ExitStack
 from datetime import date
@@ -210,6 +212,33 @@ def render_computer_row(package: DatasetPackage, row: dict[str, Cell],
     return rendered
 
 
+def _write_rows_in_workers(
+    package: DatasetPackage, outputs: dict[str, Path], locales: tuple[str, ...],
+    columns: tuple[str, ...], dataset_id: str, rows: int, seed: int, as_of_date: date,
+    generation_profile: str, output_profile: str, market: str, unit_style: str,
+    selected_units: tuple[str, ...], workers: int, on_rows: Callable[[int], None] | None,
+) -> None:
+    """Write the CSVs from rows rendered by worker processes."""
+    # Imported here because the workers module imports this one.
+    from tabalyst.generate_computer_parallel import SpanSettings, write_rows
+
+    header = io.StringIO()
+    csv.writer(header, lineterminator="\n").writerow(columns)
+    with ExitStack() as stack:
+        # The parts sit beside the outputs: millions of rows would fill a small system temp.
+        directory = Path(stack.enter_context(tempfile.TemporaryDirectory(
+            prefix=".generate-parts-", dir=outputs[locales[0]].parent)))
+        streams = {locale: stack.enter_context(outputs[locale].open("wb")) for locale in locales}
+        for stream in streams.values():
+            stream.write(header.getvalue().encode("utf-8"))
+        write_rows(
+            SpanSettings(package.root, dataset_id, seed, as_of_date, generation_profile,
+                         output_profile, market, unit_style, selected_units, locales,
+                         columns, directory),
+            rows, workers, streams, on_rows,
+        )
+
+
 def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
                         metadata_path: Path, *, dataset_id: str = "computers",
                         rows: int = 10, seed: int = 42,
@@ -218,13 +247,16 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
                         output_profile: str = "compact", market: str = "ca",
                         unit_style: str = "numeric",
                         unit_columns: tuple[str, ...] | None = None,
-                        on_rows: Callable[[int], None] | None = None) -> dict[str, object]:
+                        on_rows: Callable[[int], None] | None = None,
+                        workers: int = 1) -> dict[str, object]:
     """Write paired CSVs and reproducible metadata to caller supplied paths.
 
     The caller owns path planning, staging, collision checks, and publication.
     One selected and derived record feeds every requested locale writer per iteration.
     `outputs` holds `en`, `fr` or both; a single locale writes only that file.
     `on_rows` receives the number of rows written, about 200 times and at the end.
+    With `workers` above 1 the rows are rendered by that many processes and the
+    files are byte for byte those of one process; `on_rows` then moves by span.
     Localized units are recorded with the effective column selection.
     """
     locales = tuple(locale for locale in ("en", "fr") if locale in outputs)
@@ -247,28 +279,33 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
         or any(column not in columns or column not in UNIT_COLUMNS for column in selected_units)
         or unit_style == "numeric" and unit_columns is not None):
         raise ValueError("invalid Computer unit columns")
-    with ExitStack() as stack:
-        writers: dict[str, csv.DictWriter] = {}
-        for locale in locales:
-            stream = stack.enter_context(outputs[locale].open("w", encoding="utf-8", newline=""))
-            writer = csv.DictWriter(stream, fieldnames=columns,
-                                    extrasaction="raise", lineterminator="\n")
-            writer.writeheader()
-            writers[locale] = writer
-        report_every = max(1, rows // 200)
-        for index in range(rows):
-            if on_rows is not None and index % report_every == 0:
-                on_rows(index)
-            selected = select_catalog_row(package, dataset_id, seed, index,
-                                          generation_profile)
-            internal = derive_computer_row(package, selected, dataset_id, seed,
-                                           index, as_of_date, market)
+    if workers > 1:
+        _write_rows_in_workers(package, outputs, locales, columns, dataset_id, rows, seed,
+                               as_of_date, generation_profile, output_profile, market,
+                               unit_style, selected_units, workers, on_rows)
+    else:
+        with ExitStack() as stack:
+            writers: dict[str, csv.DictWriter] = {}
             for locale in locales:
-                writers[locale].writerow(render_computer_row(
-                    package, internal, locale, output_profile, unit_style, selected_units,
-                ))
-    if on_rows is not None:
-        on_rows(rows)
+                stream = stack.enter_context(outputs[locale].open("w", encoding="utf-8", newline=""))
+                writer = csv.DictWriter(stream, fieldnames=columns,
+                                        extrasaction="raise", lineterminator="\n")
+                writer.writeheader()
+                writers[locale] = writer
+            report_every = max(1, rows // 200)
+            for index in range(rows):
+                if on_rows is not None and index % report_every == 0:
+                    on_rows(index)
+                selected = select_catalog_row(package, dataset_id, seed, index,
+                                              generation_profile)
+                internal = derive_computer_row(package, selected, dataset_id, seed,
+                                               index, as_of_date, market)
+                for locale in locales:
+                    writers[locale].writerow(render_computer_row(
+                        package, internal, locale, output_profile, unit_style, selected_units,
+                    ))
+        if on_rows is not None:
+            on_rows(rows)
     resources: dict[str, str] = {}
     for path in sorted(package.input_paths):
         with path.open("rb") as source:
