@@ -27,7 +27,7 @@ destination is required, except with `--validate-only`. A
 | `--rows N` | Override the generated row count; for insurance, allocate the combined total across its branches. |
 | `--seed INTEGER` | Override the root random seed. |
 | `--as-of-date YYYY-MM-DD` | Override the reference date. |
-| `--anomaly-profile NAME` | Produce the selected anomaly variant, cell change log and summary (with `-d`). Computer: `dirty_realistic`, `dirty_stress`, `unit_variants`, `unit_variants_extended`. An unknown name lists the available ones. |
+| `--anomaly-profile NAME` | Produce the selected anomaly variant, cell change log and summary (with `-d`). Computer: `dirty_realistic`, `dirty_stress`, `unit_variants`, `unit_variants_extended`; give several names separated by commas to get one variant of each (with `-d`). An unknown name lists the available ones. |
 | `--request FILE` | Read `rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`, `locales`, `unit_style`, `unit_columns` and `anomaly_profile` from a JSON object. Explicit options win. |
 | `--generation-profile NAME` | Computer: bias the catalog selection. |
 | `--output-profile NAME` | Computer: choose the columns written (`compact`, `standard`, `extended`). |

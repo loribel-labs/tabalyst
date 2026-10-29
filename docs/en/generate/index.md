@@ -88,6 +88,18 @@ in lower case, 8 duplicated rows) however many rows you generate, with a
 `class` column in the change log. It needs enough rows for its classes and
 stops with an error on a file that is too small (about 1,000 rows or more).
 
+To get several levels of errors at once, name several profiles with `-d`. The
+rows are generated once and each profile makes its own variant, so the clean
+file and every variant describe the same rows:
+
+```console
+tabalyst generate --example computer --rows 30000 -d out/ --locales en --anomaly-profile dirty_realistic,dirty_stress
+```
+
+This writes `computers-en.csv`, then `computers-en.dirty_realistic.csv` and
+`computers-en.dirty_stress.csv`, each with its `.changes.csv` log and
+`.summary.json`. With `-o`, only one profile is allowed.
+
 Computer offers `dirty_realistic` (a few percent of cells), `dirty_stress` (more),
 `unit_variants` and `unit_variants_extended`. An unknown name stops the command
 with the list of available profiles. `dirty_realistic` and `dirty_stress` also write

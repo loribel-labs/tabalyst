@@ -686,3 +686,69 @@ def test_timing_report_names_the_phases_that_took_time() -> None:
     brief = GenerateResult((), {"computers": 10}, {}, seconds=0.2,
                            timings={"rows": 0.19, "errors": 0.0, "publish": 0.01})
     assert timing_report(brief) == "10 rows in 0.2s (50 rows/s)"
+
+
+def test_several_anomaly_profiles_share_one_clean_csv_and_match_single_runs(tmp_path: Path) -> None:
+    """Each profile gives the files a run of its own would, from one generation."""
+    events: list[GenerateProgress] = []
+    result = generate_datasets(
+        build_generate_plan(PACKAGE, output_dir=tmp_path / "both", rows=600, seed=5, locales="en",
+                            anomaly_profile="dirty_realistic,dirty_stress"),
+        on_progress=events.append,
+    )
+    assert sorted(path.name for path in (tmp_path / "both").iterdir()) == [
+        "computers-en.csv",
+        "computers-en.dirty_realistic.changes.csv", "computers-en.dirty_realistic.csv",
+        "computers-en.dirty_realistic.summary.json",
+        "computers-en.dirty_stress.changes.csv", "computers-en.dirty_stress.csv",
+        "computers-en.dirty_stress.summary.json", "computers.meta.json",
+    ]
+    for profile in ("dirty_realistic", "dirty_stress"):
+        generate_datasets(build_generate_plan(
+            PACKAGE, output_dir=tmp_path / profile, rows=600, seed=5, locales="en",
+            anomaly_profile=profile))
+        for name in (f"computers-en.{profile}.csv", f"computers-en.{profile}.changes.csv",
+                     f"computers-en.{profile}.summary.json", "computers-en.csv"):
+            assert (tmp_path / "both" / name).read_bytes() == (tmp_path / profile / name).read_bytes()
+    assert set(result.anomaly_counts) == {"en/dirty_realistic", "en/dirty_stress"}
+    assert {event.stage for event in events if event.stage.startswith("Injecting")} == {
+        "Injecting errors (en, dirty_realistic)", "Injecting errors (en, dirty_stress)"}
+    metadata = json.loads((tmp_path / "both" / "computers.meta.json").read_text(encoding="utf-8"))
+    assert metadata["request"]["anomaly_profiles"] == ["dirty_realistic", "dirty_stress"]
+    assert set(metadata["anomalies"]["en"]) == {"dirty_realistic", "dirty_stress"}
+
+
+def test_a_request_may_list_several_anomaly_profiles(tmp_path: Path) -> None:
+    """The request file takes a list as well as a comma separated name."""
+    request = tmp_path / "request.json"
+    request.write_text(json.dumps({"rows": 300, "locales": ["en"],
+                                   "anomaly_profile": ["dirty_realistic", "unit_variants"]}),
+                       encoding="utf-8")
+    plan = build_generate_plan(PACKAGE, output_dir=tmp_path / "out", request=request)
+    assert isinstance(plan, ComputerPlan)
+    assert plan.anomaly_profiles == ("dirty_realistic", "unit_variants")
+    assert plan.anomaly_profile == "dirty_realistic"
+    assert len(plan.artifacts) == 2 + 2 * 3
+
+
+@pytest.mark.parametrize(("options", "message"), [
+    ({"output": "x.csv", "anomaly_profile": "dirty_realistic,dirty_stress"}, "-o writes one file"),
+    ({"output_dir": "d", "anomaly_profile": "dirty_realistic,dirty_realistic"}, "each profile once"),
+    ({"output_dir": "d", "anomaly_profile": "dirty_realistic,"}, "no empty name"),
+    ({"output_dir": "d", "anomaly_profile": "dirty_realistic,nope"}, "Unknown anomaly profile: nope"),
+])
+def test_invalid_lists_of_anomaly_profiles_fail_before_writing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, options: dict[str, str], message: str,
+) -> None:
+    """A bad list stops with a clear message and writes nothing."""
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ConfigurationError, match=message):
+        build_generate_plan(PACKAGE, rows=50, **options)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_timing_report_counts_profiles_when_several_were_applied() -> None:
+    """Changed cells are totalled, with the number of profiles."""
+    result = GenerateResult((), {"computers": 100}, {"en/dirty_realistic": 10, "en/dirty_stress": 90},
+                            seconds=1.0)
+    assert timing_report(result) == "100 rows in 1.0s (100 rows/s), 100 cells changed in 2 profiles"

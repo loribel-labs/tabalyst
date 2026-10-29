@@ -81,11 +81,16 @@ class ComputerPlan:
     market: str
     unit_style: str
     unit_columns: tuple[str, ...]
-    anomaly_profile: str | None
+    anomaly_profiles: tuple[str, ...]
     force: bool
     request_path: Path | None
     locales: tuple[str, ...] = ("en", "fr")
     workers: int | None = None
+
+    @property
+    def anomaly_profile(self) -> str | None:
+        """The first anomaly profile, which is the only one unless several were asked."""
+        return self.anomaly_profiles[0] if self.anomaly_profiles else None
 
 
 @dataclass(frozen=True)
@@ -219,8 +224,13 @@ def _computer_anomaly_profile(
     return {"id": name, "operations": operations}
 
 
-def _report_errors(report: Callable[[str, int, int], None], locale: str, total: int, done: int) -> None:
-    report(f"Injecting errors ({locale})", done, total)
+def _anomaly_kind(locale: str, profile: str, part: str) -> str:
+    """The artifact kind of one file of a profile in one locale."""
+    return f"{locale}_{profile}_{part}"
+
+
+def _report_stage(report: Callable[[str, int, int], None], stage: str, total: int, done: int) -> None:
+    report(stage, done, total)
 
 
 def _check_counts(operations: list[dict[str, object]], rows: int, where: str) -> None:
@@ -293,7 +303,7 @@ def _computer_plan(
     requested_columns = unit_columns if unit_columns is not None else raw.get("unit_columns")
     effective_units = (unit_style if unit_style is not None else
                        raw.get("unit_style", "localized" if requested_columns is not None else "numeric"))
-    effective_anomaly = anomaly_profile if anomaly_profile is not None else raw.get("anomaly_profile")
+    requested_anomalies = anomaly_profile if anomaly_profile is not None else raw.get("anomaly_profile")
     if type(effective_rows) is not int or not 1 <= effective_rows <= MAX_ROWS:
         raise ConfigurationError("--rows must be an integer from 1 to 10000000.")
     if workers is not None and (type(workers) is not int or workers < 1):
@@ -347,9 +357,19 @@ def _computer_plan(
         raise ConfigurationError("unit_columns must be distinct measured columns in the output profile and require localized style.")
     ordered_units = tuple(column for column in PROFILE_COLUMNS[effective_output]
                           if column in selected_units)
-    if effective_anomaly is not None:
-        if not isinstance(effective_anomaly, str):
-            raise ConfigurationError("anomaly_profile must name a profile.")
+    if requested_anomalies is None:
+        effective_anomalies: tuple[str, ...] = ()
+    elif isinstance(requested_anomalies, str):
+        effective_anomalies = tuple(item.strip() for item in requested_anomalies.split(","))
+    elif isinstance(requested_anomalies, list) and all(isinstance(item, str) for item in requested_anomalies):
+        effective_anomalies = tuple(requested_anomalies)
+    else:
+        raise ConfigurationError("anomaly_profile must name a profile.")
+    if not all(effective_anomalies) or len(set(effective_anomalies)) != len(effective_anomalies):
+        raise ConfigurationError("anomaly_profile must list each profile once, with no empty name.")
+    if output is not None and len(effective_anomalies) > 1:
+        raise ConfigurationError("-o writes one file, so it takes one anomaly profile; use -d for several.")
+    for effective_anomaly in effective_anomalies:
         selected_anomaly = _computer_anomaly_profile(package, effective_anomaly,
                                                      effective_output)
         operations = cast(list[dict[str, object]], selected_anomaly["operations"])
@@ -368,13 +388,14 @@ def _computer_plan(
         if target.suffix.lower() != ".csv":
             raise ConfigurationError("-o must name a .csv file.")
         locale = effective_locales[0]
-        if effective_anomaly is None:
+        if not effective_anomalies:
             artifacts_list.append(GenerateArtifact("computers", locale, target))
         else:
             # The file asked for holds the errors; the clean copy and the summary stay internal.
+            name = effective_anomalies[0]
             artifacts_list.extend((
-                GenerateArtifact("computers", f"{locale}_altered", target),
-                GenerateArtifact("computers", f"{locale}_changes",
+                GenerateArtifact("computers", _anomaly_kind(locale, name, "altered"), target),
+                GenerateArtifact("computers", _anomaly_kind(locale, name, "changes"),
                                  target.with_name(f"{target.stem}.changes.csv")),
             ))
         destination = target.parent
@@ -385,13 +406,16 @@ def _computer_plan(
         )
         artifacts_list.append(
             GenerateArtifact("computers", "metadata", destination / "computers.meta.json"))
-        if effective_anomaly is not None:
+        for name in effective_anomalies:
             for locale in effective_locales:
-                prefix = f"computers-{locale}.{effective_anomaly}"
+                prefix = f"computers-{locale}.{name}"
                 artifacts_list.extend((
-                    GenerateArtifact("computers", f"{locale}_altered", destination / f"{prefix}.csv"),
-                    GenerateArtifact("computers", f"{locale}_changes", destination / f"{prefix}.changes.csv"),
-                    GenerateArtifact("computers", f"{locale}_summary", destination / f"{prefix}.summary.json"),
+                    GenerateArtifact("computers", _anomaly_kind(locale, name, "altered"),
+                                     destination / f"{prefix}.csv"),
+                    GenerateArtifact("computers", _anomaly_kind(locale, name, "changes"),
+                                     destination / f"{prefix}.changes.csv"),
+                    GenerateArtifact("computers", _anomaly_kind(locale, name, "summary"),
+                                     destination / f"{prefix}.summary.json"),
                 ))
     if destination is not None and destination.resolve().is_relative_to(package.root):
         raise InputError("Generate output directory cannot be inside its source package.")
@@ -405,7 +429,7 @@ def _computer_plan(
                         effective_seed, effective_date, effective_generation,
                         effective_output, effective_market, effective_units,
                         ordered_units,
-                        effective_anomaly,
+                        effective_anomalies,
                         force, request_path, effective_locales, workers)
 
 
@@ -712,7 +736,9 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 prefix=".generate-", dir=next(iter(stages.values())).parent)))
             for locale in plan.locales:
                 paths.setdefault(locale, scratch / f"computers-{locale}.csv")
-                paths.setdefault(f"{locale}_summary", scratch / f"{locale}.summary.json")
+                for name in plan.anomaly_profiles:
+                    paths.setdefault(_anomaly_kind(locale, name, "summary"),
+                                     scratch / f"{locale}.{name}.summary.json")
             paths.setdefault("metadata", scratch / "computers.meta.json")
             began = time.perf_counter()
             metadata = write_computer_csvs(
@@ -727,42 +753,50 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 workers=workers,
             )
             timings["rows"] = time.perf_counter() - began
-            if plan.anomaly_profile is None:
+            if not plan.anomaly_profiles:
                 return
             began = time.perf_counter()
-            profile = _computer_anomaly_profile(
-                plan.package, plan.anomaly_profile, plan.output_profile,
-            )
-            summaries: dict[str, object] = {}
-            for locale in plan.locales:
-                summary = inject_anomalies(
-                    paths[locale], paths[f"{locale}_altered"],
-                    paths[f"{locale}_changes"], dataset="computers",
-                    profile=profile, seed=plan.seed, count=plan.rows["computers"],
-                    delimiter=",", locale=locale, unit_suffixes=UNIT_COLUMNS,
-                    on_row=partial(_report_errors, report, locale, rows_total),
-                )
-                summary.update({
-                    "locale": locale, "definition_id": plan.package.id,
-                    "tabalyst_version": __version__, "as_of_date": plan.as_of_date,
-                    "format": "tabalyst.generate.package", "format_version": "0.1.0",
-                    "package_version": plan.package.package_version,
-                })
-                paths[f"{locale}_summary"].write_text(
-                    json.dumps(summary, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
-                    encoding="utf-8", newline="\n",
-                )
-                computer_anomaly_counts[locale] = cast(int, summary["changed_cells"])
-                summaries[locale] = {
-                    "altered": f"computers-{locale}.{plan.anomaly_profile}.csv",
-                    "changes": f"computers-{locale}.{plan.anomaly_profile}.changes.csv",
-                    "summary": f"computers-{locale}.{plan.anomaly_profile}.summary.json",
-                    "changed_cells": summary["changed_cells"],
-                }
+            several = len(plan.anomaly_profiles) > 1
+            summaries: dict[str, dict[str, object]] = {locale: {} for locale in plan.locales}
+            for name in plan.anomaly_profiles:
+                profile = _computer_anomaly_profile(plan.package, name, plan.output_profile)
+                for locale in plan.locales:
+                    stage = f"Injecting errors ({locale}, {name})" if several else f"Injecting errors ({locale})"
+                    summary = inject_anomalies(
+                        paths[locale], paths[_anomaly_kind(locale, name, "altered")],
+                        paths[_anomaly_kind(locale, name, "changes")], dataset="computers",
+                        profile=profile, seed=plan.seed, count=plan.rows["computers"],
+                        delimiter=",", locale=locale, unit_suffixes=UNIT_COLUMNS,
+                        on_row=partial(_report_stage, report, stage, rows_total),
+                    )
+                    summary.update({
+                        "locale": locale, "definition_id": plan.package.id,
+                        "tabalyst_version": __version__, "as_of_date": plan.as_of_date,
+                        "format": "tabalyst.generate.package", "format_version": "0.1.0",
+                        "package_version": plan.package.package_version,
+                    })
+                    paths[_anomaly_kind(locale, name, "summary")].write_text(
+                        json.dumps(summary, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
+                        encoding="utf-8", newline="\n",
+                    )
+                    computer_anomaly_counts[f"{locale}/{name}" if several else locale] = cast(
+                        int, summary["changed_cells"])
+                    summaries[locale][name] = {
+                        "altered": f"computers-{locale}.{name}.csv",
+                        "changes": f"computers-{locale}.{name}.changes.csv",
+                        "summary": f"computers-{locale}.{name}.summary.json",
+                        "changed_cells": summary["changed_cells"],
+                    }
             request = metadata["request"]
             assert isinstance(request, dict)
-            request["anomaly_profile"] = plan.anomaly_profile
-            metadata["anomalies"] = summaries
+            # One profile keeps the layout earlier files had; several list them by name.
+            if several:
+                request["anomaly_profiles"] = list(plan.anomaly_profiles)
+                metadata["anomalies"] = summaries
+            else:
+                request["anomaly_profile"] = plan.anomaly_profiles[0]
+                metadata["anomalies"] = {locale: found[plan.anomaly_profiles[0]]
+                                         for locale, found in summaries.items()}
             paths["metadata"].write_text(
                 json.dumps(metadata, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
                 encoding="utf-8", newline="\n",

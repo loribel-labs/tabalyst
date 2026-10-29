@@ -73,7 +73,10 @@ def timing_report(result: GenerateResult) -> str:
             text += f" ({rows / result.seconds:,.0f} rows/s{processes})"
     changed = sum(result.anomaly_counts.values())
     if changed:
+        profiles = {key.split("/", 1)[1] for key in result.anomaly_counts if "/" in key}
         text += f", {changed:,} cells changed"
+        if len(profiles) > 1:
+            text += f" in {len(profiles)} profiles"
     parts = [f"{PHASE_NAMES[name]} {format_duration(value)}"
              for name, value in result.timings.items()
              if name in PHASE_NAMES and value >= MIN_REPORTED_SECONDS]
@@ -111,7 +114,7 @@ def generate_command(
     ] = None,
     anomaly_profile: Annotated[
         str | None,
-        typer.Option("--anomaly-profile", help="Inject errors. Computer: dirty_realistic, dirty_stress, unit_variants, unit_variants_extended."),
+        typer.Option("--anomaly-profile", help="Inject errors. Computer: dirty_realistic, dirty_stress, unit_variants, unit_variants_extended; several, comma separated, with -d."),
     ] = None,
     request: Annotated[
         Path | None,
