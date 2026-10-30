@@ -11,10 +11,12 @@ import json
 import os
 import shutil
 import tempfile
+import time
 from collections.abc import Callable
 from contextlib import ExitStack
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from datetime import date
+from functools import partial
 from importlib.resources import files
 from pathlib import Path
 from typing import cast
@@ -37,6 +39,7 @@ from tabalyst.generate_computer_output import (
     UNIT_COLUMNS,
     write_computer_csvs,
 )
+from tabalyst.generate_computer_parallel import worker_count
 from tabalyst.generate_csv import write_csv
 from tabalyst.generate_definition import GenerateDefinition
 from tabalyst.generate_insurance import InsuranceProvider
@@ -78,9 +81,16 @@ class ComputerPlan:
     market: str
     unit_style: str
     unit_columns: tuple[str, ...]
-    anomaly_profile: str | None
+    anomaly_profiles: tuple[str, ...]
     force: bool
     request_path: Path | None
+    locales: tuple[str, ...] = ("en", "fr")
+    workers: int | None = None
+
+    @property
+    def anomaly_profile(self) -> str | None:
+        """The first anomaly profile, which is the only one unless several were asked."""
+        return self.anomaly_profiles[0] if self.anomaly_profiles else None
 
 
 @dataclass(frozen=True)
@@ -93,9 +103,33 @@ class ValidationResult:
 
 @dataclass(frozen=True)
 class GenerateResult:
+    """Paths written, row and changed-cell counts, and how long each part took.
+
+    `timings` splits `seconds` into `rows` (generation), `errors` (anomaly
+    injection) and `publish` (staging, checks and replacing the files); it is
+    empty for packages that report only the total. `workers` is the number of
+    processes that generated the rows.
+    """
+
     paths: tuple[Path, ...]
     row_counts: dict[str, int]
     anomaly_counts: dict[str, int]
+    seconds: float = 0.0
+    timings: dict[str, float] = field(default_factory=dict)
+    workers: int = 1
+
+
+@dataclass(frozen=True)
+class GenerateProgress:
+    """One progress step of a run: what is being done and how far it is."""
+
+    stage: str
+    done: int
+    total: int
+    elapsed_seconds: float
+
+
+GenerateProgressCallback = Callable[[GenerateProgress], None]
 
 
 def _example_path(example: str) -> Path:
@@ -147,7 +181,8 @@ def _computer_anomaly_profile(
     """Validate a Computer mutation profile against both localized outputs."""
     profiles = package.manifest.get("anomaly_profiles", {})
     if not isinstance(profiles, dict) or name not in profiles:
-        raise ConfigurationError(f"Unknown anomaly profile: {name}")
+        available = ", ".join(profiles) if isinstance(profiles, dict) else "none"
+        raise ConfigurationError(f"Unknown anomaly profile: {name}. Available: {available}")
     profile = profiles[name]
     if not isinstance(profile, dict) or set(profile) != {"targets", "operations"}:
         raise ConfigurationError(f"PACKAGE_ANOMALY: invalid profile {name}")
@@ -189,6 +224,15 @@ def _computer_anomaly_profile(
     return {"id": name, "operations": operations}
 
 
+def _anomaly_kind(locale: str, profile: str, part: str) -> str:
+    """The artifact kind of one file of a profile in one locale."""
+    return f"{locale}_{profile}_{part}"
+
+
+def _report_stage(report: Callable[[str, int, int], None], stage: str, total: int, done: int) -> None:
+    report(stage, done, total)
+
+
 def _check_counts(operations: list[dict[str, object]], rows: int, where: str) -> None:
     """Reject an absolute anomaly count larger than the dataset before any write."""
     try:
@@ -214,14 +258,14 @@ def _computer_plan(
     market: str | None, locales: str | None, unit_style: str | None,
     unit_columns: str | None,
     anomaly_profile: str | None, force: bool,
-    validate_only: bool,
+    validate_only: bool, workers: int | None = None,
 ) -> ComputerPlan:
     package = load_generate_package(path)
     _validate_computer_anomaly_profiles(package)
-    if output is not None or (output_dir is None and not validate_only):
-        raise ConfigurationError("Computer produces multiple artifacts; use -d.")
-    if validate_only and output_dir is not None:
+    if validate_only and (output_dir is not None or output is not None):
         raise ConfigurationError("--validate-only does not take a destination.")
+    if (output is None) == (output_dir is None) and not validate_only:
+        raise ConfigurationError("Give exactly one destination: -o or -d.")
     if request is not None:
         request_path = Path(request)
         try:
@@ -255,13 +299,15 @@ def _computer_plan(
     effective_generation = generation_profile if generation_profile is not None else raw.get("generation_profile", "balanced")
     effective_output = output_profile if output_profile is not None else raw.get("output_profile", "compact")
     effective_market = market if market is not None else raw.get("market", "ca")
-    effective_locales = locales.split(",") if locales is not None else raw.get("locales", ["en", "fr"])
+    requested_locales = locales.split(",") if locales is not None else raw.get("locales")
     requested_columns = unit_columns if unit_columns is not None else raw.get("unit_columns")
     effective_units = (unit_style if unit_style is not None else
                        raw.get("unit_style", "localized" if requested_columns is not None else "numeric"))
-    effective_anomaly = anomaly_profile if anomaly_profile is not None else raw.get("anomaly_profile")
+    requested_anomalies = anomaly_profile if anomaly_profile is not None else raw.get("anomaly_profile")
     if type(effective_rows) is not int or not 1 <= effective_rows <= MAX_ROWS:
         raise ConfigurationError("--rows must be an integer from 1 to 10000000.")
+    if workers is not None and (type(workers) is not int or workers < 1):
+        raise ConfigurationError("--workers must be an integer of 1 or more.")
     if type(effective_seed) is not int:
         raise ConfigurationError("--seed must be an integer.")
     try:
@@ -271,7 +317,9 @@ def _computer_plan(
         raise ConfigurationError("--as-of-date must be YYYY-MM-DD.") from exc
     generation_profiles = package.manifest.get("generation_profiles")
     if not isinstance(effective_generation, str) or not isinstance(generation_profiles, dict) or effective_generation not in generation_profiles:
-        raise ConfigurationError(f"Unknown generation profile: {effective_generation}")
+        available = ", ".join(generation_profiles) if isinstance(generation_profiles, dict) else "none"
+        raise ConfigurationError(
+            f"Unknown generation profile: {effective_generation}. Available: {available}")
     if not isinstance(effective_output, str) or effective_output not in PROFILE_COLUMNS:
         raise ConfigurationError(f"Unsupported Computer output profile: {effective_output}")
     profiles = package.manifest.get("output_profiles")
@@ -279,8 +327,16 @@ def _computer_plan(
         raise ConfigurationError(f"PACKAGE_OUTPUT: {effective_output} profile differs from Computer register")
     if not isinstance(effective_market, str) or effective_market not in {"ca", "us"}:
         raise ConfigurationError(f"Unsupported Computer market: {effective_market}")
-    if effective_locales != ["en", "fr"]:
-        raise ConfigurationError("Computer currently requires locales en,fr.")
+    if requested_locales is None:
+        # A single file is the point of -o, so it defaults to English; -d keeps both.
+        requested_locales = ["en"] if output is not None else ["en", "fr"]
+    if (not isinstance(requested_locales, list) or not requested_locales
+            or any(item not in {"en", "fr"} for item in requested_locales)
+            or len(set(requested_locales)) != len(requested_locales)):
+        raise ConfigurationError("Computer locales must be en, fr or en,fr.")
+    effective_locales = tuple(item for item in ("en", "fr") if item in requested_locales)
+    if output is not None and len(effective_locales) != 1:
+        raise ConfigurationError("-o writes one locale; use --locales en or --locales fr, or use -d.")
     if not isinstance(effective_units, str) or effective_units not in {"numeric", "localized"}:
         raise ConfigurationError(f"Unsupported Computer unit style: {effective_units}")
     if isinstance(requested_columns, str):
@@ -301,9 +357,19 @@ def _computer_plan(
         raise ConfigurationError("unit_columns must be distinct measured columns in the output profile and require localized style.")
     ordered_units = tuple(column for column in PROFILE_COLUMNS[effective_output]
                           if column in selected_units)
-    if effective_anomaly is not None:
-        if not isinstance(effective_anomaly, str):
-            raise ConfigurationError("anomaly_profile must name a profile.")
+    if requested_anomalies is None:
+        effective_anomalies: tuple[str, ...] = ()
+    elif isinstance(requested_anomalies, str):
+        effective_anomalies = tuple(item.strip() for item in requested_anomalies.split(","))
+    elif isinstance(requested_anomalies, list) and all(isinstance(item, str) for item in requested_anomalies):
+        effective_anomalies = tuple(requested_anomalies)
+    else:
+        raise ConfigurationError("anomaly_profile must name a profile.")
+    if not all(effective_anomalies) or len(set(effective_anomalies)) != len(effective_anomalies):
+        raise ConfigurationError("anomaly_profile must list each profile once, with no empty name.")
+    if output is not None and len(effective_anomalies) > 1:
+        raise ConfigurationError("-o writes one file, so it takes one anomaly profile; use -d for several.")
+    for effective_anomaly in effective_anomalies:
         selected_anomaly = _computer_anomaly_profile(package, effective_anomaly,
                                                      effective_output)
         operations = cast(list[dict[str, object]], selected_anomaly["operations"])
@@ -316,20 +382,43 @@ def _computer_plan(
     destination = Path(output_dir) if output_dir is not None else None
     if destination is not None and destination.exists() and not destination.is_dir():
         raise InputError(f"Output directory path is a file: {destination}")
+    artifacts_list: list[GenerateArtifact] = []
+    if output is not None:
+        target = Path(output)
+        if target.suffix.lower() != ".csv":
+            raise ConfigurationError("-o must name a .csv file.")
+        locale = effective_locales[0]
+        if not effective_anomalies:
+            artifacts_list.append(GenerateArtifact("computers", locale, target))
+        else:
+            # The file asked for holds the errors; the clean copy and the summary stay internal.
+            name = effective_anomalies[0]
+            artifacts_list.extend((
+                GenerateArtifact("computers", _anomaly_kind(locale, name, "altered"), target),
+                GenerateArtifact("computers", _anomaly_kind(locale, name, "changes"),
+                                 target.with_name(f"{target.stem}.changes.csv")),
+            ))
+        destination = target.parent
+    elif destination is not None:
+        artifacts_list.extend(
+            GenerateArtifact("computers", locale, destination / f"computers-{locale}.csv")
+            for locale in effective_locales
+        )
+        artifacts_list.append(
+            GenerateArtifact("computers", "metadata", destination / "computers.meta.json"))
+        for name in effective_anomalies:
+            for locale in effective_locales:
+                prefix = f"computers-{locale}.{name}"
+                artifacts_list.extend((
+                    GenerateArtifact("computers", _anomaly_kind(locale, name, "altered"),
+                                     destination / f"{prefix}.csv"),
+                    GenerateArtifact("computers", _anomaly_kind(locale, name, "changes"),
+                                     destination / f"{prefix}.changes.csv"),
+                    GenerateArtifact("computers", _anomaly_kind(locale, name, "summary"),
+                                     destination / f"{prefix}.summary.json"),
+                ))
     if destination is not None and destination.resolve().is_relative_to(package.root):
         raise InputError("Generate output directory cannot be inside its source package.")
-    artifacts_list = [GenerateArtifact("computers", kind, destination / name) for kind, name in (
-        ("en", "computers-en.csv"), ("fr", "computers-fr.csv"),
-        ("metadata", "computers.meta.json"),
-    )] if destination is not None else []
-    if destination is not None and effective_anomaly is not None:
-        for locale in ("en", "fr"):
-            prefix = f"computers-{locale}.{effective_anomaly}"
-            artifacts_list.extend((
-                GenerateArtifact("computers", f"{locale}_altered", destination / f"{prefix}.csv"),
-                GenerateArtifact("computers", f"{locale}_changes", destination / f"{prefix}.changes.csv"),
-                GenerateArtifact("computers", f"{locale}_summary", destination / f"{prefix}.summary.json"),
-            ))
     artifacts = tuple(artifacts_list)
     sources = set(package.input_paths)
     if request_path is not None:
@@ -340,8 +429,8 @@ def _computer_plan(
                         effective_seed, effective_date, effective_generation,
                         effective_output, effective_market, effective_units,
                         ordered_units,
-                        effective_anomaly,
-                        force, request_path)
+                        effective_anomalies,
+                        force, request_path, effective_locales, workers)
 
 
 def build_generate_plan(
@@ -364,6 +453,7 @@ def build_generate_plan(
     unit_style: str | None = None,
     unit_columns: str | None = None,
     validate_only: bool = False,
+    workers: int | None = None,
 ) -> GeneratePlan | ComputerPlan:
     """Validate a Generate source and plan every artifact before writing."""
     if package_path is not None:
@@ -391,6 +481,7 @@ def build_generate_plan(
                 anomaly_profile=anomaly_profile,
                 force=force,
                 validate_only=validate_only,
+                workers=workers,
             )
         definition = load_columns_definition(package)
         if validate_only:
@@ -408,6 +499,8 @@ def build_generate_plan(
         or market is not None or locales is not None or unit_style is not None
         or unit_columns is not None):
         raise ConfigurationError("Package request and profile options require a package path.")
+    if workers is not None:
+        raise ConfigurationError("--workers applies to the Computer package only.")
     if (output is None) == (output_dir is None):
         raise ConfigurationError("Give exactly one destination: -o or -d.")
     if rows is not None and (type(rows) is not int or not 1 <= rows <= 10_000_000):
@@ -422,7 +515,8 @@ def build_generate_plan(
         raise ConfigurationError("--as-of-date must be YYYY-MM-DD.") from exc
     profiles = {profile["id"]: profile for profile in definition.anomaly_profiles}
     if anomaly_profile is not None and anomaly_profile not in profiles:
-        raise ConfigurationError(f"Unknown anomaly profile: {anomaly_profile}")
+        raise ConfigurationError(
+            f"Unknown anomaly profile: {anomaly_profile}. Available: {', '.join(profiles) or 'none'}")
     dataset_by_id = {dataset["id"]: dataset for dataset in definition.datasets}
     counts = {
         name: dataset["rows"] for name, dataset in dataset_by_id.items()
@@ -494,8 +588,13 @@ def _publish_artifacts(
     writer: Callable[[GenerateArtifact, Path], None],
     anomaly_counts: dict[str, int] | None = None,
     batch_writer: Callable[[dict[Path, Path]], None] | None = None,
+    on_artifact: Callable[[str, int, int], None] | None = None,
 ) -> GenerateResult:
-    """Stage all files then replace finals, restoring earlier files on failure."""
+    """Stage all files then replace finals, restoring earlier files on failure.
+
+    `on_artifact` is told the name and place of each file before it is staged,
+    when the files are written one by one (no `batch_writer`).
+    """
     if isinstance(plan, ComputerPlan):
         source = plan.package.root / "dataset.yaml"
         sources = set(plan.package.input_paths)
@@ -517,9 +616,11 @@ def _publish_artifacts(
     preserve_backups = False
     publishing = False
     try:
-        for artifact in plan.artifacts:
+        for position, artifact in enumerate(plan.artifacts):
             target = artifact.path
             target.parent.mkdir(parents=True, exist_ok=True)
+            if on_artifact is not None and batch_writer is None:
+                on_artifact(target.name, position, len(plan.artifacts))
             descriptor, name = tempfile.mkstemp(dir=target.parent, prefix=f".{target.name}.", suffix=".tmp")
             os.close(descriptor)
             stage = Path(name)
@@ -591,68 +692,122 @@ def _publish_artifacts(
     )
 
 
-def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
-    """Generate clean datasets, shared entities and ordered combines."""
+def generate_datasets(plan: GeneratePlan | ComputerPlan,
+                      on_progress: GenerateProgressCallback | None = None) -> GenerateResult:
+    """Generate clean datasets, shared entities and ordered combines.
+
+    `on_progress` is called with the stage, the work done and the work to do:
+    rows for Computer, files for the other packages. The result carries the
+    total time and, for Computer, its split.
+    """
+    started = time.perf_counter()
+
+    def report(stage: str, done: int, total: int) -> None:
+        if on_progress is not None:
+            on_progress(GenerateProgress(stage, done, total, time.perf_counter() - started))
+
+    result = _generate(plan, report)
+    seconds = time.perf_counter() - started
+    if not result.timings:
+        return replace(result, seconds=seconds)
+    timings = dict(result.timings)
+    timings["publish"] = max(0.0, seconds - timings.get("rows", 0.0) - timings.get("errors", 0.0))
+    return replace(result, seconds=seconds, timings=timings)
+
+
+def _generate(plan: GeneratePlan | ComputerPlan,
+              report: Callable[[str, int, int], None]) -> GenerateResult:
     if isinstance(plan, ComputerPlan):
         if not plan.artifacts:
             raise ConfigurationError("A validation-only plan has no outputs to generate.")
         from tabalyst.generate_anomalies import inject_anomalies
 
         computer_anomaly_counts: dict[str, int] = {}
+        timings: dict[str, float] = {"rows": 0.0, "errors": 0.0}
+        rows_total = plan.rows["computers"]
+        workers = worker_count(plan.workers, rows_total)
 
         def write_computer(stages: dict[Path, Path]) -> None:
             paths = {artifact.kind: stages[artifact.path] for artifact in plan.artifacts}
+            # What the destination does not publish (for -o: the clean copy, the
+            # metadata and the summary) is still needed to build the rest.
+            # It sits beside the staged files: millions of rows would fill a small system temp.
+            scratch = Path(stack.enter_context(tempfile.TemporaryDirectory(
+                prefix=".generate-", dir=next(iter(stages.values())).parent)))
+            for locale in plan.locales:
+                paths.setdefault(locale, scratch / f"computers-{locale}.csv")
+                for name in plan.anomaly_profiles:
+                    paths.setdefault(_anomaly_kind(locale, name, "summary"),
+                                     scratch / f"{locale}.{name}.summary.json")
+            paths.setdefault("metadata", scratch / "computers.meta.json")
+            began = time.perf_counter()
             metadata = write_computer_csvs(
-                plan.package, {"en": paths["en"], "fr": paths["fr"]}, paths["metadata"],
+                plan.package, {locale: paths[locale] for locale in plan.locales}, paths["metadata"],
                 rows=plan.rows["computers"], seed=plan.seed,
                 as_of_date=date.fromisoformat(plan.as_of_date),
                 generation_profile=plan.generation_profile,
                 output_profile=plan.output_profile, market=plan.market,
                 unit_style=plan.unit_style,
                 unit_columns=plan.unit_columns if plan.unit_style == "localized" else None,
+                on_rows=lambda done: report("Generating rows", done, rows_total),
+                workers=workers,
             )
-            if plan.anomaly_profile is None:
+            timings["rows"] = time.perf_counter() - began
+            if not plan.anomaly_profiles:
                 return
-            profile = _computer_anomaly_profile(
-                plan.package, plan.anomaly_profile, plan.output_profile,
-            )
-            summaries: dict[str, object] = {}
-            for locale in ("en", "fr"):
-                summary = inject_anomalies(
-                    paths[locale], paths[f"{locale}_altered"],
-                    paths[f"{locale}_changes"], dataset="computers",
-                    profile=profile, seed=plan.seed, count=plan.rows["computers"],
-                    delimiter=",", locale=locale, unit_suffixes=UNIT_COLUMNS,
-                )
-                summary.update({
-                    "locale": locale, "definition_id": plan.package.id,
-                    "tabalyst_version": __version__, "as_of_date": plan.as_of_date,
-                    "format": "tabalyst.generate.package", "format_version": "0.1.0",
-                    "package_version": plan.package.package_version,
-                })
-                paths[f"{locale}_summary"].write_text(
-                    json.dumps(summary, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
-                    encoding="utf-8", newline="\n",
-                )
-                computer_anomaly_counts[locale] = cast(int, summary["changed_cells"])
-                summaries[locale] = {
-                    "altered": f"computers-{locale}.{plan.anomaly_profile}.csv",
-                    "changes": f"computers-{locale}.{plan.anomaly_profile}.changes.csv",
-                    "summary": f"computers-{locale}.{plan.anomaly_profile}.summary.json",
-                    "changed_cells": summary["changed_cells"],
-                }
+            began = time.perf_counter()
+            several = len(plan.anomaly_profiles) > 1
+            summaries: dict[str, dict[str, object]] = {locale: {} for locale in plan.locales}
+            for name in plan.anomaly_profiles:
+                profile = _computer_anomaly_profile(plan.package, name, plan.output_profile)
+                for locale in plan.locales:
+                    stage = f"Injecting errors ({locale}, {name})" if several else f"Injecting errors ({locale})"
+                    summary = inject_anomalies(
+                        paths[locale], paths[_anomaly_kind(locale, name, "altered")],
+                        paths[_anomaly_kind(locale, name, "changes")], dataset="computers",
+                        profile=profile, seed=plan.seed, count=plan.rows["computers"],
+                        delimiter=",", locale=locale, unit_suffixes=UNIT_COLUMNS,
+                        on_row=partial(_report_stage, report, stage, rows_total),
+                    )
+                    summary.update({
+                        "locale": locale, "definition_id": plan.package.id,
+                        "tabalyst_version": __version__, "as_of_date": plan.as_of_date,
+                        "format": "tabalyst.generate.package", "format_version": "0.1.0",
+                        "package_version": plan.package.package_version,
+                    })
+                    paths[_anomaly_kind(locale, name, "summary")].write_text(
+                        json.dumps(summary, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
+                        encoding="utf-8", newline="\n",
+                    )
+                    computer_anomaly_counts[f"{locale}/{name}" if several else locale] = cast(
+                        int, summary["changed_cells"])
+                    summaries[locale][name] = {
+                        "altered": f"computers-{locale}.{name}.csv",
+                        "changes": f"computers-{locale}.{name}.changes.csv",
+                        "summary": f"computers-{locale}.{name}.summary.json",
+                        "changed_cells": summary["changed_cells"],
+                    }
             request = metadata["request"]
             assert isinstance(request, dict)
-            request["anomaly_profile"] = plan.anomaly_profile
-            metadata["anomalies"] = summaries
+            # One profile keeps the layout earlier files had; several list them by name.
+            if several:
+                request["anomaly_profiles"] = list(plan.anomaly_profiles)
+                metadata["anomalies"] = summaries
+            else:
+                request["anomaly_profile"] = plan.anomaly_profiles[0]
+                metadata["anomalies"] = {locale: found[plan.anomaly_profiles[0]]
+                                         for locale, found in summaries.items()}
             paths["metadata"].write_text(
                 json.dumps(metadata, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
                 encoding="utf-8", newline="\n",
             )
+            timings["errors"] = time.perf_counter() - began
 
-        return _publish_artifacts(plan, lambda _artifact, _stage: None,
-                                  anomaly_counts=computer_anomaly_counts,
-                                  batch_writer=write_computer)
+        with ExitStack() as stack:
+            published = _publish_artifacts(plan, lambda _artifact, _stage: None,
+                                           anomaly_counts=computer_anomaly_counts,
+                                           batch_writer=write_computer)
+        return replace(published, timings=timings, workers=workers)
     if not plan.artifacts:
         raise ConfigurationError("A validation-only plan has no outputs to generate.")
     from tabalyst.generate_anomalies import inject_anomalies
@@ -766,7 +921,10 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
             raise ReportError(f"Generated row count differs for {artifact.dataset_id}")
         staged_clean[artifact.dataset_id] = stage
     try:
-        return _publish_artifacts(plan, writer, anomaly_counts)
+        return _publish_artifacts(
+            plan, writer, anomaly_counts,
+            on_artifact=lambda name, done, total: report(f"Writing {name}", done, total),
+        )
     finally:
         for journal in staged_changes.values():
             journal.unlink(missing_ok=True)

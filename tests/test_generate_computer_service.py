@@ -7,6 +7,7 @@
 import csv
 import hashlib
 import json
+import re
 import shutil
 from collections.abc import Iterable
 from importlib.resources import files
@@ -17,10 +18,18 @@ from typer.testing import CliRunner
 
 from tabalyst.batch import validate_outputs
 from tabalyst.cli.app import app
+from tabalyst.cli.generate import (
+    GenerateProgressPrinter,
+    format_duration,
+    timing_report,
+)
 from tabalyst.errors import ConfigurationError, InputError, ReportError
 from tabalyst.generate_computer_output import UNIT_COLUMNS
+from tabalyst.generate_package import load_generate_package
 from tabalyst.generate_service import (
     ComputerPlan,
+    GenerateProgress,
+    GenerateResult,
     build_generate_plan,
     generate_datasets,
     validate_generate_package,
@@ -489,3 +498,257 @@ def test_publication_failure_restores_previous_files(tmp_path: Path,
     assert all((destination / name).read_bytes() == b"old" for name in (
         "computers-en.csv", "computers-fr.csv", "computers.meta.json",
     ))
+
+
+def _read_rows(path: Path) -> list[dict[str, str]]:
+    with path.open(encoding="utf-8", newline="") as stream:
+        return list(csv.DictReader(stream))
+
+
+def test_output_file_writes_one_english_csv_by_default(tmp_path: Path) -> None:
+    """-o gives the single CSV asked for, in English, and nothing else."""
+    target = tmp_path / "pcs.csv"
+    result = CliRunner().invoke(app, ["generate", "--example", "computer", "-o",
+                                      str(target), "--rows", "7", "--seed", "42"])
+    assert result.exit_code == 0, result.output
+    assert [path.name for path in tmp_path.iterdir()] == ["pcs.csv"]
+    assert len(_read_rows(target)) == 7
+
+
+def test_output_file_matches_the_english_csv_of_directory_mode(tmp_path: Path) -> None:
+    """The same seed gives the same rows whichever destination is used."""
+    generate_datasets(build_generate_plan(
+        PACKAGE, output_dir=tmp_path / "dir", rows=50, seed=7, locales="en,fr"))
+    generate_datasets(build_generate_plan(PACKAGE, output=tmp_path / "one.csv", rows=50, seed=7))
+    assert (tmp_path / "one.csv").read_bytes() == (tmp_path / "dir" / "computers-en.csv").read_bytes()
+
+
+def test_output_file_with_anomaly_profile_writes_errors_and_a_journal(tmp_path: Path) -> None:
+    """-o holds the CSV with errors, with its change journal beside it."""
+    dirty_dir = tmp_path / "dir"
+    generate_datasets(build_generate_plan(
+        PACKAGE, output_dir=dirty_dir, rows=300, seed=42, anomaly_profile="dirty_realistic"))
+    target = tmp_path / "out" / "pcs.csv"
+    result = generate_datasets(build_generate_plan(
+        PACKAGE, output=target, rows=300, seed=42, anomaly_profile="dirty_realistic"))
+    assert sorted(path.name for path in target.parent.iterdir()) == ["pcs.changes.csv", "pcs.csv"]
+    assert result.paths == (target, target.with_name("pcs.changes.csv"))
+    assert target.read_bytes() == (dirty_dir / "computers-en.dirty_realistic.csv").read_bytes()
+    assert target.with_name("pcs.changes.csv").read_bytes() == (
+        dirty_dir / "computers-en.dirty_realistic.changes.csv").read_bytes()
+    assert result.anomaly_counts["en"] > 0
+
+
+def test_french_locale_alone_writes_only_the_french_csv(tmp_path: Path) -> None:
+    """--locales fr skips the English files and records the locale in the metadata."""
+    result = CliRunner().invoke(app, ["generate", "--example", "computer", "-d",
+                                      str(tmp_path), "--rows", "5", "--locales", "fr"])
+    assert result.exit_code == 0, result.output
+    assert sorted(path.name for path in tmp_path.iterdir()) == [
+        "computers-fr.csv", "computers.meta.json"]
+    metadata = json.loads((tmp_path / "computers.meta.json").read_text(encoding="utf-8"))
+    assert metadata["request"]["locales"] == ["fr"]
+    assert list(metadata["outputs"]) == ["fr"]
+
+
+def test_locales_with_anomaly_profile_limit_every_artifact_to_that_locale(tmp_path: Path) -> None:
+    """Altered CSV, journal and summary exist for the requested locale only."""
+    plan = build_generate_plan(PACKAGE, output_dir=tmp_path, rows=100, seed=1,
+                               locales="en", anomaly_profile="dirty_realistic")
+    assert isinstance(plan, ComputerPlan)
+    assert sorted(path.name for path in (artifact.path for artifact in plan.artifacts)) == [
+        "computers-en.csv", "computers-en.dirty_realistic.changes.csv",
+        "computers-en.dirty_realistic.csv", "computers-en.dirty_realistic.summary.json",
+        "computers.meta.json",
+    ]
+
+
+@pytest.mark.parametrize(("options", "message"), [
+    ({"output": "x.csv", "locales": "en,fr"}, "-o writes one locale"),
+    ({"output": "x.csv", "locales": "de"}, "locales must be en, fr or en,fr"),
+    ({"output_dir": "d", "locales": "en,en"}, "locales must be en, fr or en,fr"),
+    ({"output": "x.txt"}, "-o must name a .csv file"),
+    ({"output": "x.csv", "output_dir": "d"}, "exactly one destination"),
+])
+def test_invalid_destination_or_locales_fail_before_writing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    options: dict[str, str], message: str,
+) -> None:
+    """Bad -o, -d and --locales combinations stop with a clear message."""
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ConfigurationError, match=message):
+        build_generate_plan(PACKAGE, rows=5, **options)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_unknown_profiles_list_the_available_names(tmp_path: Path) -> None:
+    """A mistyped profile name tells which names exist."""
+    with pytest.raises(ConfigurationError, match="Available: dirty_realistic, dirty_stress"):
+        build_generate_plan(PACKAGE, output=tmp_path / "x.csv", anomaly_profile="dirty")
+    with pytest.raises(ConfigurationError, match="Available: balanced, consumer"):
+        build_generate_plan(PACKAGE, output=tmp_path / "x.csv", generation_profile="home")
+
+
+def test_generate_help_names_every_computer_anomaly_profile() -> None:
+    """The option help stays in step with the profiles the package defines."""
+    package = load_generate_package(PACKAGE)
+    profiles = package.manifest["anomaly_profiles"]
+    assert isinstance(profiles, dict)
+    output = CliRunner().invoke(app, ["generate", "--help"], terminal_width=400).output
+    for name in profiles:
+        assert name in output
+
+
+def test_progress_reports_rows_then_errors_and_the_result_splits_the_time(tmp_path: Path) -> None:
+    """Events end at 100 % for each stage and the timings add up to the total."""
+    events: list[GenerateProgress] = []
+    result = generate_datasets(
+        build_generate_plan(PACKAGE, output=tmp_path / "pcs.csv", rows=400, seed=3,
+                            anomaly_profile="dirty_realistic"),
+        on_progress=events.append,
+    )
+    stages = list(dict.fromkeys(event.stage for event in events))
+    assert stages == ["Generating rows", "Injecting errors (en)"]
+    for stage in stages:
+        done = [event.done for event in events if event.stage == stage]
+        assert done == sorted(done) and done[0] == 0 and done[-1] == 400
+        assert {event.total for event in events if event.stage == stage} == {400}
+    elapsed = [event.elapsed_seconds for event in events]
+    assert elapsed == sorted(elapsed)
+    assert result.seconds > 0
+    assert set(result.timings) == {"rows", "errors", "publish"}
+    assert sum(result.timings.values()) == pytest.approx(result.seconds)
+
+
+def test_progress_is_optional_and_a_clean_run_reports_no_error_time(tmp_path: Path) -> None:
+    """Without a callback nothing changes; without anomalies the errors phase is empty."""
+    result = generate_datasets(build_generate_plan(PACKAGE, output=tmp_path / "pcs.csv", rows=20))
+    assert result.timings["errors"] == 0.0
+    assert result.seconds >= result.timings["rows"]
+
+
+def test_other_packages_report_one_step_per_file_and_only_the_total_time(tmp_path: Path) -> None:
+    """CRM tells which file it writes; its result has no phase split."""
+    events: list[GenerateProgress] = []
+    result = generate_datasets(
+        build_generate_plan(example="crm", output=tmp_path / "crm.csv", rows=30),
+        on_progress=events.append,
+    )
+    assert [(event.stage, event.done, event.total) for event in events] == [
+        ("Writing crm.csv", 0, 1)]
+    assert result.seconds > 0 and result.timings == {}
+
+
+def test_cli_prints_a_timing_report_and_no_progress_line_outside_a_terminal(tmp_path: Path) -> None:
+    """The report always closes the run; the rewritten line needs a terminal."""
+    result = CliRunner().invoke(app, ["generate", "--example", "computer", "-o",
+                                      str(tmp_path / "pcs.csv"), "--rows", "300",
+                                      "--anomaly-profile", "dirty_realistic"])
+    assert result.exit_code == 0, result.output
+    assert "\r" not in result.output and "Generating rows" not in result.output
+    last = result.output.strip().splitlines()[-1]
+    assert re.fullmatch(r"300 rows in [\d.]+s \([\d,]+ rows/s\), [\d,]+ cells changed(: .*)?", last)
+
+
+def test_progress_printer_rewrites_one_line_per_stage_with_time_left(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A stage shows its count, then its time left, and ends with its duration."""
+    printer = GenerateProgressPrinter(enabled=True)
+    for done, elapsed in ((0, 0.0), (250, 2.0), (1000, 8.0)):
+        printer(GenerateProgress("Generating rows", done, 1000, elapsed))
+    err = capsys.readouterr().err
+    assert "Generating rows 250/1,000 (25%) - 2.0s, about 6.0s left" in err
+    # The last line is padded with spaces to wipe the longer line it replaces.
+    assert err.rstrip().endswith("Generating rows 1,000/1,000 (100%) - 8.0s")
+    silent = GenerateProgressPrinter(enabled=False)
+    silent(GenerateProgress("Generating rows", 5, 10, 1.0))
+    assert capsys.readouterr().err == ""
+
+
+@pytest.mark.parametrize(("seconds", "text"), [
+    (0.04, "0.0s"), (9.46, "9.5s"), (59.9, "59.9s"), (60.0, "1m 00s"),
+    (125.0, "2m 05s"), (3725.0, "1h 02m"),
+])
+def test_durations_are_written_for_people(seconds: float, text: str) -> None:
+    assert format_duration(seconds) == text
+
+
+def test_timing_report_names_the_phases_that_took_time() -> None:
+    """Rows, total, rate, changed cells and the split, leaving out phases under 50 ms."""
+    result = GenerateResult(
+        (), {"computers": 30000}, {"en": 8506}, seconds=31.4,
+        timings={"rows": 22.1, "errors": 8.9, "publish": 0.4},
+    )
+    assert timing_report(result) == (
+        "30,000 rows in 31.4s (955 rows/s), 8,506 cells changed: "
+        "generating rows 22.1s, injecting errors 8.9s, writing files 0.4s")
+    brief = GenerateResult((), {"computers": 10}, {}, seconds=0.2,
+                           timings={"rows": 0.19, "errors": 0.0, "publish": 0.01})
+    assert timing_report(brief) == "10 rows in 0.2s (50 rows/s)"
+
+
+def test_several_anomaly_profiles_share_one_clean_csv_and_match_single_runs(tmp_path: Path) -> None:
+    """Each profile gives the files a run of its own would, from one generation."""
+    events: list[GenerateProgress] = []
+    result = generate_datasets(
+        build_generate_plan(PACKAGE, output_dir=tmp_path / "both", rows=600, seed=5, locales="en",
+                            anomaly_profile="dirty_realistic,dirty_stress"),
+        on_progress=events.append,
+    )
+    assert sorted(path.name for path in (tmp_path / "both").iterdir()) == [
+        "computers-en.csv",
+        "computers-en.dirty_realistic.changes.csv", "computers-en.dirty_realistic.csv",
+        "computers-en.dirty_realistic.summary.json",
+        "computers-en.dirty_stress.changes.csv", "computers-en.dirty_stress.csv",
+        "computers-en.dirty_stress.summary.json", "computers.meta.json",
+    ]
+    for profile in ("dirty_realistic", "dirty_stress"):
+        generate_datasets(build_generate_plan(
+            PACKAGE, output_dir=tmp_path / profile, rows=600, seed=5, locales="en",
+            anomaly_profile=profile))
+        for name in (f"computers-en.{profile}.csv", f"computers-en.{profile}.changes.csv",
+                     f"computers-en.{profile}.summary.json", "computers-en.csv"):
+            assert (tmp_path / "both" / name).read_bytes() == (tmp_path / profile / name).read_bytes()
+    assert set(result.anomaly_counts) == {"en/dirty_realistic", "en/dirty_stress"}
+    assert {event.stage for event in events if event.stage.startswith("Injecting")} == {
+        "Injecting errors (en, dirty_realistic)", "Injecting errors (en, dirty_stress)"}
+    metadata = json.loads((tmp_path / "both" / "computers.meta.json").read_text(encoding="utf-8"))
+    assert metadata["request"]["anomaly_profiles"] == ["dirty_realistic", "dirty_stress"]
+    assert set(metadata["anomalies"]["en"]) == {"dirty_realistic", "dirty_stress"}
+
+
+def test_a_request_may_list_several_anomaly_profiles(tmp_path: Path) -> None:
+    """The request file takes a list as well as a comma separated name."""
+    request = tmp_path / "request.json"
+    request.write_text(json.dumps({"rows": 300, "locales": ["en"],
+                                   "anomaly_profile": ["dirty_realistic", "unit_variants"]}),
+                       encoding="utf-8")
+    plan = build_generate_plan(PACKAGE, output_dir=tmp_path / "out", request=request)
+    assert isinstance(plan, ComputerPlan)
+    assert plan.anomaly_profiles == ("dirty_realistic", "unit_variants")
+    assert plan.anomaly_profile == "dirty_realistic"
+    assert len(plan.artifacts) == 2 + 2 * 3
+
+
+@pytest.mark.parametrize(("options", "message"), [
+    ({"output": "x.csv", "anomaly_profile": "dirty_realistic,dirty_stress"}, "-o writes one file"),
+    ({"output_dir": "d", "anomaly_profile": "dirty_realistic,dirty_realistic"}, "each profile once"),
+    ({"output_dir": "d", "anomaly_profile": "dirty_realistic,"}, "no empty name"),
+    ({"output_dir": "d", "anomaly_profile": "dirty_realistic,nope"}, "Unknown anomaly profile: nope"),
+])
+def test_invalid_lists_of_anomaly_profiles_fail_before_writing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, options: dict[str, str], message: str,
+) -> None:
+    """A bad list stops with a clear message and writes nothing."""
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ConfigurationError, match=message):
+        build_generate_plan(PACKAGE, rows=50, **options)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_timing_report_counts_profiles_when_several_were_applied() -> None:
+    """Changed cells are totalled, with the number of profiles."""
+    result = GenerateResult((), {"computers": 100}, {"en/dirty_realistic": 10, "en/dirty_stress": 90},
+                            seconds=1.0)
+    assert timing_report(result) == "100 rows in 1.0s (100 rows/s), 100 cells changed in 2 profiles"

@@ -1,7 +1,19 @@
 ---
 title: Release notes
-description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.2.
+description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.3.
 ---
+
+## 0.7.3
+
+[Tabalyst Generate](../generate/index.md) is much faster for Computer (30,000
+rows with errors in two languages in about 17 seconds instead of 8 minutes, and
+faster again with several processes) and easier to use for one dataset. `-o` writes a single
+Computer CSV, with errors when you give an anomaly profile (`--anomaly-profile`);
+`--locales en` or `--locales fr` writes one language; `--anomaly-profile` takes
+several profiles to get one variant of each; `--workers` sets the number of
+processes. The command shows its progress, with the time left, and ends with a
+timing report. The same seed still gives the same data, and no JSON format
+changes.
 
 ## 0.7.2
 
