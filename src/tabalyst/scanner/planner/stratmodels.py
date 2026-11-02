@@ -61,9 +61,9 @@ class ColumnAdvice(ScanModel):
     # frequencies (analytical domain, so a little coarser than the original).
     smallest_share: float | None = None
     largest_share: float | None = None
-    # The sample size at which the rarest stratum cannot get zero rows.
+    # The smallest size of a ``stratified`` sample: one row of each stratum.
     size_for_every_stratum: int | None = None
-    # With a sample size: the strata the classic allocation leaves without a row.
+    # With a sample size under the strata: how many it cannot hold (the sample is refused).
     uncovered_at_size: int | None = None
 
     @model_serializer(mode="wrap")

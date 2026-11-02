@@ -1,6 +1,6 @@
 ---
 title: Tabalyst Sample
-description: Create smaller first, last, random, stratified or smart CSV samples with Tabalyst, and choose the method that fits.
+description: Create smaller first, last, random, stratified, stratified-balanced or smart CSV samples with Tabalyst, and choose the method that fits.
 ---
 
 Use `tabalyst sample` to create a smaller CSV without changing the source file.
@@ -13,6 +13,8 @@ This creates `customers.sample.csv` beside `customers.csv`.
 
 - **Kept as is:** header, column order, raw cell values and configured encoding.
 - **Size:** choose exactly one of `--rows` (fixed count) or `--percent`.
+  `stratified-balanced` is the exception: it takes `--per-value` and its size
+  follows from the data.
 - **Safety:** existing files are replaced only with `--force`; the source can
   never be overwritten.
 
@@ -22,7 +24,8 @@ This creates `customers.sample.csv` beside `customers.csv`.
 | --- | --- | --- |
 | [`smart`](smart.md) (recommended) | You need every value of the small columns, the extremes and the odd cases | 2 at most (1 with a current scan) |
 | [`random`](random.md) | You need a quick sample that keeps the proportions of the file | 1 |
-| [`stratified`](stratified.md) | You need the proportions of one field, or of a few, preserved | 1 |
+| [`stratified`](stratified.md) | You need a sample of a given size that keeps the proportions of one field, or of a few, with a row of each value | 2 |
+| [`stratified-balanced`](stratified-balanced.md) | You need up to N rows of each value, so the rare values are well represented | 1 |
 | [`first`, `last`](first-last.md) | You only need the start or the end of the file | 1 |
 
 `--smart` is short for `--sample-method smart`. The other methods are chosen

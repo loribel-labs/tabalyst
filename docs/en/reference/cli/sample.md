@@ -1,6 +1,6 @@
 ---
 title: "CLI: tabalyst sample"
-description: Every option of tabalyst sample and examples of first, last, random, stratified and smart CSV samples, with fixed sizes, percentages and seeds.
+description: Every option of tabalyst sample and examples of first, last, random, stratified, stratified-balanced and smart CSV samples, with fixed sizes, percentages and seeds.
 ---
 
 ```console
@@ -23,12 +23,13 @@ See [Tabalyst Sample](../../sample/index.md).
 | --- | --- |
 | `INPUT...` | One or more CSV files or non-recursive glob patterns (required) |
 | `--smart` | Recommended. Shortcut for `--sample-method smart`: keeps every value of the columns with few values, at the cost of a scan (reused when current) and a second reading. Not with another `--sample-method` |
-| `--sample-method METHOD` | `first`, `last`, `random`, `stratified` or `smart`. One of `--sample-method` and `--smart` is required |
-| `--rows N` | Number of data rows to select |
-| `--percent X` | Percentage of data rows to select, rounded up to a whole row. Exclusive with `--rows` |
-| `--field TEXT` | Field that defines the strata, required by `stratified`. Repeat it to stratify by the combinations of several fields. An error with any other method |
-| `--max-strata N` | Most strata a stratified sample may hold (default 100,000). A file with more stops with an error, and nothing is written. Given explicitly, it also allows a run that a stored scan shows may make too many strata. An error with any other method |
-| `--seed N` | Seed that makes a random, stratified or smart selection reproducible. With `smart` it defaults to the seed of the scan. An error with `first` and `last`, which keep the file order |
+| `--sample-method METHOD` | `first`, `last`, `random`, `stratified`, `stratified-balanced` or `smart`. One of `--sample-method` and `--smart` is required |
+| `--rows N` | Number of data rows to select. An error with `stratified-balanced`. With `stratified`, at least the number of strata |
+| `--percent X` | Percentage of data rows to select, rounded up to a whole row. Exclusive with `--rows`. An error with `stratified-balanced` |
+| `--per-value N` | Only with `stratified-balanced`, where it is required: the most rows kept from each stratum (all of a smaller one). The size of the sample is the sum of `min(N, rows of the stratum)`. An error with any other method |
+| `--field TEXT` | Field that defines the strata, required by `stratified` and `stratified-balanced`. Repeat it to stratify by the combinations of several fields. An error with any other method |
+| `--max-strata N` | Most strata a stratified sample may hold (default 100,000). A file with more stops with an error, and nothing is written. Given explicitly, it also allows a run that a stored scan shows may make too many strata. Only with `stratified` and `stratified-balanced` |
+| `--seed N` | Seed that makes a random, stratified, stratified-balanced or smart selection reproducible. With `smart` it defaults to the seed of the scan. An error with `first` and `last`, which keep the file order |
 | `-o`, `--output PATH` | Output CSV filename, for a single input. Not with `-d` |
 | `-d`, `--output-dir PATH` | Folder for samples named `<stem>.sample.csv` |
 | `-c`, `--config PATH` | JSON [configuration file](../configuration.md) |
@@ -56,6 +57,7 @@ tabalyst sample customers.csv --sample-method last --rows 1000
 tabalyst sample customers.csv --sample-method random --percent 5 --seed 42
 tabalyst sample customers.csv --sample-method stratified --field province --rows 1000 --seed 42
 tabalyst sample customers.csv --sample-method stratified --field province --field language --rows 1000
+tabalyst sample customers.csv --sample-method stratified-balanced --field province --per-value 100 --seed 42
 ```
 
 Output location and CSV format:

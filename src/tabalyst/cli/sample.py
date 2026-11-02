@@ -32,6 +32,8 @@ def _print_result(result: SampleResult) -> None:
     typer.echo(f"Source rows:   {result.source_rows:,}", err=True)
     typer.echo(f"Sample rows:   {result.sample_rows:,}", err=True)
     typer.echo(f"Sample rate:   {result.sample_rate:.2f}%", err=True)
+    if result.per_value is not None:
+        typer.echo(f"Per value:     up to {result.per_value:,} rows", err=True)
     if result.strata_known is not None:
         typer.echo(
             f"Strata:        {result.strata_known:,} known, "
@@ -39,9 +41,23 @@ def _print_result(result: SampleResult) -> None:
             f"{result.strata_uncovered:,} without rows",
             err=True,
         )
+    if result.strata_capped is not None:
+        typer.echo(
+            f"Drawn from:    {result.strata_capped:,} strata with more rows than "
+            f"the quota; the other {result.strata_known - result.strata_capped:,} "
+            "are kept whole",
+            err=True,
+        )
+        if result.source_rows and result.sample_rows * 2 >= result.source_rows:
+            typer.echo(
+                "Note:          the sample holds half of the file or more: the "
+                "strata are many or the quota is large.",
+                err=True,
+            )
     if result.seed is not None and result.method in {
         SampleMethod.RANDOM,
         SampleMethod.STRATIFIED,
+        SampleMethod.STRATIFIED_BALANCED,
     }:
         typer.echo(f"Seed:          {result.seed}", err=True)
     smart = result.smart
@@ -144,18 +160,32 @@ def _reject_unused_options(
     seed: int | None,
     yes: bool,
     no_html: bool,
+    per_value: int | None,
+    rows: int | None,
+    percent: float | None,
 ) -> None:
     """Refuse an option the method does not read: none is ignored without an error."""
     smart = method is SampleMethod.SMART
     for name, given in (("--yes", yes), ("--no-html", no_html)):
         if given and not smart:
             raise typer.BadParameter(f"{name} only goes with the smart method.")
-    stratified = method is SampleMethod.STRATIFIED
+    balanced = method is SampleMethod.STRATIFIED_BALANCED
+    stratified = balanced or method is SampleMethod.STRATIFIED
     for name, given in (("--field", bool(field)), ("--max-strata", max_strata is not None)):
         if given and not stratified:
             raise typer.BadParameter(
-                f"{name} only goes with --sample-method stratified, not {method.value}."
+                f"{name} only goes with --sample-method stratified or "
+                f"stratified-balanced, not {method.value}."
             )
+    if per_value is not None and not balanced:
+        raise typer.BadParameter(
+            f"--per-value only goes with --sample-method stratified-balanced, not {method.value}."
+        )
+    if balanced and (rows is not None or percent is not None):
+        raise typer.BadParameter(
+            "--rows and --percent do not go with stratified-balanced: use --per-value "
+            "for the quota of each stratum."
+        )
     if seed is not None and method in {SampleMethod.FIRST, SampleMethod.LAST}:
         raise typer.BadParameter(
             f"--seed has no effect with {method.value}: it keeps the rows in file order."
@@ -197,8 +227,16 @@ def sample_command(
         list[str] | None,
         typer.Option(
             "--field",
-            help="Field used for stratified sampling; repeat it to stratify "
+            help="Field used for stratified sampling (stratified, stratified-balanced); repeat it to stratify "
             "by the combinations of several fields.",
+        ),
+    ] = None,
+    per_value: Annotated[
+        int | None,
+        typer.Option(
+            "--per-value",
+            help="With stratified-balanced, the most rows kept from each stratum "
+            "(all of a smaller one). The size of the sample follows from the data.",
         ),
     ] = None,
     max_strata: Annotated[
@@ -273,6 +311,9 @@ def sample_command(
         seed=seed,
         yes=yes,
         no_html=no_html,
+        per_value=per_value,
+        rows=rows,
+        percent=percent,
     )
     try:
         if method is SampleMethod.SMART:
@@ -305,6 +346,7 @@ def sample_command(
                 encoding=encoding,
                 force=force,
                 max_strata=max_strata,
+                per_value=per_value,
             )
     except TabalystError as exc:
         typer.echo(f"Error: {exc}", err=True)

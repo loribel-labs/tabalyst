@@ -21,7 +21,7 @@ from tabalyst.batch import apply_default_file_mode
 from tabalyst.config import CsvConfig
 from tabalyst.csv_records import open_records, output_encoding
 from tabalyst.errors import InputError, ReportError
-from tabalyst.scanner.stratify import allocate_strata
+from tabalyst.scanner.stratify import allocate_strata_with_minimum
 
 # The most strata a stratified sample keeps at once (STRAT-08): one counter and
 # one reservoir per stratum are held in memory while the file streams.
@@ -35,7 +35,11 @@ class SampleMethod(StrEnum):
     LAST = "last"
     RANDOM = "random"
     STRATIFIED = "stratified"
+    STRATIFIED_BALANCED = "stratified-balanced"
     SMART = "smart"
+
+
+_STRATIFIED_METHODS = frozenset({"stratified", "stratified-balanced"})
 
 
 @dataclass(frozen=True)
@@ -72,11 +76,15 @@ class SampleResult:
     delimiter: str
     # The columns of a stratified sample (``field`` joins them with a comma) and
     # its balance: the strata the file has, the ones that got rows, and the
-    # ones whose rounded quota was zero (STRAT-02). ``None`` for the other methods.
+    # ones without a row (STRAT-02). ``None`` for the other methods.
     fields: tuple[str, ...] = ()
     strata_known: int | None = None
     strata_selected: int | None = None
     strata_uncovered: int | None = None
+    # ``stratified-balanced`` only: the quota asked per stratum, and the strata
+    # that have more rows than it (so that were drawn from, not kept whole).
+    per_value: int | None = None
+    strata_capped: int | None = None
     # A smart sample writes a report beside its CSV file and sums it up here.
     report: Path | None = None
     page: Path | None = None
@@ -107,6 +115,26 @@ def _validate_paths(source: Path, output: Path, *, force: bool) -> None:
         raise ReportError(f"Output path is not a file: {output}")
 
 
+def _field_indexes(headers: Sequence[str], fields: Sequence[str]) -> tuple[int, ...]:
+    indexes: list[int] = []
+    for field in fields:
+        matches = [index for index, name in enumerate(headers) if name == field]
+        if not matches:
+            raise InputError(f"Stratification field does not exist: {field}")
+        if len(matches) > 1:
+            raise InputError(f"Stratification field is ambiguous: {field}")
+        indexes.append(matches[0])
+    return tuple(indexes)
+
+
+def _too_many_strata(fields: Sequence[str], max_strata: int, record: int) -> InputError:
+    return InputError(
+        f"Stratification by {', '.join(fields)} found more than "
+        f"{max_strata:,} strata at data record {record}. Use "
+        "fewer or less detailed fields, or raise --max-strata."
+    )
+
+
 def _scan(
     source: Path,
     config: CsvConfig,
@@ -116,14 +144,7 @@ def _scan(
     strata: Counter[Hashable] = Counter()
     with open_records(source, config) as records:
         headers = records.header
-        field_indexes: list[int] = []
-        for field in fields:
-            matches = [index for index, name in enumerate(headers) if name == field]
-            if not matches:
-                raise InputError(f"Stratification field does not exist: {field}")
-            if len(matches) > 1:
-                raise InputError(f"Stratification field is ambiguous: {field}")
-            field_indexes.append(matches[0])
+        field_indexes = list(_field_indexes(headers, fields))
 
         row_count = 0
         for row_count, row in enumerate(records, start=1):
@@ -131,11 +152,7 @@ def _scan(
                 key = _stratum_key(row, field_indexes)
                 strata[key] += 1
                 if len(strata) > max_strata:
-                    raise InputError(
-                        f"Stratification by {', '.join(fields)} found more than "
-                        f"{max_strata:,} strata at data record {row_count}. Use "
-                        "fewer or less detailed fields, or raise --max-strata."
-                    )
+                    raise _too_many_strata(fields, max_strata, row_count)
     return _ScanResult(headers, row_count, strata, tuple(field_indexes))
 
 
@@ -172,6 +189,17 @@ def _sample_size(row_count: int, rows: int | None, percent: float | None) -> int
             f"Requested sample size ({size:,}) exceeds available rows ({row_count:,})."
         )
     return size
+
+
+def _check_every_stratum_fits(size: int, strata: int, fields: Sequence[str]) -> None:
+    """A proportional sample keeps one row of every stratum or does not run: it
+    never drops categories silently."""
+    if size < strata:
+        raise InputError(
+            f"A stratified sample of {size:,} rows cannot keep one row of each of the "
+            f"{strata:,} strata of {', '.join(fields)}: use --rows {strata:,} or more, "
+            "or fewer or less detailed fields."
+        )
 
 
 def _reservoir_add(
@@ -228,6 +256,52 @@ def _select_rows(
             selected = [item for items in reservoirs.values() for item in items]
     selected.sort(key=lambda item: item[0])
     return [row for _, row in selected]
+
+
+@dataclass(frozen=True)
+class _BalancedSelection:
+    headers: list[str]
+    row_count: int
+    rows: list[list[str]]
+    strata: int
+    capped: int
+
+
+def _select_balanced(
+    source: Path,
+    config: CsvConfig,
+    fields: Sequence[str],
+    per_value: int,
+    seed: int | None,
+    max_strata: int,
+) -> _BalancedSelection:
+    """Draw up to ``per_value`` rows of each stratum in one reading.
+
+    One reservoir of ``per_value`` rows per stratum, filled independently: the
+    places a small stratum leaves unused are never given to another one. The
+    rows come back in file order.
+    """
+    rng = random.Random(seed)
+    reservoirs: dict[Hashable, list[tuple[int, list[str]]]] = {}
+    seen_by_stratum: Counter[Hashable] = Counter()
+    row_count = 0
+    with open_records(source, config) as reader:
+        headers = reader.header
+        indexes = _field_indexes(headers, fields)
+        for index, row in enumerate(reader):
+            row_count = index + 1
+            key = _stratum_key(row, indexes)
+            if key not in reservoirs:
+                if len(reservoirs) >= max_strata:
+                    raise _too_many_strata(fields, max_strata, row_count)
+                reservoirs[key] = []
+            seen_by_stratum[key] += 1
+            _reservoir_add(reservoirs[key], (index, row), seen_by_stratum[key], per_value, rng)
+    chosen = sorted(item for items in reservoirs.values() for item in items)
+    capped = sum(1 for count in seen_by_stratum.values() if count > per_value)
+    return _BalancedSelection(
+        headers, row_count, [row for _, row in chosen], len(reservoirs), capped
+    )
 
 
 def write_sample_csv(
@@ -291,6 +365,7 @@ def validate_sample_options(
     percent: float | None,
     field: str | Sequence[str] | None,
     max_strata: int = DEFAULT_MAX_STRATA,
+    per_value: int | None = None,
 ) -> SampleMethod:
     """Validate options shared by single-file and batch adapters."""
 
@@ -300,12 +375,28 @@ def validate_sample_options(
         choices = ", ".join(item.value for item in SampleMethod)
         raise InputError(f"Unknown sample method {method!r}; choose from {choices}.") from exc
     fields = stratification_fields(field)
-    if selected_method is SampleMethod.STRATIFIED and not fields:
-        raise InputError("--field is required with stratified sampling.")
-    if selected_method is not SampleMethod.STRATIFIED and fields:
-        raise InputError("--field can only be used with stratified sampling.")
+    stratified = selected_method in _STRATIFIED_METHODS
+    if stratified and not fields:
+        raise InputError(f"--field is required with the {selected_method.value} method.")
+    if not stratified and fields:
+        raise InputError(
+            "--field can only be used with the stratified and stratified-balanced methods."
+        )
     if max_strata < 1:
         raise InputError("--max-strata must be at least 1.")
+    if selected_method is SampleMethod.STRATIFIED_BALANCED:
+        if rows is not None or percent is not None:
+            raise InputError(
+                "--rows and --percent do not go with stratified-balanced: it keeps "
+                "up to --per-value rows of each stratum, so its size follows from the data."
+            )
+        if per_value is None:
+            raise InputError("--per-value is required with the stratified-balanced method.")
+        if isinstance(per_value, bool) or not isinstance(per_value, int) or per_value < 1:
+            raise InputError("--per-value must be a whole number greater than 0.")
+        return selected_method
+    if per_value is not None:
+        raise InputError("--per-value can only be used with the stratified-balanced method.")
     _validate_size_options(rows, percent)
     return selected_method
 
@@ -323,18 +414,28 @@ def sample_csv(
     encoding: str = "utf-8-sig",
     force: bool = False,
     max_strata: int = DEFAULT_MAX_STRATA,
+    per_value: int | None = None,
 ) -> SampleResult:
     """Create a bounded-memory sample of a CSV file.
 
-    A stratified sample allocates its rows to the strata in proportion to their
-    size, with no minimum of one row (a rare stratum can be absent: the result
-    counts them). ``field`` may name several columns; a stratum is then a
-    combination of their values. More than ``max_strata`` strata stop the
-    operation with an ``InputError`` rather than grow without bound.
+    A ``stratified`` sample allocates its ``rows`` to the strata in proportion
+    to their size, with at least one row of each: when ``rows`` is under the
+    number of strata it stops with an ``InputError`` instead of dropping some.
+    A ``stratified-balanced`` sample keeps up to ``per_value`` random rows of
+    each stratum (all of a smaller stratum, nothing moved to another), so its
+    size is the sum of ``min(per_value, rows of the stratum)``. ``field`` may
+    name several columns; a stratum is then a combination of their values. More
+    than ``max_strata`` strata stop the operation with an ``InputError`` rather
+    than grow without bound.
     """
 
     selected_method = validate_sample_options(
-        method, rows=rows, percent=percent, field=field, max_strata=max_strata
+        method,
+        rows=rows,
+        percent=percent,
+        field=field,
+        max_strata=max_strata,
+        per_value=per_value,
     )
     if selected_method is SampleMethod.SMART:
         raise InputError(
@@ -352,10 +453,37 @@ def sample_csv(
         Path(output) if output is not None else default_sample_output(source_path)
     )
     _validate_paths(source_path, output_path, force=force)
+    if selected_method is SampleMethod.STRATIFIED_BALANCED:
+        assert per_value is not None
+        balanced = _select_balanced(
+            source_path, config, fields, per_value, seed, max_strata
+        )
+        write_sample_csv(output_path, balanced.headers, balanced.rows, source_path, config)
+        total = balanced.row_count
+        return SampleResult(
+            source=source_path,
+            output=output_path,
+            method=selected_method,
+            source_rows=total,
+            sample_rows=len(balanced.rows),
+            sample_rate=(len(balanced.rows) / total * 100) if total else 0.0,
+            field=", ".join(fields),
+            seed=seed,
+            encoding=config.encoding,
+            delimiter=config.delimiter,
+            fields=fields,
+            strata_known=balanced.strata,
+            strata_selected=balanced.strata,
+            strata_uncovered=0,
+            per_value=per_value,
+            strata_capped=balanced.capped,
+        )
     scan = _scan(source_path, config, fields, max_strata)
     size = _sample_size(scan.row_count, rows, percent)
     stratified = selected_method is SampleMethod.STRATIFIED
-    allocations = allocate_strata(scan.strata, size) if stratified else None
+    if stratified:
+        _check_every_stratum_fits(size, len(scan.strata), fields)
+    allocations = allocate_strata_with_minimum(scan.strata, size) if stratified else None
     selected = _select_rows(
         source_path, config, scan, selected_method, size, seed, allocations
     )

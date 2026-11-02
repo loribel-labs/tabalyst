@@ -67,6 +67,46 @@ def allocate_strata(counts: Mapping[K, int], size: int) -> dict[K, int]:
     return allocated
 
 
+def allocate_strata_with_minimum(counts: Mapping[K, int], size: int) -> dict[K, int]:
+    """Proportional allocation of ``size`` rows with at least one row per stratum.
+
+    A stratum whose exact quota is under one row is held at one, and the rows
+    that costs are taken from the others in proportion: this repeats until no
+    free stratum falls under one. The rest is shared by largest remainder (ties:
+    the key as text). Only integers are compared, so the result is exact and
+    identical on every machine. No stratum gets more rows than it has, and the
+    total is ``size``.
+
+    Raises ``ValueError`` when ``size`` is under the number of strata (the
+    minimum cannot be kept) or over the rows counted (nothing to draw).
+    """
+    total = sum(counts.values())
+    if size < len(counts):
+        raise ValueError("the size is under the number of strata")
+    if size > total:
+        raise ValueError("the size is over the rows counted")
+    allocated: dict[K, int] = {}
+    free = dict(counts)
+    budget = size
+    while free:
+        weight = sum(free.values())
+        held = [value for value, count in free.items() if count * budget < weight]
+        if not held:
+            break
+        for value in held:
+            allocated[value] = 1
+            budget -= 1
+            del free[value]
+    weight = sum(free.values())
+    remainders: dict[K, int] = {}
+    for value, count in free.items():
+        allocated[value], remainders[value] = divmod(count * budget, weight)
+    left = size - sum(allocated.values())
+    for value in sorted(remainders, key=lambda item: (-remainders[item], str(item)))[:left]:
+        allocated[value] += 1
+    return allocated
+
+
 def size_for_every_stratum(smallest: int, total: int) -> int:
     """The smallest sample size at which the exact quota of the rarest stratum
     reaches one row, so that its allocation cannot be zero.

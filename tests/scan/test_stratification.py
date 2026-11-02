@@ -105,7 +105,7 @@ def test_strata_of_several_columns_are_tuples_that_never_collide(tmp_path):
     assert result.sample_rows == 4
 
 
-def test_a_stratified_sample_counts_the_strata_it_leaves_without_rows(tmp_path):
+def test_a_stratified_sample_keeps_a_row_of_every_stratum(tmp_path):
     source = tmp_path / "bal.csv"
     rows = [("a", 0)] * 50 + [("b", 0)] * 49 + [("c", 0)]
     _write(source, ["k", "n"], rows)
@@ -114,7 +114,7 @@ def test_a_stratified_sample_counts_the_strata_it_leaves_without_rows(tmp_path):
         source, method="stratified", field="k", rows=10, seed=2, output=tmp_path / "s.csv"
     )
 
-    assert (result.strata_known, result.strata_selected, result.strata_uncovered) == (3, 2, 1)
+    assert (result.strata_known, result.strata_selected, result.strata_uncovered) == (3, 3, 0)
 
 
 def test_other_methods_report_no_balance(tmp_path):
@@ -133,11 +133,11 @@ def test_the_ceiling_of_strata_stops_the_scan_before_memory_grows_and_names_the_
 
     with pytest.raises(InputError, match=r"more than 10 strata.*--max-strata"):
         tabalyst.sample_csv(
-            source, method="stratified", field="id", rows=5, max_strata=10, output=tmp_path / "s.csv"
+            source, method="stratified", field="id", rows=50, max_strata=10, output=tmp_path / "s.csv"
         )
 
     tabalyst.sample_csv(
-        source, method="stratified", field="id", rows=5, max_strata=50, output=tmp_path / "s.csv"
+        source, method="stratified", field="id", rows=50, max_strata=50, output=tmp_path / "s.csv"
     )
 
 
@@ -159,7 +159,7 @@ def test_fields_are_refused_with_another_method_and_a_zero_ceiling_too(tmp_path)
     source = tmp_path / "x.csv"
     _write(source, ["a"], [(1,)] * 3)
 
-    with pytest.raises(InputError, match="only be used with stratified"):
+    with pytest.raises(InputError, match="only be used with the stratified"):
         tabalyst.sample_csv(source, method="first", field=["a"], rows=1, output=tmp_path / "s.csv")
     with pytest.raises(InputError, match="at least 1"):
         tabalyst.sample_csv(
@@ -233,16 +233,18 @@ def test_a_missing_value_is_a_stratum_of_its_own(tmp_path):
     assert advice.limits.missing == "own_stratum"
 
 
-def test_the_classic_allocation_is_simulated_to_count_strata_without_a_row(tmp_path):
+def test_the_advice_counts_the_strata_a_size_is_too_small_to_hold(tmp_path):
     rows = ["big"] * 95 + ["mid"] * 4 + ["rare"]
     result = scan_csv(tmp_path, "k", rows)
 
-    advice = _advice(result, sample_size=10)
+    advice = _advice(result, sample_size=2)
 
     column = _column(advice, "k")
-    # 10 rows: big 9.5, mid 0.4 and rare 0.1; the last row goes to big.
-    assert column.uncovered_at_size == 2 and "rare_strata" in column.reasons
-    assert advice.sample_size == 10
+    # 3 strata, one row of each: a size of 2 cannot hold one of them.
+    assert column.uncovered_at_size == 1 and "rare_strata" in column.reasons
+    assert column.size_for_every_stratum == 3
+    assert _column(_advice(result, sample_size=10), "k").uncovered_at_size == 0
+    assert advice.sample_size == 2
     assert _column(_advice(result), "k").uncovered_at_size is None
 
 

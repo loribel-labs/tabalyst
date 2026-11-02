@@ -42,19 +42,26 @@ Returns a `tabalyst.SampleResult` with `source`, `output`, `method`,
 `source_rows`, `sample_rows`, `sample_rate`, `field`, `seed`, `encoding` and
 `delimiter`. A stratified sample also gives `fields` (the columns, as a tuple)
 and the balance of its strata: `strata_known`, `strata_selected` and
-`strata_uncovered` (the strata that got no row). They are `None` for the other
-methods.
+`strata_uncovered` (the strata that got no row). A `"stratified-balanced"`
+sample also gives `per_value` (the quota asked) and `strata_capped` (the strata
+that had more rows than the quota and were drawn from). These are `None` for
+the other methods.
 
 - `source`: the CSV file.
-- `method`: `"first"`, `"last"`, `"random"` or `"stratified"`, or a
-  `tabalyst.SampleMethod`.
+- `method`: `"first"`, `"last"`, `"random"`, `"stratified"` or
+  `"stratified-balanced"`, or a `tabalyst.SampleMethod`.
 - `rows`, `percent`: the size of the sample, as a number of data rows or a
-  percentage rounded up to a whole row. Give exactly one.
+  percentage rounded up to a whole row. Give exactly one, except with
+  `"stratified-balanced"`, which refuses both. A `"stratified"` size under the
+  number of strata raises `tabalyst.InputError`.
+- `per_value`: with `"stratified-balanced"`, required: the most rows kept from
+  each stratum, a whole number of at least 1. `sample_rows` is then the number of
+  rows really written. `tabalyst.InputError` with any other method.
 - `field`: the field that defines the strata, or a list of fields whose
-  combinations define them; required by `"stratified"`.
+  combinations define them; required by `"stratified"` and `"stratified-balanced"`.
 - `max_strata`: the most strata a stratified sample may hold, 100,000 by
   default. More raise `tabalyst.InputError`.
-- `seed`: makes a random or stratified selection reproducible.
+- `seed`: makes a random, stratified or stratified-balanced selection reproducible.
 - `output`: the output filename; by default `<stem>.sample.csv` beside the source.
 - `delimiter`, `encoding`: how the CSV file is read and written.
 - `force`: replace an existing sample file. A source is never replaced.
@@ -89,7 +96,7 @@ samples, named `<stem>.sample.csv`. `delimiter` and `encoding` default to the
 configuration files in `config_path`, then to the built-in defaults. The other
 parameters are those of `sample_csv()`.
 
-`max_strata=None` is the default limit of 100,000; give a number to change it and
+`per_value=None` as in `sample_csv()`. `max_strata=None` is the default limit of 100,000; give a number to change it and
 to allow a stratified sample that a stored scan shows may make too many strata.
 
 ## Smart samples

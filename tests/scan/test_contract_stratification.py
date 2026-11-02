@@ -25,7 +25,7 @@ def _write(path, header, rows):
 
 
 @pytest.mark.scan_json_lot("9")
-def test_E06_a_very_unbalanced_proportional_sample_can_miss_a_stratum_and_says_so(tmp_path):
+def test_E06_a_very_unbalanced_proportional_sample_keeps_a_row_of_the_rare_stratum(tmp_path):
     rows = [("big", i) for i in range(990)] + [("rare", i) for i in range(10)]
     source = tmp_path / "unbalanced.csv"
     _write(source, ["kind", "n"], rows)
@@ -35,17 +35,18 @@ def test_E06_a_very_unbalanced_proportional_sample_can_miss_a_stratum_and_says_s
     )
 
     sampled = list(csv.reader((tmp_path / "s.csv").open(encoding="utf-8")))[1:]
-    assert Counter(row[0] for row in sampled) == {"big": 20}
-    # The balance names what the proportional allocation left out (STRAT-02).
-    assert (result.strata_known, result.strata_selected, result.strata_uncovered) == (2, 1, 1)
+    # The rare stratum keeps its minimum of one row; the size stays exact.
+    assert Counter(row[0] for row in sampled) == {"big": 19, "rare": 1}
+    assert (result.strata_known, result.strata_selected, result.strata_uncovered) == (2, 2, 0)
 
-    # The advice says the same before the sample is made, and promises no minimum.
+    # The advice names the smallest size that can hold every stratum, and a size
+    # under it is one the sample refuses.
     scan = scan_csv(tmp_path, "kind,n", [f"{k},{n}" for k, n in rows])
-    advice = plan_analyses(scan, stratify=Stratify(sample_size=20)).stratification
+    advice = plan_analyses(scan, stratify=Stratify(sample_size=1)).stratification
     kind = next(column for column in advice.columns if column.display == "kind")
     assert kind.uncovered_at_size == 1
     assert "rare_strata" in kind.reasons
-    assert kind.size_for_every_stratum == 100
+    assert kind.size_for_every_stratum == 2
 
 
 @pytest.mark.scan_json_lot("9")

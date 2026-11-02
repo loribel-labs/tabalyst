@@ -34,11 +34,7 @@ from tabalyst.scanner.planner.stratmodels import (
     Stratification,
     StratificationLimits,
 )
-from tabalyst.scanner.stratify import (
-    allocate_strata,
-    saturating_product,
-    size_for_every_stratum,
-)
+from tabalyst.scanner.stratify import saturating_product
 
 STRATIFICATION_VERSION = 1
 
@@ -157,10 +153,11 @@ def _column(
                 counts.append(field.missing.count)
             total = sum(counts)
             smallest, largest = _round(min(counts) / total), _round(max(counts) / total)
-            size_all = size_for_every_stratum(min(counts), total)
+            size_all = len(counts)
             if sample_size is not None:
-                quotas = allocate_strata(dict(enumerate(counts)), sample_size)
-                uncovered = sum(1 for quota in quotas.values() if quota == 0)
+                # ``stratified`` keeps one row of each stratum or refuses to run,
+                # so a size under the strata is the only way to leave some out.
+                uncovered = max(0, len(counts) - sample_size)
             if smallest <= RARE_SHARE or uncovered:
                 reasons.append("rare_strata")
         else:

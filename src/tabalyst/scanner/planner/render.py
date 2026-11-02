@@ -91,13 +91,13 @@ def stratification_lines(advice: Stratification) -> list[str]:
         rare = (
             ""
             if column.smallest_share is None
-            else f", rarest {column.smallest_share:.2%}, every stratum kept from "
+            else f", rarest {column.smallest_share:.2%}, one row of each stratum from "
             f"{column.size_for_every_stratum:,} rows"
         )
         absent = (
             ""
             if column.uncovered_at_size is None
-            else f", {column.uncovered_at_size} without a row at {advice.sample_size:,} rows"
+            else f", {column.uncovered_at_size} strata too many for {advice.sample_size:,} rows"
         )
         lines.append(
             f"    {column.dataset} / {column.display}: "
