@@ -92,7 +92,7 @@ not add the edges to an estimate over the whole file.
 
 ### The smart sample
 
-A [smart sample](../sample/index.md) is a CSV file chosen to cover a catalog of
+A [smart sample](../sample/smart.md) is a CSV file chosen to cover a catalog of
 targets: the values of low-cardinality columns, patterns, extremes, dates, quality
 observations and relation exceptions. Its report says what it covers and what it
 does not:

@@ -208,7 +208,7 @@ could both be the category, only the one with fewer distinct values is the categ
 tabalyst scan customers.csv --plan --stratify-by province,language --sample-size 1000
 ```
 
-`--stratify` adds advice for [stratified sampling](../sample/index.md) to the plan,
+`--stratify` adds advice for [stratified sampling](../sample/stratified.md) to the plan,
 and `--stratify-by` also assesses the strata of several columns together (a
 comma-separated list, repeated for other combinations). It reads the scan only:
 the source is not read again, and the advice is a recommendation, not a fact of the
@@ -254,7 +254,7 @@ cover the diversity and the rare cases of a file, not to look like it: its
 proportions do not estimate the population. The plan says what the sample would
 aim for and what it would cost; it reads the scan and the second-pass document if
 it is current, never the source, and writes nothing. [`tabalyst sample
---sample-method smart`](../sample/index.md#cover-rare-cases-with-a-smart-sample)
+--sample-method smart`](../sample/smart.md)
 chooses the rows from this plan.
 
 The plan lists **targets**, each a thing worth having in the sample, with a
