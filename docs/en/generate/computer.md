@@ -56,7 +56,13 @@ languages; with `-d`, both are written unless you choose one.
 | `--unit-style` | `numeric` (plain numbers, the default) or `localized` (`64 GB` in English, `64 Go` in French). |
 | `--unit-columns` | The measured columns written with units, for example `memory_gb,display_size_in`; it implies `localized`. |
 
-The `compact` profile has 40 columns:
+The three profiles nest: `standard` has every column of `compact`, and
+`extended` has every column of `standard`. The text values that name something
+(categories, seller types, warehouses, availability, promotions) are translated
+in the French file; technical codes such as `wifi_7` or `tpm_2_0` are the same
+in both languages.
+
+### Compact profile: 40 columns
 
 | Group | Columns |
 | --- | --- |
@@ -69,11 +75,79 @@ The `compact` profile has 40 columns:
 | System (3) | `operating_system`, `color`, `weight_kg` |
 | Offer (9) | `currency`, `list_price`, `current_price`, `stock_quantity`, `stock_status`, `release_date`, `rating`, `review_count`, `market` |
 
-`standard` adds identifiers such as `mpn` and the product category, wireless
-and ports, battery, camera, discount, warranty and lifecycle columns.
-`extended` adds the full hardware register (dimensions, memory and storage
-slots, docking, audio, security chip) and sales figures (price history, sales
-rank, units sold, conversion and return rates, seller and warehouse).
+`product_id` is unique in a file. `sku` identifies a configuration (the parts,
+the color, the operating system and the market), so rows with the same
+configuration share it.
+
+### Standard profile: 70 columns, 30 more
+
+| Group | Column | What it holds |
+| --- | --- | --- |
+| Product | `mpn` | Manufacturer part number: `MPN-` and a digest. Like `sku`, it identifies a configuration. |
+| Product | `product_category` | One of 7 categories: laptops, desktops, mini PCs, all-in-one computers, workstations, single-board computers, servers. |
+| Product | `product_subcategory` | One of 17, such as consumer laptop, gaming laptop, business laptop, small form factor PC. |
+| Processor | `cpu_architecture` | `x86_64` or `arm64`. |
+| Processor | `cpu_max_clock_ghz` | Maximum clock, from 2.4 to 5.6 GHz. |
+| Processor | `npu_tops` | Power of the AI accelerator in TOPS; 0 without one. |
+| Processor | `ai_pc_class` | `npu_capable` from 40 TOPS, otherwise `none`. |
+| System | `os_family` | `windows`, `macos`, `linux` or `none`. |
+| System | `keyboard_layout` | `ca_multilingual` for the `ca` market, `us_english` for `us`. |
+| System | `language` | `en_fr` for the `ca` market, `en` for `us`. |
+| Display | `display_brightness_nits` | Brightness, from 250 to 1,000 nits. Empty without a built-in display. |
+| Display | `display_touch` | `true` or `false`; touch screens are rare. |
+| Display | `display_finish` | `matte` or `glossy`. Empty without a built-in display. |
+| Connectivity | `wifi_standard` | `wifi_5`, `wifi_6e`, `wifi_7` or `wifi_none`. |
+| Connectivity | `bluetooth_version` | `5.0`, `5.3`, `5.4` or `none`. |
+| Connectivity | `ethernet_speed` | `1_gbps`, `2.5_gbps`, `10_gbps`, `25_gbps` or `none`. |
+| Ports | `usb_a_ports`, `usb_c_ports`, `hdmi_ports` | Number of ports of each kind. |
+| Power | `battery_wh` | Battery capacity, from 48 to 100 Wh. Only laptops have one; empty otherwise. |
+| Power | `power_adapter_w` | Rating of the adapter or power supply, from 27 to 1,600 W. |
+| Chassis | `chassis_material` | `aluminum`, `steel`, `magnesium_alloy`, `aluminum_plastic`, `steel_plastic` and a few more. |
+| Camera and security | `camera_type` | `none`, `1080p`, `1080p_ir` or `1440p_ir`. |
+| Camera and security | `biometric_type` | `none`, `fingerprint`, `face_recognition` or a combination. |
+| Offer | `discount_percent` | 0, 5, 10 or 15: the discount that turns `list_price` into `current_price`. |
+| Offer | `price_tier` | `entry` below a list price of 1,500 (1,125 in US dollars), otherwise `premium`. |
+| Offer | `condition` | Always `new`. |
+| Offer | `warranty_period` | `12_months`, `24_months` or `36_months`. |
+| Lifecycle | `product_age_months` | Months between `release_date` and the reference date. |
+| Lifecycle | `product_lifecycle_status` | `current` under 24 months, `mature` after. |
+
+### Extended profile: 111 columns, 41 more
+
+| Group | Column | What it holds |
+| --- | --- | --- |
+| Display | `display_aspect_ratio` | `16:10`, `16:9` or `3:2`. Empty without a built-in display. |
+| Display | `display_hdr` | `none`, `hdr10`, `displayhdr_400`, `displayhdr_1000` or `true_black_500`. Empty without a built-in display. |
+| Display | `display_color_gamut` | `srgb_62`, `srgb_100` or `dci_p3_100`. Empty without a built-in display. |
+| Processor | `npu_brand`, `npu_family` | The maker (Intel, AMD, Apple) and the family of the AI accelerator, such as `intel_ai_boost`. Empty without one. |
+| Processor | `copilot_plus_pc` | `true` from 40 TOPS of AI accelerator, otherwise `false`. |
+| Connectivity | `cellular_type` | `none` or `5g`. Only laptops can have `5g`. |
+| Connectivity | `docking_support` | `none`, `usb_c`, `thunderbolt` or `thunderbolt_4`. |
+| Connectivity | `ethernet_port` | `true` when `ethernet_speed` is not `none`. |
+| Ports | `thunderbolt_ports`, `displayport_ports` | Number of ports of each kind. |
+| Ports | `card_reader_type` | `none`, `sd`, `sdxc`, `sd_uhsii`, `microsd` or `nano_sim`. |
+| Slots | `memory_slots_total`, `memory_slots_used` | Memory slots; the slots used never exceed the total. |
+| Slots | `m2_slots_total`, `m2_slots_used` | M.2 storage slots, with the same rule. |
+| Slots | `upgradeability_level` | `none`, `low`, `medium`, `high` or `very_high`. |
+| Dimensions | `width_mm`, `depth_mm`, `height_mm` | Size of the machine, from 85 to 615, 56 to 720 and 9 to 470 mm. |
+| Chassis | `chassis_finish` | The finish. In the current catalog it takes the same values as `chassis_material`. |
+| Audio and input | `microphone_type` | `none`, `dual_array`, `triple_array` or `quad_array`. |
+| Audio and input | `speaker_configuration` | `none`, `internal_mono`, `stereo`, `quad_speaker` or `six_speaker`. |
+| Audio and input | `keyboard_type` | One of 8, such as `backlit_chiclet`, `backlit_gaming`, `external_keyboard`, `wireless_keyboard` or `none`. |
+| Security | `trusted_platform` | `tpm_2_0`, `apple_secure_enclave` or `none`. |
+| Promotion | `promotion_type` | No promotion, percentage discount, seasonal promotion or clearance. There is none when `discount_percent` is 0. |
+| Promotion | `promotion_status` | `Active` when there is a discount, otherwise no promotion. |
+| Price history | `lowest_price_30d`, `highest_price_30d`, `average_price_30d` | Computed from a short synthetic history: the current price and up to two earlier prices of the list price with a discount of 0 to 15%. |
+| Price history | `price_change_30d_percent` | Change of the current price against the last earlier price of that history, in percent. |
+| Lifecycle | `product_generation` | `current` under 12 months since release, `previous` under 36, `legacy` after. |
+| Sales | `popularity_level` | `high` from 100 units sold in 30 days, `medium` from 30, otherwise `low`. |
+| Sales | `units_sold_30d` | Units sold in 30 days: 0 to 5 when out of stock, otherwise about a third of `review_count` plus 0 to 60. |
+| Sales | `sales_rank` | Rank derived from the units sold; the more units, the better (lower) the rank. |
+| Sales | `conversion_rate` | Share of visits that end in a purchase, from 0.005 to 0.15; 0.005 when out of stock. |
+| Sales | `return_rate` | Share of units returned, around 0.06 to 0.11; the better the rating, the lower. |
+| Distribution | `seller`, `seller_type` | A seller of the market and its kind (retailer, distributor, refurbisher, authorized reseller, marketplace seller, manufacturer). A manufacturer's own store only sells its brand. |
+| Distribution | `warehouse` | A warehouse of the market, such as Canada East, Central or West. |
+| Distribution | `shipping_availability` | `Unavailable` when out of stock, `Limited availability` under 5 units, otherwise `Available`. |
 
 The values follow rules of consistency, not market estimates:
 
@@ -91,7 +165,8 @@ The values follow rules of consistency, not market estimates:
 - `rating` is empty when `review_count` is 0.
 
 Many rows share a model, since the catalog is finite: a large file repeats
-configurations, with their own identifiers, stock and reviews.
+configurations, each row with its own `product_id`, stock and reviews, while
+`sku` and `mpn` repeat with the configuration.
 
 ## Add defects on purpose
 
