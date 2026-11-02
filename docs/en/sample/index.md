@@ -1,213 +1,43 @@
 ---
 title: Tabalyst Sample
-description: Create smaller first, last, random, stratified or smart CSV samples with Tabalyst, and read the report of what a smart sample covers.
+description: Create smaller first, last, random, stratified or smart CSV samples with Tabalyst, and choose the method that fits.
 ---
 
 Use `tabalyst sample` to create a smaller CSV without changing the source file.
-Choose exactly one size option: `--rows` for a fixed count or `--percent` for a
-percentage.
 
 ```console
 tabalyst sample customers.csv --smart --rows 1000
 ```
 
-This creates `customers.sample.csv` beside `customers.csv`. The output keeps the
-header, column order, raw cell values and configured encoding. Existing files
-are not replaced unless you pass `--force`; the source can never be overwritten.
+This creates `customers.sample.csv` beside `customers.csv`.
 
-`--smart` (short for `--sample-method smart`) is the recommended method: it
-keeps every value of the columns that have few values, and the rare cases a
-random draw drops. It costs a little more than the others, because it reads the
-source twice at most: once to scan and once to choose the rows. When a current
-stored [scan](../scan/index.md) exists it reads the source once. See
-[Cover rare cases with a smart sample](#cover-rare-cases-with-a-smart-sample).
+- **Kept as is:** header, column order, raw cell values and configured encoding.
+- **Size:** choose exactly one of `--rows` (fixed count) or `--percent`.
+- **Safety:** existing files are replaced only with `--force`; the source can
+  never be overwritten.
 
 ## Which method to use
 
 | Method | Use it when | Readings |
 | --- | --- | --- |
-| `smart` (recommended) | You need every value of the small columns, the extremes and the odd cases in the sample | 2 at most (1 with a current scan) |
-| `random` | You need a quick sample that keeps the proportions of the file | 1 |
-| `stratified` | You need the proportions of one field, or of a few, preserved | 1 |
-| `first`, `last` | You only need the start or the end of the file | 1 |
+| [`smart`](smart.md) (recommended) | You need every value of the small columns, the extremes and the odd cases | 2 at most (1 with a current scan) |
+| [`random`](random.md) | You need a quick sample that keeps the proportions of the file | 1 |
+| [`stratified`](stratified.md) | You need the proportions of one field, or of a few, preserved | 1 |
+| [`first`, `last`](first-last.md) | You only need the start or the end of the file | 1 |
 
-## Choose a method
+`--smart` is short for `--sample-method smart`. The other methods are chosen
+with `--sample-method`.
 
-Keep the first or last records:
+## Rules common to all methods
 
-```console
-tabalyst sample customers.csv --sample-method first --rows 1000
-tabalyst sample customers.csv --sample-method last --rows 1000
-```
-
-Select records uniformly from the entire file. Add `--seed` when another run
-must select the same records:
-
-```console
-tabalyst sample customers.csv --sample-method random --percent 5 --seed 42
-```
-
-Approximately preserve the distribution of a field with proportional
-stratified sampling. Empty field values form their own stratum:
-
-```console
-tabalyst sample customers.csv --sample-method stratified --field province --rows 1000 --seed 42
-```
-
-Each stratum gets rows in proportion to its size, rounded so that the total is
-exactly the size asked for. There is no minimum of one row: on a very unbalanced
-field a rare stratum can get no row, and the command prints how many strata the
-file has, how many got rows and how many did not. Repeat `--field` to stratify by
-the combinations of several fields; a row belongs to the stratum of its values
-taken together.
-
-```console
-tabalyst sample customers.csv --sample-method stratified --field province --field language --rows 1000
-```
-
-A stratified sample holds one counter and one reservoir per stratum while the
-file streams, so it stops with an error when the file has more than 100,000
-strata (`--max-strata` changes the limit). When a current stored scan already
-shows that the columns make more strata than that, the command stops before it
-reads the file, with the advice; it never makes a scan for this. Pass
-`--max-strata` yourself to run it anyway: a product of cardinalities is a bound,
-and the combinations that exist can be far fewer. Combinations of columns multiply
-quickly: [`tabalyst scan --plan --stratify-by`](../scan/plan.md#stratification-advice)
-tells beforehand which columns make good strata and how many strata a
-combination can make.
-
-## Cover rare cases with a smart sample
-
-A random sample can miss a value that appears once in a million rows. A smart
-sample is built to keep the diversity of the file instead: every value of a
-column that has few values, the shortest and longest texts, the smallest and
-largest numbers, each pattern, each format of date and the cases the scan found
-odd. Its proportions are not those of the file, so never estimate the population
-from it.
-
-```console
-tabalyst sample customers.csv --smart --rows 1000
-```
-
-This writes `customers.sample.csv` and, beside it, `customers.sample.json`: the
-[report of the sample](format.md), which says what the sample was aimed at and
-what it covers, and `customers.sample.html`, a page that shows that report: the
-coverage by family and weighted, the targets that are not covered with the
-reason, and the exact counts of the plan that the reading confirmed. The page
-is built from the report alone. Pass `--no-html` to write the CSV file and the
-JSON report only. The sample needs the [scan](../scan/index.md) of the file. A
-current stored scan is reused; otherwise the file is scanned first, and the
-command says so before it starts. A smart sample therefore reads the source twice
-at most: once to scan and once to choose the rows. It never runs a
-[second pass](../scan/deep.md) by itself; a current one is used to know more about
-the numbers, the patterns and the relations between columns.
-
-The sample is built in three steps:
-
-1. The scan gives the **targets**: things worth having in the sample, each with a
-   weight. A rare target weighs more than a frequent one, up to a ceiling. The
-   values of a column whose every value is known are **mandatory**. See the
-   [plan](../scan/plan.md#smart-sample-plan), which you can read beforehand.
-2. Reading the file, the command keeps a few candidate rows for each target in
-   a bounded amount of memory, and a pool of ordinary rows chosen by a seeded hash
-   of their position. A row that covers several targets is kept once.
-3. It chooses the rows that cover the most weight not yet covered, the mandatory
-   targets first, and fills the rest of the size with ordinary rows. A fifth of
-   the size is set aside for them by default, and the share gives way to mandatory
-   targets when the size is small. The rows are written in the order of the file,
-   whole, with no column added.
-
-The choice is a heuristic on a bounded pool: it measures the coverage it obtains
-and promises no optimum. When the size is too small for every target, the heavier
-ones win and the report lists the others with the reason. The command prints how
-many targets are covered, how many of the mandatory ones, how many ordinary rows
-the sample holds and how many readings of the file it cost.
-
-On the 3,000-row `insurance-customers.csv` example, a smart sample of 100 rows
-keeps all 146 distinct values of its 9 columns of 50 values or fewer. A random
-sample of the same size, with the same seed, misses 48 of them. When the size is
-too small for every value, the heavier targets win and the sample misses fewer
-values than a random one: at 40 rows it missed 10 of the 146 (random: 67), and
-at 20 rows it missed 39 (random: 86). The command line says how many mandatory
-targets are covered, so compare it with what you needed.
-
-The same seed gives the same file. `--seed` changes the choice among equal
-candidates and the ordinary rows; by default it is the seed of the scan.
-
-Reading a large file can take minutes. When the estimate reaches two minutes the
-command shows it and asks before it starts. Outside a terminal it never asks: it
-stops with exit code 3 unless you pass `--yes`.
-
-Smart sampling reads CSV files only. The [`smart` settings](../reference/configuration.md#smart-settings)
-change the number of candidates per target, the share of ordinary rows and the
-memory the candidate rows may take.
-
-Two kinds of rows are recognized by a test on the whole file. A column with
-empty cells has a target for them, so a rare blank in an otherwise filled column
-(a required identifier, say) is kept in a small sample. A row that repeats an
-earlier row is recognized because the selection digests every row as the scan
-did; a sample holds at least one such row, not one per group of copies. Like the
-scan, it stops remembering digests at `limits.max_tracked_records`, and a copy of
-a row it no longer remembers goes unseen.
-
-The remarks of the scan about a column have a target too: a cell with spaces
-around it or inside it, a string of a length that nearly no other has, and each
-group of variants of one value (the same name with other capitals or accents). A
-group is covered by a row that holds a variant other than the one most rows hold,
-and a column gets at most 20 such targets, the largest groups first.
-
-A character nobody expects has a target too, per column and only when few
-strings have it. The values a text column holds once (its tail, where a typo
-lives) are one target per column: the sample keeps one of them, not each. A
-column whose values are nearly all different, such as an identifier, has none.
-
-A typo of a category has a target of its own. When the exact count of every value of
-a text column is known (the scan lists them all, or the second pass counted them, at
-most `smart.max_exact_values` of them), a frequent value with rare values one edit
-away from it (`Longueuuil` next to `Longueuil`) gets one target, covered by a row that
-holds any of those rare values. The frequent value has at least 10 rows and at least
-ten times those of each rare value, which has at most 2 rows and at least 4
-characters, and no text has more than 64; a difference of capitals, accents or spaces is a variant, not a typo. The
-sample spends at most `smart.near_share` of its rows on these targets (8% by
-default), shared between the columns in turn, and none when it is too small for the
-mandatory targets of the file. A column of 100 values or fewer, which has a mandatory
-target for each of them, has no such target, and the plan counts the groups its limits
-leave out.
-
-The rows that show the most anomalies at once are worst cases. A cover counts a
-target once, so a row that shows six anomalies would be left out once each of
-them had another row. The sample keeps up to `smart.worst_rows` such rows (3 by
-default, and at most a twentieth of its size), and the report counts them in
-`by_worst`.
-
-A rare phenomenon the scan has no target for can still be missing. The report
-names what it covers precisely: the catalog of targets of the plan, not every
-phenomenon of the data.
-
-### What the smart method reads and ignores
-
-- It needs a size (`--rows` or `--percent`) like the other methods.
-- `--smart` and `--sample-method smart` mean the same thing. `--smart` cannot
-  be combined with another `--sample-method`, and one of the two is required.
-- No option is ignored silently: an option the chosen method does not read is
-  an error (exit code 2). `--field` and `--max-strata` belong to `stratified`
-  alone; the targets of `smart` come from the scan, not from the fields you
-  name. `--yes` and `--no-html` belong to `smart` alone. `--seed` has no effect
-  with `first` and `last`, which keep the rows in file order.
-- The reserve of ordinary rows is a fifth of the size by default, but the
-  mandatory targets come first: on a sample of 100 rows over 9 small columns
-  the reserve was 5 rows, and with 40 rows or fewer it was empty. A sample
-  that small is made of covering rows only, so its proportions are far from
-  those of the file.
-- Its tuning (candidates per target, share of ordinary rows, memory) has no
-  command-line option: it is in the
-  [configuration file](../reference/configuration.md#smart-settings), given
-  with `--config`.
-- It does not run a [second pass](../scan/deep.md) by itself, and it reads
-  CSV files only.
-
-Percentages round up to the next whole row. A 100% sample contains every data
-record. A header-only CSV therefore produces a header-only output at 100%.
+- **Size:** a percentage rounds up to the next whole row. A 100% sample contains
+  every data record; a header-only CSV gives a header-only output.
+- **Options:** an option the chosen method does not read is an error (exit code
+  2), never silently ignored.
+- **Validation:** every CSV record is checked for header, quoting and field
+  count.
+- **Reading time:** reading a large file can take minutes. See the
+  [smart sample](smart.md#what-it-costs) for the estimate and confirmation.
 
 ## Choose output locations
 
@@ -217,29 +47,33 @@ Use `-o` for the complete output filename when sampling one source:
 tabalyst sample customers.csv --sample-method first --rows 100 -o test.csv
 ```
 
-Wildcards are resolved by Tabalyst, including on shells that do not expand
-them. Use `-d` to put samples from one or more sources in a directory:
+Use `-d` to put samples from one or more sources in a directory. Wildcards are
+resolved by Tabalyst, including on shells that do not expand them:
 
 ```console
 tabalyst sample *.csv --sample-method random --percent 5 -d samples/
 ```
 
-The outputs are named `customers.sample.csv`, `orders.sample.csv`, and so on.
-`-o` accepts only one resolved input; `-o` and `-d` cannot be combined.
-Recursive `**` patterns are not supported.
+- Outputs are named `customers.sample.csv`, `orders.sample.csv`, and so on.
+- `-o` accepts only one resolved input; `-o` and `-d` cannot be combined.
+- Recursive `**` patterns are not supported.
 
 ## Read other CSV formats
 
 The default delimiter is a comma and the default encoding accepts UTF-8 with or
-without a byte-order mark. Override either setting when necessary:
+without a byte-order mark. Override either when necessary:
 
 ```console
 tabalyst sample data.csv --sample-method random --rows 100 --delimiter ";" --encoding cp1252
 ```
 
-`--config` reads the same strict JSON configuration used by `tabalyst report`;
+`--config` reads the same strict JSON configuration as `tabalyst report`;
 `--delimiter` and `--encoding` override its CSV settings.
 
-Sampling validates the header, quoting and field count of every CSV record. It
-uses bounded memory: random sampling stores only the requested rows, while
-stratified sampling additionally stores one count per stratum, up to `--max-strata`.
+## Go further
+
+- [Smart sample](smart.md): what it covers and how it is chosen.
+- [Format of the report of a smart sample](format.md): the JSON report written
+  beside it.
+- [CLI: tabalyst sample](../reference/cli/sample.md): every option.
+- [Python API: sampling](../reference/python-api/sample.md).

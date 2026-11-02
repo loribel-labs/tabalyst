@@ -314,7 +314,7 @@ The counts per bin are exact with either strategy.
 
 The top-level `smart` object configures the plan of a smart sample, in [Plan the
 analyses a scan could add](../scan/plan.md#smart-sample-plan), and the sample that
-[`tabalyst sample --smart`](../sample/index.md#cover-rare-cases-with-a-smart-sample)
+[`tabalyst sample --smart`](../sample/smart.md)
 builds from it. It is not part of the
 `scan` object or of `deep`: changing it never makes a stored scan or a second-pass
 result stale.
@@ -327,7 +327,7 @@ result stale.
 | --- | --- | --- |
 | `smart.max_enum_values` | `100` | Most distinct values a column may have to get one target per value. From 1 to 10,000 |
 | `smart.max_exact_values` | `500` | Most distinct values a column may have to get one target per value when the second pass counted every value exactly (above `smart.max_enum_values`, which limits the values the first pass lists). From 1 to 10,000 |
-| `smart.near_share` | `0.08` | Share of the rows asked for that the groups of near values may take at most (the typos of a category, see [Sample](../sample/index.md#cover-rare-cases-with-a-smart-sample)), from 0 to 1. The groups are shared between the columns in turn, and a sample too small for its mandatory targets gets none. 0 turns them off |
+| `smart.near_share` | `0.08` | Share of the rows asked for that the groups of near values may take at most (the typos of a category, see [Smart sample](../sample/smart.md#typos-of-a-category)), from 0 to 1. The groups are shared between the columns in turn, and a sample too small for its mandatory targets gets none. 0 turns them off |
 | `smart.near_groups_per_column` | `10` | Groups of near values at most in one column, from 0 to 1,000. 0 turns them off |
 | `smart.near_groups` | `100` | Groups of near values at most in the dataset, from 0 to 100,000. 0 turns them off. The plan counts the groups the three limits leave out among the targets it left out |
 | `smart.numeric_bins` | `10` | Bins of equal width between the minimum and the maximum of a numeric column, from 2 to 100. A column with fewer than three possible bins gets none |
