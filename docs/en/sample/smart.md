@@ -61,9 +61,12 @@ it.
 The choice is a heuristic on a bounded pool. It measures its coverage and
 promises no optimum.
 
-- **Reserve:** a fifth of the size goes to ordinary rows by default, and gives
-  way to mandatory targets when the size is small. On 100 rows over 9 small
-  columns the reserve was 5 rows; at 40 rows or fewer it was empty.
+- **Reserve:** by default a fifth of the size is kept for ordinary rows
+  (`smart.reserve_share`), and it gives way to the mandatory targets when the
+  size is small. The command prints as `Reserve` the ordinary rows the sample
+  ends up holding. They also fill the room the targets leave, so the number can
+  exceed a fifth. On the 3,000-row file of the example below, it is 0 for 100
+  rows, 63 for 200, 157 for 300 and 447 for 600 (seed 42).
 - **Too small for every target:** the heavier ones win, and the report lists the
   others with the reason.
 - **Command output:** targets covered, mandatory ones covered, ordinary rows
@@ -73,18 +76,27 @@ promises no optimum.
 
 ## Example
 
-On the 3,000-row `insurance-customers.csv`, a smart sample of 100 rows keeps all
-146 distinct values of its 9 columns of 50 values or fewer. A random sample of
-the same size and seed misses 48 of them.
+On `insurance-customers.csv` of the examples (3,000 rows), 15 columns have 50
+values or fewer: 146 distinct values in all, an empty cell counting as a value.
+A smart sample of 100 rows keeps all of them. A random sample of the same size
+and seed misses 49.
+
+```console
+tabalyst sample insurance-customers.csv --smart --rows 100 --seed 42
+tabalyst sample insurance-customers.csv --sample-method random --rows 100 --seed 42
+```
 
 | Rows | Values missed (smart) | Values missed (random) |
 | --- | --- | --- |
-| 100 | 0 | 48 |
-| 40 | 10 | 67 |
-| 20 | 39 | 86 |
+| 100 | 0 | 49 |
+| 40 | 9 | 69 |
+| 20 | 40 | 81 |
 
-Compare the mandatory targets covered, printed by the command, with what you
-needed.
+The smart command prints the mandatory targets it covered (`Mandatory: 137 of
+146 covered` for 40 rows): compare them with what you needed. The numbers
+depend on the seed: at 100 rows, a random sample misses 43 of these values with
+the default seed and 48 with `--seed 1`; at 40 rows, a smart sample misses 9
+with the default seed and 12 with `--seed 18`.
 
 ## Targets beyond values
 

@@ -51,7 +51,7 @@ tabalyst report --help
   Explicit options override the configuration file, which overrides the
   defaults. See [Configuration](../configuration.md).
 
-## Choosing a collection or a table {#collection}
+## Choosing a collection or a table
 
 A JSON file can hold several arrays, and an Excel workbook several sheets and
 tables. Tabalyst chooses one when the choice is clear, and otherwise stops with
