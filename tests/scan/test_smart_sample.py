@@ -187,8 +187,9 @@ def test_a_stored_scan_stops_a_stratification_with_too_many_strata_before_readin
     assert not (tmp_path / "wide.sample.csv").exists()
 
     # An explicit limit allows it: the bound proves a risk, not an explosion.
+    # The size must hold one row of each of the 110,000 strata.
     [success] = generate_samples(
-        [source], method="stratified", rows=100, field=["a", "b"], max_strata=200_000
+        [source], method="stratified", rows=110_000, field=["a", "b"], max_strata=200_000
     ).successes
     assert success.result.strata_known == 110_000
 
