@@ -1,10 +1,13 @@
 ---
 title: Stratified sample
-description: Create a CSV sample that approximately preserves the distribution of one or several fields with tabalyst sample --sample-method stratified, and handle the limit on strata.
+description: Create a CSV sample of a given size that keeps the proportions of one or several fields, with at least one row of each value, using tabalyst sample --sample-method stratified, and handle the limit on strata.
 ---
 
 `stratified` approximately preserves the distribution of a field with
-proportional sampling. Empty field values form their own stratum.
+proportional sampling, for a total size you choose, and keeps at least one row
+of each value. Empty field values form their own stratum. To keep a fixed number
+of rows per value instead, use
+[`stratified-balanced`](stratified-balanced.md).
 
 ```console
 tabalyst sample customers.csv --sample-method stratified --field province --rows 1000 --seed 42
@@ -16,10 +19,16 @@ tabalyst sample customers.csv --sample-method stratified --field province --rows
   several fields; a row belongs to the stratum of its values taken together.
 - **Share:** each stratum gets rows in proportion to its size, rounded so that
   the total is exactly the size asked for.
-- **Rare strata:** there is no minimum of one row. On a very unbalanced field a
-  rare stratum can get no row.
+- **Rare strata:** every stratum gets at least one row, and never more than it
+  has. The rows that minimum takes are taken from the other strata in
+  proportion, so the shares are not exactly proportional on a very unbalanced
+  field. The rounding is deterministic: the largest remainder, ties broken by
+  the text of the value.
+- **Size under the number of strata:** the command stops with an error that
+  gives the smallest `--rows` that holds one row of each value. It never drops
+  a value silently, and no file is written.
 - **Output:** the command prints how many strata the file has, how many got rows
-  and how many did not.
+  and how many did not (none, since every stratum is kept).
 - **Seed:** `--seed` repeats the choice.
 
 ```console
@@ -48,6 +57,8 @@ Bounded: the requested rows, plus one count per stratum, up to `--max-strata`.
 
 ## Limits
 
+- Before 0.7.4 a rare stratum could get no row. Samples made with an earlier
+  version can differ.
 - It preserves the proportions of the fields you name, not the rare values of
   the other columns. Use a [smart sample](smart.md) for those.
 - `--yes` and `--no-html` are errors with this method (exit code 2).

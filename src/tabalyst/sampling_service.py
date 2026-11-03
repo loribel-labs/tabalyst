@@ -157,6 +157,7 @@ def generate_samples(
     config_path: ConfigPath | None = None,
     force: bool = False,
     max_strata: int | None = None,
+    per_value: int | None = None,
     confirmed: bool = False,
     html: bool = True,
     on_progress: ProgressCallback | None = None,
@@ -173,7 +174,12 @@ def generate_samples(
     explicit_limit = max_strata is not None
     max_strata = DEFAULT_MAX_STRATA if max_strata is None else max_strata
     selected_method = validate_sample_options(
-        method, rows=rows, percent=percent, field=field, max_strata=max_strata
+        method,
+        rows=rows,
+        percent=percent,
+        field=field,
+        max_strata=max_strata,
+        per_value=per_value,
     )
     if selected_method is SampleMethod.SMART:
         from tabalyst.smart_service import execute_smart_samples, prepare_smart_samples
@@ -201,7 +207,7 @@ def generate_samples(
     plan = build_sample_plan(
         input_specs, output=output, output_dir=output_dir, force=force
     )
-    if selected_method is SampleMethod.STRATIFIED and not explicit_limit:
+    if selected_method in {SampleMethod.STRATIFIED, SampleMethod.STRATIFIED_BALANCED} and not explicit_limit:
         _refuse_excessive_stratification(
             [job.source for job in plan.jobs],
             stratification_fields(field),
@@ -225,6 +231,7 @@ def generate_samples(
                 encoding=config.csv.encoding,
                 force=force,
                 max_strata=max_strata,
+                per_value=per_value,
             )
         except TabalystError as exc:
             failures.append(SampleFailure(job=job, error=exc))

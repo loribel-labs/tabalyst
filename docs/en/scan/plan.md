@@ -224,11 +224,10 @@ column that can, it gives:
   value is a stratum of its own, as `tabalyst sample` makes it), with its `strata_basis`:
   `exact`, `estimate` (the scan only estimated the count) or `bound`;
 - `smallest_share` and `largest_share`, from the exact frequencies, and
-  `size_for_every_stratum`, the sample size from which the rarest stratum cannot
-  get zero rows;
-- with `--sample-size`, `uncovered_at_size`: the strata the proportional allocation
-  would leave without a row. `rare_strata` warns that some can be absent from a small
-  sample. `stratified` keeps its classic meaning and promises no minimum of one row.
+  `size_for_every_stratum`, the smallest `stratified` size: one row of each stratum;
+- with `--sample-size`, `uncovered_at_size`: the strata beyond the size, which
+  `stratified` cannot hold (it keeps one row of each stratum, so a size under their
+  number is refused). `rare_strata` warns of a rare value or of such a size.
 
 For a combination of columns, it gives `strata_bound`, the largest number of
 combinations the columns allow: the product of their numbers of strata, computed
