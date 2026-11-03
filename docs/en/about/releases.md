@@ -1,7 +1,17 @@
 ---
 title: Release notes
-description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.3.
+description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.4.
 ---
+
+## 0.7.4
+
+[Tabalyst Sample](../sample/index.md) gets a second stratified method.
+`stratified-balanced` keeps up to `--per-value N` random rows of each value of
+one or several fields, and all of a smaller value, so that rare values are well
+represented; its size follows from the data. `stratified` now keeps at least one
+row of each value, and stops with a clear error when the size asked for is under
+the number of values (before, a rare value could get no row, so a sample can
+differ from one made with 0.7.3). No JSON format changes.
 
 ## 0.7.3
 
