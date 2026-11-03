@@ -67,7 +67,7 @@ options each kind of file uses.
 
 | Option | Description |
 | --- | --- |
-| `--collection TEXT` | The part of the file to analyze. JSON: an array, such as `data.items` or `'$.data.items[]'`; `.` is the root array; repeatable. Excel: a sheet or table, such as `Sales`, `Sales.Orders` or `'$["Q1 2026"]'`; once. See [Choosing a collection or a table](index.md#collection). Not with `--scan` or `--all-collections` |
+| `--collection TEXT` | The part of the file to analyze. JSON: an array, such as `data.items` or `'$.data.items[]'`; `.` is the root array; repeatable. Excel: a sheet or table, such as `Sales`, `Sales.Orders` or `'$["Q1 2026"]'`; once. See [Choosing a collection or a table](index.md#choosing-a-collection-or-a-table). Not with `--scan` or `--all-collections` |
 | `--all-collections` | Report every visible collection of each file, as `<name>.<collection>.html` and `.json`. Not with `-o`, `--collection` or `--scan` |
 
 A JSONL file has one dataset, its lines, so it has no collection to choose.
