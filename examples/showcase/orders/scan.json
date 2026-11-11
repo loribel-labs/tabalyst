@@ -3,7 +3,7 @@
   "format_version": "0.2.0",
   "format_revision": 4,
   "engine": {
-    "version": "0.7.4",
+    "version": "0.7.5",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,23 +27,23 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-11-03T01:27:44.316030Z",
-    "duration_seconds": 0.0565,
+    "started_at": "2026-11-11T20:25:41.285750Z",
+    "duration_seconds": 0.030099,
     "timings": {
-      "reading": 0.005507,
-      "analysis": 0.006563,
-      "finalize": 0.028901,
-      "derived": 0.014759,
-      "other": 0.000769
+      "reading": 0.003243,
+      "analysis": 0.003379,
+      "finalize": 0.014985,
+      "derived": 0.008023,
+      "other": 0.000469
     },
     "workers": 1,
-    "peak_memory_bytes": 70819840
+    "peak_memory_bytes": 76034048
   },
   "source": {
     "format": "json",
     "name": "orders.json",
     "size_bytes": 60720,
-    "modified_at": "2026-10-29T17:23:08.350902Z",
+    "modified_at": "2026-10-16T05:33:33.607029Z",
     "sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
     "encoding": "utf-8",
     "shape": {

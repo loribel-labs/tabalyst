@@ -3,7 +3,7 @@
   "format_version": "0.2.0",
   "format_revision": 4,
   "engine": {
-    "version": "0.7.4",
+    "version": "0.7.5",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,24 +27,24 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-11-03T01:27:50.789647Z",
-    "duration_seconds": 0.069604,
+    "started_at": "2026-11-11T20:25:46.077280Z",
+    "duration_seconds": 0.035673,
     "timings": {
-      "reading": 0.010957,
-      "analysis": 0.017517,
-      "finalize": 0.029016,
-      "derived": 0.011344,
-      "other": 0.00077
+      "reading": 0.006016,
+      "analysis": 0.007764,
+      "finalize": 0.015378,
+      "derived": 0.006057,
+      "other": 0.000457
     },
     "workers": 1,
-    "peak_memory_bytes": 70946816
+    "peak_memory_bytes": 73383936
   },
   "source": {
     "format": "jsonl",
     "name": "web-events.jsonl",
-    "size_bytes": 69328,
-    "modified_at": "2026-10-29T17:23:08.350902Z",
-    "sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
+    "size_bytes": 69631,
+    "modified_at": "2026-10-16T05:33:33.613600Z",
+    "sha256": "fa1008d9afc1f4631bb1e76e963467bd30a15d1a197c2633cc835b46ef3f7d4a",
     "encoding": "utf-8",
     "shape": {
       "lines": null,

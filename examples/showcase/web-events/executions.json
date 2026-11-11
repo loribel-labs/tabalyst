@@ -2,20 +2,20 @@
   "schema_version": "1.0",
   "executions": [
     {
-      "timestamp": "2026-11-03T01:27:49.708720Z",
-      "tabalyst_version": "0.7.4",
+      "timestamp": "2026-11-11T20:25:45.099663Z",
+      "tabalyst_version": "0.7.5",
       "source_file": "web-events.jsonl",
       "html_file": "report.html",
       "json_file": "report.json",
       "rows": 300,
       "columns": 14,
-      "analysis_seconds": 0.7028,
-      "total_seconds": 1.0598,
+      "analysis_seconds": 0.5097,
+      "total_seconds": 0.688,
       "git": {
         "available": true,
-        "commit": "921982284b9f0f63b6bce7ef8de9cc731d89ee93",
+        "commit": "4b3f524c673990461e3ba665da965e93d1da4a70",
         "dirty": true,
-        "state": "92198228+working"
+        "state": "4b3f524c+working"
       }
     }
   ]
