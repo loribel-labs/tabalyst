@@ -33,6 +33,12 @@ def _digest(parts: tuple[str, ...]) -> str:
     )).hexdigest()[:40]
 
 
+NEW_PRODUCT_DAYS = 365
+NEW_PRODUCT_UNRATED = 0.3
+DAYS_PER_REVIEW = 2
+MAX_REVIEWS = 500
+
+
 def _stream(seed: int, dataset_id: str, row_index: int, decision: str,
             context: tuple[str, ...]) -> random.Random:
     return random.Random(int(_digest((str(seed), dataset_id, str(row_index), decision, *context)), 16))
@@ -265,7 +271,12 @@ def derive_computer_row(package: DatasetPackage, selected: dict[str, Cell],
     release += timedelta(days=_stream(seed, dataset_id, row_index, "release", context).randrange(
         min(365, (as_of_date - release).days + 1)
     ))
-    review_count = _stream(seed, dataset_id, row_index, "reviews", context).randrange(0, 501)
+    # Reviews come with time: a product under NEW_PRODUCT_DAYS old often has none
+    # yet, so its rating is missing, and the count grows with the age.
+    review_rng = _stream(seed, dataset_id, row_index, "reviews", context)
+    age_days = (as_of_date - release).days
+    review_count = (0 if age_days < NEW_PRODUCT_DAYS and review_rng.random() < NEW_PRODUCT_UNRATED
+                    else review_rng.randrange(0, min(MAX_REVIEWS, age_days // DAYS_PER_REVIEW) + 1))
     rating: Decimal | None = None
     if review_count:
         rating = Decimal(_stream(seed, dataset_id, row_index, "rating", context).randrange(30, 51)) / 10

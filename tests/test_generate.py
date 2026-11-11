@@ -232,6 +232,16 @@ def test_column_stream_is_independent_and_later_lots_fail_cleanly(tmp_path: Path
     ("{kind: choice, weights: {A: .nan}}", "positive numbers"),
     ("{kind: choice, weights: {A: 10000000000000000000000000000000000000000}}", "positive numbers"),
     ("{kind: date, min: '2026-02-30', max: '2026-03-01'}", "date.min"),
+    ("{kind: decimal, min: 1, max: 9, distribution: normal}", "uniform or lognormal"),
+    ("{kind: decimal, min: 1, max: 9, median: 3}", "require distribution lognormal"),
+    ("{kind: decimal, min: 0, max: 9, distribution: lognormal, median: 3, sigma: 1}", "min above 0"),
+    ("{kind: decimal, min: 1, max: 9, distribution: lognormal, median: 10, sigma: 1}", "median from min"),
+    ("{kind: decimal, min: 1, max: 9, distribution: lognormal, median: 3}", "sigma above 0"),
+    ("{kind: decimal, min: 1, max: 9, distribution: lognormal, median: 3, sigma: 6}", "sigma above 0"),
+    ("{kind: decimal, min: 1, max: 9, round_to: {step: 0.001, share: 0.5}}", "multiple of the scale"),
+    ("{kind: decimal, min: 1, max: 9, round_to: {step: 0, share: 0.5}}", "round_to.step"),
+    ("{kind: decimal, min: 1, max: 9, round_to: {step: 1, share: 0}}", "round_to.share"),
+    ("{kind: decimal, min: 1, max: 9, round_to: {step: 1}}", "round_to.share"),
 ])
 def test_elementary_invalid_parameters(tmp_path: Path, generator: str, message: str) -> None:
     source = SIMPLE.replace("type: string", "type: integer" if "kind: integer" in generator else
@@ -240,6 +250,234 @@ def test_elementary_invalid_parameters(tmp_path: Path, generator: str, message: 
     source = source.replace("{kind: sequence, prefix: C, width: 3}", generator)
     with pytest.raises(ConfigurationError, match=message):
         validate_generate_package(definition(tmp_path, source))
+
+
+def test_decimal_lognormal_is_skewed_around_its_median_within_bounds(tmp_path: Path) -> None:
+    import csv
+    import statistics
+    from decimal import Decimal
+    source = SIMPLE.replace("rows: 3", "rows: 4000").replace("type: string", "type: decimal").replace(
+        "{kind: sequence, prefix: C, width: 3}",
+        "{kind: decimal, min: 1500, max: 175000, scale: 2, distribution: lognormal, median: 18000, sigma: 1}",
+    )
+    left, right = tmp_path / "left.csv", tmp_path / "right.csv"
+    generate_datasets(build_generate_plan(definition(tmp_path, source), output=left))
+    generate_datasets(build_generate_plan(definition(tmp_path, source), output=right))
+    assert left.read_bytes() == right.read_bytes()
+    with left.open(encoding="utf-8", newline="") as stream:
+        values = [Decimal(row["id"]) for row in csv.DictReader(stream)]
+    assert all(Decimal(1500) <= value <= Decimal(175000) for value in values)
+    assert 16000 <= statistics.median(values) <= 20000
+    assert statistics.mean(values) > statistics.median(values) * Decimal("1.3")
+    assert 0.01 <= sum(value > 100000 for value in values) / len(values) <= 0.06
+
+
+
+ROW_RULES = """\
+definition_version: 1
+id: row-rules
+defaults: {seed: 11, as_of_date: '2025-12-31'}
+datasets:
+  - id: deals
+    rows: 3000
+    columns:
+      - {name: tier, type: string, generate: {kind: choice, weights: {small: 1, large: 1}}}
+      - name: label
+        type: string
+        depends_on: [tier]
+        generate:
+          kind: choice
+          weights: {A: 1, B: 1}
+          by_case: {from: tier, cases: {large: {weights: {C: 1}}}}
+      - name: score
+        type: integer
+        depends_on: [tier]
+        generate: {kind: integer, min: 0, max: 9, by_case: {from: tier, cases: {large: {min: 50, max: 59}}}}
+      - name: amount
+        type: decimal
+        depends_on: [tier]
+        generate: {kind: decimal, min: 10, max: 20, scale: 2, by_value: {from: tier, factors: {large: 10}}}
+      - {name: opened, type: date, generate: {kind: date, min: '2020-01-01', max: '2025-06-30', growth: 1}}
+      - name: touched
+        type: date
+        depends_on: [opened]
+        generate: {kind: date, min: '2019-01-01', max: '2025-12-31', after: opened, weekdays: true}
+      - {name: opted, type: boolean, generate: {kind: boolean, true_share: 0.2}}
+"""
+
+
+def test_row_rules_read_the_other_columns_of_the_row(tmp_path: Path) -> None:
+    import csv
+    from collections import Counter
+    from datetime import date
+    from decimal import Decimal
+    output = tmp_path / "deals.csv"
+    generate_datasets(build_generate_plan(definition(tmp_path, ROW_RULES), output=output))
+    with output.open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    for row in rows:
+        large = row["tier"] == "large"
+        assert (row["label"] == "C") == large
+        assert (50 <= int(row["score"]) <= 59) if large else (0 <= int(row["score"]) <= 9)
+        amount = Decimal(row["amount"])
+        assert (100 <= amount <= 200) if large else (10 <= amount <= 20)
+        assert row["opened"] <= row["touched"] <= "2025-12-31"
+        assert date.fromisoformat(row["touched"]).weekday() < 5
+    years = Counter(row["opened"][:4] for row in rows)
+    assert years["2024"] > 4 * years["2021"]
+    assert 0.17 <= sum(row["opted"] == "true" for row in rows) / len(rows) <= 0.23
+
+
+def test_after_keeps_the_source_date_when_it_passes_max(tmp_path: Path) -> None:
+    import csv
+    source = ROW_RULES.replace("max: '2025-12-31', after", "max: '2019-06-30', after")
+    output = tmp_path / "deals.csv"
+    generate_datasets(build_generate_plan(definition(tmp_path, source), output=output))
+    with output.open(encoding="utf-8", newline="") as stream:
+        assert all(row["touched"] == row["opened"] for row in csv.DictReader(stream))
+
+
+@pytest.mark.parametrize("old, new, message", [
+    ("cases: {large: {weights: {C: 1}}}", "cases: {large: {min: 1}}", "unknown key 'min'"),
+    ("cases: {large: {weights: {C: 1}}}", "cases: {large: {weights: {C: -1}}}", "positive numbers"),
+    ("cases: {large: {weights: {C: 1}}}", "cases: {large: {}}", "changes nothing"),
+    ("cases: {large: {weights: {C: 1}}}", "cases: {}", "named cases"),
+    ("cases: {large: {min: 50, max: 59}}", "cases: {large: {min: 59, max: 50}}", "min <= max"),
+    ("depends_on: [tier]\n        generate:\n          kind: choice", "generate:\n          kind: choice",
+     "by_case.from must be declared"),
+    ("factors: {large: 10}", "factors: {large: 0}", "by_value requires"),
+    ("growth: 1}", "growth: 0}", "growth must be above 0"),
+    ("weekdays: true", "weekdays: false", "weekdays must be true"),
+    ("true_share: 0.2", "true_share: 1.5", "true_share must be from 0 to 1"),
+    ("depends_on: [opened]", "depends_on: []", "after must be declared"),
+])
+def test_row_rules_reject_invalid_declarations(tmp_path: Path, old: str, new: str, message: str) -> None:
+    assert old in ROW_RULES
+    with pytest.raises(ConfigurationError, match=message):
+        validate_generate_package(definition(tmp_path, ROW_RULES.replace(old, new, 1)))
+
+
+MISSING_BY = """\
+definition_version: 1
+id: missing-by
+datasets:
+  - id: people
+    rows: 4000
+    columns:
+      - {name: tier, type: string, generate: {kind: choice, weights: {a: 1, b: 1}}, missing: 0.3}
+      - name: note
+        type: string
+        depends_on: [tier]
+        generate: {kind: text, length: 4}
+        missing: 0.1
+        missing_by: {from: tier, empty: 0.9, cases: {b: 0}}
+"""
+
+
+def test_missing_by_sets_the_missing_rate_from_another_column(tmp_path: Path) -> None:
+    import csv
+    output = tmp_path / "people.csv"
+    generate_datasets(build_generate_plan(definition(tmp_path, MISSING_BY), output=output))
+    with output.open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+
+    def empty(tier: str) -> float:
+        group = [row for row in rows if row["tier"] == tier]
+        return sum(not row["note"] for row in group) / len(group)
+
+    assert 0.86 <= empty("") <= 0.94
+    assert 0.07 <= empty("a") <= 0.13
+    assert empty("b") == 0
+
+
+@pytest.mark.parametrize("old, new", [
+    ("missing_by: {from: tier, empty: 0.9, cases: {b: 0}}", "missing_by: {from: tier}"),
+    ("empty: 0.9", "empty: 1.5"),
+    ("cases: {b: 0}", "cases: {b: -1}"),
+    ("depends_on: [tier]", "depends_on: []"),
+])
+def test_missing_by_rejects_invalid_declarations(tmp_path: Path, old: str, new: str) -> None:
+    assert old in MISSING_BY
+    with pytest.raises(ConfigurationError, match="missing_by"):
+        validate_generate_package(definition(tmp_path, MISSING_BY.replace(old, new, 1)))
+
+
+def test_decimal_round_to_rounds_a_share_and_keeps_the_other_values(tmp_path: Path) -> None:
+    import csv
+    from decimal import Decimal
+    plain = SIMPLE.replace("rows: 3", "rows: 2000").replace("type: string", "type: decimal").replace(
+        "{kind: sequence, prefix: C, width: 3}", "{kind: decimal, min: 100, max: 9000, scale: 2}",
+    )
+    rounded = plain.replace("scale: 2}", "scale: 2, round_to: {step: 100, share: 0.6}}")
+    plain_path, rounded_path = tmp_path / "plain.csv", tmp_path / "rounded.csv"
+    generate_datasets(build_generate_plan(definition(tmp_path / "a", plain), output=plain_path))
+    generate_datasets(build_generate_plan(definition(tmp_path / "b", rounded), output=rounded_path))
+    with plain_path.open(encoding="utf-8", newline="") as one, rounded_path.open(encoding="utf-8", newline="") as two:
+        pairs = [(Decimal(a["id"]), b["id"]) for a, b in zip(csv.DictReader(one), csv.DictReader(two), strict=True)]
+    changed = 0
+    for drawn, written in pairs:
+        if written != f"{drawn:.2f}":
+            changed += 1
+            assert written == f"{(drawn / 100).to_integral_value() * 100:.2f}"
+    share = sum(written.endswith("00.00") for _, written in pairs) / len(pairs)
+    assert 0.55 <= share <= 0.65
+    assert changed > 0
+
+
+
+BY_MONTH = """\
+definition_version: 1
+id: by-month
+defaults: {seed: 5, as_of_date: '2025-12-31'}
+datasets:
+  - id: deals
+    rows: 400
+    columns:
+      - {name: closed, type: date, generate: {kind: date, min: '2025-01-01', max: '2025-12-31'}, missing: 0.1}
+      - name: amount
+        type: decimal
+        depends_on: [closed]
+        generate:
+          kind: decimal
+          min: 100
+          max: 200
+          scale: 2
+          by_month: {from: closed, factors: {july: 0.5, september: 1.25}}
+"""
+
+
+def test_decimal_by_month_scales_only_the_months_it_names(tmp_path: Path) -> None:
+    import csv
+    from decimal import Decimal
+    plain = BY_MONTH.replace(
+        "          by_month: {from: closed, factors: {july: 0.5, september: 1.25}}\n", "")
+    scaled_path, plain_path = tmp_path / "scaled.csv", tmp_path / "plain.csv"
+    generate_datasets(build_generate_plan(definition(tmp_path / "a", BY_MONTH), output=scaled_path))
+    generate_datasets(build_generate_plan(definition(tmp_path / "b", plain), output=plain_path))
+    with scaled_path.open(encoding="utf-8", newline="") as one, plain_path.open(encoding="utf-8", newline="") as two:
+        pairs = list(zip(csv.DictReader(one), csv.DictReader(two), strict=True))
+    factors = {"07": Decimal("0.5"), "09": Decimal("1.25")}
+    months = set()
+    for scaled, drawn in pairs:
+        assert scaled["closed"] == drawn["closed"]
+        month = scaled["closed"][5:7]
+        months.add(month)
+        expected = (Decimal(drawn["amount"]) * factors.get(month, Decimal(1))).quantize(Decimal("0.01"))
+        assert scaled["amount"] == f"{expected:.2f}"
+    assert {"07", "09", ""} <= months
+
+
+@pytest.mark.parametrize("change, message", [
+    ("factors: {july: 0.5, september: 1.25}", "factors: {julio: 0.5}"),
+    ("factors: {july: 0.5, september: 1.25}", "factors: {july: 0}"),
+    ("factors: {july: 0.5, september: 1.25}", "factors: {july: 11}"),
+    ("factors: {july: 0.5, september: 1.25}", "factors: {}"),
+    ("depends_on: [closed]", "depends_on: []"),
+    ("type: date, generate: {kind: date,", "type: date, generate: {kind: date, format: '%d/%m/%Y',"),
+])
+def test_decimal_by_month_rejects_invalid_declarations(tmp_path: Path, change: str, message: str) -> None:
+    with pytest.raises(ConfigurationError, match="by_month"):
+        validate_generate_package(definition(tmp_path, BY_MONTH.replace(change, message)))
 
 
 CRM_RELATIONS = """\

@@ -408,7 +408,7 @@ def _output_schema(path: Path) -> None:
     for raw in columns:
         column = _mapping(raw, path, {
             "name", "type", "from", "generate", "depends_on", "missing",
-            "cohort", "label_table",
+            "cohort", "label_table", "missing_by",
         }, {"name", "type"})
         name = column["name"]
         if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):

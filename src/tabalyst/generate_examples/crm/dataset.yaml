@@ -74,3 +74,79 @@ anomaly_profiles:
       rate: 0.01
       when:
         opportunity_stage: Closed Won
+    - kind: format
+      column: opportunity_amount
+      value: currency_fr
+      rate: 0.02
+    - kind: format
+      column: opportunity_amount
+      value: currency_code
+      rate: 0.01
+    - kind: format
+      column: created_at
+      value: date_dmy
+      rate: 0.02
+    - kind: format
+      column: owner
+      value: trailing_space
+      rate: 0.03
+    - kind: format
+      column: job_title
+      value: lower
+      rate: 0.03
+  rule_breaks:
+    targets:
+    - crm-contacts
+    operations:
+    - kind: replace
+      column: opportunity_probability
+      value: '90'
+      rate: 0.1
+      when:
+        opportunity_stage: Closed Lost
+      class: probability_vs_stage
+    - kind: replace
+      column: opportunity_probability
+      value: '5'
+      rate: 0.03
+      when:
+        opportunity_stage: Negotiation
+      class: probability_vs_stage
+    - kind: replace
+      column: lifecycle_stage
+      value: Customer
+      rate: 0.1
+      when:
+        opportunity_stage: Closed Lost
+      class: lifecycle_vs_stage
+    - kind: replace
+      column: lead_status
+      value: Converted
+      rate: 0.01
+      when:
+        lifecycle_stage: Lead
+      class: status_vs_lifecycle
+    - kind: replace
+      column: opportunity_close_date
+      value: '2027-03-15'
+      rate: 0.03
+      when:
+        opportunity_stage: Closed Won
+      class: closed_in_future
+    - kind: replace
+      column: last_activity_at
+      value: '2018-06-01'
+      rate: 0.005
+      class: activity_before_creation
+    - kind: replace
+      column: owner
+      value: Sam Patel
+      rate: 0.005
+      when:
+        province_code: QC
+      class: owner_vs_territory
+    - kind: format
+      column: company_name
+      value: drop_char
+      rate: 0.002
+      class: company_name_variant

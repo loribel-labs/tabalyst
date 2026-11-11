@@ -1,7 +1,18 @@
 ---
 title: Release notes
-description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.4.
+description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.5.
 ---
+
+## 0.7.5
+
+[Tabalyst Generate](../generate/index.md) ties the columns of its examples
+together, so the files can test analyses across columns: CRM deal amounts,
+probabilities and stages, dates in order and sales territories; Insurance
+travel contracts, claims and premiums by age; Computer reviews that come with
+time. The clean files hold no exception to these rules, and every example gets
+a `rule_breaks` profile that breaks them on purpose, each change named in the
+change log. The same seed gives different files than with 0.7.4. No JSON format
+changes.
 
 ## 0.7.4
 

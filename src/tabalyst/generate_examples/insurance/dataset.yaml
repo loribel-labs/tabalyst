@@ -603,3 +603,60 @@ anomaly_profiles:
     - kind: duplicate_row
       count: 8
       class: duplicate_rows
+  rule_breaks:
+    targets:
+    - insurance-combined
+    operations:
+    - kind: replace
+      column: date_fin
+      value: "2016-01-01"
+      rate: 0.004
+      when: {filiale: "principal"}
+      class: end_before_start
+    - kind: replace
+      column: statut_contrat
+      value: "actif"
+      rate: 0.02
+      when: {statut_contrat: "expiré"}
+      class: status_vs_end_date
+    - kind: set_missing
+      column: montant_reclamation
+      rate: 0.01
+      when: {reclamation_status: "fermé"}
+      class: amount_vs_claim_status
+    - kind: replace
+      column: reclamation_status
+      value: "ouvert"
+      rate: 0.003
+      when: {reclamation_status: ""}
+      class: claim_status_without_date
+    - kind: replace
+      column: civilite
+      value: "M."
+      rate: 0.004
+      when: {sexe: "F"}
+      class: civilite_vs_sexe
+    - kind: replace
+      column: province_nom
+      value: "Ontario"
+      rate: 0.003
+      when: {province_code: "QC"}
+      class: province_name_vs_code
+    - kind: replace
+      column: agence_code
+      value: "AG-ON-001"
+      rate: 0.003
+      when: {filiale: "quebec"}
+      class: agency_vs_branch
+    - kind: replace
+      column: date_naissance
+      value: "2015-05-05"
+      rate: 0.002
+      when: {filiale: "principal"}
+      class: customer_under_18
+    - kind: replace
+      column: mode_paiement
+      value: "chèque"
+      rate: 0.003
+      when: {frequence_paiement: "mensuelle"}
+      class: payment_vs_frequency

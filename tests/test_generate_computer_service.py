@@ -752,3 +752,42 @@ def test_timing_report_counts_profiles_when_several_were_applied() -> None:
     result = GenerateResult((), {"computers": 100}, {"en/dirty_realistic": 10, "en/dirty_stress": 90},
                             seconds=1.0)
     assert timing_report(result) == "100 rows in 1.0s (100 rows/s), 100 cells changed in 2 profiles"
+
+
+def test_new_products_often_have_no_reviews_and_reviews_grow_with_age(tmp_path: Path) -> None:
+    """A product under a year old is often unrated; an older one almost never is."""
+    from datetime import date
+    output = tmp_path / "pcs.csv"
+    generate_datasets(build_generate_plan(PACKAGE, output=output, rows=6000, seed=5, locales="en"))
+    with output.open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+
+    def age(row: dict[str, str]) -> int:
+        return (date(2026, 9, 30) - date.fromisoformat(row["release_date"])).days
+
+    new = [row for row in rows if age(row) < 365]
+    old = [row for row in rows if age(row) >= 365]
+    assert sum(not row["rating"] for row in new) / len(new) > 0.2
+    assert sum(not row["rating"] for row in old) / len(old) < 0.02
+    assert all(int(row["review_count"]) <= age(row) // 2 for row in rows)
+    assert all((row["rating"] == "") == (row["review_count"] == "0") for row in rows)
+
+
+def test_rule_breaks_logs_each_broken_rule_with_its_class(tmp_path: Path) -> None:
+    from collections import Counter
+    generate_datasets(build_generate_plan(
+        PACKAGE, output_dir=tmp_path, rows=20000, seed=5, locales="en", anomaly_profile="rule_breaks",
+    ))
+    with (tmp_path / "computers-en.rule_breaks.changes.csv").open(encoding="utf-8", newline="") as stream:
+        changes = list(csv.DictReader(stream))
+    classes = Counter(change["class"] for change in changes)
+    assert set(classes) == {
+        "current_above_list", "threads_below_cores", "vram_vs_gpu_type", "stock_status_vs_quantity",
+        "release_after_as_of", "rating_without_reviews", "display_without_size",
+    }
+    with (tmp_path / "computers-en.rule_breaks.csv").open(encoding="utf-8", newline="") as stream:
+        dirty = list(csv.DictReader(stream))
+    # row_number counts the header as line 1.
+    swapped = {int(change["row_number"]) - 2 for change in changes if change["class"] == "current_above_list"}
+    assert swapped and all(float(dirty[index]["current_price"]) > float(dirty[index]["list_price"])
+                           for index in swapped)

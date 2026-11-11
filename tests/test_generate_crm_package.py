@@ -26,11 +26,11 @@ from tabalyst.generate_service import (
 )
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "crm")))
-BASELINE_CSV_SHA256 = "6530498b8cb9a82b486dbcfcf93fa9c1e858e3f1aba465405629079f9f532a13"
+BASELINE_CSV_SHA256 = "bb99a3736d762a03f7b1be81781df404d454a55e783eaed01cf4f4b4e203dfcf"
 
 
 def test_package_matches_v1_scenario_at_same_seed_and_volume(tmp_path: Path) -> None:
-    """Keep the frozen v1 CRM scenario byte-for-byte during migration."""
+    """Keep the CRM scenario byte-for-byte at the same seed and volume."""
     result = generate_datasets(build_generate_plan(
         PACKAGE, rows=500, seed=42, anomaly_profile="dirty_realistic", output_dir=tmp_path,
     ))
@@ -48,8 +48,8 @@ def test_package_matches_v1_scenario_at_same_seed_and_volume(tmp_path: Path) -> 
     assert 0.30 <= sum(row["opportunity_stage"] != "None" for row in rows) / 500 <= 0.42
     assert all(row["email"] == "" or row["email"].endswith(".example") for row in rows)
     measured = json.loads(summary.read_text(encoding="utf-8"))
-    assert measured["events"] == measured["changed_cells"] == 209
-    assert sum(item["applied_rows"] for item in measured["operations"]) == 209
+    assert measured["events"] == measured["changed_cells"] == 253
+    assert sum(item["applied_rows"] for item in measured["operations"]) == 253
     assert (measured["format"], measured["format_version"], measured["package_version"]) == (
         "tabalyst.generate.package", "0.1.0", "0.1.0",
     )

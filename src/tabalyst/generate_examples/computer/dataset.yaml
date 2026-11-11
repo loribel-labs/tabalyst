@@ -45,6 +45,19 @@ anomaly_profiles:
       - {kind: format, column: memory_gb, value: unit_gb, rate: 0.15}
       - {kind: format, column: storage_gb, value: unit_gb, rate: 0.1}
       - {kind: format, column: gpu_vram_gb, value: unit_gb, rate: 0.06}
+  rule_breaks:
+    targets: [computers]
+    operations:
+      - {kind: swap, column: current_price, value: list_price, rate: 0.004, class: current_above_list}
+      - {kind: swap, column: cpu_cores, value: cpu_threads, rate: 0.004, class: threads_below_cores}
+      - {kind: replace, column: gpu_vram_gb, value: "8", rate: 0.004,
+         when: {gpu_type: integrated}, class: vram_vs_gpu_type}
+      - {kind: replace, column: stock_status, value: out_of_stock, rate: 0.004,
+         when: {stock_status: in_stock}, class: stock_status_vs_quantity}
+      - {kind: replace, column: release_date, value: "2027-06-15", rate: 0.003, class: release_after_as_of}
+      - {kind: replace, column: review_count, value: "0", rate: 0.004, class: rating_without_reviews}
+      - {kind: replace, column: display_type, value: ips, rate: 0.004,
+         when: {display_type: none}, class: display_without_size}
   unit_variants:
     targets: [computers]
     operations:

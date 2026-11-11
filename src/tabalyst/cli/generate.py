@@ -114,7 +114,7 @@ def generate_command(
     ] = None,
     anomaly_profile: Annotated[
         str | None,
-        typer.Option("--anomaly-profile", help="Inject errors. Computer: dirty_realistic, dirty_stress, unit_variants, unit_variants_extended; several, comma separated, with -d."),
+        typer.Option("--anomaly-profile", help="Inject errors. Computer: dirty_realistic, dirty_stress, unit_variants, unit_variants_extended, rule_breaks; every example has rule_breaks; several, comma separated, with -d."),
     ] = None,
     request: Annotated[
         Path | None,

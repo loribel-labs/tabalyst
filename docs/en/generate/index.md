@@ -57,8 +57,10 @@ tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realis
 
 Insurance offers `dirty_realistic` and `dirty_stress`, which gives each of 45
 kinds of defect a fixed number of rows ([insurance page](insurance.md)). CRM
-offers `dirty_realistic` ([CRM page](crm.md)) and Computer offers four profiles
-([Computer page](computer.md)).
+offers `dirty_realistic` ([CRM page](crm.md)) and Computer offers four more
+profiles ([Computer page](computer.md)). Each example also offers
+`rule_breaks`, which leaves the formats alone and breaks the rules between
+columns on purpose, each change named by a `class` in the change log.
 
 To get several levels of errors at once, name several profiles with `-d`. The
 rows are generated once and each profile makes its own variant, so the clean

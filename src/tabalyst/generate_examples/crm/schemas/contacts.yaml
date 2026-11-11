@@ -101,6 +101,7 @@ columns:
   - family_name
   - province_code
   - person_language
+  - email
   generate:
     kind: provider
     group: contact
@@ -111,6 +112,9 @@ columns:
     language: person_language
     name: common.contact
   missing: 0.03
+  missing_by:
+    from: email
+    empty: 0.6
 - name: job_title
   type: string
   generate:
@@ -134,6 +138,8 @@ columns:
       Outbound: 10
 - name: lifecycle_stage
   type: string
+  depends_on:
+  - opportunity_stage
   generate:
     kind: choice
     weights:
@@ -141,6 +147,30 @@ columns:
       Qualified: 25
       Opportunity: 22
       Customer: 16
+    by_case:
+      from: opportunity_stage
+      cases:
+        None:
+          weights:
+            Lead: 50
+            Qualified: 35
+            Customer: 15
+        Discovery:
+          weights:
+            Opportunity: 1
+        Proposal:
+          weights:
+            Opportunity: 1
+        Negotiation:
+          weights:
+            Opportunity: 1
+        Closed Won:
+          weights:
+            Customer: 1
+        Closed Lost:
+          weights:
+            Lead: 40
+            Qualified: 60
 - name: lead_status
   type: string
   depends_on:
@@ -156,6 +186,8 @@ columns:
     default: Unknown
 - name: owner
   type: string
+  depends_on:
+  - province_code
   generate:
     kind: choice
     weights:
@@ -164,24 +196,83 @@ columns:
       Sam Patel: 1
       Taylor Roy: 1
       Jordan Tremblay: 1
+    by_case:
+      from: province_code
+      cases:
+        QC:
+          weights:
+            Jordan Tremblay: 2
+            Taylor Roy: 2
+            Morgan Lee: 1
+        'ON':
+          weights:
+            Alex Chen: 3
+            Morgan Lee: 1
+        AB:
+          weights:
+            Sam Patel: 1
+        BC:
+          weights:
+            Sam Patel: 1
+        SK:
+          weights:
+            Sam Patel: 1
+        MB:
+          weights:
+            Sam Patel: 1
+        NT:
+          weights:
+            Sam Patel: 1
+        NU:
+          weights:
+            Sam Patel: 1
+        YT:
+          weights:
+            Sam Patel: 1
+        NB:
+          weights:
+            Alex Chen: 1
+        NS:
+          weights:
+            Alex Chen: 1
+        NL:
+          weights:
+            Alex Chen: 1
+        PE:
+          weights:
+            Alex Chen: 1
   missing: 0.01
 - name: marketing_opt_in
   type: boolean
   generate:
     kind: boolean
+    true_share: 0.35
 - name: created_at
   type: date
   generate:
     kind: date
     min: '2019-01-01'
     max: '2026-06-30'
+    growth: 0.25
 - name: last_activity_at
   type: date
+  depends_on:
+  - created_at
+  - lifecycle_stage
   generate:
     kind: date
     min: '2021-01-01'
     max: '2026-09-30'
+    after: created_at
+    weekdays: true
   missing: 0.11
+  missing_by:
+    from: lifecycle_stage
+    cases:
+      Lead: 0.22
+      Qualified: 0.08
+      Opportunity: 0.03
+      Customer: 0.02
 - name: opportunity_stage
   type: string
   generate:
@@ -195,25 +286,98 @@ columns:
 - name: opportunity_amount
   type: decimal
   cohort: pipeline
+  depends_on:
+  - opportunity_close_date
+  - company_size
+  - opportunity_stage
   generate:
     kind: decimal
     min: 1500
     max: 175000
     scale: 2
+    distribution: lognormal
+    median: 18000
+    sigma: 1
+    by_month:
+      from: opportunity_close_date
+      factors:
+        january: 1.1
+        july: 0.8
+        august: 0.7
+        september: 1.2
+        december: 0.9
+    by_value:
+      from: company_size
+      factors:
+        1-10: 0.5
+        11-50: 0.8
+        201-1000: 1.6
+        1001+: 2.5
+    round_to:
+      step: 100
+      share: 0.6
   missing: 0.08
+  missing_by:
+    from: opportunity_stage
+    cases:
+      Discovery: 0.2
+      Proposal: 0.06
+      Negotiation: 0.02
+      Closed Won: 0
+      Closed Lost: 0.05
 - name: opportunity_probability
   type: integer
   cohort: pipeline
+  depends_on:
+  - opportunity_stage
   generate:
     kind: integer
     min: 0
     max: 100
+    by_case:
+      from: opportunity_stage
+      cases:
+        Discovery:
+          min: 10
+          max: 25
+        Proposal:
+          min: 30
+          max: 50
+        Negotiation:
+          min: 60
+          max: 85
+        Closed Won:
+          min: 100
+          max: 100
+        Closed Lost:
+          min: 0
+          max: 0
   missing: 0.03
 - name: opportunity_close_date
   type: date
   cohort: pipeline
+  depends_on:
+  - opportunity_stage
+  - created_at
   generate:
     kind: date
     min: '2024-01-01'
     max: '2027-09-30'
+    after: created_at
+    by_case:
+      from: opportunity_stage
+      cases:
+        Discovery:
+          min: '2026-10-01'
+          max: '2027-09-30'
+        Proposal:
+          min: '2026-10-01'
+          max: '2027-09-30'
+        Negotiation:
+          min: '2026-10-01'
+          max: '2027-09-30'
+        Closed Won:
+          max: '2026-09-30'
+        Closed Lost:
+          max: '2026-09-30'
   missing: 0.04

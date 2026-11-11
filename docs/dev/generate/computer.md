@@ -476,8 +476,13 @@ the selected component capacities and an offer-specific increment; a separate
 discount draw yields 0, 5, 10, or 15 percent. Stock is an integer from 0 to
 50, with `out_of_stock` exactly when it is zero. Release dates lie between
 January 1 of the selected model year and `as_of_date`; a reference date before
-that model year fails. Review counts are 0 to 500, with no rating at zero
-reviews and a rating from 3.0 to 5.0 otherwise. These are fixture rules, not
+that model year fails. Review counts are 0 to 500 and at most one for every
+two days since the release (`DAYS_PER_REVIEW`); a product under a year old has
+none with probability 0.3 (`NEW_PRODUCT_DAYS`, `NEW_PRODUCT_UNRATED`), so its
+rating is missing. There is no rating at zero reviews and a rating from 3.0 to
+5.0 otherwise. The `rule_breaks` profile breaks these rules on purpose with
+`swap` and `replace` operations, each with a `class`, on `compact` columns
+only so it works with every output profile. These are fixture rules, not
 claims about real products or market distributions. The internal derivation
 does not yet render localized labels or write CSV.
 

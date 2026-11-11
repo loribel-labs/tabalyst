@@ -38,15 +38,31 @@ KINDS = {
 }
 TYPES = {"string", "integer", "decimal", "boolean", "date", "datetime"}
 MAX_NUMBER = 1_000_000_000_000
+# English month names, January first: the keys of `decimal.by_month.factors`.
+MONTHS = ("january", "february", "march", "april", "may", "june", "july",
+          "august", "september", "october", "november", "december")
+MAX_MONTH_FACTOR = 10
+DISTRIBUTIONS = {"uniform", "lognormal"}
+MAX_SIGMA = 5
+MAX_GROWTH = 10
+MAX_CASES = 256
+# What a `by_case` entry may replace, by generator kind.
+CASE_KEYS = {
+    "choice": {"weights"}, "integer": {"min", "max"}, "decimal": {"min", "max"},
+    "date": {"min", "max"}, "datetime": {"min", "max"},
+}
+# The options that read another column: a `by_case` entry is checked without them.
+ROW_OPTIONS = {"by_case", "by_month", "by_value", "after"}
 GENERATOR_KEYS = {
     "constant": {"value"},
     "sequence": {"prefix", "width", "start"},
-    "choice": {"weights"},
-    "integer": {"min", "max"},
-    "decimal": {"min", "max", "scale"},
-    "boolean": set(),
-    "date": {"min", "max", "format"},
-    "datetime": {"min", "max", "format"},
+    "choice": {"weights", "by_case"},
+    "integer": {"min", "max", "by_case"},
+    "decimal": {"min", "max", "scale", "by_month", "by_value", "distribution", "median", "sigma",
+                "round_to", "by_case"},
+    "boolean": {"true_share"},
+    "date": {"min", "max", "format", "by_case", "after", "growth", "weekdays"},
+    "datetime": {"min", "max", "format", "by_case", "after", "growth", "weekdays"},
     "text": {"length"},
     "reference": {"entity", "field"},
     "relative_date": {"from", "offset", "format"},
@@ -175,12 +191,112 @@ def _date(source: Path, value: Any, where: str) -> str:
     return value
 
 
+def _distribution(source: Path, generator: dict, lower: float, upper: float) -> None:
+    """Check the draw of a decimal: `median` and `sigma` belong to `lognormal` only."""
+    distribution = generator.get("distribution", "uniform")
+    if distribution not in DISTRIBUTIONS:
+        _fail(source, generator, "decimal.distribution must be uniform or lognormal")
+    if distribution == "uniform":
+        if "median" in generator or "sigma" in generator:
+            _fail(source, generator, "decimal.median and decimal.sigma require distribution lognormal")
+        return
+    median, sigma = generator.get("median"), generator.get("sigma")
+    if lower <= 0:
+        _fail(source, generator, "decimal lognormal requires min above 0")
+    if not _bounded_number(median) or not lower <= median <= upper:
+        _fail(source, generator, "decimal lognormal requires a median from min to max")
+    if not _bounded_number(sigma) or not 0 < sigma <= MAX_SIGMA:
+        _fail(source, generator, f"decimal lognormal requires a sigma above 0 and at most {MAX_SIGMA}")
+
+
+def _probability(value: object) -> bool:
+    return _bounded_number(value) and 0 <= value <= 1
+
+
+def _missing_by(source: Path, item: dict, dependencies: list) -> None:
+    """Check `missing_by`: a missing rate by the value of another column, or when it is empty."""
+    rule = _mapping(source, item["missing_by"], "missing_by", {"from", "cases", "empty"})
+    cases = rule.get("cases", {})
+    if (not isinstance(rule.get("from"), str) or not isinstance(cases, dict)
+            or not cases and "empty" not in rule or len(cases) > MAX_CASES
+            or any(not isinstance(key, str) or not key or not _probability(rate)
+                   for key, rate in cases.items())
+            or "empty" in rule and not _probability(rule["empty"])):
+        _fail(source, rule, "missing_by requires from and rates from 0 to 1 by value or when empty")
+    if rule["from"] not in dependencies:
+        _fail(source, rule, "missing_by.from must be declared in depends_on")
+
+
+def _by_case(source: Path, item: dict, dependencies: list, where: str) -> None:
+    """Check `by_case`: each case replaces some parameters, and the result must be valid alone.
+
+    A case is validated as a column of its own, so the rules of every kind exist once;
+    the options that read another column are checked on the declared generator only.
+    """
+    generator = item["generate"]
+    kind = generator["kind"]
+    by_case = _mapping(source, generator["by_case"], f"{kind}.by_case", {"from", "cases"})
+    cases = by_case.get("cases")
+    if (not isinstance(by_case.get("from"), str) or not isinstance(cases, dict) or not cases
+            or len(cases) > MAX_CASES or any(not isinstance(key, str) or not key for key in cases)):
+        _fail(source, by_case, f"{kind}.by_case requires from and 1 to {MAX_CASES} named cases")
+    if by_case["from"] not in dependencies:
+        _fail(source, by_case, f"{kind}.by_case.from must be declared in depends_on")
+    base = {key: value for key, value in generator.items() if key not in ROW_OPTIONS}
+    for case, override in cases.items():
+        override = _mapping(source, override, f"{kind}.by_case.cases.{case}", CASE_KEYS[kind])
+        if not override:
+            _fail(source, by_case, f"{kind}.by_case.cases.{case} changes nothing")
+        alone = {"name": item["name"], "type": item["type"], "generate": base | override}
+        _columns(source, [alone], f"{where}.by_case.{case}")
+
+
+def _by_value(source: Path, generator: dict, lower: float, upper: float) -> None:
+    """Check the factors of a decimal by the value of another column."""
+    by_value = _mapping(source, generator["by_value"], "decimal.by_value", {"from", "factors"})
+    factors = by_value.get("factors")
+    if (not isinstance(by_value.get("from"), str) or not isinstance(factors, dict) or not factors
+            or len(factors) > MAX_CASES or any(not isinstance(key, str) or not key for key in factors)
+            or any(not _bounded_number(factor) or not 0 < factor <= MAX_MONTH_FACTOR
+                   for factor in factors.values())):
+        _fail(source, by_value, "decimal.by_value requires from and factors keyed by value, "
+              f"each above 0 and at most {MAX_MONTH_FACTOR}")
+    largest = max(factors.values()) * max(generator.get("by_month", {}).get("factors", {"": 1}).values())
+    if max(abs(lower), abs(upper)) * largest > MAX_NUMBER:
+        _fail(source, by_value, "decimal.by_value scales an amount beyond one trillion")
+
+
+def _round_to(source: Path, generator: dict, scale: int) -> None:
+    """Check the mixed rounding of a decimal: a step at the scale and a share of the rows."""
+    round_to = _mapping(source, generator["round_to"], "decimal.round_to", {"step", "share"})
+    step, share = round_to.get("step"), round_to.get("share")
+    if (not _bounded_number(step) or step <= 0
+            or (Decimal(str(step)) * 10 ** scale) % 1 != 0):
+        _fail(source, round_to, "decimal.round_to.step must be above 0 and a multiple of the scale")
+    if not _bounded_number(share) or not 0 < share <= 1:
+        _fail(source, round_to, "decimal.round_to.share must be above 0 and at most 1")
+
+
+def _by_month(source: Path, generator: dict, lower: float, upper: float) -> None:
+    """Check the monthly factors of a decimal; a scaled amount must stay within MAX_NUMBER."""
+    by_month = _mapping(source, generator["by_month"], "decimal.by_month", {"from", "factors"})
+    factors = by_month.get("factors")
+    if (not isinstance(by_month.get("from"), str) or not isinstance(factors, dict) or not factors
+            or not set(factors) <= set(MONTHS)
+            or any(not _bounded_number(factor) or not 0 < factor <= MAX_MONTH_FACTOR
+                   for factor in factors.values())):
+        _fail(source, by_month, "decimal.by_month requires from and factors keyed by English month "
+              f"name, each above 0 and at most {MAX_MONTH_FACTOR}")
+    if max(abs(lower), abs(upper)) * max(factors.values()) > MAX_NUMBER:
+        _fail(source, by_month, "decimal.by_month scales an amount beyond one trillion")
+
+
 def _columns(source: Path, value: Any, where: str) -> None:
     columns = _list(source, value, where, MAX_COLUMNS, nonempty=True)
     names: set[str] = set()
     for column in columns:
         item = _mapping(source, column, f"{where} column", {
-            "name", "type", "generate", "depends_on", "missing", "cohort",
+            "name", "type", "generate", "depends_on", "missing", "cohort", "missing_by",
         })
         name = item.get("name")
         if not isinstance(name, str) or not COLUMN_NAME.fullmatch(name):
@@ -195,6 +311,8 @@ def _columns(source: Path, value: Any, where: str) -> None:
             "scale", "entity", "field", "from", "offset", "format", "length",
             "cases", "default", "provider", "group", "profile", "province",
             "first", "last", "language", "unit_probability", "direction_probability",
+            "by_month", "distribution", "median", "sigma", "round_to",
+            "by_case", "by_value", "after", "growth", "weekdays", "true_share",
         })
         kind = generator.get("kind")
         if not isinstance(kind, str) or kind not in KINDS:
@@ -270,6 +388,13 @@ def _columns(source: Path, value: Any, where: str) -> None:
                 right = (Decimal(str(upper)) * factor).to_integral_value(rounding="ROUND_FLOOR")
                 if left > right:
                     _fail(source, generator, "decimal bounds contain no value at the selected scale")
+                _distribution(source, generator, lower, upper)
+                if "by_month" in generator:
+                    _by_month(source, generator, lower, upper)
+                if "by_value" in generator:
+                    _by_value(source, generator, lower, upper)
+                if "round_to" in generator:
+                    _round_to(source, generator, scale)
         if kind in {"date", "datetime"}:
             parser = date.fromisoformat if kind == "date" else datetime.fromisoformat
             for bound in ("min", "max"):
@@ -287,6 +412,16 @@ def _columns(source: Path, value: Any, where: str) -> None:
                 if (not isinstance(fmt, str) or not 1 <= len(fmt) <= 80
                         or re.search(r"%(?![%YymdHMS])", fmt)):
                     _fail(source, generator, f"{kind}.format has an unsupported directive")
+            if "growth" in generator and (not _bounded_number(generator["growth"])
+                                          or not 0 < generator["growth"] <= MAX_GROWTH):
+                _fail(source, generator, f"{kind}.growth must be above 0 and at most {MAX_GROWTH}")
+            if "weekdays" in generator and generator["weekdays"] is not True:
+                _fail(source, generator, f"{kind}.weekdays must be true when present")
+            if "after" in generator and not isinstance(generator["after"], str):
+                _fail(source, generator, f"{kind}.after must name a column")
+        if kind == "boolean" and "true_share" in generator and (
+                not _bounded_number(generator["true_share"]) or not 0 <= generator["true_share"] <= 1):
+            _fail(source, generator, "boolean.true_share must be from 0 to 1")
         if kind == "sequence" and item["type"] != "string":
             _fail(source, generator, "sequence requires string type")
         if kind == "text" and item["type"] != "string":
@@ -336,12 +471,22 @@ def _columns(source: Path, value: Any, where: str) -> None:
             _fail(source, generator, "common contact inputs must be declared in depends_on")
         if kind in {"relative_date", "conditional"} and generator["from"] not in dependencies:
             _fail(source, generator, f"{kind}.from must be declared in depends_on")
+        if kind == "decimal" and "by_month" in generator and generator["by_month"]["from"] not in dependencies:
+            _fail(source, generator, "decimal.by_month.from must be declared in depends_on")
+        if kind == "decimal" and "by_value" in generator and generator["by_value"]["from"] not in dependencies:
+            _fail(source, generator, "decimal.by_value.from must be declared in depends_on")
+        if "after" in generator and generator["after"] not in dependencies:
+            _fail(source, generator, f"{kind}.after must be declared in depends_on")
+        if "by_case" in generator:
+            _by_case(source, item, dependencies, f"{where}.{name}")
         missing = item.get("missing")
         if missing is not None and (type(missing) not in (float, int)
                                     or not math.isfinite(missing) or not 0 <= missing <= 1):
             _fail(source, item, "missing must be a probability from 0 to 1")
         if "cohort" in item:
             _id(source, item["cohort"], "column cohort")
+        if "missing_by" in item:
+            _missing_by(source, item, dependencies)
     graph = {item["name"]: item.get("depends_on", []) for item in columns}
     done: set[str] = set()
     active: set[str] = set()
@@ -387,6 +532,14 @@ def _columns(source: Path, value: Any, where: str) -> None:
                 _fail(source, generator, "relative_date source must match date or datetime type")
             if "format" in parent["generate"]:
                 _fail(source, generator, "relative_date source must use ISO format")
+        if "after" in generator:
+            parent = by_name[generator["after"]]
+            if parent["type"] != item["type"] or "format" in parent["generate"]:
+                _fail(source, generator, f"{generator['kind']}.after must name an ISO column of the same type")
+        if generator["kind"] == "decimal" and "by_month" in generator:
+            parent = by_name[generator["by_month"]["from"]]
+            if parent["type"] not in {"date", "datetime"} or "format" in parent["generate"]:
+                _fail(source, generator, "decimal.by_month.from must be an ISO date or datetime column")
 
 
 def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:

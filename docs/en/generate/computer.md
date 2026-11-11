@@ -162,7 +162,10 @@ The values follow rules of consistency, not market estimates:
 - `stock_status` is `out_of_stock` exactly when `stock_quantity` is 0.
 - `release_date` falls in the model year and never after the reference date
   (`--as-of-date`, 30 September 2026 by default).
-- `rating` is empty when `review_count` is 0.
+- `rating` is empty when `review_count` is 0. Reviews come with time: a
+  product gets at most one review for every two days since its release, and
+  about 30% of the products released less than a year ago have none yet, so
+  their `rating` is empty, against almost none of the older ones.
 
 Many rows share a model, since the catalog is finite: a large file repeats
 configurations, each row with its own `product_id`, stock and reviews, while
@@ -170,7 +173,7 @@ configurations, each row with its own `product_id`, stock and reviews, while
 
 ## Add defects on purpose
 
-Computer has four anomaly profiles. They keep the clean file and write an
+Computer has five anomaly profiles. They keep the clean file and write an
 altered copy, a change log and a summary (with `-d`), or only the altered file
 and its log (with `-o`).
 
@@ -180,6 +183,7 @@ and its log (with `-o`).
 | `dirty_stress` | The same kinds of defect on a larger share of the rows. |
 | `unit_variants` | Only the units: `16` becomes `16 GB` in some memory, storage and graphics memory cells. |
 | `unit_variants_extended` | The same for 14 measured columns (screen size, refresh rate, battery, weight, dimensions and more). It needs `--output-profile extended`. |
+| `rule_breaks` | No format defect: it breaks the rules between columns on purpose (table further down). |
 
 `dirty_realistic` and `dirty_stress` change the same columns:
 
@@ -209,6 +213,32 @@ generated once and each profile makes its own variant.
 ```console
 tabalyst generate --example computer --rows 30000 -d out/ --locales en --anomaly-profile dirty_realistic,dirty_stress
 ```
+
+### Break the rules on purpose
+
+`rule_breaks` breaks the rules listed above, so an analysis across columns
+can be measured against known exceptions. Each change carries its `class` in
+the last column of the change log. It uses the columns of the `compact`
+profile, so it works with every output profile:
+
+```console
+tabalyst generate --example computer --rows 30000 -d out/ --anomaly-profile rule_breaks
+```
+
+| Class | What changes | Rows changed in 30,000 |
+| --- | --- | ---: |
+| `current_above_list` | `current_price` and `list_price` swapped, so the current price is above the list price | 75 |
+| `threads_below_cores` | `cpu_cores` and `cpu_threads` swapped, so there are fewer threads than cores | 39 |
+| `vram_vs_gpu_type` | `gpu_vram_gb` set to `8` on an integrated GPU | 93 |
+| `stock_status_vs_quantity` | `stock_status` set to `out_of_stock` while there is stock | 117 |
+| `release_after_as_of` | `release_date` set to `2027-06-15`, after the reference date and the model year | 90 |
+| `rating_without_reviews` | `review_count` set to `0` on a rated product | 120 |
+| `display_without_size` | `display_type` set to `ips` on a machine without a built-in display | 64 |
+
+A swap leaves the row alone when both cells are equal, such as an offer
+without a discount, and a rule applies only to the rows it targets, so the
+summary gives the number of rows changed for every operation. The English and
+French files change the same rows.
 
 ## Large files
 

@@ -138,6 +138,70 @@ declared dependency of date or datetime type. A missing source yields a missing
 relative date. Source dates use canonical ISO values. Neither generator
 evaluates expressions.
 
+A `decimal` generator draws uniformly by default (`distribution: uniform`).
+`distribution: lognormal` requires `min` above 0, a `median` from `min` to
+`max` and a `sigma` above 0 and at most 5 (the standard deviation of the
+logarithm); `median` and `sigma` are refused with `uniform`. The draw is the
+inverse normal CDF of one uniform number taken between the CDFs of `min` and
+`max`, so it is truncated without rejection and uses one random number per
+value. CRM draws `opportunity_amount` with median 18,000 and sigma 1.
+
+A `decimal` generator may declare `by_month: {from, factors}`. `from` names a
+date or datetime column without `format`, declared in `depends_on`; `factors`
+maps English month names (`january` to `december`) to a number above 0 and at
+most 10. The drawn value is multiplied by the factor of the source date's month
+and rounded half to even at the generator's scale, so it may pass `max`; the
+scaled bound must stay within one trillion. An empty source, or a month without
+a factor, keeps the drawn value. The draw itself is unchanged, so only the rows
+of the named months differ from the same declaration without `by_month`. CRM
+uses it to give `opportunity_amount` a seasonality on `opportunity_close_date`.
+
+A `decimal` generator may also declare `by_value: {from, factors}`: the same
+factor as `by_month`, keyed by the text of another column (CRM: `company_size`).
+It applies after `by_month`; a value without a factor keeps the amount.
+
+A `decimal` generator may declare `round_to: {step, share}`, applied last,
+after `by_month` and `by_value`, so a rounded value stays a multiple of `step`. `step` is
+above 0 and a multiple of the scale unit; `share` is above 0 and at most 1. A
+`share` of the values, chosen by a stream of their own (operation `round`),
+is rounded half to even to `step`; the others keep their scale. One random
+number is drawn per value whether it is rounded or not, and adding the option
+never shifts the draw. A value under half a step becomes zero, and a rounded
+value may pass `min` or `max` by half a step. CRM rounds 60% of its amounts to
+100, so the column mixes typed and computed figures.
+
+Further options tie a value to its row (all declared in `depends_on`):
+
+- **`by_case: {from, cases}`** on `choice`, `integer`, `decimal`, `date` and
+  `datetime`. Each case, keyed by the text of `from`, replaces `weights`
+  (choice) or `min` and `max` (the others); a value without a case uses the
+  declared generator. Every case is validated as a column of its own, without
+  the options that read another column, so the rules of a kind exist once.
+- **`after: <column>`** on `date` and `datetime` raises `min` to the value of
+  that column (same type, ISO, no `format`); an empty source changes nothing.
+  When the source passes `max`, the value is the source date, so the order
+  holds. It applies after `by_case`.
+- **`growth: <rate>`** on `date` and `datetime` (above 0, at most 10) draws a
+  density that grows by `rate` a year, by the inverse CDF of an exponential:
+  one random number per value, as without it.
+- **`weekdays: true`** on `date` and `datetime` moves a Saturday to Friday and
+  a Sunday to Monday, or the other way when that step leaves the bounds.
+- **`true_share: <share>`** on `boolean` (from 0 to 1) sets the share of `true`.
+- **`missing_by: {from, cases, empty}`** on a column (beside `missing`) sets the
+  missing rate by the text of `from`, or by `empty` when `from` is empty; any
+  other value keeps `missing`. The missing stream still draws one number per
+  row, so only the rate changes. `from` reads the final value of its column,
+  its own missingness included, which makes a chain of missing values possible.
+
+None of them changes a declaration that does not use it. CRM also ships a
+`rule_breaks` profile: `replace` and `format` operations with a `when` and a
+`class` that break those rules on purpose, so a cross-column analysis has known
+exceptions to find. CRM uses them for the probability and
+the lifecycle stage by opportunity stage, the close date by stage and after
+the creation, the last activity after the creation on weekdays, contacts that
+grow by 25% a year, the owner by province and a 35% opt-in. Scan and Report
+still do not evaluate these rules (see Lot 5).
+
 `combine` reads its generated inputs in declared order and preserves their
 values and row order. An optional `source_column` is appended last and takes
 each input's `source` value or dataset id. Input headers and physical types
@@ -377,3 +441,17 @@ the prototype or `examples/datasets/insurance-customers.csv`. The existing publi
 3,000-row CSV has the same 34 column names but places `filiale` first, uses
 different values and remains unchanged. This provider models a pedagogical
 export, not actuarial rates or comprehensive insurance validation.
+
+The provider also ties its columns to each other, with no exception in the
+clean files: a `voyage` contract is one trip of 3 to 90 days started in the last
+three years, `expiré` once ended and `actif` before (`TRIP_DAYS`); the claim
+status follows the claim's age (`SETTLED_CLAIM_DAYS`, `FRESH_CLAIM_DAYS`) and
+the claim amount is a truncated log-normal around the geometric mean of the
+product's range (`generate_draws.truncated_lognormal`, shared with the
+`decimal` generator); `date_modification` follows the claim; a monthly payment
+is a direct debit or a card (`MONTHLY_METHODS`); the agency is the one of the
+customer's city, else of the province, else of the branch; the premium is
+priced by age (`_premium_factor`) and the email is missing more often with age
+(`_email_missing`). The `rule_breaks` profile breaks those rules on purpose;
+it replaces dates in the principal branch only, whose dates are ISO, so a broken
+rule never comes with a format defect.
