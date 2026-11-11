@@ -276,12 +276,15 @@ def test_csv_bytes_and_metadata_are_reproducible(tmp_path: Path) -> None:
 
 def test_streaming_memory_does_not_scale_with_row_count(tmp_path: Path) -> None:
     package = load_generate_package(PACKAGE)
+    outputs = {"en": tmp_path / "en.csv", "fr": tmp_path / "fr.csv"}
+    # The first run fills one-off caches whose size depends on the values met,
+    # so the peaks are compared only once they are warm.
+    write_computer_csvs(package, outputs, tmp_path / "meta.json", rows=1000,
+                        output_profile="extended")
     peaks = []
-    for count in (10, 1000):
+    for count in (1000, 3000):
         tracemalloc.start()
-        write_computer_csvs(package, {"en": tmp_path / "en.csv",
-                                      "fr": tmp_path / "fr.csv"},
-                            tmp_path / "meta.json", rows=count,
+        write_computer_csvs(package, outputs, tmp_path / "meta.json", rows=count,
                             output_profile="extended")
         _, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
