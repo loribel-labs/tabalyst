@@ -5874,6 +5874,61 @@ and `rows_without_id` of each column against `record_count - values.count` of th
 
 **Left out.** Sharing the reading with `duplicate_rows_count` (two readings when the total is also to count), a JSON or Excel source, a composite key.
 
+### 20.44 The combinations of missing values (proposed)
+
+Status: proposed on 2026-11-11, not implemented. The page that draws it is `docs/dev/report/chart-pages.md`; the choice of the library and of the separate pages is
+the ADR `2026-11-11-report-chart-pages-echarts-cdn`.
+
+`missing_patterns` counts the records of a dataset by their **pattern**: the exact set of the members of the matrix (20.31) in which they lack a value. `missing_matrix` gives
+pairs, and they are inclusive: a record that lacks A, B and C counts in A and B, A and C, B and C, and its "Left out" names the larger groups. The patterns are the exclusive
+intersections an UpSet plot draws. While they are complete, every pair and every group derives from them; the pairs never give the patterns.
+
+**Members.** Those of `matrix_members(dataset)` (`planner/facts.py`), in the same order and under the same conditions: at least two, at most `deep.missing.max_columns`
+(`too_many_columns`), and the parameter `columns` checked against what the Scan gives (`scan_mismatch`). A withheld column is never a member, so it is in no pattern.
+
+**Candidate.** One for the dataset, named `$` (`missing_patterns:<dataset>:$`). Neither existing root fits: `root_facts` gives `$` only to a JSON dataset whose records are all
+objects, and `rows_facts` only to a CSV file of one dataset, for the analyzers read outside the router (20.40). A new class attribute `Analyzer.datasets` is offered
+`dataset_facts(scan)`: one `FieldFacts` named `$` for each dataset that has at least two members, in any format, with `matrix_member` and `matrix_size`. An analyzer that does not
+set it is offered nothing more, so no other plan changes. The candidate ids carry the analyzer, so `structure_variants:<dataset>:$` and `missing_patterns:<dataset>:$` live side by
+side for a JSON dataset. The executor stands in a `FieldResult` for it, as `_root_field` does.
+
+**One counting.** No new reading and no new hook of the router: `MatrixAccumulator` gains a table of patterns, fed by `_count` from the masks of the batch it already builds, and stays
+in `row_accumulators`. A record gets a pattern only when it lacks a value somewhere: for each live column, the set bits of its mask (the records that lack it) add the bit of the column
+to the pattern of those records. The work follows the cells that lack a value, not the cells read, and a record with every value costs nothing more than today. The state stays
+`matrix:<dataset>`, so a plan that selects both analyzers counts once; when only `missing_patterns` is selected, the accumulator does not count the pairs, so its cost does not grow
+with the square of the members.
+
+**Bound.** A dataset of `n` members has up to `2^n` patterns. As `KeySets` (20.33): a table pattern to count of at most `deep.missing.max_patterns` (new, default 1,000, part of the key
+of the result), each tracked pattern counted exactly from its first record; a record whose pattern arrives when the table is full counts in `untracked` and `complete` is false. The same
+file gives the same table on any machine.
+
+**Result.** `MissingPatternsResult` (`kind` `missing_patterns`, `accuracy` `exact`: every count it lists is exact, `complete` says whether it lists them all):
+
+- `records`, and `columns[]`: each member with `field`, `display` and `missing` (the records that lack it), in document order. These are the set sizes of the plot.
+- `complete_records`: the records with a value in every member (the empty pattern).
+- `distinct` (the patterns tracked, a lower bound when `complete` is false), `complete`, `untracked`.
+- `listed[]`, at most `deep.missing.max_patterns_listed` (new, default 200: the chart page draws the first 20 and its table lists the
+  others, so the default lists every pattern of a usual table): `columns` (the field ids of the pattern, in document order) and `count`, by decreasing count, then fewer
+  columns, then first appearance.
+- `other_patterns` and `other_records`: the tracked patterns not listed and their records.
+
+**Checks.** `records` and each `missing` against the Scan, as the matrix does (`records - values.count`). `complete_records`, the listed counts, `other_records` and `untracked` sum to
+`records`. While `complete` is true, the counts of the patterns that hold a column sum to its `missing`; otherwise they are at most that.
+
+**Cost.** To measure (`tabalyst-lab`, `benchmarks/`). The Scan gives the cells that lack a value (`record_count - values.count` of each member), so the estimate is those cells times
+`NS_PER_CELL["matrix_patterns"]`, plus the matrix's cost per cell read when the matrix is not selected. The memory is `MISSING_PATTERN_BYTES` per tracked pattern up to `max_patterns`.
+`COST_MODEL_VERSION` follows. Utility 40, never automatic, as the matrix, until the cost is measured. `tabalyst report --details` forces the second pass (it implies `--deep`), so
+the detail pages always have it when it applies.
+
+**Format.** A new kind in `analyses`: the second-pass `FORMAT_REVISION` and `tabalyst.scan.deep.schema.json` change. The Report profile embeds `analyses` (20.29), so
+`tabalyst.report.schema.json`, its `format_revision` and `docs/en/report/profile-changelog.md` follow.
+
+**Report.** In `report.html`, the `missing` card of the dataset (20.32) gains the sentences that name the blocks of columns missing together (`docs/dev/report/chart-pages.md` 6.1),
+a table of the first patterns with their exact counts, and a link to the chart page when `--details` wrote one. The UpSet plot is on the chart page `charts-missing.html` (`docs/dev/report/chart-pages.md` 6); a column page that lacks values links to it.
+
+**Left out.** Why values are missing; repeated fields; telling an absent key from a null in JSON (both lack a value, as the Scan counts them); the patterns crossed with a category or
+followed by position in the file (20.30).
+
 ## 21. Original value domain (O32)
 
 Bottom-k, patterns and smart sampling rest on original values, decoded but
