@@ -17,7 +17,7 @@ exact medians](deep.md) for what the command does.
 {
   "format": "tabalyst.scan.deep",
   "format_version": "0.2.0",
-  "format_revision": 4,
+  "format_revision": 5,
   "status": "complete",
   "base": {
     "format_revision": 4,
@@ -842,6 +842,47 @@ column that looks like an identifier, or in a combination of two columns.
   selects, and a plan whose `columns` parameter is not the number the scan gives fails
   with `scan_mismatch`.
 
+**`missing_patterns`**: the records of a dataset by the exact set of columns they lack a
+value in. The plan names it `missing_patterns:<dataset>:$`, one for the dataset.
+
+```json
+{
+  "kind": "missing_patterns",
+  "accuracy": "exact",
+  "records": 1003,
+  "columns": [
+    {"field": "column_3", "display": "phone", "missing": 134},
+    {"field": "column_4", "display": "ref", "missing": 144}
+  ],
+  "complete_records": 845,
+  "distinct": 3,
+  "complete": true,
+  "untracked": 0,
+  "listed": [
+    {"columns": ["column_3", "column_4"], "count": 120},
+    {"columns": ["column_4"], "count": 24}
+  ],
+  "other_patterns": 1,
+  "other_records": 14
+}
+```
+
+- `columns` are the columns of the matrix of `missing_matrix`, in document order, each
+  with `missing`, `records - values.count` of the scan, which is checked.
+- A combination is the set of columns a record lacks a value in, and has a value in every
+  other: each record is counted in one combination only. `complete_records` have a value in
+  every column. `listed` holds at most `max_listed` combinations (`max_patterns_listed`,
+  200 by default), by decreasing `count`, then fewer columns, then first appearance; its
+  `columns` are field ids in document order. `other_patterns` and `other_records` sum up
+  the combinations not listed.
+- A combination is tracked from its first record, up to `max_patterns` of them (1,000 by
+  default), and counted exactly. The records of a combination met once the table is full
+  are summed in `untracked`, `complete` is then `false` and `distinct` is a lower bound.
+  `complete_records`, the listed counts, `other_records` and `untracked` add up to
+  `records`.
+- A plan whose `columns` parameter is not the number the scan gives fails with
+  `scan_mismatch`.
+
 **`date_order`**: the order of the dates of two columns, record by record.
 
 ```json
@@ -1108,6 +1149,13 @@ The package contains the JSON Schema of the document,
 as the writer. It describes what a reader accepts.
 
 ## Changelog
+
+### Version 0.2.0, revision 5
+
+The result `missing_patterns` of the analyzer `missing_patterns` (the records of a dataset by the exact
+set of columns they lack a value in, one analysis for the dataset, named `missing_patterns:<dataset>:$`)
+and the settings members `deep.missing.max_patterns` and `deep.missing.max_patterns_listed`. A document
+of revision 4 is made again.
 
 ### Version 0.2.0, revision 4
 

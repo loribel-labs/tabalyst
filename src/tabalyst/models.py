@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Serializable report document (format ``tabalyst.report``, revision 4).
+"""Serializable report document (format ``tabalyst.report``, ``FORMAT_REVISION``).
 
 The document is the Scan base at the same paths, plus a ``report`` block with
 the generation data, the presentation settings and the projections by dataset
@@ -40,7 +40,7 @@ from tabalyst.summary_models import ColumnSummary, TableSummary
 
 FORMAT = "tabalyst.report"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 5
+FORMAT_REVISION = 6
 
 
 MeasureStatus = Literal["complete", "limited", "not_applicable", "disabled", "failed"]
@@ -359,7 +359,7 @@ class ReportProfile(ResultModel):
 
     format: Literal["tabalyst.report"] = FORMAT
     format_version: Literal["0.2.0"] = FORMAT_VERSION
-    format_revision: Literal[5] = FORMAT_REVISION
+    format_revision: Literal[6] = FORMAT_REVISION
     engine: EngineInfo
     status: Literal["complete", "partial"]
     run: RunInfo

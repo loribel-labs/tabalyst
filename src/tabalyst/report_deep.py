@@ -56,6 +56,7 @@ from tabalyst.scanner.secondpass.models import (
     MeasureResult,
     MissingIdCopiesResult,
     MissingMatrixResult,
+    MissingPatternsResult,
     NumberResolution,
     PartsResult,
     PatternCounts,
@@ -219,6 +220,8 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         return _drift_summary(result), EXACT
     if isinstance(result, MissingMatrixResult):
         return _matrix_summary(result), EXACT
+    if isinstance(result, MissingPatternsResult):
+        return _patterns_summary(result), _exact_unless_partial(result.complete)
     if isinstance(result, DateOrderResult):
         return _order_summary(result), EXACT
     if isinstance(result, ArrayProfileResult):
@@ -402,6 +405,20 @@ def _matrix_summary(result: MissingMatrixResult) -> str:
     if result.listed:
         top = result.listed[0]
         text += f", most with {top.display} ({top.both:,})"
+    return text
+
+
+def _patterns_summary(result: MissingPatternsResult) -> str:
+    lacking = result.records - result.complete_records
+    seen = f"{result.distinct:,}" if result.complete else f"at least {result.distinct:,}"
+    text = (
+        f"{lacking:,} records lack a value in at least one of {len(result.columns):,} columns, "
+        f"in {seen} combinations"
+    )
+    if result.listed:
+        top = result.listed[0]
+        names = {column.field: column.display for column in result.columns}
+        text += f"; the most frequent, {', '.join(names[field] for field in top.columns)} ({top.count:,})"
     return text
 
 

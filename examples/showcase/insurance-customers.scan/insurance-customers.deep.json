@@ -1,7 +1,7 @@
 {
   "format": "tabalyst.scan.deep",
   "format_version": "0.2.0",
-  "format_revision": 4,
+  "format_revision": 5,
   "status": "complete",
   "base": {
     "format_revision": 4,
@@ -95,7 +95,9 @@
     },
     "missing": {
       "max_columns": 100,
-      "max_listed": 10
+      "max_listed": 10,
+      "max_patterns": 1000,
+      "max_patterns_listed": 200
     },
     "arrays": {
       "max_lengths": 10000
@@ -116,13 +118,13 @@
       "max_tracked": 10000
     }
   },
-  "settings_sha256": "c17aadfe131d5ebc1043582c92c3738012ea10c9032b6bff7e8e188896a798b0",
+  "settings_sha256": "234cf6784e550d9c404f867e228e84b3c2e61e9fc90a6cd18ff0c2e4920d3d90",
   "plan": {
     "planner": "tabalyst.planner",
     "planner_version": 1,
     "utility_version": 1,
-    "cost_model_version": 21,
-    "plan_id": "483cecd0cf001f6c8e5ee6b1c00f70432107198ae1c41fa898d9fa288728ecc8",
+    "cost_model_version": 22,
+    "plan_id": "86f352faee4ac1265b96f435941a15cb93831466bfbe4ec44ebe8506a2278d41",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.5",
@@ -152,16 +154,16 @@
       "cpu": "low"
     },
     "summary": {
-      "candidates": 332,
-      "selected": 163,
+      "candidates": 333,
+      "selected": 164,
       "already_satisfied": 125,
       "rejected": 44,
       "second_pass_required": true,
       "executable": true,
       "memory": {
-        "min": 58084469,
-        "expected": 145165430,
-        "max": 492911727
+        "min": 58085693,
+        "expected": 145216454,
+        "max": 493112751
       },
       "beyond_automatic": [
         "memory_over_automatic",
@@ -5121,7 +5123,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 125,
+          "priority": 126,
           "satisfied_by": null
         },
         "execution": {
@@ -5303,7 +5305,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 129,
+          "priority": 130,
           "satisfied_by": null
         },
         "execution": {
@@ -5665,7 +5667,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 128,
+          "priority": 129,
           "satisfied_by": null
         },
         "execution": {
@@ -5885,7 +5887,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 124,
+          "priority": 125,
           "satisfied_by": null
         },
         "execution": {
@@ -5995,7 +5997,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 127,
+          "priority": 128,
           "satisfied_by": null
         },
         "execution": {
@@ -6069,7 +6071,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 123,
+          "priority": 124,
           "satisfied_by": null
         },
         "execution": {
@@ -6325,7 +6327,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 130,
+          "priority": 131,
           "satisfied_by": null
         },
         "execution": {
@@ -6399,7 +6401,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 126,
+          "priority": 127,
           "satisfied_by": null
         },
         "execution": {
@@ -6473,7 +6475,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 122,
+          "priority": 123,
           "satisfied_by": null
         },
         "execution": {
@@ -6654,7 +6656,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 139,
+          "priority": 140,
           "satisfied_by": null
         },
         "execution": {
@@ -6763,7 +6765,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 140,
+          "priority": 141,
           "satisfied_by": null
         },
         "execution": {
@@ -6839,7 +6841,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 138,
+          "priority": 139,
           "satisfied_by": null
         },
         "execution": {
@@ -6915,7 +6917,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 132,
+          "priority": 133,
           "satisfied_by": null
         },
         "execution": {
@@ -7032,7 +7034,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 154,
+          "priority": 155,
           "satisfied_by": null
         },
         "execution": {
@@ -7111,7 +7113,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 146,
+          "priority": 147,
           "satisfied_by": null
         },
         "execution": {
@@ -7206,7 +7208,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 156,
+          "priority": 157,
           "satisfied_by": null
         },
         "execution": {
@@ -7293,7 +7295,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 148,
+          "priority": 149,
           "satisfied_by": null
         },
         "execution": {
@@ -7372,7 +7374,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 121,
+          "priority": 122,
           "satisfied_by": null
         },
         "execution": {
@@ -7451,7 +7453,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 155,
+          "priority": 156,
           "satisfied_by": null
         },
         "execution": {
@@ -7530,7 +7532,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 136,
+          "priority": 137,
           "satisfied_by": null
         },
         "execution": {
@@ -7609,7 +7611,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 133,
+          "priority": 134,
           "satisfied_by": null
         },
         "execution": {
@@ -7696,7 +7698,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 147,
+          "priority": 148,
           "satisfied_by": null
         },
         "execution": {
@@ -7775,7 +7777,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 137,
+          "priority": 138,
           "satisfied_by": null
         },
         "execution": {
@@ -7854,7 +7856,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 134,
+          "priority": 135,
           "satisfied_by": null
         },
         "execution": {
@@ -7933,7 +7935,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 131,
+          "priority": 132,
           "satisfied_by": null
         },
         "execution": {
@@ -8011,7 +8013,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 157,
+          "priority": 158,
           "satisfied_by": null
         },
         "execution": {
@@ -8089,7 +8091,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 158,
+          "priority": 159,
           "satisfied_by": null
         },
         "execution": {
@@ -8166,7 +8168,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 159,
+          "priority": 160,
           "satisfied_by": null
         },
         "execution": {
@@ -8244,7 +8246,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 160,
+          "priority": 161,
           "satisfied_by": null
         },
         "execution": {
@@ -13760,7 +13762,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 142,
+          "priority": 143,
           "satisfied_by": null
         },
         "execution": {
@@ -13948,7 +13950,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 161,
+          "priority": 162,
           "satisfied_by": null
         },
         "execution": {
@@ -14042,7 +14044,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 144,
+          "priority": 145,
           "satisfied_by": null
         },
         "execution": {
@@ -14119,7 +14121,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 149,
+          "priority": 150,
           "satisfied_by": null
         },
         "execution": {
@@ -14196,7 +14198,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 143,
+          "priority": 144,
           "satisfied_by": null
         },
         "execution": {
@@ -14273,7 +14275,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 162,
+          "priority": 163,
           "satisfied_by": null
         },
         "execution": {
@@ -14350,7 +14352,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 145,
+          "priority": 146,
           "satisfied_by": null
         },
         "execution": {
@@ -14427,7 +14429,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 141,
+          "priority": 142,
           "satisfied_by": null
         },
         "execution": {
@@ -14504,7 +14506,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 135,
+          "priority": 136,
           "satisfied_by": null
         },
         "execution": {
@@ -17548,6 +17550,82 @@
         }
       },
       {
+        "id": "missing_patterns:rows:$",
+        "analyzer": "missing_patterns",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "$",
+        "display": "$",
+        "method": "pattern_table",
+        "parameters": {
+          "columns": 13,
+          "max_patterns": 1000,
+          "max_listed": 200
+        },
+        "outputs": [
+          "missing_patterns"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "missing_patterns"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 93384,
+            "expected": 143184,
+            "max": 293184
+          },
+          "cpu": "high",
+          "cell_ns": 3900,
+          "states": [
+            {
+              "key": "matrix:rows",
+              "memory": {
+                "min": 92160,
+                "expected": 92160,
+                "max": 92160
+              }
+            },
+            {
+              "key": "missing_patterns:rows",
+              "memory": {
+                "min": 200,
+                "expected": 50000,
+                "max": 200000
+              }
+            },
+            {
+              "key": "result:missing_patterns:datasets/rows/fields/$",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 121,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
         "id": "date_order:rows:column_5>column_29",
         "analyzer": "date_order",
         "analyzer_version": 1,
@@ -18801,7 +18879,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 150,
+          "priority": 151,
           "satisfied_by": null
         },
         "execution": {
@@ -19659,7 +19737,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 151,
+          "priority": 152,
           "satisfied_by": null
         },
         "execution": {
@@ -19725,7 +19803,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 152,
+          "priority": 153,
           "satisfied_by": null
         },
         "execution": {
@@ -19791,7 +19869,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 153,
+          "priority": 154,
           "satisfied_by": null
         },
         "execution": {
@@ -20586,7 +20664,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 163,
+          "priority": 164,
           "satisfied_by": null
         },
         "execution": {
@@ -20600,20 +20678,20 @@
     ]
   },
   "run": {
-    "started_at": "2026-11-11T20:25:03.044175Z",
-    "duration_seconds": 13.666163,
+    "started_at": "2026-11-12T03:55:02.731460Z",
+    "duration_seconds": 13.950807,
     "timings": {
-      "reading": 0.427736,
-      "analysis": 12.047884,
-      "other": 1.190543
+      "reading": 0.528262,
+      "analysis": 12.062237,
+      "other": 1.360308
     },
     "workers": 6,
-    "peak_memory_bytes": 290603008,
+    "peak_memory_bytes": 272617472,
     "source_read": true,
     "source_verified": true,
     "records_read": 100000,
     "cells_read": 10200000,
-    "executed": 163,
+    "executed": 164,
     "reused": 0,
     "skipped": 0
   },
@@ -156989,6 +157067,506 @@
             "both": 3
           }
         ]
+      }
+    },
+    {
+      "id": "missing_patterns:rows:$",
+      "analyzer": "missing_patterns",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "$",
+      "display": "$",
+      "method": "pattern_table",
+      "parameters": {
+        "columns": 13,
+        "max_patterns": 1000,
+        "max_listed": 200
+      },
+      "domain": "analytical",
+      "key": "ee1677e462ce09440975be2ecc833cc40cd32b74444ceb4a19d818b9a8b732cf",
+      "status": "complete",
+      "result": {
+        "kind": "missing_patterns",
+        "accuracy": "exact",
+        "records": 100000,
+        "columns": [
+          {
+            "field": "column_3",
+            "display": "prenom",
+            "missing": 7
+          },
+          {
+            "field": "column_4",
+            "display": "nom",
+            "missing": 4
+          },
+          {
+            "field": "column_5",
+            "display": "date_naissance",
+            "missing": 6
+          },
+          {
+            "field": "column_11",
+            "display": "orientation",
+            "missing": 74898
+          },
+          {
+            "field": "column_12",
+            "display": "appartement",
+            "missing": 65228
+          },
+          {
+            "field": "column_14",
+            "display": "province_code",
+            "missing": 3
+          },
+          {
+            "field": "column_20",
+            "display": "id_contrat",
+            "missing": 9
+          },
+          {
+            "field": "column_21",
+            "display": "type_contrat",
+            "missing": 2
+          },
+          {
+            "field": "column_23",
+            "display": "date_fin",
+            "missing": 16408
+          },
+          {
+            "field": "column_25",
+            "display": "prime_annuelle",
+            "missing": 3
+          },
+          {
+            "field": "column_31",
+            "display": "date_reclamation",
+            "missing": 85760
+          },
+          {
+            "field": "column_32",
+            "display": "montant_reclamation",
+            "missing": 88317
+          },
+          {
+            "field": "column_33",
+            "display": "reclamation_status",
+            "missing": 85760
+          }
+        ],
+        "complete_records": 848,
+        "distinct": 46,
+        "complete": true,
+        "untracked": 0,
+        "listed": [
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 35047
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 18639
+          },
+          {
+            "columns": [
+              "column_12",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 11699
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_23",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 6897
+          },
+          {
+            "columns": [
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 6236
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12"
+            ],
+            "count": 4782
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_23",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 3689
+          },
+          {
+            "columns": [
+              "column_11"
+            ],
+            "count": 2550
+          },
+          {
+            "columns": [
+              "column_12",
+              "column_23",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 2309
+          },
+          {
+            "columns": [
+              "column_12"
+            ],
+            "count": 1629
+          },
+          {
+            "columns": [
+              "column_23",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1218
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_32"
+            ],
+            "count": 1020
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_23"
+            ],
+            "count": 838
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_32"
+            ],
+            "count": 557
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_23"
+            ],
+            "count": 528
+          },
+          {
+            "columns": [
+              "column_12",
+              "column_32"
+            ],
+            "count": 368
+          },
+          {
+            "columns": [
+              "column_12",
+              "column_23"
+            ],
+            "count": 334
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_23",
+              "column_32"
+            ],
+            "count": 215
+          },
+          {
+            "columns": [
+              "column_32"
+            ],
+            "count": 185
+          },
+          {
+            "columns": [
+              "column_23"
+            ],
+            "count": 167
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_23",
+              "column_32"
+            ],
+            "count": 110
+          },
+          {
+            "columns": [
+              "column_12",
+              "column_23",
+              "column_32"
+            ],
+            "count": 66
+          },
+          {
+            "columns": [
+              "column_23",
+              "column_32"
+            ],
+            "count": 35
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_20",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 4
+          },
+          {
+            "columns": [
+              "column_5",
+              "column_11",
+              "column_12",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 4
+          },
+          {
+            "columns": [
+              "column_3",
+              "column_11",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 3
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_20"
+            ],
+            "count": 2
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_25",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 2
+          },
+          {
+            "columns": [
+              "column_3",
+              "column_11",
+              "column_12",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 2
+          },
+          {
+            "columns": [
+              "column_4",
+              "column_12"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_3",
+              "column_12"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_3",
+              "column_11",
+              "column_23"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_4",
+              "column_11",
+              "column_12"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_20"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_20",
+              "column_32"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_14",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_20",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_5",
+              "column_12",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_14",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_5",
+              "column_11",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_12",
+              "column_21",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_12",
+              "column_14",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_4",
+              "column_12",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_4",
+              "column_11",
+              "column_12",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_21",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          },
+          {
+            "columns": [
+              "column_11",
+              "column_12",
+              "column_23",
+              "column_25",
+              "column_31",
+              "column_32",
+              "column_33"
+            ],
+            "count": 1
+          }
+        ],
+        "other_patterns": 0,
+        "other_records": 0
       }
     },
     {

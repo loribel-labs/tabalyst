@@ -10,7 +10,7 @@ contract with two fields:
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 5
+  "format_revision": 6
 }
 ```
 
@@ -208,3 +208,11 @@ the Scan's count of duplicate records, or from a valid [Dedup](../dedup/index.md
 `<name>.dedup.json`, or from the second pass, which counts them by itself for a small CSV table with an identifier column (or when it
 was forced with `--deep`) and the Scan could only bound them. A valid Dedup report spares that count.
 The report never runs Dedup and reads the source again only through that second pass.
+
+## Version 0.2.0, revision 6
+
+The report carries the new result `missing_patterns` of the second pass under `analyses`
+(revision 5 of the [second pass format](../scan/deep-format.md)): for a dataset, under the field
+`$`, the records by the exact set of columns they lack a value in, with the records that have
+every value, the combinations listed and the records left out. The second pass settings in
+`analyses.deep.settings.missing` gain `max_patterns` and `max_patterns_listed`.

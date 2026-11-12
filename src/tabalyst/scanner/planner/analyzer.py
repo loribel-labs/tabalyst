@@ -142,6 +142,9 @@ class Analyzer(ABC):
     # Whether the analyzer reads the whole rows of a CSV file, which the Scan holds as no
     # field either: it is offered the rows (facts.rows_facts), named $ like the root.
     rows: ClassVar[bool] = False
+    # Whether the analyzer concerns a whole dataset of any format, fed by the router like
+    # a field: it is offered the dataset (facts.dataset_facts), named $ like the root.
+    datasets: ClassVar[bool] = False
 
     def __init__(self, settings: DeepSettings | None = None) -> None:
         self.settings = DeepSettings() if settings is None else settings

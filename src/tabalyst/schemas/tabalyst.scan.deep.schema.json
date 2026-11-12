@@ -291,6 +291,7 @@
                   "measures": "#/$defs/MeasureResult",
                   "missing_id_copies": "#/$defs/MissingIdCopiesResult",
                   "missing_matrix": "#/$defs/MissingMatrixResult",
+                  "missing_patterns": "#/$defs/MissingPatternsResult",
                   "numeric_shape": "#/$defs/ShapeResult",
                   "pattern_counts": "#/$defs/PatternCounts",
                   "pearson": "#/$defs/PearsonResult",
@@ -369,6 +370,9 @@
                 },
                 {
                   "$ref": "#/$defs/MissingMatrixResult"
+                },
+                {
+                  "$ref": "#/$defs/MissingPatternsResult"
                 },
                 {
                   "$ref": "#/$defs/DateOrderResult"
@@ -4494,6 +4498,31 @@
       "title": "Memory",
       "type": "object"
     },
+    "MissingColumn": {
+      "additionalProperties": false,
+      "description": "A column of the combinations of missing values: the records where it lacks a\nvalue, as the Scan counts them for a column that does not repeat.",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "display": {
+          "title": "Display",
+          "type": "string"
+        },
+        "missing": {
+          "title": "Missing",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "field",
+        "display",
+        "missing"
+      ],
+      "title": "MissingColumn",
+      "type": "object"
+    },
     "MissingIdColumn": {
       "additionalProperties": false,
       "description": "The rows of a file that lack a value in one column: how many records, how many of them are\ndistinct rows and how many repeat an earlier row (``E_missing`` of the identifier column).",
@@ -4679,9 +4708,105 @@
       "title": "MissingPartner",
       "type": "object"
     },
+    "MissingPattern": {
+      "additionalProperties": false,
+      "description": "A combination of missing values: the records that lack a value in exactly\nthese ``columns`` (field ids, in document order) and have one in every other.",
+      "properties": {
+        "columns": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "columns",
+        "count"
+      ],
+      "title": "MissingPattern",
+      "type": "object"
+    },
+    "MissingPatternsResult": {
+      "additionalProperties": false,
+      "description": "The records of a dataset by the exact set of columns they lack a value in\n(design 20.44): the exclusive intersections of an UpSet plot.\n\n``columns`` are the members of the matrix of the dataset (20.31) with the records\neach lacks. ``complete_records`` have a value in every one of them. A combination is\ntracked from its first record, up to ``max_patterns`` of them, and counted exactly;\nthe records of a combination met when the table is full are summed in ``untracked``\nand ``complete`` is then false (``distinct`` is a lower bound). ``listed`` holds the\nmost frequent, ``max_patterns_listed`` at most; ``other_patterns`` and\n``other_records`` sum up the tracked ones left out. It shows that values go missing\ntogether, not why.",
+      "properties": {
+        "kind": {
+          "const": "missing_patterns",
+          "default": "missing_patterns",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "columns": {
+          "items": {
+            "$ref": "#/$defs/MissingColumn"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "complete_records": {
+          "title": "Complete Records",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "untracked": {
+          "title": "Untracked",
+          "type": "integer"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/MissingPattern"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "other_patterns": {
+          "title": "Other Patterns",
+          "type": "integer"
+        },
+        "other_records": {
+          "title": "Other Records",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "records",
+        "columns",
+        "complete_records",
+        "distinct",
+        "complete",
+        "untracked",
+        "listed",
+        "other_patterns",
+        "other_records"
+      ],
+      "title": "MissingPatternsResult",
+      "type": "object"
+    },
     "MissingSettings": {
       "additionalProperties": false,
-      "description": "How the values missing together are counted (design 20.31).\n\nA dataset of more than ``max_columns`` columns is left out (the pairs grow with\nthe square of the columns); ``max_listed`` partners at most are listed for a\ncolumn, the ones missing most often with it. Both are part of the key of a\nresult.",
+      "description": "How the values missing together are counted (design 20.31 and 20.44).\n\nA dataset of more than ``max_columns`` columns is left out (the pairs grow with\nthe square of the columns); ``max_listed`` partners at most are listed for a\ncolumn, the ones missing most often with it. The combinations of a dataset\n(``missing_patterns``) are tracked up to ``max_patterns``, each counted exactly\nfrom its first record, and ``max_patterns_listed`` are listed, the most frequent\nfirst. Each is part of the key of a result.",
       "properties": {
         "max_columns": {
           "default": 100,
@@ -4695,6 +4820,20 @@
           "maximum": 1000,
           "minimum": 1,
           "title": "Max Listed",
+          "type": "integer"
+        },
+        "max_patterns": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Max Patterns",
+          "type": "integer"
+        },
+        "max_patterns_listed": {
+          "default": 200,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Max Patterns Listed",
           "type": "integer"
         }
       },
@@ -8840,7 +8979,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Document tabalyst.scan.deep, format 0.2.0 revision 4: analyses added to a Scan by reading its source again.",
+  "description": "Document tabalyst.scan.deep, format 0.2.0 revision 5: analyses added to a Scan by reading its source again.",
   "properties": {
     "format": {
       "const": "tabalyst.scan.deep",
@@ -8855,7 +8994,7 @@
       "type": "string"
     },
     "format_revision": {
-      "const": 4
+      "const": 5
     },
     "status": {
       "enum": [

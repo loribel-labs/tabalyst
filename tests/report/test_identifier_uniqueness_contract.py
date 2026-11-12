@@ -677,7 +677,7 @@ def test_the_porte_3_deliverable_100000_rows_500_copies(tmp_path):
     assert item["explanation"]["id_repetitions_residual"] == 0
     assert item["explanation"]["duplicate_row_extra_copies"] == 500
     assert document["report"]["base_scan"] is not None
-    assert document["format_revision"] == 5
+    assert document["format_revision"] == 6
 
 
 @pytest.mark.uid_lot("3")

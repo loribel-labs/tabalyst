@@ -60,6 +60,7 @@ stored.
 | `numeric_shape` | Numeric fields | The asymmetry and kurtosis, the outliers of Tukey, the decimals the numbers are written with, and a logarithmic and an equal-count histogram |
 | `position_drift` | Fields of a dataset of at least 100 records that miss a value, or have few enough different values | The records, values and missing values of each tenth of the file, the slice where each value first appears, and whether the position tells the missing values or the values apart |
 | `missing_matrix` | Columns of a dataset that lack a value in some records | For each column, the records where it lacks a value together with each other column |
+| `missing_patterns` | Datasets where two columns or more lack a value in some records | The records by the exact set of columns they lack a value in, each counted once |
 | `date_order` | Two date columns of a dataset where one is on or before the other in nearly every sampled row | The records where the first date is after the second, counted exactly, with the first of them |
 | `array_profile` | JSON fields that hold arrays of different lengths | The number of arrays of every length, the quantiles of the lengths, the empty arrays and the items |
 | `structure_variants` | JSON objects whose keys are not all in every object, and the records themselves (`$`) | The sets of keys the objects have, each with its exact count and the keys it lacks |
@@ -826,6 +827,47 @@ It shows that values go missing together, not why.
 It is not chosen by `tabalyst report` by itself: ask for it with `--deep` or
 `tabalyst.AnalysisRequest("missing_matrix")`.
 
+## Combinations of missing values
+
+The pairs say that two columns go missing together, but a record that lacks a phone, a
+reference and an email counts in three pairs. `missing_patterns` counts each record once,
+under the exact set of columns it lacks a value in: the records that lack a phone and a
+reference and have every other value form one combination, those that lack only a phone
+another. It is what an UpSet plot draws, and it tells a block of columns that are always
+empty together from columns that each go missing on their own.
+
+```json
+{"kind": "missing_patterns", "accuracy": "exact",
+ "records": 1003,
+ "columns": [
+   {"field": "column_3", "display": "phone", "missing": 134},
+   {"field": "column_4", "display": "ref", "missing": 144}],
+ "complete_records": 845, "distinct": 3,
+ "complete": true, "untracked": 0,
+ "listed": [
+   {"columns": ["column_3", "column_4"], "count": 120},
+   {"columns": ["column_4"], "count": 24}],
+ "other_patterns": 1, "other_records": 14}
+```
+
+- **One result for the dataset.** The plan names it `missing_patterns:<dataset>:$`. Its
+  `columns` are those of the matrix above, with the records each lacks; a dataset needs
+  two of them, and is left out beyond `deep.missing.max_columns` (100).
+- **Each record once.** `complete_records` have a value in every column; every other
+  record is in exactly one combination. `listed` holds the most frequent,
+  `deep.missing.max_patterns_listed` of them (200 by default), then those of fewer
+  columns, then the first met. `other_patterns` and `other_records` sum up the rest.
+- **Bounded.** A file can hold many combinations: each is counted exactly from its first
+  record, up to `deep.missing.max_patterns` of them (1,000). The records of a combination
+  met once the table is full are summed in `untracked`, and `complete` is then `false`.
+
+It shares the reading and the tests of the cells of the matrix: asking for both costs
+little more than one. The totals are checked against the scan. It shows that values go
+missing together, not why.
+
+It is not chosen by `tabalyst report` by itself: ask for it with `--deep` or
+`tabalyst.AnalysisRequest("missing_patterns")`.
+
 ## Extra copies of whole rows
 
 The scan counts the rows that repeat an earlier row (`records.duplicates`), but it keeps a digest
@@ -1238,7 +1280,7 @@ sets how many currencies or units get metrics of their own and how many numbers
 are counted exactly. The `deep.residuals` and `deep.duplicates` objects set how many
 values are listed and tracked, and whether to read the source for the records. The `deep.drift` object
 sets how many different values a column may have to be followed along the file and how many are listed,
-and `deep.missing` how many columns a matrix of missing values may hold and how many partners are listed. The `deep.copies` object sets the memory, the disk and the records the count of the copies of rows may use. The `deep.arrays`,
+and `deep.missing` how many columns a matrix of missing values may hold, how many partners are listed and how many combinations are tracked and listed. The `deep.copies` object sets the memory, the disk and the records the count of the copies of rows may use. The `deep.arrays`,
 `deep.structure`, `deep.texts` and `deep.sensitive` objects set the lengths counted, the sets of keys tracked and listed, the length of a text and the
 texts listed, and the floor under which a mask or a class is summed up. See [Deep
 settings](../reference/configuration.md#deep-settings).

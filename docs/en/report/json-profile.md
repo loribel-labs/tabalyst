@@ -166,7 +166,9 @@ numbers](../scan/deep.md#the-shape-of-the-numbers)) and the parts of the dates (
 parts of the dates](../scan/deep.md#the-parts-of-the-dates)) are entries of `analyses` too, and so are the
 drift of a column along the file (`position_drift`, see [A column along the file](../scan/deep.md#a-column-along-the-file))
 and the columns that miss a value together (`missing_matrix`, see [Columns that miss a value
-together](../scan/deep.md#columns-that-miss-a-value-together)), as are the lengths of the arrays and the sets of
+together](../scan/deep.md#columns-that-miss-a-value-together)), with the combinations of missing values of a
+dataset under the field `$` (`missing_patterns`, see [Combinations of missing
+values](../scan/deep.md#combinations-of-missing-values)), as are the lengths of the arrays and the sets of
 keys of the objects of a JSON file (`array_profile` and `structure_variants`, see [Arrays and sets of keys in
 JSON](../scan/deep.md#arrays-and-sets-of-keys-in-json)), the words and lines of long texts and their fingerprints
 (`text_profile` and `fingerprint_distinct`, see [Long texts](../scan/deep.md#long-texts)) and the masks and classes of

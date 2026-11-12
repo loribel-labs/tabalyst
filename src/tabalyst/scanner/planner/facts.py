@@ -314,6 +314,9 @@ class FieldFacts:
     rows_copies_known: bool = False
     rows_missing_columns: tuple[tuple[str, int, bool], ...] = ()
     rows_missing_records: int = 0
+    # The whole dataset (``dataset_facts``), whatever its format, under the name of the
+    # root (``$``): what the analyzers of a dataset read (``Analyzer.datasets``).
+    dataset_scope: bool = False
 
     @property
     def withheld(self) -> bool:
@@ -721,6 +724,23 @@ def rows_facts(scan: ScanResult, proved: frozenset[str] = frozenset()) -> list[F
             rows_missing_columns=missing,
             rows_missing_records=min(dataset.record_count, absent) if missing else 0,
         )
+    ]
+
+
+def dataset_facts(scan: ScanResult) -> list[FieldFacts]:
+    """The facts of each dataset of the Scan that has records, in any format, under
+    the name of the root (``$``): what the analyzers of a whole dataset read
+    (``Analyzer.datasets``), with the columns of its matrix of missing values (design
+    20.44). A JSON dataset can also have the facts of its root: the candidate ids carry
+    the analyzer, so both live side by side."""
+    return [
+        replace(
+            _root(scan, dataset),
+            dataset_scope=True,
+            matrix_size=len(matrix_members(dataset)),
+        )
+        for dataset in scan.datasets
+        if dataset.record_count
     ]
 
 

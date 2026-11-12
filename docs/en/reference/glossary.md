@@ -119,6 +119,7 @@ Keep these exactly as written in every language:
 | mask | masque | A value with each letter shown as `a` or `A` and each digit as `9`; the form of a sensitive value that the document may hold |
 | floor (forms) | seuil | The number of values (`deep.sensitive.min_count`) under which a mask or a class is summed up, so no figure is given about so few values |
 | missing together | manquants simultanés | Columns that lack a value in the same records, counted exactly by the second pass; the share where both do among the records where either does ranks the pairs |
+| combination of missing values | combinaison de manquants | The exact set of columns a record lacks a value in; each record is in one combination only, and the second pass counts the records of each exactly (`missing_patterns`) |
 | histogram | histogramme | The count of the values of a numeric field per integer or per bin, exact, with a median and quantiles that are exact or estimated |
 | already satisfied | déjà satisfaite | An analysis whose answer the scan already holds, so the plan does not select it |
 | duplicate record | enregistrement en double | A record equal to an earlier record of its dataset |

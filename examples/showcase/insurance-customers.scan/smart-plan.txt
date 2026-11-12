@@ -1,5 +1,5 @@
-Plan for insurance-customers-100k.csv (plan 6ac8f73c417d, planner 1).
-332 candidates: 43 selected, 125 already answered by the scan, 164 left out.
+Plan for insurance-customers-100k.csv (plan 16a674ac977e, planner 1).
+333 candidates: 43 selected, 125 already answered by the scan, 165 left out.
 
 Selected:
   1. category_crosstab [contingency_table]: rows / civilite and sexe (prefix) (up to 996.6 KiB, CPU low, automatic)
@@ -134,6 +134,7 @@ Left out:
   missing_matrix [bit_sets]: rows / date_reclamation: too little expected benefit for an automatic choice
   missing_matrix [bit_sets]: rows / montant_reclamation: too little expected benefit for an automatic choice
   missing_matrix [bit_sets]: rows / reclamation_status: too little expected benefit for an automatic choice
+  missing_patterns [pattern_table]: rows / $: too little expected benefit for an automatic choice
   date_order [compare]: rows / date_naissance and date_creation: its CPU class is above the automatic limit
   date_order [compare]: rows / date_naissance and date_debut: its CPU class is above the automatic limit
   date_order [compare]: rows / date_naissance and date_modification: its CPU class is above the automatic limit

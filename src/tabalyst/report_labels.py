@@ -233,6 +233,7 @@ ANALYSIS_LABELS = {
     "datetime_parts": "Parts of the dates",
     "position_drift": "A column along the file",
     "missing_matrix": "Columns missing together",
+    "missing_patterns": "Combinations of missing values",
     "date_order": "Order of two dates",
     "array_profile": "Lengths of the arrays",
     "structure_variants": "Sets of keys of the objects",

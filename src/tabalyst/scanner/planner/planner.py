@@ -39,6 +39,7 @@ from tabalyst.scanner.planner.costmodel import (
 from tabalyst.scanner.planner.facts import (
     ROOT_FIELD,
     FieldFacts,
+    dataset_facts,
     root_facts,
     rows_facts,
     scan_facts,
@@ -564,6 +565,7 @@ def plan_analyses(
     facts_list = scan_facts(scan)
     roots = root_facts(scan)
     rows = rows_facts(scan, proved_copies)
+    whole = dataset_facts(scan)
 
     entries: list[_Entry] = []
     matched = [0] * len(requests)
@@ -588,6 +590,7 @@ def plan_analyses(
             *facts_list,
             *(roots if analyzer.roots else ()),
             *(rows if analyzer.rows else ()),
+            *(whole if analyzer.datasets else ()),
         ):
             if not analyzer.relevant(facts):
                 continue

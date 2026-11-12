@@ -505,7 +505,24 @@ def _setup_matrix(
     ids = [member.id for member in matrix.members]
     if job.field.id not in ids:
         raise ScanMismatch("the scan no longer counts the field among the columns that miss a value")
+    matrix.count_pairs()
     job.column = ids.index(job.field.id)
+    job.accumulator = matrix
+    job.reads_pair = True
+
+
+def _setup_patterns(
+    job: _Job, cells: CellReader, matrices: dict[str, MatrixAccumulator]
+) -> None:
+    """The combinations of missing values of a dataset, counted by the accumulator of
+    its matrix (design 20.44): the same members, read once for both analyses."""
+    candidate, dataset = job.candidate, job.dataset
+    matrix = matrices.get(dataset.id)
+    if matrix is None:
+        matrix = matrices[dataset.id] = MatrixAccumulator(cells, matrix_members(dataset))
+    if len(matrix.members) != int(candidate.parameters["columns"]):
+        raise ScanMismatch("the columns that miss a value are not those the plan counted")
+    matrix.count_patterns(int(candidate.parameters["max_patterns"]))
     job.accumulator = matrix
     job.reads_pair = True
 
@@ -527,8 +544,9 @@ def _setup_order(
 
 
 def _root_field(dataset: DatasetResult) -> FieldResult:
-    """The stand-in for the root of the records of a JSON dataset, which the Scan
-    holds as no field. Only what the sets of keys read is set (design 20.33)."""
+    """The stand-in for the root of the records of a dataset, which the Scan holds
+    as no field: the analyses of the root of a JSON source (design 20.33), of the rows
+    (20.40) and of the whole dataset (20.44). Only what they read is set."""
     return FieldResult.model_construct(
         id=ROOT_FIELD,
         path=[],
@@ -906,6 +924,12 @@ def _finish(job: _Job) -> _Finished:
     if isinstance(accumulator, OrderAccumulator):
         accumulator.check(job.dataset)
         return _Finished("complete", accumulator.result())
+    if isinstance(accumulator, MatrixAccumulator) and job.candidate.analyzer == "missing_patterns":
+        accumulator.check(job.dataset)
+        return _Finished(
+            "complete",
+            accumulator.patterns_result(int(job.candidate.parameters["max_listed"])),
+        )
     if isinstance(accumulator, MatrixAccumulator):
         accumulator.check(job.dataset)
         return _Finished(
@@ -1272,6 +1296,9 @@ def run_second_pass(
                     continue
                 if job.candidate.analyzer == "missing_matrix":
                     _setup_matrix(job, cells, matrices)
+                    continue
+                if job.candidate.analyzer == "missing_patterns":
+                    _setup_patterns(job, cells, matrices)
                     continue
                 if job.candidate.analyzer == "date_order":
                     _setup_order(job, cells, orders)

@@ -35,7 +35,7 @@ from tabalyst.scanner.planner.models import AnalysisPlan, PlanBase
 # values are JSON data, as in ``scanner/models.py``.
 FORMAT = "tabalyst.scan.deep"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 4
+FORMAT_REVISION = 5
 
 # Quantile levels of every histogram, as (numerator, denominator) of the rank
 # fraction: 5%, 25%, 50% (the median), 75% and 95%.
@@ -1508,6 +1508,49 @@ class MissingMatrixResult(ScanModel):
     listed: list[MissingPartner]
 
 
+class MissingColumn(ScanModel):
+    """A column of the combinations of missing values: the records where it lacks a
+    value, as the Scan counts them for a column that does not repeat."""
+
+    field: str
+    display: str
+    missing: int
+
+
+class MissingPattern(ScanModel):
+    """A combination of missing values: the records that lack a value in exactly
+    these ``columns`` (field ids, in document order) and have one in every other."""
+
+    columns: list[str]
+    count: int
+
+
+class MissingPatternsResult(ScanModel):
+    """The records of a dataset by the exact set of columns they lack a value in
+    (design 20.44): the exclusive intersections of an UpSet plot.
+
+    ``columns`` are the members of the matrix of the dataset (20.31) with the records
+    each lacks. ``complete_records`` have a value in every one of them. A combination is
+    tracked from its first record, up to ``max_patterns`` of them, and counted exactly;
+    the records of a combination met when the table is full are summed in ``untracked``
+    and ``complete`` is then false (``distinct`` is a lower bound). ``listed`` holds the
+    most frequent, ``max_patterns_listed`` at most; ``other_patterns`` and
+    ``other_records`` sum up the tracked ones left out. It shows that values go missing
+    together, not why."""
+
+    kind: Literal["missing_patterns"] = "missing_patterns"
+    accuracy: Literal["exact"] = "exact"
+    records: int
+    columns: list[MissingColumn]
+    complete_records: int
+    distinct: int
+    complete: bool
+    untracked: int
+    listed: list[MissingPattern]
+    other_patterns: int
+    other_records: int
+
+
 class DateOrderBreak(ScanModel):
     """A record where the first date is after the second: its number (the first
     record is 1) and the two dates, written as ISO 8601 by the reading that
@@ -1759,6 +1802,7 @@ AnalysisOutput = Annotated[
     | StatsResult
     | PositionDriftResult
     | MissingMatrixResult
+    | MissingPatternsResult
     | DateOrderResult
     | ArrayProfileResult
     | StructureResult

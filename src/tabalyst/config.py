@@ -431,18 +431,22 @@ class DriftSettings(BaseModel):
 
 
 class MissingSettings(BaseModel):
-    """How the values missing together are counted (design 20.31).
+    """How the values missing together are counted (design 20.31 and 20.44).
 
     A dataset of more than ``max_columns`` columns is left out (the pairs grow with
     the square of the columns); ``max_listed`` partners at most are listed for a
-    column, the ones missing most often with it. Both are part of the key of a
-    result.
+    column, the ones missing most often with it. The combinations of a dataset
+    (``missing_patterns``) are tracked up to ``max_patterns``, each counted exactly
+    from its first record, and ``max_patterns_listed`` are listed, the most frequent
+    first. Each is part of the key of a result.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     max_columns: int = Field(default=100, ge=2, le=1_000)
     max_listed: int = Field(default=10, ge=1, le=1_000)
+    max_patterns: int = Field(default=1_000, ge=1, le=100_000)
+    max_patterns_listed: int = Field(default=200, ge=1, le=10_000)
 
 
 class ArraySettings(BaseModel):

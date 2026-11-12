@@ -19,7 +19,7 @@ from tabalyst.scanner.planner.analyzers.forms import SensitiveForms
 from tabalyst.scanner.planner.analyzers.frequencies import ExactFrequencies
 from tabalyst.scanner.planner.analyzers.histogram import NumericHistogram
 from tabalyst.scanner.planner.analyzers.lengths import LengthDistribution
-from tabalyst.scanner.planner.analyzers.matrix import MissingMatrix
+from tabalyst.scanner.planner.analyzers.matrix import MissingMatrix, MissingPatterns
 from tabalyst.scanner.planner.analyzers.measures import MeasureExtraction
 from tabalyst.scanner.planner.analyzers.missing_copies import MissingIdCopies
 from tabalyst.scanner.planner.analyzers.parts import DatetimeParts
@@ -50,6 +50,7 @@ BUILT_INS: tuple[type[Analyzer], ...] = (
     DatetimeParts,
     PositionDrift,
     MissingMatrix,
+    MissingPatterns,
     DateOrder,
     ArrayProfile,
     StructureVariants,

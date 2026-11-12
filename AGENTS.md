@@ -120,7 +120,7 @@ support is not yet required. Record format changes in the relevant changelogs.
   20.4 and 20.7 to 20.10); `src/tabalyst/deep_service.py` is its boundary for the CLI
   and the API. `secondpass/parallel.py` runs the routes of the fields of a CSV file
   in worker processes (20.18). `secondpass/drift.py` follows a field by slice of records and
-  `secondpass/matrix.py` counts the records that lack a value in several columns at once (20.30, 20.31).
+  `secondpass/matrix.py` counts the records that lack a value in several columns at once and their exact combinations (20.30, 20.31, 20.44).
   `secondpass/structure.py` counts the lengths of the arrays (`ArrayAccumulator`) and the sets of keys of the
   objects and of the records (`KeySets`, swept by `StructureAccumulator`, which the `Router` feeds record by record)
   of a JSON source (20.33); `secondpass/texts.py` the words, lines and digits of long texts and their 128-bit

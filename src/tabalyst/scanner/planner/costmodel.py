@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 21
+COST_MODEL_VERSION = 22
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -329,6 +329,11 @@ NS_PER_CELL = {
     # of the pairs included, measured the same way on 300,000 rows: 82 ns for 4 and
     # 20 columns, 105 for 100 (4,950 pairs). Rounded up to one figure.
     "matrix": 200,
+    # The combinations of missing values (design 20.44): what a cell of a column of the
+    # matrix adds to its test, measured on the accumulator (300,000 rows, batches of the
+    # CSV reader): 10 ns for 4 columns, 10 and 24 for 20 and 100 columns with 5 % missing, 39
+    # for 20 columns with 30 % missing (many combinations). Rounded up as the matrix is.
+    "matrix_patterns": 100,
     # The extra copies of whole rows (lot 6 of Unique ID), counted by the engine of Dedup in
     # its own reading of a CSV file (300,000 records of 6 columns and 69 bytes,
     # one process): 2,095 ns a record while the table stays in memory and 5,812 once it
@@ -423,6 +428,10 @@ DRIFT_VALUE_BYTES = 560
 MATRIX_BYTES = 64 * 1024
 MATRIX_COLUMN_BYTES = 2_048
 MATRIX_PAIR_BYTES = 160
+# A tracked combination of missing values: a dictionary entry keyed by an integer of
+# a bit per column, and its count (measured 70 bytes for a key of 61 bits; the key grows
+# by 4 bytes per 30 columns, up to the 1,000 columns ``deep.missing.max_columns`` allows).
+MISSING_PATTERN_BYTES = 200
 # The count of the extra copies of rows: the counters, the reader of the records and its
 # buffers, whatever the file holds. The table of distinct rows is charged per record.
 ROWS_COPIES_BYTES = 256 * 1024
