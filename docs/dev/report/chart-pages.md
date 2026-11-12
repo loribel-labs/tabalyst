@@ -5,9 +5,9 @@ no new option, the chart pages come with `--details`, which then forces the seco
 column pages load the library too; `report.html` never does. Implemented on 2026-11-12:
 the blocks (6.1), the card of `report.html` (6.2) with its link, and `charts-missing.html`
 (`report_charts.py`, `templates/charts.html`, `static/charts.js`, ECharts 6.1.0). No column page
-holds an ECharts chart yet, so none loads the library. Left for later: the CRM `contacts` case in
-the tests (section 8 names it; the tests use a smaller file with the same shape), and the embedded
-copy (section 5). The decision is the ADR
+holds an ECharts chart yet, so none loads the library. The browser check
+(`tests/browser/report.cjs`) covers the chart page when the report has one. Left for later: the
+embedded copy (section 5). The decision is the ADR
 `2026-11-11-report-chart-pages-echarts-cdn`. The first chart page draws the combinations of missing
 values (`docs/dev/scan/design.md` 20.44); the Insights charts come later on the same base.
 Guiding vision: Simple, Clear, Smart.
@@ -181,8 +181,10 @@ of `report.html`, see 6.2).
   missing together: 126,000 records lack all three, at least 94 % of the records that lack any one
   of them." (figures read approximately from the mockup). With a lower bound the count reads "at
   least".
-- The thresholds (`0.8` and `0.01`) are constants of `report_insights.py`, to check on the CRM
-  case before release; they are not a setting.
+- The thresholds (`0.8` and `0.01`) are constants of `report_insights.py`; they are not a setting.
+  Checked on 2026-11-12 on the CRM `contacts` table (seed by default, 200,000 rows, 80 patterns): one
+  block, `opportunity_amount`, `opportunity_probability` and `opportunity_close_date`, 127,673
+  records, at least 95.1%; the same block at 3,000 rows (`tests/report/test_chart_pages.py`).
 
 ### 6.2 In `report.html`
 

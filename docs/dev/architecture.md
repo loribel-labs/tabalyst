@@ -341,6 +341,10 @@ on a generated report and its JSON:
 node tests/browser/report.cjs examples/showcase/insurance-customers/report.html examples/showcase/insurance-customers/report.json
 ```
 
+On a report written with `--details` it also checks the column pages and the chart page
+(`charts-missing.html`): the plot needs a network connection to load ECharts from the CDN, and a
+run with the CDN blocked checks the message that replaces it.
+
 An optional third argument is the Playwright module path. `TABALYST_BROWSER`
 selects another installed browser channel. Run from the repository root with an
 external artifact directory for screenshots. By default the browser check uses

@@ -128,8 +128,11 @@ async function tableChecks(page, profile, observedFields, label) {
   const issues = await page.locator('#summary-table tbody tr td:nth-child(7)').allInnerTexts();
   assert.ok(issues.every(text => text.trim().length > 1 && !text.trim().startsWith('-')), label);
 
-  // Details: no link to a column page, two lines at most, and a hover that lists every group.
-  assert.equal(await page.locator('#summary-table .column-link').count(), 0, label);
+  // The Column cell links to the page of its column when --details wrote them, on every row or
+  // none; the Details cell never does. Two lines at most, and a hover that lists every group.
+  const linked = await page.locator('#summary-table tbody th .column-link').count();
+  assert.ok(linked === 0 || linked === profile.columns.length, label + ': every column links to its page, or none');
+  assert.equal(await page.locator('#summary-table tbody td .column-link').count(), 0, label);
   const heights = await page.locator('#summary-table td.c-dt .exs').evaluateAll(els => els.map(el => el.getBoundingClientRect().height));
   assert.ok(heights.every(height => height <= 66), label + ': two lines at most');
   const withVariants = profile.columns.find(column => column.normalization.variant_groups.length > 0);
@@ -461,6 +464,74 @@ async function columnPageChecks(browser, reportFile) {
   console.log('column page: blocks, finding cards, keyboard, touch, print, four sizes and both themes passed');
 }
 
+// The chart page of the missing values (docs/dev/report/chart-pages.md), when --details wrote
+// it: the plot drawn by ECharts from the CDN, the tables of the same figures, no sideways scroll
+// at two sizes and in both themes, and, with the CDN blocked, the message in place of the plot.
+// Skipped when the report has no chart page. Needs a network connection for the library.
+async function chartPageChecks(browser, reportFile) {
+  const directory = path.join(path.dirname(reportFile), path.basename(reportFile, path.extname(reportFile)));
+  const file = path.join(directory, 'charts-missing.html');
+  try {
+    await fs.access(file);
+  } catch (error) {
+    console.log('chart page: skipped, the report has no chart page (--details)');
+    return;
+  }
+  const report = await fs.readFile(reportFile, 'utf8');
+  const href = path.basename(directory) + '/charts-missing.html#';
+  assert.ok(report.includes('href="' + href), 'chart page: the report links to it');
+  assert.ok(!/<script[^>]+src=/.test(report), 'chart page: the report loads no script from outside');
+  const url = pathToFileURL(file).href;
+  for (const [name, width, height, blocked] of [
+    ['desktop', 1440, 1050, false],
+    ['mobile', 390, 844, false],
+    ['offline', 1440, 1050, true],
+  ]) {
+    for (const scheme of blocked ? ['dark'] : ['dark', 'light']) {
+      const label = 'chart page ' + name + ' ' + scheme;
+      const context = await browser.newContext({
+        viewport: { width, height }, colorScheme: scheme, hasTouch: name === 'mobile', isMobile: name === 'mobile',
+      });
+      const page = await context.newPage();
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      if (blocked) await page.route(/cdn\.jsdelivr\.net/, route => route.abort());
+      await page.goto(url);
+      await page.waitForTimeout(500);
+      assert.equal(
+        await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth),
+        false, label + ': no sideways scroll of the page',
+      );
+      assert.equal(await page.locator('h1').count(), 1, label + ': one h1');
+      const sections = page.locator('section[data-upset]');
+      assert.ok((await sections.count()) >= 1, label + ': a section per dataset');
+      for (let i = 0; i < await sections.count(); i += 1) {
+        const section = sections.nth(i);
+        const data = JSON.parse(await section.locator('[data-chart-data]').textContent());
+        assert.equal(
+          await section.locator('table').first().locator('tbody tr').count(), data.patterns.length,
+          label + ': the table lists every pattern the chart reads',
+        );
+        const drawn = await section.locator('[data-chart] svg').count();
+        const message = await section.locator('[data-msg]').isVisible();
+        const tools = await section.locator('[data-tools]').isVisible();
+        if (blocked) {
+          assert.ok(drawn === 0 && message && !tools, label + ': the message replaces the plot');
+        } else {
+          assert.ok(drawn === 1 && !message && tools, label + ': the plot is drawn');
+        }
+      }
+      assert.deepEqual(errors, [], label);
+      if (scheme === 'dark') {
+        await fs.mkdir(artifactsDirectory, { recursive: true });
+        await page.screenshot({ path: path.join(artifactsDirectory, 'chart-page-' + name + '.png') });
+      }
+      await context.close();
+    }
+  }
+  console.log('chart page: plot, tables, two sizes, both themes and the blocked CDN passed');
+}
+
 (async () => {
   const report = JSON.parse(await fs.readFile(process.argv[3], 'utf8'));
   const profile = report.report.datasets[0];
@@ -727,6 +798,7 @@ async function columnPageChecks(browser, reportFile) {
     }
     assert.deepEqual(errors, []);
     await columnPageChecks(browser, process.argv[2]);
+    await chartPageChecks(browser, process.argv[2]);
   } finally {
     await browser.close();
   }

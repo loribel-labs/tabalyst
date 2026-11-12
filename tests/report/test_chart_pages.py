@@ -282,3 +282,25 @@ def test_a_dataset_beyond_the_column_limit_is_left_out_with_its_reason():
 
     assert sections == [] and left.reason == "too_many_columns"
     assert "deep.missing.max_columns" in left.words
+
+
+# The reference case ---------------------------------------------------------------
+
+
+def test_the_opportunity_fields_of_the_crm_example_form_the_only_block(tmp_path):
+    # The case of the mockup (chart-pages.md 6): the fields of an opportunity go missing as a
+    # block. 3,000 rows give the shape of the 200,000 of the mockup, about 95% of each column.
+    source = tmp_path / "crm.csv"
+    generated = runner.invoke(app, ["generate", "--example", "crm", "--rows", "3000", "-o", str(source)])
+    assert generated.exit_code == 0, generated.output
+
+    result = runner.invoke(app, ["report", str(source), "--details", "--yes"])
+
+    assert result.exit_code == 0, result.output
+    page = (tmp_path / "crm" / "charts-missing.html").read_text(encoding="utf-8")
+    lines = re.findall(r'<p class="ins-line">(.*?)</p>', page)
+    assert len(lines) == 1
+    assert lines[0].startswith(
+        "<code>opportunity_amount</code>, <code>opportunity_probability</code> and "
+        "<code>opportunity_close_date</code> go missing together: "
+    )
