@@ -47,12 +47,19 @@ from tabalyst.report_chain import (
     require_confirmation,
     run_chain,
 )
+from tabalyst.report_charts import (
+    CHART_FILES,
+    TOPIC_TITLES,
+    column_charts,
+    missing_sections,
+)
 from tabalyst.report_config import ReportConfig, resolve_report_config
 from tabalyst.report_profile import build_profile
 from tabalyst.reporting import (
     column_neighbours,
     column_pages,
     dataset_views,
+    render_chart_page,
     render_column_report,
     render_report,
 )
@@ -239,22 +246,31 @@ def _write_text(path: Path, content: str) -> None:
         raise ReportError(f"Cannot write report file {path}: {exc}") from exc
 
 
-def _retire_column_pages(directory: Path) -> None:
-    """Remove only generated column HTML when a forced report omits details."""
+def _retire_column_pages(directory: Path, keep: frozenset[str] = frozenset()) -> None:
+    """Remove only generated detail pages (column and chart pages) when a forced
+    report omits details, or the chart pages a forced report no longer writes;
+    ``keep`` names the files of this run."""
     if not directory.is_dir() or directory.is_symlink():
         return
     try:
         for page in directory.iterdir():
-            if not re.fullmatch(r"col-\d{2,}-[a-z0-9-]+\.html", page.name):
+            if page.name in keep:
+                continue
+            column = re.fullmatch(r"col-\d{2,}-[a-z0-9-]+\.html", page.name)
+            chart = re.fullmatch(r"charts-[a-z0-9-]+\.html", page.name)
+            if not column and not chart:
                 continue
             if not page.is_file() or page.is_symlink():
                 continue
             with page.open("r", encoding="utf-8", errors="replace") as stream:
-                header = stream.read(600)
-            if (
-                '<meta name="generator" content="Tabalyst column report">' in header
+                header = stream.read(900)
+            ours = (
+                '<meta name="generator" content="Tabalyst chart page">' in header
+                if chart
+                else '<meta name="generator" content="Tabalyst column report">' in header
                 or '<meta name="description" content="Column profile for ' in header
-            ):
+            )
+            if ours:
                 page.unlink()
         if not any(directory.iterdir()):
             directory.rmdir()
@@ -437,6 +453,20 @@ def _scan_document_resolved(
     )
 
 
+def check_details(details: bool, deep_section: DeepSection) -> None:
+    """Refuse ``details`` when the configuration turns the second pass off: the chart
+    pages need it, and the option would be ignored otherwise.
+
+    Raises ``ConfigurationError``.
+    """
+    if details and deep_section.mode == "off":
+        raise ConfigurationError(
+            "--details writes the chart pages, which need the second pass, and "
+            "deep.mode is off in the configuration. Remove --details or set "
+            "deep.mode to auto."
+        )
+
+
 def plan_report_chain(
     scanned: ScannedReport, deep_section: DeepSection, *, deep: bool
 ) -> ChainPlan:
@@ -495,7 +525,7 @@ def write_scanned_report(
     warnings = scanned.warnings
     if analyses is not None and analyses.outcome == "failed" and analyses.reason:
         warnings += (f"the second pass was left out: {analyses.reason}",)
-    written = _write_report(
+    written, notes = _write_report(
         profile,
         scanned.progress_source,
         scanned.source,
@@ -509,7 +539,7 @@ def write_scanned_report(
         on_progress=on_progress,
         json_indent=scanned.indent,
     )
-    return written, warnings
+    return written, warnings + notes
 
 
 def _write_report(
@@ -525,10 +555,13 @@ def _write_report(
     started: float,
     on_progress: ProgressCallback | None,
     json_indent: bool = False,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], tuple[str, ...]]:
     """Render and write the report artifacts of ``profile``; ``source`` names
     the analyzed file in the execution history, ``progress_source`` the input
-    in progress events."""
+    in progress events. With ``details``, the column pages and the chart pages
+    (``docs/dev/report/chart-pages.md``) are written beside the report. Returns the
+    profile as a dictionary and the notes that name each dataset a chart page
+    leaves out, and why."""
     rendering_started = perf_counter()
     result = profile.model_dump(mode="json")
     json_text = dump_json(result, indent=json_indent)
@@ -540,8 +573,17 @@ def _write_report(
         page_dir.is_symlink() or (page_dir.exists() and not page_dir.is_dir())
     ):
         raise ReportError(f"Column report path is not a regular directory: {page_dir}")
+    page_links = {
+        (dataset.id, column.id): quote(page.name, safe="/") for page, dataset, column in pages
+    }
+    sections, left_out = missing_sections(profile, page_links) if details else ([], [])
+    chart_path = page_dir / CHART_FILES["missing"]
+    charted = [chart_path] if sections else []
+    notes = tuple(
+        f"no chart of the missing values for {item.dataset}: {item.words}" for item in left_out
+    )
     protected = {path.resolve() for path in (progress_source, source, report, json_report, execution_report)}
-    for page, _, _ in pages:
+    for page in [*(page for page, _, _ in pages), *charted]:
         if page.resolve() in protected:
             raise ReportError(f"Column report would overwrite an input or report file: {page}")
         if page.is_symlink() or (page.exists() and (page.is_dir() or not force)):
@@ -555,7 +597,18 @@ def _write_report(
             )
             for page, dataset, column in pages
         }
-        html = render_report(profile, column_links=links, views=views)
+        chart_href = quote(chart_path.relative_to(report.parent).as_posix(), safe="/")
+        chart_links = {
+            section.dataset: [
+                (
+                    "missing",
+                    TOPIC_TITLES["missing"],
+                    f"{chart_href}#{quote(section.dataset, safe='')}",
+                )
+            ]
+            for section in sections
+        }
+        html = render_report(profile, column_links=links, views=views, chart_links=chart_links)
         neighbours = column_neighbours(pages)
         column_html = [
             (
@@ -566,9 +619,14 @@ def _write_report(
                     column,
                     f"../{quote(report.name)}",
                     *neighbours[(dataset.id, column.id)],
+                    charts=column_charts(sections, dataset.id, column.id),
                 ),
             )
             for page, dataset, column in pages
+        ]
+        column_html += [
+            (path, render_chart_page(profile, "missing", sections, f"../{quote(report.name)}"))
+            for path in charted
         ]
     except OSError as exc:
         raise ReportError(f"Cannot render HTML report {report}: {exc}") from exc
@@ -578,8 +636,13 @@ def _write_report(
     _write_text(report, html)
     for page, content in column_html:
         _write_text(page, content)
-    if not details and force:
-        _retire_column_pages(page_dir)
+    if force:
+        # A forced report without details removes its detail pages; with details,
+        # the chart page this run did not write (no dataset has its data any more).
+        if not details:
+            _retire_column_pages(page_dir)
+        elif not charted:
+            _retire_column_pages(page_dir, keep=frozenset(page.name for page, _, _ in pages))
     try:
         entry = build_execution_entry(
             source=source,
@@ -601,7 +664,7 @@ def _write_report(
         duration_seconds=perf_counter() - rendering_started,
         stage="Report",
     )
-    return result
+    return result, notes
 
 
 def analyze(
@@ -627,7 +690,9 @@ def analyze(
     files. Explicit ``separator`` and ``encoding`` values override their
     ``scan.csv`` values, which in turn override Tabalyst's built-in defaults.
     Existing report artifacts require ``force=True`` before replacement.
-    Set ``details=True`` to generate standalone pages for each column.
+    Set ``details=True`` to generate standalone pages for each column and the chart
+    pages: it forces the second pass as ``deep`` does, and is an error when
+    ``deep.mode`` is ``off``.
     ``dedup_report`` is a Dedup report, or the folder holding the one of the
     source, that proves the copies of rows behind ``identifier_uniqueness``; it
     replaces the ``report.dedup_report`` setting.
@@ -655,7 +720,8 @@ def analyze(
         encoding=encoding,
     )
     deep_section = settings_from_layer(top_level).deep
-    chain = plan_report_chain(scanned, deep_section, deep=deep)
+    check_details(details, deep_section)
+    chain = plan_report_chain(scanned, deep_section, deep=deep or details)
     require_confirmation(chain, confirmed=confirmed)
     result, _ = write_scanned_report(
         scanned, chain, force=force, details=details, on_progress=None

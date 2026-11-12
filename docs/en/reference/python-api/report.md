@@ -66,7 +66,8 @@ profile as a dictionary in `result`. A successful job also has `warnings`.
   `<stem>.<collection-slug>.html`. See
   [Report Excel workbooks](../../report/excel.md#every-table-of-a-workbook).
 - `config_path`, `force`, `on_progress`: see the [conventions](index.md#conventions).
-- `details`: also write one HTML page per column.
+- `details`: also write one HTML page per column and the [chart pages](../../report/charts.md).
+  It forces the second pass, as `deep`, and is an error when `deep.mode` is `off`.
 - `from_scan`: the sources are scan documents written by `tabalyst scan`; the
   reports are built without reading the sources again. Not with `separator`,
   `encoding`, `collections`, `all_collections` or `workers`.
@@ -117,7 +118,8 @@ tabalyst.analyze(
   it with the extension `.json`.
 - `separator`, `encoding`: override the delimiter and the text encoding.
 - `config_path`, `force`: see the [conventions](index.md#conventions).
-- `details`: also write one HTML page per column.
+- `details`: also write one HTML page per column and the [chart pages](../../report/charts.md).
+  It forces the second pass, as `deep`, and is an error when `deep.mode` is `off`.
 - `deep`, `confirmed`: as for `generate_reports()`.
 
 Raises the error of the analysis, such as an existing output without `force`, or
@@ -162,12 +164,14 @@ the others are listed as skipped. No source is read.
 Renders the HTML of a report.
 
 ```python
-tabalyst.render_report(profile, *, column_links=None)
+tabalyst.render_report(profile, *, column_links=None, chart_links=None)
 ```
 
 Returns the HTML as a string. `profile` is a `ReportProfile`, such as the one
 `analyze_csv()` returns. `column_links` maps `(dataset id, column id)` to the URL
-of a column page.
+of a column page; `chart_links` maps a dataset id to the chart pages that have a
+section for it, as `(topic, title, URL)`, linked from the navigation and from the
+card of the topic. The HTML loads nothing from outside.
 
 ```python
 profile = tabalyst.analyze_csv("customers.csv")

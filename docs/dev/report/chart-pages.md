@@ -1,9 +1,13 @@
-# The detail pages and their charts (proposed)
+# The detail pages and their charts
 
 Status: proposed on 2026-11-11, revised the same day after the maintainer's decisions (section 9):
 no new option, the chart pages come with `--details`, which then forces the second pass, and the
-column pages load the library too; `report.html` never does. The blocks (6.1) and the card of
-`report.html` (6.2) are implemented, without the link to a chart page; the pages are not. The decision is the ADR
+column pages load the library too; `report.html` never does. Implemented on 2026-11-12:
+the blocks (6.1), the card of `report.html` (6.2) with its link, and `charts-missing.html`
+(`report_charts.py`, `templates/charts.html`, `static/charts.js`, ECharts 6.1.0). No column page
+holds an ECharts chart yet, so none loads the library. Left for later: the CRM `contacts` case in
+the tests (section 8 names it; the tests use a smaller file with the same shape), and the embedded
+copy (section 5). The decision is the ADR
 `2026-11-11-report-chart-pages-echarts-cdn`. The first chart page draws the combinations of missing
 values (`docs/dev/scan/design.md` 20.44); the Insights charts come later on the same base.
 Guiding vision: Simple, Clear, Smart.
@@ -44,7 +48,13 @@ and forces the second pass:
 - `--scan --details` reads the source next to the scan document, as `--scan --deep` does, and fails
   with exit code `4` when it is not there.
 - A topic without data writes no chart page. The progress output and the result name each topic
-  left out and why (`too_many_columns`, `no_missing_values`, `analysis_failed`).
+  left out and why (`too_many_columns`, `no_missing_values`, `withheld_columns`, `analysis_failed`),
+  as warnings of the report ("no chart of the missing values for <dataset>: <reason>"). A forced
+  report with `--details` removes a chart page it no longer writes; without `--details` it removes
+  the chart pages with the column pages. Only a page whose `generator` is `Tabalyst chart page` is
+  removed.
+- `tabalyst report` has no `--no-html`: the clause of `--details --no-html` concerns no command
+  today.
 - **Change of behavior.** `--details` was a rendering option and now reads each source a second
   time. A script that used it outside a terminal on a costly file needs `--yes`. The release notes
   and `docs/en/reference/cli/report.md` say so.

@@ -616,6 +616,19 @@ td.ex .tip.show{display:block}
 .ins-sum{margin:0 0 8px;font-size:12.5px}
 .ins-line{margin:0 0 8px;font-size:13px;line-height:1.5}
 .ins-line code{overflow-wrap:anywhere}
+.ins-chart{margin:12px 0 0}
+.chart-lib{margin:10px 0 0;font-size:12px;color:var(--text-3)}
+.chart-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:16px 0 8px}
+.chart-tools[hidden]{display:none}
+.chart-tools label{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2)}
+.chart-tools select{font:inherit;color:var(--text);background:var(--s1);border:1px solid var(--line-strong);border-radius:var(--r-sm);padding:6px 8px;min-height:36px;max-width:100%}
+.chart-fig{margin:8px 0 0;min-width:0}
+.chart{width:100%;min-height:0}
+.chart-msg{margin:8px 0;padding:12px 14px;border:1px dashed var(--line-strong);border-radius:var(--r-md);font-size:13px;color:var(--text-2)}
+.chart-msg[hidden]{display:none}
+.chart-notes{margin:12px 0 16px;padding-left:18px;font-size:12.5px;color:var(--text-2);line-height:1.5}
+.dtable .chart-names{white-space:normal;min-width:220px}
+.dtable .chart-names code{white-space:nowrap}
 .ins-facts{margin:8px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:0 var(--joint)}
 .ins-facts>div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:7px 0;border-bottom:1px solid var(--line);min-width:0}
 .ins-facts dt{flex:0 0 auto;max-width:50%;color:var(--text-2);font-size:13px;overflow-wrap:break-word}

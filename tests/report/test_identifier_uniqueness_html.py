@@ -18,19 +18,35 @@ from tabalyst.report_uniqueness import (
     uniqueness_settings,
     uniqueness_view,
 )
+from tabalyst.reporting import (
+    column_pages,
+    dataset_views,
+    load_profile,
+    render_column_report,
+)
 from tabalyst.scanner.config import ScanConfig
 
 pytestmark = pytest.mark.uid_lot("4")
 
 
+def _column_page(out, name: str) -> str:
+    """The page of a column rendered from the report JSON: ``--details`` would force the
+    second pass, which these cases leave to the planner."""
+    profile = load_profile(out / "r.json")
+    views = dataset_views(profile)
+    for _, dataset, column in column_pages(profile, out / "r.html", views):
+        if column.name == name:
+            return render_column_report(profile, dataset, column, "../r.html")
+    raise AssertionError(f"no column {name}")
+
+
 def _pages(tmp_path, rows, **options):
     source = write_csv(tmp_path, "r.csv", rows)
-    generate_reports([source], output_dir=tmp_path / "out", details=True, **options)
+    generate_reports([source], output_dir=tmp_path / "out", **options)
     out = tmp_path / "out"
     report = (out / "r.html").read_text(encoding="utf-8")
-    page = next(p for p in out.rglob("*.html") if p.name != "r.html" and "customer-id" in p.name)
     document = json.loads((out / "r.json").read_text(encoding="utf-8"))
-    return report, page.read_text(encoding="utf-8"), document
+    return report, _column_page(out, "customer_id"), document
 
 
 def _block(page: str) -> str:
@@ -121,10 +137,9 @@ def test_a_repetition_is_not_counted_twice_in_the_findings(tmp_path):
 
 def test_a_column_that_is_not_an_identifier_has_no_block(tmp_path):
     source = write_csv(tmp_path, "r.csv", population(distinct_ids=50, copies=2))
-    generate_reports([source], output_dir=tmp_path / "out", details=True)
+    generate_reports([source], output_dir=tmp_path / "out")
 
-    page = next(p for p in (tmp_path / "out").rglob("*.html") if "status" in p.name)
-    assert 'id="uniqueness"' not in page.read_text(encoding="utf-8")
+    assert 'id="uniqueness"' not in _column_page(tmp_path / "out", "status")
 
 
 def test_the_view_reads_the_stored_object_without_a_figure_when_it_failed(tmp_path):

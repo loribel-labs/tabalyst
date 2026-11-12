@@ -120,6 +120,7 @@ Keep these exactly as written in every language:
 | floor (forms) | seuil | The number of values (`deep.sensitive.min_count`) under which a mask or a class is summed up, so no figure is given about so few values |
 | missing together | manquants simultanés | Columns that lack a value in the same records, counted exactly by the second pass; the share where both do among the records where either does ranks the pairs |
 | combination of missing values | combinaison de manquants | The exact set of columns a record lacks a value in; each record is in one combination only, and the second pass counts the records of each exactly (`missing_patterns`) |
+| chart page | page graphique | A page that `tabalyst report --details` writes beside the report, such as `charts-missing.html`, with interactive charts of the second pass and the tables of the same figures; it loads Apache ECharts from a CDN, the report does not |
 | histogram | histogramme | The count of the values of a numeric field per integer or per bin, exact, with a median and quantiles that are exact or estimated |
 | already satisfied | déjà satisfaite | An analysis whose answer the scan already holds, so the plan does not select it |
 | duplicate record | enregistrement en double | A record equal to an earlier record of its dataset |

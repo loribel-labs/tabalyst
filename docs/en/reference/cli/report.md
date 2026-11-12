@@ -29,8 +29,8 @@ report path. See [Second pass](#second-pass).
 
 The files go beside the source, or in the folder of `-d`. `.report` keeps the
 profile of a JSON or Excel file from replacing a source with the same stem. With
-`--details`, the column pages are written in a folder named like the report, for
-example `data/`.
+`--details`, the column pages and the [chart pages](../../report/charts.md) are
+written in a folder named like the report, for example `data/`.
 
 ## Options
 
@@ -46,7 +46,7 @@ options each kind of file uses.
 | `-d`, `--output-dir PATH` | Folder for the reports, named after their sources. Required by `--all-collections` with several inputs |
 | `-c`, `--config PATH` | JSON [configuration file](../configuration.md) |
 | `-f`, `--force` | Replace existing report files |
-| `--details`, `--no-details` | One standalone HTML page per column (off by default) |
+| `--details`, `--no-details` | One HTML page per column and the [chart pages](../../report/charts.md) (off by default). Forces the second pass, as `--deep`: asks first when it is costly. An error when the configuration sets `deep.mode` to `off` |
 | `-q`, `--quiet` | Suppress success messages; warnings and errors remain |
 | `-v`, `--verbose` | Also show the profile and history paths, and the encoding and delimiter of a CSV file |
 | `--no-progress` | Disable the progress line |
@@ -236,6 +236,7 @@ section.
 | `{"deep": {"mode": "force"}}` | The same as `--deep` on every run |
 | `tabalyst report scans/data.scan.json --scan` | The source is not read. The analyses that the scan and the stored `data.deep.json` answer are in the report; the others are listed as skipped, with the reason |
 | `tabalyst report scans/data.scan.json --scan --deep` | The source next to the scan document is read. If it is not there the command fails (exit code `4`) and writes nothing |
+| `tabalyst report data.csv --details` | The same as `--deep`, and the chart pages are written. With `{"deep": {"mode": "off"}}` it is an error: the charts need the second pass |
 
 The results are stored beside the scan, in `deep.json`, so that a second report of
 the same file, or one that changes only the presentation, reads nothing again. If
@@ -250,7 +251,7 @@ histograms and exact medians with a second pass](../../scan/deep.md).
 | `0` | Every report was written |
 | `1` | A report could not be analyzed, rendered or written |
 | `2` | Invalid options, or a JSON or Excel source whose collection or table must be chosen |
-| `3` | A costly forced second pass needed a confirmation and was not given: no terminal and no `--yes`, or the answer was no. Nothing was started |
+| `3` | A costly forced second pass (`--deep` or `--details`) needed a confirmation and was not given: no terminal and no `--yes`, or the answer was no. Nothing was started |
 | `4` | A source is missing, unreadable or invalid, or changed during a forced second pass |
 
 See also [Report Excel workbooks](../../report/excel.md),

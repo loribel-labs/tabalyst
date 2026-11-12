@@ -41,6 +41,7 @@ from tabalyst.service import (
     _config_paths,
     _scan_document_resolved,
     _scan_resolved,
+    check_details,
     plan_report_chain,
     write_scanned_report,
 )
@@ -368,7 +369,9 @@ def generate_reports(
     Otherwise ``workers`` is passed to ``tabalyst.scan()``, and ``collections``
     (absolute paths such as ``$.products[]``) choose the JSON collections to
     analyze, over the Inspect file and the configuration.
-    Set ``details=True`` to write a standalone HTML page for each column.
+    Set ``details=True`` to write a standalone HTML page for each column and the
+    chart pages (``charts-missing.html``): it forces the second pass as ``deep``
+    does, and is an error when ``deep.mode`` is ``off``.
     ``all_collections`` reports every visible collection of each JSON file or
     workbook, one pair of files per collection (see ``build_report_plan``).
 
@@ -440,6 +443,8 @@ def generate_reports(
     top_level, scan_layer = load_config_layers(config_paths)
     settings = settings_from_layer(top_level)
     deep_section = settings.deep
+    check_details(details, deep_section)
+    deep = deep or details
     dedup_option = str(dedup_report) if dedup_report is not None else None
     effective_option = dedup_option if dedup_option is not None else settings.report.dedup_report
     if effective_option is not None and not Path(effective_option).is_dir() and len(plan.jobs) > 1:

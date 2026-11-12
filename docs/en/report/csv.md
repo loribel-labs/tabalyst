@@ -64,8 +64,13 @@ per column, with its values, counts and detected formats. The pages are in a
 subfolder named after the HTML file without `.html` (`customers/`, or `report/`
 for `-o report.html`), named `col-01-` followed by a shortened slug of the
 column name, in source order. Details are off by default. With `--force`,
-`--no-details` removes the column pages generated earlier and keeps other files
-of the folder.
+`--no-details` removes the column and chart pages generated earlier and keeps
+other files of the folder.
+
+`--details` also runs the [second pass](../scan/deep.md), as `--deep` does, and
+writes the [chart pages](charts.md) in the same folder: `charts-missing.html`
+draws the combinations of columns the records lack a value in. The chart pages
+load Apache ECharts from a CDN; the report and the column pages do not.
 
 ## Safe batch behavior
 

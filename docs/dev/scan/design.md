@@ -5878,7 +5878,7 @@ and `rows_without_id` of each column against `record_count - values.count` of th
 
 Status: the analysis of the second pass is implemented (2026-11-11: `planner/analyzers/matrix.py` `MissingPatterns`, `secondpass/matrix.py` `PatternTable`, second-pass
 revision 5, Report revision 6); the pages that draw it are proposed, not implemented (`docs/dev/report/chart-pages.md`, ADR
-`2026-11-11-report-chart-pages-echarts-cdn`). The sentences and the table of the card of `report.html` (**Report** below) are implemented (2026-11-12: `report_insights.py` `missing_blocks`), without the link to the chart page; `report_deep.py` prints one line of it in the Second pass table.
+`2026-11-11-report-chart-pages-echarts-cdn`). The sentences and the table of the card of `report.html` (**Report** below) are implemented (2026-11-12: `report_insights.py` `missing_blocks`), and so is the chart page `charts-missing.html` that `--details` writes (2026-11-12: `report_charts.py`); `report_deep.py` prints one line of it in the Second pass table.
 
 `missing_patterns` counts the records of a dataset by their **pattern**: the exact set of the members of the matrix (20.31) in which they lack a value. `missing_matrix` gives
 pairs, and they are inclusive: a record that lacks A, B and C counts in A and B, A and C, B and C, and its "Left out" names the larger groups. The patterns are the exclusive

@@ -26,7 +26,7 @@ modified or sent anywhere.
 | One JSON file | `tabalyst report data.json` | `data.report.html` beside the source |
 | One JSONL file | `tabalyst report events.jsonl` | `events.report.html` beside the source |
 | One Excel workbook | `tabalyst report sales.xlsx` | `sales.report.html` beside the source |
-| One page per column | `tabalyst report data.csv --details` | The folder `data/` beside the report |
+| One page per column, and the charts | `tabalyst report data.csv --details` | The folder `data/` beside the report |
 | From a scan document | `tabalyst report --scan data.scan.json` | `data.html` beside the scan |
 
 ## What the report shows
@@ -53,12 +53,15 @@ sensitive fields, such as email addresses, are shown by default; the
 [exposure settings](../reference/configuration.md#sensitive-values-and-sampling)
 mask or hide them. Ambiguous
 dates stay ambiguous: the report shows the evidence without applying it. The
-HTML works without a network connection or a CDN.
+HTML works without a network connection or a CDN; only the [chart pages](charts.md)
+of `--details` load a charting library from one.
 
 ## Pages
 
 - [Read the report](read-report.md): interpret every HTML section, its
   tables, indicators and limits.
+- [Chart pages](charts.md): the interactive charts `--details` writes beside
+  the report, starting with the combinations of missing values.
 - [Findings catalog](findings.md): every Error, Issue and Information
   finding, with its code, what it counts, its detail and its limits.
 - [Types and patterns](../reference/types-and-patterns/index.md): shared

@@ -74,8 +74,9 @@ customers.json
 executions.json
 ```
 
-Add `--details` to generate one self-contained HTML page per column, and `-o`
-to choose another HTML filename for one source:
+Add `--details` to write one HTML page per column and the chart pages, such as
+the combinations of missing values (it also runs the second pass), and `-o` to
+choose another HTML filename for one source:
 
 ```console
 tabalyst report customers.csv --details
@@ -124,7 +125,8 @@ Details: [Tabalyst Report](https://docs.tabalyst.com/report/),
 The report is built on Tabalyst Scan; values of sensitive columns can be masked
 or hidden. Ambiguous dates stay
 ambiguous; the report shows the evidence of the column without applying it. The
-HTML report is self-contained and works without a CDN or network connection.
+HTML report is self-contained and works without a CDN or network connection;
+only the chart pages of `--details` load Apache ECharts from a CDN to draw.
 The JSON profile contains the same canonical analysis result for scripts and
 future Tabalyst tools. See
 [how to read the report](https://docs.tabalyst.com/report/read-report/).

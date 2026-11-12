@@ -626,6 +626,19 @@ td.ex .tip.show{display:block}
 .ins-sum{margin:0 0 8px;font-size:12.5px}
 .ins-line{margin:0 0 8px;font-size:13px;line-height:1.5}
 .ins-line code{overflow-wrap:anywhere}
+.ins-chart{margin:12px 0 0}
+.chart-lib{margin:10px 0 0;font-size:12px;color:var(--text-3)}
+.chart-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:16px 0 8px}
+.chart-tools[hidden]{display:none}
+.chart-tools label{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2)}
+.chart-tools select{font:inherit;color:var(--text);background:var(--s1);border:1px solid var(--line-strong);border-radius:var(--r-sm);padding:6px 8px;min-height:36px;max-width:100%}
+.chart-fig{margin:8px 0 0;min-width:0}
+.chart{width:100%;min-height:0}
+.chart-msg{margin:8px 0;padding:12px 14px;border:1px dashed var(--line-strong);border-radius:var(--r-md);font-size:13px;color:var(--text-2)}
+.chart-msg[hidden]{display:none}
+.chart-notes{margin:12px 0 16px;padding-left:18px;font-size:12.5px;color:var(--text-2);line-height:1.5}
+.dtable .chart-names{white-space:normal;min-width:220px}
+.dtable .chart-names code{white-space:nowrap}
 .ins-facts{margin:8px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:0 var(--joint)}
 .ins-facts>div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:7px 0;border-bottom:1px solid var(--line);min-width:0}
 .ins-facts dt{flex:0 0 auto;max-width:50%;color:var(--text-2);font-size:13px;overflow-wrap:break-word}
@@ -1093,6 +1106,7 @@ h3.rcard-title,h4.rcard-title{font-family:var(--f-body)}
       <p class="side-group">Data</p>
       <a class="rep-tab" href="#sample"><small>16</small>Data sample<span class="ct">30</span></a>
       <a class="rep-tab" href="#settings"><small>17</small>Analysis settings</a>
+      
     </nav>
     
     <div class="side-foot">
@@ -1103,7 +1117,7 @@ h3.rcard-title,h4.rcard-title{font-family:var(--f-body)}
   <div class="main">
     
     <div class="ds" data-ds="0">
-    <header class="rhead"><div class="wrap"><p class="eyebrow">Dataset report</p><div class="rhead-top"><div><h1>web-events<span class="ext">.jsonl</span></h1><ul class="facts"><li><b>JSONL</b></li><li>Dataset <code>$[]</code></li><li><b>300</b> records</li><li><b>14</b> fields</li><li>68.0 KB</li><li>utf-8</li></ul></div><div class="gen"><span class="badge"><i aria-hidden="true"></i>Analysis complete · 0.39 s</span><time datetime="2026-11-12T12:45:16.005383+00:00">2026-11-12 12:45 UTC</time></div></div></div></header>
+    <header class="rhead"><div class="wrap"><p class="eyebrow">Dataset report</p><div class="rhead-top"><div><h1>web-events<span class="ext">.jsonl</span></h1><ul class="facts"><li><b>JSONL</b></li><li>Dataset <code>$[]</code></li><li><b>300</b> records</li><li><b>14</b> fields</li><li>68.0 KB</li><li>utf-8</li></ul></div><div class="gen"><span class="badge"><i aria-hidden="true"></i>Analysis complete · 0.39 s</span><time datetime="2026-11-12T13:19:20.004867+00:00">2026-11-12 13:19 UTC</time></div></div></div></header>
     <main id="content" class="wrap content" tabindex="-1">
 <section class="panel" id="overview" aria-labelledby="overview-h"><div class="phead"><div><p class="eyebrow">01 / Overview</p><h2 id="overview-h">Dataset overview</h2><p>Size, completeness and the main signal to check first.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="overview-b" aria-label="Collapse Dataset overview" data-name="Dataset overview"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="overview-b">
 <dl class="metrics"><div class="metric"><dt>Rows</dt><dd><span class="v">300</span><span class="s">No empty rows</span></dd></div><div class="metric"><dt>Columns</dt><dd><span class="v">14</span><span class="s">4,350 cells analyzed</span></dd></div><div class="metric attn"><dt>Missing cells</dt><dd><span class="v">28.05<small>%</small></span><span class="s">1,220 cells</span></dd></div><div class="metric"><dt>Duplicate rows</dt><dd><span class="v">0</span><span class="s">Beyond the first occurrence</span></dd></div></dl>

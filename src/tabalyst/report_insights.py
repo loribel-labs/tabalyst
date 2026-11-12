@@ -1131,7 +1131,7 @@ def missing_blocks(result: MissingPatternsResult) -> list[MissingBlock]:
 _NUMBER_WORDS = ("", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")
 
 
-def _block_line(block: MissingBlock) -> InsightLine:
+def block_line(block: MissingBlock) -> InsightLine:
     """The sentence of a block. The share is rounded down: it is a floor."""
     parts: list[InsightPart] = []
     names = block.displays
@@ -1207,7 +1207,7 @@ def _dataset_missing_card(
             f"{_count(lacking)} of the {_count(records)} records lack a value in at least one "
             f"of {_count(columns)} columns."
         )
-        lines = [_block_line(block) for block in missing_blocks(patterns)]
+        lines = [block_line(block) for block in missing_blocks(patterns)]
         facts = [
             InsightFact(
                 label="Records with every value",

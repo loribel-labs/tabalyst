@@ -210,7 +210,10 @@ def report_command(
         bool,
         typer.Option(
             "--details/--no-details",
-            help="Generate standalone HTML pages for every column (off by default).",
+            help=(
+                "Also write a page for every column and the chart pages, which "
+                "load Apache ECharts from a CDN. Forces the second pass, as --deep."
+            ),
         ),
     ] = False,
     quiet: Annotated[

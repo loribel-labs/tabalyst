@@ -187,8 +187,11 @@ structural or semantic change. See the
   and consumed by adapters such as the CLI.
 - `reporting.py`: renders a validated JSON result through Jinja2. With
   `--details`, the report service writes one independent HTML page per column
-  under a folder named after the main HTML stem. No CSV access. Column
-  filenames use source order and a bounded slug.
+  under a folder named after the main HTML stem, and the chart pages
+  (`charts-<topic>.html`, built by `report_charts.py`, drawn by `static/charts.js`
+  with Apache ECharts loaded from a CDN; `docs/dev/report/chart-pages.md`).
+  `--details` forces the second pass. No CSV access. Column filenames use source
+  order and a bounded slug.
 - `execution_log.py`: records successful run metadata and timing in a shared,
   atomically updated `executions.json` file.
 - `scanner/`: Tabalyst Scan, the streaming engine (see below); `tabalyst scan`
@@ -321,7 +324,9 @@ rules. A measure stopped by a scan limit is `null` in the profile, shown as
 `limited` or as a lower bound, and listed among the limits of the observations.
 
 JSON and HTML may include raw data and should be shared accordingly. The
-generated report is self-contained and does not need an internet connection.
+generated report is self-contained and does not need an internet connection. The
+chart pages of `--details` load Apache ECharts from a CDN (pinned version, SRI
+hash, no referrer); their tables read without it.
 
 The JSON profile records the scan and profile time in `processing_seconds`. The
 adjacent `executions.json` also records total run time, including JSON and HTML

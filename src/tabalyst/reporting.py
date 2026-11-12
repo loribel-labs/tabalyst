@@ -6,6 +6,7 @@
 
 import re
 import unicodedata
+from collections.abc import Mapping
 from functools import cache
 from importlib.resources import files
 from pathlib import Path
@@ -17,6 +18,7 @@ from markupsafe import Markup, escape
 from tabalyst._version import get_version
 from tabalyst.errors import InputError
 from tabalyst.models import ReportProfile
+from tabalyst.report_charts import ECHARTS, TOPIC_TITLES, MissingSection
 from tabalyst.report_column_page import Neighbour, column_page
 from tabalyst.report_config import ReportConfig
 from tabalyst.report_deep import column_analyses, second_pass_view
@@ -364,8 +366,10 @@ def _page_view(
     prefix: str,
     grammar: str,
     column_links: dict[tuple[str, str], str],
+    charts: list[tuple[str, str, str]],
 ) -> dict[str, object]:
-    """What the report template reads about one dataset besides the view."""
+    """What the report template reads about one dataset besides the view.
+    ``charts`` are the chart pages that have a section for it, as ``(topic, title, href)``."""
     pattern_rows = _pattern_rows(dataset)
     pattern_columns = [c for c in dataset.columns if c.patterns.status == "complete"]
     sections = {"overview", "observations", "columns", "transformations"}
@@ -386,6 +390,9 @@ def _page_view(
         },
         "finding_views": finding_detail_views(dataset),
         "insight_cards": shown_cards(dataset.insights, DISPLAY_LIMITS["insights"]),
+        "charts": charts,
+        # The card of a topic in the dataset panel links to its chart page.
+        "card_charts": {topic: href for topic, _, href in charts},
         # Element ids are prefixed only when the report shows several
         # datasets, so single-dataset reports keep their anchors.
         "px": prefix,
@@ -424,9 +431,12 @@ def render_report(
     *,
     column_links: dict[tuple[str, str], str] | None = None,
     views: list[DatasetView] | None = None,
+    chart_links: Mapping[str, list[tuple[str, str, str]]] | None = None,
 ) -> str:
     """Render exclusively from serialized analysis results; CSV access is unnecessary.
-    ``views`` are the ``dataset_views`` of ``profile`` when the caller has them."""
+    ``views`` are the ``dataset_views`` of ``profile`` when the caller has them;
+    ``chart_links`` the chart pages written beside the report, by dataset id, as
+    ``(topic, title, href)``. The report itself loads no script from outside."""
     resources = files("tabalyst")
     environment = _environment()
     template = environment.from_string(
@@ -451,7 +461,13 @@ def render_report(
     patterns = profile.derived.patterns if profile.derived else None
     grammar = f"v{patterns.grammar.version}" if patterns else "–"
     pages = [
-        _page_view(dataset, f"d{index}-" if several else "", grammar, links)
+        _page_view(
+            dataset,
+            f"d{index}-" if several else "",
+            grammar,
+            links,
+            list((chart_links or {}).get(dataset.id, [])),
+        )
         for index, dataset in enumerate(datasets, start=1)
     ]
     return template.render(
@@ -477,9 +493,11 @@ def render_column_report(
     report_href: str,
     previous: Neighbour | None = None,
     following: Neighbour | None = None,
+    charts: list[tuple[str, str]] | None = None,
 ) -> str:
     """Render a self-contained page from one serialized column profile. ``previous``
-    and ``following`` link the pages of the neighbouring columns, when they exist."""
+    and ``following`` link the pages of the neighbouring columns, when they exist;
+    ``charts`` the chart pages that name the column, as ``(title, href)``."""
     resources = files("tabalyst")
     template = _environment().from_string(
         resources.joinpath("templates/column.html").read_text(encoding="utf-8")
@@ -490,6 +508,7 @@ def render_column_report(
         column=column,
         page=column_page(column, previous, following),
         report_href=report_href,
+        charts=charts or [],
         tabalyst_version=get_version(),
         diagnostics=[
             item for item in dataset.limits.diagnostics if item.path == column.path
@@ -501,3 +520,32 @@ def render_column_report(
         **_labels(),
     )
     return re.sub(r"(?m)^[ \t]+$", "", rendered)
+
+
+def render_chart_page(
+    profile: ReportProfile,
+    topic: str,
+    sections: list[MissingSection],
+    report_href: str,
+) -> str:
+    """Render the chart page of ``topic`` from the report JSON alone: one section per
+    dataset, each with its tables and the data its chart draws. The page loads
+    ``ECHARTS`` from a CDN (``docs/dev/report/chart-pages.md`` 5)."""
+    resources = files("tabalyst")
+    template = _environment().from_string(
+        resources.joinpath("templates/charts.html").read_text(encoding="utf-8")
+    )
+    rendered = template.render(
+        report=profile,
+        title=TOPIC_TITLES[topic],
+        sections=sections,
+        report_href=report_href,
+        library=ECHARTS,
+        share=lambda part, whole: f"{part / whole:.1%}" if whole else "0%",
+        tabalyst_version=get_version(),
+        theme_css=resources.joinpath("static/theme.css").read_text(encoding="utf-8"),
+        report_js=resources.joinpath("static/report.js").read_text(encoding="utf-8"),
+        charts_js=resources.joinpath("static/charts.js").read_text(encoding="utf-8"),
+        **_labels(),
+    )
+    return re.sub(r"(?m)^[ 	]+$", "", rendered)

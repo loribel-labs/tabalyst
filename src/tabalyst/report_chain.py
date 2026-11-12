@@ -134,7 +134,7 @@ def plan_chain(
         skip_reading = SOURCE_NOT_READ
     if skip_reading == SOURCE_UNAVAILABLE and mode == "forced":
         raise SourceNotReadable(
-            "--deep needs to read the source of the scan document, which was not "
+            "--deep and --details need to read the source of the scan document, which was not "
             "found beside it. The report was not written. Restore the source "
             "next to the document or report the source itself."
         )

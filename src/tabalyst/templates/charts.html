@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} | {{ report.source.name }} | Tabalyst</title>
+<meta name="description" content="Charts of the {{ title | lower }} in {{ report.source.name }}">
+<meta name="generator" content="Tabalyst chart page">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#00051A">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%2300051a'/%3E%3Cpath%20d='M14%2015h36v10H37v25H27V25H14z'%20fill='%23f98510'/%3E%3C/svg%3E">
+<script>(()=>{let m="auto";try{const s=localStorage.getItem("tabalyst-theme");if(s==="light"||s==="dark")m=s}catch(e){}const r=document.documentElement;r.dataset.themeMode=m;r.dataset.theme=m==="auto"?(window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):m})();</script>
+<style>{{ theme_css | safe }}</style>
+</head>
+<body>
+{% macro acc(kind) -%}<span class="acc acc-{{ kind }}" title="{{ acc_titles[kind] }}">{{ acc_words[kind] }}</span>{%- endmacro %}
+<a class="skip" href="#content">Skip to the charts</a>
+<div class="shell">
+<aside class="side" aria-label="Chart page navigation">
+  <a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website"><svg viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M10 10h44v12H38v32H26V22H10z"/><path fill="#F98510" d="M43 29h11v25H43z"/></svg><span class="word">Tabalyst<span class="sub">Report</span></span></a>
+  <p class="side-label">{{ title }}</p>
+  <nav class="rep-nav" data-ds="0" aria-label="Datasets">
+    <p class="side-group">Datasets</p>
+    {% for s in sections %}<a class="rep-tab" href="#{{ s.dataset | urlencode }}"><small>{{ '%02d' | format(loop.index) }}</small>{{ s.dataset }}<span class="ct">{{ s.patterns | length }}</span></a>{% endfor %}
+    <p class="side-group">Navigation</p>
+    <a class="rep-tab" href="{{ report_href }}"><small>↖</small>Full report</a>
+  </nav>
+  <div class="side-foot"><div class="row"><button type="button" id="theme-toggle" class="btn btn-icon" aria-label="Theme: auto (system)" title="Theme: auto (system)"><svg data-icon="auto" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2.5" width="12" height="8.5" rx="1"/><path d="M5.5 14h5M8 11v3"/></svg><svg data-icon="light" viewBox="0 0 16 16" aria-hidden="true" hidden><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg><svg data-icon="dark" viewBox="0 0 16 16" aria-hidden="true" hidden><path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7z"/></svg></button><button type="button" class="btn print" data-print style="flex:1">Print / PDF</button></div></div>
+</aside>
+<div class="main"><div class="ds" data-ds="0">
+<header class="rhead"><div class="wrap">
+  <p class="eyebrow">Chart page · {{ report.source.name }}</p>
+  <div class="rhead-top">
+    <div>
+      <h1>{{ title }}</h1>
+      <ul class="facts"><li><b>{{ sections | length }}</b> {{ 'dataset' if sections | length == 1 else 'datasets' }}</li><li>Second pass, exact counts</li></ul>
+    </div>
+    <div class="rhead-nav" role="group" aria-label="Report"><a class="btn" href="{{ report_href }}">Full report</a></div>
+  </div>
+  <p class="chart-lib">The charts load {{ library.name }} {{ library.version }} from a CDN; no data of the report leaves this page. The tables hold every figure and read without it.</p>
+</div></header>
+<main id="content" class="wrap content" tabindex="-1">
+{% for s in sections %}{% set r = s.result %}{% set hid = 'm' ~ loop.index %}
+<section class="panel" id="{{ s.dataset }}" aria-labelledby="{{ hid }}-h" data-upset>
+<div class="phead"><div><p class="eyebrow">{{ '%02d' | format(loop.index) }} / {{ s.dataset }}</p><h2 id="{{ hid }}-h">Combinations of missing values</h2><p>Each record counts once, under the exact set of the columns it lacks a value in: the bars are exclusive.</p></div></div>
+<div class="pbody">
+  <dl class="metrics">
+    <div class="metric"><dt>Records with every value</dt><dd><span class="v">{{ r.complete_records | count }}</span><span class="s">{{ share(r.complete_records, r.records) }} of {{ r.records | count }} records {{ acc('exact') }}</span></dd></div>
+    <div class="metric{% if s.lacking %} attn{% endif %}"><dt>Lack at least one value</dt><dd><span class="v">{{ s.lacking | count }}</span><span class="s">{{ share(s.lacking, r.records) }} of the records, in {{ r.columns | length | count }} columns {{ acc('exact') }}</span></dd></div>
+    <div class="metric"><dt>Combinations</dt><dd><span class="v">{% if not r.complete %}<small>≥ </small>{% endif %}{{ r.distinct | count }}</span><span class="s">{% if r.complete %}seen in the file {{ acc('exact') }}{% else %}at least, the table stopped growing {{ acc('at_least') }}{% endif %}</span></dd></div>
+  </dl>
+  {% for line in s.lines %}<p class="ins-line">{% for part in line.parts %}{% if part.code %}<code>{{ part.text }}</code>{% else %}{{ part.text }}{% endif %}{% endfor %}{% if line.kind != 'exact' %} {{ acc(line.kind) }}{% endif %}</p>{% endfor %}
+  {% if s.patterns %}
+  <div class="toolbar chart-tools" data-tools hidden>
+    <label>Sort <select data-sort><option value="count">By records</option><option value="size">By number of columns</option></select></label>
+    <label>Show <select data-show><option value="all">Every combination</option><option value="multi">Two columns or more</option>{% for c in s.columns %}<option value="col:{{ c.position }}">With {{ c.display }}</option>{% endfor %}</select></label>
+    <span class="live" data-live aria-live="polite"></span>
+  </div>
+  <figure class="chart-fig">
+    <div class="chart" data-chart role="img" aria-label="UpSet plot of the combinations of missing values of {{ s.dataset }}: bars of the records of each combination over a matrix of its columns. The table below holds the same figures."></div>
+    <p class="chart-msg" data-msg role="status">This chart needs JavaScript and a network connection to load {{ library.name }}. The tables below hold the same figures.</p>
+  </figure>
+  <script type="application/json" data-chart-data>{{ s.data | tojson }}</script>
+  <ul class="chart-notes">
+    <li>Each record is in one combination only, the exact set of the columns it lacks a value in; the records with every value are in none.</li>
+    <li>The plot draws the first {{ s.drawn | count }} combinations in the order chosen{% if s.patterns | length > s.drawn %}; the {{ (s.patterns | length - s.drawn) | count }} others ({{ (s.patterns[s.drawn:] | sum(attribute='count')) | count }} records) are in the table{% endif %}. The bars on the left count the records that lack each column.</li>
+    <li>A value is missing when its cell is empty, blank or a null marker of the configuration, as the scan counts it.</li>
+    <li>The totals were checked against the scan: the {{ r.records | count }} records are the complete ones and those of each combination.</li>
+    <li>It shows that values go missing together, not why.</li>
+  </ul>
+  {% endif %}
+  <h3 class="subh">Combinations<span class="n">({{ s.patterns | length | count }})</span> {{ acc('exact') }}</h3>
+  <div class="tscroll" tabindex="0" role="region" aria-label="Combinations of missing values of {{ s.dataset }}"><table class="dtable"><thead><tr><th scope="col"><div class="hc"><span class="ht">Without a value in</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Columns</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Records</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Share</span></div></th></tr></thead><tbody>
+  {% for p in s.patterns %}<tr><th scope="row" class="chart-names">{% for name in p.names %}<code>{{ name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</th><td class="num">{{ p.size | count }}</td><td class="num">{{ p.count | count }}</td><td class="num">{{ p.share }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% if r.other_patterns %}<p class="muted sub">{{ r.other_patterns | count }} rarer combinations ({{ r.other_records | count }} records) are counted but not listed: <code>deep.missing.max_patterns_listed</code> keeps the most frequent.</p>{% endif %}
+  {% if not r.complete %}<p class="muted sub">{{ r.untracked | count }} records lack values in combinations found once <code>deep.missing.max_patterns</code> combinations were tracked; they are counted, not told apart. {{ acc('at_least') }}</p>{% endif %}
+  <h3 class="subh">Columns that lack values<span class="n">({{ s.columns | length | count }})</span> {{ acc('exact') }}</h3>
+  <div class="tscroll" tabindex="0" role="region" aria-label="Columns that lack values in {{ s.dataset }}"><table class="dtable"><thead><tr><th scope="col"><div class="hc"><span class="ht">Column</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Records without a value</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Share</span></div></th></tr></thead><tbody>
+  {% for c in s.columns %}<tr><th scope="row">{% if c.href %}<a href="{{ c.href }}"><code>{{ c.display }}</code></a>{% else %}<code>{{ c.display }}</code>{% endif %}</th><td class="num">{{ c.missing | count }}</td><td class="num">{{ c.share }}</td></tr>{% endfor %}
+  </tbody></table></div>
+</div></section>
+{% endfor %}
+</main></div>
+<footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">Tabalyst<span class="ver">v{{ tabalyst_version }}</span></a><p>Local-first CSV and JSON profiling.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://docs.tabalyst.com/" target="_blank" rel="noopener noreferrer">Documentation <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>Tabalyst © 2026 Gregory Borelli · MPL-2.0 · Open source project by Loribel Labs</span><span>Report generated locally</span></div></div></footer></div></div>
+<script>{{ report_js | safe }}</script>
+<script src="{{ library.url }}" integrity="{{ library.integrity }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>{{ charts_js | safe }}</script>
+</body></html>

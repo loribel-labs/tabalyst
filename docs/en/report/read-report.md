@@ -226,7 +226,8 @@ tabalyst report customers.csv --details
 **Purpose:** read everything the report knows about one column, in the order of the
 questions you ask: is something wrong, what, how sure is the report, and what do the
 values look like. The page is written for each column when you add `--details`, and the
-Column and Details cells of the [Summary table](#column-summary) link to it. It reads the
+Column and Details cells of the [Summary table](#column-summary) link to it. A column
+that lacks values also links to the [chart of the missing values](charts.md). It reads the
 report document and computes nothing of its own: a figure here is the figure of the tables.
 
 The header names the column, its position and its path, and links the **previous** and
