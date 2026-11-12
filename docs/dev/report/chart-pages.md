@@ -2,7 +2,8 @@
 
 Status: proposed on 2026-11-11, revised the same day after the maintainer's decisions (section 9):
 no new option, the chart pages come with `--details`, which then forces the second pass, and the
-column pages load the library too; `report.html` never does. Not implemented. The decision is the ADR
+column pages load the library too; `report.html` never does. The blocks (6.1) and the card of
+`report.html` (6.2) are implemented, without the link to a chart page; the pages are not. The decision is the ADR
 `2026-11-11-report-chart-pages-echarts-cdn`. The first chart page draws the combinations of missing
 values (`docs/dev/scan/design.md` 20.44); the Insights charts come later on the same base.
 Guiding vision: Simple, Clear, Smart.
@@ -155,9 +156,16 @@ of `report.html`, see 6.2).
   columns. A lower bound can only miss a block, never invent one.
 - **Not a coincidence of rare columns.** `all(G)` is at least 1 % of the records; two columns
   missing once in the same record are not a block.
-- **The largest groups only.** Every subset of a block is a block, so the groups grow level by
-  level from the pairs (a group of `k + 1` columns is tried only when its groups of `k` are blocks),
-  and only the maximal blocks are named, by decreasing `all(G)`, then document order, five at most.
+- **The largest groups only.** Every subset of a block is a block, so only the maximal blocks are
+  named, by decreasing `all(G)`, then document order, five at most.
+- **The search.** Growing the groups level by level from the pairs would go through every subset
+  of a wide block (60 columns that are always empty together hold 2^60 subsets). A maximal block
+  `G` is instead read from `C`, the intersection of the listed patterns that hold `G`:
+  `all(C) = all(G)`, and `G` is the set of the columns `c` of `C` with
+  `all(C) >= 0.8 * missing(c)`. So `missing_blocks` takes out the columns in no block of two,
+  goes through the intersections of the patterns (at most `MAX_INTERSECTIONS`, 20,000; past it,
+  a block can be missed, never invented), keeps the passing columns of each and names the maximal
+  ones. Implemented on 2026-11-12, with `MissingBlock` and `InsightCard.lines`.
 - **The sentence**, one per block: the columns, `all(G)` and the smallest share among its columns,
   for example "`opportunity_amount`, `opportunity_close_date` and `opportunity_probability` go
   missing together: 126,000 records lack all three, at least 94 % of the records that lack any one
@@ -169,7 +177,12 @@ of `report.html`, see 6.2).
 ### 6.2 In `report.html`
 
 The `missing` card of the dataset (design 20.32) prints the same sentences, the table of the first
-patterns (20.44) and a link to `charts-missing.html` when `--details` wrote it. The sentences need
+patterns (20.44) and a link to `charts-missing.html` when `--details` wrote it. Implemented on
+2026-11-12 except the link, which waits for the page: the card *Columns missing together* gains
+the sentences, the figures (records with every value, those that lack at least one, the
+combinations seen, `at least` when `complete` is false), the first `MAX_ROWS` (15) combinations
+with their columns, count and share, and a note for the rest; the table of the pairs follows when
+`missing_matrix` ran. With the combinations alone, the card has no table of pairs. The sentences need
 `missing_patterns`, so they appear after `--details` or `--deep`, not on a default run.
 
 ## 7. Documentation and follow-ups

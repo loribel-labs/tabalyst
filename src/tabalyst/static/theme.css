@@ -614,6 +614,8 @@ td.ex .tip.show{display:block}
 .ins-h .subh{margin:14px 0 4px;min-width:0;overflow-wrap:anywhere}
 .ins-acc{display:inline-flex;flex-wrap:wrap;gap:6px}
 .ins-sum{margin:0 0 8px;font-size:12.5px}
+.ins-line{margin:0 0 8px;font-size:13px;line-height:1.5}
+.ins-line code{overflow-wrap:anywhere}
 .ins-facts{margin:8px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:0 var(--joint)}
 .ins-facts>div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:7px 0;border-bottom:1px solid var(--line);min-width:0}
 .ins-facts dt{flex:0 0 auto;max-width:50%;color:var(--text-2);font-size:13px;overflow-wrap:break-word}

@@ -865,6 +865,19 @@ It shares the reading and the tests of the cells of the matrix: asking for both 
 little more than one. The totals are checked against the scan. It shows that values go
 missing together, not why.
 
+In the report, the *Columns missing together* card of the dataset lists the first
+combinations and names the **blocks**: the largest groups of two columns or more where
+the records that lack every column of the group are at least 80% of the records that lack
+any one of them, and at least 1% of the records. Five blocks at most, the largest first:
+
+```text
+date_reclamation, montant_reclamation and reclamation_status go missing together: 85,760 records lack all three, at least 97.1% of the records that lack any one of them.
+```
+
+The blocks are read from `listed`. When the listing does not hold every combination
+(`complete` false or `other_patterns` above 0), the counts are lower bounds, marked
+*at least*: a block can be missed, never invented.
+
 It is not chosen by `tabalyst report` by itself: ask for it with `--deep` or
 `tabalyst.AnalysisRequest("missing_patterns")`.
 

@@ -499,6 +499,20 @@ class InsightTable(ResultModel):
     note: str | None = None
 
 
+class InsightPart(ResultModel):
+    """A run of the text of a sentence; ``code`` marks a name of the data, shown as code."""
+
+    text: str
+    code: bool = False
+
+
+class InsightLine(ResultModel):
+    """A sentence of an insight card, with the accuracy of its figures."""
+
+    parts: list[InsightPart]
+    kind: InsightKind = "exact"
+
+
 class InsightCard(ResultModel):
     """What one analysis found, laid out for a reader (design 20.19 to 20.28):
     figures, distributions and tables, each qualified by its accuracy. It is
@@ -517,6 +531,7 @@ class InsightCard(ResultModel):
     # both. A card that sums up the columns of a dataset has no column page.
     scope: Literal["dataset", "column", "both"] = "both"
     summary: str = ""
+    lines: list[InsightLine] = Field(default_factory=list)
     facts: list[InsightFact] = Field(default_factory=list)
     bars: list[InsightBars] = Field(default_factory=list)
     tables: list[InsightTable] = Field(default_factory=list)
@@ -526,6 +541,7 @@ class InsightCard(ResultModel):
     def kinds(self) -> list[str]:
         """The accuracies that occur in the card, the exact one first."""
         found = {fact.kind for fact in self.facts}
+        found.update(line.kind for line in self.lines)
         found.update(bars.kind for bars in self.bars)
         found.update(table.kind for table in self.tables)
         order = ("exact", "estimated", "sample", "at_least", "fingerprint")

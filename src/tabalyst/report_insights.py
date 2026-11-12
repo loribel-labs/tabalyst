@@ -5,7 +5,7 @@
 """Insight cards of the report: what the later analyses of the second pass
 found (values with a unit, shape of the numbers, parts of the dates, values
 left out, repeated values, numbers by category, drift along the file, columns
-missing together, lengths of arrays and sets of keys, long texts, masks and
+missing together and the blocks they form, lengths of arrays and sets of keys, long texts, masks and
 classes of sensitive columns) and the measures the report derives from the Scan,
 laid out with the accuracy of each figure.
 
@@ -18,8 +18,10 @@ classes of a masked column are printed only when they are masks and classes.
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
 
 from tabalyst.models import AnalysesBlock
 from tabalyst.report_deep import CONVENTION_WORDS, shown
@@ -37,6 +39,8 @@ from tabalyst.report_views import (
     InsightCard,
     InsightFact,
     InsightKind,
+    InsightLine,
+    InsightPart,
     InsightTable,
 )
 from tabalyst.scanner.detectors.ip import IP_CLASSES
@@ -57,6 +61,7 @@ from tabalyst.scanner.secondpass.models import (
     MeasureLevel,
     MeasureResult,
     MissingMatrixResult,
+    MissingPatternsResult,
     PartCount,
     PartsResult,
     PeriodCounts,
@@ -980,11 +985,10 @@ def _matrix_card(
     )
 
 
-def _dataset_matrix_card(base: str, items: list[tuple[str, str, MissingMatrixResult]]) -> InsightCard:
-    """One card for the dataset: the pairs of columns that lack a value together
-    most, each pair once, from the partners every column listed."""
+def _pairs_table(items: list[tuple[str, str, MissingMatrixResult]]) -> InsightTable:
+    """The pairs of columns that lack a value together most, each pair once, from
+    the partners every column listed."""
     pairs: dict[tuple[str, str], tuple[float, int, str, str, int, int]] = {}
-    first = items[0][2]
     for field_id, display, result in items:
         for item in result.listed:
             key = tuple(sorted((field_id, item.field)))
@@ -998,38 +1002,252 @@ def _dataset_matrix_card(base: str, items: list[tuple[str, str, MissingMatrixRes
         [name, other, _count(a), _count(b), _count(both), f"{share:.1%}"]
         for share, both, name, other, a, b in ranked[:MAX_ROWS]
     ]
-    shown = len(rows)
+    return InsightTable(
+        caption="Pairs of columns that lack a value in the same records",
+        headers=["Column", "With", "Missing", "Missing there", "Both", "Together"],
+        rows=rows,
+        code=[0, 1],
+        note=(
+            f"The {_count(len(ranked) - len(rows))} pairs with the lowest share are in the report JSON."
+            if len(ranked) > len(rows)
+            else None
+        ),
+    )
+
+
+# The blocks of columns missing together (docs/dev/report/chart-pages.md 6.1). The
+# thresholds are to be checked on the CRM case before a release; they are not settings.
+BLOCK_SHARE = 0.8
+BLOCK_RECORDS = 0.01
+MAX_BLOCKS = 5
+# The intersections of combinations a search goes through. Every combination of the
+# listing holds many columns only in a pathological file; past this bound the blocks
+# are those of the intersections found so far, which can miss a block, never invent one.
+MAX_INTERSECTIONS = 20_000
+
+
+@dataclass(frozen=True, slots=True)
+class MissingBlock:
+    """Columns that go missing together: ``records`` lack all of them, at least
+    ``share`` of the records that lack any one of them. ``exact`` is false when the
+    listing does not hold every combination, and ``records`` is then a lower bound."""
+
+    fields: tuple[str, ...]
+    displays: tuple[str, ...]
+    records: int
+    share: float
+    exact: bool
+
+
+def missing_blocks(result: MissingPatternsResult) -> list[MissingBlock]:
+    """The largest groups of two columns or more that go missing together, by
+    decreasing number of records, then document order, ``MAX_BLOCKS`` at most.
+
+    A group is a block when the records that lack every column of it are at least
+    ``BLOCK_SHARE`` of the records that lack each one, and at least
+    ``BLOCK_RECORDS`` of the records. Every subset of a block is a block, so only
+    the maximal ones are named. Read from the listed combinations alone: when the
+    result does not list every combination, the counts are lower bounds, which can
+    miss a block, never invent one.
+    """
+    index = {column.field: position for position, column in enumerate(result.columns)}
+    missing = [column.missing for column in result.columns]
+    floor = BLOCK_RECORDS * result.records
+    patterns = [
+        (sum(1 << index[field] for field in pattern.columns), pattern.count)
+        for pattern in result.listed
+        if len(pattern.columns) >= 2
+    ]
+
+    def lacking(group: int) -> int:
+        return sum(count for combo, count in patterns if combo & group == group)
+
+    def members(group: int) -> list[int]:
+        return [position for position in range(len(missing)) if group >> position & 1]
+
+    def is_block(group: int, records: int) -> bool:
+        return (
+            records > 0
+            and records >= floor
+            and all(records >= BLOCK_SHARE * missing[position] for position in members(group))
+        )
+
+    # A column is in a block only if it is in a block of two: the others are taken
+    # out of every combination before the search.
+    kept = 0
+    tried: set[int] = set()
+    for combo, _ in patterns:
+        inside = members(combo)
+        for place, first in enumerate(inside):
+            for second in inside[place + 1 :]:
+                pair = 1 << first | 1 << second
+                if pair not in tried:
+                    tried.add(pair)
+                    if is_block(pair, lacking(pair)):
+                        kept |= pair
+    # A maximal block G is the set of the columns of the intersection C of the
+    # combinations that hold G that pass the share at the count of C: so the
+    # intersections of the combinations are enough, where growing the groups level by
+    # level would go through every subset of a wide block.
+    closed: set[int] = set()
+    for combo in {combo & kept for combo, _ in patterns}:
+        if combo.bit_count() < 2:
+            continue
+        found = {combo} | {combo & other for other in closed if (combo & other).bit_count() >= 2}
+        closed |= found
+        if len(closed) > MAX_INTERSECTIONS:
+            break
+    blocks: dict[int, int] = {}
+    for group in closed:
+        records = lacking(group)
+        chosen = sum(
+            1 << position
+            for position in members(group)
+            if records >= BLOCK_SHARE * missing[position]
+        )
+        if chosen.bit_count() >= 2 and chosen not in blocks:
+            count = lacking(chosen)
+            if is_block(chosen, count):
+                blocks[chosen] = count
+    maximal = [
+        group
+        for group in blocks
+        if not any(other != group and other & group == group for other in blocks)
+    ]
+    exact = result.complete and result.other_patterns == 0
+    ranked = sorted(maximal, key=lambda group: (-blocks[group], members(group)))
+    return [
+        MissingBlock(
+            fields=tuple(result.columns[position].field for position in members(group)),
+            displays=tuple(result.columns[position].display for position in members(group)),
+            records=blocks[group],
+            share=min(blocks[group] / missing[position] for position in members(group)),
+            exact=exact,
+        )
+        for group in ranked[:MAX_BLOCKS]
+    ]
+
+
+_NUMBER_WORDS = ("", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")
+
+
+def _block_line(block: MissingBlock) -> InsightLine:
+    """The sentence of a block. The share is rounded down: it is a floor."""
+    parts: list[InsightPart] = []
+    names = block.displays
+    for position, name in enumerate(names):
+        if position:
+            parts.append(InsightPart(text=" and " if position == len(names) - 1 else ", "))
+        parts.append(InsightPart(text=name, code=True))
+    size = len(names)
+    every = "both" if size == 2 else f"all {_NUMBER_WORDS[size] if size < len(_NUMBER_WORDS) else _count(size)}"
+    share = math.floor(block.share * 1000) / 10
+    parts.append(
+        InsightPart(
+            text=(
+                f" go missing together: {'' if block.exact else 'at least '}{_count(block.records)} "
+                f"records lack {every}, at least {share:.1f}% of the records that lack "
+                f"{'either of them' if size == 2 else 'any one of them'}."
+            )
+        )
+    )
+    return InsightLine(parts=parts, kind="exact" if block.exact else "at_least")
+
+
+def _patterns_table(result: MissingPatternsResult) -> InsightTable:
+    """The first combinations of the listing, with their exact counts."""
+    names = {column.field: column.display for column in result.columns}
+    rows = [
+        [
+            ", ".join(names[field] for field in pattern.columns),
+            _count(len(pattern.columns)),
+            _count(pattern.count),
+            _share(pattern.count, result.records),
+        ]
+        for pattern in result.listed[:MAX_ROWS]
+    ]
+    notes = []
+    if len(result.listed) > len(rows):
+        notes.append(f"{_count(len(result.listed) - len(rows))} more combinations are in the report JSON.")
+    if result.other_patterns:
+        notes.append(
+            f"{_count(result.other_patterns)} rarer combinations ({_count(result.other_records)} "
+            "records) are counted but not listed."
+        )
+    if not result.complete:
+        notes.append(
+            f"{_count(result.untracked)} records lack values in combinations found after the "
+            "tracked ones (deep.missing.max_patterns), which are not told apart."
+        )
+    return InsightTable(
+        caption="Combinations of columns without a value",
+        headers=["Without a value in", "Columns", "Records", "Share"],
+        rows=rows,
+        code=[0],
+        note=" ".join(notes) or None,
+    )
+
+
+def _dataset_missing_card(
+    base: str,
+    items: list[tuple[str, str, MissingMatrixResult]],
+    patterns: MissingPatternsResult | None,
+) -> InsightCard:
+    """One card for the dataset: the blocks of columns that go missing together and
+    the combinations when the second pass counted them, then the pairs."""
+    tables = []
+    notes = []
+    lines: list[InsightLine] = []
+    facts: list[InsightFact] = []
+    if patterns is not None:
+        records = patterns.records
+        columns = len(patterns.columns)
+        lacking = records - patterns.complete_records
+        summary = (
+            f"{_count(lacking)} of the {_count(records)} records lack a value in at least one "
+            f"of {_count(columns)} columns."
+        )
+        lines = [_block_line(block) for block in missing_blocks(patterns)]
+        facts = [
+            InsightFact(
+                label="Records with every value",
+                value=f"{_count(patterns.complete_records)} ({_share(patterns.complete_records, records)})",
+            ),
+            InsightFact(label="Lack at least one", value=f"{_count(lacking)} ({_share(lacking, records)})"),
+            InsightFact(
+                label="Combinations",
+                value=_count(patterns.distinct),
+                kind="exact" if patterns.complete else "at_least",
+            ),
+        ]
+        tables.append(_patterns_table(patterns))
+        notes.append(
+            "A record counts in one combination only, the exact set of the columns it lacks "
+            "a value in. Counts show that values go missing together, not why."
+        )
+    else:
+        first = items[0][2]
+        columns = first.columns
+        summary = f"{_count(columns)} columns lack a value in some of the {_count(first.records)} records."
+    if items:
+        tables.append(_pairs_table(items))
+        notes.append(
+            "Together is the share of the records that lack a value in either column "
+            "where both do. Pairs come from the partners listed for each column, the "
+            "ones that lack a value most with it."
+        )
     return InsightCard(
-        id=f"{base}-missing-pairs",
+        id=f"{base}-missing-pairs" if patterns is None else f"{base}-missing-patterns",
         family="missing",
         title="Columns missing together",
-        column=f"{_count(first.columns)} columns",
+        column=f"{_count(columns)} columns",
         fields=[],
         scope="dataset",
-        summary=(
-            f"{_count(first.columns)} columns lack a value in some of the "
-            f"{_count(first.records)} records."
-        ),
-        tables=[
-            InsightTable(
-                caption="Pairs of columns that lack a value in the same records",
-                headers=["Column", "With", "Missing", "Missing there", "Both", "Together"],
-                rows=rows,
-                code=[0, 1],
-                note=(
-                    f"The {_count(len(ranked) - shown)} pairs with the lowest share are in the report JSON."
-                    if len(ranked) > shown
-                    else None
-                ),
-            )
-        ],
-        notes=[
-            (
-                "Together is the share of the records that lack a value in either column "
-                "where both do. Pairs come from the partners listed for each column, the "
-                "ones that lack a value most with it."
-            )
-        ],
+        summary=summary,
+        lines=lines,
+        facts=facts,
+        tables=tables,
+        notes=notes,
     )
 
 
@@ -1438,6 +1656,7 @@ def dataset_insights(
         return []
     cards: list[InsightCard] = []
     matrices: list[tuple[str, str, MissingMatrixResult]] = []
+    patterns: MissingPatternsResult | None = None
     for item in analyses.deep.analyses:
         if item.dataset != dataset or item.result is None:
             continue
@@ -1446,6 +1665,12 @@ def dataset_insights(
         fields = [item.field] + ([item.partner] if item.partner else [])
         hidden = any(exposure.get(field) in _HIDDEN for field in fields)
         result = item.result
+        if isinstance(result, MissingPatternsResult):
+            # Its members are never withheld (matrix_members); a report whose exposure
+            # withholds one since names no combination.
+            if not any(exposure.get(column.field) in _HIDDEN for column in result.columns):
+                patterns = result
+            continue
         if isinstance(result, MissingMatrixResult):
             # A withheld column is named by no pair, whichever side it is on.
             if hidden:
@@ -1471,8 +1696,8 @@ def dataset_insights(
         )
         if card is not None:
             cards.append(card)
-    if matrices:
-        cards.append(_dataset_matrix_card(f"i-{len(cards) + 1}", matrices))
+    if matrices or patterns is not None:
+        cards.append(_dataset_missing_card(f"i-{len(cards) + 1}", matrices, patterns))
     order = {family: index for index, family in enumerate(FAMILY_ORDER)}
     return sorted(cards, key=lambda card: order[card.family])
 

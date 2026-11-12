@@ -99,8 +99,11 @@ def test_the_dataset_gets_one_card_of_pairs_and_each_column_its_own(report, tmp_
 
     missing = [card for card in dataset.insights if card.family == "missing"]
     assert len(missing) == 1 and missing[0].scope == "dataset"
-    pairs = missing[0].tables[0]
+    # --deep also counts the combinations: the card names the block, then the pairs.
+    (pairs,) = [table for table in missing[0].tables if table.caption.startswith("Pairs")]
     assert {pairs.rows[0][0], pairs.rows[0][1]} == {"ref", "tag"}
+    (block,) = missing[0].lines
+    assert [part.text for part in block.parts if part.code] == ["ref", "tag"]
     # The cards of the columns are on their pages and not in the dataset panel.
     pages = column_pages(profile, tmp_path / "drift.html", views)
     by_name = {column.name: column for _, _, column in pages}
@@ -118,6 +121,7 @@ def test_the_pages_are_rendered_from_the_json_alone_and_escape_the_data(report, 
     html = render_report(profile)
 
     assert "Drift along the file" in html and "Columns missing together" in html
+    assert '<p class="ins-line"><code>ref</code> and <code>tag</code> go missing together: ' in html
     assert "<i>QC</i>" not in html and "&lt;i&gt;QC&lt;/i&gt;" in html
     views = dataset_views(profile)
     pages = column_pages(profile, tmp_path / "drift.html", views)

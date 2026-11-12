@@ -534,7 +534,7 @@ median, the validated patterns, the periods) and reads no source.
 (`InsightCard`: facts, bars and tables, each with its own accuracy) and the figures derived from the Scan
 (`report_measures.py`); `templates/insights.html` is the macro the report and the column pages share. A card has a
 `scope` (the dataset panel, the pages of its columns or both): the drift and the columns missing together (lot 19, design 20.32)
-print one card for the dataset and one for each column. The lot 18 cards (design 20.36) add the families `structure`, `texts`
+print one card for the dataset and one for each column. The card of the dataset also names the blocks of columns missing together, read from `missing_patterns` (`missing_blocks`, `docs/dev/report/chart-pages.md` 6.1), as sentences (`InsightCard.lines`, whose parts mark the names of columns), and lists the first combinations. The lot 18 cards (design 20.36) add the families `structure`, `texts`
 and `forms`; the card of the sets of keys of the records has the scope `dataset` and no column, a card of masks is printed only
 when its masks are masks (`mask(form) == form`) and its classes belong to the closed lists, whatever the exposure the document says,
 and the digests of a hidden column are not listed. The accuracy `fingerprint` joins `exact`, `estimated`, `sample` and `at_least`.
