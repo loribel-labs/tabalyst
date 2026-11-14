@@ -1,7 +1,18 @@
 ---
 title: Release notes
-description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.5.
+description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.6.
 ---
+
+## 0.7.6
+
+[Tabalyst Report](../report/index.md) counts the combinations of missing
+values of a dataset (`missing_patterns`, in the second pass), names the blocks
+of columns that go missing together in the report, and `--details` writes a
+first [chart page](../report/charts.md), `charts-missing.html`, with an UpSet
+plot of those combinations. `--details` now runs the second pass, as `--deep`
+does, and the chart pages load Apache ECharts from a CDN (pinned by its SRI
+hash); `report.html` still loads nothing from outside. The second-pass document
+is at revision 5 and the Report profile at revision 6.
 
 ## 0.7.5
 

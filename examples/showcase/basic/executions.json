@@ -2,20 +2,20 @@
   "schema_version": "1.0",
   "executions": [
     {
-      "timestamp": "2026-11-12T13:18:49.973957Z",
-      "tabalyst_version": "0.7.5",
+      "timestamp": "2026-11-14T21:03:15.664341Z",
+      "tabalyst_version": "0.7.6",
       "source_file": "basic.csv",
       "html_file": "report.html",
       "json_file": "report.json",
       "rows": 5,
       "columns": 6,
-      "analysis_seconds": 0.0238,
-      "total_seconds": 0.2745,
+      "analysis_seconds": 0.0634,
+      "total_seconds": 0.2873,
       "git": {
         "available": true,
-        "commit": "4eb86e41a2510c0cc98b7022e007cf7977f27df9",
+        "commit": "57896784d7a4a4fe0fa1e868afd63df9fc3edf7a",
         "dirty": true,
-        "state": "4eb86e41+working"
+        "state": "57896784+working"
       }
     }
   ]

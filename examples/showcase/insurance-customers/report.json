@@ -3,7 +3,7 @@
   "format_version": "0.2.0",
   "format_revision": 6,
   "engine": {
-    "version": "0.7.5",
+    "version": "0.7.6",
     "normalization_version": 1,
     "detectors": {
       "number": 1,
@@ -27,17 +27,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-11-11T20:24:44.955521Z",
-    "duration_seconds": 2.377909,
+    "started_at": "2026-11-14T21:03:17.482524Z",
+    "duration_seconds": 2.824946,
     "timings": {
-      "reading": 0.351655,
-      "analysis": 0.727747,
-      "finalize": 0.723757,
-      "derived": 0.115341,
-      "other": 0.45941
+      "reading": 0.439892,
+      "analysis": 0.827705,
+      "finalize": 0.843759,
+      "derived": 0.122122,
+      "other": 0.591468
     },
     "workers": 6,
-    "peak_memory_bytes": 189444096
+    "peak_memory_bytes": 190091264
   },
   "source": {
     "format": "csv",
@@ -66164,7 +66164,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -66172,10 +66172,10 @@
       "status": "complete",
       "base": {
         "format_revision": 4,
-        "engine_version": "0.7.5",
+        "engine_version": "0.7.6",
         "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
         "config_sha256": "5207449bf6401632967c0f84560f9589c4b97c422a4f6be9431fe90325ebeb5e",
-        "facts_sha256": "b601a1ace6532a9c9870b20e52718e0c7154fbf0fb910f6541741d53b9e0879b"
+        "facts_sha256": "33b2c333b5a9981bafa59bc0de11c91b2277e1e4159b6c7301ea515de66550b1"
       },
       "settings": {
         "bins": 100,
@@ -66291,13 +66291,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 22,
-        "plan_id": "16a674ac977e2db8084bc087c2084a38ff1a871168589091f3f889407a9de7b8",
+        "plan_id": "c0277480505d8af9968cdde4fda9bc119b0d196a46bcbf5f1f5c8578870442c4",
         "base": {
           "format_revision": 4,
-          "engine_version": "0.7.5",
+          "engine_version": "0.7.6",
           "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
           "config_sha256": "5207449bf6401632967c0f84560f9589c4b97c422a4f6be9431fe90325ebeb5e",
-          "facts_sha256": "b601a1ace6532a9c9870b20e52718e0c7154fbf0fb910f6541741d53b9e0879b"
+          "facts_sha256": "33b2c333b5a9981bafa59bc0de11c91b2277e1e4159b6c7301ea515de66550b1"
         },
         "objective": {
           "automatic": true,
@@ -72562,21 +72562,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-11-12T13:18:52.043754Z",
-        "duration_seconds": 0.000614,
+        "started_at": "2026-11-14T21:03:20.854000Z",
+        "duration_seconds": 4.065098,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000614
+          "reading": 0.474205,
+          "analysis": 2.526323,
+          "other": 1.06457
         },
-        "workers": 1,
-        "peak_memory_bytes": 123035648,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 43,
+        "workers": 6,
+        "peak_memory_bytes": 206106624,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 100000,
+        "cells_read": 3400000,
+        "executed": 43,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -72592,7 +72592,7 @@
             "distinct": 230
           },
           "domain": "analytical",
-          "key": "8b706708719a6cee57b9d05cf1a910c8a9ea72cf6cf3fb14db758161c29ea210",
+          "key": "35841ddd4a9d2fc83fb8d3f14182f1a2577f232cdac47c24b7144b8b8010cb0c",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -73772,7 +73772,7 @@
             "distinct": 223
           },
           "domain": "analytical",
-          "key": "4e330a27f60f47039dd9bef1d4e07b0a8f863566f2790be9804ce03eeca30d02",
+          "key": "2d329fe8f7ceb81a61423b8c6518b7ad3a7020372973f542fcbdb6a23addb3bf",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -74917,7 +74917,7 @@
             "distinct": 177
           },
           "domain": "analytical",
-          "key": "b042c20a13a9b7c6c41dbad75a19192952b1694b2e554117375ae908ae535d5b",
+          "key": "55efc2e816651676592b2f8c53d6c8e19d24737914eed1cdacc261d131c06d76",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -75832,7 +75832,7 @@
             "distinct": 999
           },
           "domain": "analytical",
-          "key": "e0e3b01c5aea24a53c9c578870e7377f5ad246005ede9da7757c8de5cdc06c3c",
+          "key": "f0c3d14ad9a48a436c76afda28fc10879ae42dab5f5c9040bd167cbf298d665c",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -80872,7 +80872,7 @@
             "distinct": 133
           },
           "domain": "analytical",
-          "key": "6060c2ee37ee7454f97ce3b6e01633541fbc4dab56744ce1f687da19b06a4dd4",
+          "key": "5774841aa1277af6d15b7407f3a30dbdfdce92cbfd721f5c210cc92279f31c61",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -81567,7 +81567,7 @@
             "domain": 9999
           },
           "domain": "analytical",
-          "key": "96a17711fa69baebcf38d677bab9d01cab5f5f6e9fb24bbf73f604392bf094b9",
+          "key": "ef67aac6ad51efebb91e23caff8621186fdea7843bca041553ad9cc94ec29efa",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -121623,7 +121623,7 @@
             "domain": 999
           },
           "domain": "analytical",
-          "key": "ed903dd292478a5f60129a1821e4f7f26815031a1ca2068d012e9d871d8e5a5e",
+          "key": "72fd464b44cbba080cc1e19b7d19ab879b3175088a19342873f426ef7202b157",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -125683,7 +125683,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "766a2eee221fb71f836dc3c5bcb5f428fa03e4cb8a0f2708d77f24092120f81f",
+          "key": "5727161dfa5cfb16c01f666e7b9e76a50de4cdf73e2b5eef319354a34a0de0bc",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -125961,7 +125961,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "b68dddea6ff50f25d6fc1b81e989cb23493fd358cd0908d0156b7d74174f2205",
+          "key": "d36ff98776e902ec72c4d29eddc2ffb12e247c157a0e1e0ed0ebbb3e9d4c71e3",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -126245,7 +126245,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "aff4cdb2f000c004fb599d0b74e804a82beff94cd372ab68a3a64e3ccad9f18e",
+          "key": "53d999a0996ecadb9714c71bdb47a80e743b60d8b1a2e9001cd6812f8a2f3422",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -126483,7 +126483,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "377b14d469d6ffc8bd4e0b3b85796a2a82e37f57f40e9fc56acb49ca2984df72",
+          "key": "fb58bca53236f1b465d807939dff18742e824a7fc74537cba2bc13c5dc7d0812",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -126966,7 +126966,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "08f77f4f2849502100591b7771caf6cea102e9333665c3cb9d1d2c616f72eab9",
+          "key": "1044d2e87a046095794226dc28bf55c6ddc60b543943b8f578deace49042c197",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -127299,7 +127299,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "fc6e83d7d0b916b6a6f471d5041a8c71115d5e21457d890d557ca9094eefa6af",
+          "key": "bdd8bf706629025dc57a9a033e1f27885a203430b46bd53596a24e5981d517e8",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -127794,7 +127794,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "9422a98ccd08c47f0ea6db90045eeba0988bbbe5a83703349a539efbd0b06ce3",
+          "key": "7576485558e827a25b18fddeb85e213fdde5a3ab2d55d22717a2c724269966ab",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -127999,7 +127999,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "c0ef341d646e63579480a46c9dcf3fad2455d436613a1f775b69af29eba53d24",
+          "key": "9f87e9b2deb632cf3f0b0e35921a0b1cb15b811d5b62563cfd65fcd27711bcae",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -128650,7 +128650,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "7267fde97f0b8b532a7b72fef65e0485b3c5dbe6d8375086e3616c4434bbd13d",
+          "key": "b29fa6a461085e1d93c6e6d0fb113830b11015490f79e2092da1bda9501c6489",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -128949,7 +128949,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "913254f5315e88165238faaf5a01fd698143596614cc2068b98565f77309be6a",
+          "key": "8757122665082bec94237d2eddbcba59424b4676b43b53e9cafcee16864ae89d",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -129146,7 +129146,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "08d23a852185ea4ce57f625206321a8147ab82fc220f5416f8f7dab895219150",
+          "key": "75a719eb6b52d90700d878e4b1659c0fddde095099bbbf059d2c3b9369b9df2d",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -129813,7 +129813,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "308d52d3363b8829ffe1e8916570e28f7c30fc786e814e84b32ada3d8479563e",
+          "key": "ca0dbdd1cf94230e50fe0320d0af36b2a1caaa34fc581f89cea0d1c7576b9df6",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -130400,7 +130400,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "68313868522805a97f27f60dc8e46d15034562bd4fde375f2138c3a932805c58",
+          "key": "6dbe68d50e2e8c063a04cea84a820409d1f8d12f12942ccbe5908ec972e3391e",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -130728,7 +130728,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "b4dcdaedf5724ec97f71226f1e6447fc4ba4cb53020eab54f47b83fa3f315da0",
+          "key": "807ae30544132217dd740f6be092ee8fec0344e79c284d16525a797bfc05fadb",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -131289,7 +131289,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "769029b41cf9a1a17297458e68def380d0d401be1893e3fc1e602e72000f69d3",
+          "key": "fefc82cdd13aa81f25b728d84f81e41f1414c1a46d47a2d127d07e857e666ead",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -131810,7 +131810,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "a2ea8728fb46b35a386789152f8f850f7642146e98cb0695f0f4bcb298586c4b",
+          "key": "463dfd83a9b34a9f4b6fbc79a12c73dcfc5ff24b938d2de79f0d771f4592f8e5",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -132323,7 +132323,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "68066320c99860ae9f6d6aee673f709e043d5e5ff413fb7654194e7e4711b72f",
+          "key": "feb06e2898484bd9f83baa0d2355eb1e5724a602e303ee6d009ee1c94bcd3733",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -132834,7 +132834,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "e3ff15d71187280bfad97130bf7535521f492614a3cf8bf125314d82047e74a9",
+          "key": "ef19c8d1e10b3a323df71c6a60588b82b0e43c3a464e2182b04da914be9e9e0f",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -132887,7 +132887,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "cd5e8c5c2664781f292e27f13dacfd38849f476a1e0e6ed166ee5ae114027fbd",
+          "key": "602cedafa96fecae7affcae39c2e961e5c87be5c94c466c9264e61cd77269ba3",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -132993,7 +132993,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "89864a89fc6c24e9fb515d7b18b60467fd54d776d5fbcd14e7cabc8b16c8d76f",
+          "key": "6f2b550712feac1cb88d78ae357ab1833670463d2ffdd1e34b43eb77ea0d9982",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -133099,7 +133099,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "985e523ef10511c694d5d6f97f5fd308adc04ee9c270508dda132f2ff0c64997",
+          "key": "099fcd5ad227a5a1dd8f62e4239fbe4b5902c2085e5f691e826429586fe02252",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -133210,7 +133210,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "207e9f27ad20131809a5d70c92a433e315bd5092593f6c33e01a34bcdbd91713",
+          "key": "183dd4a4fe1591789710c3507920848566655b6a816d6088bbd20fc04fdf4452",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -133311,7 +133311,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "c68bbe3139125ad7b951ff8da82c28113a606ae14e1ad850a66fe5f14c409a61",
+          "key": "b9e62d1470f6ad991bf4a05cee0720ecb08af1b34c7ea876168b45760d443f87",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -133362,7 +133362,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "426f4e8806ef2001a15d07b4faa9b7d086bcbaa49167a4e13fa4127a5f2177be",
+          "key": "a905b783d077f88f6ad2bd9f30bb3dcd444a5f8609ca82b1c62a2c5df7d5a5d8",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -133439,7 +133439,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "75e9b44179fd44bd146fbee90cb0e59cc085a7bb5a725eaa82773d164919b501",
+          "key": "e88cc643dc52072b487596db493c4db2b8ed508692a3f997ce9a3ce3eacdc7b5",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -133582,7 +133582,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "511dd9c992b3cf82673e4d747d84d3719e26e58b09474b675a0f5ce0f021d73b",
+          "key": "fe9b5ed9c5c4ce481057160bda030e883eabe31acd8f554e6079ca4a8a4fd943",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -133778,7 +133778,7 @@
             "max_classes": 12
           },
           "domain": "mixed",
-          "key": "1f8861096e0332776d8ebb70b3220a024c1d2e6321109987f2bb192fb98ffc8f",
+          "key": "87bae3d842ca1b6e0e3a6565dc8a9e763df0619982749a410f91afca4741b88d",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -133974,7 +133974,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "0a31318abf8d2ef58666874fc2289db3b8e66f6b6508ef69589c0c1e9bd0e870",
+          "key": "aba779263c747550761056b1db555c203d748231adb62810eabc7a21065b1f6b",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -134212,7 +134212,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "0e2d88439a2bb9b3b8a0c7ca4a38af37aedc00a03bc9ca7b21094fecd8489c53",
+          "key": "2ebf0f2cda0f57ad79271aa2a33fadcd97dededc151dad99ac2abd816cf983de",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -135218,7 +135218,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "fbd00713a2fedff072ea005e02b3b794ab716096a3728665216034eb585668f8",
+          "key": "d427f52117d1edb4af5ac6666eb3a0c012bb00ccea50b071d1ce663a725aeb5a",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -136232,7 +136232,7 @@
             "max_classes": 12
           },
           "domain": "mixed",
-          "key": "7ea08f646f49722f42f3124d9635c18bc6e479b2d155e8b7de18239d52809914",
+          "key": "193a28e93f2734125958d9b9745c0ae24bd1655e2243d8382c200da949b1eb81",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -137246,7 +137246,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "d1e11ff890aa573139dcf8954b096928116c4b83d44a459ec42f3d8cf491e8ee",
+          "key": "930458529504e22d29768b775b18aaa00e6ad0a31a51f426735c620ff50a61c8",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -138231,7 +138231,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "9c1857353c36e52d8f34ab20315b39f7922e23677262a5591accbf1fea391be8",
+          "key": "dba256c0601998a7bca18f1ac8e7abc30d96adfce0aa82ee6f4a8ec9e0ef730f",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -139059,7 +139059,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "2b9ab5683d601173c03cf14be150849a1a1cb07d73de83488acaed861a66e5e3",
+          "key": "b173498b9a25f6375a26b9e2708051b71426e1c6246b1c397256dfa4b05374b8",
           "status": "complete",
           "result": {
             "kind": "category_stats",
@@ -140330,7 +140330,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "4a9f8b410ad13f6d2c5ff9b2b1925c84ddbeca4d4fda8a64ed9ed2d47740b27d",
+          "key": "e42ca794f7ffe51e49367240e438eee9afb516548a7bb4ecea3f1261592caf50",
           "status": "complete",
           "result": {
             "kind": "category_stats",
@@ -141748,7 +141748,7 @@
             "columns": "[[\"column_20\", 20]]"
           },
           "domain": "analytical",
-          "key": "a4b70b22589515a2ecfddd2a3238a16c397f52e61c34ca4fd46c801e2975a199",
+          "key": "2162ae21144c8e243ad04a686bb0258d6f29fdead9c9654a037f0470695b2b4a",
           "status": "complete",
           "result": {
             "kind": "missing_id_copies",
@@ -141772,12 +141772,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-11-12T13:18:52.708511Z",
+    "generated_at": "2026-11-14T21:03:25.580021Z",
     "generator": {
       "name": "tabalyst",
-      "version": "0.7.5"
+      "version": "0.7.6"
     },
-    "processing_seconds": 3.1587,
+    "processing_seconds": 10.7424,
     "config": {
       "string_analysis": {
         "length_distribution_max_length": 50,
@@ -141805,10 +141805,10 @@
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
       "format_revision": 4,
-      "engine_version": "0.7.5",
+      "engine_version": "0.7.6",
       "source_sha256": "8cabaff823677995e920e62cdc3edd0c4d3a11286b570aa26c3af3ad78bf84c2",
       "config_sha256": "5207449bf6401632967c0f84560f9589c4b97c422a4f6be9431fe90325ebeb5e",
-      "facts_sha256": "b601a1ace6532a9c9870b20e52718e0c7154fbf0fb910f6541741d53b9e0879b"
+      "facts_sha256": "33b2c333b5a9981bafa59bc0de11c91b2277e1e4159b6c7301ea515de66550b1"
     },
     "datasets": [
       {
