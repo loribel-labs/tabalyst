@@ -1,7 +1,15 @@
 ---
 title: Release notes
-description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.6.
+description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.7.
 ---
+
+## 0.7.7
+
+[Tabalyst Sample](../sample/index.md) gains the [`mixed`](../sample/mixed.md)
+method: `--first-rows`, `--random-rows` and `--last-rows` keep the start of
+the file, a random draw of the other rows and the end, without any row kept
+twice. [Tabalyst Generate](../generate/index.md) shows a progress by rows for
+`insurance` and `crm` as it does for `computer`.
 
 ## 0.7.6
 
