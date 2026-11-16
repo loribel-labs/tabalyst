@@ -34,6 +34,7 @@ class SampleMethod(StrEnum):
     FIRST = "first"
     LAST = "last"
     RANDOM = "random"
+    MIXED = "mixed"
     STRATIFIED = "stratified"
     STRATIFIED_BALANCED = "stratified-balanced"
     SMART = "smart"
@@ -85,6 +86,9 @@ class SampleResult:
     # that have more rows than it (so that were drawn from, not kept whole).
     per_value: int | None = None
     strata_capped: int | None = None
+    # ``mixed`` only: the rows kept as (first, random, last), after the rows
+    # that the three parts would share were given to one part only.
+    parts: tuple[int, int, int] | None = None
     # A smart sample writes a report beside its CSV file and sums it up here.
     report: Path | None = None
     page: Path | None = None
@@ -258,6 +262,43 @@ def _select_rows(
     return [row for _, row in selected]
 
 
+def _mixed_parts(row_count: int, first: int, random_rows: int, last: int) -> tuple[int, int, int]:
+    """The rows kept at the start, drawn at random and kept at the end.
+
+    The start and the end are served first and never overlap: when they ask for
+    more than the file holds, the end keeps what the start left. The random rows
+    come from the rows between them, so they never repeat one of the two ends;
+    they are capped to what is left.
+    """
+    head = min(first, row_count)
+    tail = min(last, row_count - head)
+    return head, min(random_rows, row_count - head - tail), tail
+
+
+def _select_mixed(
+    source: Path,
+    config: CsvConfig,
+    parts: tuple[int, int, int],
+    row_count: int,
+    seed: int | None,
+) -> list[list[str]]:
+    """Read the file once and keep the first, random and last rows, in file order."""
+    head, drawn, tail = parts
+    pool_start, pool_end = head, row_count - tail
+    rng = random.Random(seed)
+    selected: list[tuple[int, list[str]]] = []
+    reservoir: list[tuple[int, list[str]]] = []
+    with open_records(source, config) as reader:
+        for index, row in enumerate(reader):
+            if index < pool_start or index >= pool_end:
+                selected.append((index, row))
+            else:
+                _reservoir_add(reservoir, (index, row), index - pool_start + 1, drawn, rng)
+    selected.extend(reservoir)
+    selected.sort(key=lambda item: item[0])
+    return [row for _, row in selected]
+
+
 @dataclass(frozen=True)
 class _BalancedSelection:
     headers: list[str]
@@ -366,6 +407,9 @@ def validate_sample_options(
     field: str | Sequence[str] | None,
     max_strata: int = DEFAULT_MAX_STRATA,
     per_value: int | None = None,
+    first_rows: int | None = None,
+    random_rows: int | None = None,
+    last_rows: int | None = None,
 ) -> SampleMethod:
     """Validate options shared by single-file and batch adapters."""
 
@@ -384,6 +428,27 @@ def validate_sample_options(
         )
     if max_strata < 1:
         raise InputError("--max-strata must be at least 1.")
+    counts = {"--first-rows": first_rows, "--random-rows": random_rows, "--last-rows": last_rows}
+    if selected_method is SampleMethod.MIXED:
+        if rows is not None or percent is not None:
+            raise InputError(
+                "--rows and --percent do not go with mixed: give --first-rows, "
+                "--random-rows and --last-rows."
+            )
+        if per_value is not None:
+            raise InputError("--per-value can only be used with the stratified-balanced method.")
+        for name, value in counts.items():
+            if value is not None and (isinstance(value, bool) or not isinstance(value, int) or value < 0):
+                raise InputError(f"{name} must be a whole number, 0 or more.")
+        if not any(counts.values()):
+            raise InputError(
+                "The mixed method needs at least one of --first-rows, --random-rows "
+                "and --last-rows greater than 0."
+            )
+        return selected_method
+    for name, value in counts.items():
+        if value is not None:
+            raise InputError(f"{name} can only be used with the mixed method.")
     if selected_method is SampleMethod.STRATIFIED_BALANCED:
         if rows is not None or percent is not None:
             raise InputError(
@@ -415,8 +480,16 @@ def sample_csv(
     force: bool = False,
     max_strata: int = DEFAULT_MAX_STRATA,
     per_value: int | None = None,
+    first_rows: int | None = None,
+    random_rows: int | None = None,
+    last_rows: int | None = None,
 ) -> SampleResult:
     """Create a bounded-memory sample of a CSV file.
+
+    A ``mixed`` sample keeps ``first_rows`` rows from the start, ``last_rows``
+    from the end and ``random_rows`` drawn among the others, so no row is kept
+    twice. When the three ask for more than the file holds, it keeps every row
+    once (the end takes what the start left, the random part what is left of both).
 
     A ``stratified`` sample allocates its ``rows`` to the strata in proportion
     to their size, with at least one row of each: when ``rows`` is under the
@@ -436,6 +509,9 @@ def sample_csv(
         field=field,
         max_strata=max_strata,
         per_value=per_value,
+        first_rows=first_rows,
+        random_rows=random_rows,
+        last_rows=last_rows,
     )
     if selected_method is SampleMethod.SMART:
         raise InputError(
@@ -479,6 +555,23 @@ def sample_csv(
             strata_capped=balanced.capped,
         )
     scan = _scan(source_path, config, fields, max_strata)
+    if selected_method is SampleMethod.MIXED:
+        parts = _mixed_parts(scan.row_count, first_rows or 0, random_rows or 0, last_rows or 0)
+        selected = _select_mixed(source_path, config, parts, scan.row_count, seed)
+        write_sample_csv(output_path, scan.headers, selected, source_path, config)
+        return SampleResult(
+            source=source_path,
+            output=output_path,
+            method=selected_method,
+            source_rows=scan.row_count,
+            sample_rows=len(selected),
+            sample_rate=(len(selected) / scan.row_count * 100) if scan.row_count else 0.0,
+            field=None,
+            seed=seed,
+            encoding=config.encoding,
+            delimiter=config.delimiter,
+            parts=parts,
+        )
     size = _sample_size(scan.row_count, rows, percent)
     stratified = selected_method is SampleMethod.STRATIFIED
     if stratified:

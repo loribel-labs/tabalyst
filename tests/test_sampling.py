@@ -457,3 +457,80 @@ def test_a_multiline_cell_is_one_record_and_a_delimiter_option_is_honored(tmp_pa
 def _read_csv_with(path, delimiter):
     with path.open("r", encoding="utf-8-sig", newline="") as stream:
         return list(csv.reader(stream, delimiter=delimiter))
+
+
+def _mixed_ids(out):
+    return [int(row[0]) for row in _read_csv(out)[1:]]
+
+
+def test_mixed_keeps_first_random_and_last_rows_without_repeats(source, tmp_path):
+    out = tmp_path / "mixed.csv"
+    result = tabalyst.sample_csv(
+        source, method="mixed", first_rows=5, random_rows=10, last_rows=3,
+        seed=7, output=out,
+    )
+    ids = _mixed_ids(out)
+    assert ids == sorted(ids) and len(set(ids)) == 18
+    assert set(range(5)) <= set(ids) and {97, 98, 99} <= set(ids)
+    assert result.parts == (5, 10, 3) and result.sample_rows == 18
+
+
+def test_mixed_is_reproducible_with_a_seed(source, tmp_path):
+    kwargs = {"method": "mixed", "first_rows": 2, "random_rows": 20, "last_rows": 2, "seed": 3}
+    tabalyst.sample_csv(source, output=tmp_path / "a.csv", **kwargs)
+    tabalyst.sample_csv(source, output=tmp_path / "b.csv", **kwargs)
+    assert _mixed_ids(tmp_path / "a.csv") == _mixed_ids(tmp_path / "b.csv")
+
+
+def test_mixed_returns_each_row_once_when_the_ends_ask_for_more_than_the_file(source, tmp_path):
+    out = tmp_path / "all.csv"
+    result = tabalyst.sample_csv(
+        source, method="mixed", first_rows=75, random_rows=5, last_rows=75, output=out,
+    )
+    assert _mixed_ids(out) == list(range(100))
+    assert result.parts == (75, 0, 25)
+
+
+def test_mixed_caps_random_rows_to_the_rows_left(source, tmp_path):
+    out = tmp_path / "capped.csv"
+    tabalyst.sample_csv(
+        source, method="mixed", first_rows=40, random_rows=500, last_rows=40, output=out,
+    )
+    assert _mixed_ids(out) == list(range(100))
+
+
+@pytest.mark.parametrize(
+    ("first", "drawn", "last", "expected"),
+    [(3, 0, 0, [0, 1, 2]), (0, 0, 2, [98, 99]), (0, 4, 0, 4)],
+)
+def test_mixed_accepts_zero_for_any_part(source, tmp_path, first, drawn, last, expected):
+    out = tmp_path / "part.csv"
+    tabalyst.sample_csv(
+        source, method="mixed", first_rows=first, random_rows=drawn, last_rows=last,
+        seed=1, output=out,
+    )
+    ids = _mixed_ids(out)
+    assert ids == expected if isinstance(expected, list) else len(ids) == expected
+
+
+def test_mixed_needs_one_part_and_refuses_rows(source, tmp_path):
+    with pytest.raises(InputError, match="at least one"):
+        tabalyst.sample_csv(source, method="mixed", first_rows=0, output=tmp_path / "x.csv")
+    with pytest.raises(InputError, match="do not go with mixed"):
+        tabalyst.sample_csv(source, method="mixed", rows=5, first_rows=1, output=tmp_path / "x.csv")
+    with pytest.raises(InputError, match="only be used with the mixed"):
+        tabalyst.sample_csv(source, method="first", rows=5, last_rows=1, output=tmp_path / "x.csv")
+
+
+def test_mixed_cli_prints_the_parts_and_rejects_a_useless_seed(source, tmp_path):
+    out = tmp_path / "cli.csv"
+    ok = runner.invoke(app, [
+        "sample", str(source), "--sample-method", "mixed", "--first-rows", "2",
+        "--random-rows", "3", "--last-rows", "2", "-o", str(out),
+    ])
+    assert ok.exit_code == 0 and "2 first, 3 random, 2 last" in ok.output
+    bad = runner.invoke(app, [
+        "sample", str(source), "--sample-method", "mixed", "--first-rows", "2",
+        "--seed", "1", "-o", str(tmp_path / "bad.csv"),
+    ])
+    assert bad.exit_code != 0

@@ -32,6 +32,12 @@ def _print_result(result: SampleResult) -> None:
     typer.echo(f"Source rows:   {result.source_rows:,}", err=True)
     typer.echo(f"Sample rows:   {result.sample_rows:,}", err=True)
     typer.echo(f"Sample rate:   {result.sample_rate:.2f}%", err=True)
+    if result.parts is not None:
+        first, drawn, last = result.parts
+        typer.echo(
+            f"Parts:         {first:,} first, {drawn:,} random, {last:,} last",
+            err=True,
+        )
     if result.per_value is not None:
         typer.echo(f"Per value:     up to {result.per_value:,} rows", err=True)
     if result.strata_known is not None:
@@ -56,6 +62,7 @@ def _print_result(result: SampleResult) -> None:
             )
     if result.seed is not None and result.method in {
         SampleMethod.RANDOM,
+        SampleMethod.MIXED,
         SampleMethod.STRATIFIED,
         SampleMethod.STRATIFIED_BALANCED,
     }:
@@ -163,8 +170,28 @@ def _reject_unused_options(
     per_value: int | None,
     rows: int | None,
     percent: float | None,
+    first_rows: int | None,
+    random_rows: int | None,
+    last_rows: int | None,
 ) -> None:
     """Refuse an option the method does not read: none is ignored without an error."""
+    mixed = method is SampleMethod.MIXED
+    for name, count in (
+        ("--first-rows", first_rows),
+        ("--random-rows", random_rows),
+        ("--last-rows", last_rows),
+    ):
+        if count is not None and not mixed:
+            raise typer.BadParameter(
+                f"{name} only goes with --sample-method mixed, not {method.value}."
+            )
+    if mixed and (rows is not None or percent is not None):
+        raise typer.BadParameter(
+            "--rows and --percent do not go with mixed: use --first-rows, "
+            "--random-rows and --last-rows."
+        )
+    if mixed and seed is not None and not random_rows:
+        raise typer.BadParameter("--seed has no effect with mixed unless --random-rows is above 0.")
     smart = method is SampleMethod.SMART
     for name, given in (("--yes", yes), ("--no-html", no_html)):
         if given and not smart:
@@ -250,6 +277,29 @@ def sample_command(
             ),
         ),
     ] = None,
+    first_rows: Annotated[
+        int | None,
+        typer.Option(
+            "--first-rows", min=0,
+            help="With mixed, rows kept from the start of the file (0 for none).",
+        ),
+    ] = None,
+    random_rows: Annotated[
+        int | None,
+        typer.Option(
+            "--random-rows", min=0,
+            help="With mixed, rows drawn at random among the others: never a row "
+            "already kept from the start or the end (0 for none).",
+        ),
+    ] = None,
+    last_rows: Annotated[
+        int | None,
+        typer.Option(
+            "--last-rows", min=0,
+            help="With mixed, rows kept from the end of the file (0 for none). "
+            "If the file is shorter than the three together, every row is kept once.",
+        ),
+    ] = None,
     seed: Annotated[
         int | None,
         typer.Option("--seed", help="Seed for reproducible random selection."),
@@ -314,6 +364,9 @@ def sample_command(
         per_value=per_value,
         rows=rows,
         percent=percent,
+        first_rows=first_rows,
+        random_rows=random_rows,
+        last_rows=last_rows,
     )
     try:
         if method is SampleMethod.SMART:
@@ -347,6 +400,9 @@ def sample_command(
                 force=force,
                 max_strata=max_strata,
                 per_value=per_value,
+                first_rows=first_rows,
+                random_rows=random_rows,
+                last_rows=last_rows,
             )
     except TabalystError as exc:
         typer.echo(f"Error: {exc}", err=True)

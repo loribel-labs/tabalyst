@@ -158,6 +158,9 @@ def generate_samples(
     force: bool = False,
     max_strata: int | None = None,
     per_value: int | None = None,
+    first_rows: int | None = None,
+    random_rows: int | None = None,
+    last_rows: int | None = None,
     confirmed: bool = False,
     html: bool = True,
     on_progress: ProgressCallback | None = None,
@@ -180,6 +183,9 @@ def generate_samples(
         field=field,
         max_strata=max_strata,
         per_value=per_value,
+        first_rows=first_rows,
+        random_rows=random_rows,
+        last_rows=last_rows,
     )
     if selected_method is SampleMethod.SMART:
         from tabalyst.smart_service import execute_smart_samples, prepare_smart_samples
@@ -232,6 +238,9 @@ def generate_samples(
                 force=force,
                 max_strata=max_strata,
                 per_value=per_value,
+                first_rows=first_rows,
+                random_rows=random_rows,
+                last_rows=last_rows,
             )
         except TabalystError as exc:
             failures.append(SampleFailure(job=job, error=exc))
