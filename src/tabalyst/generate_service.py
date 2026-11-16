@@ -588,13 +588,8 @@ def _publish_artifacts(
     writer: Callable[[GenerateArtifact, Path], None],
     anomaly_counts: dict[str, int] | None = None,
     batch_writer: Callable[[dict[Path, Path]], None] | None = None,
-    on_artifact: Callable[[str, int, int], None] | None = None,
 ) -> GenerateResult:
-    """Stage all files then replace finals, restoring earlier files on failure.
-
-    `on_artifact` is told the name and place of each file before it is staged,
-    when the files are written one by one (no `batch_writer`).
-    """
+    """Stage all files then replace finals, restoring earlier files on failure."""
     if isinstance(plan, ComputerPlan):
         source = plan.package.root / "dataset.yaml"
         sources = set(plan.package.input_paths)
@@ -616,11 +611,9 @@ def _publish_artifacts(
     preserve_backups = False
     publishing = False
     try:
-        for position, artifact in enumerate(plan.artifacts):
+        for artifact in plan.artifacts:
             target = artifact.path
             target.parent.mkdir(parents=True, exist_ok=True)
-            if on_artifact is not None and batch_writer is None:
-                on_artifact(target.name, position, len(plan.artifacts))
             descriptor, name = tempfile.mkstemp(dir=target.parent, prefix=f".{target.name}.", suffix=".tmp")
             os.close(descriptor)
             stage = Path(name)
@@ -696,8 +689,8 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan,
                       on_progress: GenerateProgressCallback | None = None) -> GenerateResult:
     """Generate clean datasets, shared entities and ordered combines.
 
-    `on_progress` is called with the stage, the work done and the work to do:
-    rows for Computer, files for the other packages. The result carries the
+    `on_progress` is called with the stage, the work done and the work to do,
+    in rows: generated, written or altered. The result carries the
     total time and, for Computer, its split.
     """
     started = time.perf_counter()
@@ -876,6 +869,8 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 staged_clean[artifact.dataset_id], stage, journal,
                 dataset=artifact.dataset_id, profile=profiles[plan.anomaly_profile],
                 seed=plan.seed, count=plan.rows[artifact.dataset_id], delimiter=delimiter,
+                on_row=partial(_report_stage, report, f"Injecting errors in {artifact.path.name}",
+                               plan.rows[artifact.dataset_id]),
             )
             summary.update({
                 "definition_id": plan.definition.id,
@@ -914,17 +909,16 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 source=dataset.get("source"),
                 insurance_provider=insurance,
             )
+        total = plan.rows[artifact.dataset_id]
         count = write_csv(
-            stage, headers, rows, delimiter=delimiter,
+            stage, headers, rows, delimiter=delimiter, total=total,
+            on_rows=partial(_report_stage, report, f"Writing {artifact.path.name}", total),
         )
         if count != plan.rows[artifact.dataset_id]:
             raise ReportError(f"Generated row count differs for {artifact.dataset_id}")
         staged_clean[artifact.dataset_id] = stage
     try:
-        return _publish_artifacts(
-            plan, writer, anomaly_counts,
-            on_artifact=lambda name, done, total: report(f"Writing {name}", done, total),
-        )
+        return _publish_artifacts(plan, writer, anomaly_counts)
     finally:
         for journal in staged_changes.values():
             journal.unlink(missing_ok=True)

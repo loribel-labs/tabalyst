@@ -627,15 +627,17 @@ def test_progress_is_optional_and_a_clean_run_reports_no_error_time(tmp_path: Pa
     assert result.seconds >= result.timings["rows"]
 
 
-def test_other_packages_report_one_step_per_file_and_only_the_total_time(tmp_path: Path) -> None:
-    """CRM tells which file it writes; its result has no phase split."""
+def test_other_packages_report_rows_written_per_file_and_only_the_total_time(tmp_path: Path) -> None:
+    """CRM reports the rows of the file it writes; its result has no phase split."""
     events: list[GenerateProgress] = []
     result = generate_datasets(
         build_generate_plan(example="crm", output=tmp_path / "crm.csv", rows=30),
         on_progress=events.append,
     )
-    assert [(event.stage, event.done, event.total) for event in events] == [
-        ("Writing crm.csv", 0, 1)]
+    steps = [(event.stage, event.done, event.total) for event in events]
+    assert steps[0] == ("Writing crm.csv", 0, 30)
+    assert steps[-1] == ("Writing crm.csv", 30, 30)
+    assert [done for _, done, _ in steps] == sorted(done for _, done, _ in steps)
     assert result.seconds > 0 and result.timings == {}
 
 
