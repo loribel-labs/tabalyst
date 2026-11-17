@@ -1,0 +1,81 @@
+# Verifiable rules of the Insurance package (contract docs/dev/generate/insurance-v2.md 5.3).
+# The clean files satisfy every rule; a scenario profile names the rule a case breaks with
+# rule_id, and its rules.json carries the rules it names. Ids follow the catalogue M01 to M25
+# of the Insurance V2 report; lot 6 completes it.
+conventions:
+  branch_column: filiale
+  date_format:
+    principal: "%Y-%m-%d"
+    ontario: "%m-%d-%Y"
+    quebec: "%d-%m-%Y"
+  decimal: plain
+rules:
+- id: M01
+  family: business
+  title: Contract ends on or after its start
+  columns: [date_debut, date_fin]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  when: {op: not_empty, column: date_fin}
+  assert: {op: gte, left: date_fin, right: date_debut, as: date}
+  valid_boundaries: ["date_fin == date_debut"]
+- id: M02
+  family: business
+  title: Record modified on or after its creation
+  columns: [date_creation, date_modification]
+  category: business_rule_violation
+  severity: minor
+  detection: cross_column
+  assert: {op: gte, left: date_modification, right: date_creation, as: date}
+  valid_boundaries: ["date_modification == date_creation"]
+- id: M03
+  family: business
+  title: Customer born before the contract starts
+  columns: [date_debut, date_naissance]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert: {op: gt, left: date_debut, right: date_naissance, as: date}
+- id: M04
+  family: business
+  title: Plausible birth date
+  columns: [date_naissance]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  assert:
+    op: between
+    column: date_naissance
+    low: {value: "1900-01-01"}
+    high: {param: as_of_date}
+    as: date
+  valid_boundaries: ["date_naissance == as_of_date"]
+- id: M14
+  family: business
+  title: Annual premium above zero
+  columns: [prime_annuelle]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  assert: {op: gt, left: prime_annuelle, right: {value: "0"}, as: decimal}
+- id: M21
+  family: business
+  title: Contract identifier unique
+  columns: [id_contrat]
+  category: business_rule_violation
+  severity: critical
+  detection: uniqueness
+  assert: {op: unique, columns: [id_contrat]}
+- id: M23
+  family: domain
+  title: Known contract type and status
+  columns: [statut_contrat, type_contrat]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  assert:
+    op: and
+    args:
+    - {op: in, column: type_contrat, values: [auto, habitation, vie, voyage]}
+    - {op: in, column: statut_contrat, values: [actif, suspendu, expiré, résilié]}

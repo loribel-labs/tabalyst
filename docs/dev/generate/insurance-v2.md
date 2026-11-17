@@ -168,6 +168,7 @@ accepts them at first: a Computer or CRM operation that carries one is refused, 
 | `conflicts_with` | list of `scenario_id` | each must exist in the profile; symmetric |
 | `can_overlap` | boolean | default `false` |
 | `expected_detection` | string | tokens of 3.5 |
+| `description` | string | one line of 1 to 500 characters, shared by the operations of a scenario, copied to `manifest.json` (added at lot 2) |
 
 A profile is a **V2 profile** if any operation declares `scenario_id`. Then all of its
 operations declare `scenario_id`, `category` and `severity`, and all of them use `count`
@@ -416,6 +417,73 @@ is stale. A change of structure or meaning raises `format_revision` and is writt
 breaking changes are allowed, no migration is provided. The existing `format_version: "0.1.0"`
 of the package and of `summary.json` is unrelated and unchanged.
 
+### 5.8 What lot 2 fixed
+
+Written when lot 2 was implemented; where it differs from 5.1 to 5.7 this is the behavior.
+
+- **Modules.** `generate_rules.py` (Pydantic grammar of the rules, `RuleCatalogue`,
+  `RulesDocument`, the pure `holds` and the streaming `RuleEvaluator`) and `generate_truth.py`
+  (`build_truth`, `truth.csv`, the models of `metrics.json` and `manifest.json`, the schemas).
+  `generate_service.py` adds the kinds `truth`, `rules`, `metrics` and `manifest` (in that
+  order, after `summary`) for a scenario profile and passes `on_event` and
+  `insurance_canonical` to the injection. `GenerateResult.artifacts` gives every file with its
+  kind.
+- **Where the rules live (D10).** A package declares a catalogue with `rules: rules.yaml` in
+  `dataset.yaml` (a protected input). Only Insurance may: another package that declares one is
+  refused. The catalogue holds `conventions` and the rules; its date formats must equal those of
+  the branches (`BRANCHES`). The rules of a profile are those its operations name with
+  `rule_id`; an unknown `rule_id` is refused at load. `rules.json` holds those rules, in
+  catalogue order. A profile cannot yet list a rule it does not target (lot 6 decides).
+- **First catalogue**, with the numbering of report 5, all true of the clean file (checked on
+  275,000 rows): M01 end on or after start, M02 modification on or after creation, M03 birth
+  before start, M04 birth from 1900-01-01 to `as_of_date`, M14 premium above zero, M21
+  `id_contrat` unique, M23 known `type_contrat` and `statut_contrat`. Lot 6 completes M01 to
+  M25.
+- **Grammar.** Operand: a bare string is a column, `{"value": text}` a constant (ISO for a
+  date), `{"param": "as_of_date"}` the date of the document. `as`: `date`, `decimal` (plain,
+  `.`), `text` (default). `between` and the value tests name a `column`; `in` and `not_in` hold
+  literal `values`; `unique` takes `columns` and stands alone as the `assert`. Each rule adds
+  `detection` (tokens of 3.5 without `none`) and `columns` lists exactly the columns its
+  expressions read. `family` is `business`, `format` or `domain`.
+- **Three-valued logic.** A test of a value is unknown when the cell is empty or does not read
+  as its type (a date must be written exactly in the format of its row's branch). `and`, `or`,
+  `not` and `implies` follow Kleene logic; `not_empty` and `empty` are always known. A row
+  breaks a rule only when `when` is true (or absent), no exception is true and `assert` is
+  false. So a format defect is never also a business violation (`format_vs_business`, report 4):
+  a Quebec date rewritten as ISO leaves M01 unknown on its row. `unique` ignores a key with an
+  empty part.
+- **Targets.** A scenario profile needs the catalogue and targets only datasets that have its
+  `branch_column` (`filiale`), so `insurance-combined`; a branch file is refused (the open
+  point of section 7 stays for lot 4). The columns of the rules it names must exist there.
+- **One reading.** The clean file is checked in the same reading that builds the truth (clean
+  and altered read together, after the injection and before publication), not in a reading of
+  its own: the result is the same (a violation stops the run, nothing is published) at one
+  reading fewer. The message names the rule, its title and the row.
+- **Truth lines.** `injected` and `net_difference` lines carry the metadata of their scenario
+  (for `net_difference`, the last event of the cell, whose `event_id` they repeat).
+  A `rule_violation` line has an empty `column` and `canonical_value`, the `rule_id`,
+  `category`, `severity` and `expected_detection` (its `detection`) of the rule, and the
+  scenario, rarity, cause and `event_id` of the last event of the row that touched a column of
+  the rule (empty when none did). A repeated key (`unique`) gives a line on each row of the
+  group, `group_id` `<rule>-<first row>`, attributed to the row that repeats it. Lines of one
+  cell sort by kind, then `event_id`, then `rule_id`; row lines (empty column) come first.
+- **Self-check.** `metrics.counts` is recounted from the truth and must equal the summary;
+  a cell that differs without an event fails the run.
+- **Metrics.** `rows.by_branch` is sorted by name; `scenarios` keeps profile order;
+  `eligible_population` of a scenario is the sum over its operations; `applied_cases` and
+  `rows_touched` are equal while a case is one row; `rules` lists every rule of `rules.json`
+  (0 included), `categories` all six categories and `kinds` all six kinds, so the shape never
+  depends on the run. `absence_probability` is lot 3's.
+- **Manifest.** Adds `dataset`; `output_profile` is `default` until lot 4; `files` lists every
+  other artifact of the plan, in plan order, by name (never a directory), so the bytes do not
+  depend on the output directory. `generation_version` is 1.
+- **JSON.** Members in declared order, two-space indent, UTF-8, `\n`; `rules.json` omits an
+  absent `when`. Schemas: `tabalyst.generate.{rules,metrics,manifest}.schema.json`, generated by
+  `generate_truth.generate_schemas()`; a contract test fails when a committed one is stale.
+- **Memory.** The truth lines are held in memory (they follow the counts); a `unique` rule
+  keeps one key per row where it applies, which matters only for a profile that names M21 at
+  millions of rows.
+
 ## 6. Rarity and `rare_events` (lot 3)
 
 ### 6.1 Floor on the number of rows (Q1)
@@ -603,7 +671,9 @@ the references of section 2 move.
 ## 13. Open points, to settle at their gate
 
 - Gate 2: final column order of `truth.csv`, final operator list of `rules.json` (lot 6 may
-  still raise `format_revision`).
+  still raise `format_revision`), the three-valued reading of rules (5.8), the attribution of a
+  `rule_violation` line to the last event of its row, and whether a profile may list rules it
+  does not target.
 - Lot 3: the operations missing for R01, R05 and R07 (names and tests), the boundary cases kept.
 - Lot 4: exact formulas of the extended rules and the share of boundary values in the clean file.
 - Lot 8: the model and its memory bound (gate P2).

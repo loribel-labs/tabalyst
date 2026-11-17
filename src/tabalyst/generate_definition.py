@@ -24,7 +24,12 @@ from tabalyst.generate_anomalies import (
     ROW_KINDS,
     operation_option_error,
 )
-from tabalyst.generate_scenarios import foreign_scenario_key, profile_scenario_error
+from tabalyst.generate_rules import RuleCatalogue
+from tabalyst.generate_scenarios import (
+    foreign_scenario_key,
+    is_scenario_profile,
+    profile_scenario_error,
+)
 
 MAX_DATASETS = 64
 MAX_COLUMNS = 256
@@ -140,6 +145,8 @@ class GenerateDefinition:
     cohorts: tuple[dict[str, Any], ...]
     datasets: tuple[dict[str, Any], ...]
     anomaly_profiles: tuple[dict[str, Any], ...]
+    # The rules catalogue of the package, read by the scenario profiles (insurance-v2.md 5.3).
+    rules: RuleCatalogue | None = None
 
 
 def _fail(source: Path, value: Any, message: str) -> NoReturn:
@@ -554,12 +561,15 @@ def _dataset_column_names(dataset: dict, known: dict[str, dict], schemas: dict) 
     return {c["name"] for c in (dataset.get("columns") or schemas[dataset["schema"]]["columns"])}
 
 
-def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = False) -> GenerateDefinition:
+def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = False,
+                              rules: RuleCatalogue | None = None) -> GenerateDefinition:
     """Validate the normalized column model assembled from a package.
 
     ``scenarios`` allows the scenario keys of Insurance V2 on profile operations (contract
     insurance-v2.md 4.1): only the Insurance package asks for it, so any other package that
-    carries one is refused, never ignored.
+    carries one is refused, never ignored. A scenario profile needs ``rules``, the catalogue
+    of its package (5.3): every ``rule_id`` it names must be there, and each target must have
+    the branch column of the catalogue and the columns of the rules the profile names.
     """
     root = _mapping(source, root, "definition", {
         "id", "defaults", "csv", "schemas", "entities",
@@ -744,7 +754,39 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
             problem = profile_scenario_error(operations, _dataset_column_names(known[target], known, schemas))
             if problem is not None:
                 _fail(source, item, f"profile {name}: {problem}")
+        if is_scenario_profile(operations):
+            _check_profile_rules(source, item, name, operations, rules,
+                                 {target: _dataset_column_names(known[target], known, schemas)
+                                  for target in targets})
     return GenerateDefinition(
         source, identifier, defaults, csv_settings, schemas, tuple(entities),
-        tuple(cohorts), tuple(datasets), tuple(profiles),
+        tuple(cohorts), tuple(datasets), tuple(profiles), rules,
     )
+
+
+def _check_profile_rules(source: Path, item: dict[str, Any], name: str,
+                         operations: list[dict[str, Any]], rules: RuleCatalogue | None,
+                         columns: dict[str, set[str]]) -> None:
+    """Refuse a scenario profile whose truth could not be written (contract insurance-v2.md 5)."""
+    if rules is None:
+        _fail(source, item, f"profile {name}: a scenario profile needs the rules catalogue of "
+                            "its package (rules: in dataset.yaml)")
+    catalogue = rules.by_id()
+    for position, operation in enumerate(operations, 1):
+        rule_id = operation.get("rule_id")
+        if rule_id is not None and rule_id not in catalogue:
+            _fail(source, operation, f"profile {name}: operations[{position}]: rule_id "
+                                     f"{rule_id} is not a rule of the package "
+                                     f"(known: {', '.join(catalogue)})")
+    used = {operation["rule_id"] for operation in operations if "rule_id" in operation}
+    branch = rules.conventions.branch_column
+    for target, names in columns.items():
+        if branch not in names:
+            _fail(source, item, f"profile {name}: target {target} has no {branch} column; a "
+                                "scenario profile reads every date with the convention of its "
+                                "row's branch")
+        for rule in rules.rules:
+            missing = sorted(set(rule.columns) - names) if rule.id in used else []
+            if missing:
+                _fail(source, item, f"profile {name}: rule {rule.id} reads {missing[0]!r}, "
+                                    f"which {target} does not have")

@@ -164,4 +164,7 @@ Keep these exactly as written in every language:
 | flatten | aplatissement | Reading nested objects as fields named by their path, such as `address.city` |
 | complex value | valeur complexe | An object or array kept whole instead of being developed into fields |
 | error policy | politique d'erreurs | `strict` or `tolerant`: whether a malformed record stops the scan or is excluded |
+| scenario profile | profil de scénarios | An insurance anomaly profile whose operations declare `scenario_id`: each defect belongs to a named test case, with an exact count, and the run writes its ground truth |
+| ground truth | vérité de référence | The files a scenario profile writes beside the altered CSV (`truth.csv`, `rules.json`, `metrics.json`, `manifest.json`): what was injected, what differs from the clean file and which rows break a rule |
+| canonical value | valeur canonique | What a clean cell means, written one way (a date in ISO 8601, an amount as a plain decimal), kept in the truth when a defect rewrites the cell |
 | partial scan | analyse partielle | A scan with status `partial`, which excluded some records under the `tolerant` policy |

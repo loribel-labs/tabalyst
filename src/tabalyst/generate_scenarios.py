@@ -30,11 +30,13 @@ DETECTION_FAMILIES = frozenset({
 })
 SCENARIO_KEYS = frozenset({
     "scenario_id", "rule_id", "category", "severity", "rarity_level", "root_cause_id",
-    "requires", "conflicts_with", "can_overlap", "expected_detection",
+    "requires", "conflicts_with", "can_overlap", "expected_detection", "description",
 })
 # What every operation of one scenario must say the same way: the truth file reads them per scenario.
 SHARED_KEYS = ("category", "severity", "rarity_level", "rule_id", "root_cause_id",
-               "expected_detection")
+               "expected_detection", "description")
+# The free text of a scenario in manifest.json (report 15 "expected effect"), never interpreted.
+MAX_DESCRIPTION = 500
 # Output profiles that add columns to the 34 of the default one (contract section 7), so that a
 # refusal can say which profile provides a column. Lot 4 owns the content of ``extended``.
 PROVIDING_PROFILES: dict[str, str] = {
@@ -122,6 +124,12 @@ def scenario_option_error(operation: Mapping[str, object]) -> str | None:
         checks.append("operation.can_overlap must be true or false")
     if "expected_detection" in operation:
         checks.append(_detection_error(operation))
+    if "description" in operation:
+        text = operation["description"]
+        if (not isinstance(text, str) or not text.strip() or len(text) > MAX_DESCRIPTION
+                or not text.isprintable()):
+            checks.append(f"operation.description must be one line of 1 to {MAX_DESCRIPTION} "
+                          "characters")
     return next((problem for problem in checks if problem is not None), None)
 
 

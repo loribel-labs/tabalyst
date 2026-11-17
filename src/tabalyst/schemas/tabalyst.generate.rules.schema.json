@@ -1,0 +1,892 @@
+{
+  "$defs": {
+    "Between": {
+      "additionalProperties": false,
+      "description": "``low <= column <= high`` read as ``as``.",
+      "properties": {
+        "op": {
+          "const": "between",
+          "title": "Op",
+          "type": "string"
+        },
+        "column": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "title": "Column",
+          "type": "string"
+        },
+        "low": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Constant"
+            },
+            {
+              "$ref": "#/$defs/Parameter"
+            }
+          ],
+          "title": "Low"
+        },
+        "high": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Constant"
+            },
+            {
+              "$ref": "#/$defs/Parameter"
+            }
+          ],
+          "title": "High"
+        },
+        "as": {
+          "default": "text",
+          "enum": [
+            "date",
+            "decimal",
+            "text"
+          ],
+          "title": "As",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "column",
+        "low",
+        "high"
+      ],
+      "title": "Between",
+      "type": "object"
+    },
+    "Compare": {
+      "additionalProperties": false,
+      "description": "``left <op> right`` read as ``as``; false when an operand is empty or unreadable.",
+      "properties": {
+        "op": {
+          "enum": [
+            "eq",
+            "gt",
+            "gte",
+            "lt",
+            "lte"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "left": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Constant"
+            },
+            {
+              "$ref": "#/$defs/Parameter"
+            }
+          ],
+          "title": "Left"
+        },
+        "right": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Constant"
+            },
+            {
+              "$ref": "#/$defs/Parameter"
+            }
+          ],
+          "title": "Right"
+        },
+        "as": {
+          "default": "text",
+          "enum": [
+            "date",
+            "decimal",
+            "text"
+          ],
+          "title": "As",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "left",
+        "right"
+      ],
+      "title": "Compare",
+      "type": "object"
+    },
+    "Constant": {
+      "additionalProperties": false,
+      "description": "A constant operand, written as text and read with the type of its comparison.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Constant",
+      "type": "object"
+    },
+    "Conventions": {
+      "additionalProperties": false,
+      "description": "What a reader needs to read the cells: the branch of a row and its date format.",
+      "properties": {
+        "branch_column": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "title": "Branch Column",
+          "type": "string"
+        },
+        "date_format": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "minProperties": 1,
+          "title": "Date Format",
+          "type": "object"
+        },
+        "decimal": {
+          "const": "plain",
+          "default": "plain",
+          "title": "Decimal",
+          "type": "string"
+        }
+      },
+      "required": [
+        "branch_column",
+        "date_format"
+      ],
+      "title": "Conventions",
+      "type": "object"
+    },
+    "Implies": {
+      "additionalProperties": false,
+      "description": "``then`` holds wherever ``if`` holds.",
+      "properties": {
+        "op": {
+          "const": "implies",
+          "title": "Op",
+          "type": "string"
+        },
+        "if": {
+          "discriminator": {
+            "mapping": {
+              "and": "#/$defs/Junction",
+              "between": "#/$defs/Between",
+              "empty": "#/$defs/Presence",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "implies": "#/$defs/Implies",
+              "in": "#/$defs/Membership",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "not": "#/$defs/Negation",
+              "not_empty": "#/$defs/Presence",
+              "not_in": "#/$defs/Membership",
+              "or": "#/$defs/Junction",
+              "regex": "#/$defs/Pattern",
+              "unique": "#/$defs/Unique"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/Between"
+            },
+            {
+              "$ref": "#/$defs/Membership"
+            },
+            {
+              "$ref": "#/$defs/Pattern"
+            },
+            {
+              "$ref": "#/$defs/Presence"
+            },
+            {
+              "$ref": "#/$defs/Unique"
+            },
+            {
+              "$ref": "#/$defs/Implies"
+            },
+            {
+              "$ref": "#/$defs/Junction"
+            },
+            {
+              "$ref": "#/$defs/Negation"
+            }
+          ],
+          "title": "If"
+        },
+        "then": {
+          "discriminator": {
+            "mapping": {
+              "and": "#/$defs/Junction",
+              "between": "#/$defs/Between",
+              "empty": "#/$defs/Presence",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "implies": "#/$defs/Implies",
+              "in": "#/$defs/Membership",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "not": "#/$defs/Negation",
+              "not_empty": "#/$defs/Presence",
+              "not_in": "#/$defs/Membership",
+              "or": "#/$defs/Junction",
+              "regex": "#/$defs/Pattern",
+              "unique": "#/$defs/Unique"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/Between"
+            },
+            {
+              "$ref": "#/$defs/Membership"
+            },
+            {
+              "$ref": "#/$defs/Pattern"
+            },
+            {
+              "$ref": "#/$defs/Presence"
+            },
+            {
+              "$ref": "#/$defs/Unique"
+            },
+            {
+              "$ref": "#/$defs/Implies"
+            },
+            {
+              "$ref": "#/$defs/Junction"
+            },
+            {
+              "$ref": "#/$defs/Negation"
+            }
+          ],
+          "title": "Then"
+        }
+      },
+      "required": [
+        "op",
+        "if",
+        "then"
+      ],
+      "title": "Implies",
+      "type": "object"
+    },
+    "Junction": {
+      "additionalProperties": false,
+      "description": "Every (``and``) or any (``or``) of ``args`` holds.",
+      "properties": {
+        "op": {
+          "enum": [
+            "and",
+            "or"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "args": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "and": "#/$defs/Junction",
+                "between": "#/$defs/Between",
+                "empty": "#/$defs/Presence",
+                "eq": "#/$defs/Compare",
+                "gt": "#/$defs/Compare",
+                "gte": "#/$defs/Compare",
+                "implies": "#/$defs/Implies",
+                "in": "#/$defs/Membership",
+                "lt": "#/$defs/Compare",
+                "lte": "#/$defs/Compare",
+                "not": "#/$defs/Negation",
+                "not_empty": "#/$defs/Presence",
+                "not_in": "#/$defs/Membership",
+                "or": "#/$defs/Junction",
+                "regex": "#/$defs/Pattern",
+                "unique": "#/$defs/Unique"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Compare"
+              },
+              {
+                "$ref": "#/$defs/Between"
+              },
+              {
+                "$ref": "#/$defs/Membership"
+              },
+              {
+                "$ref": "#/$defs/Pattern"
+              },
+              {
+                "$ref": "#/$defs/Presence"
+              },
+              {
+                "$ref": "#/$defs/Unique"
+              },
+              {
+                "$ref": "#/$defs/Implies"
+              },
+              {
+                "$ref": "#/$defs/Junction"
+              },
+              {
+                "$ref": "#/$defs/Negation"
+              }
+            ]
+          },
+          "maxItems": 64,
+          "minItems": 2,
+          "title": "Args",
+          "type": "array"
+        }
+      },
+      "required": [
+        "op",
+        "args"
+      ],
+      "title": "Junction",
+      "type": "object"
+    },
+    "Membership": {
+      "additionalProperties": false,
+      "description": "The cell is (``in``) or is not (``not_in``) one of ``values``, compared as text.",
+      "properties": {
+        "op": {
+          "enum": [
+            "in",
+            "not_in"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "column": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "title": "Column",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4096,
+          "minItems": 1,
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "op",
+        "column",
+        "values"
+      ],
+      "title": "Membership",
+      "type": "object"
+    },
+    "Negation": {
+      "additionalProperties": false,
+      "description": "``arg`` does not hold.",
+      "properties": {
+        "op": {
+          "const": "not",
+          "title": "Op",
+          "type": "string"
+        },
+        "arg": {
+          "discriminator": {
+            "mapping": {
+              "and": "#/$defs/Junction",
+              "between": "#/$defs/Between",
+              "empty": "#/$defs/Presence",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "implies": "#/$defs/Implies",
+              "in": "#/$defs/Membership",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "not": "#/$defs/Negation",
+              "not_empty": "#/$defs/Presence",
+              "not_in": "#/$defs/Membership",
+              "or": "#/$defs/Junction",
+              "regex": "#/$defs/Pattern",
+              "unique": "#/$defs/Unique"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/Between"
+            },
+            {
+              "$ref": "#/$defs/Membership"
+            },
+            {
+              "$ref": "#/$defs/Pattern"
+            },
+            {
+              "$ref": "#/$defs/Presence"
+            },
+            {
+              "$ref": "#/$defs/Unique"
+            },
+            {
+              "$ref": "#/$defs/Implies"
+            },
+            {
+              "$ref": "#/$defs/Junction"
+            },
+            {
+              "$ref": "#/$defs/Negation"
+            }
+          ],
+          "title": "Arg"
+        }
+      },
+      "required": [
+        "op",
+        "arg"
+      ],
+      "title": "Negation",
+      "type": "object"
+    },
+    "Parameter": {
+      "additionalProperties": false,
+      "description": "An operand taken from the document: ``as_of_date`` is the reference date of the run.",
+      "properties": {
+        "param": {
+          "const": "as_of_date",
+          "title": "Param",
+          "type": "string"
+        }
+      },
+      "required": [
+        "param"
+      ],
+      "title": "Parameter",
+      "type": "object"
+    },
+    "Pattern": {
+      "additionalProperties": false,
+      "description": "The whole cell matches the regular expression ``pattern``.",
+      "properties": {
+        "op": {
+          "const": "regex",
+          "title": "Op",
+          "type": "string"
+        },
+        "column": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "title": "Column",
+          "type": "string"
+        },
+        "pattern": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Pattern",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "column",
+        "pattern"
+      ],
+      "title": "Pattern",
+      "type": "object"
+    },
+    "Presence": {
+      "additionalProperties": false,
+      "description": "The cell is not empty (``not_empty``) or empty (``empty``).",
+      "properties": {
+        "op": {
+          "enum": [
+            "not_empty",
+            "empty"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "column": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "title": "Column",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "column"
+      ],
+      "title": "Presence",
+      "type": "object"
+    },
+    "Rule": {
+      "additionalProperties": false,
+      "description": "One verifiable rule: where it applies, what must hold and what is allowed anyway.\n\nA row breaks the rule when ``when`` holds (or is absent), ``assert`` does not hold and no\nexpression of ``exceptions`` holds. ``valid_boundaries`` describe, for people, the values\nthat sit on the rule and are valid; they are never evaluated.",
+      "properties": {
+        "id": {
+          "pattern": "^[A-Z][A-Z0-9_]{0,15}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "family": {
+          "enum": [
+            "business",
+            "format",
+            "domain"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "columns": {
+          "items": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+            "type": "string"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "title": "Columns",
+          "type": "array"
+        },
+        "category": {
+          "enum": [
+            "format_variant",
+            "format_invalid",
+            "semantic_invalid",
+            "business_rule_violation",
+            "contextual_invalid"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "minor",
+            "major",
+            "critical"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "detection": {
+          "title": "Detection",
+          "type": "string"
+        },
+        "when": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/Junction",
+                  "between": "#/$defs/Between",
+                  "empty": "#/$defs/Presence",
+                  "eq": "#/$defs/Compare",
+                  "gt": "#/$defs/Compare",
+                  "gte": "#/$defs/Compare",
+                  "implies": "#/$defs/Implies",
+                  "in": "#/$defs/Membership",
+                  "lt": "#/$defs/Compare",
+                  "lte": "#/$defs/Compare",
+                  "not": "#/$defs/Negation",
+                  "not_empty": "#/$defs/Presence",
+                  "not_in": "#/$defs/Membership",
+                  "or": "#/$defs/Junction",
+                  "regex": "#/$defs/Pattern",
+                  "unique": "#/$defs/Unique"
+                },
+                "propertyName": "op"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Compare"
+                },
+                {
+                  "$ref": "#/$defs/Between"
+                },
+                {
+                  "$ref": "#/$defs/Membership"
+                },
+                {
+                  "$ref": "#/$defs/Pattern"
+                },
+                {
+                  "$ref": "#/$defs/Presence"
+                },
+                {
+                  "$ref": "#/$defs/Unique"
+                },
+                {
+                  "$ref": "#/$defs/Implies"
+                },
+                {
+                  "$ref": "#/$defs/Junction"
+                },
+                {
+                  "$ref": "#/$defs/Negation"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "When"
+        },
+        "assert": {
+          "discriminator": {
+            "mapping": {
+              "and": "#/$defs/Junction",
+              "between": "#/$defs/Between",
+              "empty": "#/$defs/Presence",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "implies": "#/$defs/Implies",
+              "in": "#/$defs/Membership",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "not": "#/$defs/Negation",
+              "not_empty": "#/$defs/Presence",
+              "not_in": "#/$defs/Membership",
+              "or": "#/$defs/Junction",
+              "regex": "#/$defs/Pattern",
+              "unique": "#/$defs/Unique"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/Between"
+            },
+            {
+              "$ref": "#/$defs/Membership"
+            },
+            {
+              "$ref": "#/$defs/Pattern"
+            },
+            {
+              "$ref": "#/$defs/Presence"
+            },
+            {
+              "$ref": "#/$defs/Unique"
+            },
+            {
+              "$ref": "#/$defs/Implies"
+            },
+            {
+              "$ref": "#/$defs/Junction"
+            },
+            {
+              "$ref": "#/$defs/Negation"
+            }
+          ],
+          "title": "Assert"
+        },
+        "exceptions": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "and": "#/$defs/Junction",
+                "between": "#/$defs/Between",
+                "empty": "#/$defs/Presence",
+                "eq": "#/$defs/Compare",
+                "gt": "#/$defs/Compare",
+                "gte": "#/$defs/Compare",
+                "implies": "#/$defs/Implies",
+                "in": "#/$defs/Membership",
+                "lt": "#/$defs/Compare",
+                "lte": "#/$defs/Compare",
+                "not": "#/$defs/Negation",
+                "not_empty": "#/$defs/Presence",
+                "not_in": "#/$defs/Membership",
+                "or": "#/$defs/Junction",
+                "regex": "#/$defs/Pattern",
+                "unique": "#/$defs/Unique"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Compare"
+              },
+              {
+                "$ref": "#/$defs/Between"
+              },
+              {
+                "$ref": "#/$defs/Membership"
+              },
+              {
+                "$ref": "#/$defs/Pattern"
+              },
+              {
+                "$ref": "#/$defs/Presence"
+              },
+              {
+                "$ref": "#/$defs/Unique"
+              },
+              {
+                "$ref": "#/$defs/Implies"
+              },
+              {
+                "$ref": "#/$defs/Junction"
+              },
+              {
+                "$ref": "#/$defs/Negation"
+              }
+            ]
+          },
+          "maxItems": 32,
+          "title": "Exceptions",
+          "type": "array"
+        },
+        "valid_boundaries": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 32,
+          "title": "Valid Boundaries",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "title",
+        "columns",
+        "category",
+        "severity",
+        "detection",
+        "assert"
+      ],
+      "title": "Rule",
+      "type": "object"
+    },
+    "Unique": {
+      "additionalProperties": false,
+      "description": "No two rows where the rule applies share the values of ``columns``.\n\nThe only rule that reads several rows: it stands alone as the ``assert`` of a rule.",
+      "properties": {
+        "op": {
+          "const": "unique",
+          "title": "Op",
+          "type": "string"
+        },
+        "columns": {
+          "items": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+            "type": "string"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "op",
+        "columns"
+      ],
+      "title": "Unique",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Document tabalyst.generate.rules, format 0.2.0 revision 1: the verifiable rules a scenario profile uses.",
+  "properties": {
+    "format": {
+      "const": "tabalyst.generate.rules",
+      "default": "tabalyst.generate.rules",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 1,
+      "default": 1,
+      "title": "Format Revision",
+      "type": "integer"
+    },
+    "dataset": {
+      "title": "Dataset",
+      "type": "string"
+    },
+    "profile": {
+      "title": "Profile",
+      "type": "string"
+    },
+    "as_of_date": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "title": "As Of Date",
+      "type": "string"
+    },
+    "conventions": {
+      "$ref": "#/$defs/Conventions"
+    },
+    "rules": {
+      "items": {
+        "$ref": "#/$defs/Rule"
+      },
+      "title": "Rules",
+      "type": "array"
+    }
+  },
+  "required": [
+    "dataset",
+    "profile",
+    "as_of_date",
+    "conventions",
+    "rules",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst Generate rules",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -29,6 +29,7 @@ from tabalyst.generate_anomalies import (
     OPERATION_KEYS,
     OPERATION_KINDS,
     ROW_KINDS,
+    AnomalyEvent,
     check_operation_counts,
     operation_option_error,
 )
@@ -42,10 +43,21 @@ from tabalyst.generate_computer_output import (
 from tabalyst.generate_computer_parallel import worker_count
 from tabalyst.generate_csv import write_csv
 from tabalyst.generate_definition import GenerateDefinition
-from tabalyst.generate_insurance import InsuranceProvider
+from tabalyst.generate_insurance import InsuranceProvider, insurance_canonical
 from tabalyst.generate_package import MAX_ROWS, DatasetPackage, load_generate_package
 from tabalyst.generate_references import SCHEMAS, CommonReferences
-from tabalyst.generate_scenarios import foreign_scenario_key
+from tabalyst.generate_scenarios import foreign_scenario_key, is_scenario_profile
+from tabalyst.generate_truth import (
+    GENERATION_VERSION,
+    TRUTH_COLUMNS,
+    ManifestDocument,
+    TruthResult,
+    build_truth,
+    document_text,
+    file_entry,
+    scenario_entries,
+    write_truth_csv,
+)
 from tabalyst.generate_values import generate_rows
 
 
@@ -54,6 +66,11 @@ class GenerateArtifact:
     dataset_id: str
     kind: str
     path: Path
+
+
+# Kinds and suffixes of the files a scenario profile adds, manifest last (contract 5.1).
+TRUTH_ARTIFACTS = (("truth", "csv"), ("rules", "json"), ("metrics", "json"),
+                   ("manifest", "json"))
 
 
 @dataclass(frozen=True)
@@ -109,7 +126,9 @@ class GenerateResult:
     `timings` splits `seconds` into `rows` (generation), `errors` (anomaly
     injection) and `publish` (staging, checks and replacing the files); it is
     empty for packages that report only the total. `workers` is the number of
-    processes that generated the rows.
+    processes that generated the rows. `artifacts` are the files written with
+    their kind, in the order of `paths` (a scenario profile adds `truth`,
+    `rules`, `metrics` and `manifest`).
     """
 
     paths: tuple[Path, ...]
@@ -118,6 +137,7 @@ class GenerateResult:
     seconds: float = 0.0
     timings: dict[str, float] = field(default_factory=dict)
     workers: int = 1
+    artifacts: tuple[GenerateArtifact, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -566,6 +586,11 @@ def build_generate_plan(
                 GenerateArtifact(name, "changes", Path(f"{prefix}.changes.csv")),
                 GenerateArtifact(name, "summary", Path(f"{prefix}.summary.json")),
             ))
+            if is_scenario_profile(profiles[anomaly_profile]["operations"]):
+                # The ground truth of a scenario profile (contract insurance-v2.md 5.1). The
+                # manifest comes last: it lists the digest of every other file.
+                artifacts.extend(GenerateArtifact(name, role, Path(f"{prefix}.{role}.{suffix}"))
+                                 for role, suffix in TRUTH_ARTIFACTS)
     protected = [definition.source]
     if package is not None:
         if destination.resolve().is_relative_to(package.root):
@@ -686,8 +711,63 @@ def _publish_artifacts(
                 path.unlink(missing_ok=True)
     return GenerateResult(
         tuple(artifact.path for artifact in plan.artifacts),
-        dict(plan.rows), dict(anomaly_counts or {}),
+        dict(plan.rows), dict(anomaly_counts or {}), artifacts=plan.artifacts,
     )
+
+
+TRUTH_KINDS = frozenset(role for role, _ in TRUTH_ARTIFACTS)
+
+
+def _write_truth_artifact(
+    plan: GeneratePlan, artifact: GenerateArtifact, stage: Path, staged: dict[Path, Path],
+    staged_clean: dict[str, Path], events: dict[str, list[AnomalyEvent]],
+    truths: dict[str, TruthResult], summaries: dict[str, dict], delimiter: str,
+    report: Callable[[str, int, int], None],
+) -> None:
+    """Write one ground-truth file of a scenario profile (contract insurance-v2.md 5).
+
+    The truth is built once, with the first of these files, from the staged clean and altered
+    files; the manifest digests every other staged file of the plan, so it is written last.
+    """
+    dataset = artifact.dataset_id
+    profile = next(p for p in plan.definition.anomaly_profiles if p["id"] == plan.anomaly_profile)
+    if dataset not in truths:
+        catalogue = plan.definition.rules
+        if catalogue is None:  # validate_generate_mapping refuses this profile already
+            raise ConfigurationError(f"{profile['id']}: a scenario profile needs rules")
+        used = {operation["rule_id"] for operation in profile["operations"]
+                if "rule_id" in operation}
+        altered = next(a.path for a in plan.artifacts
+                       if a.dataset_id == dataset and a.kind == "altered")
+        report(f"Writing the truth of {altered.name}", 0, plan.rows[dataset])
+        truths[dataset] = build_truth(
+            staged_clean[dataset], staged[altered], events.get(dataset, []), summaries[dataset],
+            dataset=dataset, profile=profile,
+            rules=[rule for rule in catalogue.rules if rule.id in used],
+            conventions=catalogue.conventions, as_of_date=plan.as_of_date,
+            delimiter=delimiter, canonical=insurance_canonical)
+        report(f"Writing the truth of {altered.name}", plan.rows[dataset], plan.rows[dataset])
+    truth = truths[dataset]
+    if artifact.kind == "truth":
+        write_truth_csv(stage, truth.lines)
+        return
+    if artifact.kind == "rules":
+        text = document_text(truth.rules)
+    elif artifact.kind == "metrics":
+        text = document_text(truth.metrics)
+    else:
+        files = [file_entry(other.kind, other.path.name, staged[other.path])
+                 for other in plan.artifacts if other.kind != "manifest"]
+        manifest = ManifestDocument(
+            tabalyst_version=__version__, generation_version=GENERATION_VERSION,
+            seed=plan.seed, as_of_date=plan.as_of_date, rows=plan.rows[dataset],
+            dataset=dataset, profile=profile["id"], output_profile="default",
+            package_version=plan.package.package_version if plan.package else None,
+            definition_id=plan.definition.id,
+            scenarios=scenario_entries(profile["operations"]), files=files,
+            truth_columns=list(TRUTH_COLUMNS))
+        text = document_text(manifest)
+    stage.write_text(text, encoding="utf-8", newline="\n")
 
 
 def generate_datasets(plan: GeneratePlan | ComputerPlan,
@@ -844,6 +924,9 @@ def _generate(plan: GeneratePlan | ComputerPlan,
     }
     staged_clean: dict[str, Path] = {}
     staged_changes: dict[str, Path] = {}
+    staged: dict[Path, Path] = {}
+    events: dict[str, list[AnomalyEvent]] = {}
+    truths: dict[str, TruthResult] = {}
     summaries: dict[str, dict] = {}
     anomaly_counts: dict[str, int] = {}
     profiles = {profile["id"]: profile for profile in plan.definition.anomaly_profiles}
@@ -864,18 +947,28 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                     yield row
 
     def writer(artifact: GenerateArtifact, stage: Path) -> None:
+        staged[artifact.path] = stage
         dataset = datasets[artifact.dataset_id]
+        if artifact.kind in TRUTH_KINDS:
+            _write_truth_artifact(plan, artifact, stage, staged, staged_clean, events, truths,
+                                  summaries, delimiter, report)
+            return
         if artifact.kind == "altered":
             descriptor, name = tempfile.mkstemp(dir=stage.parent, prefix=".generate-changes-", suffix=".tmp")
             os.close(descriptor)
             journal = Path(name)
             staged_changes[artifact.dataset_id] = journal
+            profile = profiles[plan.anomaly_profile]
+            scenarios = is_scenario_profile(profile["operations"])
+            found = events.setdefault(artifact.dataset_id, [])
             summary = inject_anomalies(
                 staged_clean[artifact.dataset_id], stage, journal,
-                dataset=artifact.dataset_id, profile=profiles[plan.anomaly_profile],
+                dataset=artifact.dataset_id, profile=profile,
                 seed=plan.seed, count=plan.rows[artifact.dataset_id], delimiter=delimiter,
                 on_row=partial(_report_stage, report, f"Injecting errors in {artifact.path.name}",
                                plan.rows[artifact.dataset_id]),
+                on_event=found.append if scenarios else None,
+                canonical=insurance_canonical if scenarios else None,
             )
             summary.update({
                 "definition_id": plan.definition.id,

@@ -17,6 +17,7 @@ from __future__ import annotations
 import csv
 import json
 import shutil
+from collections import Counter
 from collections.abc import Callable
 from fractions import Fraction
 from importlib.resources import files
@@ -31,12 +32,13 @@ from tabalyst.generate_anomalies import CHANGE_FIELDS, AnomalyEvent, inject_anom
 from tabalyst.generate_insurance import FIELDS, insurance_canonical
 from tabalyst.generate_package import load_generate_package
 from tabalyst.generate_service import (
+    GenerateResult,
     build_generate_plan,
     generate_datasets,
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1"}
+ENABLED_LOTS: set[str] = {"0", "1", "2"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
@@ -552,77 +554,319 @@ def test_canonical_value_is_captured_in_iso_for_a_branch_convention_date(
 
 # --- Lot 2: truth files (contract 5) -------------------------------------------------------
 
+TRUTH_PROFILE = "v2_truth"
+TRUTH_ROWS = 1000
+DOCUMENTED_TRUTH_COLUMNS = [
+    "truth_id", "kind", "scenario_id", "rule_id", "category", "severity", "rarity_level",
+    "root_cause_id", "group_id", "event_id", "row_number", "column", "canonical_value",
+    "expected_detection"]
+ROLES = ("truth", "rules", "metrics", "manifest")
+
+
+def _truth_operations() -> list[dict[str, object]]:
+    """A profile with a business violation, a domain violation and a misread date."""
+    return [
+        _scenario("R08", "swap", "date_debut", 10, value="date_fin", rule_id="M01",
+                  category="business_rule_violation", rarity_level="very_rare",
+                  expected_detection="cross_column",
+                  description="Contract ending before it starts"),
+        _scenario("R11", "replace", "statut_contrat", 5, value="inconnu", rule_id="M23",
+                  rarity_level="extremely_rare", expected_detection="domain"),
+        _scenario("F19", "format", "date_debut", 3, value="date_mdy_iso",
+                  category="contextual_invalid", when={"filiale": "quebec"},
+                  expected_detection="contextual"),
+    ]
+
+
+def _run_truth(base: Path, operations: list[dict[str, object]] | None = None,
+               rows: int = TRUTH_ROWS, force: bool = False) -> tuple[Path, GenerateResult]:
+    """Generate the truth profile into ``base / "out"``; return the directory and result."""
+    package = _insurance_package(base, operations or _truth_operations(), profile=TRUTH_PROFILE)
+    out = base / "out"
+    plan = build_generate_plan(package, rows=rows, seed=42, output_dir=out,
+                               anomaly_profile=TRUTH_PROFILE, force=force)
+    return out, generate_datasets(plan)
+
+
+@pytest.fixture(scope="module")
+def truth_result(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, GenerateResult]:
+    """One run of the truth profile, shared by the tests that only read its files."""
+    if "2" not in ENABLED_LOTS:
+        pytest.skip("Insurance V2 lot 2 is not implemented yet")
+    return _run_truth(tmp_path_factory.mktemp("truth"))
+
+
+@pytest.fixture
+def truth_run(truth_result: tuple[Path, GenerateResult]) -> Path:
+    return truth_result[0]
+
+
+def _file(out: Path, role: str) -> Path:
+    suffix = "csv" if role in {"truth", "altered"} else "json"
+    if role == "altered":
+        return out / f"insurance-combined.{TRUTH_PROFILE}.csv"
+    if role == "changes":
+        return out / f"insurance-combined.{TRUTH_PROFILE}.changes.csv"
+    return out / f"insurance-combined.{TRUTH_PROFILE}.{role}.{suffix}"
+
+
+def _csv_rows(path: Path) -> list[dict[str, str]]:
+    with path.open(encoding="utf-8", newline="") as stream:
+        return list(csv.DictReader(stream))
+
+
+def _truth(out: Path) -> list[dict[str, str]]:
+    return _csv_rows(_file(out, "truth"))
+
+
+def _json(out: Path, role: str) -> dict[str, object]:
+    return cast(dict[str, object], json.loads(_file(out, role).read_text(encoding="utf-8")))
+
 
 @contract("2")
-def test_v2_profile_writes_truth_rules_metrics_and_manifest_beside_changes() -> None:
+def test_v2_profile_writes_truth_rules_metrics_and_manifest_beside_changes(
+        tmp_path: Path, truth_result: tuple[Path, GenerateResult]) -> None:
     """5.1: names ``<dataset>.<profile>.<role>`` and the artifact kinds of the plan."""
-    _to_write("5.1")
+    package = _insurance_package(tmp_path, _truth_operations(), profile=TRUTH_PROFILE)
+    plan = build_generate_plan(package, rows=TRUTH_ROWS, seed=42, output_dir=tmp_path / "out",
+                               anomaly_profile=TRUTH_PROFILE)
+    combined = [(a.kind, a.path.name) for a in plan.artifacts
+                if a.dataset_id == "insurance-combined"]
+    prefix = f"insurance-combined.{TRUTH_PROFILE}"
+    assert combined == [
+        ("clean", "insurance-combined.csv"), ("altered", f"{prefix}.csv"),
+        ("changes", f"{prefix}.changes.csv"), ("summary", f"{prefix}.summary.json"),
+        ("truth", f"{prefix}.truth.csv"), ("rules", f"{prefix}.rules.json"),
+        ("metrics", f"{prefix}.metrics.json"), ("manifest", f"{prefix}.manifest.json")]
+    out, result = truth_result
+    assert all(_file(out, role).is_file() for role in ROLES)
+    assert [artifact.kind for artifact in result.artifacts][-4:] == list(ROLES)
+    assert [artifact.path for artifact in result.artifacts] == list(result.paths)
 
 
 @contract("2")
-def test_truth_columns_are_the_documented_ones_in_the_documented_order() -> None:
+def test_truth_columns_are_the_documented_ones_in_the_documented_order(truth_run: Path) -> None:
     """5.2: ``truth_id`` to ``expected_detection``."""
-    _to_write("5.2")
+    header = _file(truth_run, "truth").read_text(encoding="utf-8").splitlines()[0]
+    assert header.split(",") == DOCUMENTED_TRUTH_COLUMNS
+    assert _json(truth_run, "manifest")["truth_columns"] == DOCUMENTED_TRUTH_COLUMNS
+    raw = _file(truth_run, "truth").read_bytes()
+    assert b"\r" not in raw and raw.endswith(b"\n")
 
 
 @contract("2")
-def test_every_changes_line_has_exactly_one_injected_truth_line() -> None:
+def test_every_changes_line_has_exactly_one_injected_truth_line(truth_run: Path) -> None:
     """5.2: same ``event_id`` and ``column``."""
-    _to_write("5.2")
+    changes = _csv_rows(_file(truth_run, "changes"))
+    injected = [line for line in _truth(truth_run) if line["kind"] == "injected"]
+    assert len(changes) == len(injected) == 10 * 2 + 5 + 3  # a swap writes two cells
+    pairs = Counter((line["event_id"], line["column"]) for line in injected)
+    assert all(count == 1 for count in pairs.values())
+    assert set(pairs) == {(change["event_id"], change["column"]) for change in changes}
+    by_event = {(line["event_id"], line["column"]): line for line in injected}
+    operations = _truth_operations()
+    for change in changes:
+        line = by_event[(change["event_id"], change["column"])]
+        operation = operations[int(change["operation_index"]) - 1]
+        assert line["row_number"] == change["row_number"]
+        assert (line["scenario_id"], line["category"], line["severity"]) == (
+            operation["scenario_id"], operation["category"], operation["severity"])
 
 
 @contract("2")
-def test_every_cell_that_differs_from_the_clean_file_has_one_net_difference_line() -> None:
+def test_every_cell_that_differs_from_the_clean_file_has_one_net_difference_line(
+        tmp_path: Path, truth_run: Path) -> None:
     """5.2: and a cell restored by a later event has none."""
-    _to_write("5.2")
+    clean = _csv_rows(truth_run / "insurance-combined.csv")
+    altered = _csv_rows(_file(truth_run, "altered"))
+    differs = {(str(number), column) for number, (before, after) in enumerate(
+        zip(clean, altered, strict=True), 2) for column in before if before[column] != after[column]}
+    net = Counter((line["row_number"], line["column"]) for line in _truth(truth_run)
+                  if line["kind"] == "net_difference")
+    assert set(net) == differs and all(count == 1 for count in net.values())
+    # C03: B swaps back 20 of the rows A swapped; those cells have events and no difference.
+    restored = [
+        _scenario("A", "swap", "nom", 300, value="telephone", can_overlap=True),
+        _scenario("B", "swap", "nom", 20, value="telephone", can_overlap=True)]
+    out, _ = _run_truth(tmp_path, restored, rows=300)
+    lines = _truth(out)
+    kinds = Counter(line["kind"] for line in lines)
+    assert kinds["injected"] == 2 * (300 + 20)
+    assert kinds["net_difference"] == 2 * (300 - 20)
+    back = {line["row_number"] for line in lines if line["scenario_id"] == "B"}
+    assert not any(line["kind"] == "net_difference" and line["row_number"] in back
+                   for line in lines)
+    assert _json(out, "metrics")["counts"] == {
+        "events": 320, "changed_cells": 640, "distinct_changed_cells": 600,
+        "net_differences": 560}
 
 
 @contract("2")
-def test_truth_ids_are_unique_and_rule_ids_exist_in_rules_json() -> None:
+def test_truth_ids_are_unique_and_rule_ids_exist_in_rules_json(truth_run: Path) -> None:
     """5.2 and 5.3."""
-    _to_write("5.2")
+    lines = _truth(truth_run)
+    assert [int(line["truth_id"]) for line in lines] == list(range(1, len(lines) + 1))
+    rules = {cast(dict[str, str], rule)["id"]
+             for rule in cast(list[object], _json(truth_run, "rules")["rules"])}
+    assert rules == {"M01", "M23"}  # the rules the profile names, nothing else
+    used = {line["rule_id"] for line in lines if line["rule_id"]}
+    assert used <= rules
+    violations = Counter(line["rule_id"] for line in lines if line["kind"] == "rule_violation")
+    # The misread Quebec dates are unreadable, so M01 is unknown there, never a violation.
+    assert violations == {"M01": 10, "M23": 5}
+    assert _json(truth_run, "metrics")["rules"] == {"M01": 10, "M23": 5}
 
 
 @contract("2")
-def test_truth_row_numbers_count_the_header_as_line_one_like_changes_csv() -> None:
+def test_truth_row_numbers_count_the_header_as_line_one_like_changes_csv(
+        truth_run: Path) -> None:
     """5.2: ``row_number`` indexes the altered file the same way as the journal."""
-    _to_write("5.2")
+    def lines_of(path: Path) -> list[list[str]]:
+        with path.open(encoding="utf-8", newline="") as stream:
+            return list(csv.reader(stream))
+
+    altered = lines_of(_file(truth_run, "altered"))
+    clean = lines_of(truth_run / "insurance-combined.csv")
+    header = altered[0]
+    nets = [line for line in _truth(truth_run) if line["kind"] == "net_difference"]
+    assert nets
+    for line in nets:
+        number, column = int(line["row_number"]), header.index(line["column"])
+        # Line ``number`` of the file, the header being line 1, is where the cell differs.
+        assert altered[number - 1][column] != clean[number - 1][column]
+    # The canonical value of a misread date keeps the intended day (contract 4.5).
+    misread = [line for line in _truth(truth_run)
+               if line["scenario_id"] == "F19" and line["kind"] == "injected"]
+    assert len(misread) == 3
+    clean_rows = _csv_rows(truth_run / "insurance-combined.csv")
+    for line in misread:
+        day, month, year = clean_rows[int(line["row_number"]) - 2]["date_debut"].split("-")
+        assert line["canonical_value"] == f"{year}-{month}-{day}"
 
 
 @contract("2")
-def test_outputs_are_identical_byte_for_byte_for_the_same_inputs() -> None:
+def test_outputs_are_identical_byte_for_byte_for_the_same_inputs(
+        tmp_path: Path, truth_run: Path) -> None:
     """1 and 5.5: seed, profile, rows, as-of date and generation version fix every byte."""
-    _to_write("5.5")
+    out, result = _run_truth(tmp_path)
+    names = sorted(path.name for path in result.paths)
+    assert names == sorted(path.name for path in truth_run.iterdir())
+    for name in names:
+        assert (out / name).read_bytes() == (truth_run / name).read_bytes(), name
 
 
 @contract("2")
-def test_manifest_lists_the_sha256_of_every_other_artifact() -> None:
+def test_manifest_lists_the_sha256_of_every_other_artifact(truth_run: Path) -> None:
     """5.5: bytes and digest per role; never its own digest."""
-    _to_write("5.5")
+    import hashlib
+
+    manifest = _json(truth_run, "manifest")
+    files_listed = cast(list[dict[str, object]], manifest["files"])
+    own = _file(truth_run, "manifest").name
+    assert {entry["name"] for entry in files_listed} == {
+        path.name for path in truth_run.iterdir()} - {own}
+    for entry in files_listed:
+        data = (truth_run / cast(str, entry["name"])).read_bytes()
+        assert entry["bytes"] == len(data)
+        assert entry["sha256"] == hashlib.sha256(data).hexdigest()
+    assert [entry["role"] for entry in files_listed][-3:] == ["truth", "rules", "metrics"]
+    assert {key: manifest[key] for key in ("seed", "rows", "as_of_date", "profile",
+                                           "output_profile", "generation_version")} == {
+        "seed": 42, "rows": TRUTH_ROWS, "as_of_date": "2026-09-16", "profile": TRUTH_PROFILE,
+        "output_profile": "default", "generation_version": 1}
+    scenarios = cast(list[dict[str, object]], manifest["scenarios"])
+    assert [(s["id"], s["description"], s["operations"], s["expected_cases"])
+            for s in scenarios] == [
+        ("R08", "Contract ending before it starts", [1], 10), ("R11", None, [2], 5),
+        ("F19", None, [3], 3)]
 
 
 @contract("2")
-def test_existing_artifacts_collide_without_force_and_nothing_is_published() -> None:
+def test_existing_artifacts_collide_without_force_and_nothing_is_published(
+        tmp_path: Path) -> None:
     """5.1: the protection of ``_publish_artifacts`` covers the new kinds."""
-    _to_write("5.1")
+    package = _insurance_package(tmp_path, _truth_operations(), profile=TRUTH_PROFILE)
+    out = tmp_path / "out"
+    out.mkdir()
+    existing = _file(out, "metrics")
+    existing.write_text("mine", encoding="utf-8")
+    with pytest.raises(ReportError, match=r"(?s)output already exists.*metrics\.json"):
+        build_generate_plan(package, rows=300, seed=42, output_dir=out,
+                            anomaly_profile=TRUTH_PROFILE)
+    # A file that appears between the plan and the publication is never replaced either.
+    existing.unlink()
+    plan = build_generate_plan(package, rows=300, seed=42, output_dir=out,
+                               anomaly_profile=TRUTH_PROFILE)
+    late = _file(out, "manifest")
+    late.write_text("late", encoding="utf-8")
+    with pytest.raises(ReportError, match=r"(?s)output already exists.*manifest\.json"):
+        generate_datasets(plan)
+    assert [path.name for path in out.iterdir()] == [late.name]
+    assert late.read_text(encoding="utf-8") == "late"
+    forced = build_generate_plan(package, rows=300, seed=42, output_dir=out,
+                                 anomaly_profile=TRUTH_PROFILE, force=True)
+    generate_datasets(forced)
+    assert _json(out, "manifest")["format"] == "tabalyst.generate.manifest"
 
 
 @contract("2")
-def test_json_files_carry_format_0_2_0_revision_1_and_match_their_schema() -> None:
+def test_json_files_carry_format_0_2_0_revision_1_and_match_their_schema(
+        truth_run: Path) -> None:
     """5.7: ``format``, ``format_version``, ``format_revision`` and the committed schema."""
-    _to_write("5.7")
+    import jsonschema
+
+    schemas = ROOT / "src/tabalyst/schemas"
+    for role in ("rules", "metrics", "manifest"):
+        document = _json(truth_run, role)
+        assert (document["format"], document["format_version"], document["format_revision"]) == (
+            f"tabalyst.generate.{role}", "0.2.0", 1)
+        schema = json.loads((schemas / f"tabalyst.generate.{role}.schema.json").read_text(
+            encoding="utf-8"))
+        jsonschema.Draft202012Validator.check_schema(schema)
+        jsonschema.validate(document, schema, cls=jsonschema.Draft202012Validator)
+        assert {"format", "format_version", "format_revision"} <= set(schema["required"])
+    # The summary of the package keeps its own, unrelated format.
+    summary = _json(truth_run, "summary")
+    assert (summary["format"], summary["format_version"]) == ("tabalyst.generate.package",
+                                                              "0.1.0")
 
 
 @contract("2")
 def test_committed_schemas_are_not_stale() -> None:
     """5.7: regenerated from the models they equal the committed files."""
-    _to_write("5.7")
+    from tabalyst.generate_truth import SCHEMA_FILES, generate_schemas
+
+    for role, text in generate_schemas().items():
+        committed = ROOT / "src/tabalyst/schemas" / SCHEMA_FILES[role]
+        assert committed.read_text(encoding="utf-8") == text, role
 
 
 @contract("2")
-def test_clean_file_satisfies_every_rule_of_the_profile_before_injection() -> None:
+def test_clean_file_satisfies_every_rule_of_the_profile_before_injection(tmp_path: Path) -> None:
     """5.3 and ADR 2026-11-11: the generator checks its clean file with ``generate_rules``."""
-    _to_write("5.3")
+    from tabalyst.generate_columns_package import load_columns_definition
+    from tabalyst.generate_rules import RuleContext, RuleEvaluator
+
+    generate_datasets(build_generate_plan(example="insurance", rows=3000, seed=42,
+                                          output_dir=tmp_path / "clean"))
+    catalogue = load_columns_definition(load_generate_package(PACKAGE)).rules
+    assert catalogue is not None
+    evaluator = RuleEvaluator(catalogue.rules, RuleContext(catalogue.conventions, "2026-09-16"))
+    rows = _csv_rows(tmp_path / "clean" / "insurance-combined.csv")
+    assert [v for number, row in enumerate(rows, 2) for v in evaluator.check(number, row)] == []
+    # A catalogue whose rule the clean file breaks stops the run before anything is published.
+    package = _insurance_package(tmp_path / "broken", [
+        _scenario("S1", "set_missing", "courriel", 2, rule_id="M14")])
+    rules = package / "rules.yaml"
+    rules.write_text(rules.read_text(encoding="utf-8").replace(
+        'right: {value: "0"}', 'right: {value: "100000"}'), encoding="utf-8")
+    out = tmp_path / "broken" / "out"
+    plan = build_generate_plan(package, rows=300, seed=42, output_dir=out,
+                               anomaly_profile="v2_test")
+    with pytest.raises(ReportError, match=r"the clean file breaks rule M14 \(Annual premium "
+                                          r"above zero\) at row 2"):
+        generate_datasets(plan)
+    assert not out.exists() or list(out.iterdir()) == []
 
 
 # --- Lot 3: rarity levels and rare_events (contract 6) ---------------------------------------

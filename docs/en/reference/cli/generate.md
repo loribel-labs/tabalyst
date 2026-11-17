@@ -67,3 +67,9 @@ processes, so a seed still gives the same data.
 Explicit options override package defaults. Paths are checked before generation;
 the package and packaged resources cannot be overwritten. A selected
 anomaly profile keeps the clean CSV alongside its altered variant.
+
+An insurance scenario profile (its operations declare `scenario_id`) also
+writes `<dataset>.<profile>.truth.csv`, `.rules.json`, `.metrics.json` and
+`.manifest.json`, published with the other files and protected the same way:
+an existing one needs `--force`. See
+[Insurance ground truth files](../../generate/insurance-ground-truth.md).

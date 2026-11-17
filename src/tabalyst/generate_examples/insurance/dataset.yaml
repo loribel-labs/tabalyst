@@ -3,6 +3,7 @@ format_version: 0.1.0
 id: insurance
 package_version: 0.1.0
 catalog: catalog.yaml
+rules: rules.yaml
 defaults:
   rows: 275000
   seed: 20260916

@@ -182,6 +182,9 @@ dates are ISO, so a broken rule never comes with a format defect.
 
 ## Next steps
 
+- [Insurance ground truth files](insurance-ground-truth.md) explains the
+  scenario profiles, whose truth, rules, metrics and manifest files describe
+  exactly what a run injected.
 - [Tabalyst Generate](index.md) explains packages and how to write your own
   anomaly profile.
 - The [CLI reference](../reference/cli/generate.md) lists every option.

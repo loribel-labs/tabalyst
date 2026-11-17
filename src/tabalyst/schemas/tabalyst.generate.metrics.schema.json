@@ -1,0 +1,202 @@
+{
+  "$defs": {
+    "Counts": {
+      "additionalProperties": false,
+      "description": "The numbers of contract 4.2, recounted from the truth.",
+      "properties": {
+        "events": {
+          "minimum": 0,
+          "title": "Events",
+          "type": "integer"
+        },
+        "changed_cells": {
+          "minimum": 0,
+          "title": "Changed Cells",
+          "type": "integer"
+        },
+        "distinct_changed_cells": {
+          "minimum": 0,
+          "title": "Distinct Changed Cells",
+          "type": "integer"
+        },
+        "net_differences": {
+          "minimum": 0,
+          "title": "Net Differences",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "events",
+        "changed_cells",
+        "distinct_changed_cells",
+        "net_differences"
+      ],
+      "title": "Counts",
+      "type": "object"
+    },
+    "Rows": {
+      "additionalProperties": false,
+      "description": "Rows of the altered file, in total and per branch.",
+      "properties": {
+        "total": {
+          "minimum": 0,
+          "title": "Total",
+          "type": "integer"
+        },
+        "by_branch": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "By Branch",
+          "type": "object"
+        }
+      },
+      "required": [
+        "total",
+        "by_branch"
+      ],
+      "title": "Rows",
+      "type": "object"
+    },
+    "ScenarioMetrics": {
+      "additionalProperties": false,
+      "description": "What one scenario asked for and what the files hold.\n\n``eligible_population`` is the sum over its operations of the rows each can change in the\nclean file. ``applied_cases`` and ``rows_touched`` are equal while a case is one row\n(multi-row cases arrive with lot 3).",
+      "properties": {
+        "rarity_level": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rarity Level"
+        },
+        "requested_cases": {
+          "minimum": 0,
+          "title": "Requested Cases",
+          "type": "integer"
+        },
+        "applied_cases": {
+          "minimum": 0,
+          "title": "Applied Cases",
+          "type": "integer"
+        },
+        "rows_touched": {
+          "minimum": 0,
+          "title": "Rows Touched",
+          "type": "integer"
+        },
+        "eligible_population": {
+          "minimum": 0,
+          "title": "Eligible Population",
+          "type": "integer"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "severity": {
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rarity_level",
+        "requested_cases",
+        "applied_cases",
+        "rows_touched",
+        "eligible_population",
+        "category",
+        "severity"
+      ],
+      "title": "ScenarioMetrics",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Document tabalyst.generate.metrics, format 0.2.0 revision 1: the exact counts of a scenario profile's run.",
+  "properties": {
+    "format": {
+      "const": "tabalyst.generate.metrics",
+      "default": "tabalyst.generate.metrics",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 1,
+      "default": 1,
+      "title": "Format Revision",
+      "type": "integer"
+    },
+    "dataset": {
+      "title": "Dataset",
+      "type": "string"
+    },
+    "profile": {
+      "title": "Profile",
+      "type": "string"
+    },
+    "rows": {
+      "$ref": "#/$defs/Rows"
+    },
+    "counts": {
+      "$ref": "#/$defs/Counts"
+    },
+    "scenarios": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ScenarioMetrics"
+      },
+      "title": "Scenarios",
+      "type": "object"
+    },
+    "rules": {
+      "additionalProperties": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "title": "Rules",
+      "type": "object"
+    },
+    "categories": {
+      "additionalProperties": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "title": "Categories",
+      "type": "object"
+    },
+    "kinds": {
+      "additionalProperties": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "title": "Kinds",
+      "type": "object"
+    }
+  },
+  "required": [
+    "dataset",
+    "profile",
+    "rows",
+    "counts",
+    "scenarios",
+    "rules",
+    "categories",
+    "kinds",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst Generate metrics",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
