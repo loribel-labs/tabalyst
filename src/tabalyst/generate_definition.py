@@ -552,15 +552,21 @@ def _columns(source: Path, value: Any, where: str) -> None:
                 _fail(source, generator, "decimal.by_month.from must be an ISO date or datetime column")
 
 
-def _dataset_column_names(dataset: dict, known: dict[str, dict], schemas: dict) -> set[str]:
+def _dataset_column_names(dataset: dict, known: dict[str, dict], schemas: dict,
+                          output_profiles: dict[str, Any] | None = None) -> set[str]:
     """Return the column names a dataset writes, the source column of a combine included."""
     if "combine" in dataset:
         first = known[dataset["combine"]["inputs"][0]]
         names = {c["name"] for c in (first.get("columns") or schemas[first["schema"]]["columns"])}
         if dataset["combine"].get("source_column"):
             names.add(dataset["combine"]["source_column"])
-        return names
-    return {c["name"] for c in (dataset.get("columns") or schemas[dataset["schema"]]["columns"])}
+    else:
+        names = {c["name"] for c in (dataset.get("columns") or schemas[dataset["schema"]]["columns"])}
+    if output_profiles and isinstance(output_profiles, dict):
+        for profile_cols in output_profiles.values():
+            if isinstance(profile_cols, list):
+                names.update(col for col in profile_cols if isinstance(col, str))
+    return names
 
 
 def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = False,
@@ -575,8 +581,9 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
     """
     root = _mapping(source, root, "definition", {
         "id", "defaults", "csv", "schemas", "entities",
-        "cohorts", "datasets", "anomaly_profiles",
+        "cohorts", "datasets", "anomaly_profiles", "output_profiles",
     })
+    output_profiles = root.get("output_profiles")
     identifier = _id(source, root.get("id"), "definition id")
     defaults = _mapping(source, root.get("defaults", {}), "defaults", {"seed", "as_of_date"})
     if "seed" in defaults and type(defaults["seed"]) is not int:
@@ -751,7 +758,7 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
                                                  for k, v in operation["when"].items())):
                 _fail(source, operation, "operation.when must map one column to text")
             for target in targets:
-                names = _dataset_column_names(known[target], known, schemas)
+                names = _dataset_column_names(known[target], known, schemas, output_profiles)
                 required = {column} if column is not None else set()
                 if operation["kind"] in {"swap", "copy_column"}:
                     required.add(value)
@@ -769,7 +776,7 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
                 _fail(source, item, f"profile {name}: {problem}")
         if is_scenario_profile(operations):
             _check_profile_rules(source, item, name, operations, rules,
-                                 {target: _dataset_column_names(known[target], known, schemas)
+                                 {target: _dataset_column_names(known[target], known, schemas, output_profiles)
                                   for target in targets})
     return GenerateDefinition(
         source, identifier, defaults, csv_settings, schemas, tuple(entities),

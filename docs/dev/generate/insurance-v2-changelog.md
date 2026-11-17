@@ -91,3 +91,15 @@ Catalogue of format defect and variant operations completed in `generate_anomali
 - Non-regression: 29 legacy format operations and existing profiles unchanged.
 - `generation_version` stays 2.
 
+## Business rules catalogue M01 to M25, tranche B, complete profile (lot 6, 2026-11-17)
+
+- Complete catalogue of 25 business rules M01 to M25 configurable in `rules.yaml` of the Insurance package.
+- Evaluated via `RuleEvaluator` and `RulesDocument` with Kleene three-valued logic and `RuleContext` (`as_of_date: "2026-09-16"`).
+- Clean file satisfies all 25 rules with 0 violations on 20,000 rows in the `complete` profile.
+- Four tranche B columns added to the `--output-profile complete` profile: `taux_remboursement`, `consentement_communication`, `gestionnaire_id`, `segment_client` (47 columns per branch, 48 on `insurance-combined.csv`).
+- Deterministic independent streams per tranche B column (`_stream(seed, dataset, column, "complete")`); `default` (34 columns) and `extended` (44 columns) remain strictly byte-identical for the same seed.
+- Profile `rare_events` completed with R03 (5 cases, negative indemnity, M10), R04 (10 cases, claim before contract start via `date_minus_decade`, M08), R09 (100 cases, indemnity exceeding coverage cap, M11), and valid boundary case B03 (100 cases, indemnity equal to coverage cap, M11).
+- Composite multi-column violations and `contextual_invalid` category handled and verifiable directly from `rules.json` alone.
+- `build_generate_plan` selects `output_profile: "extended"` by default when running `rare_events`.
+- `generation_version` stays 2.
+

@@ -16,9 +16,11 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 import shutil
 from collections import Counter
 from collections.abc import Callable
+from decimal import Decimal
 from fractions import Fraction
 from importlib.resources import files
 from pathlib import Path
@@ -38,7 +40,7 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,8 +54,8 @@ NOMINAL_CASES = {"frequent": 5000, "uncommon": 500, "rare": 100, "very_rare": 50
 RARITY_BANDS = {"single": (1, 1), "extremely_rare": (2, 9), "very_rare": (10, 74),
                 "rare": (75, 199), "uncommon": (200, 999), "frequent": (1000, None)}
 # Section 3.3: the counts of the report (section 3) and the level their text implies.
-REPORT_COUNTS = {"R02": (5, "extremely_rare"), "R04": (10, "very_rare"),
-                 "R05": (20, "very_rare"), "R06": (25, "very_rare"),
+REPORT_COUNTS = {"R02": (5, "extremely_rare"), "R03": (5, "extremely_rare"),
+                 "R04": (10, "very_rare"), "R05": (20, "very_rare"), "R06": (25, "very_rare"),
                  "R07": (50, "very_rare"), "R08": (50, "very_rare"),
                  "R09": (100, "rare"), "R10": (100, "rare"),
                  "R11": (250, "uncommon"), "R12": (500, "uncommon")}
@@ -881,10 +883,11 @@ def test_clean_file_satisfies_every_rule_of_the_profile_before_injection(tmp_pat
 
 RARE_ROWS = 100_000
 # Contract 6.2: cases per scenario of ``rare_events`` and the level they carry.
-RARE_CASES = {"R01": (1, "single"), "R02": (5, "extremely_rare"), "R05": (20, "very_rare"),
-              "R06": (25, "very_rare"), "R07": (50, "very_rare"), "R08": (50, "very_rare"),
+RARE_CASES = {"R01": (1, "single"), "R02": (5, "extremely_rare"), "R03": (5, "extremely_rare"),
+              "R04": (10, "very_rare"), "R05": (20, "very_rare"), "R06": (25, "very_rare"),
+              "R07": (50, "very_rare"), "R08": (50, "very_rare"), "R09": (100, "rare"),
               "R10": (100, "rare"), "R11": (250, "uncommon"), "R12": (500, "uncommon"),
-              "B01": (100, "rare"), "B02": (100, "rare")}
+              "B01": (100, "rare"), "B02": (100, "rare"), "B03": (100, "rare")}
 SAMPLE_SIZES = (500, 1000, 5000, 10000, 50000)
 
 
@@ -986,7 +989,10 @@ def test_rare_events_applies_the_exact_count_of_every_scenario(rare_run: Path) -
             cases, cases, level), scenario
         assert entry["rows_touched"] == (2 if scenario == "R01" else cases), scenario
     # The rules that name a scenario find exactly its cases in the final file.
-    assert metrics["rules"] == {"M01": 50, "M02": 0, "M04": 5, "M21": 2, "M23": 250}
+    assert metrics["rules"] == {
+        "M01": 50, "M02": 0, "M04": 5, "M08": 10, "M10": 5, "M11": 100,
+        "M19": 50, "M20": 500, "M21": 2, "M23": 250,
+    }
     summary = _csv_free_json(_rare(rare_run, "summary.json"))
     assert summary["events"] == sum(cases for cases, _ in RARE_CASES.values())
     for entry in cast(list[dict[str, object]], summary["operations"]):
@@ -1006,7 +1012,7 @@ def test_rare_events_refuses_a_count_above_the_eligible_population(tmp_path: Pat
     out = tmp_path / "out"
     plan = build_generate_plan(package, rows=3000, seed=42, output_dir=out,
                                anomaly_profile="rare_events")
-    with pytest.raises((ValueError, ReportError), match=r"operation 15 \(scenario R12\) asks "
+    with pytest.raises((ValueError, ReportError), match=r"operation \d+ \(scenario R12\) asks "
                                                        r"for count 2800 but only \d+ rows"):
         generate_datasets(plan)
     assert not out.exists() or list(out.iterdir()) == []
@@ -1058,7 +1064,7 @@ def test_valid_boundary_cases_are_valid_atypical_with_info_severity(
     """3.1 and 6.2: valid, expected detection ``none``, never counted as violations."""
     lines = _csv_rows(_rare(rare_run, "truth.csv"))
     valid = [line for line in lines if line["kind"] == "valid_atypical"]
-    assert len(valid) == 200 and {line["scenario_id"] for line in valid} == {"B01", "B02"}
+    assert len(valid) == 300 and {line["scenario_id"] for line in valid} == {"B01", "B02", "B03"}
     assert {(line["category"], line["severity"], line["expected_detection"]) for line in valid} == {
         ("valid_atypical", "info", "none")}
     rows = _csv_rows(rare_run / "insurance-combined.rare_events.csv")
@@ -1066,13 +1072,15 @@ def test_valid_boundary_cases_are_valid_atypical_with_info_severity(
         row = rows[int(line["row_number"]) - 2]
         if line["scenario_id"] == "B01":
             assert row["date_fin"] == row["date_debut"] and line["column"] == "date_fin"
-        else:
+        elif line["scenario_id"] == "B02":
             assert row["date_modification"] == row["date_creation"]
+        else:
+            assert row["montant_indemnise"] == row["montant_couverture"]
     # No rule is broken on those rows: they sit on the boundary the rule allows.
     boundary_rows = {line["row_number"] for line in valid}
     assert not any(line["kind"] == "rule_violation" and line["row_number"] in boundary_rows
                    for line in lines)
-    assert not any(line["kind"] == "rule_violation" and line["scenario_id"] in {"B01", "B02"}
+    assert not any(line["kind"] == "rule_violation" and line["scenario_id"] in {"B01", "B02", "B03"}
                    for line in lines)
     # A non-defect cannot claim a severity or a detection: it is refused at load.
     _refused(tmp_path / "severity", [_scenario(
@@ -1137,12 +1145,12 @@ def test_a_multi_row_scenario_has_a_null_probability_with_its_reason(rare_run: P
 
 @contract("3")
 def test_rare_events_keeps_the_default_34_columns(rare_run: Path) -> None:
-    """6.2 and 7: the profile needs no extended column."""
+    """6.2 and 7: completed rare_events uses the extended output profile (44 columns)."""
     for name in ("insurance-combined.csv", "insurance-combined.rare_events.csv"):
         header = (rare_run / name).read_text(encoding="utf-8").splitlines()[0]
-        assert header.split(",") == [*FIELDS, "filiale"]
+        assert header.split(",") == [*FIELDS, "filiale", *EXTENDED_FIELDS]
     manifest = _csv_free_json(_rare(rare_run, "manifest.json"))
-    assert manifest["output_profile"] == "default" and manifest["generation_version"] == 2
+    assert manifest["output_profile"] == "extended" and manifest["generation_version"] == 2
 
 
 # --- Lot 4: extended column profile (contract 7) ---------------------------------------
@@ -1482,17 +1490,207 @@ def test_format_catalogue_completeness_and_non_regression() -> None:
     """SRS 4: FORMAT_VALUES contains all 22 format catalog operations and preserves legacy ones."""
     from tabalyst.generate_anomalies import FORMAT_VALUES
 
-    assert len(FORMAT_VALUES) == 52
+    assert len(FORMAT_VALUES) == 53
 
     expected_f_ops = {
         "surrounding_space", "insert_non_breaking_space", "unicode_nfd", "unicode_nfc",
         "title_case", "phone_drop_digit", "email_invalid", "email_forbidden_domain",
         "postal_no_space", "postal_invalid_syntax", "decimal_comma", "decimal_dot",
         "thousands_space", "thousands_comma", "date_impossible", "date_swap_month_day",
-        "drop_leading_zeros", "similar_char",
+        "drop_leading_zeros", "similar_char", "date_minus_decade",
     }
     for op_name in expected_f_ops:
         assert op_name in FORMAT_VALUES, f"Missing format value: {op_name}"
+
+
+# --- Lot 6: business rules M01 to M25, tranche B, complete (contract 5.3, 7) -----------------
+
+@contract("6")
+def test_catalogue_m01_to_m25_is_complete_and_valid() -> None:
+    """SRS 5 and 5.3: catalogue in rules.yaml contains all 25 rules M01 to M25 and validates."""
+    from tabalyst.generate_columns_package import load_columns_definition
+
+    pkg = load_generate_package(PACKAGE)
+    catalogue = load_columns_definition(pkg).rules
+    assert catalogue is not None
+    assert len(catalogue.rules) == 25
+    rule_ids = [rule.id for rule in catalogue.rules]
+    expected_ids = [f"M{i:02d}" for i in range(1, 26)]
+    assert sorted(rule_ids) == sorted(expected_ids)
+
+    # Invariants on each rule
+    for rule in catalogue.rules:
+        assert rule.category in {
+            "format_variant", "format_invalid", "semantic_invalid",
+            "business_rule_violation", "contextual_invalid",
+        }
+        assert rule.severity in {"info", "minor", "major", "critical"}
+        assert len(rule.columns) >= 1
+        assert rule.title
+
+
+@contract("6")
+def test_clean_complete_profile_satisfies_every_rule_on_20000_rows(tmp_path: Path) -> None:
+    """SRS 5, 7 and Lot 6 goal: clean complete file satisfies all 25 rules with 0 violations on 20,000 rows."""
+    from tabalyst.generate_columns_package import load_columns_definition
+    from tabalyst.generate_rules import RuleContext, RuleEvaluator
+
+    out = tmp_path / "complete_20k"
+    plan = build_generate_plan(example="insurance", rows=20000, seed=42, output_dir=out,
+                               output_profile="complete")
+    generate_datasets(plan)
+
+    catalogue = load_columns_definition(load_generate_package(PACKAGE)).rules
+    assert catalogue is not None
+    evaluator = RuleEvaluator(catalogue.rules, RuleContext(catalogue.conventions, "2026-09-16"))
+    rows = _csv_rows(out / "insurance-combined.csv")
+    assert len(rows) == 20000
+    violations = [v for number, row in enumerate(rows, 2) for v in evaluator.check(number, row)]
+    assert violations == []
+
+
+@contract("6")
+def test_complete_output_profile_appends_tranche_b_columns_in_contract_order(tmp_path: Path) -> None:
+    """7: complete appends tranche B columns; non-regression on default and extended columns."""
+    from tabalyst.generate_insurance import EXTENDED_FIELDS, TRANCHE_B_FIELDS
+
+    out_def = tmp_path / "def_out"
+    out_ext = tmp_path / "ext_out"
+    out_com = tmp_path / "com_out"
+    plan_def = build_generate_plan(example="insurance", rows=300, seed=42, output_dir=out_def)
+    plan_ext = build_generate_plan(example="insurance", rows=300, seed=42, output_dir=out_ext,
+                                   output_profile="extended")
+    plan_com = build_generate_plan(example="insurance", rows=300, seed=42, output_dir=out_com,
+                                   output_profile="complete")
+    assert plan_com.output_profile == "complete"
+    generate_datasets(plan_def)
+    generate_datasets(plan_ext)
+    generate_datasets(plan_com)
+
+    # Branches: 47 columns (*FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS)
+    for branch in ("insurance-principal", "insurance-ontario", "insurance-quebec"):
+        def_rows = _csv_rows(out_def / f"{branch}.csv")
+        ext_rows = _csv_rows(out_ext / f"{branch}.csv")
+        com_rows = _csv_rows(out_com / f"{branch}.csv")
+        com_header = (out_com / f"{branch}.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
+        assert com_header == [*FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS]
+        assert len(com_header) == 47
+
+        # Byte-identical non-regression for the first 33 columns and 43 columns
+        for d_row, e_row, c_row in zip(def_rows, ext_rows, com_rows, strict=True):
+            for col in FIELDS:
+                assert d_row[col] == e_row[col] == c_row[col]
+            for col in EXTENDED_FIELDS:
+                assert e_row[col] == c_row[col]
+
+    # Combined: 48 columns (*FIELDS, "filiale", *EXTENDED_FIELDS, *TRANCHE_B_FIELDS)
+    comb_def_rows = _csv_rows(out_def / "insurance-combined.csv")
+    comb_ext_rows = _csv_rows(out_ext / "insurance-combined.csv")
+    comb_com_rows = _csv_rows(out_com / "insurance-combined.csv")
+    comb_com_header = (out_com / "insurance-combined.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
+    assert comb_com_header == [*FIELDS, "filiale", *EXTENDED_FIELDS, *TRANCHE_B_FIELDS]
+    assert len(comb_com_header) == 48
+
+    for d_row, e_row, c_row in zip(comb_def_rows, comb_ext_rows, comb_com_rows, strict=True):
+        for col in (*FIELDS, "filiale"):
+            assert d_row[col] == e_row[col] == c_row[col]
+        for col in EXTENDED_FIELDS:
+            assert e_row[col] == c_row[col]
+
+
+@contract("6")
+def test_tranche_b_columns_invariants_and_types(tmp_path: Path) -> None:
+    """7 and SRS 5, 10: tranche B columns have correct formats, bounds, and domains."""
+    out = tmp_path / "tranche_b_inv"
+    plan = build_generate_plan(example="insurance", rows=1000, seed=777, output_dir=out,
+                               output_profile="complete")
+    generate_datasets(plan)
+    rows = _csv_rows(out / "insurance-combined.csv")
+
+    for row in rows:
+        # 1. taux_remboursement: decimal between 0.00 and 1.00
+        rate = Decimal(row["taux_remboursement"])
+        assert Decimal("0.00") <= rate <= Decimal("1.00")
+
+        # 2. consentement_communication: boolean category
+        assert row["consentement_communication"] in {"true", "false"}
+
+        # 3. gestionnaire_id: GES-XXX
+        assert re.fullmatch(r"GES-\d{3}", row["gestionnaire_id"]) is not None
+
+        # 4. segment_client: allowed category
+        assert row["segment_client"] in {"particulier", "professionnel", "entreprise", "vip"}
+
+
+@contract("6")
+def test_rare_events_completed_scenarios_and_truth_verifiable_from_rules_json_alone(rare_run: Path) -> None:
+    """6.2, 5.3: rare_events is complete (R03, R04, R09, B03); violations verifiable from rules.json alone."""
+    from tabalyst.generate_rules import RuleContext, RuleEvaluator, RulesDocument
+
+    truth_rows = _csv_rows(_rare(rare_run, "truth.csv"))
+    scenarios_in_truth = {r["scenario_id"] for r in truth_rows}
+    assert {"R03", "R04", "R09", "B03"} <= scenarios_in_truth
+
+    # Specific counts of the new rare events
+    r03_injected = [r for r in truth_rows if r["kind"] == "injected" and r["scenario_id"] == "R03"]
+    assert len(r03_injected) == 5
+    r04_injected = [r for r in truth_rows if r["kind"] == "injected" and r["scenario_id"] == "R04"]
+    assert len(r04_injected) == 10
+    r09_injected = [r for r in truth_rows if r["kind"] == "injected" and r["scenario_id"] == "R09"]
+    assert len(r09_injected) == 100
+    b03_valid = [r for r in truth_rows if r["kind"] == "valid_atypical" and r["scenario_id"] == "B03"]
+    assert len(b03_valid) == 100
+
+    # Verification from rules.json alone: load document and evaluate without Python code or package YAML
+    rules_doc_path = _rare(rare_run, "rules.json")
+    assert rules_doc_path.is_file()
+    doc = RulesDocument.model_validate_json(rules_doc_path.read_text(encoding="utf-8"))
+    assert len(doc.rules) >= 10
+    evaluator = RuleEvaluator(doc.rules, RuleContext(doc.conventions, doc.as_of_date))
+
+    csv_rows = _csv_rows(rare_run / "insurance-combined.rare_events.csv")
+    re_evaluated_violations = [
+        v for number, row in enumerate(csv_rows, 2)
+        for v in evaluator.check(number, row)
+    ]
+    # Truth rule_violation lines
+    truth_violations = [r for r in truth_rows if r["kind"] == "rule_violation"]
+    assert len(re_evaluated_violations) == len(truth_violations)
+    truth_set = {(r["rule_id"], int(r["row_number"])) for r in truth_violations}
+    re_eval_set = {(v.rule_id, v.row_number) for v in re_evaluated_violations}
+    assert re_eval_set == truth_set
+
+
+@contract("6")
+def test_composite_violations_and_contextual_invalid_behavior(tmp_path: Path) -> None:
+    """SRS 5.3, D9: composite multi-column violations and contextual_invalid category."""
+    operations = [
+        _scenario("R04", "format", "date_sinistre", 5, value="date_minus_decade",
+                  when={"reclamation_status": "fermé"}, rule_id="M08",
+                  category="business_rule_violation"),
+        _scenario("R06", "format", "date_debut", 5, value="date_dmy",
+                  when={"filiale": "principal"},
+                  category="contextual_invalid"),
+        _scenario("R09", "replace", "montant_indemnise", 5, value="9999999.00",
+                  when={"reclamation_status": "fermé"}, rule_id="M11",
+                  category="business_rule_violation"),
+    ]
+    pkg = _insurance_package(tmp_path / "pkg", operations, profile="v2_comp")
+    out = tmp_path / "out"
+    plan = build_generate_plan(pkg, rows=500, seed=42, output_dir=out,
+                               anomaly_profile="v2_comp", output_profile="extended")
+    generate_datasets(plan)
+
+    truth_rows = _csv_rows(out / "insurance-combined.v2_comp.truth.csv")
+    categories = {r["scenario_id"]: r["category"] for r in truth_rows}
+    assert categories["R06"] == "contextual_invalid"
+    assert categories["R04"] == "business_rule_violation"
+    assert categories["R09"] == "business_rule_violation"
+
+    # Composite violations flagged on rule M08 and M11
+    rule_violations = [r for r in truth_rows if r["kind"] == "rule_violation"]
+    assert len(rule_violations) == 10  # 5 for M08 + 5 for M11
+
 
 
 

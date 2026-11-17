@@ -32,7 +32,7 @@ destination is required, except with `--validate-only`. A
 | `--anomaly-profile NAME` | Produce the selected anomaly variant, cell change log and summary (with `-d`). Computer: `dirty_realistic`, `dirty_stress`, `unit_variants`, `unit_variants_extended`, `rule_breaks`; every example has `rule_breaks`, which breaks the rules between columns. Insurance: `dirty_realistic`, `dirty_stress`, `rule_breaks` and `rare_events` (exact rare cases, at least 100,000 rows). Give several names separated by commas to get one variant of each (with `-d`). An unknown name lists the available ones. |
 | `--request FILE` | Read `rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`, `locales`, `unit_style`, `unit_columns` and `anomaly_profile` from a JSON object. Explicit options win. |
 | `--generation-profile NAME` | Computer: bias the catalog selection. |
-| `--output-profile NAME` | Choose the columns written. Computer: `compact`, `standard`, `extended`. Insurance: `default` (33 columns on branches, 34 combined), `extended` (43 columns on branches, 44 combined). |
+| `--output-profile NAME` | Choose the columns written. Computer: `compact`, `standard`, `extended`. Insurance: `default` (33 columns on branches, 34 combined), `extended` (43 columns on branches, 44 combined), `complete` (47 columns on branches, 48 combined). |
 | `--market ca\|us` | Computer: the offer market. |
 | `--locales en\|fr\|en,fr` | Computer: the languages written. Default `en,fr` with `-d`, `en` with `-o`. |
 | `--unit-style numeric\|localized` | Computer: plain numbers or values with units. |

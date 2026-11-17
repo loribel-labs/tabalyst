@@ -113,6 +113,54 @@ output_profiles:
   - courtier_id
   - produit_code
   - nombre_reclamations
+  complete:
+  - id_client
+  - civilite
+  - prenom
+  - nom
+  - date_naissance
+  - sexe
+  - langue_preferee
+  - numero_voie
+  - type_voie
+  - nom_voie
+  - orientation
+  - appartement
+  - ville
+  - province_code
+  - province_nom
+  - code_postal
+  - pays_code
+  - courriel
+  - telephone
+  - id_contrat
+  - type_contrat
+  - date_debut
+  - date_fin
+  - statut_contrat
+  - prime_annuelle
+  - frequence_paiement
+  - mode_paiement
+  - agence_code
+  - date_creation
+  - date_modification
+  - date_reclamation
+  - montant_reclamation
+  - reclamation_status
+  - date_sinistre
+  - montant_couverture
+  - franchise
+  - montant_indemnise
+  - date_resiliation
+  - statut_paiement
+  - canal_acquisition
+  - courtier_id
+  - produit_code
+  - nombre_reclamations
+  - taux_remboursement
+  - consentement_communication
+  - gestionnaire_id
+  - segment_client
 anomaly_profiles:
   dirty_realistic:
     targets:
@@ -769,6 +817,30 @@ anomaly_profiles:
       rarity_level: extremely_rare
       expected_detection: domain
       description: A birth date a century later, so in the future
+    - kind: replace
+      column: montant_indemnise
+      value: "-500.00"
+      count: 5
+      when: {reclamation_status: "fermé"}
+      scenario_id: R03
+      rule_id: M10
+      category: semantic_invalid
+      severity: major
+      rarity_level: extremely_rare
+      expected_detection: domain
+      description: A negative indemnity amount
+    - kind: format
+      column: date_sinistre
+      value: date_minus_decade
+      count: 10
+      when: {reclamation_status: "fermé"}
+      scenario_id: R04
+      rule_id: M08
+      category: business_rule_violation
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: A claim event date preceding the contract start date
     - kind: format
       column: prime_annuelle
       value: times_100
@@ -818,6 +890,7 @@ anomaly_profiles:
       count: 50
       requires: [province_code]
       scenario_id: R07
+      rule_id: M19
       category: business_rule_violation
       severity: major
       rarity_level: very_rare
@@ -827,6 +900,7 @@ anomaly_profiles:
       column: date_debut
       value: date_fin
       count: 50
+      when: {date_reclamation: ""}
       scenario_id: R08
       rule_id: M01
       category: business_rule_violation
@@ -834,6 +908,18 @@ anomaly_profiles:
       rarity_level: very_rare
       expected_detection: cross_column
       description: A contract ending before it starts
+    - kind: replace
+      column: montant_indemnise
+      value: "9999999.00"
+      count: 100
+      when: {reclamation_status: "fermé"}
+      scenario_id: R09
+      rule_id: M11
+      category: business_rule_violation
+      severity: major
+      rarity_level: rare
+      expected_detection: cross_column
+      description: An indemnity amount exceeding the coverage cap
     - kind: replace
       column: prime_annuelle
       value: "N/A"
@@ -903,6 +989,7 @@ anomaly_profiles:
       count: 300
       when: {filiale: "principal"}
       scenario_id: R12
+      rule_id: M20
       category: business_rule_violation
       severity: major
       rarity_level: uncommon
@@ -914,6 +1001,7 @@ anomaly_profiles:
       count: 100
       when: {filiale: "ontario"}
       scenario_id: R12
+      rule_id: M20
       category: business_rule_violation
       severity: major
       rarity_level: uncommon
@@ -925,6 +1013,7 @@ anomaly_profiles:
       count: 100
       when: {filiale: "quebec"}
       scenario_id: R12
+      rule_id: M20
       category: business_rule_violation
       severity: major
       rarity_level: uncommon
@@ -954,3 +1043,15 @@ anomaly_profiles:
       rarity_level: rare
       expected_detection: none
       description: A record modified the day it was created, which M02 allows
+    - kind: copy_column
+      column: montant_indemnise
+      value: montant_couverture
+      count: 100
+      when: {reclamation_status: "fermé"}
+      scenario_id: B03
+      rule_id: M11
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: An indemnity amount exactly equal to the coverage cap, which M11 allows

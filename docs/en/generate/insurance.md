@@ -72,6 +72,25 @@ coverage minus deductible, `date_resiliation` exists only on cancelled
 contracts, and `courtier_id` is populated only when `canal_acquisition` is
 `courtier`.
 
+### Complete output profile
+
+Pass `--output-profile complete` to append tranche B columns after the extended
+columns:
+
+```console
+tabalyst generate --example insurance -d out/ --output-profile complete
+```
+
+| Group | Columns |
+| --- | --- |
+| Tranche B (4) | `taux_remboursement`, `consentement_communication`, `gestionnaire_id`, `segment_client` |
+
+Branch files have 47 columns; `insurance-combined.csv` has 48 columns (with `filiale`).
+All columns satisfy strict domain rules: `taux_remboursement` is a bounded decimal
+between `0.00` and `1.00`, `consentement_communication` is a boolean indicator,
+`gestionnaire_id` follows the `GES-XXX` pattern, and `segment_client` belongs to
+`particulier`, `professionnel`, `entreprise` or `vip`.
+
 The values follow the rules of the domain, and the clean files hold no
 exception to them, so they can serve to test analyses across columns:
 

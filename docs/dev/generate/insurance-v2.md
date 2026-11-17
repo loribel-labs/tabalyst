@@ -683,6 +683,31 @@ Written when lot 4 was implemented; where it differs from earlier sections this 
   Insurance, refuses unknown profiles (`compact`, etc.), and passes `output_profile` to
   `GeneratePlan` and `manifest.json`.
 
+### 7.2 What lot 6 fixed
+
+Written when lot 6 was implemented; where it differs from earlier sections this is the behavior.
+
+- **Business rules catalogue M01 to M25.** Complete implementation of the 25 business rules in
+  `rules.yaml` of the Insurance package, evaluated via `RuleEvaluator` (Kleene three-valued logic,
+  `RuleContext`). Verified on 20,000 clean rows in the `complete` profile with zero violations.
+- **Tranche B columns in `complete` profile.** Four new columns appended in contract order:
+  `taux_remboursement` (decimal between `0.00` and `1.00`), `consentement_communication`
+  (`"true"` or `"false"`), `gestionnaire_id` (`GES-XXX`), `segment_client`
+  (`particulier`, `professionnel`, `entreprise`, `vip`). The `complete` profile contains 47 columns
+  per branch and 48 columns in `insurance-combined.csv` (with `filiale`).
+- **Deterministic independent streams for tranche B.** Columns draw from independent random streams
+  `_stream(seed, dataset, col, "complete")` via `extend_tranche_b_row`. The 34 default columns and
+  the 44 extended columns remain strictly byte-identical for the same seed.
+- **Completion of `rare_events`.** Added scenarios R03 (5 cases, negative indemnity), R04 (10 cases,
+  claim before start with `date_minus_decade`), R09 (100 cases, indemnity exceeding coverage cap),
+  and valid boundary case B03 (100 cases, indemnity equal to coverage cap). Linked R07 to M19 and
+  R12 to M20. Totaling 15 scenarios, 1,416 anomaly events, and 300 valid atypical events on 100,000 rows.
+- **Rules.json verification.** Every rule violation in `truth.csv` can be verified and re-evaluated
+  directly from `rules.json` without access to Python source code or package YAML.
+- **Output profile defaults for `rare_events`.** As `rare_events` requires extended columns,
+  `build_generate_plan` selects the `extended` output profile by default when `--output-profile`
+  is omitted for `rare_events`.
+
 ## 8. Relational model (lots 8 and 9, D2)
 
 One in-memory population model (clients, households, brokers, agencies, contracts, renewals,

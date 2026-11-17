@@ -293,9 +293,14 @@ EXTENDED_FIELDS: tuple[str, ...] = (
     "date_resiliation", "statut_paiement", "canal_acquisition", "courtier_id",
     "produit_code", "nombre_reclamations",
 )
+TRANCHE_B_FIELDS: tuple[str, ...] = (
+    "taux_remboursement", "consentement_communication", "gestionnaire_id",
+    "segment_client",
+)
 OUTPUT_PROFILES: dict[str, tuple[str, ...]] = {
     "default": DEFAULT_FIELDS,
     "extended": (*DEFAULT_FIELDS, *EXTENDED_FIELDS),
+    "complete": (*DEFAULT_FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS),
 }
 
 # Contract insurance-v2.md 4.5: the type of each column decides how its clean cell is normalized.
@@ -303,8 +308,9 @@ DATE_COLUMNS = frozenset({"date_naissance", "date_debut", "date_fin", "date_crea
                           "date_modification", "date_reclamation", "date_sinistre",
                           "date_resiliation"})
 AMOUNT_COLUMNS = frozenset({"prime_annuelle", "montant_reclamation", "montant_couverture",
-                            "franchise", "montant_indemnise"})
-IDENTIFIER_COLUMNS = frozenset({"id_client", "id_contrat", "agence_code", "courtier_id"})
+                            "franchise", "montant_indemnise", "taux_remboursement"})
+IDENTIFIER_COLUMNS = frozenset({"id_client", "id_contrat", "agence_code", "courtier_id",
+                                "gestionnaire_id"})
 BRANCH_COLUMN = "filiale"
 
 
@@ -506,3 +512,64 @@ def extend_insurance_row(row: Mapping[str, str], branch: str,
         "nombre_reclamations": nombre_reclamations,
     }
     return {**row, **extended}
+
+
+REIMBURSEMENT_RATES: dict[str, str] = {
+    "AUT_BASE": "0.70",
+    "AUT_CONFORT": "0.80",
+    "AUT_TOURISME": "0.85",
+    "AUT_PREMIUM": "1.00",
+    "HAB_LOCATAIRE": "0.80",
+    "HAB_PROPRIETAIRE": "0.85",
+    "HAB_COPROPRIETE": "0.85",
+    "HAB_PRESTIGE": "1.00",
+    "VIE_TEMPORAIRE": "1.00",
+    "VIE_PERMANENTE": "1.00",
+    "VIE_UNIVERSELLE": "1.00",
+    "VOY_INDIVIDUEL": "0.80",
+    "VOY_FAMILLE": "0.85",
+    "VOY_ANNULATION": "0.90",
+    "VOY_MULTI": "1.00",
+}
+CLIENT_SEGMENTS: tuple[list[str], list[int]] = (
+    ["particulier", "professionnel", "entreprise", "vip"], [70, 15, 10, 5],
+)
+
+
+def extend_tranche_b_row(row: Mapping[str, str],
+                         streams: Mapping[str, random.Random]) -> dict[str, str]:
+    """Extend an Insurance row with the 4 columns of tranche B (contract 7).
+
+    Each column draws exclusively from its dedicated stream in ``streams``, so draws remain
+    deterministic and independent of other columns.
+    """
+    # 1. taux_remboursement
+    rng_taux = streams["taux_remboursement"]
+    prod_code = row.get("produit_code", "")
+    if prod_code in REIMBURSEMENT_RATES:
+        taux_remboursement = REIMBURSEMENT_RATES[prod_code]
+    else:
+        taux_remboursement = rng_taux.choices(
+            ["0.70", "0.80", "0.85", "0.90", "1.00"],
+            weights=[20, 35, 20, 15, 10], k=1,
+        )[0]
+
+    # 2. consentement_communication
+    rng_cst = streams["consentement_communication"]
+    consentement = rng_cst.choices(["true", "false"], weights=[70, 30], k=1)[0]
+
+    # 3. gestionnaire_id
+    rng_ges = streams["gestionnaire_id"]
+    gestionnaire_id = f"GES-{rng_ges.randint(1, 50):03d}"
+
+    # 4. segment_client
+    rng_seg = streams["segment_client"]
+    segment_client = rng_seg.choices(CLIENT_SEGMENTS[0], weights=CLIENT_SEGMENTS[1], k=1)[0]
+
+    tranche_b = {
+        "taux_remboursement": taux_remboursement,
+        "consentement_communication": consentement,
+        "gestionnaire_id": gestionnaire_id,
+        "segment_client": segment_client,
+    }
+    return {**row, **tranche_b}

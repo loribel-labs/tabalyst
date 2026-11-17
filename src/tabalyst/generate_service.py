@@ -47,8 +47,12 @@ from tabalyst.generate_insurance import (
     EXTENDED_FIELDS as INSURANCE_EXTENDED_FIELDS,
 )
 from tabalyst.generate_insurance import (
+    TRANCHE_B_FIELDS as INSURANCE_TRANCHE_B_FIELDS,
+)
+from tabalyst.generate_insurance import (
     InsuranceProvider,
     extend_insurance_row,
+    extend_tranche_b_row,
     insurance_canonical,
     insurance_contextual,
 )
@@ -519,7 +523,11 @@ def build_generate_plan(
             )
         effective_output = output_profile or "default"
         if package.id == "insurance":
-            if effective_output not in {"default", "extended"}:
+            if anomaly_profile == "rare_events" and output_profile is None:
+                effective_output = "extended"
+            elif output_profile is None:
+                effective_output = "default"
+            if effective_output not in {"default", "extended", "complete"}:
                 raise ConfigurationError(f"unsupported Insurance output profile {output_profile!r}")
         elif output_profile is not None:
             raise ConfigurationError("--output-profile applies to the Computer and Insurance packages only.")
@@ -1012,11 +1020,9 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                                         ensure_ascii=False, indent=2) + "\n",
                              encoding="utf-8", newline="\n")
             return
-        is_extended_insurance = (
-            plan.package is not None
-            and plan.package.id == "insurance"
-            and plan.output_profile == "extended"
-        )
+        is_insurance = plan.package is not None and plan.package.id == "insurance"
+        is_extended_insurance = is_insurance and plan.output_profile in {"extended", "complete"}
+        is_complete_insurance = is_insurance and plan.output_profile == "complete"
         if "combine" in dataset:
             first = datasets[dataset["combine"]["inputs"][0]]
             columns = first.get("columns") or plan.definition.schemas[first["schema"]]["columns"]
@@ -1025,6 +1031,8 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 headers.append(dataset["combine"]["source_column"])
             if is_extended_insurance:
                 headers.extend(INSURANCE_EXTENDED_FIELDS)
+            if is_complete_insurance:
+                headers.extend(INSURANCE_TRANCHE_B_FIELDS)
             rows = combined_rows(dataset)
         else:
             columns = dataset.get("columns") or plan.definition.schemas[dataset["schema"]]["columns"]
@@ -1038,15 +1046,27 @@ def _generate(plan: GeneratePlan | ComputerPlan,
             )
             if is_extended_insurance:
                 headers.extend(INSURANCE_EXTENDED_FIELDS)
-                streams = {
+                streams_ext = {
                     col: _stream(plan.seed, artifact.dataset_id, col, "extended")
                     for col in INSURANCE_EXTENDED_FIELDS
                 }
                 branch = dataset.get("source", "")
-                rows = (
-                    extend_insurance_row(row, branch, streams, plan.as_of_date)
+                ext_rows = (
+                    extend_insurance_row(row, branch, streams_ext, plan.as_of_date)
                     for row in base_rows
                 )
+                if is_complete_insurance:
+                    headers.extend(INSURANCE_TRANCHE_B_FIELDS)
+                    streams_b = {
+                        col: _stream(plan.seed, artifact.dataset_id, col, "complete")
+                        for col in INSURANCE_TRANCHE_B_FIELDS
+                    }
+                    rows = (
+                        extend_tranche_b_row(row, streams_b)
+                        for row in ext_rows
+                    )
+                else:
+                    rows = ext_rows
             else:
                 rows = base_rows
         total = plan.rows[artifact.dataset_id]

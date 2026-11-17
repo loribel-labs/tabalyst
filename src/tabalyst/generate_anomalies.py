@@ -50,7 +50,7 @@ FORMAT_VALUES = frozenset({
     "date_dmy", "date_iso", "currency_suffix", "currency_prefix", "currency_fr", "currency_code",
     "drop_digit", "insert_double_space", "trailing_space", "date_mdy_iso",
     "leading_space", "leading_tab", "insert_zero_width", "insert_replacement_char",
-    "times_100", "date_plus_century",
+    "times_100", "date_plus_century", "date_minus_decade",
     "surrounding_space", "insert_non_breaking_space", "unicode_nfd", "unicode_nfc",
     "title_case", "phone_drop_digit", "email_invalid", "email_forbidden_domain",
     "postal_no_space", "postal_invalid_syntax", "decimal_comma", "decimal_dot",
@@ -232,6 +232,26 @@ def _plus_century(value: str, rng: random.Random) -> str:
         year, first, second = int(iso[1]) + 100, iso[2], iso[3]
     elif other:
         year, first, second = int(other[3]) + 100, other[1], other[2]
+    else:
+        return value
+    leap = year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+    if {first, second} == {"02", "29"} and not leap:
+        first, second = ("28", "02") if first == "29" else ("02", "28")
+    return f"{year:04d}-{first}-{second}" if iso else f"{first}-{second}-{year:04d}"
+
+
+def _minus_decade(value: str, rng: random.Random) -> str:
+    """Move a date, in ISO or in day/month-first order, ten years earlier (R04: event before coverage).
+
+    The year is the first part of an ISO date and the last of the other two orders, whose first
+    two parts are left in place. A 29 February that the new year does not have becomes the 28th.
+    """
+    iso = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", value)
+    other = re.fullmatch(r"(\d{2})-(\d{2})-(\d{4})", value)
+    if iso:
+        year, first, second = int(iso[1]) - 10, iso[2], iso[3]
+    elif other:
+        year, first, second = int(other[3]) - 10, other[1], other[2]
     else:
         return value
     leap = year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
@@ -462,6 +482,7 @@ TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "insert_replacement_char": _insert_invisible("\ufffd"),
     "times_100": _times_100,
     "date_plus_century": _plus_century,
+    "date_minus_decade": _minus_decade,
     "surrounding_space": _surrounding_space,
     "insert_non_breaking_space": _insert_non_breaking_space,
     "unicode_nfd": _unicode_nfd,

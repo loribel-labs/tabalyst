@@ -233,7 +233,7 @@ def test_catalogue_date_formats_must_be_those_of_the_branches(tmp_path: Path) ->
 def test_invalid_catalogue_names_the_member(tmp_path: Path) -> None:
     rules = (PACKAGE / "rules.yaml").read_text(encoding="utf-8").replace(
         "detection: uniqueness", "detection: magic")
-    with pytest.raises(ConfigurationError, match=r"PACKAGE_RULES: rules.yaml: rules\.5"):
+    with pytest.raises(ConfigurationError, match=r"PACKAGE_RULES: rules.yaml: rules\.\d+"):
         validate_generate_package(_package(tmp_path, rules=rules))
 
 
