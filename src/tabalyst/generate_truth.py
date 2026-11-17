@@ -138,6 +138,14 @@ class AbsenceProbability(_Model):
     reason: Literal["multi_row_case"] | None
 
 
+class RootCauseMetrics(_Model):
+    """The aggregate impact of one common root cause across scenarios (contract 5.4)."""
+
+    events: Count
+    rows_touched: Count
+    scenarios: list[str]
+
+
 class MetricsDocument(_Model):
     """``<dataset>.<profile>.metrics.json`` (contract 5.4)."""
 
@@ -153,6 +161,7 @@ class MetricsDocument(_Model):
     categories: dict[str, Count]
     kinds: dict[str, Count]
     absence_probability: dict[str, AbsenceProbability]
+    root_causes: dict[str, RootCauseMetrics] = Field(default_factory=dict)
 
 
 class ScenarioEntry(_Model):
@@ -377,6 +386,23 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
         categories[metrics.category] += metrics.applied_cases
     kinds = Counter(line.kind for line in lines)
     violations = Counter(line.rule_id for line in lines if line.kind == "rule_violation")
+    causes_events: dict[str, set[int]] = {}
+    causes_rows: dict[str, set[int]] = {}
+    causes_scenarios: dict[str, set[str]] = {}
+    for line in injected:
+        if line.root_cause_id:
+            causes_events.setdefault(line.root_cause_id, set()).add(line.event_id)
+            causes_rows.setdefault(line.root_cause_id, set()).add(line.row_number)
+            if line.scenario_id:
+                causes_scenarios.setdefault(line.root_cause_id, set()).add(line.scenario_id)
+    root_causes = {
+        cause_id: RootCauseMetrics(
+            events=len(causes_events[cause_id]),
+            rows_touched=len(causes_rows[cause_id]),
+            scenarios=sorted(causes_scenarios[cause_id]),
+        )
+        for cause_id in sorted(causes_events)
+    }
     return MetricsDocument(
         dataset=dataset, profile=profile,
         rows=Rows(total=total, by_branch=dict(sorted(branches.items()))), counts=counts,
@@ -384,7 +410,8 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
         categories=categories, kinds={kind: kinds[kind] for kind in KINDS},
         absence_probability={
             scenario: _absence(total, entry.applied_cases, scenario in groups_of)
-            for scenario, entry in scenarios.items()})
+            for scenario, entry in scenarios.items()},
+        root_causes=root_causes)
 
 
 def _absence(rows: int, cases: int, spans_rows: bool) -> AbsenceProbability:

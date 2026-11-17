@@ -708,6 +708,32 @@ Written when lot 6 was implemented; where it differs from earlier sections this 
   `build_generate_plan` selects the `extended` output profile by default when `--output-profile`
   is omitted for `rare_events`.
 
+### 7.3 What lot 7 fixed
+
+Written when lot 7 was implemented; where it differs from earlier sections this is the behavior.
+
+- **V2 quality scenario profiles.** Three new profiles delivered in `dataset.yaml` of the Insurance package:
+  - `format_vs_business`: balanced comparison profile with strictly equal counts (500 cases of format variants and defects vs 500 cases of business rule violations) and minimum rows floor of 10,000.
+  - `anomaly_diversity`: coverage profile ensuring non-zero cases across all 6 categories (`format_variant`, `format_invalid`, `semantic_invalid`, `business_rule_violation`, `contextual_invalid`, `valid_atypical`) and 7 detector families (`syntactic`, `domain`, `cross_column`, `contextual`, `statistical`, `uniqueness`, `none`).
+  - `clustered_errors`: spatial cluster on Ontario (`when: {filiale: "ontario"}`), agency cluster (`when: {agence_code: "AG-QC-001"}`), temporal/closed-status cluster, contrasted against a uniformly diffuse control anomaly (`nom` casing across all branches).
+- **Root cause traceability.**
+  - Operations sharing an incident declare `root_cause_id` (`ontario_import`).
+  - Full traceability across `truth.csv`: written on `injected` and `net_difference` lines and inherited on `rule_violation` lines.
+  - Member `root_causes` added to `MetricsDocument` (`dict[str, RootCauseMetrics]` tracking `events`, `rows_touched`, and sorted `scenarios`).
+  - Schema `tabalyst.generate.metrics.schema.json` updated and validated.
+- **Interactions C01 to C10.**
+  - C01 (multiple anomalies per row via `can_overlap: true`)
+  - C02 (masking)
+  - C03 (inadvertent compensation: inverse operations restoring clean state, verified with 0 net differences)
+  - C04 (successive modifications of the same cell with chained before/after values)
+  - C05 (Kleene three-valued logic ensuring syntax defects leave business rules unknown rather than falsely violated)
+  - C06 (relational cascade with duplicate key generating `relational` and `rule_violation` M21 rows)
+  - C07 (common root cause across multiple columns and records)
+  - C08 (correlated missing values across distinct columns)
+  - C09 (segment-specific anomalies conditioned by `when`)
+  - C10 (collective cluster detection).
+- **Non-regression.** All contract tests up to lot 7 (84 tests) passing. Existing profiles and public showcase demos strictly unchanged.
+
 ## 8. Relational model (lots 8 and 9, D2)
 
 One in-memory population model (clients, households, brokers, agencies, contracts, renewals,

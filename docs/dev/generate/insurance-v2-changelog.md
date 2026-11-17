@@ -103,3 +103,17 @@ Catalogue of format defect and variant operations completed in `generate_anomali
 - `build_generate_plan` selects `output_profile: "extended"` by default when running `rare_events`.
 - `generation_version` stays 2.
 
+## Quality profiles, interactions C01 to C10, root causes (lot 7, 2026-11-17)
+
+- Three new V2 quality scenario profiles added to the Insurance package:
+  - `format_vs_business`: balanced comparison profile with strictly equal counts of format variants/defects (500 cases across FB_F01 and FB_F02) and business rule violations (500 cases across FB_B01 and FB_B02). Kleene logic guarantees format defects do not trigger business rule violations.
+  - `anomaly_diversity`: comprehensive coverage profile featuring all 6 categories (`format_variant`, `format_invalid`, `semantic_invalid`, `business_rule_violation`, `contextual_invalid`, `valid_atypical`) and all 7 detector families (`syntactic`, `domain`, `cross_column`, `contextual`, `statistical`, `uniqueness`, `none`).
+  - `clustered_errors`: localized spatial (Ontario import incident), group (agency AG-QC-001) and temporal clusters, contrasted against a uniformly diffuse control anomaly (E06, E07, E14, E15).
+- Root cause traceability:
+  - Scenarios sharing a common incident declare `root_cause_id` (e.g., `ontario_import` corrupting dates, decimal formats, and phone numbers in Ontario).
+  - Traversed and recorded in `truth.csv` on `injected`, `net_difference`, and propagated to `rule_violation` rows.
+  - Aggregated in `metrics.json` under member `root_causes` (`dict[str, RootCauseMetrics]` with `events`, `rows_touched`, and sorted `scenarios`).
+  - `tabalyst.generate.metrics.schema.json` updated with `RootCauseMetrics` definition.
+- Interactions C01 to C10 verified and documented: overlapping operations on shared rows, cell modification chaining, inadvertent compensation (restoring clean values with 0 net differences), Kleene 3-valued logic isolation, relational cascades, segment-specific anomalies, and collective cluster detection.
+- `generation_version` stays 2.
+

@@ -40,13 +40,13 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_PROFILES = {"dirty_realistic", "dirty_stress", "rule_breaks"}
-# The scenario profiles the package ships: each lot that delivers one adds it here (lot 3).
-V2_PROFILES = {"rare_events"}
+# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3 and 7).
+V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors"}
 
 # Section 3.3 of the contract: the unit is the case; the band is what a scenario total may be.
 NOMINAL_CASES = {"frequent": 5000, "uncommon": 500, "rare": 100, "very_rare": 50,
@@ -1690,6 +1690,227 @@ def test_composite_violations_and_contextual_invalid_behavior(tmp_path: Path) ->
     # Composite violations flagged on rule M08 and M11
     rule_violations = [r for r in truth_rows if r["kind"] == "rule_violation"]
     assert len(rule_violations) == 10  # 5 for M08 + 5 for M11
+
+
+def _profile_json(out: Path, profile: str, role: str) -> dict[str, object]:
+    path = out / f"insurance-combined.{profile}.{role}.json"
+    return cast(dict[str, object], json.loads(path.read_text(encoding="utf-8")))
+
+
+@contract("7")
+def test_profile_format_vs_business_has_equal_counts_and_no_cross_contamination(
+        tmp_path: Path) -> None:
+    """SRS 4, 17, plan lot 7: format_vs_business has identical format and business error counts."""
+    out = tmp_path / "fvb"
+    plan = build_generate_plan(example="insurance", rows=10000, seed=42, output_dir=out,
+                               anomaly_profile="format_vs_business")
+    generate_datasets(plan)
+
+    metrics = _profile_json(out, "format_vs_business", "metrics")
+    categories = cast(dict[str, int], metrics["categories"])
+    format_count = categories["format_variant"] + categories["format_invalid"]
+    business_count = categories["business_rule_violation"] + categories["semantic_invalid"]
+    assert format_count == 500
+    assert business_count == 500
+    assert format_count == business_count
+
+    scenarios = cast(dict[str, dict[str, object]], metrics["scenarios"])
+    assert scenarios["FB_F01"]["applied_cases"] == 250
+    assert scenarios["FB_F02"]["applied_cases"] == 250
+    assert scenarios["FB_B01"]["applied_cases"] == 250
+    assert scenarios["FB_B02"]["applied_cases"] == 250
+
+    truth_rows = _csv_rows(out / "insurance-combined.format_vs_business.truth.csv")
+    rule_violations = [r for r in truth_rows if r["kind"] == "rule_violation"]
+    violation_scenarios = {r["scenario_id"] for r in rule_violations}
+    assert violation_scenarios == {"FB_B01", "FB_B02"}
+
+
+@contract("7")
+def test_profile_anomaly_diversity_covers_all_categories_and_detection_families(
+        tmp_path: Path) -> None:
+    """SRS 7 (E09, E10), 17: anomaly_diversity covers all six categories and detection families."""
+    out = tmp_path / "ad"
+    plan = build_generate_plan(example="insurance", rows=10000, seed=42, output_dir=out,
+                               anomaly_profile="anomaly_diversity")
+    generate_datasets(plan)
+
+    metrics = _profile_json(out, "anomaly_diversity", "metrics")
+    categories = cast(dict[str, int], metrics["categories"])
+    for cat in ("format_variant", "format_invalid", "semantic_invalid",
+                "business_rule_violation", "contextual_invalid", "valid_atypical"):
+        assert categories[cat] > 0, f"Category {cat} must have positive cases"
+
+    truth_rows = _csv_rows(out / "insurance-combined.anomaly_diversity.truth.csv")
+    all_detections = set()
+    for r in truth_rows:
+        if r["expected_detection"]:
+            for det in r["expected_detection"].split("|"):
+                all_detections.add(det)
+    required_families = {"syntactic", "domain", "cross_column", "contextual",
+                         "statistical", "uniqueness", "none"}
+    assert required_families <= all_detections
+
+    relational_lines = [r for r in truth_rows if r["kind"] == "relational"]
+    assert len(relational_lines) == 2
+    assert relational_lines[0]["scenario_id"] == "AD_UNIQ"
+
+
+@contract("7")
+def test_profile_clustered_errors_measures_branch_agency_period_clusters(
+        tmp_path: Path) -> None:
+    """SRS 7 (E06, E07, E14, E15), 9 (C07): clustered_errors with Ontario root cause and group clusters."""
+    out = tmp_path / "ce"
+    plan = build_generate_plan(example="insurance", rows=10000, seed=42, output_dir=out,
+                               anomaly_profile="clustered_errors")
+    generate_datasets(plan)
+
+    metrics = _profile_json(out, "clustered_errors", "metrics")
+    root_causes = cast(dict[str, dict[str, object]], metrics.get("root_causes", {}))
+    assert "ontario_import" in root_causes
+    ontario_metrics = root_causes["ontario_import"]
+    assert ontario_metrics["events"] == 450
+    assert ontario_metrics["scenarios"] == ["CE_ON_AMOUNT", "CE_ON_DATE", "CE_ON_PHONE"]
+    assert 150 <= cast(int, ontario_metrics["rows_touched"]) <= 450
+
+    truth_rows = _csv_rows(out / "insurance-combined.clustered_errors.truth.csv")
+    ontario_rows = [r for r in truth_rows if r["root_cause_id"] == "ontario_import" and r["kind"] == "injected"]
+    assert len(ontario_rows) == 450
+
+    altered_rows = _csv_rows(out / "insurance-combined.clustered_errors.csv")
+    for r in ontario_rows:
+        row_idx = int(r["row_number"]) - 2
+        assert altered_rows[row_idx]["filiale"] == "ontario"
+
+    agency_events = [r for r in truth_rows if r["scenario_id"] == "CE_AGENCY" and r["kind"] == "injected"]
+    assert len(agency_events) == 100
+    for r in agency_events:
+        row_idx = int(r["row_number"]) - 2
+        assert altered_rows[row_idx]["agence_code"] == "AG-QC-001"
+
+    period_events = [r for r in truth_rows if r["scenario_id"] == "CE_PERIOD" and r["kind"] == "injected"]
+    assert len(period_events) == 100
+    for r in period_events:
+        row_idx = int(r["row_number"]) - 2
+        assert altered_rows[row_idx]["reclamation_status"] == "fermé"
+
+    diffuse_events = [r for r in truth_rows if r["scenario_id"] == "CE_DIFFUSE" and r["kind"] == "injected"]
+    diffuse_branches = {altered_rows[int(r["row_number"]) - 2]["filiale"] for r in diffuse_events}
+    assert len(diffuse_branches) > 1
+
+
+@contract("7")
+def test_root_cause_id_traceability_in_truth_and_metrics(tmp_path: Path) -> None:
+    """SRS 9 (C07), contract 3.5, 5.4: root_cause_id traceability in truth.csv and metrics.json."""
+    operations = [
+        _scenario("RC01", "format", "telephone", 10, value="phone_drop_digit",
+                  root_cause_id="batch_failure", can_overlap=True),
+        _scenario("RC02", "replace", "statut_contrat", 10, value="inconnu",
+                  rule_id="M23", root_cause_id="batch_failure", can_overlap=True),
+    ]
+    pkg = _insurance_package(tmp_path / "pkg", operations, profile="v2_rc")
+    out = tmp_path / "out"
+    plan = build_generate_plan(pkg, rows=500, seed=42, output_dir=out, anomaly_profile="v2_rc")
+    generate_datasets(plan)
+
+    metrics = _profile_json(out, "v2_rc", "metrics")
+    assert "batch_failure" in cast(dict[str, object], metrics["root_causes"])
+    rc_metric = cast(dict[str, object], cast(dict[str, object], metrics["root_causes"])["batch_failure"])
+    assert rc_metric["events"] == 20
+    assert rc_metric["scenarios"] == ["RC01", "RC02"]
+
+    truth_rows = _csv_rows(out / "insurance-combined.v2_rc.truth.csv")
+    for r in truth_rows:
+        if r["scenario_id"] in {"RC01", "RC02"}:
+            assert r["root_cause_id"] == "batch_failure"
+
+
+@contract("7")
+def test_interaction_c03_inadvertent_compensation(tmp_path: Path) -> None:
+    """SRS 9 (C03): two inverse operations restore clean cell state (injected > 0, net_differences == 0)."""
+    # Two successive swaps on all rows invert then restore prenom and nom
+    operations = [
+        _scenario("C03_A", "swap", "prenom", 20, value="nom", can_overlap=True),
+        _scenario("C03_B", "swap", "prenom", 20, value="nom", can_overlap=True),
+    ]
+    pkg = _insurance_package(tmp_path / "pkg", operations, profile="v2_c03")
+    out = tmp_path / "out"
+    plan = build_generate_plan(pkg, rows=20, seed=42, output_dir=out, anomaly_profile="v2_c03")
+    generate_datasets(plan)
+
+    truth_rows = _csv_rows(out / "insurance-combined.v2_c03.truth.csv")
+    injected = [r for r in truth_rows if r["kind"] == "injected"]
+    # 20 rows * 2 cells * 2 operations = 80 injected events
+    assert len(injected) == 80
+    net_diffs = [r for r in truth_rows if r["kind"] == "net_difference"]
+    assert len(net_diffs) == 0
+
+
+@contract("7")
+def test_interactions_c01_to_c10_comprehensive(tmp_path: Path) -> None:
+    """SRS 9: verification of interaction mechanisms C01 to C10."""
+    operations = [
+        # C01 & C08: Overlapping anomalies on distinct columns (phone and courriel)
+        _scenario("C01_P", "format", "telephone", 10, value="phone_spaces", can_overlap=True),
+        _scenario("C01_M", "set_missing", "courriel", 10, can_overlap=True),
+
+        # C04: Successive modifications of the same cell
+        _scenario("C04_A", "format", "code_postal", 10, value="postal_no_space", can_overlap=True),
+        _scenario("C04_B", "format", "code_postal", 10, value="similar_char", can_overlap=True),
+
+        # C05: Three-valued logic isolation (syntax defect does not trigger business rule)
+        _scenario("C05_F", "format", "date_debut", 5, value="date_impossible"),
+
+        # C06: Relational identifier cascade
+        _scenario("C06_R", "reuse_value", "id_contrat", 1, rule_id="M21",
+                  category="business_rule_violation", severity="critical", rarity_level="single"),
+
+        # C07: Common root cause
+        _scenario("C07_A", "replace", "pays_code", 10, value="USA", root_cause_id="sys_incident"),
+        _scenario("C07_B", "replace", "langue_preferee", 10, value="es", root_cause_id="sys_incident"),
+
+        # C09: Product/segment constraint
+        _scenario("C09_S", "replace", "statut_contrat", 5, value="inconnu",
+                  when={"type_contrat": "auto"}, rule_id="M23"),
+    ]
+    pkg = _insurance_package(tmp_path / "pkg", operations, profile="v2_inter")
+    out = tmp_path / "out"
+    plan = build_generate_plan(pkg, rows=500, seed=42, output_dir=out, anomaly_profile="v2_inter")
+    generate_datasets(plan)
+
+    truth_rows = _csv_rows(out / "insurance-combined.v2_inter.truth.csv")
+
+    # C01 & C08: Both telephone and courriel affected with overlap
+    c01_rows = {r["row_number"] for r in truth_rows if r["scenario_id"] in {"C01_P", "C01_M"}}
+    assert len(c01_rows) <= 20
+
+    # C04: Two successive modifications on same column 'code_postal'
+    c04_injected = [r for r in truth_rows if r["scenario_id"] in {"C04_A", "C04_B"} and r["kind"] == "injected"]
+    assert len(c04_injected) == 20
+
+    # C05: C05_F invalid date does NOT generate a rule_violation on M01
+    c05_violations = [r for r in truth_rows if r["scenario_id"] == "C05_F" and r["kind"] == "rule_violation"]
+    assert len(c05_violations) == 0
+
+    # C06: Relational lines + M21 violation lines (one per row of the duplicated key group)
+    c06_relational = [r for r in truth_rows if r["scenario_id"] == "C06_R" and r["kind"] == "relational"]
+    assert len(c06_relational) == 2
+    c06_violations = [r for r in truth_rows if r["scenario_id"] == "C06_R" and r["kind"] == "rule_violation"]
+    assert len(c06_violations) == 2
+
+    # C07: Root cause recorded
+    c07_rows = [r for r in truth_rows if r["root_cause_id"] == "sys_incident"]
+    assert len(c07_rows) > 0
+
+
+@contract("7")
+def test_quality_profiles_min_rows_floor_refusal(tmp_path: Path) -> None:
+    """Contract 6.1: V2 quality profiles enforce min_rows floor (10,000)."""
+    for profile in ("format_vs_business", "anomaly_diversity", "clustered_errors"):
+        with pytest.raises(ConfigurationError, match=f"Profile {profile} needs at least 10,000 rows"):
+            build_generate_plan(example="insurance", rows=9999, seed=42, output_dir=tmp_path / "out",
+                                anomaly_profile=profile)
+
 
 
 

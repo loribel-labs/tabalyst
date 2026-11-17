@@ -85,6 +85,36 @@
       "title": "Counts",
       "type": "object"
     },
+    "RootCauseMetrics": {
+      "additionalProperties": false,
+      "description": "The aggregate impact of one common root cause across scenarios (contract 5.4).",
+      "properties": {
+        "events": {
+          "minimum": 0,
+          "title": "Events",
+          "type": "integer"
+        },
+        "rows_touched": {
+          "minimum": 0,
+          "title": "Rows Touched",
+          "type": "integer"
+        },
+        "scenarios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scenarios",
+          "type": "array"
+        }
+      },
+      "required": [
+        "events",
+        "rows_touched",
+        "scenarios"
+      ],
+      "title": "RootCauseMetrics",
+      "type": "object"
+    },
     "Rows": {
       "additionalProperties": false,
       "description": "Rows of the altered file, in total and per branch.",
@@ -238,6 +268,13 @@
         "$ref": "#/$defs/AbsenceProbability"
       },
       "title": "Absence Probability",
+      "type": "object"
+    },
+    "root_causes": {
+      "additionalProperties": {
+        "$ref": "#/$defs/RootCauseMetrics"
+      },
+      "title": "Root Causes",
       "type": "object"
     }
   },

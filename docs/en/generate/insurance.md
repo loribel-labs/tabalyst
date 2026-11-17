@@ -222,6 +222,18 @@ so the number of rows changed depends on the data. The summary gives it for
 every operation. The dates are replaced in the principal branch only, whose
 dates are ISO, so a broken rule never comes with a format defect.
 
+### Quality benchmark profiles
+
+Three scenario profiles provide controlled reference benchmarks for data quality analysis and sampling comparisons (minimum 10,000 rows):
+
+- `format_vs_business`: strictly equal counts of format variants/defects (500 cases) and business rule violations (500 cases), allowing detectors to compare format vs business sensitivity without class imbalance.
+- `anomaly_diversity`: broad coverage across all 6 categories (`format_variant`, `format_invalid`, `semantic_invalid`, `business_rule_violation`, `contextual_invalid`, `valid_atypical`) and 7 detector families.
+- `clustered_errors`: spatial, agency, and temporal error clusters (such as an Ontario system import batch failure with common `root_cause_id`), contrasted with diffuse anomalies across branches.
+
+```console
+tabalyst generate --example insurance -d out/ --anomaly-profile format_vs_business
+```
+
 ## Next steps
 
 - [Insurance ground truth files](insurance-ground-truth.md) explains the

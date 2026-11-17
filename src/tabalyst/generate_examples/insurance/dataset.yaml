@@ -1055,3 +1055,219 @@ anomaly_profiles:
       rarity_level: rare
       expected_detection: none
       description: An indemnity amount exactly equal to the coverage cap, which M11 allows
+  format_vs_business:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: format
+      column: telephone
+      value: phone_spaces
+      count: 250
+      scenario_id: FB_F01
+      category: format_variant
+      severity: minor
+      rarity_level: uncommon
+      expected_detection: syntactic
+      description: Phone numbers with spacing variants
+    - kind: format
+      column: code_postal
+      value: postal_no_space
+      count: 250
+      scenario_id: FB_F02
+      category: format_variant
+      severity: minor
+      rarity_level: uncommon
+      expected_detection: syntactic
+      description: Postal codes without space separator
+    - kind: swap
+      column: date_debut
+      value: date_fin
+      count: 250
+      when: {date_reclamation: ""}
+      scenario_id: FB_B01
+      rule_id: M01
+      category: business_rule_violation
+      severity: major
+      rarity_level: uncommon
+      expected_detection: cross_column
+      description: Contract end date before start date
+    - kind: replace
+      column: statut_contrat
+      value: "inconnu"
+      count: 250
+      scenario_id: FB_B02
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: uncommon
+      expected_detection: domain
+      description: Contract status outside allowed referential
+  anomaly_diversity:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: format
+      column: nom
+      value: upper
+      count: 100
+      scenario_id: AD_FVAR
+      category: format_variant
+      severity: info
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Uppercase representation of customer last names
+    - kind: format
+      column: telephone
+      value: phone_drop_digit
+      count: 100
+      scenario_id: AD_FINV
+      category: format_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Phone numbers missing a trailing digit
+    - kind: replace
+      column: statut_contrat
+      value: "inconnu"
+      count: 100
+      scenario_id: AD_SEMINV
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: domain
+      description: Unknown contract status violating domain referential
+    - kind: swap
+      column: date_debut
+      value: date_fin
+      count: 100
+      when: {date_reclamation: ""}
+      scenario_id: AD_BIZVIOL
+      rule_id: M01
+      category: business_rule_violation
+      severity: major
+      rarity_level: rare
+      expected_detection: cross_column
+      description: Inverted contract start and end dates
+    - kind: format
+      column: date_debut
+      value: date_mdy_iso
+      count: 100
+      when: {filiale: "ontario"}
+      scenario_id: AD_CTXINV
+      category: contextual_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: contextual
+      description: Ontario date written in ISO format breaking branch convention
+    - kind: copy_column
+      column: date_fin
+      value: date_debut
+      count: 100
+      when: {statut_contrat: "expiré"}
+      scenario_id: AD_ATYP
+      rule_id: M01
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: Valid edge case of contract ending on its start date
+    - kind: format
+      column: prime_annuelle
+      value: times_100
+      count: 100
+      scenario_id: AD_STAT
+      category: semantic_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: statistical
+      description: Outlier annual premiums multiplied by 100
+    - kind: reuse_value
+      column: id_contrat
+      count: 1
+      scenario_id: AD_UNIQ
+      rule_id: M21
+      category: business_rule_violation
+      severity: critical
+      rarity_level: single
+      expected_detection: uniqueness
+      description: Duplicated contract identifier breaking uniqueness
+  clustered_errors:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: format
+      column: date_debut
+      value: date_swap_month_day
+      count: 150
+      when: {filiale: "ontario"}
+      can_overlap: true
+      root_cause_id: "ontario_import"
+      scenario_id: CE_ON_DATE
+      category: contextual_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: contextual
+      description: Ontario batch import swapped month and day in dates
+    - kind: format
+      column: prime_annuelle
+      value: decimal_comma
+      count: 150
+      when: {filiale: "ontario"}
+      can_overlap: true
+      root_cause_id: "ontario_import"
+      scenario_id: CE_ON_AMOUNT
+      category: format_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Ontario batch import localized decimal commas in premiums
+    - kind: format
+      column: telephone
+      value: phone_drop_digit
+      count: 150
+      when: {filiale: "ontario"}
+      can_overlap: true
+      root_cause_id: "ontario_import"
+      scenario_id: CE_ON_PHONE
+      category: format_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Ontario batch import truncated phone numbers
+    - kind: replace
+      column: pays_code
+      value: "USA"
+      count: 100
+      when: {agence_code: "AG-QC-001"}
+      scenario_id: CE_AGENCY
+      category: semantic_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: domain
+      description: Agency AG-QC-001 misconfigured country code
+    - kind: replace
+      column: statut_contrat
+      value: "annulé"
+      count: 100
+      when: {reclamation_status: "fermé"}
+      scenario_id: CE_PERIOD
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: domain
+      description: Closed claims with contract marked cancelled
+    - kind: format
+      column: nom
+      value: upper
+      count: 200
+      scenario_id: CE_DIFFUSE
+      category: format_variant
+      severity: info
+      rarity_level: uncommon
+      expected_detection: syntactic
+      description: Uniformly distributed name casing across all branches

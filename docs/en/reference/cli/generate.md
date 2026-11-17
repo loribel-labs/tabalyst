@@ -74,5 +74,8 @@ writes `<dataset>.<profile>.truth.csv`, `.rules.json`, `.metrics.json` and
 an existing one needs `--force`. See
 [Insurance ground truth files](../../generate/insurance-ground-truth.md).
 A profile can set a minimum number of rows: `rare_events` stops below
-100,000 rows, naming the profile, the floor and the rows requested. See
-[Insurance rare events](../../generate/insurance-rare-events.md).
+100,000 rows, while `format_vs_business`, `anomaly_diversity` and
+`clustered_errors` stop below 10,000 rows, naming the profile, the floor
+and the rows requested. See
+[Insurance rare events](../../generate/insurance-rare-events.md) and
+[Generate insurance customers](../../generate/insurance.md).
