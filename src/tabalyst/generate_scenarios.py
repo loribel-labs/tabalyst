@@ -28,13 +28,18 @@ SEVERITIES = frozenset({"info", "minor", "major", "critical"})
 DETECTION_FAMILIES = frozenset({
     "syntactic", "domain", "cross_column", "uniqueness", "contextual", "statistical", "none",
 })
+MISSING_MECHANISMS = frozenset({"mcar", "mar", "mnar"})
+MISSING_REASONS = frozenset({
+    "unreported", "client_refusal", "not_applicable", "system_omission", "unknown",
+})
 SCENARIO_KEYS = frozenset({
     "scenario_id", "rule_id", "category", "severity", "rarity_level", "root_cause_id",
     "requires", "conflicts_with", "can_overlap", "expected_detection", "description",
+    "missing_mechanism", "missing_reason",
 })
 # What every operation of one scenario must say the same way: the truth file reads them per scenario.
 SHARED_KEYS = ("category", "severity", "rarity_level", "rule_id", "root_cause_id",
-               "expected_detection", "description")
+               "expected_detection", "description", "missing_mechanism", "missing_reason")
 # The free text of a scenario in manifest.json (report 15 "expected effect"), never interpreted.
 MAX_DESCRIPTION = 500
 # Output profiles that add columns to the 34 of the default one (contract section 7), so that a
@@ -130,6 +135,27 @@ def scenario_option_error(operation: Mapping[str, object]) -> str | None:
                 or not text.isprintable()):
             checks.append(f"operation.description must be one line of 1 to {MAX_DESCRIPTION} "
                           "characters")
+    if "missing_mechanism" in operation:
+        checks.append(_choice_error(operation, "missing_mechanism", MISSING_MECHANISMS))
+        if operation.get("kind") != "set_missing":
+            checks.append("operation.missing_mechanism requires kind: set_missing")
+        mech = operation["missing_mechanism"]
+        when = operation.get("when")
+        col = operation.get("column")
+        if mech == "mcar" and when:
+            checks.append("operation.missing_mechanism mcar must not declare when (independent missingness)")
+        elif mech == "mar":
+            if not when:
+                checks.append("operation.missing_mechanism mar requires when condition on observed variable")
+            elif isinstance(when, dict) and col in when:
+                checks.append("operation.missing_mechanism mar must condition on a different column than the missing column")
+        elif mech == "mnar":
+            if not when:
+                checks.append("operation.missing_mechanism mnar requires when condition on the missing column itself")
+            elif isinstance(when, dict) and col not in when:
+                checks.append("operation.missing_mechanism mnar must condition on the missing column itself")
+    if "missing_reason" in operation:
+        checks.append(_choice_error(operation, "missing_reason", MISSING_REASONS))
     problem = next((problem for problem in checks if problem is not None), None)
     if problem is None and operation["category"] == "valid_atypical":
         # Contract 3.1: a non-defect is harmless and no detector should be right to report it.

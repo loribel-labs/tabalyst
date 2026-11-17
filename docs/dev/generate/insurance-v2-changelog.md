@@ -202,6 +202,23 @@ Phase 3 begins on branch `insurance-v2/phase-3` after gate P2 ratification (dire
   - 6 unit tests in `tests/test_generate_draws.py`.
 - `generation_version` stays 2.
 
+## Missing data mechanisms MCAR, MAR, MNAR and reasons (lot 11, 2026-11-17)
+
+- **Mechanisms and reasons (§11, MCAR, MAR, MNAR)**:
+  - Added `missing_mechanism` (`mcar`, `mar`, `mnar`) and `missing_reason` (`unreported`, `client_refusal`, `not_applicable`, `system_omission`, `unknown`) to scenario metadata in `src/tabalyst/generate_scenarios.py`.
+  - Enforced consistency rules: MCAR forbids `when`, MAR requires `when` on a distinct column, MNAR requires `when` targeting the missing column itself.
+- **Condition evaluation with operators**:
+  - `src/tabalyst/generate_anomalies.py` supports comparison prefixes (`>=`, `<=`, `>`, `<`, `!=`) for numeric thresholds and ISO dates.
+- **Traceability in ground truth**:
+  - `truth.csv`: `group_id` records `missing:<mechanism>:<reason>`. The clean value before blanking is preserved in `canonical_value` on the `injected` row, providing reference truth for imputation benchmarks.
+  - `metrics.json`: `ScenarioMetrics` carries `missing_mechanism` and `missing_reason`. Top-level member `missing_data` (`MissingDataMetrics`) aggregates events, rows touched, columns, and scenarios by mechanism, counts by reason, and column-by-mechanism contingency matrix.
+  - Updated committed JSON schema `src/tabalyst/schemas/tabalyst.generate.metrics.schema.json`.
+- **Quality profile `missing_mechanisms`**:
+  - Added to `src/tabalyst/generate_examples/insurance/dataset.yaml` with floor `min_rows: 10000`, covering MCAR, MAR, MNAR, all 5 reasons, and 4 concentration modes (uniform, Ontario branch, agency AG-QC-001, and post-2024 periods).
+- **Testing**:
+  - 6 new contract tests in `tests/test_generate_insurance_v2_contract.py` (100 contract tests passing).
+- `generation_version` stays 2.
+
 
 
 

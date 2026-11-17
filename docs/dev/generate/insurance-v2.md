@@ -874,6 +874,30 @@ Written when lot 10 was implemented:
   - Legacy stateless `InsuranceProvider.row()` remains completely untouched and byte-identical for default runs.
 - `generation_version` stays 2.
 
+### 8.8 What lot 11 fixed
+
+Written when lot 11 was implemented:
+- **Missing data mechanisms (§11, MCAR, MAR, MNAR)**:
+  - Strict formalization according to Little & Rubin (1987):
+    - `mcar` (Missing Completely at Random): independent missingness, rejects any `when` condition.
+    - `mar` (Missing at Random): missingness conditioned by an observed column distinct from the missing column.
+    - `mnar` (Missing Not at Random): missingness conditioned by the target column itself (e.g. high values).
+  - Validation in `src/tabalyst/generate_scenarios.py` rejecting invalid mechanism/condition configurations.
+- **Comparison operators in `when` conditions**:
+  - `src/tabalyst/generate_anomalies.py` supports comparison prefixes (`>=`, `<=`, `>`, `<`, `!=`) for numeric thresholds and ISO dates in addition to strict equality.
+- **Realistic missing reasons (§10 & §11)**:
+  - Standardized vocabulary in English (D14): `unreported`, `client_refusal`, `not_applicable`, `system_omission`, `unknown`.
+- **Traceability in `truth.csv` and `metrics.json`**:
+  - `truth.csv`: `group_id` records `missing:<mechanism>:<reason>`. The clean value before blanking is preserved in `canonical_value` on the `injected` row, providing ground truth for imputation benchmarks.
+  - `metrics.json`: `ScenarioMetrics` carries `missing_mechanism` and `missing_reason`. New top-level object `missing_data` (`MissingDataMetrics`) with aggregated metrics by mechanism, exact counts by reason, and column-by-mechanism contingency matrix.
+  - JSON schema `src/tabalyst/schemas/tabalyst.generate.metrics.schema.json` updated and verified.
+- **Scenario profile `missing_mechanisms`**:
+  - Added to `src/tabalyst/generate_examples/insurance/dataset.yaml` with floor `min_rows: 10000`, covering MCAR, MAR, MNAR, all 5 reasons, and 4 concentration modes (uniform, Ontario branch, agency AG-QC-001, and post-2024 periods).
+- **Strict non-regression**:
+  - All default runs and existing profiles remain byte-identical.
+  - All 100 contract tests passing.
+- `generation_version` stays 2.
+
 ## 9. Documentation, versions and languages
 
 - Public pages (Q5): `docs/en/generate/insurance.md` stays the overview; each lot that ships a

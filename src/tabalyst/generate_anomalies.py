@@ -591,13 +591,49 @@ def _mutate(row: dict[str, str], operation: Mapping[str, object],
     return {column: after} if before and after != before else {}
 
 
+def _match_condition(cell_value: str, condition: str) -> bool:
+    """Evaluate whether a cell matches an expected condition.
+
+    Supports equality comparison or comparison prefixes (>=, <=, !=, >, <) for
+    numeric and ISO date or string values.
+    """
+    if condition.startswith((">=", "<=", "!=", ">", "<")):
+        op = condition[:2] if condition.startswith((">=", "<=", "!=")) else condition[:1]
+        target_str = condition[len(op):].strip()
+        try:
+            val_num = float(cell_value)
+            tgt_num = float(target_str)
+            if op == ">=":
+                return val_num >= tgt_num
+            if op == "<=":
+                return val_num <= tgt_num
+            if op == ">":
+                return val_num > tgt_num
+            if op == "<":
+                return val_num < tgt_num
+            if op == "!=":
+                return val_num != tgt_num
+        except (ValueError, TypeError):
+            if op == ">=":
+                return cell_value >= target_str
+            if op == "<=":
+                return cell_value <= target_str
+            if op == ">":
+                return cell_value > target_str
+            if op == "<":
+                return cell_value < target_str
+            if op == "!=":
+                return cell_value != target_str
+    return cell_value == condition
+
+
 def _can_apply(row: dict[str, str], operation: Mapping[str, object], row_index: int,
                probe: random.Random, locale: str,
                unit_suffixes: Mapping[str, tuple[str, str]] | None,
                contextual: ContextualValues | None = None) -> bool:
     """Tell whether an operation would change this clean row."""
     when = cast(dict[str, str], operation.get("when", {}))
-    if any(row.get(field) != value for field, value in when.items()):
+    if any(not _match_condition(row.get(field, ""), str(value)) for field, value in when.items()):
         return False
     kind = operation["kind"]
     if kind == "duplicate_row":
@@ -828,7 +864,7 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                         continue
                     remaining[index] -= 1
                 when = cast(dict[str, str], operation.get("when", {}))
-                if any(row.get(field) != value for field, value in when.items()):
+                if any(not _match_condition(row.get(field, ""), str(value)) for field, value in when.items()):
                     skipped[index] += 1
                     continue
                 cause = f"{profile_id}.operations[{index}]"

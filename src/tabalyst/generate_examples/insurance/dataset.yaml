@@ -1271,3 +1271,91 @@ anomaly_profiles:
       rarity_level: uncommon
       expected_detection: syntactic
       description: Uniformly distributed name casing across all branches
+  missing_mechanisms:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: set_missing
+      column: prime_annuelle
+      count: 200
+      scenario_id: MM_MCAR_PREM
+      missing_mechanism: mcar
+      missing_reason: unreported
+      category: semantic_invalid
+      severity: minor
+      rarity_level: uncommon
+      expected_detection: statistical
+      description: Completely random missing premiums across all branches
+    - kind: set_missing
+      column: courriel
+      count: 150
+      when: {filiale: "ontario"}
+      scenario_id: MM_MAR_BRANCH
+      missing_mechanism: mar
+      missing_reason: client_refusal
+      category: semantic_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: domain
+      description: Missing emails driven by Ontario branch customer privacy refusal
+    - kind: set_missing
+      column: telephone
+      count: 100
+      when: {agence_code: "AG-QC-001"}
+      scenario_id: MM_MAR_AGENCY
+      missing_mechanism: mar
+      missing_reason: system_omission
+      category: semantic_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: domain
+      description: Agency AG-QC-001 system transmission failure dropping phone numbers
+    - kind: set_missing
+      column: code_postal
+      count: 100
+      when: {date_creation: ">=2024-01-01"}
+      scenario_id: MM_MAR_PERIOD
+      missing_mechanism: mar
+      missing_reason: unreported
+      category: semantic_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: domain
+      description: Recent contract registrations omitting postal codes
+    - kind: set_missing
+      column: prime_annuelle
+      count: 100
+      when: {prime_annuelle: ">=1500"}
+      scenario_id: MM_MNAR_PREM
+      missing_mechanism: mnar
+      missing_reason: client_refusal
+      category: semantic_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: statistical
+      description: High-value policyholders refusing to disclose annual premium
+    - kind: set_missing
+      column: montant_reclamation
+      count: 50
+      when: {montant_reclamation: ">=5000"}
+      scenario_id: MM_MNAR_CLAIM
+      missing_mechanism: mnar
+      missing_reason: unknown
+      category: semantic_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Severe open claims with pending unquantified loss amounts
+    - kind: set_missing
+      column: langue_preferee
+      count: 100
+      when: {filiale: "principal"}
+      scenario_id: MM_OPT_LANG
+      missing_mechanism: mar
+      missing_reason: not_applicable
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: Preferred language omission considered optional valid atypical in Principal branch

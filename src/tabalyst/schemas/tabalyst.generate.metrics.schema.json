@@ -85,6 +85,78 @@
       "title": "Counts",
       "type": "object"
     },
+    "MissingDataMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on missing data mechanisms (MCAR, MAR, MNAR) and reasons.",
+      "properties": {
+        "mechanisms": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MissingMechanismMetrics"
+          },
+          "title": "Mechanisms",
+          "type": "object"
+        },
+        "reasons": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Reasons",
+          "type": "object"
+        },
+        "by_column": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "title": "By Column",
+          "type": "object"
+        }
+      },
+      "title": "MissingDataMetrics",
+      "type": "object"
+    },
+    "MissingMechanismMetrics": {
+      "additionalProperties": false,
+      "description": "The aggregate impact of one missing data mechanism across scenarios.",
+      "properties": {
+        "events": {
+          "minimum": 0,
+          "title": "Events",
+          "type": "integer"
+        },
+        "rows_touched": {
+          "minimum": 0,
+          "title": "Rows Touched",
+          "type": "integer"
+        },
+        "columns": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "scenarios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scenarios",
+          "type": "array"
+        }
+      },
+      "required": [
+        "events",
+        "rows_touched",
+        "columns",
+        "scenarios"
+      ],
+      "title": "MissingMechanismMetrics",
+      "type": "object"
+    },
     "RootCauseMetrics": {
       "additionalProperties": false,
       "description": "The aggregate impact of one common root cause across scenarios (contract 5.4).",
@@ -182,6 +254,30 @@
         "severity": {
           "title": "Severity",
           "type": "string"
+        },
+        "missing_mechanism": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Mechanism"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
         }
       },
       "required": [
@@ -276,6 +372,9 @@
       },
       "title": "Root Causes",
       "type": "object"
+    },
+    "missing_data": {
+      "$ref": "#/$defs/MissingDataMetrics"
     }
   },
   "required": [

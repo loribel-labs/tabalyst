@@ -40,13 +40,13 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_PROFILES = {"dirty_realistic", "dirty_stress", "rule_breaks"}
-# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3 and 7).
-V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors"}
+# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7 and 11).
+V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms"}
 
 # Section 3.3 of the contract: the unit is the case; the band is what a scenario total may be.
 NOMINAL_CASES = {"frequent": 5000, "uncommon": 500, "rare": 100, "very_rare": 50,
@@ -2193,6 +2193,290 @@ def test_lot10_default_non_regression() -> None:
     assert row_1["id_client"] == "CLI-00000001"
     assert row_1["id_contrat"] == "CTR-1000000001"
     assert len(row_1) == 33
+
+
+# --- Lot 11: Missing data mechanisms MCAR, MAR, MNAR and reasons (contract 5.4, §10 & §11) ---
+
+
+@contract("11")
+def test_lot11_missing_mechanisms_validation_refusals(tmp_path: Path) -> None:
+    """Contract 5.4 & SRS §11: Strict validation of missing data mechanisms and reasons."""
+    # Invalid missing_mechanism value
+    _refused(
+        tmp_path / "bad_mech",
+        [{**_scenario("S1", "set_missing", "nom", 5), "missing_mechanism": "invalid"}],
+        r"operation\.missing_mechanism must be one of mar, mcar, mnar",
+    )
+
+    # MCAR must not declare a when condition (independent missingness)
+    _refused(
+        tmp_path / "mcar_when",
+        [{**_scenario("S1", "set_missing", "nom", 5), "missing_mechanism": "mcar", "when": {"filiale": "ontario"}}],
+        r"operation\.missing_mechanism mcar must not declare when",
+    )
+
+    # MAR requires when condition on an observed variable
+    _refused(
+        tmp_path / "mar_no_when",
+        [{**_scenario("S1", "set_missing", "nom", 5), "missing_mechanism": "mar"}],
+        r"operation\.missing_mechanism mar requires when condition on observed variable",
+    )
+
+    # MAR must condition on a different column than the missing column
+    _refused(
+        tmp_path / "mar_same_col",
+        [{**_scenario("S1", "set_missing", "nom", 5), "missing_mechanism": "mar", "when": {"nom": "Dupont"}}],
+        r"operation\.missing_mechanism mar must condition on a different column",
+    )
+
+    # MNAR requires when condition on the missing column itself
+    _refused(
+        tmp_path / "mnar_no_when",
+        [{**_scenario("S1", "set_missing", "nom", 5), "missing_mechanism": "mnar"}],
+        r"operation\.missing_mechanism mnar requires when condition on the missing column itself",
+    )
+
+    # MNAR must condition on the missing column itself
+    _refused(
+        tmp_path / "mnar_other_col",
+        [{**_scenario("S1", "set_missing", "nom", 5), "missing_mechanism": "mnar", "when": {"filiale": "ontario"}}],
+        r"operation\.missing_mechanism mnar must condition on the missing column itself",
+    )
+
+    # Invalid missing_reason
+    _refused(
+        tmp_path / "bad_reason",
+        [{**_scenario("S1", "set_missing", "nom", 5), "missing_mechanism": "mcar", "missing_reason": "bad_reason"}],
+        r"operation\.missing_reason must be one of client_refusal, not_applicable, system_omission, unknown, unreported",
+    )
+
+    # missing_mechanism on non-set_missing operation
+    _refused(
+        tmp_path / "bad_kind",
+        [{**_scenario("S1", "format", "nom", 5, value="upper"), "missing_mechanism": "mcar"}],
+        r"operation\.missing_mechanism requires kind: set_missing",
+    )
+
+
+@contract("11")
+def test_lot11_when_condition_operators() -> None:
+    """Contract 5.4 & SRS §11: Comparison operators (>=, <=, >, <, !=) in when conditions."""
+    from tabalyst.generate_anomalies import _match_condition
+
+    # Equality
+    assert _match_condition("ontario", "ontario")
+    assert not _match_condition("quebec", "ontario")
+
+    # Numeric comparisons
+    assert _match_condition("1500.00", ">=1500")
+    assert _match_condition("2000.50", ">=1500")
+    assert not _match_condition("1499.99", ">=1500")
+
+    assert _match_condition("500.0", "<=500")
+    assert not _match_condition("500.01", "<=500")
+
+    assert _match_condition("100", ">50")
+    assert not _match_condition("50", ">50")
+
+    assert _match_condition("25", "<50")
+    assert not _match_condition("50", "<50")
+
+    assert _match_condition("100", "!=50")
+    assert not _match_condition("50", "!=50")
+
+    # ISO Date comparisons
+    assert _match_condition("2024-05-15", ">=2024-01-01")
+    assert not _match_condition("2023-12-31", ">=2024-01-01")
+    assert _match_condition("2022-01-01", "<2024-01-01")
+
+
+@contract("11")
+def test_lot11_profile_missing_mechanisms_execution(tmp_path: Path) -> None:
+    """Contract 5.4 & SRS §11: Profile missing_mechanisms executes exactly requested counts."""
+    out = tmp_path / "missing_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="missing_mechanisms",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    result = generate_datasets(plan)
+    assert len(result.artifacts) > 0
+
+    metrics = json.loads((out / "insurance-combined.missing_mechanisms.metrics.json").read_text(encoding="utf-8"))
+    scenarios = metrics["scenarios"]
+
+    # 7 scenarios with exact applied cases
+    assert len(scenarios) == 7
+    assert scenarios["MM_MCAR_PREM"]["applied_cases"] == 200
+    assert scenarios["MM_MAR_BRANCH"]["applied_cases"] == 150
+    assert scenarios["MM_MAR_AGENCY"]["applied_cases"] == 100
+    assert scenarios["MM_MAR_PERIOD"]["applied_cases"] == 100
+    assert scenarios["MM_MNAR_PREM"]["applied_cases"] == 100
+    assert scenarios["MM_MNAR_CLAIM"]["applied_cases"] == 50
+    assert scenarios["MM_OPT_LANG"]["applied_cases"] == 100
+
+    # Total events recount
+    assert metrics["counts"]["events"] == 800
+    assert metrics["counts"]["changed_cells"] == 800
+
+
+@contract("11")
+def test_lot11_truth_group_id_and_canonical_values(tmp_path: Path) -> None:
+    """Contract 5.2, 5.4 & SRS §11: truth.csv records missing group_id and original canonical_value."""
+    out = tmp_path / "truth_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="missing_mechanisms",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    truth_file = out / "insurance-combined.missing_mechanisms.truth.csv"
+    dirty_file = out / "insurance-combined.missing_mechanisms.csv"
+    assert truth_file.is_file() and dirty_file.is_file()
+
+    with truth_file.open("r", encoding="utf-8", newline="") as f:
+        truth_rows = list(csv.DictReader(f))
+
+    # All injected lines have missing: group_id
+    injected_missing = [r for r in truth_rows if r["kind"] == "injected" and r["group_id"].startswith("missing:")]
+    assert len(injected_missing) == 800
+
+    # Verify group_id formatting
+    group_ids = {r["group_id"] for r in injected_missing}
+    assert group_ids == {
+        "missing:mcar:unreported",
+        "missing:mar:client_refusal",
+        "missing:mar:system_omission",
+        "missing:mar:unreported",
+        "missing:mnar:client_refusal",
+        "missing:mnar:unknown",
+        "missing:mar:not_applicable",
+    }
+
+    # Verify each missing cell in dirty file is actually empty, and truth.csv retains canonical_value
+    with dirty_file.open("r", encoding="utf-8", newline="") as f:
+        dirty_rows = list(csv.DictReader(f))
+
+    for line in injected_missing[:50]:  # check sample
+        row_idx = int(line["row_number"]) - 2  # header is row 1
+        col = line["column"]
+        assert dirty_rows[row_idx][col] == ""
+        # canonical_value retains the clean value before it was blanked
+        assert line["canonical_value"] != ""
+
+
+@contract("11")
+def test_lot11_metrics_missing_data_structure(tmp_path: Path) -> None:
+    """Contract 5.4 & SRS §11: metrics.json carries missing_data and scenario mechanism metadata."""
+    out = tmp_path / "metrics_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="missing_mechanisms",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    metrics = json.loads((out / "insurance-combined.missing_mechanisms.metrics.json").read_text(encoding="utf-8"))
+    assert "missing_data" in metrics
+    md = metrics["missing_data"]
+
+    # Mechanisms summary
+    assert set(md["mechanisms"].keys()) == {"mcar", "mar", "mnar"}
+    assert md["mechanisms"]["mcar"]["events"] == 200
+    assert md["mechanisms"]["mcar"]["columns"] == ["prime_annuelle"]
+    assert md["mechanisms"]["mcar"]["scenarios"] == ["MM_MCAR_PREM"]
+
+    assert md["mechanisms"]["mar"]["events"] == 450  # 150 + 100 + 100 + 100
+    assert md["mechanisms"]["mar"]["columns"] == ["code_postal", "courriel", "langue_preferee", "telephone"]
+    assert md["mechanisms"]["mar"]["scenarios"] == ["MM_MAR_AGENCY", "MM_MAR_BRANCH", "MM_MAR_PERIOD", "MM_OPT_LANG"]
+
+    assert md["mechanisms"]["mnar"]["events"] == 150  # 100 + 50
+    assert md["mechanisms"]["mnar"]["columns"] == ["montant_reclamation", "prime_annuelle"]
+    assert md["mechanisms"]["mnar"]["scenarios"] == ["MM_MNAR_CLAIM", "MM_MNAR_PREM"]
+
+    # Reasons summary
+    assert md["reasons"] == {
+        "client_refusal": 250,  # 150 + 100
+        "not_applicable": 100,
+        "system_omission": 100,
+        "unknown": 50,
+        "unreported": 300,  # 200 + 100
+    }
+
+    # by_column breakdown
+    assert "prime_annuelle" in md["by_column"]
+    assert md["by_column"]["prime_annuelle"] == {"mcar": 200, "mnar": 100}
+    assert md["by_column"]["courriel"] == {"mar": 150}
+
+    # Each scenario in metrics carries missing_mechanism and missing_reason
+    scenarios = metrics["scenarios"]
+    assert scenarios["MM_MCAR_PREM"]["missing_mechanism"] == "mcar"
+    assert scenarios["MM_MCAR_PREM"]["missing_reason"] == "unreported"
+    assert scenarios["MM_MNAR_PREM"]["missing_mechanism"] == "mnar"
+    assert scenarios["MM_MNAR_PREM"]["missing_reason"] == "client_refusal"
+
+
+@contract("11")
+def test_lot11_spatial_and_temporal_concentrations(tmp_path: Path) -> None:
+    """Contract 5.4 & SRS §11: Verified spatial, agency, temporal and value concentrations."""
+    out = tmp_path / "concentrations_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="missing_mechanisms",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    clean_file = out / "insurance-combined.csv"
+    truth_file = out / "insurance-combined.missing_mechanisms.truth.csv"
+
+    with clean_file.open("r", encoding="utf-8", newline="") as f:
+        clean_rows = list(csv.DictReader(f))
+    with truth_file.open("r", encoding="utf-8", newline="") as f:
+        truth_rows = list(csv.DictReader(f))
+
+    injected = [r for r in truth_rows if r["kind"] == "injected"]
+
+    # 1. Branch concentration: MM_MAR_BRANCH rows must all be Ontario
+    ontario_rows = [clean_rows[int(r["row_number"]) - 2] for r in injected if r["scenario_id"] == "MM_MAR_BRANCH"]
+    assert len(ontario_rows) == 150
+    assert all(r["filiale"] == "ontario" for r in ontario_rows)
+
+    # 2. Agency concentration: MM_MAR_AGENCY rows must all be AG-QC-001
+    agency_rows = [clean_rows[int(r["row_number"]) - 2] for r in injected if r["scenario_id"] == "MM_MAR_AGENCY"]
+    assert len(agency_rows) == 100
+    assert all(r["agence_code"] == "AG-QC-001" for r in agency_rows)
+
+    # 3. Temporal concentration: MM_MAR_PERIOD rows must all have date_creation >= 2024-01-01
+    period_rows = [clean_rows[int(r["row_number"]) - 2] for r in injected if r["scenario_id"] == "MM_MAR_PERIOD"]
+    assert len(period_rows) == 100
+    assert all(r["date_creation"] >= "2024-01-01" for r in period_rows)
+
+    # 4. MNAR value condition: MM_MNAR_PREM rows must all have original clean prime_annuelle >= 1500
+    mnar_prem_rows = [clean_rows[int(r["row_number"]) - 2] for r in injected if r["scenario_id"] == "MM_MNAR_PREM"]
+    assert len(mnar_prem_rows) == 100
+    assert all(float(r["prime_annuelle"]) >= 1500.0 for r in mnar_prem_rows)
+
+    # 5. MNAR claim condition: MM_MNAR_CLAIM rows must all have original clean montant_reclamation >= 5000
+    mnar_claim_rows = [clean_rows[int(r["row_number"]) - 2] for r in injected if r["scenario_id"] == "MM_MNAR_CLAIM"]
+    assert len(mnar_claim_rows) == 50
+    assert all(float(r["montant_reclamation"]) >= 5000.0 for r in mnar_claim_rows)
+
+    # 6. MCAR diffuse: MM_MCAR_PREM touches all three branches
+    mcar_rows = [clean_rows[int(r["row_number"]) - 2] for r in injected if r["scenario_id"] == "MM_MCAR_PREM"]
+    assert len(mcar_rows) == 200
+    mcar_branches = {r["filiale"] for r in mcar_rows}
+    assert mcar_branches == {"ontario", "principal", "quebec"}
+
 
 
 

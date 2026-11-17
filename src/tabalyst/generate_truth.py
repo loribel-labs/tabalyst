@@ -123,6 +123,8 @@ class ScenarioMetrics(_Model):
     eligible_population: Count
     category: str
     severity: str
+    missing_mechanism: str | None = None
+    missing_reason: str | None = None
 
 
 class AbsenceProbability(_Model):
@@ -146,6 +148,23 @@ class RootCauseMetrics(_Model):
     scenarios: list[str]
 
 
+class MissingMechanismMetrics(_Model):
+    """The aggregate impact of one missing data mechanism across scenarios."""
+
+    events: Count
+    rows_touched: Count
+    columns: list[str]
+    scenarios: list[str]
+
+
+class MissingDataMetrics(_Model):
+    """Aggregate metrics on missing data mechanisms (MCAR, MAR, MNAR) and reasons."""
+
+    mechanisms: dict[str, MissingMechanismMetrics] = Field(default_factory=dict)
+    reasons: dict[str, Count] = Field(default_factory=dict)
+    by_column: dict[str, dict[str, Count]] = Field(default_factory=dict)
+
+
 class MetricsDocument(_Model):
     """``<dataset>.<profile>.metrics.json`` (contract 5.4)."""
 
@@ -162,6 +181,7 @@ class MetricsDocument(_Model):
     kinds: dict[str, Count]
     absence_probability: dict[str, AbsenceProbability]
     root_causes: dict[str, RootCauseMetrics] = Field(default_factory=dict)
+    missing_data: MissingDataMetrics = Field(default_factory=MissingDataMetrics)
 
 
 class ScenarioEntry(_Model):
@@ -221,9 +241,12 @@ def _line(kind: str, operation: Mapping[str, object] | None, *, row_number: int,
           event_id: int, canonical_value: str) -> TruthLine:
     """A line described by the scenario of ``operation`` (contract 5.2)."""
     meta = operation or {}
+    group_id = _text(meta, "group_id")
+    if not group_id and meta.get("missing_mechanism"):
+        group_id = f"missing:{meta['missing_mechanism']}:{meta.get('missing_reason', 'unreported')}"
     return TruthLine(0, kind, _text(meta, "scenario_id"), _text(meta, "rule_id"),
                      _text(meta, "category"), _text(meta, "severity"),
-                     _text(meta, "rarity_level"), _text(meta, "root_cause_id"), "", event_id,
+                     _text(meta, "rarity_level"), _text(meta, "root_cause_id"), group_id, event_id,
                      row_number, column, canonical_value, _text(meta, "expected_detection"))
 
 
@@ -380,7 +403,10 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
             eligible_population=(known.eligible_population if known else 0)
             + cast(int, entry["eligible_population"]),
             category=cast(str, operation["category"]),
-            severity=cast(str, operation["severity"]))
+            severity=cast(str, operation["severity"]),
+            missing_mechanism=cast("str | None", operation.get("missing_mechanism")),
+            missing_reason=cast("str | None", operation.get("missing_reason")),
+        )
     categories = dict.fromkeys(sorted(CATEGORIES), 0)
     for metrics in scenarios.values():
         categories[metrics.category] += metrics.applied_cases
@@ -389,12 +415,33 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
     causes_events: dict[str, set[int]] = {}
     causes_rows: dict[str, set[int]] = {}
     causes_scenarios: dict[str, set[str]] = {}
+    missing_events: dict[str, set[int]] = {}
+    missing_rows: dict[str, set[int]] = {}
+    missing_columns: dict[str, set[str]] = {}
+    missing_scenarios: dict[str, set[str]] = {}
+    reason_counts: Counter[str] = Counter()
+    by_column_counts: dict[str, Counter[str]] = {}
+
+    op_by_scenario = {cast(str, op["scenario_id"]): op for op in operations if "scenario_id" in op}
     for line in injected:
         if line.root_cause_id:
             causes_events.setdefault(line.root_cause_id, set()).add(line.event_id)
             causes_rows.setdefault(line.root_cause_id, set()).add(line.row_number)
             if line.scenario_id:
                 causes_scenarios.setdefault(line.root_cause_id, set()).add(line.scenario_id)
+        op = op_by_scenario.get(line.scenario_id, {})
+        mech = op.get("missing_mechanism")
+        if isinstance(mech, str):
+            missing_events.setdefault(mech, set()).add(line.event_id)
+            missing_rows.setdefault(mech, set()).add(line.row_number)
+            missing_columns.setdefault(mech, set()).add(line.column)
+            if line.scenario_id:
+                missing_scenarios.setdefault(mech, set()).add(line.scenario_id)
+            reason = op.get("missing_reason", "unreported")
+            if isinstance(reason, str):
+                reason_counts[reason] += 1
+            by_column_counts.setdefault(line.column, Counter())[mech] += 1
+
     root_causes = {
         cause_id: RootCauseMetrics(
             events=len(causes_events[cause_id]),
@@ -403,6 +450,20 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
         )
         for cause_id in sorted(causes_events)
     }
+    missing_mechanisms_metrics = {
+        mech: MissingMechanismMetrics(
+            events=len(missing_events[mech]),
+            rows_touched=len(missing_rows[mech]),
+            columns=sorted(missing_columns[mech]),
+            scenarios=sorted(missing_scenarios[mech]),
+        )
+        for mech in sorted(missing_events)
+    }
+    missing_data = MissingDataMetrics(
+        mechanisms=missing_mechanisms_metrics,
+        reasons=dict(sorted(reason_counts.items())),
+        by_column={col: dict(sorted(counts.items())) for col, counts in sorted(by_column_counts.items())},
+    )
     return MetricsDocument(
         dataset=dataset, profile=profile,
         rows=Rows(total=total, by_branch=dict(sorted(branches.items()))), counts=counts,
@@ -411,7 +472,8 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
         absence_probability={
             scenario: _absence(total, entry.applied_cases, scenario in groups_of)
             for scenario, entry in scenarios.items()},
-        root_causes=root_causes)
+        root_causes=root_causes,
+        missing_data=missing_data)
 
 
 def _absence(rows: int, cases: int, spans_rows: bool) -> AbsenceProbability:
