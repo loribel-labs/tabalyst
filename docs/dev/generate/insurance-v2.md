@@ -736,14 +736,83 @@ Written when lot 7 was implemented; where it differs from earlier sections this 
 
 ## 8. Relational model (lots 8 and 9, D2)
 
-One in-memory population model (clients, households, brokers, agencies, contracts, renewals,
-claims, payments) feeds two outputs: the flattened multi-contract CSV and the four files
-`clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv`. Bounded memory for 500,000
-rows, deterministic streams per entity (4.4), no second reading of an output. Truth is per
-table, plus `relational` lines (G09, G10, M22). The model, its limits and the
-cardinalities are written at the gate before lot 8; this section only fixes that there is
-one model with two projections, never two generators. See the ADR
-`2026-11-16-generate-relational-population-model`.
+### 8.1 Architecture and in-memory population
+
+One in-memory population model (`PopulationModel` in `src/tabalyst/generate_population.py`)
+orchestrates synthetic entities and relationships to feed two projections in lot 9: the flattened
+multi-contract CSV and the four relational files (`clients.csv`, `contrats.csv`, `reclamations.csv`,
+`paiements.csv`).
+
+The internal topology comprises six compact entity classes using `__slots__`:
+1. `Household`: physical residence (`id_menage`, street components, city, province, postal code,
+   shared family name, language, seed). Groups 1 to 4 customers (G03).
+2. `Customer`: insured individual (`id_client`, `id_menage`, civilite, first name, last name,
+   adult birth date, gender, language, email, phone, client segment, communication consent).
+   Owns 1 to 4 contracts (G01).
+3. `Broker`: independent broker (`courtier_id`, name, province, branch). Assigned when
+   `canal_acquisition == "courtier"` (G04).
+4. `Contract`: insurance policy (`id_contrat`, `id_client`, branch, product type, product code,
+   effective dates, status, premium, payment schedule, agency code, acquisition channel, broker,
+   manager, coverage cap, deductible, reimbursement rate, `previous_contract_id` for renewals G07).
+5. `Claim`: insurance claim (`id_reclamation`, `id_contrat`, loss event date, declaration date,
+   claimed amount, indemnity amount, status, sequence number). A contract may have 0 to 3
+   distinct claims (G02).
+6. `Payment`: financial indemnity disbursement (`id_paiement`, `id_reclamation`, `id_contrat`,
+   payment date, amount, payment method, payment status, sequence number). A settled claim can have
+   1 to 3 installment payments satisfying M25 (`sum(payments) == montant_indemnise`) (G08).
+
+### 8.2 Cardinalities and distributions (G01 to G08)
+
+The model targets realistic insurance market distributions:
+- **G01 (Multi-contract customers)**: ~28% of customers hold 2 or more contracts:
+  1 contract (70%), 2 contracts (22%), 3 contracts (6%), 4 contracts (2%). Average: ~1.4 contracts/customer.
+  For 500,000 contracts, this yields ~357,000 unique customers.
+- **G02 (Multi-claim contracts)**: Claim likelihood is governed by `claim_probability` per product.
+  Among contracts with claims: 1 claim (85%), 2 claims (12%), 3 claims (3%).
+- **G03 (Households)**: 1 customer (75%), 2 customers (20%), 3 customers (4%), 4 customers (1%).
+  Average: ~1.3 customers/household.
+- **G04 (Brokers)**: Pool of 200 brokers (`CRT-0101` to `CRT-0300`) distributed across branches.
+- **G05 (Agencies with heavy load)**: Contracts assigned using the weighted agency distribution from
+  `agencies.csv`, concentrating thousands of contracts in major regional hubs.
+- **G06 (Address changes)**: Multi-contract or renewed customers maintain their canonical household
+  address with realistic temporal validity.
+- **G07 (Contract renewals)**: Policies of expired or active status can be linked as renewals of a
+  prior policy (`previous_contract_id`), with continuous chronological dates.
+- **G08 (Disbursement installments)**: Claims with `montant_indemnise > 0.00` have 1 (65%), 2 (25%),
+  or 3 (10%) payment installments whose sum equals the indemnity amount exactly (M25).
+
+### 8.3 Relational edge cases (G09 and G10)
+
+The population model deliberately seeds key deduplication and entity resolution benchmarks:
+- **G09 (Shared address without duplicate)**: Multiple adult customers sharing the exact same
+  physical address (household) with different surnames (e.g., Quebec spouses keeping maiden names,
+  or co-tenants) or with identical surnames (adult family members) but distinct individual identifiers
+  and birth dates, creating realistic test cases for entity resolution without false-positive duplicates.
+- **G10 (Near-identical identities)**: Generational pairs sharing surname and address with very
+  similar first names (e.g., father and son "Jean Tremblay" and "Jean-Pierre Tremblay", or "Robert"
+  and "Robert Jr") but different birth dates and `id_client`.
+
+### 8.4 Bounded memory and determinism
+
+For 500,000 contracts (~360,000 customers, ~300,000 households, ~75,000 claims, ~110,000 payments):
+- **Bounded memory budget**: Under 150 MB total RAM. Achieved via `__slots__` eliminating object
+  `__dict__`, string interning of repeated categories (`branch`, `product`, `status`, `agency`),
+  and computing detailed formatting text on projection rather than storing full row strings in memory.
+- **Deterministic derivation**: Every entity stream derives deterministically from the root `seed`
+  and its canonical identity (`seed`, kind, sequence id). Generating the same population with the same
+  seed produces identical identifiers and attributes.
+- **Stateless non-regression**: Legacy `InsuranceProvider.row()` remains completely untouched and
+  stateless for existing default 34-column outputs and showcase demos.
+
+### 8.5 What lot 8 fixed
+
+Written when lot 8 was implemented:
+- **Module**: `src/tabalyst/generate_population.py` delivering `Household`, `Customer`, `Broker`,
+  `Contract`, `Claim`, `Payment`, and `PopulationModel`.
+- **Invariants**: Clean population satisfies M01 through M25 with zero violations.
+- **Memory**: Measured and enforced via `tracemalloc` in test suite (`tests/test_generate_population.py`).
+- **Projections**: `PopulationModel` provides `to_contract_row`, `to_client_row`, `to_claim_row`,
+  and `to_payment_row` ready for lot 9 file outputs.
 
 ## 9. Documentation, versions and languages
 

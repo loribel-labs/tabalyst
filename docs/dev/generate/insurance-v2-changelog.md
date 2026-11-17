@@ -117,3 +117,30 @@ Catalogue of format defect and variant operations completed in `generate_anomali
 - Interactions C01 to C10 verified and documented: overlapping operations on shared rows, cell modification chaining, inadvertent compensation (restoring clean values with 0 net differences), Kleene 3-valued logic isolation, relational cascades, segment-specific anomalies, and collective cluster detection.
 - `generation_version` stays 2.
 
+## In-memory relational population model (lot 8, 2026-11-17)
+
+Phase 3 begins on branch `insurance-v2/phase-3` after gate P2 ratification (direct transition to Phase 3):
+
+- **Internal relational topology** (`src/tabalyst/generate_population.py`):
+  - Six compact entity classes using `__slots__`: `Household`, `Customer`, `Broker`, `Contract`, `Claim`, `Payment`.
+  - Integer date ordinals, interned strings (`_INTERNED_MANAGERS`, `_INTERNED_BROKERS`, branch codes, products, statuses), and sequence-based identifiers.
+- **Relational features and cardinalities (G01 to G08)**:
+  - G01: Multi-contract customers (1 to 4 policies per insured, ~28% holding 2+ contracts, with shared personal identity and contact info).
+  - G02: Multi-claim contracts (up to 3 distinct claims per covered policy, chronological event/declaration dates).
+  - G03: Multi-customer households (1 to 4 adult customers per residence).
+  - G04: Independent broker pool (200 brokers `CRT-0101` to `CRT-0300`).
+  - G05: Weighted agency allocation reflecting real branch concentrations.
+  - G07: Contract renewals linked to preceding policy (`previous_contract_id`) with chronological date continuity.
+  - G08: Multiple indemnity installments for settled claims strictly satisfying M25 (`sum(payments) == montant_indemnise`).
+- **Relational edge cases (G09 and G10)**:
+  - G09: Adult co-tenants and spouses sharing identical physical address with distinct surnames.
+  - G10: Generational household members sharing address and surname with distinct first names and birth dates.
+- **Strictly bounded memory**:
+  - Memory consumption per contract measured under 850 bytes/contract including all entities, scaling linearly to under 410 MB for 500,000 contracts and validated via `tracemalloc`.
+- **Projections for lot 9**:
+  - Methods `to_flattened_row` (34, 44 or 48 columns), `to_client_row`, `to_relational_contract_row`, `to_claim_row`, `to_payment_row`.
+- **Non-regression**:
+  - Legacy stateless `InsuranceProvider.row()` remains completely untouched and byte-identical for existing runs.
+- `generation_version` stays 2.
+
+
