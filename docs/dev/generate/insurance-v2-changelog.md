@@ -219,6 +219,39 @@ Phase 3 begins on branch `insurance-v2/phase-3` after gate P2 ratification (dire
   - 6 new contract tests in `tests/test_generate_insurance_v2_contract.py` (100 contract tests passing).
 - `generation_version` stays 2.
 
+## Temporal drift, rule validity periods, source_system and schema_drift profile (lot 12, 2026-11-17)
+
+- **Temporal rule validity & periods (§13)**:
+  - Added `RulePeriod` model (`start`, `end`, `description`) to `Conventions.periods` in `src/tabalyst/generate_rules.py`.
+  - Declared named periods in `src/tabalyst/generate_examples/insurance/rules.yaml`: `legacy_tariff` (<= 2023-12-31), `migration_ontario` (>= 2023-06-01), `schema_v2` (>= 2024-01-01), and `modern_tariff` (>= 2025-01-01).
+  - Extended `Rule` model with `valid_from`, `valid_until`, `temporal_column` (defaults to `date_debut`), and `period`.
+  - Added temporal filtering to `RuleEvaluator`: rows are evaluated against a rule only if their date in `temporal_column` falls within `[valid_from, valid_until]` (or period window).
+  - Added temporal business rules catalogue M26 through M30 in `rules.yaml`:
+    - M26: post-2024 schema version v2.0/v2.1 consistency;
+    - M27: post-migration Ontario core system consistency;
+    - M28: observation date vs creation date chronological coherence (`date_creation <= date_observation`);
+    - M29: legacy v1.0 schema version prior to 2024-01-01;
+    - M30: post-2025 regulatory home deductible minimum floor (`franchise >= 500.00`).
+- **Tranche C columns & complete profile (Contract 7, §13)**:
+  - Added 3 tranche C columns: `date_observation`, `version_source`, and `source_system`.
+  - Added to `OUTPUT_PROFILES["complete"]`: total 50 columns on branch files and 51 columns on `insurance-combined.csv` (with `filiale`).
+  - Flattened multi-contract profile `flattened-complete` aligned to 51 columns.
+  - Deterministic independent generation stream per column preserves strict byte-level non-regression on all default and extended columns.
+- **Scenario profile `schema_drift`**:
+  - Added to `src/tabalyst/generate_examples/insurance/dataset.yaml` with floor `min_rows: 10000`, 8 scenarios, 800 events:
+    - IT migrations: `SD_SYS_MIG` (100 cases, M27), `SD_VER_MIG` (100 cases, M26), `SD_FMT_MIG` (100 cases, syntactic telephone defect);
+    - Anachronisms: `SD_OBS_ANACH` (50 cases, M28), `SD_VER_PREMAT` (50 cases, M29);
+    - Regulatory tariff drift: `SD_DEDUCT_REG` (100 cases, M30);
+    - Valid atypical drift: `SD_CHAN_DRIFT` (200 cases, web shift) and `SD_LEGACY_VAL` (100 cases, grandfathered pre-2025 deductibles).
+  - Automatically defaults `effective_output` to `complete` when `--output-profile` is omitted.
+- **Traceability in `metrics.json` and JSON schemas**:
+  - `TemporalDriftMetrics` added to `metrics.json` carrying `active_periods`, `drift_scenarios`, and exact violations for `temporal_rules`.
+  - Updated committed JSON schemas `src/tabalyst/schemas/tabalyst.generate.rules.schema.json` and `tabalyst.generate.metrics.schema.json`.
+- **Testing**:
+  - 5 new contract tests in `tests/test_generate_insurance_v2_contract.py` (105 contract tests passing).
+- `generation_version` stays 2.
+
+
 
 
 

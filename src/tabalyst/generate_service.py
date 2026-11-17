@@ -54,9 +54,13 @@ from tabalyst.generate_insurance import (
     TRANCHE_B_FIELDS as INSURANCE_TRANCHE_B_FIELDS,
 )
 from tabalyst.generate_insurance import (
+    TRANCHE_C_FIELDS as INSURANCE_TRANCHE_C_FIELDS,
+)
+from tabalyst.generate_insurance import (
     InsuranceProvider,
     extend_insurance_row,
     extend_tranche_b_row,
+    extend_tranche_c_row,
     insurance_canonical,
     insurance_contextual,
 )
@@ -568,6 +572,8 @@ def build_generate_plan(
         if package.id == "insurance":
             if anomaly_profile == "rare_events" and output_profile is None:
                 effective_output = "extended"
+            elif anomaly_profile == "schema_drift" and output_profile is None:
+                effective_output = "complete"
             elif output_profile is None:
                 effective_output = "default"
             if effective_output not in {
@@ -1240,6 +1246,7 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 headers.extend(INSURANCE_EXTENDED_FIELDS)
             if sub_profile == "complete":
                 headers.extend(INSURANCE_TRANCHE_B_FIELDS)
+                headers.extend(INSURANCE_TRANCHE_C_FIELDS)
 
             assert references is not None
             assert plan.package is not None
@@ -1267,6 +1274,7 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 headers.extend(INSURANCE_EXTENDED_FIELDS)
             if is_complete_insurance:
                 headers.extend(INSURANCE_TRANCHE_B_FIELDS)
+                headers.extend(INSURANCE_TRANCHE_C_FIELDS)
             rows = combined_rows(dataset)
         else:
             columns = dataset.get("columns") or plan.definition.schemas[dataset["schema"]]["columns"]
@@ -1291,12 +1299,22 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 )
                 if is_complete_insurance:
                     headers.extend(INSURANCE_TRANCHE_B_FIELDS)
+                    headers.extend(INSURANCE_TRANCHE_C_FIELDS)
                     streams_b = {
                         col: _stream(plan.seed, artifact.dataset_id, col, "complete")
                         for col in INSURANCE_TRANCHE_B_FIELDS
                     }
+                    streams_c = {
+                        col: _stream(plan.seed, artifact.dataset_id, col, "complete")
+                        for col in INSURANCE_TRANCHE_C_FIELDS
+                    }
                     rows = (
-                        extend_tranche_b_row(row, streams_b)
+                        extend_tranche_c_row(
+                            extend_tranche_b_row(row, streams_b),
+                            branch,
+                            streams_c,
+                            plan.as_of_date,
+                        )
                         for row in ext_rows
                     )
                 else:

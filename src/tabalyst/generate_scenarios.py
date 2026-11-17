@@ -51,7 +51,8 @@ PROVIDING_PROFILES: dict[str, str] = {
          "produit_code", "nombre_reclamations"), "extended"),
     **dict.fromkeys(
         ("taux_remboursement", "consentement_communication", "gestionnaire_id",
-         "segment_client"), "complete"),
+         "segment_client", "date_observation", "version_source",
+         "source_system"), "complete"),
 }
 
 

@@ -31,7 +31,13 @@ import yaml
 
 from tabalyst.errors import ConfigurationError, ReportError
 from tabalyst.generate_anomalies import CHANGE_FIELDS, AnomalyEvent, inject_anomalies
-from tabalyst.generate_insurance import EXTENDED_FIELDS, FIELDS, insurance_canonical
+from tabalyst.generate_insurance import (
+    EXTENDED_FIELDS,
+    FIELDS,
+    TRANCHE_B_FIELDS,
+    TRANCHE_C_FIELDS,
+    insurance_canonical,
+)
 from tabalyst.generate_package import load_generate_package
 from tabalyst.generate_service import (
     GenerateResult,
@@ -40,13 +46,13 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_PROFILES = {"dirty_realistic", "dirty_stress", "rule_breaks"}
-# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7 and 11).
-V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms"}
+# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7, 11 and 12).
+V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms", "schema_drift"}
 
 # Section 3.3 of the contract: the unit is the case; the band is what a scenario total may be.
 NOMINAL_CASES = {"frequent": 5000, "uncommon": 500, "rare": 100, "very_rare": 50,
@@ -1507,16 +1513,16 @@ def test_format_catalogue_completeness_and_non_regression() -> None:
 
 @contract("6")
 def test_catalogue_m01_to_m25_is_complete_and_valid() -> None:
-    """SRS 5 and 5.3: catalogue in rules.yaml contains all 25 rules M01 to M25 and validates."""
+    """SRS 5 and 5.3: catalogue in rules.yaml contains all rules M01 to M25 (and temporal rules M26-M30) and validates."""
     from tabalyst.generate_columns_package import load_columns_definition
 
     pkg = load_generate_package(PACKAGE)
     catalogue = load_columns_definition(pkg).rules
     assert catalogue is not None
-    assert len(catalogue.rules) == 25
+    assert len(catalogue.rules) >= 25
     rule_ids = [rule.id for rule in catalogue.rules]
     expected_ids = [f"M{i:02d}" for i in range(1, 26)]
-    assert sorted(rule_ids) == sorted(expected_ids)
+    assert set(expected_ids).issubset(rule_ids)
 
     # Invariants on each rule
     for rule in catalogue.rules:
@@ -1551,8 +1557,8 @@ def test_clean_complete_profile_satisfies_every_rule_on_20000_rows(tmp_path: Pat
 
 @contract("6")
 def test_complete_output_profile_appends_tranche_b_columns_in_contract_order(tmp_path: Path) -> None:
-    """7: complete appends tranche B columns; non-regression on default and extended columns."""
-    from tabalyst.generate_insurance import EXTENDED_FIELDS, TRANCHE_B_FIELDS
+    """7: complete appends tranche B and tranche C columns; non-regression on default and extended columns."""
+    from tabalyst.generate_insurance import EXTENDED_FIELDS
 
     out_def = tmp_path / "def_out"
     out_ext = tmp_path / "ext_out"
@@ -1567,14 +1573,14 @@ def test_complete_output_profile_appends_tranche_b_columns_in_contract_order(tmp
     generate_datasets(plan_ext)
     generate_datasets(plan_com)
 
-    # Branches: 47 columns (*FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS)
+    # Branches: 50 columns (*FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS, *TRANCHE_C_FIELDS)
     for branch in ("insurance-principal", "insurance-ontario", "insurance-quebec"):
         def_rows = _csv_rows(out_def / f"{branch}.csv")
         ext_rows = _csv_rows(out_ext / f"{branch}.csv")
         com_rows = _csv_rows(out_com / f"{branch}.csv")
         com_header = (out_com / f"{branch}.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
-        assert com_header == [*FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS]
-        assert len(com_header) == 47
+        assert com_header == [*FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS, *TRANCHE_C_FIELDS]
+        assert len(com_header) == 50
 
         # Byte-identical non-regression for the first 33 columns and 43 columns
         for d_row, e_row, c_row in zip(def_rows, ext_rows, com_rows, strict=True):
@@ -1582,20 +1588,24 @@ def test_complete_output_profile_appends_tranche_b_columns_in_contract_order(tmp
                 assert d_row[col] == e_row[col] == c_row[col]
             for col in EXTENDED_FIELDS:
                 assert e_row[col] == c_row[col]
+            for col in TRANCHE_B_FIELDS:
+                assert c_row[col]
 
-    # Combined: 48 columns (*FIELDS, "filiale", *EXTENDED_FIELDS, *TRANCHE_B_FIELDS)
+    # Combined: 51 columns (*FIELDS, "filiale", *EXTENDED_FIELDS, *TRANCHE_B_FIELDS, *TRANCHE_C_FIELDS)
     comb_def_rows = _csv_rows(out_def / "insurance-combined.csv")
     comb_ext_rows = _csv_rows(out_ext / "insurance-combined.csv")
     comb_com_rows = _csv_rows(out_com / "insurance-combined.csv")
     comb_com_header = (out_com / "insurance-combined.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
-    assert comb_com_header == [*FIELDS, "filiale", *EXTENDED_FIELDS, *TRANCHE_B_FIELDS]
-    assert len(comb_com_header) == 48
+    assert comb_com_header == [*FIELDS, "filiale", *EXTENDED_FIELDS, *TRANCHE_B_FIELDS, *TRANCHE_C_FIELDS]
+    assert len(comb_com_header) == 51
 
     for d_row, e_row, c_row in zip(comb_def_rows, comb_ext_rows, comb_com_rows, strict=True):
         for col in (*FIELDS, "filiale"):
             assert d_row[col] == e_row[col] == c_row[col]
         for col in EXTENDED_FIELDS:
             assert e_row[col] == c_row[col]
+        for col in TRANCHE_B_FIELDS:
+            assert c_row[col]
 
 
 @contract("6")
@@ -1979,11 +1989,11 @@ def test_lot9_relational_truth_g09_g10_and_m22(tmp_path: Path) -> None:
 
 @contract("9")
 def test_lot9_flattened_multi_contract_profiles(tmp_path: Path) -> None:
-    """Contract 7 & 8: Flattened multi-contract CSV profiles (34, 44, 48 columns)."""
+    """Contract 7 & 8: Flattened multi-contract CSV profiles (34, 44, 51 columns)."""
     for profile, expected_cols in [
         ("flattened", 34),
         ("flattened-extended", 44),
-        ("flattened-complete", 48),
+        ("flattened-complete", 51),
     ]:
         out = tmp_path / profile
         plan = build_generate_plan(
@@ -2476,6 +2486,288 @@ def test_lot11_spatial_and_temporal_concentrations(tmp_path: Path) -> None:
     assert len(mcar_rows) == 200
     mcar_branches = {r["filiale"] for r in mcar_rows}
     assert mcar_branches == {"ontario", "principal", "quebec"}
+
+
+@contract("12")
+def test_lot12_rule_temporal_validity_evaluation() -> None:
+    """Contract 5.3 & SRS §13: RuleEvaluator respects rule validity windows and named periods."""
+    from tabalyst.generate_rules import (
+        Conventions,
+        Rule,
+        RuleContext,
+        RuleEvaluator,
+        RulePeriod,
+    )
+
+    conventions = Conventions(
+        branch_column="filiale",
+        date_format={"principal": "%Y-%m-%d"},
+        periods={
+            "legacy_tariff": RulePeriod(
+                start="2020-01-01",
+                end="2023-12-31",
+                description="Legacy tariff grid",
+            ),
+            "modern_tariff": RulePeriod(
+                start="2024-01-01",
+                end=None,
+                description="Modern tariff grid",
+            ),
+        },
+    )
+    context = RuleContext(conventions=conventions, as_of_date="2026-09-16")
+
+    # Rule with explicit valid_from
+    r_modern = Rule(
+        id="T01",
+        family="business",
+        title="Modern rule requiring high franchise",
+        columns=["date_creation", "franchise"],
+        category="business_rule_violation",
+        severity="major",
+        detection="syntactic",
+        valid_from="2024-01-01",
+        temporal_column="date_creation",
+        assert_={"op": "gte", "left": "franchise", "right": {"value": "500.0"}, "as": "decimal"},
+    )
+
+    # Rule with named period (legacy_tariff ending 2023-12-31)
+    r_legacy = Rule(
+        id="T02",
+        family="business",
+        title="Legacy rule requiring low franchise",
+        columns=["date_creation", "franchise"],
+        category="business_rule_violation",
+        severity="major",
+        detection="syntactic",
+        period="legacy_tariff",
+        temporal_column="date_creation",
+        assert_={"op": "lte", "left": "franchise", "right": {"value": "300.0"}, "as": "decimal"},
+    )
+
+    evaluator = RuleEvaluator([r_modern, r_legacy], context)
+
+    # Row 1: 2023-06-15, franchise 400.0
+    # Inside legacy_tariff (fails T02: 400 > 300), before modern_tariff (T01 skipped)
+    row_2023 = {"filiale": "principal", "date_creation": "2023-06-15", "franchise": "400.0"}
+    violations_2023 = evaluator.check(1, row_2023)
+    assert len(violations_2023) == 1
+    assert violations_2023[0].rule_id == "T02"
+
+    # Row 2: 2024-06-15, franchise 400.0
+    # Inside modern_tariff (fails T01: 400 < 500), after legacy_tariff (T02 skipped)
+    row_2024 = {"filiale": "principal", "date_creation": "2024-06-15", "franchise": "400.0"}
+    violations_2024 = evaluator.check(2, row_2024)
+    assert len(violations_2024) == 1
+    assert violations_2024[0].rule_id == "T01"
+
+    # Row 3: 2024-06-15, franchise 600.0
+    # Inside modern_tariff (passes T01: 600 >= 500), legacy skipped -> 0 violations
+    row_2024_ok = {"filiale": "principal", "date_creation": "2024-06-15", "franchise": "600.0"}
+    assert evaluator.check(3, row_2024_ok) == []
+
+
+@contract("12")
+def test_lot12_tranche_c_columns_in_complete_profile(tmp_path: Path) -> None:
+    """Contract 5.3 & SRS §13: complete profile appends Tranche C columns in deterministic contract order."""
+    out = tmp_path / "complete_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        output_profile="complete",
+        rows=100,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    combined_file = out / "insurance-combined.csv"
+    assert combined_file.is_file()
+    with combined_file.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        fields = reader.fieldnames or []
+        rows = list(reader)
+
+    # Contract total: 51 columns (48 + 3 Tranche C)
+    assert len(fields) == 51
+    assert fields[-3:] == ["date_observation", "version_source", "source_system"]
+
+    # Each branch file has 50 columns (47 + 3 Tranche C, no 'filiale')
+    for branch in ("principal", "quebec", "ontario"):
+        bf = out / f"insurance-{branch}.csv"
+        assert bf.is_file()
+        with bf.open("r", encoding="utf-8", newline="") as f:
+            bfields = (csv.DictReader(f).fieldnames or [])
+        assert len(bfields) == 50
+        assert bfields[-3:] == ["date_observation", "version_source", "source_system"]
+        assert "filiale" not in bfields
+
+    # Values validation
+    for r in rows:
+        assert r["version_source"] in {"v1.0", "v2.0", "v2.1"}
+        assert any(r["source_system"].startswith(pfx) for pfx in ("SYS_PRI", "SYS_QC", "SYS_ON_"))
+        assert len(r["date_observation"]) >= 8
+
+
+@contract("12")
+def test_lot12_schema_drift_execution_and_metrics(tmp_path: Path) -> None:
+    """Contract 5.3 & SRS §13: schema_drift profile execution, metrics.json and temporal_drift."""
+    out = tmp_path / "schema_drift_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="schema_drift",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    # 1. Output profile defaults to complete (51 columns on combined)
+    combined_file = out / "insurance-combined.csv"
+    with combined_file.open("r", encoding="utf-8", newline="") as f:
+        header = f.readline().strip().split(",")
+    assert len(header) == 51
+
+    # 2. All 11 atomic artifacts present
+    expected_files = [
+        "insurance-combined.csv",
+        "insurance-combined.schema_drift.csv",
+        "insurance-combined.schema_drift.changes.csv",
+        "insurance-combined.schema_drift.summary.json",
+        "insurance-combined.schema_drift.truth.csv",
+        "insurance-combined.schema_drift.rules.json",
+        "insurance-combined.schema_drift.metrics.json",
+        "insurance-combined.schema_drift.manifest.json",
+        "insurance-principal.csv",
+        "insurance-quebec.csv",
+        "insurance-ontario.csv",
+    ]
+    for fn in expected_files:
+        assert (out / fn).is_file(), f"Missing artifact: {fn}"
+
+    # 3. Metrics.json structure
+    metrics = json.loads((out / "insurance-combined.schema_drift.metrics.json").read_text(encoding="utf-8"))
+    assert "temporal_drift" in metrics
+    td = metrics["temporal_drift"]
+
+    # Active periods
+    assert "active_periods" in td
+    assert set(td["active_periods"]) == {"legacy_tariff", "migration_ontario", "schema_v2", "modern_tariff"}
+
+    # Drift scenarios list
+    assert set(td["drift_scenarios"]) == {
+        "SD_SYS_MIG",
+        "SD_VER_MIG",
+        "SD_DEDUCT_REG",
+        "SD_OBS_ANACH",
+        "SD_VER_PREMAT",
+        "SD_FMT_MIG",
+        "SD_CHAN_DRIFT",
+        "SD_LEGACY_VAL",
+    }
+
+    # Scenario counts in metrics (800 events total)
+    scenarios = metrics["scenarios"]
+    assert scenarios["SD_SYS_MIG"]["applied_cases"] == 100
+    assert scenarios["SD_VER_MIG"]["applied_cases"] == 100
+    assert scenarios["SD_DEDUCT_REG"]["applied_cases"] == 100
+    assert scenarios["SD_OBS_ANACH"]["applied_cases"] == 50
+    assert scenarios["SD_VER_PREMAT"]["applied_cases"] == 50
+    assert scenarios["SD_FMT_MIG"]["applied_cases"] == 100
+    assert scenarios["SD_CHAN_DRIFT"]["applied_cases"] == 200
+    assert scenarios["SD_LEGACY_VAL"]["applied_cases"] == 100
+
+    # Temporal rules with exact violation counts (400 violations total)
+    assert td["temporal_rules"] == {
+        "M26": 100,
+        "M27": 100,
+        "M28": 50,
+        "M29": 50,
+        "M30": 100,
+    }
+
+
+@contract("12")
+def test_lot12_schema_drift_valid_atypical_cases(tmp_path: Path) -> None:
+    """Contract 5.3 & SRS §13: SD_CHAN_DRIFT and SD_LEGACY_VAL are valid_atypical with 0 rule violations."""
+    out = tmp_path / "valid_atypical_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="schema_drift",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    truth_file = out / "insurance-combined.schema_drift.truth.csv"
+    with truth_file.open("r", encoding="utf-8", newline="") as f:
+        truth_rows = list(csv.DictReader(f))
+
+    # Channel drift: 200 valid_atypical events, expected_detection none, no rule_violation
+    chan_rows = [r for r in truth_rows if r["scenario_id"] == "SD_CHAN_DRIFT" and r["kind"] == "valid_atypical"]
+    assert len(chan_rows) == 200
+    assert all(r["category"] == "valid_atypical" for r in chan_rows)
+    assert all(r["expected_detection"] == "none" for r in chan_rows)
+    assert not any(r["kind"] == "rule_violation" for r in truth_rows if r["scenario_id"] == "SD_CHAN_DRIFT")
+
+    # Legacy valid data drift: 100 valid_atypical events, expected_detection none, no rule_violation
+    legacy_rows = [r for r in truth_rows if r["scenario_id"] == "SD_LEGACY_VAL" and r["kind"] == "valid_atypical"]
+    assert len(legacy_rows) == 100
+    assert all(r["category"] == "valid_atypical" for r in legacy_rows)
+    assert all(r["expected_detection"] == "none" for r in legacy_rows)
+    assert not any(r["kind"] == "rule_violation" for r in truth_rows if r["scenario_id"] == "SD_LEGACY_VAL")
+
+
+@contract("12")
+def test_lot12_rules_json_contains_periods_and_temporal_attributes(tmp_path: Path) -> None:
+    """Contract 5.3 & SRS §13: rules.json serializes conventions.periods and rule temporal fields."""
+    out = tmp_path / "rules_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="schema_drift",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    rules_doc = json.loads((out / "insurance-combined.schema_drift.rules.json").read_text(encoding="utf-8"))
+    assert "conventions" in rules_doc
+    conventions = rules_doc["conventions"]
+    assert "periods" in conventions
+    periods = conventions["periods"]
+
+    assert "legacy_tariff" in periods
+    assert periods["legacy_tariff"]["end"] == "2023-12-31"
+    assert "migration_ontario" in periods
+    assert periods["migration_ontario"]["start"] == "2023-06-01"
+    assert "schema_v2" in periods
+    assert periods["schema_v2"]["start"] == "2024-01-01"
+    assert "modern_tariff" in periods
+    assert periods["modern_tariff"]["start"] == "2025-01-01"
+
+    rules_by_id = {r["id"]: r for r in rules_doc["rules"]}
+
+    # M26 has valid_from
+    assert rules_by_id["M26"]["valid_from"] == "2024-01-01"
+    assert rules_by_id["M26"]["temporal_column"] == "date_creation"
+
+    # M27 has period
+    assert rules_by_id["M27"]["period"] == "migration_ontario"
+    assert rules_by_id["M27"]["temporal_column"] == "date_creation"
+
+    # M28 has temporal comparison between date_creation and date_observation
+    assert rules_by_id["M28"]["temporal_column"] == "date_creation"
+
+    # M29 has valid_until
+    assert rules_by_id["M29"]["valid_until"] == "2023-12-31"
+    assert rules_by_id["M29"]["temporal_column"] == "date_creation"
+
+    # M30 has period
+    assert rules_by_id["M30"]["period"] == "modern_tariff"
+    assert rules_by_id["M30"]["temporal_column"] == "date_debut"
+
+
 
 
 

@@ -161,6 +161,9 @@ output_profiles:
   - consentement_communication
   - gestionnaire_id
   - segment_client
+  - date_observation
+  - version_source
+  - source_system
 anomaly_profiles:
   dirty_realistic:
     targets:
@@ -1359,3 +1362,101 @@ anomaly_profiles:
       rarity_level: rare
       expected_detection: none
       description: Preferred language omission considered optional valid atypical in Principal branch
+  schema_drift:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: replace
+      column: source_system
+      value: SYS_ON_LEGACY
+      count: 100
+      when: {filiale: "ontario", source_system: "SYS_ON_CORE"}
+      scenario_id: SD_SYS_MIG
+      rule_id: M27
+      category: business_rule_violation
+      severity: critical
+      rarity_level: rare
+      expected_detection: contextual|cross_column
+      description: Deprecated legacy source system appearing on Ontario contracts after core migration
+    - kind: replace
+      column: version_source
+      value: v1.0
+      count: 100
+      when: {version_source: "v2.0"}
+      scenario_id: SD_VER_MIG
+      rule_id: M26
+      category: business_rule_violation
+      severity: major
+      rarity_level: rare
+      expected_detection: contextual|cross_column
+      description: Obsolete schema version v1.0 persisting on post-2024 contract records
+    - kind: replace
+      column: franchise
+      value: "250.00"
+      count: 100
+      when: {type_contrat: "habitation", version_source: "v2.1"}
+      scenario_id: SD_DEDUCT_REG
+      rule_id: M30
+      category: business_rule_violation
+      severity: major
+      rarity_level: rare
+      expected_detection: contextual|cross_column
+      description: Home insurance policy breaching post-2025 regulatory minimum deductible floor
+    - kind: replace
+      column: date_observation
+      value: "2020-01-01"
+      count: 50
+      when: {filiale: "principal", version_source: "v2.0"}
+      scenario_id: SD_OBS_ANACH
+      rule_id: M28
+      category: business_rule_violation
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: Historical snapshot observation date predating contract creation timestamp
+    - kind: replace
+      column: version_source
+      value: v2.0
+      count: 50
+      when: {version_source: "v1.0"}
+      scenario_id: SD_VER_PREMAT
+      rule_id: M29
+      category: business_rule_violation
+      severity: major
+      rarity_level: very_rare
+      expected_detection: contextual|cross_column
+      description: Premature v2.0 schema version label appearing on legacy historical records
+    - kind: format
+      column: telephone
+      value: phone_drop_digit
+      count: 100
+      when: {filiale: "ontario", source_system: "SYS_ON_CORE"}
+      scenario_id: SD_FMT_MIG
+      category: format_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Phone number truncation defect introduced by Ontario legacy migration script
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 200
+      when: {canal_acquisition: "courtier"}
+      scenario_id: SD_CHAN_DRIFT
+      category: valid_atypical
+      severity: info
+      rarity_level: uncommon
+      expected_detection: none
+      description: Rapid digital transformation surge concentrating acquisitions on web channel
+    - kind: replace
+      column: franchise
+      value: "250.00"
+      count: 100
+      when: {type_contrat: "auto", version_source: "v1.0"}
+      scenario_id: SD_LEGACY_VAL
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: Historical 250 deductible contract grandfathered under pre-2025 insurance rules

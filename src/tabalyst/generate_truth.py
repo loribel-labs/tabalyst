@@ -165,6 +165,14 @@ class MissingDataMetrics(_Model):
     by_column: dict[str, dict[str, Count]] = Field(default_factory=dict)
 
 
+class TemporalDriftMetrics(_Model):
+    """Aggregate metrics on temporal rule validity, periods, and drift scenarios."""
+
+    active_periods: list[str] = Field(default_factory=list)
+    drift_scenarios: list[str] = Field(default_factory=list)
+    temporal_rules: dict[str, Count] = Field(default_factory=dict)
+
+
 class MetricsDocument(_Model):
     """``<dataset>.<profile>.metrics.json`` (contract 5.4)."""
 
@@ -182,6 +190,7 @@ class MetricsDocument(_Model):
     absence_probability: dict[str, AbsenceProbability]
     root_causes: dict[str, RootCauseMetrics] = Field(default_factory=dict)
     missing_data: MissingDataMetrics = Field(default_factory=MissingDataMetrics)
+    temporal_drift: TemporalDriftMetrics = Field(default_factory=TemporalDriftMetrics)
 
 
 class ScenarioEntry(_Model):
@@ -464,6 +473,16 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
         reasons=dict(sorted(reason_counts.items())),
         by_column={col: dict(sorted(counts.items())) for col, counts in sorted(by_column_counts.items())},
     )
+    temporal_rules = {
+        rule.id: violations[rule.id]
+        for rule in rules
+        if rule.valid_from or rule.valid_until or rule.period or rule.temporal_column != "date_debut"
+    }
+    temporal_drift = TemporalDriftMetrics(
+        active_periods=sorted({rule.period for rule in rules if rule.period}),
+        drift_scenarios=sorted([s for s in scenarios if s.startswith("SD_")]),
+        temporal_rules=temporal_rules,
+    )
     return MetricsDocument(
         dataset=dataset, profile=profile,
         rows=Rows(total=total, by_branch=dict(sorted(branches.items()))), counts=counts,
@@ -473,7 +492,8 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
             scenario: _absence(total, entry.applied_cases, scenario in groups_of)
             for scenario, entry in scenarios.items()},
         root_causes=root_causes,
-        missing_data=missing_data)
+        missing_data=missing_data,
+        temporal_drift=temporal_drift)
 
 
 def _absence(rows: int, cases: int, spans_rows: bool) -> AbsenceProbability:

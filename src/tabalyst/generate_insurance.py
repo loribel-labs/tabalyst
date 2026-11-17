@@ -297,16 +297,19 @@ TRANCHE_B_FIELDS: tuple[str, ...] = (
     "taux_remboursement", "consentement_communication", "gestionnaire_id",
     "segment_client",
 )
+TRANCHE_C_FIELDS: tuple[str, ...] = (
+    "date_observation", "version_source", "source_system",
+)
 OUTPUT_PROFILES: dict[str, tuple[str, ...]] = {
     "default": DEFAULT_FIELDS,
     "extended": (*DEFAULT_FIELDS, *EXTENDED_FIELDS),
-    "complete": (*DEFAULT_FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS),
+    "complete": (*DEFAULT_FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS, *TRANCHE_C_FIELDS),
 }
 
 # Contract insurance-v2.md 4.5: the type of each column decides how its clean cell is normalized.
 DATE_COLUMNS = frozenset({"date_naissance", "date_debut", "date_fin", "date_creation",
                           "date_modification", "date_reclamation", "date_sinistre",
-                          "date_resiliation"})
+                          "date_resiliation", "date_observation"})
 AMOUNT_COLUMNS = frozenset({"prime_annuelle", "montant_reclamation", "montant_couverture",
                             "franchise", "montant_indemnise", "taux_remboursement"})
 IDENTIFIER_COLUMNS = frozenset({"id_client", "id_contrat", "agence_code", "courtier_id",
@@ -573,3 +576,52 @@ def extend_tranche_b_row(row: Mapping[str, str],
         "segment_client": segment_client,
     }
     return {**row, **tranche_b}
+
+
+def extend_tranche_c_row(row: Mapping[str, str], branch: str,
+                         streams: Mapping[str, random.Random],
+                         as_of_date: str) -> dict[str, str]:
+    """Extend an Insurance row with the 3 columns of tranche C (contract 7, lot 12).
+
+    Each column draws exclusively from its dedicated stream in ``streams``, so draws remain
+    deterministic and independent of other columns.
+    """
+    if branch not in BRANCHES:
+        raise ConfigurationError(f"unknown Insurance branch {branch!r}")
+    date_format = BRANCHES[branch][2]
+    as_of = date.fromisoformat(as_of_date)
+
+    # 1. date_observation: fixed to as_of_date, formatted in branch date format
+    date_obs = as_of.strftime(date_format)
+
+    # 2. version_source: software schema version evolution over time
+    creation_str = row.get("date_creation", "")
+    if creation_str:
+        creation_date = _parse_branch_date(creation_str, date_format)
+        if creation_date < date(2024, 1, 1):
+            ver = "v1.0"
+        elif creation_date < date(2025, 7, 1):
+            ver = "v2.0"
+        else:
+            ver = "v2.1"
+    else:
+        ver = "v2.0"
+
+    # 3. source_system: system origin simulation
+    if branch == "principal":
+        src = "SYS_PRI"
+    elif branch == "quebec":
+        src = "SYS_QC"
+    else:  # ontario
+        if creation_str:
+            creation_date = _parse_branch_date(creation_str, date_format)
+            src = "SYS_ON_LEGACY" if creation_date < date(2023, 6, 1) else "SYS_ON_CORE"
+        else:
+            src = "SYS_ON_CORE"
+
+    tranche_c = {
+        "date_observation": date_obs,
+        "version_source": ver,
+        "source_system": src,
+    }
+    return {**row, **tranche_c}

@@ -1055,11 +1055,29 @@ class PopulationModel:
             })
 
         if output_profile == "complete":
+            creation_d = contract.date_creation
+            if creation_d < date(2024, 1, 1):
+                ver = "v1.0"
+            elif creation_d < date(2025, 7, 1):
+                ver = "v2.0"
+            else:
+                ver = "v2.1"
+
+            if contract.filiale == "principal":
+                src = "SYS_PRI"
+            elif contract.filiale == "quebec":
+                src = "SYS_QC"
+            else:
+                src = "SYS_ON_LEGACY" if creation_d < date(2023, 6, 1) else "SYS_ON_CORE"
+
             row.update({
                 "taux_remboursement": contract.taux_remboursement,
                 "consentement_communication": customer.consentement_communication,
                 "gestionnaire_id": contract.gestionnaire_id,
                 "segment_client": customer.segment_client,
+                "date_observation": self.as_of.strftime(date_fmt),
+                "version_source": ver,
+                "source_system": src,
             })
 
         return row

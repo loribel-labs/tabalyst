@@ -27,17 +27,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-11-17T20:00:53.294970Z",
-    "duration_seconds": 2.455908,
+    "started_at": "2026-11-17T22:02:31.186486Z",
+    "duration_seconds": 2.46048,
     "timings": {
-      "reading": 0.306213,
-      "analysis": 0.690825,
-      "finalize": 0.830336,
-      "derived": 0.102035,
-      "other": 0.526499
+      "reading": 0.342035,
+      "analysis": 0.679881,
+      "finalize": 0.81871,
+      "derived": 0.102562,
+      "other": 0.517291
     },
     "workers": 6,
-    "peak_memory_bytes": 168411136
+    "peak_memory_bytes": 168034304
   },
   "source": {
     "format": "csv",

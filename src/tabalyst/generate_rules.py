@@ -35,6 +35,7 @@ FORMAT_REVISION: Final = 1
 ColumnName = Annotated[str, StringConstraints(pattern=r"^[A-Za-z_][A-Za-z0-9_]*$")]
 # The pattern of a scenario id (contract 3.5): ``M17``, ``F09``.
 RuleId = Annotated[str, StringConstraints(pattern=r"^[A-Z][A-Z0-9_]{0,15}$")]
+IsoDate = Annotated[str, StringConstraints(pattern=r"^\d{4}-\d{2}-\d{2}$")]
 ValueType = Literal["date", "decimal", "text"]
 # The categories of contract 3.1 a rule can break (``valid_atypical`` is never a defect).
 Category = Literal["format_variant", "format_invalid", "semantic_invalid",
@@ -211,6 +212,10 @@ class Rule(_Model):
     assert_: Expression = Field(alias="assert")
     exceptions: list[Expression] = Field(default_factory=list, max_length=32)
     valid_boundaries: list[str] = Field(default_factory=list, max_length=32)
+    valid_from: IsoDate | None = None
+    valid_until: IsoDate | None = None
+    temporal_column: ColumnName = "date_debut"
+    period: str | None = None
 
     @model_validator(mode="after")
     def _coherent(self) -> Rule:
@@ -226,18 +231,29 @@ class Rule(_Model):
         read = expression_columns(self.assert_)
         for guard in guards:
             read |= expression_columns(guard)
+        if self.valid_from is not None or self.valid_until is not None or self.period is not None:
+            read.add(self.temporal_column)
         if len(set(self.columns)) != len(self.columns) or read != set(self.columns):
             raise ValueError(
                 f"columns must list, once each, the columns the rule reads: {sorted(read)}")
         return self
 
 
+class RulePeriod(_Model):
+    """A named temporal period with an optional start date, end date, and description."""
+
+    start: IsoDate | None = None
+    end: IsoDate | None = None
+    description: str | None = None
+
+
 class Conventions(_Model):
-    """What a reader needs to read the cells: the branch of a row and its date format."""
+    """What a reader needs to read the cells: the branch of a row, date format, and periods."""
 
     branch_column: ColumnName
     date_format: dict[str, str] = Field(min_length=1)
     decimal: Literal["plain"] = "plain"
+    periods: dict[str, RulePeriod] = Field(default_factory=dict)
 
 
 class RuleCatalogue(_Model):
@@ -411,6 +427,20 @@ class RuleEvaluator:
         self._first: dict[str, dict[tuple[str, ...], int]] = {
             rule.id: {} for rule in self.rules if isinstance(rule.assert_, Unique)}
         self._grouped: set[tuple[str, int]] = set()
+        self._temporal_bounds: dict[str, tuple[date | None, date | None]] = {}
+        for rule in self.rules:
+            v_from = rule.valid_from
+            v_until = rule.valid_until
+            if rule.period and rule.period in self.context.conventions.periods:
+                period_def = self.context.conventions.periods[rule.period]
+                if v_from is None:
+                    v_from = period_def.start
+                if v_until is None:
+                    v_until = period_def.end
+            if v_from is not None or v_until is not None:
+                start_d = date.fromisoformat(v_from) if v_from else None
+                end_d = date.fromisoformat(v_until) if v_until else None
+                self._temporal_bounds[rule.id] = (start_d, end_d)
 
     def check(self, row_number: int, row: Mapping[str, str]) -> list[Violation]:
         """Return the violations this row reveals, in rule order.
@@ -422,6 +452,15 @@ class RuleEvaluator:
         for rule in self.rules:
             if any(column not in row for column in rule.columns):
                 continue
+            if rule.id in self._temporal_bounds:
+                row_date = self.context.read(rule.temporal_column, row, "date")
+                if row_date is None or not isinstance(row_date, date):
+                    continue
+                start_d, end_d = self._temporal_bounds[rule.id]
+                if start_d is not None and row_date < start_d:
+                    continue
+                if end_d is not None and row_date > end_d:
+                    continue
             if rule.when is not None and holds(rule.when, row, self.context) is not True:
                 continue
             if any(holds(exception, row, self.context) is True

@@ -145,7 +145,7 @@
     },
     "Conventions": {
       "additionalProperties": false,
-      "description": "What a reader needs to read the cells: the branch of a row and its date format.",
+      "description": "What a reader needs to read the cells: the branch of a row, date format, and periods.",
       "properties": {
         "branch_column": {
           "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
@@ -165,6 +165,13 @@
           "default": "plain",
           "title": "Decimal",
           "type": "string"
+        },
+        "periods": {
+          "additionalProperties": {
+            "$ref": "#/$defs/RulePeriod"
+          },
+          "title": "Periods",
+          "type": "object"
         }
       },
       "required": [
@@ -788,6 +795,50 @@
           "maxItems": 32,
           "title": "Valid Boundaries",
           "type": "array"
+        },
+        "valid_from": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid From"
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid Until"
+        },
+        "temporal_column": {
+          "default": "date_debut",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "title": "Temporal Column",
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
         }
       },
       "required": [
@@ -801,6 +852,52 @@
         "assert"
       ],
       "title": "Rule",
+      "type": "object"
+    },
+    "RulePeriod": {
+      "additionalProperties": false,
+      "description": "A named temporal period with an optional start date, end date, and description.",
+      "properties": {
+        "start": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        }
+      },
+      "title": "RulePeriod",
       "type": "object"
     },
     "Unique": {

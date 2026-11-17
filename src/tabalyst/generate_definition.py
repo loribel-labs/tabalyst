@@ -754,9 +754,9 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
                     *FORMAT_VALUES, "unit_gb", *contextual}:
                 _fail(source, operation, "unknown format mutation")
             if "when" in operation and (not isinstance(operation["when"], dict)
-                or len(operation["when"]) != 1 or any(not isinstance(k, str) or not isinstance(v, str)
+                or len(operation["when"]) < 1 or any(not isinstance(k, str) or not isinstance(v, str)
                                                  for k, v in operation["when"].items())):
-                _fail(source, operation, "operation.when must map one column to text")
+                _fail(source, operation, "operation.when must map columns to text")
             for target in targets:
                 names = _dataset_column_names(known[target], known, schemas, output_profiles)
                 required = {column} if column is not None else set()
