@@ -25,7 +25,9 @@ def canonical_decimal(value: str) -> str:
     A value that is not an amount is returned trimmed: the canonical form never invents one.
     """
     text = re.sub(r"[\s $]|CAD", "", value)
-    if _DECIMAL_COMMA.fullmatch(text):
+    if re.fullmatch(r"[+-]?\d{1,3}(?:,\d{3})+(?:\.\d+)?", text):
+        text = text.replace(",", "")
+    elif _DECIMAL_COMMA.fullmatch(text):
         text = text.replace(",", ".")
     return text if _PLAIN_DECIMAL.fullmatch(text) else value.strip()
 

@@ -63,3 +63,31 @@ Option `--output-profile extended` on the Insurance package:
 - `RuleEvaluator.check` skips any rule referencing columns not present in the evaluated row;
 - `manifest.json` carries `output_profile: "extended"` when selected;
 - `generation_version` stays 2 (default runs keep identical bytes).
+
+## Format catalogue F01 to F22 (lot 5, 2026-11-17)
+
+Catalogue of format defect and variant operations completed in `generate_anomalies.py`:
+
+- 18 new format operation values added to `FORMAT_VALUES` and `TEXT_TRANSFORMS` (bringing total format values to 52):
+  - F01: `surrounding_space` (random leading/trailing spaces)
+  - F03: `insert_non_breaking_space` (NBSP `\u00A0` replacing or added to spaces)
+  - F04: `unicode_nfd` / `unicode_nfc` (Unicode normalization)
+  - F05: `title_case` (first letter of each word capitalized)
+  - F08: `phone_drop_digit` (drop random digit from phone number)
+  - F09: `email_invalid` (syntax error, e.g. missing `@` or domain)
+  - F10: `email_forbidden_domain` (forbidden test domain such as `example.com`, `test.invalid`)
+  - F11: `postal_no_space` (Canadian postal code without space, `A1A1A1`)
+  - F12: `postal_invalid_syntax` (corrupted postal code syntax)
+  - F13: `decimal_comma` / `decimal_dot` (decimal comma vs dot)
+  - F14: `thousands_space` / `thousands_comma` (thousands separators)
+  - F18: `date_impossible` (calendar-impossible date e.g. day 00 or 32, month 00 or 13)
+  - F20: `date_swap_month_day` (swapped day/month for ambiguous date, keeping canonical clean ISO date)
+  - F21: `drop_leading_zeros` (drop leading zeros from identifier)
+  - F22: `similar_char` (visually confusable homoglyphs: `O` <-> `0`, `l` <-> `1`)
+- Canonical normalization in `generate_canonical.py`:
+  - `canonical_decimal` strips thousands separators and normalizes decimal commas to plain decimal `.`.
+  - F20 retains the original clean ISO date in `truth.csv`.
+- Kleene 3-valued logic in `generate_rules.py`: format defects on date/decimal columns result in unknown (`None`) evaluations, ensuring that format defects never cause spurious business rule violations.
+- Non-regression: 29 legacy format operations and existing profiles unchanged.
+- `generation_version` stays 2.
+

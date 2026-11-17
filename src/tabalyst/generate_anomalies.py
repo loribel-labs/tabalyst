@@ -51,6 +51,11 @@ FORMAT_VALUES = frozenset({
     "drop_digit", "insert_double_space", "trailing_space", "date_mdy_iso",
     "leading_space", "leading_tab", "insert_zero_width", "insert_replacement_char",
     "times_100", "date_plus_century",
+    "surrounding_space", "insert_non_breaking_space", "unicode_nfd", "unicode_nfc",
+    "title_case", "phone_drop_digit", "email_invalid", "email_forbidden_domain",
+    "postal_no_space", "postal_invalid_syntax", "decimal_comma", "decimal_dot",
+    "thousands_space", "thousands_comma", "date_impossible", "date_swap_month_day",
+    "drop_leading_zeros", "similar_char",
 })
 CURRENCY_CODE = "CAD"
 CLASS_NAME = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
@@ -265,6 +270,162 @@ def _currency_code(value: str, rng: random.Random) -> str:
     return f"{value} {CURRENCY_CODE}" if parts else value
 
 
+def _surrounding_space(value: str, rng: random.Random) -> str:
+    """Surround a value with spaces (F01)."""
+    if value.startswith(" ") and value.endswith(" "):
+        return value
+    return f" {value.strip()} "
+
+
+def _insert_non_breaking_space(value: str, rng: random.Random) -> str:
+    """Insert a non-breaking space (U+00A0) inside a value of 2+ chars (F03)."""
+    return _insert_invisible("\u00a0")(value, rng)
+
+
+def _unicode_nfd(value: str, rng: random.Random) -> str:
+    """Normalize text to Unicode NFD (decomposed) form (F04)."""
+    nfd = unicodedata.normalize("NFD", value)
+    return nfd if nfd != value else value
+
+
+def _unicode_nfc(value: str, rng: random.Random) -> str:
+    """Normalize text to Unicode NFC (composed) form (F04)."""
+    nfc = unicodedata.normalize("NFC", value)
+    return nfc if nfc != value else value
+
+
+def _title_case(value: str, rng: random.Random) -> str:
+    """Convert text to Title Case (F05)."""
+    titled = value.title()
+    return titled if titled != value else value
+
+
+def _phone_drop_digit(value: str, rng: random.Random) -> str:
+    """Drop one digit from a phone number to make its length invalid (F08)."""
+    spots = [i for i, char in enumerate(value) if char.isdigit()]
+    if len(spots) < 7:
+        return value
+    spot = rng.choice(spots)
+    return value[:spot] + value[spot + 1:]
+
+
+def _email_invalid(value: str, rng: random.Random) -> str:
+    """Corrupt an email address to make it syntactically invalid (F09)."""
+    if "@" not in value:
+        return value
+    return value.replace("@", "")
+
+
+def _email_forbidden_domain(value: str, rng: random.Random) -> str:
+    """Replace domain of an email address with a forbidden test domain (F10)."""
+    if "@" not in value:
+        return value
+    local, _ = value.split("@", 1)
+    forbidden_domain = "forbidden-test.com"
+    after = f"{local}@{forbidden_domain}"
+    return after if after != value else value
+
+
+def _postal_no_space(value: str, rng: random.Random) -> str:
+    """Remove space from a Canadian postal code (F11: H1A 1A1 -> H1A1A1)."""
+    match = re.fullmatch(r"([A-Z]\d[A-Z])\s+(\d[A-Z]\d)", value)
+    return f"{match[1]}{match[2]}" if match else value
+
+
+def _postal_invalid_syntax(value: str, rng: random.Random) -> str:
+    """Corrupt postal code syntax with an illegal character (F12)."""
+    match = re.fullmatch(r"([A-Z]\d[A-Z]) (\d[A-Z]\d)", value)
+    if not match:
+        return value
+    return f"{match[1][0]}!{match[1][2]} {match[2]}"
+
+
+def _decimal_comma(value: str, rng: random.Random) -> str:
+    """Replace decimal point '.' with comma ',' on a decimal number (F13)."""
+    match = re.fullmatch(r"([+-]?\d+)\.(\d+)", value)
+    return f"{match[1]},{match[2]}" if match else value
+
+
+def _decimal_dot(value: str, rng: random.Random) -> str:
+    """Replace decimal comma ',' with point '.' on a decimal number (F13)."""
+    match = re.fullmatch(r"([+-]?\d+),(\d+)", value)
+    return f"{match[1]}.{match[2]}" if match else value
+
+
+def _thousands_space(value: str, rng: random.Random) -> str:
+    """Format decimal number with space as thousands separator (F14: 1 234.56)."""
+    parts = _split_amount(value)
+    if not parts:
+        return value
+    sign, whole, decimals = parts
+    grouped = f"{int(whole):,}".replace(",", " ")
+    return f"{sign}{grouped}{decimals}" if grouped != whole else value
+
+
+def _thousands_comma(value: str, rng: random.Random) -> str:
+    """Format decimal number with comma as thousands separator (F14: 1,234.56)."""
+    parts = _split_amount(value)
+    if not parts:
+        return value
+    sign, whole, decimals = parts
+    grouped = f"{int(whole):,}"
+    return f"{sign}{grouped}{decimals}" if grouped != whole else value
+
+
+def _date_impossible(value: str, rng: random.Random) -> str:
+    """Produce an impossible date such as 31 February or day 32 (F18)."""
+    iso = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", value)
+    other = re.fullmatch(r"(\d{2})-(\d{2})-(\d{4})", value)
+    if iso:
+        year, month, _ = iso[1], iso[2], iso[3]
+        day = "31" if month == "02" else "32"
+        return f"{year}-{month}-{day}"
+    if other:
+        first, second, year = other[1], other[2], other[3]
+        if second == "02":
+            return f"31-02-{year}"
+        if first == "02":
+            return f"02-31-{year}"
+        return f"32-{second}-{year}"
+    return value
+
+
+def _date_swap_month_day(value: str, rng: random.Random) -> str:
+    """Swap month and day when both are <= 12 and distinct (F20: ambiguous date)."""
+    iso = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", value)
+    other = re.fullmatch(r"(\d{2})-(\d{2})-(\d{4})", value)
+    if iso:
+        year, month, day = iso[1], int(iso[2]), int(iso[3])
+        if 1 <= month <= 12 and 1 <= day <= 12 and month != day:
+            return f"{year}-{day:02d}-{month:02d}"
+    elif other:
+        first, second, year = int(other[1]), int(other[2]), other[3]
+        if 1 <= first <= 12 and 1 <= second <= 12 and first != second:
+            return f"{second:02d}-{first:02d}-{year}"
+    return value
+
+
+def _drop_leading_zeros(value: str, rng: random.Random) -> str:
+    """Remove leading zero padding from numbers in identifiers (F21: QC-0000123 -> QC-123)."""
+    after = re.sub(r"(?<=[A-Za-z_-])0+(\d+)", r"\1", value)
+    if after == value:
+        after = re.sub(r"^0+(\d+)", r"\1", value)
+    return after if after != value else value
+
+
+def _similar_char(value: str, rng: random.Random) -> str:
+    """Replace characters with visually similar ones, e.g. digit 0 with letter O (F22)."""
+    if "0" in value:
+        return value.replace("0", "O", 1)
+    if "O" in value:
+        return value.replace("O", "0", 1)
+    if "1" in value:
+        return value.replace("1", "I", 1)
+    if "I" in value:
+        return value.replace("I", "1", 1)
+    return value
+
+
 # The random stream is passed to every transform so that adding one never shifts another.
 TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "upper": lambda value, rng: value.upper(),
@@ -301,6 +462,24 @@ TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "insert_replacement_char": _insert_invisible("\ufffd"),
     "times_100": _times_100,
     "date_plus_century": _plus_century,
+    "surrounding_space": _surrounding_space,
+    "insert_non_breaking_space": _insert_non_breaking_space,
+    "unicode_nfd": _unicode_nfd,
+    "unicode_nfc": _unicode_nfc,
+    "title_case": _title_case,
+    "phone_drop_digit": _phone_drop_digit,
+    "email_invalid": _email_invalid,
+    "email_forbidden_domain": _email_forbidden_domain,
+    "postal_no_space": _postal_no_space,
+    "postal_invalid_syntax": _postal_invalid_syntax,
+    "decimal_comma": _decimal_comma,
+    "decimal_dot": _decimal_dot,
+    "thousands_space": _thousands_space,
+    "thousands_comma": _thousands_comma,
+    "date_impossible": _date_impossible,
+    "date_swap_month_day": _date_swap_month_day,
+    "drop_leading_zeros": _drop_leading_zeros,
+    "similar_char": _similar_char,
 }
 
 

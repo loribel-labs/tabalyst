@@ -38,7 +38,7 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
@@ -1342,4 +1342,157 @@ def test_extended_streams_independence(tmp_path: Path) -> None:
     ext_b = extend_insurance_row(base_row, "principal", streams_b, "2026-09-16")
     assert ext_a == ext_b
     assert {col: ext_a[col] for col in EXTENDED_FIELDS} == {col: rows1[0][col] for col in EXTENDED_FIELDS}
+
+
+# --- Lot 5: format catalogue F01 to F22 (contract 4.2, 4.3, 4.5) ----------------------------
+
+
+@contract("5")
+def test_format_catalogue_package_validation_rejects_unknown_format(tmp_path: Path) -> None:
+    """SRS 4 and 4.2: unknown format value fails validation with ConfigurationError."""
+    pkg = _insurance_package(tmp_path / "pkg", [
+        _scenario("F_BAD", "format", "ville", 5, value="unknown_format_xyz")],
+        profile="bad_format")
+    with pytest.raises(ConfigurationError, match=r"unknown format mutation"):
+        validate_generate_package(pkg)
+
+
+@contract("5")
+def test_format_catalogue_v2_profile_generation(tmp_path: Path) -> None:
+    """SRS 4 and 4.2: new format catalogue values execute correctly in a V2 profile."""
+    operations = [
+        _scenario("F01", "format", "ville", 5, value="surrounding_space"),
+        _scenario("F03", "format", "code_postal", 5, value="insert_non_breaking_space"),
+        _scenario("F04", "format", "nom", 5, value="unicode_nfd"),
+        _scenario("F05", "format", "courriel", 5, value="title_case"),
+        _scenario("F08", "format", "telephone", 5, value="phone_drop_digit"),
+        _scenario("F10", "format", "courriel", 5, value="email_forbidden_domain"),
+        _scenario("F11", "format", "code_postal", 5, value="postal_no_space"),
+        _scenario("F12", "format", "code_postal", 5, value="postal_invalid_syntax"),
+        _scenario("F13", "format", "prime_annuelle", 5, value="decimal_comma"),
+        _scenario("F14", "format", "prime_annuelle", 5, value="thousands_space"),
+        _scenario("F18", "format", "date_debut", 5, value="date_impossible"),
+        _scenario("F20", "format", "date_debut", 5, value="date_swap_month_day",
+                  when={"filiale": "quebec"}),
+        _scenario("F21", "format", "id_client", 5, value="drop_leading_zeros"),
+        _scenario("F22", "format", "nom", 5, value="similar_char"),
+    ]
+    pkg = _insurance_package(tmp_path / "pkg", operations, profile="v2_formats")
+    out = tmp_path / "out"
+    plan = build_generate_plan(pkg, rows=300, seed=42, output_dir=out, anomaly_profile="v2_formats")
+    res = generate_datasets(plan)
+    assert len(res.artifacts) > 0
+
+    truth_file = out / "insurance-combined.v2_formats.truth.csv"
+    assert truth_file.is_file()
+    truth_rows = _csv_rows(truth_file)
+    scenario_ids = {r["scenario_id"] for r in truth_rows}
+    for op in operations:
+        assert str(op["scenario_id"]) in scenario_ids
+
+
+@contract("5")
+def test_format_catalogue_f20_ambiguous_date_preserves_canonical_iso_value(tmp_path: Path) -> None:
+    """SRS 4 and 4.5: F20 (date_swap_month_day) preserves clean ISO date as canonical_value."""
+    operations = [
+        _scenario("F20", "format", "date_debut", 5, value="date_swap_month_day",
+                  when={"filiale": "quebec"}),
+    ]
+    pkg = _insurance_package(tmp_path / "pkg", operations, profile="v2_f20")
+    out = tmp_path / "out"
+    plan = build_generate_plan(pkg, rows=300, seed=42, output_dir=out, anomaly_profile="v2_f20")
+    generate_datasets(plan)
+
+    truth_rows = _csv_rows(out / "insurance-combined.v2_f20.truth.csv")
+    f20_events = [r for r in truth_rows if r["scenario_id"] == "F20" and r["kind"] == "injected"]
+    assert len(f20_events) == 5
+
+    changes_rows = _csv_rows(out / "insurance-combined.v2_f20.changes.csv")
+    f20_changes = {c["event_id"]: c for c in changes_rows}
+
+    for ev in f20_events:
+        change = f20_changes[ev["event_id"]]
+        before = change["before"]  # DD-MM-YYYY in Quebec, e.g. 05-10-2026
+        after = change["after"]    # MM-DD-YYYY, e.g. 10-05-2026
+        d, m, y = before.split("-")
+        expected_iso = f"{y}-{m}-{d}"
+        assert ev["canonical_value"] == expected_iso
+        assert after == f"{m}-{d}-{y}"
+        assert after != ev["canonical_value"]
+
+
+@contract("5")
+def test_format_catalogue_canonical_decimal_and_nfc(tmp_path: Path) -> None:
+    """SRS 4 and 4.5: F04 (NFD) has NFC canonical value; F13/F14 has plain decimal canonical value."""
+    import unicodedata
+
+    operations = [
+        _scenario("F04", "format", "nom", 5, value="unicode_nfd"),
+        _scenario("F13", "format", "prime_annuelle", 5, value="decimal_comma"),
+        _scenario("F14", "format", "prime_annuelle", 5, value="thousands_space"),
+    ]
+    pkg = _insurance_package(tmp_path / "pkg", operations, profile="v2_canon")
+    out = tmp_path / "out"
+    plan = build_generate_plan(pkg, rows=300, seed=42, output_dir=out, anomaly_profile="v2_canon")
+    generate_datasets(plan)
+
+    truth_rows = _csv_rows(out / "insurance-combined.v2_canon.truth.csv")
+    f04_events = [r for r in truth_rows if r["scenario_id"] == "F04" and r["kind"] == "injected"]
+    assert len(f04_events) == 5
+    for ev in f04_events:
+        assert unicodedata.is_normalized("NFC", ev["canonical_value"])
+
+    f13_events = [r for r in truth_rows if r["scenario_id"] == "F13" and r["kind"] == "injected"]
+    assert len(f13_events) == 5
+    for ev in f13_events:
+        assert "," not in ev["canonical_value"]
+        assert " " not in ev["canonical_value"]
+        float(ev["canonical_value"])
+
+
+@contract("5")
+def test_format_defects_do_not_cause_spurious_business_rule_violations(tmp_path: Path) -> None:
+    """SRS 4 and 5.8: Kleene 3-valued logic ensures format defects never trigger business rules."""
+    operations = [
+        _scenario("F18", "format", "date_debut", 10, value="date_impossible",
+                  category="format_invalid"),
+        _scenario("F20", "format", "date_debut", 10, value="date_swap_month_day",
+                  when={"filiale": "quebec"}, category="contextual_invalid"),
+        _scenario("F13", "format", "prime_annuelle", 10, value="decimal_comma",
+                  category="format_variant"),
+        _scenario("F14", "format", "prime_annuelle", 10, value="thousands_space",
+                  category="format_variant"),
+        _scenario("F08", "format", "telephone", 10, value="phone_drop_digit",
+                  category="format_invalid"),
+        _scenario("F09", "format", "courriel", 10, value="email_invalid",
+                  category="format_invalid"),
+    ]
+    pkg = _insurance_package(tmp_path / "pkg", operations, profile="v2_kleene")
+    out = tmp_path / "out"
+    plan = build_generate_plan(pkg, rows=500, seed=42, output_dir=out, anomaly_profile="v2_kleene")
+    generate_datasets(plan)
+
+    truth_rows = _csv_rows(out / "insurance-combined.v2_kleene.truth.csv")
+    rule_violations = [r for r in truth_rows if r["kind"] == "rule_violation"]
+    assert len(rule_violations) == 0
+
+
+@contract("5")
+def test_format_catalogue_completeness_and_non_regression() -> None:
+    """SRS 4: FORMAT_VALUES contains all 22 format catalog operations and preserves legacy ones."""
+    from tabalyst.generate_anomalies import FORMAT_VALUES
+
+    assert len(FORMAT_VALUES) == 52
+
+    expected_f_ops = {
+        "surrounding_space", "insert_non_breaking_space", "unicode_nfd", "unicode_nfc",
+        "title_case", "phone_drop_digit", "email_invalid", "email_forbidden_domain",
+        "postal_no_space", "postal_invalid_syntax", "decimal_comma", "decimal_dot",
+        "thousands_space", "thousands_comma", "date_impossible", "date_swap_month_day",
+        "drop_leading_zeros", "similar_char",
+    }
+    for op_name in expected_f_ops:
+        assert op_name in FORMAT_VALUES, f"Missing format value: {op_name}"
+
+
 
