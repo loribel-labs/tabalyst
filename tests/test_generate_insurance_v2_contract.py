@@ -14,7 +14,9 @@ assertions, so the suite stays green between lots and a test left unwritten fail
 
 from __future__ import annotations
 
+import csv
 import json
+import shutil
 from collections.abc import Callable
 from fractions import Fraction
 from importlib.resources import files
@@ -22,12 +24,19 @@ from pathlib import Path
 from typing import NoReturn, TypeVar, cast
 
 import pytest
+import yaml
 
-from tabalyst.generate_insurance import FIELDS
+from tabalyst.errors import ConfigurationError, ReportError
+from tabalyst.generate_anomalies import CHANGE_FIELDS, AnomalyEvent, inject_anomalies
+from tabalyst.generate_insurance import FIELDS, insurance_canonical
 from tabalyst.generate_package import load_generate_package
-from tabalyst.generate_service import build_generate_plan, generate_datasets
+from tabalyst.generate_service import (
+    build_generate_plan,
+    generate_datasets,
+    validate_generate_package,
+)
 
-ENABLED_LOTS: set[str] = {"0"}
+ENABLED_LOTS: set[str] = {"0", "1"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
@@ -153,106 +162,392 @@ def test_documented_absence_probabilities_are_exact(rows: int) -> None:
 # --- Lot 1: scenario engine (contract 4) ---------------------------------------------------
 
 
+def _scenario(scenario_id: str, kind: str, column: str, count: int, **extra: object,
+              ) -> dict[str, object]:
+    """One V2 operation: ``kind`` on ``column`` for ``count`` cases of ``scenario_id``."""
+    operation: dict[str, object] = {
+        "kind": kind, "column": column, "count": count, "scenario_id": scenario_id,
+        "category": "semantic_invalid", "severity": "major"}
+    if kind == "replace":
+        operation["value"] = "Z"
+    elif kind == "format":
+        operation["value"] = "suffix_x"
+    operation.update(extra)
+    return operation
+
+
+def _write_clean(tmp_path: Path, rows: list[dict[str, str]]) -> Path:
+    clean = tmp_path / "clean.csv"
+    with clean.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]), lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+    return clean
+
+
+def _inject(tmp_path: Path, rows: list[dict[str, str]], operations: list[dict[str, object]],
+            name: str = "p") -> tuple[list[dict[str, str]], list[dict[str, str]],
+                                      dict[str, object]]:
+    """Inject ``operations`` in a small clean file; return altered rows, journal and summary."""
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    summary = inject_anomalies(
+        _write_clean(tmp_path, rows), tmp_path / "altered.csv", tmp_path / "changes.csv",
+        dataset="demo", profile={"id": name, "operations": operations}, seed=7,
+        count=len(rows), delimiter=",")
+    with (tmp_path / "altered.csv").open(encoding="utf-8", newline="") as stream:
+        altered = list(csv.DictReader(stream))
+    with (tmp_path / "changes.csv").open(encoding="utf-8", newline="") as stream:
+        changes = list(csv.DictReader(stream))
+    return altered, changes, summary
+
+
+def _pairs(count: int) -> list[dict[str, str]]:
+    return [{"id": f"R{i:03d}", "a": f"a{i}", "b": f"b{i}", "c": f"c{i}"} for i in range(count)]
+
+
+def _scenarios_by_row(changes: list[dict[str, str]],
+                      operations: list[dict[str, object]]) -> dict[str, set[str]]:
+    found: dict[str, set[str]] = {}
+    for change in changes:
+        scenario = str(operations[int(change["operation_index"]) - 1]["scenario_id"])
+        found.setdefault(change["row_number"], set()).add(scenario)
+    return found
+
+
+def _insurance_package(tmp_path: Path, operations: list[dict[str, object]],
+                       source: Path = PACKAGE, profile: str = "v2_test") -> Path:
+    """Copy a shipped package and add one profile that targets its first dataset."""
+    package = tmp_path / "package"
+    shutil.copytree(source, package)
+    manifest = package / "dataset.yaml"
+    document = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    targets = [("insurance-combined" if source == PACKAGE else
+                next(d["id"] for d in document["datasets"] if d["mode"] == "generated"))]
+    document["anomaly_profiles"][profile] = {"targets": targets, "operations": operations}
+    manifest.write_text(yaml.safe_dump(document, sort_keys=False, allow_unicode=True),
+                        encoding="utf-8")
+    return package
+
+
+def _refused(tmp_path: Path, operations: list[dict[str, object]], message: str) -> None:
+    package = _insurance_package(tmp_path, operations)
+    with pytest.raises(ConfigurationError, match=message):
+        validate_generate_package(package)
+
+
 @contract("1")
-def test_legacy_profile_summary_gains_no_v2_member() -> None:
+def test_legacy_profile_summary_gains_no_v2_member(tmp_path: Path) -> None:
     """4.2: the summary of a legacy profile keeps the scenario digest of test_generate_insurance."""
-    _to_write("4.2")
+    operations: list[dict[str, object]] = [
+        {"kind": "format", "column": "a", "value": "suffix_x", "count": 4},
+        {"kind": "format", "column": "b", "value": "suffix_x", "rate": 0.5}]
+    _, _, summary = _inject(tmp_path, _pairs(20), operations)
+    assert set(summary) == {"dataset", "profile", "seed", "total_rows", "affected_rows",
+                            "affected_row_rate", "events", "changed_cells", "operations"}
+    entries = cast(list[dict[str, object]], summary["operations"])
+    assert all(not set(entry) & {"scenario_id", "mode", "eligible_population"}
+               for entry in entries)
 
 
 @contract("1")
-def test_v2_profile_needs_scenario_category_and_severity_on_every_operation() -> None:
+@pytest.mark.parametrize(("operations", "message"), [
+    ([{"kind": "set_missing", "column": "nom", "count": 2, "scenario_id": "S1",
+       "severity": "major"}],
+     r"operations\[1\]: operation.category is required"),
+    ([{"kind": "set_missing", "column": "nom", "count": 2, "scenario_id": "S1",
+       "category": "format_invalid"}],
+     r"operations\[1\]: operation.severity is required"),
+    ([_scenario("S1", "set_missing", "nom", 2),
+      {"kind": "set_missing", "column": "prenom", "count": 2}],
+     r"operations\[2\]: a scenario profile declares scenario_id on every"),
+    ([_scenario("S1", "set_missing", "nom", 2),
+      {"kind": "set_missing", "column": "prenom", "count": 2, "category": "format_invalid"}],
+     r"operations\[2\]: operation.category needs operation.scenario_id"),
+])
+def test_v2_profile_needs_scenario_category_and_severity_on_every_operation(
+        tmp_path: Path, operations: list[dict[str, object]], message: str) -> None:
     """4.1: one operation without them in a V2 profile is refused, naming profile and index."""
-    _to_write("4.1")
+    _refused(tmp_path, operations, rf"profile v2_test: {message}")
+    with pytest.raises(ValueError, match=rf"v2_test\.{message}"):
+        _inject(tmp_path / "direct", _pairs(5), operations, "v2_test")
 
 
 @contract("1")
-def test_v2_profile_refuses_rate_operations_and_a_mix_with_legacy_operations() -> None:
+def test_v2_profile_refuses_rate_operations_and_a_mix_with_legacy_operations(
+        tmp_path: Path) -> None:
     """4.1 and ADR overlap: V2 profiles use ``count`` only."""
-    _to_write("4.1")
+    _refused(tmp_path, [{**_scenario("S1", "set_missing", "nom", 2), "rate": 0.1}],
+             r"operations\[1\]: operation.rate is not allowed with scenario_id")
+    legacy: dict[str, object] = {"kind": "set_missing", "column": "prenom", "count": 2}
+    _refused(tmp_path / "mix", [_scenario("S1", "set_missing", "nom", 2), legacy],
+             r"operations\[2\]: a scenario profile declares scenario_id on every operation")
 
 
 @contract("1")
-def test_legacy_operation_refuses_v2_keys_in_every_package() -> None:
+@pytest.mark.parametrize("package_id", ["insurance", "crm", "computer"])
+def test_legacy_operation_refuses_v2_keys_in_every_package(
+        tmp_path: Path, package_id: str) -> None:
     """4.1: a V2 key on an operation without ``scenario_id`` (Insurance, CRM, Computer) fails."""
-    _to_write("4.1")
+    source = Path(str(files("tabalyst").joinpath("generate_examples", package_id)))
+    document = yaml.safe_load((source / "dataset.yaml").read_text(encoding="utf-8"))
+    profile = next(iter(document["anomaly_profiles"].values()))
+    column = next(op["column"] for op in profile["operations"] if "column" in op)
+    key: dict[str, object] = {"kind": "set_missing", "column": column, "count": 1,
+                              "severity": "major"}
+    with pytest.raises(ConfigurationError, match="severity"):
+        validate_generate_package(_insurance_package(tmp_path, [key], source))
+    # A complete scenario operation is accepted by Insurance alone.
+    complete = {**key, "scenario_id": "S1", "category": "format_invalid"}
+    package = _insurance_package(tmp_path / "complete", [complete], source)
+    if package_id == "insurance":
+        assert validate_generate_package(package).package_id == "insurance"
+    else:
+        with pytest.raises(ConfigurationError, match="scenario"):
+            validate_generate_package(package)
 
 
 @contract("1")
-def test_rarity_level_must_match_the_band_of_the_scenario_total() -> None:
+def test_rarity_level_must_match_the_band_of_the_scenario_total(tmp_path: Path) -> None:
     """3.3 and 4.1: counts 40 + 40 under ``very_rare`` fail (80 is above 74), 25 + 25 pass."""
-    _to_write("3.3")
+    def pair(count: int) -> list[dict[str, object]]:
+        return [_scenario("S1", "set_missing", "nom", count, rarity_level="very_rare"),
+                _scenario("S1", "set_missing", "prenom", count, rarity_level="very_rare")]
+
+    _refused(tmp_path / "over", pair(40),
+             r"scenario S1 declares rarity_level very_rare \(10 to 74 cases\) but its "
+             r"operations total 80")
+    assert validate_generate_package(_insurance_package(tmp_path / "ok", pair(25)))
+    _refused(tmp_path / "single", [_scenario("S2", "set_missing", "nom", 2,
+                                             rarity_level="single")],
+             r"scenario S2 declares rarity_level single \(1 to 1 cases\) but its operations "
+             r"total 2")
 
 
 @contract("1")
-def test_requires_names_a_column_missing_from_the_output_profile_and_is_refused() -> None:
+def test_requires_names_a_column_missing_from_the_output_profile_and_is_refused(
+        tmp_path: Path) -> None:
     """4.1: the message names the column and the output profile that provides it."""
-    _to_write("4.1")
+    _refused(tmp_path, [_scenario("S1", "set_missing", "nom", 2, requires=["date_sinistre"])],
+             r"operations\[1\]: scenario S1 requires column 'date_sinistre', which the "
+             r"default output profile does not have \(the extended output profile provides it\)")
+    _refused(tmp_path / "unknown", [_scenario("S1", "set_missing", "nom", 2,
+                                              requires=["no_such_column"])],
+             r"requires column 'no_such_column', which the default output profile does not have"
+             r"$")
+    assert validate_generate_package(_insurance_package(
+        tmp_path / "ok", [_scenario("S1", "set_missing", "nom", 2, requires=["filiale"])]))
 
 
 @contract("1")
-def test_conflicts_with_unknown_scenario_is_refused_and_is_symmetric() -> None:
+def test_conflicts_with_unknown_scenario_is_refused_and_is_symmetric(tmp_path: Path) -> None:
     """4.1: ``A`` lists ``B`` and ``B`` does not: the pair still never overlaps."""
-    _to_write("4.1")
+    _refused(tmp_path, [_scenario("S1", "set_missing", "nom", 2, conflicts_with=["S9"])],
+             r"operations\[1\]: conflicts_with names the unknown scenario S9")
+    _refused(tmp_path / "self", [_scenario("S1", "set_missing", "nom", 2,
+                                           conflicts_with=["S1"])],
+             r"scenario S1 cannot conflict with itself")
+    operations = [
+        _scenario("A", "format", "a", 8, can_overlap=True, conflicts_with=["B"]),
+        _scenario("B", "format", "b", 8, can_overlap=True)]
+    _, changes, _ = _inject(tmp_path / "run", _pairs(20), operations)
+    assert all(len(found) == 1 for found in _scenarios_by_row(changes, operations).values())
+    assert len(changes) == 16
 
 
 @contract("1")
-def test_operations_of_a_v2_profile_never_share_a_row_by_default() -> None:
+def test_operations_of_a_v2_profile_never_share_a_row_by_default(tmp_path: Path) -> None:
     """4.3: every row of the journal carries one scenario when nothing allows overlap."""
-    _to_write("4.3")
+    operations = [_scenario("A", "format", "a", 10), _scenario("B", "format", "b", 10),
+                  _scenario("C", "format", "c", 10)]
+    _, changes, summary = _inject(tmp_path, _pairs(30), operations)
+    by_row = _scenarios_by_row(changes, operations)
+    assert len(by_row) == 30 and all(len(found) == 1 for found in by_row.values())
+    assert summary["events"] == summary["affected_rows"] == 30
+    # More cases than rows left: refused, never squeezed onto a shared row.
+    too_many = [_scenario("A", "format", "a", 12), _scenario("B", "format", "b", 12)]
+    with pytest.raises(ValueError, match=r"operation 2 \(scenario B\) asks for count 12 but "
+                                         r"only 8 rows can take it"):
+        _inject(tmp_path / "many", _pairs(20), too_many)
 
 
 @contract("1")
-def test_two_scenarios_share_a_row_when_both_allow_it() -> None:
+def test_two_scenarios_share_a_row_when_both_allow_it(tmp_path: Path) -> None:
     """4.3 (C01): ``can_overlap`` on both gives rows with two scenarios, counts exact."""
-    _to_write("4.3")
+    operations = [_scenario("A", "format", "a", 15, can_overlap=True),
+                  _scenario("B", "format", "b", 15, can_overlap=True)]
+    _, changes, summary = _inject(tmp_path, _pairs(20), operations)
+    by_row = _scenarios_by_row(changes, operations)
+    assert sum(len(found) == 2 for found in by_row.values()) >= 10  # 15 + 15 on 20 rows
+    entries = cast(list[dict[str, object]], summary["operations"])
+    assert [(e["requested_rows"], e["applied_rows"]) for e in entries] == [(15, 15), (15, 15)]
+    # Only one of the two opting in is not enough.
+    one_sided = [_scenario("A", "format", "a", 15, can_overlap=True),
+                 _scenario("B", "format", "b", 15)]
+    with pytest.raises(ValueError, match="asks for count 15 but only 5 rows can take it"):
+        _inject(tmp_path / "one", _pairs(20), one_sided)
 
 
 @contract("1")
-def test_conflicts_with_forbids_overlap_even_when_both_allow_it() -> None:
+def test_operations_of_one_scenario_never_share_a_row_even_when_they_may_overlap(
+        tmp_path: Path) -> None:
+    """4.3 and 4.6: one scenario is one case per row, so its operations stay apart."""
+    one_scenario = [_scenario("A", "format", "a", 8, can_overlap=True),
+                    _scenario("A", "format", "b", 8, can_overlap=True)]
+    _, changes, _ = _inject(tmp_path, _pairs(20), one_scenario)
+    assert len({c["row_number"] for c in changes}) == 16
+    greedy = [{**one_scenario[0], "count": 14}, {**one_scenario[1], "count": 14}]
+    with pytest.raises(ValueError, match="asks for count 14 but only 6 rows can take it"):
+        _inject(tmp_path / "greedy", _pairs(20), greedy)
+
+
+@contract("1")
+def test_overlapping_operation_that_cannot_apply_to_the_shared_row_fails_the_run(
+        tmp_path: Path) -> None:
+    """4.2 and 4.6: exact or refused: a second set_missing finds the cell already empty."""
+    operations = [_scenario("A", "set_missing", "a", 10, can_overlap=True),
+                  _scenario("B", "set_missing", "a", 10, can_overlap=True)]
+    with pytest.raises(ValueError, match=r"operation 2 \(scenario B\) applied 0 of its count 10"):
+        _inject(tmp_path, _pairs(10), operations)
+
+
+@contract("1")
+def test_conflicts_with_forbids_overlap_even_when_both_allow_it(tmp_path: Path) -> None:
     """4.3: no row carries both scenarios."""
-    _to_write("4.3")
+    free = [_scenario("A", "format", "a", 14, can_overlap=True),
+            _scenario("B", "format", "b", 14, can_overlap=True)]
+    _, changes, _ = _inject(tmp_path, _pairs(20), free)
+    assert any(len(found) == 2 for found in _scenarios_by_row(changes, free).values())
+    apart = [_scenario("A", "format", "a", 8, can_overlap=True, conflicts_with=["B"]),
+             _scenario("B", "format", "b", 8, can_overlap=True, conflicts_with=["A"])]
+    _, changes, _ = _inject(tmp_path / "apart", _pairs(20), apart)
+    assert all(len(found) == 1 for found in _scenarios_by_row(changes, apart).values())
+    unbalanced = [{**apart[0], "count": 14}, {**apart[1], "count": 14}]
+    with pytest.raises(ValueError, match="asks for count 14 but only 6 rows can take it"):
+        _inject(tmp_path / "unbalanced", _pairs(20), unbalanced)
 
 
 @contract("1")
-def test_two_successive_modifications_of_one_cell_are_journaled_in_order() -> None:
+def test_two_successive_modifications_of_one_cell_are_journaled_in_order(
+        tmp_path: Path) -> None:
     """4.3 (C04): ``before`` of the second event is ``after`` of the first."""
-    _to_write("4.3")
+    operations = [_scenario("A", "format", "a", 10, can_overlap=True),
+                  _scenario("B", "format", "a", 10, value="upper", can_overlap=True)]
+    altered, changes, _ = _inject(tmp_path, _pairs(10), operations)
+    for row in range(10):
+        events = sorted((c for c in changes if c["row_number"] == str(row + 2)),
+                        key=lambda c: int(c["event_id"]))
+        assert [e["operation_index"] for e in events] == ["1", "2"]
+        assert (events[0]["before"], events[0]["after"]) == (f"a{row}", f"a{row}_X")
+        assert (events[1]["before"], events[1]["after"]) == (f"a{row}_X", f"A{row}_X")
+        assert altered[row]["a"] == f"A{row}_X"
 
 
 @contract("1")
-def test_summary_reports_events_distinct_cells_and_net_differences() -> None:
+def test_summary_reports_events_distinct_cells_and_net_differences(tmp_path: Path) -> None:
     """4.2: three numbers that differ on a profile where one change undoes another (C03)."""
-    _to_write("4.2")
+    operations = [_scenario("A", "swap", "a", 10, value="b", can_overlap=True),
+                  _scenario("B", "swap", "a", 10, value="b", can_overlap=True),
+                  _scenario("C", "replace", "a", 10, can_overlap=True)]
+    altered, changes, summary = _inject(tmp_path, _pairs(10), operations)
+    assert summary["events"] == 30  # three operations on ten rows
+    assert summary["changed_cells"] == len(changes) == 50  # a swap writes two cells
+    assert summary["distinct_changed_cells"] == 20  # a and b of every row
+    assert summary["net_differences"] == 10  # b was swapped back; a ends at "Z"
+    assert all(row["b"] == f"b{i}" and row["a"] == "Z" for i, row in enumerate(altered))
 
 
 @contract("1")
-def test_summary_marks_exact_mode_and_the_eligible_population_per_operation() -> None:
+def test_summary_marks_exact_mode_and_the_eligible_population_per_operation(
+        tmp_path: Path) -> None:
     """4.2: ``mode`` is ``exact`` and ``eligible_population`` is at least the count."""
-    _to_write("4.2")
+    rows = [{"id": f"R{i:03d}", "branch": "x" if i % 10 == 0 else "y", "v": "a-b"}
+            for i in range(200)]
+    operations = [_scenario("A", "format", "v", 5, value="double_hyphen", when={"branch": "x"}),
+                  _scenario("B", "set_missing", "v", 7)]
+    _, _, summary = _inject(tmp_path, rows, operations)
+    entries = cast(list[dict[str, object]], summary["operations"])
+    assert [(e["scenario_id"], e["mode"]) for e in entries] == [("A", "exact"), ("B", "exact")]
+    assert [e["eligible_population"] for e in entries] == [20, 200]
+    assert all(cast(int, e["eligible_population"]) >= cast(int, e["count"]) for e in entries)
+    assert all("rate" not in e for e in entries)
 
 
 @contract("1")
-def test_exact_count_fails_when_the_eligible_population_is_too_small() -> None:
+def test_exact_count_fails_when_the_eligible_population_is_too_small(tmp_path: Path) -> None:
     """4.2: the error names the operation and the eligible size; no file is left behind."""
-    _to_write("4.2")
+    package = _insurance_package(tmp_path, [
+        _scenario("ONT", "set_missing", "nom", 100, when={"filiale": "ontario"})])
+    out = tmp_path / "out"
+    plan = build_generate_plan(package, rows=300, seed=42, output_dir=out,
+                               anomaly_profile="v2_test")
+    with pytest.raises(ReportError, match=r"operation 1 \(scenario ONT\) asks for count 100 but "
+                                          r"only 2\d rows can take it \(eligible population 2\d"):
+        generate_datasets(plan)
+    assert list(out.iterdir()) == []
 
 
 @contract("1")
-def test_appending_a_scenario_does_not_change_the_rows_of_the_earlier_ones() -> None:
+def test_appending_a_scenario_does_not_change_the_rows_of_the_earlier_ones(
+        tmp_path: Path) -> None:
     """4.3 and 4.4: streams are keyed by scenario; inserting one is allowed to move the rest."""
-    _to_write("4.4")
+    first = [_scenario("A", "format", "a", 10, value="replace_char"),
+             _scenario("B", "format", "b", 10, value="drop_char")]
+    both = [*first, _scenario("C", "format", "c", 10, value="replace_char")]
+    short = _inject(tmp_path / "short", _pairs(60), first)[1]
+    long = _inject(tmp_path / "long", _pairs(60), both)[1]
+
+    def cells(journal: list[dict[str, str]]) -> list[tuple[str, ...]]:
+        # event_id is a running number over the file, so it moves when a scenario is added.
+        return [(c["row_number"], c["operation_index"], c["column"], c["before"], c["after"])
+                for c in journal if c["operation_index"] != "3"]
+
+    assert cells(long) == cells(short)
+    assert any(c["operation_index"] == "3" for c in long)
 
 
 @contract("1")
-def test_changes_csv_keeps_its_columns_with_v2_metadata() -> None:
+def test_changes_csv_keeps_its_columns_with_v2_metadata(tmp_path: Path) -> None:
     """ADR truth: ten fixed columns (plus ``class`` when declared), nothing else."""
-    _to_write("ADR truth")
+    rich = _scenario("A", "format", "a", 3, rule_id="M01", rarity_level="extremely_rare",
+                     root_cause_id="import_error", expected_detection="syntactic|domain",
+                     requires=["a"], can_overlap=True)
+    _inject(tmp_path, _pairs(10), [rich])
+    header = (tmp_path / "changes.csv").read_text(encoding="utf-8").splitlines()[0]
+    assert header.split(",") == CHANGE_FIELDS
+    (tmp_path / "classed").mkdir()
+    _inject(tmp_path / "classed", _pairs(10), [{**rich, "class": "tagged"}])
+    header = (tmp_path / "classed" / "changes.csv").read_text(encoding="utf-8").splitlines()[0]
+    assert header.split(",") == [*CHANGE_FIELDS, "class"]
 
 
 @contract("1")
-def test_canonical_value_is_captured_in_iso_for_a_branch_convention_date() -> None:
+def test_canonical_value_is_captured_in_iso_for_a_branch_convention_date(
+        tmp_path: Path) -> None:
     """4.5: the Quebec clean cell ``05-10-2026`` has the canonical value ``2026-10-05``."""
-    _to_write("4.5")
+    generate_datasets(build_generate_plan(
+        example="insurance", rows=300, seed=42, output_dir=tmp_path / "clean"))
+    operations = [_scenario("MISREAD", "format", "date_debut", 3, value="date_mdy_iso",
+                            category="contextual_invalid", when={"filiale": "quebec"})]
+    events: list[AnomalyEvent] = []
+    inject_anomalies(
+        tmp_path / "clean" / "insurance-combined.csv", tmp_path / "altered.csv",
+        tmp_path / "changes.csv", dataset="insurance-combined",
+        profile={"id": "p", "operations": operations}, seed=42, count=300, delimiter=",",
+        on_event=events.append, canonical=insurance_canonical)
+    assert len(events) == 3
+    for event in events:
+        day, month, year = event.before.split("-")  # the Quebec clean cell is DD-MM-YYYY
+        assert event.canonical_value == f"{year}-{month}-{day}"
+        assert event.after == f"{year}-{day}-{month}"  # valid, read as another day
+    assert any(event.after != event.canonical_value for event in events)
+    # Without a reader the canonical value is the clean cell itself.
+    plain: list[AnomalyEvent] = []
+    inject_anomalies(
+        tmp_path / "clean" / "insurance-combined.csv", tmp_path / "altered2.csv",
+        tmp_path / "changes2.csv", dataset="insurance-combined",
+        profile={"id": "p", "operations": operations}, seed=42, count=300, delimiter=",",
+        on_event=plain.append)
+    assert [e.canonical_value for e in plain] == [e.before for e in plain]
 
 
 # --- Lot 2: truth files (contract 5) -------------------------------------------------------

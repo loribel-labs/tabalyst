@@ -7,10 +7,16 @@
 from __future__ import annotations
 
 import random
+from collections.abc import Mapping
 from datetime import date, timedelta
 from decimal import Decimal
 
 from tabalyst.errors import ConfigurationError
+from tabalyst.generate_canonical import (
+    canonical_date,
+    canonical_decimal,
+    canonical_text,
+)
 from tabalyst.generate_draws import truncated_lognormal
 from tabalyst.generate_package import DatasetPackage
 from tabalyst.generate_references import CommonProvider, CommonReferences
@@ -277,3 +283,33 @@ class InsuranceProvider:
         }
         return {key: value.strftime(date_format) if isinstance(value, date) else value
                 for key, value in result.items()}
+
+
+# Contract insurance-v2.md 4.5: the type of each column decides how its clean cell is normalized.
+DATE_COLUMNS = frozenset({"date_naissance", "date_debut", "date_fin", "date_creation",
+                          "date_modification", "date_reclamation"})
+AMOUNT_COLUMNS = frozenset({"prime_annuelle", "montant_reclamation"})
+IDENTIFIER_COLUMNS = frozenset({"id_client", "id_contrat", "agence_code"})
+BRANCH_COLUMN = "filiale"
+
+
+def insurance_canonical(column: str, value: str, row: Mapping[str, str]) -> str:
+    """Return the canonical value of a clean Insurance cell (contract insurance-v2.md 4.5).
+
+    A date is read with the convention of the branch of its row (``filiale``) and written as
+    ISO 8601, so ``05-10-2026`` of a Quebec row is ``2026-10-05`` even where a defect rewrites
+    it in another convention. An amount is a plain decimal, an identifier stays as it is and any
+    other text is NFC and trimmed. Raises ValueError for a date whose row has no known branch
+    or does not follow its convention.
+    """
+    if column in IDENTIFIER_COLUMNS or not value:
+        return value
+    if column in DATE_COLUMNS:
+        branch = BRANCHES.get(row.get(BRANCH_COLUMN, ""))
+        if branch is None:
+            raise ValueError(f"canonical value of {column}: unknown {BRANCH_COLUMN} "
+                             f"{row.get(BRANCH_COLUMN)!r}")
+        return canonical_date(value, branch[2])
+    if column in AMOUNT_COLUMNS:
+        return canonical_decimal(value)
+    return canonical_text(value)

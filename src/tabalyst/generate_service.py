@@ -45,6 +45,7 @@ from tabalyst.generate_definition import GenerateDefinition
 from tabalyst.generate_insurance import InsuranceProvider
 from tabalyst.generate_package import MAX_ROWS, DatasetPackage, load_generate_package
 from tabalyst.generate_references import SCHEMAS, CommonReferences
+from tabalyst.generate_scenarios import foreign_scenario_key
 from tabalyst.generate_values import generate_rows
 
 
@@ -195,6 +196,10 @@ def _computer_anomaly_profile(
     for index, operation in enumerate(operations, 1):
         if not isinstance(operation, dict) or set(operation) - OPERATION_KEYS:
             raise ConfigurationError(f"PACKAGE_ANOMALY: invalid operation {index} in {name}")
+        if (foreign := foreign_scenario_key(operation)) is not None:
+            raise ConfigurationError(
+                f"PACKAGE_ANOMALY: operation {index} in {name}: scenario keys "
+                f"({foreign}) are not supported by the Computer package")
         kind = operation.get("kind")
         column = operation.get("column")
         value = operation.get("value")

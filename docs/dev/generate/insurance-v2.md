@@ -242,6 +242,60 @@ the clean Quebec cell `05-10-2026` has the canonical value `2026-10-05`, so a de
 rewrites it as `10-05-2026` (valid in another convention, read as 10 May) keeps the intended
 day in the truth. The canonical value is held in the truth file, never in `changes.csv` (D5).
 
+### 4.6 What lot 1 fixed
+
+Written when lot 1 was implemented; where it differs from 4.1 to 4.5 this is the behavior.
+
+- **Modules.** `generate_scenarios.py` (the ten keys, `scenario_option_error` for one operation,
+  `profile_scenario_error` for a whole profile, `conflict_map`), `generate_rarity.py` (only the
+  bands and `band_of` / `level_of`; lot 3 adds the probability) and `generate_canonical.py`
+  (`canonical_text`, `canonical_decimal`, `canonical_date`). `operation_option_error` calls
+  `scenario_option_error` first, so every caller shares the rule.
+- **Required keys.** `severity` is required with `scenario_id` (4.1 wins over the default table
+  of 3.4, which stays a vocabulary for authors). The operations of one scenario declare the same
+  `category`, `severity`, `rarity_level`, `rule_id`, `root_cause_id` and `expected_detection`,
+  otherwise the profile is refused; `requires`, `conflicts_with` and `can_overlap` may differ.
+- **Refusals.** A scenario key without `scenario_id`, a mix of scenario and legacy operations,
+  `rate` with `scenario_id`, a `conflicts_with` that names an unknown scenario or its own,
+  `duplicate_row` with `can_overlap`, a `requires` column the target dataset lacks (the message
+  says which output profile provides it, table `PROVIDING_PROFILES`, lot 4 owns its content) and
+  a `rarity_level` whose band does not hold the scenario total. At load the message starts with
+  `profile <id>: operations[<n>]:`. The engine repeats the checks for a direct caller. A Computer
+  or CRM profile that carries a scenario key is refused (`scenarios` is true for the Insurance
+  package only). `rule_id` is checked against `rules.json` at lot 2, when that file exists;
+  only its pattern is checked here.
+- **Selection.** `_choose_rows` keeps three kinds of claim map (rows taken by an operation that
+  cannot overlap, rows taken by any operation, one map per scenario named in a conflict). A
+  legacy profile behaves as before: no operation overlaps. Streams of a scenario profile are
+  keyed `profile:scenario_id:rank`, so appending a scenario leaves the rows and the values of
+  the earlier ones alone (tested). The streams do not depend on the position, but picks follow
+  the profile order, so inserting or reordering scenarios can move the rows of the others.
+- **Eligibility is measured on the clean row.** An operation that shares a row is picked among
+  the rows it can change in the clean file. If an earlier overlapping operation then leaves a
+  row it cannot change (a `when` that no longer holds, a replacement by the value already
+  there), the run fails naming the operation instead of applying fewer cases (exact or refused).
+  An author chains operations that stay applicable to the intermediate value (C04: `suffix_x`
+  then `upper`, or two `swap` of the same pair for C03).
+- **One scenario, one case per row.** The operations of one scenario never share a row with
+  each other even when both declare `can_overlap` (a scenario total counts cases, and lot 3
+  derives the probability of absence from distinct rows).
+- **Empty lists.** `requires: []` and `conflicts_with: []` are accepted and mean nothing.
+- **Canonical failures.** `insurance_canonical` raises ValueError for a date whose row has no
+  known `filiale` or does not follow its convention: a guessed value in the truth would be
+  worse than a refusal.
+- **Summary.** A scenario profile adds `distinct_changed_cells` and `net_differences` at the
+  root and `scenario_id`, `mode` and `eligible_population` to each operation; the summary of a
+  legacy profile is unchanged. `eligible_population` is the number of rows the operation can
+  change in the clean file, before any claim.
+- **Canonical value.** `inject_anomalies(..., on_event=, canonical=)`: `on_event` receives one
+  `AnomalyEvent` per line of `changes.csv` (`event_id`, `row_number`, `operation_index`,
+  `column`, `before`, `after`, `canonical_value`) and changes no file; `canonical(column,
+  clean value, clean row)` computes the value, the clean cell itself when absent. Insurance
+  provides `generate_insurance.insurance_canonical`: a date is read with the convention of the
+  row's `filiale` and written as ISO, an amount is a plain decimal, an identifier stays as it
+  is, any other text is NFC and trimmed. The service does not pass them yet: lot 2 wires them
+  to `truth.csv`.
+
 ## 5. Ground truth files (lot 2)
 
 ### 5.1 Names and publication

@@ -14,9 +14,18 @@ import string
 import unicodedata
 from collections import Counter, deque
 from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass
 from itertools import compress
 from pathlib import Path
 from typing import cast
+
+from tabalyst.generate_scenarios import (
+    SCENARIO_KEYS,
+    conflict_map,
+    is_scenario_profile,
+    profile_scenario_error,
+    scenario_option_error,
+)
 
 CHANGE_FIELDS = ["event_id", "dataset", "profile", "row_number", "operation_index",
                  "kind", "column", "before", "after", "cause"]
@@ -25,7 +34,8 @@ CHANGE_FIELDS = ["event_id", "dataset", "profile", "row_number", "operation_inde
 OPERATION_KINDS = frozenset({"set_missing", "replace", "duplicate", "format", "swap",
                              "duplicate_row"})
 ROW_KINDS = frozenset({"duplicate_row"})
-OPERATION_KEYS = frozenset({"kind", "column", "rate", "count", "value", "when", "class"})
+OPERATION_KEYS = frozenset({"kind", "column", "rate", "count", "value", "when", "class"}
+                           ) | SCENARIO_KEYS
 FORMAT_VALUES = frozenset({
     "upper", "lower", "strip", "date_slash", "phone_spaces", "insert_space", "double_space",
     "drop_char", "double_hyphen", "suffix_x", "strip_accents", "negate", "leading_apostrophe",
@@ -38,6 +48,27 @@ CURRENCY_CODE = "CAD"
 CLASS_NAME = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
 # Enough to pick a copy that is not the previous line, small enough to stream in constant memory.
 COPY_WINDOW = 1000
+
+
+@dataclass(frozen=True)
+class AnomalyEvent:
+    """One cell of one event, as written to the journal, with the meaning of the clean cell.
+
+    ``row_number`` counts the header as line 1, like ``changes.csv``; ``operation_index`` is
+    1-based. ``canonical_value`` is the clean cell normalized by type (contract 4.5), so it
+    stays the intended value when a defect rewrites the cell in another convention.
+    """
+
+    event_id: int
+    row_number: int
+    operation_index: int
+    column: str
+    before: str
+    after: str
+    canonical_value: str
+
+
+CanonicalReader = Callable[[str, str, Mapping[str, str]], str]
 
 
 def _insert_space(value: str, rng: random.Random) -> str:
@@ -232,9 +263,13 @@ def operation_option_error(operation: Mapping[str, object]) -> str | None:
     """Return why the quantity, class or row options of an operation are invalid.
 
     Exactly one of ``rate`` and ``count`` must be given. A row operation names
-    no column and no value. The kind itself and the column names are checked by
+    no column and no value. The scenario keys of Insurance V2 are checked first
+    (``scenario_option_error``). The kind itself and the column names are checked by
     the callers, who know their schema.
     """
+    problem = scenario_option_error(operation)
+    if problem is not None:
+        return problem
     rate = operation.get("rate")
     count = operation.get("count")
     if ("rate" in operation) == ("count" in operation):
@@ -315,17 +350,25 @@ def _can_apply(row: dict[str, str], operation: Mapping[str, object], row_index: 
 
 def _choose_rows(clean: Path, delimiter: str, operations: Sequence[Mapping[str, object]],
                  rows: int, selection_rngs: Sequence[random.Random], where: str, locale: str,
-                 unit_suffixes: Mapping[str, tuple[str, str]] | None) -> dict[int, set[int]]:
+                 unit_suffixes: Mapping[str, tuple[str, str]] | None,
+                 ) -> tuple[dict[int, set[int]], dict[int, int]]:
     """Pick exactly ``count`` rows for every absolute-count operation.
 
     One read of the clean file marks the rows each operation can change; the
-    picks then follow the profile order and never share a row, so a row carries
-    one class and an operation changes exactly its ``count`` rows. Operations
-    with ``rate`` are not involved. Raises ValueError when fewer rows are left.
+    picks then follow the profile order. Two operations never share a row unless
+    both declare ``can_overlap`` and neither scenario lists the other in
+    ``conflicts_with`` (contract 4.3), and the operations of one scenario never share a
+    row with each other, so by default a row carries one class and an operation changes
+    exactly its ``count`` rows. Three kinds of claim map keep the memory
+    at a byte per row each: rows taken by an operation that cannot overlap, rows taken by
+    any operation, and one map per scenario named in a conflict. Operations with
+    ``rate`` are not involved. Returns the rows picked and the eligible population of
+    each operation (rows it can change in the clean file, before any claim). Raises
+    ValueError when fewer rows are left.
     """
     indexes = [i for i, operation in enumerate(operations) if "count" in operation]
     if not indexes:
-        return {}
+        return {}, {}
     eligible = {i: bytearray(rows) for i in indexes}
     probe = random.Random(0)
     with clean.open("r", encoding="utf-8", newline="") as source:
@@ -335,27 +378,84 @@ def _choose_rows(clean: Path, delimiter: str, operations: Sequence[Mapping[str, 
             for i in indexes:
                 if _can_apply(row, operations[i], row_index, probe, locale, unit_suffixes):
                     eligible[i][row_index] = 1
-    claimed = bytearray(rows)
+    conflicts = conflict_map(operations)
+    exclusive = bytearray(rows)
+    anything = bytearray(rows)
+    for operation in operations:
+        scenario = operation.get("scenario_id")
+        if isinstance(scenario, str):
+            # Several operations of one scenario are one case each: they never share a row.
+            conflicts.setdefault(scenario, set()).add(scenario)
+    by_scenario = {
+        scenario: bytearray(rows) for scenario in conflicts
+        if any(operation.get("scenario_id") == scenario and operation.get("can_overlap")
+               for operation in operations)}
     chosen: dict[int, set[int]] = {}
+    population: dict[int, int] = {}
     for i in indexes:
-        pool = [r for r in compress(range(rows), eligible[i]) if not claimed[r]]
-        wanted = cast(int, operations[i]["count"])
+        operation = operations[i]
+        scenario = cast("str | None", operation.get("scenario_id"))
+        shares = bool(operation.get("can_overlap"))
+        if not shares:
+            blocking = [anything]
+        else:
+            blocking = [exclusive, *(by_scenario[other]
+                                     for other in conflicts.get(scenario or "", ())
+                                     if other in by_scenario)]
+        population[i] = eligible[i].count(1)
+        candidates = compress(range(rows), eligible[i])
+        if len(blocking) == 1:
+            claimed = blocking[0]
+            pool = [r for r in candidates if not claimed[r]]
+        else:
+            pool = [r for r in candidates if not any(taken[r] for taken in blocking)]
+        wanted = cast(int, operation["count"])
         if len(pool) < wanted:
+            if scenario is None:
+                name, detail = "", "not already used by an earlier count operation"
+            else:
+                name = f" (scenario {scenario})"
+                detail = (f"eligible population {population[i]}; the others are used by an "
+                          f"earlier operation that cannot share a row with it")
             raise ValueError(
-                f"{where}: operation {i + 1} asks for count {wanted} but only {len(pool)} "
-                f"rows can take it (not already used by an earlier count operation)")
+                f"{where}: operation {i + 1}{name} asks for count {wanted} but only {len(pool)} "
+                f"rows can take it ({detail})")
         picked = selection_rngs[i].sample(pool, wanted)
         for r in picked:
-            claimed[r] = 1
+            anything[r] = 1
+            if not shares:
+                exclusive[r] = 1
+            elif scenario in by_scenario:
+                by_scenario[scenario][r] = 1
         chosen[i] = set(picked)
-    return chosen
+    return chosen, population
+
+
+def _stream_keys(profile_id: str, operations: Sequence[Mapping[str, object]]) -> list[str]:
+    """Name the random stream of every operation.
+
+    A legacy profile keys them by position. A scenario profile keys them by scenario and the
+    rank of the operation inside it (contract 4.4), so adding or reordering a scenario leaves
+    the values of the others alone.
+    """
+    if not is_scenario_profile(operations):
+        return [f"{profile_id}:{index}" for index in range(len(operations))]
+    ranks: Counter[str] = Counter()
+    keys = []
+    for operation in operations:
+        scenario = cast(str, operation["scenario_id"])
+        ranks[scenario] += 1
+        keys.append(f"{profile_id}:{scenario}:{ranks[scenario]}")
+    return keys
 
 
 def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                      dataset: str, profile: Mapping[str, object], seed: int, count: int,
                      delimiter: str, locale: str = "en",
                      unit_suffixes: Mapping[str, tuple[str, str]] | None = None,
-                     on_row: Callable[[int], None] | None = None) -> dict[str, object]:
+                     on_row: Callable[[int], None] | None = None,
+                     on_event: Callable[[AnomalyEvent], None] | None = None,
+                     canonical: CanonicalReader | None = None) -> dict[str, object]:
     """Write altered CSV and cell log; return requested and actual counts.
 
     Computer unit suffixes are supplied by its output register. An operation
@@ -370,7 +470,17 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     row had already received are then gone from the file, so their journal
     entries are dropped and their operations count the row as skipped: the
     journal always describes the file.
+    A scenario profile (an operation declares ``scenario_id``, contract 4) is exact or
+    refused: it uses ``count`` only, keys its random streams by scenario, lets two
+    operations share a row only when both opt in, and raises ValueError when an operation
+    applies fewer cases than its ``count`` (the clean row allowed it, the row as an earlier
+    overlapping operation left it did not). Its summary adds ``distinct_changed_cells``,
+    ``net_differences`` and, per operation, ``scenario_id``, ``mode`` and
+    ``eligible_population``; the summary of a legacy profile gains nothing.
     ``on_row`` receives the number of rows written, about 200 times per file and at the end.
+    ``on_event`` receives one ``AnomalyEvent`` per line of the journal, with the canonical
+    value of the clean cell (``canonical(column, clean value, clean row)``, the clean cell
+    itself when not given); it never changes the files.
     """
     # Imported here because generate_values reaches generate_definition, which
     # imports this module for the operation rules.
@@ -384,16 +494,21 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
         problem = operation_option_error(operation)
         if problem is not None:
             raise ValueError(f"{profile_id}.operations[{index}]: {problem}")
+    problem = profile_scenario_error(operations)
+    if problem is not None:
+        raise ValueError(f"{profile_id}.{problem}" if problem.startswith("operations[")
+                         else f"{profile_id}: {problem}")
+    scenarios = is_scenario_profile(operations)
     check_operation_counts(operations, count, f"{profile_id} on {dataset}")
     requested = [cast(int, operation["count"]) if "count" in operation
                  else round(count * cast(float, operation["rate"])) for operation in operations]
     remaining = requested.copy()
-    selection_rngs = [_stream(seed, dataset, f"{profile_id}:{index}",
-                              "anomaly_selection") for index in range(len(operations))]
-    chosen = _choose_rows(clean, delimiter, operations, count, selection_rngs,
-                          f"{profile_id} on {dataset}", locale, unit_suffixes)
-    mutation_rngs = [_stream(seed, dataset, f"{profile_id}:{index}", "anomaly_value")
-                     for index in range(len(operations))]
+    stream_keys = _stream_keys(profile_id, operations)
+    selection_rngs = [_stream(seed, dataset, key, "anomaly_selection") for key in stream_keys]
+    chosen, eligible_population = _choose_rows(
+        clean, delimiter, operations, count, selection_rngs,
+        f"{profile_id} on {dataset}", locale, unit_suffixes)
+    mutation_rngs = [_stream(seed, dataset, key, "anomaly_value") for key in stream_keys]
     applied: Counter[int] = Counter()
     skipped: Counter[int] = Counter()
     history: dict[str, list[str]] = {}
@@ -404,6 +519,8 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     order = sorted(range(len(operations)), key=lambda i: operations[i]["kind"] in ROW_KINDS)
     affected_rows = 0
     changed_cells = 0
+    distinct_cells = 0
+    net_differences = 0
     events = 0
     with (clean.open("r", encoding="utf-8", newline="") as source,
           altered.open("w", encoding="utf-8", newline="") as dirty,
@@ -484,6 +601,15 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                     if keeps_classes:
                         entry["class"] = operations[index].get("class", "")
                     log.writerow(entry)
+                    if on_event is not None:
+                        meaning = (canonical(column, clean_row[column], clean_row)
+                                   if canonical is not None else clean_row[column])
+                        on_event(AnomalyEvent(events, row_index + 2, index + 1, column,
+                                              before, after, meaning))
+            if scenarios and pending:
+                touched = {column for _, cells in pending for column, *_ in cells}
+                distinct_cells += len(touched)
+                net_differences += sum(row[column] != clean_row[column] for column in touched)
             writer.writerow(row)
             affected_rows += int(bool(pending))
             if copies_rows:
@@ -495,20 +621,37 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
             raise ValueError(f"Clean row count changed for {dataset}: {observed} != {count}")
         if on_row is not None:
             on_row(observed)
-    return {
+    if scenarios:
+        for index, operation in enumerate(operations):
+            if applied[index] != requested[index]:
+                raise ValueError(
+                    f"{profile_id} on {dataset}: operation {index + 1} (scenario "
+                    f"{operation['scenario_id']}) applied {applied[index]} of its count "
+                    f"{requested[index]}: an earlier overlapping operation left rows it "
+                    f"could not change")
+    summary: dict[str, object] = {
         "dataset": dataset, "profile": profile_id, "seed": seed,
         "total_rows": count, "affected_rows": affected_rows,
         "affected_row_rate": affected_rows / count if count else 0.0,
         "events": events, "changed_cells": changed_cells,
-        "operations": [_operation_summary(index, operation, requested[index],
-                                          applied[index], skipped[index], count)
-                       for index, operation in enumerate(operations)],
     }
+    if scenarios:
+        summary.update({"distinct_changed_cells": distinct_cells,
+                        "net_differences": net_differences})
+    summary["operations"] = [
+        _operation_summary(index, operation, requested[index], applied[index], skipped[index],
+                           count, eligible_population.get(index))
+        for index, operation in enumerate(operations)]
+    return summary
 
 
 def _operation_summary(index: int, operation: Mapping[str, object], requested: int,
-                       applied: int, skipped: int, rows: int) -> dict[str, object]:
-    """Build one summary entry; the keys of rate-based operations are unchanged."""
+                       applied: int, skipped: int, rows: int,
+                       eligible: int | None = None) -> dict[str, object]:
+    """Build one summary entry; the keys of rate-based operations are unchanged.
+
+    A scenario operation adds its ``scenario_id``, the ``exact`` mode and its eligible population.
+    """
     entry: dict[str, object] = {"index": index + 1, "kind": operation["kind"]}
     if "column" in operation:
         entry["column"] = operation["column"]
@@ -518,6 +661,9 @@ def _operation_summary(index: int, operation: Mapping[str, object], requested: i
         entry["rate"] = operation["rate"]
     if "class" in operation:
         entry["class"] = operation["class"]
+    if "scenario_id" in operation:
+        entry.update({"scenario_id": operation["scenario_id"], "mode": "exact",
+                      "eligible_population": eligible})
     entry.update({"requested_rows": requested, "applied_rows": applied,
                   "skipped_rows": skipped, "applied_rate": applied / rows if rows else 0.0})
     return entry
