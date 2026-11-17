@@ -168,5 +168,40 @@ Phase 3 begins on branch `insurance-v2/phase-3` after gate P2 ratification (dire
   - 4 contract tests enabled in `tests/test_generate_insurance_v2_contract.py` (88 tests passing).
 - `generation_version` stays 2.
 
+## Distributions D01 to D15 and sampling bias E01 to E18 (lot 10, 2026-11-17)
+
+- **Statistical distributions (§12, D01 to D15)**:
+  - Added reusable, rejection-free random distributions in `src/tabalyst/generate_draws.py`:
+    - `truncated_pareto` (D04, D13): exact inverse transform for heavy-tailed claim severity;
+    - `bimodal_normal` (D05): two-component Gaussian mixture;
+    - `power_law_weights` (D08): Zipf power-law weights for categorical concentration;
+    - `seasonal_factor` (D09): harmonic seasonal multiplier around 1.0;
+    - `inflation_factor` (D11): continuous compound annual inflation.
+  - Integrated into `PopulationModel` (`src/tabalyst/generate_population.py`):
+    - 10% of settled claims follow heavy-tailed Pareto amounts within policy bounds;
+    - Broker pool follows a Zipf power law, concentrating policy intermediation;
+    - Harmonic seasonal loss dates (winter peak for auto/home, summer peak for travel);
+    - Compound annual synthetic inflation (+2.5%/year) on premiums.
+- **Row ordering and sampling bias mechanisms (E01 to E03)**:
+  - Added `--row-order` CLI option and `build_generate_plan` parameter for Insurance outputs (`--relational` and `--output-profile flattened*`):
+    - `branch` (E01): rows grouped by branch;
+    - `chronological` (E02): rows sorted by creation and start dates;
+    - `agency` (E03): rows grouped by agency code;
+    - `shuffled`: deterministically pseudo-randomized order;
+    - `default`: natural branch order.
+- **Dense subpopulation cluster (§12)**:
+  - 200 consecutive contracts (sequences 501 to 700) featuring an abnormally high 20% claim rate (~40 claims), establishing an ideal benchmark for stratified sampling against localized clusters.
+- **Simpson's paradox (E16)**:
+  - Exact mathematical reversal: conditioned on each branch (Ontario, Principal, Quebec), broker policies carry higher average premiums than direct policies. Globally aggregated, direct sales carry higher average premiums than broker sales due to branch portfolio mix.
+- **Unseen categories (E18)**:
+  - Product code `VOY_MULTI` is strictly absent before 2024-01-01 and present afterwards, testing out-of-vocabulary model generalization.
+- **Strict non-regression**:
+  - Stateless `InsuranceProvider.row()` remains completely untouched and byte-identical for default generation.
+- **Testing**:
+  - 6 new contract tests in `tests/test_generate_insurance_v2_contract.py` (94 tests passing).
+  - 6 unit tests in `tests/test_generate_draws.py`.
+- `generation_version` stays 2.
+
+
 
 

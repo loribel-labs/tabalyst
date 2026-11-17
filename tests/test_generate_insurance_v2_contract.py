@@ -40,7 +40,7 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
@@ -2012,6 +2012,188 @@ def test_lot9_relational_refusals(tmp_path: Path) -> None:
     computer_pkg = Path(str(files("tabalyst").joinpath("generate_examples", "computer")))
     with pytest.raises(ConfigurationError, match="--relational applies to the Insurance package only."):
         build_generate_plan(computer_pkg, relational=True, output_dir=tmp_path / "rel_comp")
+
+
+# --- Lot 10: Distributions D01 to D15 and sampling bias E01 to E18 (contract 8.7, §7 & §12) ---
+
+
+@contract("10")
+def test_lot10_distributions_d01_to_d15() -> None:
+    """Contract 8.7 & §12: Statistical distributions in population model.
+
+    D04 Pareto heavy tails, D08 Zipf power law on brokers, D09 seasonal variation,
+    D11 continuous inflation, and D15 branch mixture.
+    """
+    from tabalyst.generate_population import PopulationModel
+    from tabalyst.generate_references import CommonReferences
+
+    refs = CommonReferences()
+    pkg = load_generate_package(PACKAGE)
+    model = PopulationModel(common=refs, package=pkg, seed=42, total_contracts=2000, as_of_date="2026-09-16")
+
+    # D08: Broker power-law distribution
+    broker_counts = Counter(ctr.courtier_id for ctr in model.contracts if ctr.courtier_id)
+    assert len(broker_counts) > 20
+    top_broker_share = broker_counts.most_common(1)[0][1] / sum(broker_counts.values())
+    assert top_broker_share > 0.05
+
+    # D04 / D13: Claim amounts include heavy-tail Pareto draws within valid caps
+    settled_claims = [c for c in model.all_claims if c.reclamation_status == "fermé" and c.montant_reclamation]
+    assert len(settled_claims) > 0
+    amounts = [float(c.montant_reclamation) for c in settled_claims]
+    assert max(amounts) > 5000.0
+
+    # D09: Seasonality - check winter vs summer claim loss dates for auto/habitation
+    auto_claims = [c for ctr in model.contracts if ctr.type_contrat in {"auto", "habitation"} for c in ctr.claims]
+    winter_claims = sum(1 for c in auto_claims if c.date_sinistre.month in {12, 1, 2})
+    summer_claims = sum(1 for c in auto_claims if c.date_sinistre.month in {6, 7, 8})
+    assert winter_claims > summer_claims
+
+
+@contract("10")
+def test_lot10_row_ordering_e01_to_e03(tmp_path: Path) -> None:
+    """Contract 8.7 & §7: Row ordering modes (E01 branch, E02 chronological, E03 agency, shuffled)."""
+    from tabalyst.generate_population import PopulationModel
+    from tabalyst.generate_references import CommonReferences
+
+    refs = CommonReferences()
+    pkg = load_generate_package(PACKAGE)
+
+    # E01: Branch ordering
+    m_branch = PopulationModel(common=refs, package=pkg, seed=42, total_contracts=300, row_order="branch")
+    branches = [c.filiale for c in m_branch.contracts]
+    changes = sum(1 for i in range(len(branches) - 1) if branches[i] != branches[i + 1])
+    assert changes <= 2
+
+    # E02: Chronological ordering
+    m_chrono = PopulationModel(common=refs, package=pkg, seed=42, total_contracts=300, row_order="chronological")
+    dates = [c.date_creation for c in m_chrono.contracts]
+    assert dates == sorted(dates)
+
+    # E03: Agency ordering
+    m_agency = PopulationModel(common=refs, package=pkg, seed=42, total_contracts=300, row_order="agency")
+    agencies = [c.agence_code for c in m_agency.contracts]
+    assert agencies == sorted(agencies)
+
+    # Shuffled ordering
+    m_shuf = PopulationModel(common=refs, package=pkg, seed=42, total_contracts=300, row_order="shuffled")
+    shuf_branches = [c.filiale for c in m_shuf.contracts]
+    shuf_changes = sum(1 for i in range(len(shuf_branches) - 1) if shuf_branches[i] != shuf_branches[i + 1])
+    assert shuf_changes > 10
+
+    # CLI & Plan validation refusals
+    with pytest.raises(ConfigurationError, match="Unsupported row order: 'invalid'"):
+        build_generate_plan(PACKAGE, rows=100, seed=42, output_dir=tmp_path / "out", row_order="invalid")
+
+    comp_pkg = Path(str(files("tabalyst").joinpath("generate_examples", "computer")))
+    with pytest.raises(ConfigurationError, match="--row-order applies to the Insurance package only."):
+        build_generate_plan(comp_pkg, rows=100, seed=42, output_dir=tmp_path / "out_comp", row_order="chronological")
+
+
+@contract("10")
+def test_lot10_simpson_paradox_e16() -> None:
+    """Contract 8.7 & §7 E16: Mathematical proof of Simpson's paradox on generated population.
+
+    Conditioned on each branch, broker-advised contracts have higher average premium than direct contracts.
+    Aggregated globally, broker-advised contracts have LOWER average premium than direct contracts.
+    """
+    from tabalyst.generate_population import PopulationModel
+    from tabalyst.generate_references import CommonReferences
+
+    refs = CommonReferences()
+    pkg = load_generate_package(PACKAGE)
+    model = PopulationModel(common=refs, package=pkg, seed=42, total_contracts=3000, as_of_date="2026-09-16")
+
+    data: dict[str, dict[str, list[float]]] = {}
+    global_broker: list[float] = []
+    global_direct: list[float] = []
+
+    for ctr in model.contracts:
+        prem = float(ctr.prime_annuelle)
+        br = ctr.filiale
+        ch = ctr.canal_acquisition
+        if ch not in {"courtier", "direct"}:
+            continue
+        data.setdefault(br, {}).setdefault(ch, []).append(prem)
+        if ch == "courtier":
+            global_broker.append(prem)
+        else:
+            global_direct.append(prem)
+
+    # Conditioned on every branch: broker average premium > direct average premium
+    for br, channels in data.items():
+        assert "courtier" in channels and "direct" in channels
+        avg_broker_br = sum(channels["courtier"]) / len(channels["courtier"])
+        avg_direct_br = sum(channels["direct"]) / len(channels["direct"])
+        assert avg_broker_br > avg_direct_br, f"Branch {br}: broker {avg_broker_br} must be > direct {avg_direct_br}"
+
+    # Aggregated globally: broker average premium < direct average premium (Simpson's reversal)
+    avg_broker_global = sum(global_broker) / len(global_broker)
+    avg_direct_global = sum(global_direct) / len(global_direct)
+    assert avg_broker_global < avg_direct_global, (
+        f"Global Simpson reversal failed: broker {avg_broker_global} should be < direct {avg_direct_global}"
+    )
+
+
+@contract("10")
+def test_lot10_dense_subpopulation_cluster() -> None:
+    """Contract 8.7 & §12: Dense subpopulation cluster (200 consecutive contracts with 20% claim rate)."""
+    from tabalyst.generate_population import PopulationModel
+    from tabalyst.generate_references import CommonReferences
+
+    refs = CommonReferences()
+    pkg = load_generate_package(PACKAGE)
+    model = PopulationModel(common=refs, package=pkg, seed=42, total_contracts=1000, as_of_date="2026-09-16")
+
+    dense_contracts = [c for c in model.contracts if 501 <= c.contract_seq <= 700]
+    assert len(dense_contracts) == 200
+    claims_in_dense = sum(1 for c in dense_contracts if c.claims)
+    rate = claims_in_dense / len(dense_contracts)
+    assert 0.14 <= rate <= 0.28
+
+
+@contract("10")
+def test_lot10_unseen_categories_e18() -> None:
+    """Contract 8.7 & §7 E18: Unseen category - VOY_MULTI absent before 2024-01-01, present after."""
+    from datetime import date
+
+    from tabalyst.generate_population import PopulationModel
+    from tabalyst.generate_references import CommonReferences
+
+    refs = CommonReferences()
+    pkg = load_generate_package(PACKAGE)
+    model = PopulationModel(common=refs, package=pkg, seed=42, total_contracts=2500, as_of_date="2026-09-16")
+
+    before_2024 = [c for c in model.contracts if c.date_creation < date(2024, 1, 1)]
+    after_2024 = [c for c in model.contracts if c.date_creation >= date(2024, 1, 1)]
+
+    # Before 2024: strictly zero occurrences of VOY_MULTI
+    assert len(before_2024) > 500
+    assert not any(c.produit_code == "VOY_MULTI" for c in before_2024)
+
+    # After 2024: present
+    assert len(after_2024) > 100
+    voy_multi_after = sum(1 for c in after_2024 if c.produit_code == "VOY_MULTI")
+    assert voy_multi_after > 0
+
+
+@contract("10")
+def test_lot10_default_non_regression() -> None:
+    """Contract 2 & 8.4: InsuranceProvider.row() remains strictly identical for default generation."""
+    import random
+
+    from tabalyst.generate_insurance import InsuranceProvider
+    from tabalyst.generate_references import CommonReferences
+
+    refs = CommonReferences()
+    pkg = load_generate_package(PACKAGE)
+    prov = InsuranceProvider(refs, pkg)
+
+    row_1 = prov.row("principal", 1, random.Random(42), "2026-09-16")
+    assert row_1["id_client"] == "CLI-00000001"
+    assert row_1["id_contrat"] == "CTR-1000000001"
+    assert len(row_1) == 33
+
 
 
 

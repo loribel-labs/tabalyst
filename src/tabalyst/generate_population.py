@@ -17,8 +17,13 @@ from typing import TYPE_CHECKING, Final
 if TYPE_CHECKING:
     from tabalyst.generate_truth import TruthLine
 
+from tabalyst.generate_draws import (
+    inflation_factor,
+    power_law_weights,
+    seasonal_factor,
+    truncated_pareto,
+)
 from tabalyst.generate_insurance import (
-    ACQUISITION_CHANNELS,
     BRANCHES,
     CLAIM_COUNTS,
     CLIENT_SEGMENTS,
@@ -51,6 +56,22 @@ PAYMENT_INSTALLMENT_WEIGHTS: tuple[list[int], list[int]] = ([1, 2, 3], [65, 25, 
 # Pre-interned identifiers and codes to keep memory strictly bounded under 150 MB for 500,000 rows
 _INTERNED_MANAGERS = tuple(sys.intern(f"GES-{i:03d}") for i in range(1, 51))
 _INTERNED_BROKERS = tuple(sys.intern(f"CRT-{i:04d}") for i in range(101, 301))
+_BROKER_ZIPF_WEIGHTS: Final[list[float]] = power_law_weights(len(_INTERNED_BROKERS), alpha=1.0)
+
+ROW_ORDERS: Final[frozenset[str]] = frozenset({"default", "branch", "chronological", "agency", "shuffled"})
+
+
+def _seasonal_day(rng: random.Random, start: date, end: date, peak_month: int) -> date:
+    """Draw a day with seasonal frequency peaking at peak_month (harmonic D09)."""
+    diff = (end - start).days
+    if diff <= 0:
+        return start
+    d1 = start + timedelta(days=rng.randint(0, diff))
+    d2 = start + timedelta(days=rng.randint(0, diff))
+    f1 = seasonal_factor(d1, peak_month=peak_month, amplitude=0.4)
+    f2 = seasonal_factor(d2, peak_month=peak_month, amplitude=0.4)
+    return d1 if rng.random() * (f1 + f2) < f1 else d2
+
 
 RELATIONAL_CLIENTS_FIELDS: Final[tuple[str, ...]] = (
     "id_client", "id_menage", "civilite", "prenom", "nom", "date_naissance", "sexe",
@@ -483,7 +504,14 @@ class PopulationModel:
         as_of_date: str = "2026-09-16",
         branch: str | None = None,
         m22_cases: int = 0,
+        row_order: str = "default",
     ) -> None:
+        if row_order not in ROW_ORDERS:
+            from tabalyst.errors import ConfigurationError
+            raise ConfigurationError(
+                f"Unsupported row order: {row_order!r}. Expected one of: "
+                f"{', '.join(sorted(ROW_ORDERS))}."
+            )
         self.common: CommonProvider = CommonProvider(common)
         self.refs: InsuranceReferences = InsuranceReferences(common, package)
         self.seed = seed
@@ -492,6 +520,7 @@ class PopulationModel:
         self.as_of = date.fromisoformat(as_of_date)
         self.target_branch = branch
         self.m22_cases = m22_cases
+        self.row_order = row_order
 
         self._households_list: list[Household] = []
         self._customers_list: list[Customer] = []
@@ -713,18 +742,41 @@ class PopulationModel:
                         methods = [row for row in methods if row["payment_method"] in MONTHLY_METHODS]
                     method = _pick(rng, methods)["payment_method"]
 
+                    # E16 Simpson's paradox: acquisition channel distribution depends on branch
+                    # Ontario has high baseline costs (+80%) and mostly direct sales (80% direct, 10% broker)
+                    # Principal and Quebec have lower baseline costs and mostly broker sales (80% broker, 10% direct)
+                    if h_branch == "ontario":
+                        channel_weights = [80, 10, 5, 5]  # direct, courtier, en_ligne, partenaire
+                    else:
+                        channel_weights = [10, 80, 5, 5]  # direct, courtier, en_ligne, partenaire
+                    channel = rng.choices(
+                        ["direct", "courtier", "en_ligne", "partenaire"],
+                        weights=channel_weights,
+                        k=1,
+                    )[0]
+
+                    broker_id = ""
+                    if channel == "courtier":
+                        # D08 Zipf power-law distribution over brokers
+                        broker_id = rng.choices(_INTERNED_BROKERS, weights=_BROKER_ZIPF_WEIGHTS, k=1)[0]
+
                     base_prem = Decimal(_money(rng, product_row["annual_premium_min"], product_row["annual_premium_max"]))
-                    prem = (base_prem * _premium_factor(product_id, c_age)).quantize(Decimal("0.01"))
+                    # Baseline branch pricing: Ontario is higher cost (+80%)
+                    if h_branch == "ontario":
+                        base_prem = (base_prem * Decimal("1.80")).quantize(Decimal("0.01"))
+                    # Conditional channel pricing: within each branch, broker-advised policies
+                    # carry broader coverage endorsements (+25%)
+                    if channel == "courtier":
+                        base_prem = (base_prem * Decimal("1.25")).quantize(Decimal("0.01"))
+
+                    # D11: Continuous compound inflation (+2.5% / year relative to 2018)
+                    inf_factor = Decimal(f"{inflation_factor(creation_date, date(2018, 1, 1), 0.025):.4f}")
+                    prem = (base_prem * _premium_factor(product_id, c_age) * inf_factor).quantize(Decimal("0.01"))
 
                     agencies = [r for r in self.refs.tables["agencies.csv"] if r["filiale"] == h_branch]
                     agency = _pick(rng, [r for r in agencies if r["city_id"] == addr["city_id"]]
                                    or [r for r in agencies if r["province_code"] == province] or agencies)
                     agency_code = agency["agency_code"]
-
-                    channel = rng.choices(ACQUISITION_CHANNELS[0], weights=ACQUISITION_CHANNELS[1], k=1)[0]
-                    broker_id = ""
-                    if channel == "courtier":
-                        broker_id = rng.choice(_INTERNED_BROKERS)
 
                     manager_id = rng.choice(_INTERNED_MANAGERS)
 
@@ -740,14 +792,29 @@ class PopulationModel:
                     franchise = f"{Decimal(ded_val):.2f}"
 
                     prd_opts, prd_weights = PRODUCT_CODES.get(product_id, (["STD"], [1]))
-                    produit_code = rng.choices(prd_opts, weights=prd_weights, k=1)[0]
+                    # E18: Unseen category - VOY_MULTI was introduced only on 2024-01-01
+                    if creation_date < date(2024, 1, 1) and "VOY_MULTI" in prd_opts:
+                        valid_pairs = [(c, w) for c, w in zip(prd_opts, prd_weights) if c != "VOY_MULTI"]
+                        prd_opts_eff = [p[0] for p in valid_pairs]
+                        prd_weights_eff = [p[1] for p in valid_pairs]
+                    else:
+                        prd_opts_eff = prd_opts
+                        prd_weights_eff = prd_weights
+                    produit_code = rng.choices(prd_opts_eff, weights=prd_weights_eff, k=1)[0]
                     taux_remboursement = REIMBURSEMENT_RATES.get(produit_code, "0.80")
 
                     # Claims generation (G02)
                     contract_claims: list[Claim] = []
                     last_event_date = creation_date
 
-                    has_claims = rng.random() < float(product_row["claim_probability"])
+                    # Dense but globally rare subpopulation cluster (§12):
+                    # 200 consecutive contracts (sequences 501 to 700) exhibiting an abnormally
+                    # high 20% claim rate, whereas such events represent < 0.01% globally.
+                    is_dense_cluster = (501 <= contract_seq <= 700)
+                    if is_dense_cluster:
+                        has_claims = rng.random() < 0.20
+                    else:
+                        has_claims = rng.random() < float(product_row["claim_probability"])
                     if has_claims:
                         num_claims = rng.choices(CLAIM_COUNTS[0], weights=CLAIM_COUNTS[1], k=1)[0]
                         claim_ceiling_date = min(end_date or self.as_of, self.as_of)
@@ -757,7 +824,11 @@ class PopulationModel:
                             claim_seq += 1
                             rec_id_str = f"REC-{contract_seq:08d}-{c_seq:02d}"
 
-                            loss_date = _day(rng, start_date, claim_ceiling_date)
+                            # D09 Seasonal loss date
+                            loss_date = _seasonal_day(
+                                rng, start_date, claim_ceiling_date,
+                                peak_month=7 if product_id == "voyage" else 1,
+                            )
                             decl_date = _day(rng, loss_date, self.as_of)
                             last_event_date = max(last_event_date, decl_date)
 
@@ -772,8 +843,15 @@ class PopulationModel:
 
                             claimed_amount = ""
                             if picked_claim_status["amount_policy"] == "required" or rng.random() < 0.65:
-                                claimed_amount = _claim_amount(rng, product_row["claim_amount_min"],
-                                                               product_row["claim_amount_max"])
+                                c_min = float(product_row["claim_amount_min"])
+                                c_max = float(product_row["claim_amount_max"])
+                                # D04 & D13: 10% of settled claims have heavy-tailed Pareto amounts
+                                if c_claim_status == "fermé" and rng.random() < 0.10:
+                                    drawn_pareto = Decimal(truncated_pareto(rng, alpha=1.2, low=c_min, high=c_max))
+                                    claimed_amount = f"{min(max(drawn_pareto.quantize(Decimal('0.01')), Decimal(c_min)), Decimal(c_max)):.2f}"
+                                else:
+                                    claimed_amount = _claim_amount(rng, product_row["claim_amount_min"],
+                                                                   product_row["claim_amount_max"])
 
                             montant_indemnise = ""
                             if claimed_amount:
@@ -883,6 +961,19 @@ class PopulationModel:
                 orig_ctr_id = claim.contract_id_str
                 claim.contract_id_str = sys.intern(f"CTR-ORPHAN-{i + 1:06d}")
                 self._m22_claims.append((claim, orig_ctr_id))
+
+        # Row ordering and sampling bias mechanisms (E01 to E03)
+        if self.row_order == "chronological":
+            self._contracts_list.sort(key=lambda c: (c.creation_ordinal, c.start_ordinal, c.contract_seq))
+        elif self.row_order == "agency":
+            self._contracts_list.sort(key=lambda c: (c.agence_code, c.creation_ordinal, c.contract_seq))
+        elif self.row_order == "branch":
+            self._contracts_list.sort(key=lambda c: (c.filiale, c.contract_seq))
+        elif self.row_order == "shuffled":
+            shuf_rng = random.Random(self.seed + 8888)
+            shuf_rng.shuffle(self._contracts_list)
+        elif self.row_order == "default":
+            pass
 
     def _build_brokers(self) -> None:
         """Create pool of 200 brokers distributed across branches."""

@@ -120,6 +120,7 @@ class GeneratePlan:
     package: DatasetPackage | None = None
     output_profile: str = "default"
     relational: bool = False
+    row_order: str = "default"
 
 
 @dataclass(frozen=True)
@@ -517,6 +518,7 @@ def build_generate_plan(
     validate_only: bool = False,
     workers: int | None = None,
     relational: bool = False,
+    row_order: str = "default",
 ) -> GeneratePlan | ComputerPlan:
     """Validate a Generate source and plan every artifact before writing."""
     if package_path is not None:
@@ -537,6 +539,8 @@ def build_generate_plan(
                for dataset in _package_datasets(package)):
             if relational:
                 raise ConfigurationError("--relational applies to the Insurance package only.")
+            if row_order != "default":
+                raise ConfigurationError("--row-order applies to the Insurance package only.")
             return _computer_plan(
                 source_path, output_dir=output_dir, output=output, request=request,
                 rows=rows, seed=seed, as_of_date=as_of_date,
@@ -548,11 +552,18 @@ def build_generate_plan(
                 validate_only=validate_only,
                 workers=workers,
             )
+        if row_order not in {"default", "branch", "chronological", "agency", "shuffled"}:
+            raise ConfigurationError(
+                f"Unsupported row order: {row_order!r}. Expected one of: "
+                "agency, branch, chronological, default, shuffled."
+            )
         if relational:
             if package.id != "insurance":
                 raise ConfigurationError("--relational applies to the Insurance package only.")
             if output is not None:
                 raise ConfigurationError("--relational generates multiple tables; use -d.")
+        if row_order != "default" and package.id != "insurance":
+            raise ConfigurationError("--row-order applies to the Insurance package only.")
         effective_output = output_profile or "default"
         if package.id == "insurance":
             if anomaly_profile == "rare_events" and output_profile is None:
@@ -570,7 +581,8 @@ def build_generate_plan(
             if output is not None or output_dir is not None:
                 raise ConfigurationError("--validate-only does not take a destination.")
             return GeneratePlan(definition, (), {}, 0, definition.defaults.get("as_of_date", "2000-01-01"),
-                                None, force, package, output_profile=effective_output, relational=relational)
+                                None, force, package, output_profile=effective_output, relational=relational,
+                                row_order=row_order)
     else:
         raise ConfigurationError(
             f"PACKAGE_FORMAT: {source_path} is not a Generate package; "
@@ -686,6 +698,7 @@ def build_generate_plan(
         effective_date, anomaly_profile, force, package,
         output_profile=effective_output,
         relational=relational,
+        row_order=row_order,
     )
 
 
@@ -862,6 +875,7 @@ def _generate_relational(
         total_contracts=total_contracts,
         as_of_date=plan.as_of_date,
         m22_cases=m22_count,
+        row_order=plan.row_order,
     )
 
     actual_counts = {
@@ -1236,6 +1250,7 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 total_contracts=plan.rows[artifact.dataset_id],
                 as_of_date=plan.as_of_date,
                 branch=dataset.get("source"),
+                row_order=plan.row_order,
             )
             headers_set = set(headers)
             rows = (

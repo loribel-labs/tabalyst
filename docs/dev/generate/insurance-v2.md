@@ -841,6 +841,39 @@ Written when lot 9 was implemented:
   (6 tests) and contract tests in `tests/test_generate_insurance_v2_contract.py` (88 tests passing).
   Showcase demos byte-identical.
 
+### 8.7 What lot 10 fixed
+
+Written when lot 10 was implemented:
+- **Statistical distributions (§12, D01 to D15)**:
+  - `src/tabalyst/generate_draws.py` extended with pure mathematical draws without rejection:
+    `truncated_pareto` (D04, D13), `bimodal_normal` (D05), `power_law_weights` (D08),
+    `seasonal_factor` (D09), and `inflation_factor` (D11).
+  - Integrated into `PopulationModel`:
+    - Heavy-tailed Pareto claim severity (D04/D13) on 10% of settled claims.
+    - Zipf power-law distribution over the 200 brokers pool (D08).
+    - Harmonic seasonal loss dates (D09) peaking in winter (January) for auto and home, and summer (July) for travel.
+    - Compound annual synthetic inflation (D11, +2.5%/year) on base premiums.
+- **Row ordering and sampling bias mechanisms (E01 to E03)**:
+  - Option `--row-order` supported in CLI (`tabalyst generate`) and `build_generate_plan`:
+    - `branch` (E01): Grouped by operational branch.
+    - `chronological` (E02): Chronologically sorted by contract creation and start dates.
+    - `agency` (E03): Grouped by agency code.
+    - `shuffled`: Deterministically pseudo-randomized order.
+    - `default`: Preserves original natural branch order.
+- **Dense subpopulation cluster (§12)**:
+  - 200 consecutive contracts (sequences 501 to 700) exhibiting an abnormally high 20% claim rate (~40 claims),
+    testing stratified sampling against localized clusters representing <0.01% globally.
+- **Simpson's paradox (E16)**:
+  - Mathematical reversal guaranteed and verified: within each branch (Ontario, Principal, Quebec),
+    broker-advised policies carry higher average premiums than direct policies. Globally aggregated,
+    direct sales have higher average premiums than broker sales due to branch portfolio mix.
+- **Unseen categories (E18)**:
+  - Product code `VOY_MULTI` is strictly absent (0 occurrence) for contracts created before 2024-01-01,
+    and present afterwards, benchmarked for out-of-vocabulary model generalization.
+- **Strict non-regression**:
+  - Legacy stateless `InsuranceProvider.row()` remains completely untouched and byte-identical for default runs.
+- `generation_version` stays 2.
+
 ## 9. Documentation, versions and languages
 
 - Public pages (Q5): `docs/en/generate/insurance.md` stays the overview; each lot that ships a
@@ -871,7 +904,8 @@ Written when lot 9 was implemented:
 | 6 | rules M01 to M25, tranche B, `complete` | 5.3, 7 |
 | 7 | quality profiles, interactions, `root_cause_id` | 3.5, 5.4 |
 | 8 to 9 | population model, relational outputs | 8 |
-| 10 to 12 | distributions, absence mechanisms, drift | 5.4, 5.3 |
+| 10 | distributions, ordering bias, Simpson, unseen categories | 8.7, §7, §12 |
+| 11 to 12 | absence mechanisms, drift | 5.4, 5.3 |
 | 13 to 15 | ML labels, leakage, splits, latent file | 5.6 |
 | 16 | technical stress, malformed files in separate files (D13) | none yet |
 | 17 | catalogue, several profiles, ergonomics | 9 |
