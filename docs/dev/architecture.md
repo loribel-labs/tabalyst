@@ -83,6 +83,10 @@ structural or semantic change. See the
   with shared entity pools and stable random streams. Lot 3 adds relations and
   staged `combine` output. Lot 4 adds clean weighted cohorts and a separate
   measured anomaly pass in `generate_anomalies.py`, preserving the clean CSV.
+  Insurance V2 (`docs/dev/generate/insurance-v2.md`) adds scenario metadata on
+  operations: `generate_scenarios.py` validates the keys and the coherence of a
+  profile, `generate_rarity.py` holds the rarity bands and
+  `generate_canonical.py` the canonical value of a clean cell.
   `generate_insurance.py` loads and validates packaged Insurance tables and
   generates one coherent 33-field branch row per request; the shared CSV
   writer and combine pass produce its three branch files and union.

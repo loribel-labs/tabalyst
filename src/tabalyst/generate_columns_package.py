@@ -87,7 +87,8 @@ def load_columns_definition(package: DatasetPackage) -> GenerateDefinition:
         key: value for key, value in defaults.items() if key in {"seed", "as_of_date"}},
         "entities": resolved_entities, "cohorts": cohorts,
         "datasets": resolved_datasets, "anomaly_profiles": anomaly_profiles}
-    definition = validate_generate_mapping(mapping, source)
+    # Scenario keys (Insurance V2) are the Insurance package's alone: any other refuses them.
+    definition = validate_generate_mapping(mapping, source, scenarios=package.id == "insurance")
     insurance_datasets = [dataset for dataset in resolved_datasets
                           if "columns" in dataset and any(
                               column["generate"]["kind"] == "insurance"

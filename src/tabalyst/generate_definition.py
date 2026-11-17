@@ -24,6 +24,7 @@ from tabalyst.generate_anomalies import (
     ROW_KINDS,
     operation_option_error,
 )
+from tabalyst.generate_scenarios import foreign_scenario_key, profile_scenario_error
 
 MAX_DATASETS = 64
 MAX_COLUMNS = 256
@@ -542,8 +543,24 @@ def _columns(source: Path, value: Any, where: str) -> None:
                 _fail(source, generator, "decimal.by_month.from must be an ISO date or datetime column")
 
 
-def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:
-    """Validate the normalized column model assembled from a package."""
+def _dataset_column_names(dataset: dict, known: dict[str, dict], schemas: dict) -> set[str]:
+    """Return the column names a dataset writes, the source column of a combine included."""
+    if "combine" in dataset:
+        first = known[dataset["combine"]["inputs"][0]]
+        names = {c["name"] for c in (first.get("columns") or schemas[first["schema"]]["columns"])}
+        if dataset["combine"].get("source_column"):
+            names.add(dataset["combine"]["source_column"])
+        return names
+    return {c["name"] for c in (dataset.get("columns") or schemas[dataset["schema"]]["columns"])}
+
+
+def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = False) -> GenerateDefinition:
+    """Validate the normalized column model assembled from a package.
+
+    ``scenarios`` allows the scenario keys of Insurance V2 on profile operations (contract
+    insurance-v2.md 4.1): only the Insurance package asks for it, so any other package that
+    carries one is refused, never ignored.
+    """
     root = _mapping(source, root, "definition", {
         "id", "defaults", "csv", "schemas", "entities",
         "cohorts", "datasets", "anomaly_profiles",
@@ -687,8 +704,12 @@ def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:
         if any(not isinstance(target, str) for target in targets) or len(set(targets)) != len(targets) or any(target not in known for target in targets):
             _fail(source, item, "profile.targets must be distinct declared datasets")
         operations = _list(source, item.get("operations", []), "profile.operations", 256)
-        for operation in operations:
+        for position, operation in enumerate(operations, 1):
             _mapping(source, operation, "profile operation", set(OPERATION_KEYS))
+            if not scenarios and (foreign := foreign_scenario_key(operation)) is not None:
+                _fail(source, operation,
+                      f"profile {name}: operations[{position}]: operation.{foreign} "
+                      f"is not supported by the {root.get('id')} package (scenario keys are for Insurance)")
             if not isinstance(operation.get("kind"), str) or operation["kind"] not in OPERATION_KINDS:
                 _fail(source, operation, "unknown anomaly operation kind")
             column = operation.get("column")
@@ -697,7 +718,7 @@ def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:
                 _fail(source, operation, "operation.column must name a column")
             problem = operation_option_error(operation)
             if problem is not None:
-                _fail(source, operation, problem)
+                _fail(source, operation, f"profile {name}: operations[{position}]: {problem}")
             value = operation.get("value")
             if operation["kind"] in {"replace", "format", "swap"} and not isinstance(value, str):
                 _fail(source, operation, "operation.value must be text")
@@ -710,16 +731,7 @@ def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:
                                                  for k, v in operation["when"].items())):
                 _fail(source, operation, "operation.when must map one column to text")
             for target in targets:
-                dataset = known[target]
-                if "combine" in dataset:
-                    first = known[dataset["combine"]["inputs"][0]]
-                    columns = first.get("columns") or schemas[first["schema"]]["columns"]
-                    names = {c["name"] for c in columns}
-                    if dataset["combine"].get("source_column"):
-                        names.add(dataset["combine"]["source_column"])
-                else:
-                    columns = dataset.get("columns") or schemas[dataset["schema"]]["columns"]
-                    names = {c["name"] for c in columns}
+                names = _dataset_column_names(known[target], known, schemas)
                 required = {column} if column is not None else set()
                 if operation["kind"] == "swap":
                     required.add(value)
@@ -728,6 +740,10 @@ def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:
                 required.update(operation.get("when", {}))
                 if not required <= names:
                     _fail(source, operation, f"operation references unknown column in {target}")
+        for target in targets:
+            problem = profile_scenario_error(operations, _dataset_column_names(known[target], known, schemas))
+            if problem is not None:
+                _fail(source, item, f"profile {name}: {problem}")
     return GenerateDefinition(
         source, identifier, defaults, csv_settings, schemas, tuple(entities),
         tuple(cohorts), tuple(datasets), tuple(profiles),
