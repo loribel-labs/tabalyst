@@ -29,7 +29,7 @@ import yaml
 
 from tabalyst.errors import ConfigurationError, ReportError
 from tabalyst.generate_anomalies import CHANGE_FIELDS, AnomalyEvent, inject_anomalies
-from tabalyst.generate_insurance import FIELDS, insurance_canonical
+from tabalyst.generate_insurance import EXTENDED_FIELDS, FIELDS, insurance_canonical
 from tabalyst.generate_package import load_generate_package
 from tabalyst.generate_service import (
     GenerateResult,
@@ -38,11 +38,13 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_PROFILES = {"dirty_realistic", "dirty_stress", "rule_breaks"}
+# The scenario profiles the package ships: each lot that delivers one adds it here (lot 3).
+V2_PROFILES = {"rare_events"}
 
 # Section 3.3 of the contract: the unit is the case; the band is what a scenario total may be.
 NOMINAL_CASES = {"frequent": 5000, "uncommon": 500, "rare": 100, "very_rare": 50,
@@ -108,7 +110,13 @@ def test_default_insurance_output_keeps_its_34_columns(tmp_path: Path) -> None:
 def test_legacy_profiles_are_the_three_documented_ones() -> None:
     """Contract 2 and 4.1: a V2 profile is a new profile, never a change of these three."""
     package = load_generate_package(PACKAGE)
-    assert set(cast(dict[str, object], package.manifest["anomaly_profiles"])) == LEGACY_PROFILES
+    profiles = cast(dict[str, dict[str, list[dict[str, object]]]],
+                    package.manifest["anomaly_profiles"])
+    assert set(profiles) == LEGACY_PROFILES | V2_PROFILES
+    for name in LEGACY_PROFILES:
+        assert not any("scenario_id" in operation for operation in profiles[name]["operations"])
+    for name in V2_PROFILES:
+        assert all("scenario_id" in operation for operation in profiles[name]["operations"])
 
 
 @contract("0")
@@ -773,7 +781,7 @@ def test_manifest_lists_the_sha256_of_every_other_artifact(truth_run: Path) -> N
     assert {key: manifest[key] for key in ("seed", "rows", "as_of_date", "profile",
                                            "output_profile", "generation_version")} == {
         "seed": 42, "rows": TRUTH_ROWS, "as_of_date": "2026-09-16", "profile": TRUTH_PROFILE,
-        "output_profile": "default", "generation_version": 1}
+        "output_profile": "default", "generation_version": 2}
     scenarios = cast(list[dict[str, object]], manifest["scenarios"])
     assert [(s["id"], s["description"], s["operations"], s["expected_cases"])
             for s in scenarios] == [
@@ -871,63 +879,467 @@ def test_clean_file_satisfies_every_rule_of_the_profile_before_injection(tmp_pat
 
 # --- Lot 3: rarity levels and rare_events (contract 6) ---------------------------------------
 
+RARE_ROWS = 100_000
+# Contract 6.2: cases per scenario of ``rare_events`` and the level they carry.
+RARE_CASES = {"R01": (1, "single"), "R02": (5, "extremely_rare"), "R05": (20, "very_rare"),
+              "R06": (25, "very_rare"), "R07": (50, "very_rare"), "R08": (50, "very_rare"),
+              "R10": (100, "rare"), "R11": (250, "uncommon"), "R12": (500, "uncommon"),
+              "B01": (100, "rare"), "B02": (100, "rare")}
+SAMPLE_SIZES = (500, 1000, 5000, 10000, 50000)
+
+
+@pytest.fixture(scope="module")
+def rare_run(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """One ``rare_events`` run at the floor of 100,000 rows, shared by the tests that read it."""
+    if "3" not in ENABLED_LOTS:
+        pytest.skip("Insurance V2 lot 3 is not implemented yet")
+    out = tmp_path_factory.mktemp("rare") / "out"
+    generate_datasets(build_generate_plan(
+        example="insurance", rows=RARE_ROWS, seed=42, output_dir=out,
+        anomaly_profile="rare_events"))
+    return out
+
+
+def _rare(out: Path, suffix: str) -> Path:
+    return out / f"insurance-combined.rare_events.{suffix}"
+
+
+def _rare_package(base: Path, floor: int, counts: dict[str, int]) -> Path:
+    """A copy of the package whose ``rare_events`` has a lower floor and other counts.
+
+    ``counts`` maps a scenario to the count of its first operation; the scenario is then
+    labeled ``frequent`` so that its new total still falls in its band.
+    """
+    package = base / "package"
+    shutil.copytree(PACKAGE, package)
+    manifest = package / "dataset.yaml"
+    document = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    profile = document["anomaly_profiles"]["rare_events"]
+    profile["min_rows"] = floor
+    seen: set[str] = set()
+    for operation in profile["operations"]:
+        scenario = operation["scenario_id"]
+        if scenario in counts:
+            operation["rarity_level"] = "frequent"
+            if scenario not in seen:
+                operation["count"] = counts[scenario]
+        seen.add(scenario)
+    manifest.write_text(yaml.safe_dump(document, sort_keys=False, allow_unicode=True),
+                        encoding="utf-8")
+    return package
+
 
 @contract("3")
 def test_rarity_levels_in_the_code_are_the_documented_nominal_counts_and_bands() -> None:
     """3.3: ``generate_rarity`` equals ``NOMINAL_CASES`` and ``RARITY_BANDS`` of this module."""
-    _to_write("3.3")
+    from tabalyst import generate_rarity
+
+    assert generate_rarity.NOMINAL_CASES == NOMINAL_CASES
+    assert generate_rarity.RARITY_BANDS == RARITY_BANDS
+    for level, cases in NOMINAL_CASES.items():
+        assert generate_rarity.level_of(cases) == level
+    for count, level in REPORT_COUNTS.values():
+        assert generate_rarity.level_of(count) == level
 
 
 @contract("3")
-def test_rare_events_refuses_fewer_rows_than_its_floor() -> None:
+def test_rare_events_refuses_fewer_rows_than_its_floor(tmp_path: Path) -> None:
     """6.1: 99,999 rows fail naming the profile, the floor 100,000 and the request."""
-    _to_write("6.1")
+    with pytest.raises(ConfigurationError, match=(
+            r"Profile rare_events needs at least 100,000 rows on insurance-combined.*"
+            r"99,999 requested")):
+        build_generate_plan(example="insurance", rows=99_999, output_dir=tmp_path,
+                            anomaly_profile="rare_events")
+    plan = build_generate_plan(example="insurance", rows=RARE_ROWS, output_dir=tmp_path,
+                               anomaly_profile="rare_events")
+    assert plan.rows["insurance-combined"] == RARE_ROWS
+    # A legacy profile has no floor, and a floor needs a scenario profile and the largest count.
+    legacy = _insurance_package(tmp_path / "legacy", [
+        {"kind": "format", "column": "nom", "value": "upper", "count": 5}])
+    manifest = legacy / "dataset.yaml"
+    document = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    document["anomaly_profiles"]["v2_test"]["min_rows"] = 100
+    manifest.write_text(yaml.safe_dump(document, sort_keys=False, allow_unicode=True),
+                        encoding="utf-8")
+    with pytest.raises(ConfigurationError, match="min_rows is for a scenario profile"):
+        validate_generate_package(legacy)
+    low = _insurance_package(tmp_path / "low", [_scenario("A", "set_missing", "nom", 50)])
+    manifest = low / "dataset.yaml"
+    document = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    document["anomaly_profiles"]["v2_test"]["min_rows"] = 49
+    manifest.write_text(yaml.safe_dump(document, sort_keys=False, allow_unicode=True),
+                        encoding="utf-8")
+    with pytest.raises(ConfigurationError, match=r"min_rows must be .* at least the largest total of its "
+                                                 r"scenarios \(50\)"):
+        validate_generate_package(low)
 
 
 @contract("3")
-def test_rare_events_applies_the_exact_count_of_every_scenario() -> None:
+def test_rare_events_applies_the_exact_count_of_every_scenario(rare_run: Path) -> None:
     """6.2: R01 1 case on 2 rows, R02 5, R05 20, R06 25, R07 50, R08 50, R10 100, R11 250, R12 500."""
-    _to_write("6.2")
+    metrics = _csv_free_json(_rare(rare_run, "metrics.json"))
+    scenarios = cast(dict[str, dict[str, object]], metrics["scenarios"])
+    assert list(scenarios) == list(RARE_CASES)
+    for scenario, (cases, level) in RARE_CASES.items():
+        entry = scenarios[scenario]
+        assert (entry["requested_cases"], entry["applied_cases"], entry["rarity_level"]) == (
+            cases, cases, level), scenario
+        assert entry["rows_touched"] == (2 if scenario == "R01" else cases), scenario
+    # The rules that name a scenario find exactly its cases in the final file.
+    assert metrics["rules"] == {"M01": 50, "M02": 0, "M04": 5, "M21": 2, "M23": 250}
+    summary = _csv_free_json(_rare(rare_run, "summary.json"))
+    assert summary["events"] == sum(cases for cases, _ in RARE_CASES.values())
+    for entry in cast(list[dict[str, object]], summary["operations"]):
+        assert entry["mode"] == "exact" and entry["applied_rows"] == entry["count"]
+
+
+def _csv_free_json(path: Path) -> dict[str, object]:
+    return cast(dict[str, object], json.loads(path.read_text(encoding="utf-8")))
 
 
 @contract("3")
-def test_rare_events_refuses_a_count_above_the_eligible_population() -> None:
+def test_rare_events_refuses_a_count_above_the_eligible_population(tmp_path: Path) -> None:
     """4.2 and 6.1: no partial application."""
-    _to_write("4.2")
+    # 3,000 rows keep the run short: the floor of the copy follows the rows. The principal branch
+    # holds about 2,180 of them, so 2,800 agency changes there cannot all apply.
+    package = _rare_package(tmp_path, floor=3000, counts={"R12": 2800})
+    out = tmp_path / "out"
+    plan = build_generate_plan(package, rows=3000, seed=42, output_dir=out,
+                               anomaly_profile="rare_events")
+    with pytest.raises((ValueError, ReportError), match=r"operation 15 \(scenario R12\) asks "
+                                                       r"for count 2800 but only \d+ rows"):
+        generate_datasets(plan)
+    assert not out.exists() or list(out.iterdir()) == []
+    # With its own counts the same profile runs on the shorter file: only the floor is lowered.
+    good = _rare_package(tmp_path / "good", floor=3000, counts={})
+    result = generate_datasets(build_generate_plan(
+        good, rows=3000, seed=42, output_dir=tmp_path / "good-out",
+        anomaly_profile="rare_events"))
+    assert len(result.artifacts) == 11
 
 
 @contract("3")
-def test_one_truth_line_per_rare_case_with_its_scenario_and_level() -> None:
+def test_one_truth_line_per_rare_case_with_its_scenario_and_level(rare_run: Path) -> None:
     """5.2 and 6.2."""
-    _to_write("6.2")
+    lines = _csv_rows(_rare(rare_run, "truth.csv"))
+    for scenario, (cases, level) in RARE_CASES.items():
+        injected = [line for line in lines if line["kind"] == "injected"
+                    and line["scenario_id"] == scenario]
+        assert {line["rarity_level"] for line in injected} == {level}
+        assert len({line["row_number"] for line in injected}) == cases, scenario
+        # A swap writes two cells, every other operation one.
+        assert len(injected) == cases * (2 if scenario == "R08" else 1), scenario
+    # R01: one case on two rows, told by two relational lines with one group.
+    relational = [line for line in lines if line["kind"] == "relational"]
+    assert len(relational) == 2 and {line["scenario_id"] for line in relational} == {"R01"}
+    assert len({line["group_id"] for line in relational}) == 1
+    first, second = sorted(relational, key=lambda line: int(line["row_number"]))
+    assert first["group_id"] == f"R01-{first['row_number']}" and first["event_id"] == ""
+    assert second["event_id"] != "" and {line["column"] for line in relational} == {"id_contrat"}
+    altered = {number: row for number, row in enumerate(
+        _csv_rows(rare_run / "insurance-combined.rare_events.csv"), 2)
+        if str(number) in {first["row_number"], second["row_number"]}}
+    keys = {row["id_contrat"] for row in altered.values()}
+    assert len(keys) == 1  # the same key on both rows
+    assert first["canonical_value"] != second["canonical_value"]  # each keeps its own key
+    # R02 moves the birth date a century on (after the reference date) and the truth keeps the
+    # real one as canonical value.
+    rows = _csv_rows(rare_run / "insurance-combined.rare_events.csv")
+    for line in lines:
+        if line["scenario_id"] == "R02" and line["kind"] == "injected":
+            assert line["canonical_value"] < "2026-09-16"
+            altered_date = rows[int(line["row_number"]) - 2]["date_naissance"]
+            assert max(altered_date[:4], altered_date[-4:]) > "2026"
 
 
 @contract("3")
-def test_valid_boundary_cases_are_valid_atypical_with_info_severity() -> None:
+def test_valid_boundary_cases_are_valid_atypical_with_info_severity(
+        tmp_path: Path, rare_run: Path) -> None:
     """3.1 and 6.2: valid, expected detection ``none``, never counted as violations."""
-    _to_write("3.1")
+    lines = _csv_rows(_rare(rare_run, "truth.csv"))
+    valid = [line for line in lines if line["kind"] == "valid_atypical"]
+    assert len(valid) == 200 and {line["scenario_id"] for line in valid} == {"B01", "B02"}
+    assert {(line["category"], line["severity"], line["expected_detection"]) for line in valid} == {
+        ("valid_atypical", "info", "none")}
+    rows = _csv_rows(rare_run / "insurance-combined.rare_events.csv")
+    for line in valid:
+        row = rows[int(line["row_number"]) - 2]
+        if line["scenario_id"] == "B01":
+            assert row["date_fin"] == row["date_debut"] and line["column"] == "date_fin"
+        else:
+            assert row["date_modification"] == row["date_creation"]
+    # No rule is broken on those rows: they sit on the boundary the rule allows.
+    boundary_rows = {line["row_number"] for line in valid}
+    assert not any(line["kind"] == "rule_violation" and line["row_number"] in boundary_rows
+                   for line in lines)
+    assert not any(line["kind"] == "rule_violation" and line["scenario_id"] in {"B01", "B02"}
+                   for line in lines)
+    # A non-defect cannot claim a severity or a detection: it is refused at load.
+    _refused(tmp_path / "severity", [_scenario(
+        "B", "set_missing", "nom", 5, category="valid_atypical", severity="major",
+        expected_detection="none")], r"severity must be info for a valid_atypical scenario")
+    _refused(tmp_path / "detection", [_scenario(
+        "B", "set_missing", "nom", 5, category="valid_atypical", severity="info",
+        expected_detection="domain")], r"expected_detection must be none for a valid_atypical")
 
 
 @contract("3")
 @pytest.mark.parametrize("rows", sorted(ABSENCE_5000))
 def test_absence_probability_matches_the_documented_values(rows: int) -> None:
     """6.3: ``generate_rarity`` agrees with ``ABSENCE_5000`` for the actual file size."""
-    _to_write("6.3")
+    from math import comb
+
+    from tabalyst.generate_rarity import absence_probability
+
+    for cases, expected in ABSENCE_5000[rows].items():
+        assert absence_probability(rows, cases, 5000) == expected
+        assert absence_probability(rows, cases, 5000) == _absence(rows, cases, 5000)
+    # The product is the hypergeometric ratio, checked against binomial coefficients.
+    assert absence_probability(60, 4, 10) == pytest.approx(comb(56, 10) / comb(60, 10))
+    assert absence_probability(60, 0, 10) == 1.0
+    assert absence_probability(60, 51, 10) == 0.0  # fewer rows left out than cases
+    assert absence_probability(60, 1, 61) is None  # a sample larger than the file
 
 
 @contract("3")
-def test_metrics_hold_the_absence_probability_for_every_documented_sample_size() -> None:
+def test_metrics_hold_the_absence_probability_for_every_documented_sample_size(
+        tmp_path: Path, rare_run: Path) -> None:
     """6.3: 500, 1,000, 5,000, 10,000 and 50,000 per scenario."""
-    _to_write("6.3")
+    metrics = _csv_free_json(_rare(rare_run, "metrics.json"))
+    table = cast(dict[str, dict[str, object]], metrics["absence_probability"])
+    assert list(table) == list(RARE_CASES)
+    for scenario, (cases, _) in RARE_CASES.items():
+        if scenario == "R01":
+            continue
+        entry = table[scenario]
+        probability = cast(dict[str, float], entry["probability"])
+        assert entry["cases"] == cases and entry["reason"] is None
+        assert list(probability) == [str(size) for size in SAMPLE_SIZES]
+        for size in SAMPLE_SIZES:
+            assert probability[str(size)] == _absence(RARE_ROWS, cases, size), (scenario, size)
+    # On a small file a sample larger than the file has no probability, never a made-up one.
+    out, _ = _run_truth(tmp_path, [_scenario("A", "set_missing", "nom", 5)], rows=3000)
+    small = cast(dict[str, dict[str, object]],
+                 _json(out, "metrics")["absence_probability"])["A"]
+    probability = cast(dict[str, float | None], small["probability"])
+    assert probability["500"] == _absence(3000, 5, 500)
+    assert probability["5000"] is None and probability["50000"] is None
 
 
 @contract("3")
-def test_a_multi_row_scenario_has_a_null_probability_with_its_reason() -> None:
+def test_a_multi_row_scenario_has_a_null_probability_with_its_reason(rare_run: Path) -> None:
     """6.3: ``null`` and ``"reason": "multi_row_case"`` for R01."""
-    _to_write("6.3")
+    metrics = _csv_free_json(_rare(rare_run, "metrics.json"))
+    table = cast(dict[str, dict[str, object]], metrics["absence_probability"])
+    assert table["R01"] == {"cases": 1, "probability": None, "reason": "multi_row_case"}
+    assert all(entry["reason"] is None for scenario, entry in table.items() if scenario != "R01")
 
 
 @contract("3")
-def test_rare_events_keeps_the_default_34_columns() -> None:
+def test_rare_events_keeps_the_default_34_columns(rare_run: Path) -> None:
     """6.2 and 7: the profile needs no extended column."""
-    _to_write("7")
+    for name in ("insurance-combined.csv", "insurance-combined.rare_events.csv"):
+        header = (rare_run / name).read_text(encoding="utf-8").splitlines()[0]
+        assert header.split(",") == [*FIELDS, "filiale"]
+    manifest = _csv_free_json(_rare(rare_run, "manifest.json"))
+    assert manifest["output_profile"] == "default" and manifest["generation_version"] == 2
+
+
+# --- Lot 4: extended column profile (contract 7) ---------------------------------------
+
+
+@contract("4")
+def test_default_profile_keeps_34_columns_and_combined_35(tmp_path: Path) -> None:
+    """7 and D1: without --output-profile, branches have 34 columns and combined has 35."""
+    out = tmp_path / "default_out"
+    plan = build_generate_plan(example="insurance", rows=100, seed=42, output_dir=out)
+    assert plan.output_profile == "default"
+    generate_datasets(plan)
+    for branch in ("insurance-principal", "insurance-ontario", "insurance-quebec"):
+        header = (out / f"{branch}.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
+        assert header == list(FIELDS)
+    combined_header = (out / "insurance-combined.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
+    assert combined_header == [*FIELDS, "filiale"]
+
+
+@contract("4")
+def test_extended_output_profile_appends_10_columns_in_contract_order(tmp_path: Path) -> None:
+    """7: extended appends the 10 priority columns; combined places filiale before them."""
+    out_def = tmp_path / "default_out"
+    out_ext = tmp_path / "extended_out"
+    plan_def = build_generate_plan(example="insurance", rows=300, seed=42, output_dir=out_def)
+    plan_ext = build_generate_plan(example="insurance", rows=300, seed=42, output_dir=out_ext,
+                                   output_profile="extended")
+    assert plan_ext.output_profile == "extended"
+    generate_datasets(plan_def)
+    generate_datasets(plan_ext)
+
+    # Branches: 43 columns (*FIELDS, *EXTENDED_FIELDS)
+    for branch in ("insurance-principal", "insurance-ontario", "insurance-quebec"):
+        def_rows = _csv_rows(out_def / f"{branch}.csv")
+        ext_rows = _csv_rows(out_ext / f"{branch}.csv")
+        ext_header = (out_ext / f"{branch}.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
+        assert ext_header == [*FIELDS, *EXTENDED_FIELDS]
+        assert len(ext_header) == 43
+        # First 33 columns are byte-identical
+        for d_row, e_row in zip(def_rows, ext_rows, strict=True):
+            for col in FIELDS:
+                assert d_row[col] == e_row[col]
+
+    # Combined: 44 columns (*FIELDS, "filiale", *EXTENDED_FIELDS)
+    comb_def_rows = _csv_rows(out_def / "insurance-combined.csv")
+    comb_ext_rows = _csv_rows(out_ext / "insurance-combined.csv")
+    comb_ext_header = (out_ext / "insurance-combined.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
+    assert comb_ext_header == [*FIELDS, "filiale", *EXTENDED_FIELDS]
+    assert len(comb_ext_header) == 44
+    # First 34 columns are byte-identical
+    for d_row, e_row in zip(comb_def_rows, comb_ext_rows, strict=True):
+        for col in (*FIELDS, "filiale"):
+            assert d_row[col] == e_row[col]
+
+
+@contract("4")
+def test_clean_extended_file_satisfies_every_rule_on_20000_rows(tmp_path: Path) -> None:
+    """7 and Lot 4 goal: the clean extended file satisfies every rule with zero exception on 20,000 rows."""
+    from tabalyst.generate_columns_package import load_columns_definition
+    from tabalyst.generate_rules import RuleContext, RuleEvaluator
+
+    out = tmp_path / "extended_20k"
+    plan = build_generate_plan(example="insurance", rows=20000, seed=42, output_dir=out,
+                               output_profile="extended")
+    generate_datasets(plan)
+
+    catalogue = load_columns_definition(load_generate_package(PACKAGE)).rules
+    assert catalogue is not None
+    # All rules: M01, M02, M03, M04, M07, M08, M09, M10, M11, M12, M13, M14, M21, M23, M24, M25
+    rule_ids = {r.id for r in catalogue.rules}
+    assert {"M01", "M02", "M03", "M04", "M07", "M08", "M09", "M10", "M11", "M12", "M13", "M14", "M21", "M23", "M24", "M25"} <= rule_ids
+
+    evaluator = RuleEvaluator(catalogue.rules, RuleContext(catalogue.conventions, "2026-09-16"))
+    rows = _csv_rows(out / "insurance-combined.csv")
+    assert len(rows) == 20000
+    violations = [v for number, row in enumerate(rows, 2) for v in evaluator.check(number, row)]
+    assert violations == []
+
+
+@contract("4")
+def test_unknown_output_profile_is_refused_for_insurance(tmp_path: Path) -> None:
+    """7: an unknown output profile for Insurance fails."""
+    for bad in ("compact", "standard", "unknown", "autre"):
+        with pytest.raises(ConfigurationError, match=f"unsupported Insurance output profile {bad!r}"):
+            build_generate_plan(example="insurance", rows=100, output_dir=tmp_path / "out",
+                                output_profile=bad)
+
+
+@contract("4")
+def test_output_profile_is_refused_for_packages_without_profiles(tmp_path: Path) -> None:
+    """Option applies to Computer and Insurance only."""
+    with pytest.raises(ConfigurationError, match=r"--output-profile applies to the Computer and Insurance packages only\."):
+        build_generate_plan(example="crm", rows=100, output_dir=tmp_path / "out",
+                            output_profile="extended")
+
+
+@contract("4")
+def test_extended_columns_invariants_and_structural_absence(tmp_path: Path) -> None:
+    """7: structural absence and cross-column coherence on clean rows."""
+    out = tmp_path / "ext_inv"
+    plan = build_generate_plan(example="insurance", rows=1000, seed=123, output_dir=out,
+                               output_profile="extended")
+    generate_datasets(plan)
+    rows = _csv_rows(out / "insurance-combined.csv")
+
+    for row in rows:
+        # Absence structurelle
+        if not row["date_reclamation"]:
+            assert row["date_sinistre"] == ""
+            assert row["montant_indemnise"] == ""
+            assert row["nombre_reclamations"] == "0"
+        else:
+            assert row["date_sinistre"] != ""
+            assert row["nombre_reclamations"] in {"1", "2", "3"}
+
+        # Date de résiliation
+        if row["statut_contrat"] == "résilié":
+            assert row["date_resiliation"] != ""
+        else:
+            assert row["date_resiliation"] == ""
+
+        # Courtier
+        if row["canal_acquisition"] == "courtier":
+            assert row["courtier_id"].startswith("CRT-")
+        else:
+            assert row["courtier_id"] == ""
+
+        # Montants
+        assert float(row["montant_couverture"]) > 0
+        assert float(row["franchise"]) >= 0
+        if row["montant_indemnise"]:
+            assert float(row["montant_indemnise"]) >= 0
+            assert float(row["montant_indemnise"]) <= float(row["montant_couverture"])
+
+
+@contract("4")
+def test_extended_manifest_records_output_profile(tmp_path: Path) -> None:
+    """5.5 and 7: manifest.json carries output_profile: 'extended'."""
+    pkg = _insurance_package(tmp_path / "pkg", [
+        _scenario("S1", "set_missing", "courriel", 2, rule_id="M14")],
+        profile=TRUTH_PROFILE)
+    out = tmp_path / "manifest_out"
+    plan = build_generate_plan(pkg, rows=300, seed=42, output_dir=out,
+                               anomaly_profile=TRUTH_PROFILE, output_profile="extended")
+    generate_datasets(plan)
+    manifest = _json(out, "manifest")
+    assert manifest["output_profile"] == "extended"
+
+
+@contract("4")
+def test_profile_scenario_error_reports_missing_columns_in_default_profile() -> None:
+    """generate_scenarios.py: PROVIDING_PROFILES points to extended when column is missing."""
+    from tabalyst.generate_scenarios import profile_scenario_error
+
+    operations = [
+        {"scenario_id": "S1", "kind": "set_missing", "column": "courriel", "count": 10,
+         "requires": ["date_sinistre"], "category": "semantic_invalid", "severity": "minor",
+         "rarity_level": "very_rare", "description": "test", "expected_detection": "domain"},
+    ]
+    # In default profile (35 columns without date_sinistre)
+    default_cols = [*FIELDS, "filiale"]
+    err_def = profile_scenario_error(operations, columns=default_cols, output_profile="default")
+    assert err_def is not None
+    assert "requires column 'date_sinistre'" in err_def
+    assert "the extended output profile provides it" in err_def
+
+    # In extended profile (44 columns with filiale)
+    extended_cols = [*FIELDS, "filiale", *EXTENDED_FIELDS]
+    err_ext = profile_scenario_error(operations, columns=extended_cols, output_profile="extended")
+    assert err_ext is None
+
+
+@contract("4")
+def test_extended_streams_independence(tmp_path: Path) -> None:
+    """4.4 and Lot 4 goal: extended columns draw from their own streams without shifting base rows."""
+    from tabalyst.generate_insurance import extend_insurance_row
+    from tabalyst.generate_values import _stream
+
+    out1 = tmp_path / "run1"
+    out2 = tmp_path / "run2"
+    plan1 = build_generate_plan(example="insurance", rows=500, seed=777, output_dir=out1,
+                                output_profile="extended")
+    plan2 = build_generate_plan(example="insurance", rows=500, seed=777, output_dir=out2,
+                                output_profile="extended")
+    generate_datasets(plan1)
+    generate_datasets(plan2)
+
+    rows1 = _csv_rows(out1 / "insurance-principal.csv")
+    rows2 = _csv_rows(out2 / "insurance-principal.csv")
+    assert rows1 == rows2
+
+    # Verifying that extend_insurance_row uses the column streams deterministically
+    streams_a = {col: _stream(777, "insurance-principal", col, "extended") for col in EXTENDED_FIELDS}
+    streams_b = {col: _stream(777, "insurance-principal", col, "extended") for col in EXTENDED_FIELDS}
+    base_row = {col: rows1[0][col] for col in FIELDS}
+    ext_a = extend_insurance_row(base_row, "principal", streams_a, "2026-09-16")
+    ext_b = extend_insurance_row(base_row, "principal", streams_b, "2026-09-16")
+    assert ext_a == ext_b
+    assert {col: ext_a[col] for col in EXTENDED_FIELDS} == {col: rows1[0][col] for col in EXTENDED_FIELDS}
+

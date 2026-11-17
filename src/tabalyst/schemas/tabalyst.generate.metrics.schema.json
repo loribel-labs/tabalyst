@@ -1,5 +1,56 @@
 {
   "$defs": {
+    "AbsenceProbability": {
+      "additionalProperties": false,
+      "description": "Chance that a uniform sample misses every case of a scenario (contract 6.3).\n\n``probability`` maps a sample size to the exact probability for this file, ``null`` for a\nsize above the number of rows, and is itself ``null`` with ``reason`` ``multi_row_case``\nwhen a case spans several rows (the formula counts single-row cases).",
+      "properties": {
+        "cases": {
+          "minimum": 0,
+          "title": "Cases",
+          "type": "integer"
+        },
+        "probability": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Probability"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "const": "multi_row_case",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "cases",
+        "probability",
+        "reason"
+      ],
+      "title": "AbsenceProbability",
+      "type": "object"
+    },
     "Counts": {
       "additionalProperties": false,
       "description": "The numbers of contract 4.2, recounted from the truth.",
@@ -61,7 +112,7 @@
     },
     "ScenarioMetrics": {
       "additionalProperties": false,
-      "description": "What one scenario asked for and what the files hold.\n\n``eligible_population`` is the sum over its operations of the rows each can change in the\nclean file. ``applied_cases`` and ``rows_touched`` are equal while a case is one row\n(multi-row cases arrive with lot 3).",
+      "description": "What one scenario asked for and what the files hold.\n\n``eligible_population`` is the sum over its operations of the rows each can change in the\nclean file. ``applied_cases`` counts the cases (a key reused on two contracts is one) and\n``rows_touched`` the rows they involve: equal while a case is one row.",
       "properties": {
         "rarity_level": {
           "anyOf": [
@@ -181,6 +232,13 @@
       },
       "title": "Kinds",
       "type": "object"
+    },
+    "absence_probability": {
+      "additionalProperties": {
+        "$ref": "#/$defs/AbsenceProbability"
+      },
+      "title": "Absence Probability",
+      "type": "object"
     }
   },
   "required": [
@@ -192,6 +250,7 @@
     "rules",
     "categories",
     "kinds",
+    "absence_probability",
     "format",
     "format_version",
     "format_revision"

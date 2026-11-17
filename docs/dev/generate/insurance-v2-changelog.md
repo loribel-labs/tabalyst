@@ -25,3 +25,41 @@ First appearance of the four files of a scenario profile:
 - `metrics.json` (`tabalyst.generate.metrics`): `rows`, `counts`, `scenarios`, `rules`,
   `categories`, `kinds`; `absence_probability` arrives with lot 3, still in revision 1;
 - `manifest.json` (`tabalyst.generate.manifest`): the members of contract 5.5 plus `dataset`.
+
+## generation_version 2, format revision 1 (lot 3, 2026-11-17)
+
+`metrics.json` and `truth.csv` change for the same inputs, hence the new generation version; no
+structure of `rules.json` or `manifest.json` changes, and the first release that ships the
+format is still to come, so the revision stays 1:
+
+- `metrics.json` gains `absence_probability`: per scenario, `cases`, `probability` (a sample
+  size, 500, 1000, 5000, 10000 and 50000, to the exact probability for the rows of the file,
+  `null` above the number of rows) and `reason`; a scenario whose case spans several rows has
+  `probability` `null` and `reason` `multi_row_case`;
+- `ScenarioMetrics.applied_cases` counts cases (distinct `relational` groups when a scenario has
+  some) and `rows_touched` the rows they involve: they differ for a case on several rows;
+- `truth.csv` uses the kinds `relational` (two lines per `reuse_value` case, `group_id`
+  `<scenario>-<first row>`) and `valid_atypical` (one line per cell a `valid_atypical` scenario
+  changed, severity `info`, detection `none`);
+- the manifest holds `generation_version` 2.
+
+Package side: the profile `rare_events` (34 columns, floor of 100,000 rows) and the profile key
+`min_rows`; operation kinds `reuse_value` and `copy_column`; `format` values `times_100`,
+`date_plus_century` and `postal_other_province`. The three legacy profiles do not move.
+
+## Extended output profile (lot 4, 2026-11-17)
+
+Option `--output-profile extended` on the Insurance package:
+
+- Appends 10 priority columns after `filiale` on `insurance-combined.csv` (44 columns in total,
+  the 34 of default plus 10) and on branch files (43 columns, the 33 base columns plus 10):
+  `date_sinistre`, `montant_couverture`, `franchise`, `montant_indemnise`, `date_resiliation`,
+  `statut_paiement`, `canal_acquisition`, `courtier_id`, `produit_code`, `nombre_reclamations`;
+- Independent random streams per column `_stream(seed, dataset, column, "extended")`: base row
+  draws and bytes remain strictly identical to default for the same seed;
+- New rules added to the package catalogue: M07 (cancellation date), M08 (claim event date),
+  M09 (claim declaration date), M10 (non-negative indemnity), M11 (indemnity cap), M12 (structural
+  absence), M13 (claim counts), M24 (broker channel), M25 (product code);
+- `RuleEvaluator.check` skips any rule referencing columns not present in the evaluated row;
+- `manifest.json` carries `output_profile: "extended"` when selected;
+- `generation_version` stays 2 (default runs keep identical bytes).

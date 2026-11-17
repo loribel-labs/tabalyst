@@ -550,6 +550,66 @@ Check values (computed with the formula, `n = 5,000`):
 The report's table (0.66 %, 36.6 %, 60.5 %, 95.1 %, 99 %) is exact for 500,000 rows and is not
 valid for the default size, which is why it is computed.
 
+### 6.4 What lot 3 fixed
+
+Written when lot 3 was implemented; where it differs from 6.1 to 6.3 this is the behavior.
+
+- **Modules.** `generate_rarity.py` gains `SAMPLE_SIZES` and `absence_probability(rows, cases,
+  sample)`; `generate_anomalies.py` the kinds `reuse_value` and `copy_column`
+  (`SCENARIO_KINDS`), the `format` values `times_100` and `date_plus_century`, and
+  `CONTEXTUAL_VALUES` (`postal_other_province`) with `inject_anomalies(contextual=)`;
+  `generate_insurance.insurance_contextual(references)` supplies the row-aware values;
+  `generate_truth.py` the `relational` and `valid_atypical` lines and `absence_probability`;
+  ADR `2026-11-17-generate-rare-events-profile`.
+- **Floor.** `min_rows` is a key of the profile (scenario profiles only, a whole number at least
+  the largest count of the profile). `build_generate_plan` refuses fewer rows than the floor on
+  a target: `Profile rare_events needs at least 100,000 rows on insurance-combined (below that
+  its rare cases are not rare); 99,999 requested.` The refusal of a count above the rows or the
+  eligible population stays as it was.
+- **The profile `rare_events`.** In the package, 34 columns, 19 operations in 11 scenarios
+  (`insurance-combined` only). As built:
+
+  | Scenario | Cases | Level | Operations | Rule |
+  | --- | ---: | --- | --- | --- |
+  | R01 | 1 (2 rows) | `single` | `reuse_value` on `id_contrat` | M21 |
+  | R02 | 5 | `extremely_rare` | `format date_plus_century` on `date_naissance` | M04 |
+  | R05 | 20 | `very_rare` | `format times_100` on `prime_annuelle` | |
+  | R06 | 25 | `very_rare` | `date_debut` in another branch's convention: `date_dmy` (principal 10), `date_mdy_iso` (ontario 8), `date_iso` (quebec 7) | |
+  | R07 | 50 | `very_rare` | `format postal_other_province` on `code_postal`, `requires: [province_code]` | |
+  | R08 | 50 | `very_rare` | `swap` of `date_debut` and `date_fin` | M01 |
+  | R10 | 100 | `rare` | `replace` of `prime_annuelle` by `N/A` (50), `inconnu` (30), `à venir` (20) | |
+  | R11 | 250 | `uncommon` | `replace` of `statut_contrat` by `inconnu` (100), `en attente` (80), `annulé` (70) | M23 |
+  | R12 | 500 | `uncommon` | `replace` of `agence_code` by an agency of another branch, per branch (300, 100, 100) | |
+  | B01 | 100 | `rare` | `copy_column` `date_debut` into `date_fin` where `statut_contrat` is `expiré` | M01 |
+  | B02 | 100 | `rare` | `copy_column` `date_creation` into `date_modification` where there is no claim | M02 |
+
+  Categories: R01, R07, R08 and R12 `business_rule_violation`; R02, R05 and R11
+  `semantic_invalid`; R06 `contextual_invalid`; R10 `format_invalid`; B01 and B02
+  `valid_atypical`. R07 and R12 name no rule: the catalogue has none for them until lot 6.
+  R12 uses `replace` per branch as 6.2 said (three constants, one per branch); R07 is
+  pool-aware because a constant postal code would be one value repeated 50 times.
+- **R01.** `reuse_value` takes the clean value of one of the 1,000 rows before the changed one,
+  so the second occurrence is near the first like a double entry. `canonical_value` of the
+  changed cell stays its own clean key (what the truth must restore), not the first
+  occurrence's: the relation is carried by the two `relational` lines, `group_id`
+  `R01-<first row>`, one per row, the first without `event_id`. M21 also reports the two rows as
+  `rule_violation` lines of its own group `M21-<first row>`; the kinds differ on purpose.
+- **Valid boundary cases.** B01 and B02 are real `valid_atypical` scenarios with severity `info`
+  and detection `none` (any other value is refused at load); their cells have `injected`,
+  `net_difference` and `valid_atypical` lines. They are restricted by `when` so that they do not
+  collide with a rule that does not exist yet (a contract that ends the day it starts only when
+  already expired, a modification date equal to the creation only without claim). The cap
+  boundary (10,000.00) waits for `montant_couverture` (lot 4).
+- **Metrics.** `absence_probability[scenario]` is `{cases, probability, reason}`: `probability`
+  maps `"500"`, `"1000"`, `"5000"`, `"10000"`, `"50000"` to the exact value for the rows of the
+  file (`null` for a sample larger than the file); a scenario with a `relational` line has
+  `probability` `null` and `reason` `multi_row_case`. `applied_cases` is the number of cases
+  (distinct `relational` groups), `rows_touched` the rows they involve.
+- **Timing.** 100,000 rows take about 35 seconds on the maintainer's machine; the contract tests
+  run it once.
+- **Not done on purpose.** R03, R04 and R09 (lot 6), the cap boundary (lot 4), rare-event counts
+  that follow the file size (never: counts are absolute).
+
 ## 7. Column profiles (lots 4 and 6)
 
 Selected with the existing option `--output-profile` (Q4), whose value `compact` already
@@ -588,9 +648,40 @@ the formulas, the invariants are:
 A column is added to `extended` only with the rule that constrains it, the scenario that
 breaks it and the test of both.
 
-Open at lot 4: the three branch files (`insurance-principal.csv`, ...) have no `filiale`
-column, so `extended` columns are derived in the combined file only, or per branch with the
-branch known; the lot decides and records it here.
+### 7.1 What lot 4 fixed
+
+Written when lot 4 was implemented; where it differs from earlier sections this is the behavior.
+
+- **Branch and combined layout.** Extended columns are generated per branch with the branch known.
+  Each branch file (`insurance-principal.csv`, `insurance-ontario.csv`, `insurance-quebec.csv`)
+  has 43 columns: the 33 base columns `FIELDS`, followed by the 10 extended columns
+  `EXTENDED_FIELDS`. In `insurance-combined.csv`, the source column `filiale` is placed after the
+  33 base columns and before the 10 extended columns (`[*FIELDS, "filiale", *EXTENDED_FIELDS]`),
+  totaling 44 columns (matching the 34 + 10 contract target).
+- **Byte-identical non-regression.** For the same seed, the first 33 columns of every branch and
+  the first 34 columns of `insurance-combined.csv` are strictly byte-identical between the default
+  output profile and the extended profile.
+- **Independent random streams.** Every extended column draws exclusively from its own stream
+  `_stream(seed, dataset, column, "extended")` via `extend_insurance_row`, without altering the
+  base row stream `InsuranceProvider.row()`.
+- **Clean file invariants.** The clean file satisfies every rule of the package catalogue with zero
+  exception (tested on 20,000 rows):
+  - `M07`: cancellation date present if and only if `statut_contrat` is `résilié`, and between
+    `date_debut` and `date_fin`.
+  - `M08`: claim event on or after `date_debut`.
+  - `M09`: claim declared on or after `date_sinistre`.
+  - `M10`: indemnity amount non-negative (`>= 0.00`).
+  - `M11`: indemnity amount within coverage cap and claimed amount minus deductible.
+  - `M12`: structural absence: `date_sinistre` and `montant_indemnise` empty without claim.
+  - `M13`: `nombre_reclamations >= 1` with a claim, `0` without a claim.
+  - `M24`: broker identifier present if and only if `canal_acquisition == "courtier"`.
+  - `M25`: product code strictly matching contract type.
+- **Rule evaluator column filter.** `RuleEvaluator.check` skips any rule where one of its declared
+  columns is absent from the row being checked, ensuring rules targeting extended columns do not
+  falsely flag default 34-column files.
+- **Publication and manifest.** `build_generate_plan` accepts `--output-profile extended` on
+  Insurance, refuses unknown profiles (`compact`, etc.), and passes `output_profile` to
+  `GeneratePlan` and `manifest.json`.
 
 ## 8. Relational model (lots 8 and 9, D2)
 
@@ -674,7 +765,8 @@ the references of section 2 move.
   still raise `format_revision`), the three-valued reading of rules (5.8), the attribution of a
   `rule_violation` line to the last event of its row, and whether a profile may list rules it
   does not target.
-- Lot 3: the operations missing for R01, R05 and R07 (names and tests), the boundary cases kept.
+- Lot 6: the boundary cases B01 and B02 of lot 3 carry the `when` restrictions of 6.4; the rules
+  of lot 6 may need more (a claim after the end of a contract that ends the day it starts).
 - Lot 4: exact formulas of the extended rules and the share of boundary values in the clean file.
 - Lot 8: the model and its memory bound (gate P2).
 - Whether legacy profiles should get a truth file on request (not planned: their set of

@@ -7,11 +7,13 @@
 from __future__ import annotations
 
 import random
+import re
 from collections.abc import Mapping
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from tabalyst.errors import ConfigurationError
+from tabalyst.generate_anomalies import ContextualValue
 from tabalyst.generate_canonical import (
     canonical_date,
     canonical_decimal,
@@ -285,11 +287,24 @@ class InsuranceProvider:
                 for key, value in result.items()}
 
 
+DEFAULT_FIELDS: tuple[str, ...] = FIELDS
+EXTENDED_FIELDS: tuple[str, ...] = (
+    "date_sinistre", "montant_couverture", "franchise", "montant_indemnise",
+    "date_resiliation", "statut_paiement", "canal_acquisition", "courtier_id",
+    "produit_code", "nombre_reclamations",
+)
+OUTPUT_PROFILES: dict[str, tuple[str, ...]] = {
+    "default": DEFAULT_FIELDS,
+    "extended": (*DEFAULT_FIELDS, *EXTENDED_FIELDS),
+}
+
 # Contract insurance-v2.md 4.5: the type of each column decides how its clean cell is normalized.
 DATE_COLUMNS = frozenset({"date_naissance", "date_debut", "date_fin", "date_creation",
-                          "date_modification", "date_reclamation"})
-AMOUNT_COLUMNS = frozenset({"prime_annuelle", "montant_reclamation"})
-IDENTIFIER_COLUMNS = frozenset({"id_client", "id_contrat", "agence_code"})
+                          "date_modification", "date_reclamation", "date_sinistre",
+                          "date_resiliation"})
+AMOUNT_COLUMNS = frozenset({"prime_annuelle", "montant_reclamation", "montant_couverture",
+                            "franchise", "montant_indemnise"})
+IDENTIFIER_COLUMNS = frozenset({"id_client", "id_contrat", "agence_code", "courtier_id"})
 BRANCH_COLUMN = "filiale"
 
 
@@ -313,3 +328,181 @@ def insurance_canonical(column: str, value: str, row: Mapping[str, str]) -> str:
     if column in AMOUNT_COLUMNS:
         return canonical_decimal(value)
     return canonical_text(value)
+
+
+POSTAL_CODE = re.compile(r"([A-Z]\d[A-Z]) (\d[A-Z]\d)\Z")
+
+
+def insurance_contextual(references: CommonReferences) -> dict[str, ContextualValue]:
+    """Return the ``format`` values of Insurance that need the whole row (contract 6.2).
+
+    ``postal_other_province`` (R07) replaces the forward sortation area of a postal code with one
+    of a province whose codes never start with a letter of the customer's province, and keeps
+    the three characters after the space, so the code stays well formed and only its province
+    is wrong. A cell that is not a postal code is left as it is.
+    """
+    prefixes = sorted(row["prefix"] for row in references.tables["geography/postal_prefixes_ca.csv"])
+    letters: dict[str, set[str]] = {}
+    for row in references.tables["geography/postal_prefixes_ca.csv"]:
+        letters.setdefault(row["province_code"], set()).add(row["prefix"][0])
+    elsewhere = {province: [prefix for prefix in prefixes if prefix[0] not in own]
+                 for province, own in letters.items()}
+
+    def postal_other_province(row: Mapping[str, str], rng: random.Random) -> str:
+        province = row.get("province_code")
+        if province not in elsewhere:
+            raise ValueError("postal_other_province needs a province_code column with a known "
+                             f"province, got {province!r}")
+        postal = row.get("code_postal", "")
+        found = POSTAL_CODE.match(postal)
+        if found is None:
+            return postal
+        return f"{rng.choice(elsewhere[province])} {found[2]}"
+
+    return {"postal_other_province": postal_other_province}
+
+
+COVERAGE_CAPS: dict[str, tuple[list[int], list[int]]] = {
+    "auto": ([50000, 100000, 250000, 500000, 1000000, 2000000], [10, 30, 30, 20, 8, 2]),
+    "habitation": ([150000, 250000, 500000, 750000, 1000000, 1500000], [15, 30, 35, 12, 6, 2]),
+    "vie": ([50000, 100000, 250000, 500000, 1000000], [20, 30, 30, 15, 5]),
+    "voyage": ([25000, 50000, 100000, 1000000, 5000000], [25, 35, 25, 10, 5]),
+}
+DEDUCTIBLES: dict[str, tuple[list[int], list[int]]] = {
+    "auto": ([250, 500, 1000], [25, 50, 25]),
+    "habitation": ([500, 1000, 2500], [40, 45, 15]),
+    "vie": ([0], [1]),
+    "voyage": ([0, 50, 100], [60, 20, 20]),
+}
+PRODUCT_CODES: dict[str, tuple[list[str], list[int]]] = {
+    "auto": (["AUT_BASE", "AUT_CONFORT", "AUT_TOURISME", "AUT_PREMIUM"], [30, 40, 20, 10]),
+    "habitation": (["HAB_LOCATAIRE", "HAB_PROPRIETAIRE", "HAB_COPROPRIETE", "HAB_PRESTIGE"], [25, 45, 20, 10]),
+    "vie": (["VIE_TEMPORAIRE", "VIE_PERMANENTE", "VIE_UNIVERSELLE"], [50, 35, 15]),
+    "voyage": (["VOY_INDIVIDUEL", "VOY_FAMILLE", "VOY_ANNULATION", "VOY_MULTI"], [40, 30, 20, 10]),
+}
+PAYMENT_STATUSES: dict[str, tuple[list[str], list[int]]] = {
+    "actif": (["payé", "partiel", "en_retard", "impayé"], [88, 6, 4, 2]),
+    "suspendu": (["en_retard", "impayé", "partiel"], [60, 35, 5]),
+    "résilié": (["impayé", "payé", "en_retard"], [55, 35, 10]),
+    "expiré": (["payé", "impayé"], [95, 5]),
+}
+ACQUISITION_CHANNELS: tuple[list[str], list[int]] = (
+    ["web", "courtier", "agence", "téléphone"], [40, 25, 25, 10],
+)
+CLAIM_COUNTS: tuple[list[int], list[int]] = (
+    [1, 2, 3], [85, 12, 3],
+)
+
+
+def _parse_branch_date(text: str, fmt: str) -> date:
+    return datetime.strptime(text, fmt).date()  # noqa: DTZ007 - a date has no zone
+
+
+def extend_insurance_row(row: Mapping[str, str], branch: str,
+                         streams: Mapping[str, random.Random],
+                         as_of_date: str) -> dict[str, str]:
+    """Extend a 34-column Insurance row with the 10 columns of the extended profile (contract 7).
+
+    Each column draws exclusively from its dedicated stream in ``streams``, so draws remain
+    deterministic and independent of other columns.
+    """
+    if branch not in BRANCHES:
+        raise ConfigurationError(f"unknown Insurance branch {branch!r}")
+    date_format = BRANCHES[branch][2]
+    product = row["type_contrat"]
+
+    # 1. date_sinistre
+    rng_sin = streams["date_sinistre"]
+    if row.get("date_reclamation"):
+        start_date = _parse_branch_date(row["date_debut"], date_format)
+        decl_date = _parse_branch_date(row["date_reclamation"], date_format)
+        diff = (decl_date - start_date).days
+        offset = rng_sin.randint(0, diff) if diff > 0 else 0
+        date_sinistre = (start_date + timedelta(days=offset)).strftime(date_format)
+    else:
+        date_sinistre = ""
+
+    # 2. montant_couverture
+    rng_cov = streams["montant_couverture"]
+    cov_opts, cov_weights = COVERAGE_CAPS.get(product, ([100000], [1]))
+    cap_val = rng_cov.choices(cov_opts, weights=cov_weights, k=1)[0]
+    montant_couverture = f"{Decimal(cap_val):.2f}"
+
+    # 3. franchise
+    rng_ded = streams["franchise"]
+    ded_opts, ded_weights = DEDUCTIBLES.get(product, ([0], [1]))
+    ded_val = rng_ded.choices(ded_opts, weights=ded_weights, k=1)[0]
+    franchise = f"{Decimal(ded_val):.2f}"
+
+    # 4. montant_indemnise
+    rng_ind = streams["montant_indemnise"]
+    if row.get("date_reclamation") and row.get("montant_reclamation"):
+        rec_amt = Decimal(row["montant_reclamation"])
+        cov_amt = Decimal(montant_couverture)
+        ded_amt = Decimal(franchise)
+        status = row.get("reclamation_status", "")
+        max_pay = min(cov_amt, max(Decimal("0.00"), rec_amt - ded_amt))
+        if status in {"rejeté", "ouvert"}:
+            montant_indemnise = "0.00"
+        elif status == "fermé":
+            montant_indemnise = f"{max_pay:.2f}"
+        else:
+            shares = [Decimal("0.00"), (max_pay * Decimal("0.5")).quantize(Decimal("0.01")), max_pay]
+            montant_indemnise = f"{rng_ind.choices(shares, weights=[50, 30, 20], k=1)[0]:.2f}"
+    else:
+        montant_indemnise = ""
+
+    # 5. date_resiliation
+    rng_res = streams["date_resiliation"]
+    if row.get("statut_contrat") == "résilié" and row.get("date_fin"):
+        start_date = _parse_branch_date(row["date_debut"], date_format)
+        end_date = _parse_branch_date(row["date_fin"], date_format)
+        diff = (end_date - start_date).days
+        offset = rng_res.randint(1, diff) if diff > 0 else 0
+        date_resiliation = (start_date + timedelta(days=offset)).strftime(date_format)
+    else:
+        date_resiliation = ""
+
+    # 6. statut_paiement
+    rng_pay = streams["statut_paiement"]
+    pay_opts, pay_weights = PAYMENT_STATUSES.get(
+        row.get("statut_contrat", ""), (["payé"], [1]),
+    )
+    statut_paiement = rng_pay.choices(pay_opts, weights=pay_weights, k=1)[0]
+
+    # 7. canal_acquisition
+    rng_acq = streams["canal_acquisition"]
+    canal_acquisition = rng_acq.choices(ACQUISITION_CHANNELS[0], weights=ACQUISITION_CHANNELS[1], k=1)[0]
+
+    # 8. courtier_id
+    rng_crt = streams["courtier_id"]
+    if canal_acquisition == "courtier":
+        courtier_id = f"CRT-{rng_crt.randint(101, 300):04d}"
+    else:
+        courtier_id = ""
+
+    # 9. produit_code
+    rng_prd = streams["produit_code"]
+    prd_opts, prd_weights = PRODUCT_CODES.get(product, (["STD"], [1]))
+    produit_code = rng_prd.choices(prd_opts, weights=prd_weights, k=1)[0]
+
+    # 10. nombre_reclamations
+    rng_cnt = streams["nombre_reclamations"]
+    if row.get("date_reclamation"):
+        nombre_reclamations = str(rng_cnt.choices(CLAIM_COUNTS[0], weights=CLAIM_COUNTS[1], k=1)[0])
+    else:
+        nombre_reclamations = "0"
+
+    extended = {
+        "date_sinistre": date_sinistre,
+        "montant_couverture": montant_couverture,
+        "franchise": franchise,
+        "montant_indemnise": montant_indemnise,
+        "date_resiliation": date_resiliation,
+        "statut_paiement": statut_paiement,
+        "canal_acquisition": canal_acquisition,
+        "courtier_id": courtier_id,
+        "produit_code": produit_code,
+        "nombre_reclamations": nombre_reclamations,
+    }
+    return {**row, **extended}

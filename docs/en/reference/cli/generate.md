@@ -29,10 +29,10 @@ destination is required, except with `--validate-only`. A
 | `--rows N` | Override the generated row count; for insurance, allocate the combined total across its branches. |
 | `--seed INTEGER` | Override the root random seed. |
 | `--as-of-date YYYY-MM-DD` | Override the reference date. |
-| `--anomaly-profile NAME` | Produce the selected anomaly variant, cell change log and summary (with `-d`). Computer: `dirty_realistic`, `dirty_stress`, `unit_variants`, `unit_variants_extended`, `rule_breaks`; every example has `rule_breaks`, which breaks the rules between columns. Give several names separated by commas to get one variant of each (with `-d`). An unknown name lists the available ones. |
+| `--anomaly-profile NAME` | Produce the selected anomaly variant, cell change log and summary (with `-d`). Computer: `dirty_realistic`, `dirty_stress`, `unit_variants`, `unit_variants_extended`, `rule_breaks`; every example has `rule_breaks`, which breaks the rules between columns. Insurance: `dirty_realistic`, `dirty_stress`, `rule_breaks` and `rare_events` (exact rare cases, at least 100,000 rows). Give several names separated by commas to get one variant of each (with `-d`). An unknown name lists the available ones. |
 | `--request FILE` | Read `rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`, `locales`, `unit_style`, `unit_columns` and `anomaly_profile` from a JSON object. Explicit options win. |
 | `--generation-profile NAME` | Computer: bias the catalog selection. |
-| `--output-profile NAME` | Computer: choose the columns written (`compact`, `standard`, `extended`). |
+| `--output-profile NAME` | Choose the columns written. Computer: `compact`, `standard`, `extended`. Insurance: `default` (33 columns on branches, 34 combined), `extended` (43 columns on branches, 44 combined). |
 | `--market ca\|us` | Computer: the offer market. |
 | `--locales en\|fr\|en,fr` | Computer: the languages written. Default `en,fr` with `-d`, `en` with `-o`. |
 | `--unit-style numeric\|localized` | Computer: plain numbers or values with units. |
@@ -73,3 +73,6 @@ writes `<dataset>.<profile>.truth.csv`, `.rules.json`, `.metrics.json` and
 `.manifest.json`, published with the other files and protected the same way:
 an existing one needs `--force`. See
 [Insurance ground truth files](../../generate/insurance-ground-truth.md).
+A profile can set a minimum number of rows: `rare_events` stops below
+100,000 rows, naming the profile, the floor and the rows requested. See
+[Insurance rare events](../../generate/insurance-rare-events.md).

@@ -104,7 +104,8 @@ def load_columns_definition(package: DatasetPackage) -> GenerateDefinition:
             raise ConfigurationError("PACKAGE_SCHEMA: expected column dataset or combine")
     anomaly_profiles = []
     for ident, profile in profiles.items():
-        if not isinstance(profile, dict) or set(profile) != {"targets", "operations"}:
+        if not isinstance(profile, dict) or not {"targets", "operations"} <= set(profile) <= {
+                "targets", "operations", "min_rows"}:
             raise ConfigurationError(f"PACKAGE_SCHEMA: invalid anomaly profile {ident}")
         anomaly_profiles.append({"id": ident, **profile})
     mapping = {"id": package.id, "defaults": {

@@ -43,7 +43,15 @@ from tabalyst.generate_computer_output import (
 from tabalyst.generate_computer_parallel import worker_count
 from tabalyst.generate_csv import write_csv
 from tabalyst.generate_definition import GenerateDefinition
-from tabalyst.generate_insurance import InsuranceProvider, insurance_canonical
+from tabalyst.generate_insurance import (
+    EXTENDED_FIELDS as INSURANCE_EXTENDED_FIELDS,
+)
+from tabalyst.generate_insurance import (
+    InsuranceProvider,
+    extend_insurance_row,
+    insurance_canonical,
+    insurance_contextual,
+)
 from tabalyst.generate_package import MAX_ROWS, DatasetPackage, load_generate_package
 from tabalyst.generate_references import SCHEMAS, CommonReferences
 from tabalyst.generate_scenarios import foreign_scenario_key, is_scenario_profile
@@ -58,7 +66,7 @@ from tabalyst.generate_truth import (
     scenario_entries,
     write_truth_csv,
 )
-from tabalyst.generate_values import generate_rows
+from tabalyst.generate_values import _stream, generate_rows
 
 
 @dataclass(frozen=True)
@@ -83,6 +91,7 @@ class GeneratePlan:
     anomaly_profile: str | None
     force: bool
     package: DatasetPackage | None = None
+    output_profile: str = "default"
 
 
 @dataclass(frozen=True)
@@ -508,19 +517,25 @@ def build_generate_plan(
                 validate_only=validate_only,
                 workers=workers,
             )
+        effective_output = output_profile or "default"
+        if package.id == "insurance":
+            if effective_output not in {"default", "extended"}:
+                raise ConfigurationError(f"unsupported Insurance output profile {output_profile!r}")
+        elif output_profile is not None:
+            raise ConfigurationError("--output-profile applies to the Computer and Insurance packages only.")
         definition = load_columns_definition(package)
         if validate_only:
             if output is not None or output_dir is not None:
                 raise ConfigurationError("--validate-only does not take a destination.")
             return GeneratePlan(definition, (), {}, 0, definition.defaults.get("as_of_date", "2000-01-01"),
-                                None, force, package)
+                                None, force, package, output_profile=effective_output)
     else:
         raise ConfigurationError(
             f"PACKAGE_FORMAT: {source_path} is not a Generate package; "
             "definition_version: 1 YAML is unsupported. Supply a package directory "
             "or its dataset.yaml."
         )
-    if (request is not None or generation_profile is not None or output_profile is not None
+    if (request is not None or generation_profile is not None
         or market is not None or locales is not None or unit_style is not None
         or unit_columns is not None):
         raise ConfigurationError("Package request and profile options require a package path.")
@@ -558,7 +573,12 @@ def build_generate_plan(
     for dataset in combined:
         counts[dataset["id"]] = sum(counts[name] for name in dataset["combine"]["inputs"])
     if anomaly_profile is not None:
+        floor = profiles[anomaly_profile].get("min_rows")
         for target in profiles[anomaly_profile]["targets"]:
+            if floor is not None and counts[target] < floor:
+                raise ConfigurationError(
+                    f"Profile {anomaly_profile} needs at least {floor:,} rows on {target} "
+                    f"(below that its rare cases are not rare); {counts[target]:,} requested.")
             _check_counts(profiles[anomaly_profile]["operations"], counts[target],
                           f"{anomaly_profile} on {target}")
 
@@ -610,6 +630,7 @@ def build_generate_plan(
         definition, tuple(artifacts), counts,
         seed if seed is not None else definition.defaults.get("seed", 0),
         effective_date, anomaly_profile, force, package,
+        output_profile=effective_output,
     )
 
 
@@ -761,7 +782,7 @@ def _write_truth_artifact(
         manifest = ManifestDocument(
             tabalyst_version=__version__, generation_version=GENERATION_VERSION,
             seed=plan.seed, as_of_date=plan.as_of_date, rows=plan.rows[dataset],
-            dataset=dataset, profile=profile["id"], output_profile="default",
+            dataset=dataset, profile=profile["id"], output_profile=plan.output_profile,
             package_version=plan.package.package_version if plan.package else None,
             definition_id=plan.definition.id,
             scenarios=scenario_entries(profile["operations"]), files=files,
@@ -969,6 +990,7 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                                plan.rows[artifact.dataset_id]),
                 on_event=found.append if scenarios else None,
                 canonical=insurance_canonical if scenarios else None,
+                contextual=insurance_contextual(references) if scenarios and references else None,
             )
             summary.update({
                 "definition_id": plan.definition.id,
@@ -990,23 +1012,43 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                                         ensure_ascii=False, indent=2) + "\n",
                              encoding="utf-8", newline="\n")
             return
+        is_extended_insurance = (
+            plan.package is not None
+            and plan.package.id == "insurance"
+            and plan.output_profile == "extended"
+        )
         if "combine" in dataset:
             first = datasets[dataset["combine"]["inputs"][0]]
             columns = first.get("columns") or plan.definition.schemas[first["schema"]]["columns"]
             headers = [column["name"] for column in columns]
             if dataset["combine"].get("source_column"):
                 headers.append(dataset["combine"]["source_column"])
+            if is_extended_insurance:
+                headers.extend(INSURANCE_EXTENDED_FIELDS)
             rows = combined_rows(dataset)
         else:
             columns = dataset.get("columns") or plan.definition.schemas[dataset["schema"]]["columns"]
             headers = [column["name"] for column in columns]
-            rows = generate_rows(
+            base_rows = generate_rows(
                 artifact.dataset_id, columns, plan.rows[artifact.dataset_id],
                 plan.seed, plan.as_of_date, pools, references,
                 cohorts=plan.definition.cohorts, fixed_cohort=dataset.get("cohort"),
                 source=dataset.get("source"),
                 insurance_provider=insurance,
             )
+            if is_extended_insurance:
+                headers.extend(INSURANCE_EXTENDED_FIELDS)
+                streams = {
+                    col: _stream(plan.seed, artifact.dataset_id, col, "extended")
+                    for col in INSURANCE_EXTENDED_FIELDS
+                }
+                branch = dataset.get("source", "")
+                rows = (
+                    extend_insurance_row(row, branch, streams, plan.as_of_date)
+                    for row in base_rows
+                )
+            else:
+                rows = base_rows
         total = plan.rows[artifact.dataset_id]
         count = write_csv(
             stage, headers, rows, delimiter=delimiter, total=total,

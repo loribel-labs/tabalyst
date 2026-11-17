@@ -102,6 +102,16 @@ anomaly_profiles:
 The operations of one scenario declare the same category, severity, rule,
 level, cause, detection and description. A wrong value stops the command
 with the profile and the operation index, before anything is generated.
+A `valid_atypical` scenario must have the severity `info` and the detection
+`none`: it describes a value that is not a defect.
+
+A profile may also declare `min_rows`, the fewest rows it accepts (at least
+its largest count); the command stops below it. The kinds `reuse_value`
+(repeat the value of one of the 1,000 rows before) and `copy_column` (write
+the value of another cell of the row, in `value`) and the `format` values
+`times_100`, `date_plus_century` and `postal_other_province` serve the
+[rare events profile](insurance-rare-events.md); they work in scenario
+profiles only.
 
 ## The truth file
 
@@ -123,6 +133,8 @@ truth_id,kind,scenario_id,rule_id,category,severity,rarity_level,root_cause_id,g
 | `injected` | An operation changed this cell: one line per line of `changes.csv`, with the same `event_id` |
 | `net_difference` | The final cell differs from the clean cell. A cell that a later change restored has events but no such line |
 | `rule_violation` | The final row breaks a rule of `rules.json`; `column` is empty because the line is about the row |
+| `relational` | A case that shows only by comparing rows, such as a key reused on two rows: one line per row, sharing a `group_id` such as `R01-12` |
+| `valid_atypical` | The cell is valid but a naive detector would flag it: a case of a `valid_atypical` scenario, with severity `info` and detection `none` |
 
 `row_number` counts the header as line 1, like `changes.csv`. The
 `canonical_value` is what the clean cell means, written one way: a date in
@@ -174,7 +186,9 @@ branch, the events, changed cells, distinct changed cells and net
 differences, and for each scenario the cases requested and applied, the rows
 touched and the eligible population (the rows each operation could change in
 the clean file). It also gives the violations per rule, the cases per
-category and the truth lines per kind:
+category, the truth lines per kind and, for each scenario, the probability
+that a sample misses all its cases (see
+[Insurance rare events](insurance-rare-events.md)):
 
 ```json
 {
@@ -199,6 +213,8 @@ the installed `tabalyst` package (`tabalyst.generate.rules.schema.json`,
 
 ## Next steps
 
+- [Insurance rare events](insurance-rare-events.md) describes the first
+  packaged scenario profile, `rare_events`.
 - [Generate insurance customers](insurance.md) describes the columns, the
   branches and the other profiles.
 - [Tabalyst Generate](index.md) explains packages and anomaly operations.

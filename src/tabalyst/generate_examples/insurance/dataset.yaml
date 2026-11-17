@@ -34,6 +34,85 @@ datasets:
   - insurance-ontario
   - insurance-quebec
   source_column: filiale
+output_profiles:
+  default:
+  - id_client
+  - civilite
+  - prenom
+  - nom
+  - date_naissance
+  - sexe
+  - langue_preferee
+  - numero_voie
+  - type_voie
+  - nom_voie
+  - orientation
+  - appartement
+  - ville
+  - province_code
+  - province_nom
+  - code_postal
+  - pays_code
+  - courriel
+  - telephone
+  - id_contrat
+  - type_contrat
+  - date_debut
+  - date_fin
+  - statut_contrat
+  - prime_annuelle
+  - frequence_paiement
+  - mode_paiement
+  - agence_code
+  - date_creation
+  - date_modification
+  - date_reclamation
+  - montant_reclamation
+  - reclamation_status
+  extended:
+  - id_client
+  - civilite
+  - prenom
+  - nom
+  - date_naissance
+  - sexe
+  - langue_preferee
+  - numero_voie
+  - type_voie
+  - nom_voie
+  - orientation
+  - appartement
+  - ville
+  - province_code
+  - province_nom
+  - code_postal
+  - pays_code
+  - courriel
+  - telephone
+  - id_contrat
+  - type_contrat
+  - date_debut
+  - date_fin
+  - statut_contrat
+  - prime_annuelle
+  - frequence_paiement
+  - mode_paiement
+  - agence_code
+  - date_creation
+  - date_modification
+  - date_reclamation
+  - montant_reclamation
+  - reclamation_status
+  - date_sinistre
+  - montant_couverture
+  - franchise
+  - montant_indemnise
+  - date_resiliation
+  - statut_paiement
+  - canal_acquisition
+  - courtier_id
+  - produit_code
+  - nombre_reclamations
 anomaly_profiles:
   dirty_realistic:
     targets:
@@ -661,3 +740,217 @@ anomaly_profiles:
       rate: 0.003
       when: {frequence_paiement: "mensuelle"}
       class: payment_vs_frequency
+  # Rare events of Insurance V2 (contract docs/dev/generate/insurance-v2.md 6.2): one scenario
+  # per case, exact counts that do not follow the file size, 34 columns. Below min_rows the
+  # run is refused: a 500-case scenario must stay at 0.5 percent of the file at most.
+  rare_events:
+    targets:
+    - insurance-combined
+    min_rows: 100000
+    operations:
+    - kind: reuse_value
+      column: id_contrat
+      count: 1
+      scenario_id: R01
+      rule_id: M21
+      category: business_rule_violation
+      severity: critical
+      rarity_level: single
+      expected_detection: uniqueness
+      description: A contract identifier reused on a second contract
+    - kind: format
+      column: date_naissance
+      value: date_plus_century
+      count: 5
+      scenario_id: R02
+      rule_id: M04
+      category: semantic_invalid
+      severity: major
+      rarity_level: extremely_rare
+      expected_detection: domain
+      description: A birth date a century later, so in the future
+    - kind: format
+      column: prime_annuelle
+      value: times_100
+      count: 20
+      scenario_id: R05
+      category: semantic_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: An annual premium multiplied by 100
+    - kind: format
+      column: date_debut
+      value: date_dmy
+      count: 10
+      when: {filiale: "principal"}
+      scenario_id: R06
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: contextual
+      description: A start date written in the convention of another branch
+    - kind: format
+      column: date_debut
+      value: date_mdy_iso
+      count: 8
+      when: {filiale: "ontario"}
+      scenario_id: R06
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: contextual
+      description: A start date written in the convention of another branch
+    - kind: format
+      column: date_debut
+      value: date_iso
+      count: 7
+      when: {filiale: "quebec"}
+      scenario_id: R06
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: contextual
+      description: A start date written in the convention of another branch
+    - kind: format
+      column: code_postal
+      value: postal_other_province
+      count: 50
+      requires: [province_code]
+      scenario_id: R07
+      category: business_rule_violation
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: A postal code of another province than the customer's
+    - kind: swap
+      column: date_debut
+      value: date_fin
+      count: 50
+      scenario_id: R08
+      rule_id: M01
+      category: business_rule_violation
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: A contract ending before it starts
+    - kind: replace
+      column: prime_annuelle
+      value: "N/A"
+      count: 50
+      scenario_id: R10
+      category: format_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: syntactic
+      description: An annual premium replaced by text
+    - kind: replace
+      column: prime_annuelle
+      value: "inconnu"
+      count: 30
+      scenario_id: R10
+      category: format_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: syntactic
+      description: An annual premium replaced by text
+    - kind: replace
+      column: prime_annuelle
+      value: "à venir"
+      count: 20
+      scenario_id: R10
+      category: format_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: syntactic
+      description: An annual premium replaced by text
+    - kind: replace
+      column: statut_contrat
+      value: "inconnu"
+      count: 100
+      scenario_id: R11
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: uncommon
+      expected_detection: domain
+      description: A contract status that is not one of the four statuses
+    - kind: replace
+      column: statut_contrat
+      value: "en attente"
+      count: 80
+      scenario_id: R11
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: uncommon
+      expected_detection: domain
+      description: A contract status that is not one of the four statuses
+    - kind: replace
+      column: statut_contrat
+      value: "annulé"
+      count: 70
+      scenario_id: R11
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: uncommon
+      expected_detection: domain
+      description: A contract status that is not one of the four statuses
+    - kind: replace
+      column: agence_code
+      value: "AG-ON-001"
+      count: 300
+      when: {filiale: "principal"}
+      scenario_id: R12
+      category: business_rule_violation
+      severity: major
+      rarity_level: uncommon
+      expected_detection: cross_column
+      description: An agency code that belongs to another branch
+    - kind: replace
+      column: agence_code
+      value: "AG-QC-001"
+      count: 100
+      when: {filiale: "ontario"}
+      scenario_id: R12
+      category: business_rule_violation
+      severity: major
+      rarity_level: uncommon
+      expected_detection: cross_column
+      description: An agency code that belongs to another branch
+    - kind: replace
+      column: agence_code
+      value: "AG-PR-001"
+      count: 100
+      when: {filiale: "quebec"}
+      scenario_id: R12
+      category: business_rule_violation
+      severity: major
+      rarity_level: uncommon
+      expected_detection: cross_column
+      description: An agency code that belongs to another branch
+    - kind: copy_column
+      column: date_fin
+      value: date_debut
+      count: 100
+      when: {statut_contrat: "expiré"}
+      scenario_id: B01
+      rule_id: M01
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: A contract that ends the day it starts, which M01 allows
+    - kind: copy_column
+      column: date_modification
+      value: date_creation
+      count: 100
+      when: {date_reclamation: ""}
+      scenario_id: B02
+      rule_id: M02
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: A record modified the day it was created, which M02 allows

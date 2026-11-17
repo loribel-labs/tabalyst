@@ -420,6 +420,8 @@ class RuleEvaluator:
         """
         found: list[Violation] = []
         for rule in self.rules:
+            if any(column not in row for column in rule.columns):
+                continue
             if rule.when is not None and holds(rule.when, row, self.context) is not True:
                 continue
             if any(holds(exception, row, self.context) is True

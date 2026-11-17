@@ -22,6 +22,7 @@ from typing import Annotated, Any, Final, Literal, cast
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from tabalyst.generate_anomalies import AnomalyEvent
+from tabalyst.generate_rarity import SAMPLE_SIZES, absence_probability
 from tabalyst.generate_rules import (
     FORMAT_REVISION,
     FORMAT_VERSION,
@@ -37,7 +38,7 @@ METRICS_FORMAT: Final = "tabalyst.generate.metrics"
 MANIFEST_FORMAT: Final = "tabalyst.generate.manifest"
 # Raised whenever the bytes of a V2 output change for the same inputs; the reason goes to
 # docs/dev/generate/insurance-v2-changelog.md (contract 5.5).
-GENERATION_VERSION: Final = 1
+GENERATION_VERSION: Final = 2
 TRUTH_COLUMNS: Final = (
     "truth_id", "kind", "scenario_id", "rule_id", "category", "severity", "rarity_level",
     "root_cause_id", "group_id", "event_id", "row_number", "column", "canonical_value",
@@ -111,8 +112,8 @@ class ScenarioMetrics(_Model):
     """What one scenario asked for and what the files hold.
 
     ``eligible_population`` is the sum over its operations of the rows each can change in the
-    clean file. ``applied_cases`` and ``rows_touched`` are equal while a case is one row
-    (multi-row cases arrive with lot 3).
+    clean file. ``applied_cases`` counts the cases (a key reused on two contracts is one) and
+    ``rows_touched`` the rows they involve: equal while a case is one row.
     """
 
     rarity_level: str | None
@@ -122,6 +123,19 @@ class ScenarioMetrics(_Model):
     eligible_population: Count
     category: str
     severity: str
+
+
+class AbsenceProbability(_Model):
+    """Chance that a uniform sample misses every case of a scenario (contract 6.3).
+
+    ``probability`` maps a sample size to the exact probability for this file, ``null`` for a
+    size above the number of rows, and is itself ``null`` with ``reason`` ``multi_row_case``
+    when a case spans several rows (the formula counts single-row cases).
+    """
+
+    cases: Count
+    probability: dict[str, float | None] | None
+    reason: Literal["multi_row_case"] | None
 
 
 class MetricsDocument(_Model):
@@ -138,6 +152,7 @@ class MetricsDocument(_Model):
     rules: dict[str, Count]
     categories: dict[str, Count]
     kinds: dict[str, Count]
+    absence_probability: dict[str, AbsenceProbability]
 
 
 class ScenarioEntry(_Model):
@@ -224,6 +239,11 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
     # Events of a cell and of a row, in journal order, so the last one wins.
     last_of_cell: dict[tuple[int, str], AnomalyEvent] = {}
     events_of_row: dict[int, list[AnomalyEvent]] = {}
+    # Cases that span two rows: the rows to read back to check the case and to describe it.
+    related = [event for event in events if event.related_row]
+    watched = {row for event in related for row in (event.row_number, event.related_row)}
+    clean_watched: dict[int, dict[str, str]] = {}
+    altered_watched: dict[int, dict[str, str]] = {}
     lines: list[TruthLine] = []
     for event in events:
         operation = operations[event.operation_index - 1]
@@ -242,6 +262,8 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
         for number, (clean_row, altered_row) in enumerate(
                 zip(clean_rows, altered_rows, strict=True), 2):
             total += 1
+            if number in watched:
+                clean_watched[number], altered_watched[number] = clean_row, altered_row
             branches[clean_row.get(conventions.branch_column, "")] += 1
             broken = clean_rules.check(number, clean_row)
             if broken:
@@ -258,10 +280,19 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
                 if last is None:
                     raise ValueError(f"{dataset}: row {number}, {column} differs from the clean "
                                      "file without an event")
-                lines.append(_line(
-                    "net_difference", operations[last.operation_index - 1], row_number=number,
-                    column=column, event_id=last.event_id,
-                    canonical_value=canonical(column, clean_row[column], clean_row)))
+                last_operation = operations[last.operation_index - 1]
+                meaning = canonical(column, clean_row[column], clean_row)
+                lines.append(_line("net_difference", last_operation, row_number=number,
+                                   column=column, event_id=last.event_id,
+                                   canonical_value=meaning))
+                if last_operation.get("category") == "valid_atypical":
+                    # Not a defect (contract 3.1): the cell is valid, a naive detector flags it.
+                    lines.append(_line("valid_atypical", last_operation, row_number=number,
+                                       column=column, event_id=last.event_id,
+                                       canonical_value=meaning))
+    for event in related:
+        lines.extend(_relational_lines(event, operations[event.operation_index - 1], dataset,
+                                       clean_watched, altered_watched, canonical))
     for violation in violations:
         rule = by_id[violation.rule_id]
         cause = next((event for event in reversed(events_of_row.get(violation.cause_row, []))
@@ -281,6 +312,29 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
     return TruthResult(ordered, metrics, document)
 
 
+def _relational_lines(event: AnomalyEvent, operation: Mapping[str, object], dataset: str,
+                      clean: Mapping[int, Mapping[str, str]],
+                      altered: Mapping[int, Mapping[str, str]],
+                      canonical: CanonicalReader) -> list[TruthLine]:
+    """The two ``relational`` lines of a case that copies a cell of an earlier row.
+
+    One line for the cell that repeats and one for the cell it repeats, sharing the
+    ``group_id`` ``<scenario>-<first row>``. Raises ValueError when the altered file no longer
+    holds the same value on both rows: the truth would describe a case that is not there.
+    """
+    column, source = event.column, event.related_row
+    if altered[event.row_number][column] != altered[source][column]:
+        raise ValueError(
+            f"{dataset}: row {event.row_number} no longer repeats {column} of row {source}; "
+            "a case that reuses a value needs both cells left as the operation wrote them")
+    group = f"{_text(operation, 'scenario_id')}-{source}"
+    first = _line("relational", operation, row_number=source, column=column, event_id=0,
+                  canonical_value=canonical(column, clean[source][column], clean[source]))
+    second = _line("relational", operation, row_number=event.row_number, column=column,
+                   event_id=event.event_id, canonical_value=event.canonical_value)
+    return [replace(first, group_id=group), replace(second, group_id=group)]
+
+
 def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
              operations: Sequence[Mapping[str, object]], rules: Sequence[Rule], *,
              dataset: str, profile: str, total: int,
@@ -297,8 +351,13 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
                              f"{summary.get(name)}")
     entries = cast(list[dict[str, object]], summary["operations"])
     rows_of: dict[str, set[int]] = {}
+    groups_of: dict[str, set[str]] = {}
     for line in injected:
         rows_of.setdefault(line.scenario_id, set()).add(line.row_number)
+    for line in lines:
+        if line.kind == "relational":
+            rows_of.setdefault(line.scenario_id, set()).add(line.row_number)
+            groups_of.setdefault(line.scenario_id, set()).add(line.group_id)
     scenarios: dict[str, ScenarioMetrics] = {}
     for operation, entry in zip(operations, entries, strict=True):
         scenario = cast(str, operation["scenario_id"])
@@ -308,7 +367,7 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
             rarity_level=cast("str | None", operation.get("rarity_level")),
             requested_cases=(known.requested_cases if known else 0)
             + cast(int, operation["count"]),
-            applied_cases=len(rows), rows_touched=len(rows),
+            applied_cases=len(groups_of.get(scenario) or rows), rows_touched=len(rows),
             eligible_population=(known.eligible_population if known else 0)
             + cast(int, entry["eligible_population"]),
             category=cast(str, operation["category"]),
@@ -322,7 +381,19 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
         dataset=dataset, profile=profile,
         rows=Rows(total=total, by_branch=dict(sorted(branches.items()))), counts=counts,
         scenarios=scenarios, rules={rule.id: violations[rule.id] for rule in rules},
-        categories=categories, kinds={kind: kinds[kind] for kind in KINDS})
+        categories=categories, kinds={kind: kinds[kind] for kind in KINDS},
+        absence_probability={
+            scenario: _absence(total, entry.applied_cases, scenario in groups_of)
+            for scenario, entry in scenarios.items()})
+
+
+def _absence(rows: int, cases: int, spans_rows: bool) -> AbsenceProbability:
+    """The probability of absence of one scenario for every documented sample size."""
+    if spans_rows:
+        return AbsenceProbability(cases=cases, probability=None, reason="multi_row_case")
+    return AbsenceProbability(
+        cases=cases, reason=None,
+        probability={str(size): absence_probability(rows, cases, size) for size in SAMPLE_SIZES})
 
 
 def write_truth_csv(path: Path, lines: Sequence[TruthLine]) -> None:

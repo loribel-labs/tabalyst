@@ -15,6 +15,7 @@ import unicodedata
 from collections import Counter, deque
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from decimal import Decimal
 from itertools import compress
 from pathlib import Path
 from typing import cast
@@ -34,6 +35,12 @@ CHANGE_FIELDS = ["event_id", "dataset", "profile", "row_number", "operation_inde
 OPERATION_KINDS = frozenset({"set_missing", "replace", "duplicate", "format", "swap",
                              "duplicate_row"})
 ROW_KINDS = frozenset({"duplicate_row"})
+# Kinds of the scenario profiles of Insurance V2 only (contract insurance-v2.md 6.2): a package
+# that validates its own kinds (Computer) never sees them, the definition allows them for Insurance.
+SCENARIO_KINDS = frozenset({"reuse_value", "copy_column"})
+# Values of ``format`` that read the whole row, so the caller supplies them (``contextual``): a
+# package that supplies none refuses them.
+CONTEXTUAL_VALUES = frozenset({"postal_other_province"})
 OPERATION_KEYS = frozenset({"kind", "column", "rate", "count", "value", "when", "class"}
                            ) | SCENARIO_KEYS
 FORMAT_VALUES = frozenset({
@@ -43,6 +50,7 @@ FORMAT_VALUES = frozenset({
     "date_dmy", "date_iso", "currency_suffix", "currency_prefix", "currency_fr", "currency_code",
     "drop_digit", "insert_double_space", "trailing_space", "date_mdy_iso",
     "leading_space", "leading_tab", "insert_zero_width", "insert_replacement_char",
+    "times_100", "date_plus_century",
 })
 CURRENCY_CODE = "CAD"
 CLASS_NAME = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
@@ -66,9 +74,16 @@ class AnomalyEvent:
     before: str
     after: str
     canonical_value: str
+    # The earlier row a ``reuse_value`` event copied the cell from (0 for any other event): the
+    # case spans both rows (contract insurance-v2.md 6.4).
+    related_row: int = 0
 
 
 CanonicalReader = Callable[[str, str, Mapping[str, str]], str]
+# Replacement of a cell that needs its row (a ``CONTEXTUAL_VALUES`` name): it returns the new
+# text, the same text when nothing applies.
+ContextualValue = Callable[[Mapping[str, str], random.Random], str]
+ContextualValues = Mapping[str, ContextualValue]
 
 
 def _insert_space(value: str, rng: random.Random) -> str:
@@ -192,6 +207,34 @@ def _date_mdy_iso(value: str, rng: random.Random) -> str:
     return f"{match[3]}-{match[1]}-{match[2]}" if match and 1 <= int(match[1]) <= 12 else value
 
 
+def _times_100(value: str, rng: random.Random) -> str:
+    """Multiply a plain decimal by 100 (R05: a premium keyed in cents), keeping two decimals."""
+    parts = _split_amount(value)
+    if not parts or parts[0] == "-":
+        return value
+    return f"{Decimal(value) * 100:.2f}"
+
+
+def _plus_century(value: str, rng: random.Random) -> str:
+    """Move a date, in ISO or in day/month-first order, one century later (R02: born in the future).
+
+    The year is the first part of an ISO date and the last of the other two orders, whose first
+    two parts are left in place. A 29 February that the new year does not have becomes the 28th.
+    """
+    iso = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", value)
+    other = re.fullmatch(r"(\d{2})-(\d{2})-(\d{4})", value)
+    if iso:
+        year, first, second = int(iso[1]) + 100, iso[2], iso[3]
+    elif other:
+        year, first, second = int(other[3]) + 100, other[1], other[2]
+    else:
+        return value
+    leap = year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+    if {first, second} == {"02", "29"} and not leap:
+        first, second = ("28", "02") if first == "29" else ("02", "28")
+    return f"{year:04d}-{first}-{second}" if iso else f"{first}-{second}-{year:04d}"
+
+
 def _split_amount(value: str) -> tuple[str, str, str] | None:
     """Return sign, integer digits and decimals of a plain decimal number."""
     match = re.fullmatch(r"([+-]?)(\d+)(\.\d+)?", value)
@@ -256,6 +299,8 @@ TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "leading_tab": _lead("\t"),
     "insert_zero_width": _insert_invisible("\u200b"),
     "insert_replacement_char": _insert_invisible("\ufffd"),
+    "times_100": _times_100,
+    "date_plus_century": _plus_century,
 }
 
 
@@ -283,6 +328,8 @@ def operation_option_error(operation: Mapping[str, object]) -> str | None:
     name = operation.get("class")
     if "class" in operation and (not isinstance(name, str) or not CLASS_NAME.match(name)):
         return "operation.class must be a lower-case identifier of at most 64 characters"
+    if operation.get("kind") == "reuse_value" and "value" in operation:
+        return "operation.value is unused for this kind"
     if operation.get("kind") in ROW_KINDS:
         if "column" in operation:
             return "operation.column is unused for this kind"
@@ -305,7 +352,8 @@ def check_operation_counts(operations: Sequence[Mapping[str, object]], rows: int
 def _mutate(row: dict[str, str], operation: Mapping[str, object],
             history: dict[str, list[str]],
             rng: random.Random, locale: str,
-            unit_suffixes: Mapping[str, tuple[str, str]] | None) -> dict[str, str]:
+            unit_suffixes: Mapping[str, tuple[str, str]] | None,
+            contextual: ContextualValues | None = None) -> dict[str, str]:
     column = cast(str, operation["column"])
     before = row[column]
     kind = operation["kind"]
@@ -314,6 +362,16 @@ def _mutate(row: dict[str, str], operation: Mapping[str, object],
     if kind == "replace":
         value = cast(str, operation["value"])
         return {column: value} if value != before else {}
+    if kind == "copy_column":
+        # A valid boundary (contract 6.2): the cell takes the value of another cell of the row.
+        other = cast(str, operation["value"])
+        return {column: row[other]} if before and row[other] and before != row[other] else {}
+    if operation.get("value") in CONTEXTUAL_VALUES:
+        name = cast(str, operation["value"])
+        if contextual is None or name not in contextual:
+            raise ValueError(f"format {name} needs the row context its package provides")
+        after = contextual[name](row, rng)
+        return {column: after} if before and after != before else {}
     if kind == "duplicate":
         choices = [value for value in history[column] if value and value != before]
         return {column: rng.choice(choices)} if choices else {}
@@ -335,7 +393,8 @@ def _mutate(row: dict[str, str], operation: Mapping[str, object],
 
 def _can_apply(row: dict[str, str], operation: Mapping[str, object], row_index: int,
                probe: random.Random, locale: str,
-               unit_suffixes: Mapping[str, tuple[str, str]] | None) -> bool:
+               unit_suffixes: Mapping[str, tuple[str, str]] | None,
+               contextual: ContextualValues | None = None) -> bool:
     """Tell whether an operation would change this clean row."""
     when = cast(dict[str, str], operation.get("when", {}))
     if any(row.get(field) != value for field, value in when.items()):
@@ -343,14 +402,15 @@ def _can_apply(row: dict[str, str], operation: Mapping[str, object], row_index: 
     kind = operation["kind"]
     if kind == "duplicate_row":
         return row_index > 0
-    if kind == "duplicate":
+    if kind in {"duplicate", "reuse_value"}:
         return row_index > 0 and bool(row[cast(str, operation["column"])])
-    return bool(_mutate(row, operation, {}, probe, locale, unit_suffixes))
+    return bool(_mutate(row, operation, {}, probe, locale, unit_suffixes, contextual))
 
 
 def _choose_rows(clean: Path, delimiter: str, operations: Sequence[Mapping[str, object]],
                  rows: int, selection_rngs: Sequence[random.Random], where: str, locale: str,
                  unit_suffixes: Mapping[str, tuple[str, str]] | None,
+                 contextual: ContextualValues | None = None,
                  ) -> tuple[dict[int, set[int]], dict[int, int]]:
     """Pick exactly ``count`` rows for every absolute-count operation.
 
@@ -376,7 +436,8 @@ def _choose_rows(clean: Path, delimiter: str, operations: Sequence[Mapping[str, 
             if row_index >= rows:
                 break
             for i in indexes:
-                if _can_apply(row, operations[i], row_index, probe, locale, unit_suffixes):
+                if _can_apply(row, operations[i], row_index, probe, locale, unit_suffixes,
+                              contextual):
                     eligible[i][row_index] = 1
     conflicts = conflict_map(operations)
     exclusive = bytearray(rows)
@@ -455,7 +516,8 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                      unit_suffixes: Mapping[str, tuple[str, str]] | None = None,
                      on_row: Callable[[int], None] | None = None,
                      on_event: Callable[[AnomalyEvent], None] | None = None,
-                     canonical: CanonicalReader | None = None) -> dict[str, object]:
+                     canonical: CanonicalReader | None = None,
+                     contextual: ContextualValues | None = None) -> dict[str, object]:
     """Write altered CSV and cell log; return requested and actual counts.
 
     Computer unit suffixes are supplied by its output register. An operation
@@ -480,7 +542,10 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     ``on_row`` receives the number of rows written, about 200 times per file and at the end.
     ``on_event`` receives one ``AnomalyEvent`` per line of the journal, with the canonical
     value of the clean cell (``canonical(column, clean value, clean row)``, the clean cell
-    itself when not given); it never changes the files.
+    itself when not given); it never changes the files. ``contextual`` supplies the ``format``
+    values that read the whole row (``CONTEXTUAL_VALUES``); one that is missing fails the run.
+    A ``reuse_value`` event copies the cell of one of the 1,000 rows before it (its
+    ``related_row``): the key of a case that spans two rows.
     """
     # Imported here because generate_values reaches generate_definition, which
     # imports this module for the operation rules.
@@ -507,7 +572,7 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     selection_rngs = [_stream(seed, dataset, key, "anomaly_selection") for key in stream_keys]
     chosen, eligible_population = _choose_rows(
         clean, delimiter, operations, count, selection_rngs,
-        f"{profile_id} on {dataset}", locale, unit_suffixes)
+        f"{profile_id} on {dataset}", locale, unit_suffixes, contextual)
     mutation_rngs = [_stream(seed, dataset, key, "anomaly_value") for key in stream_keys]
     applied: Counter[int] = Counter()
     skipped: Counter[int] = Counter()
@@ -515,6 +580,11 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     keeps_classes = any("class" in operation for operation in operations)
     copies_rows = any(operation["kind"] in ROW_KINDS for operation in operations)
     written: deque[tuple[int, tuple[str, ...]]] = deque(maxlen=COPY_WINDOW)
+    # Clean (row number, value) of the last rows of every column a ``reuse_value`` reads.
+    reused = {cast(str, operation["column"]) for operation in operations
+              if operation["kind"] == "reuse_value"}
+    recent: dict[str, deque[tuple[int, str]]] = {
+        column: deque(maxlen=COPY_WINDOW) for column in reused}
     # Row operations go last whatever their place in the profile (stable sort).
     order = sorted(range(len(operations)), key=lambda i: operations[i]["kind"] in ROW_KINDS)
     affected_rows = 0
@@ -541,8 +611,9 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
             if on_row is not None and row_index % report_every == 0:
                 on_row(row_index)
             row = clean_row.copy()
-            # (operation index, cell updates) of this row, written once it is final.
-            pending: list[tuple[int, list[tuple[str, str, str, str]]]] = []
+            # (operation index, cell updates, related row) of this row, written once it is final.
+            pending: list[tuple[int, list[tuple[str, str, str, str]], int]] = []
+            related = 0
             for index in order:
                 operation = operations[index]
                 if index in chosen:
@@ -571,15 +642,24 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                     if not updates:
                         skipped[index] += 1
                         continue
-                    for earlier, _ in pending:
+                    for earlier, _, _ in pending:
                         applied[earlier] -= 1
                         skipped[earlier] += 1
                     pending.clear()
                     row = clean_row.copy()
                     cause += f" copy_of_row={number}"
+                elif operation["kind"] == "reuse_value":
+                    column = cast(str, operation["column"])
+                    sources = [(number, value) for number, value in recent[column]
+                               if value and value != row[column]]
+                    updates = {}
+                    if sources:
+                        related, value = sources[mutation_rngs[index].randrange(len(sources))]
+                        updates = {column: value}
+                        cause += f" reused_from_row={related}"
                 else:
                     updates = _mutate(row, operation, history, mutation_rngs[index], locale,
-                                      unit_suffixes)
+                                      unit_suffixes, contextual)
                 if not updates:
                     skipped[index] += 1
                     continue
@@ -587,9 +667,9 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                 for column, after in updates.items():
                     cells.append((column, row[column], after, cause))
                     row[column] = after
-                pending.append((index, cells))
+                pending.append((index, cells, related if operation["kind"] == "reuse_value" else 0))
                 applied[index] += 1
-            for index, cells in pending:
+            for index, cells, source_row in pending:
                 events += 1
                 for column, before, after, cause in cells:
                     changed_cells += 1
@@ -605,9 +685,9 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                         meaning = (canonical(column, clean_row[column], clean_row)
                                    if canonical is not None else clean_row[column])
                         on_event(AnomalyEvent(events, row_index + 2, index + 1, column,
-                                              before, after, meaning))
+                                              before, after, meaning, source_row))
             if scenarios and pending:
-                touched = {column for _, cells in pending for column, *_ in cells}
+                touched = {column for _, cells, _ in pending for column, *_ in cells}
                 distinct_cells += len(touched)
                 net_differences += sum(row[column] != clean_row[column] for column in touched)
             writer.writerow(row)
@@ -617,6 +697,8 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
             for field, value in clean_row.items():
                 if value and len(history[field]) < 1000:
                     history[field].append(value)
+            for column, window in recent.items():
+                window.append((row_index + 2, clean_row[column]))
         if observed != count:
             raise ValueError(f"Clean row count changed for {dataset}: {observed} != {count}")
         if on_row is not None:

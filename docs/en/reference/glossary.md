@@ -166,5 +166,7 @@ Keep these exactly as written in every language:
 | error policy | politique d'erreurs | `strict` or `tolerant`: whether a malformed record stops the scan or is excluded |
 | scenario profile | profil de scénarios | An insurance anomaly profile whose operations declare `scenario_id`: each defect belongs to a named test case, with an exact count, and the run writes its ground truth |
 | ground truth | vérité de référence | The files a scenario profile writes beside the altered CSV (`truth.csv`, `rules.json`, `metrics.json`, `manifest.json`): what was injected, what differs from the clean file and which rows break a rule |
+| rarity level | niveau de rareté | The band the number of cases of a scenario falls in: `single`, `extremely_rare`, `very_rare`, `rare`, `uncommon` or `frequent` |
+| valid atypical case | cas atypique valide | A value that is valid but unusual, such as a contract ending the day it starts: a scenario of the category `valid_atypical` writes it and the truth says it is not a defect |
 | canonical value | valeur canonique | What a clean cell means, written one way (a date in ISO 8601, an amount as a plain decimal), kept in the truth when a defect rewrites the cell |
 | partial scan | analyse partielle | A scan with status `partial`, which excluded some records under the `tolerant` policy |

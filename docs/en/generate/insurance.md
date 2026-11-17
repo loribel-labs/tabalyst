@@ -49,6 +49,29 @@ in all. The columns and their values are in French, as in a Quebec insurer.
 | Record (2) | `date_creation`, `date_modification` |
 | Claim (3) | `date_reclamation`, `montant_reclamation`, `reclamation_status` |
 
+### Extended output profile
+
+Pass `--output-profile extended` to append 10 domain columns after the base
+columns:
+
+```console
+tabalyst generate --example insurance -d out/ --output-profile extended
+```
+
+| Group | Columns |
+| --- | --- |
+| Claim detail (4) | `date_sinistre`, `montant_couverture`, `franchise`, `montant_indemnise` |
+| Contract detail (2) | `date_resiliation`, `statut_paiement` |
+| Distribution (3) | `canal_acquisition`, `courtier_id`, `produit_code` |
+| Activity (1) | `nombre_reclamations` |
+
+Branch files have 43 columns; `insurance-combined.csv` keeps `filiale` in
+35th position and has 44 columns. The clean files enforce domain invariants:
+`date_sinistre` precedes `date_reclamation`, `montant_indemnise` never exceeds
+coverage minus deductible, `date_resiliation` exists only on cancelled
+contracts, and `courtier_id` is populated only when `canal_acquisition` is
+`courtier`.
+
 The values follow the rules of the domain, and the clean files hold no
 exception to them, so they can serve to test analyses across columns:
 
@@ -185,6 +208,8 @@ dates are ISO, so a broken rule never comes with a format defect.
 - [Insurance ground truth files](insurance-ground-truth.md) explains the
   scenario profiles, whose truth, rules, metrics and manifest files describe
   exactly what a run injected.
+- [Insurance rare events](insurance-rare-events.md) describes `rare_events`,
+  a profile of exact, very rare cases for at least 100,000 rows.
 - [Tabalyst Generate](index.md) explains packages and how to write your own
   anomaly profile.
 - The [CLI reference](../reference/cli/generate.md) lists every option.

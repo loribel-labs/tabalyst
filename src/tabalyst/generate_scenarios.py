@@ -130,7 +130,15 @@ def scenario_option_error(operation: Mapping[str, object]) -> str | None:
                 or not text.isprintable()):
             checks.append(f"operation.description must be one line of 1 to {MAX_DESCRIPTION} "
                           "characters")
-    return next((problem for problem in checks if problem is not None), None)
+    problem = next((problem for problem in checks if problem is not None), None)
+    if problem is None and operation["category"] == "valid_atypical":
+        # Contract 3.1: a non-defect is harmless and no detector should be right to report it.
+        if operation["severity"] != "info":
+            return "operation.severity must be info for a valid_atypical scenario (not a defect)"
+        if operation.get("expected_detection") != "none":
+            return ("operation.expected_detection must be none for a valid_atypical scenario "
+                    "(not a defect)")
+    return problem
 
 
 def foreign_scenario_key(operation: Mapping[str, object]) -> str | None:

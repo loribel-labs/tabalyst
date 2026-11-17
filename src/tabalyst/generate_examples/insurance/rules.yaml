@@ -79,3 +79,130 @@ rules:
     args:
     - {op: in, column: type_contrat, values: [auto, habitation, vie, voyage]}
     - {op: in, column: statut_contrat, values: [actif, suspendu, expiré, résilié]}
+- id: M07
+  family: business
+  title: Cancellation date coherent with contract status and period
+  columns: [date_resiliation, statut_contrat, date_debut]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: statut_contrat, right: {value: "résilié"}}
+      then:
+        op: and
+        args:
+        - {op: not_empty, column: date_resiliation}
+        - {op: gte, left: date_resiliation, right: date_debut, as: date}
+    - op: implies
+      if: {op: not, arg: {op: eq, left: statut_contrat, right: {value: "résilié"}}}
+      then: {op: empty, column: date_resiliation}
+- id: M08
+  family: business
+  title: Claim event within coverage start
+  columns: [date_sinistre, date_debut]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  when: {op: not_empty, column: date_sinistre}
+  assert: {op: gte, left: date_sinistre, right: date_debut, as: date}
+- id: M09
+  family: business
+  title: Claim declared on or after event date
+  columns: [date_sinistre, date_reclamation]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  when: {op: not_empty, column: date_reclamation}
+  assert:
+    op: and
+    args:
+    - {op: not_empty, column: date_sinistre}
+    - {op: lte, left: date_sinistre, right: date_reclamation, as: date}
+- id: M10
+  family: business
+  title: Indemnity non-negative
+  columns: [montant_indemnise]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  when: {op: not_empty, column: montant_indemnise}
+  assert: {op: gte, left: montant_indemnise, right: {value: "0.00"}, as: decimal}
+- id: M11
+  family: business
+  title: Indemnity within coverage cap
+  columns: [montant_indemnise, montant_couverture]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  when: {op: not_empty, column: montant_indemnise}
+  assert: {op: lte, left: montant_indemnise, right: montant_couverture, as: decimal}
+- id: M12
+  family: business
+  title: Claim details absent without a claim
+  columns: [date_reclamation, date_sinistre, montant_indemnise]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  when: {op: empty, column: date_reclamation}
+  assert:
+    op: and
+    args:
+    - {op: empty, column: date_sinistre}
+    - {op: empty, column: montant_indemnise}
+- id: M13
+  family: business
+  title: Claim count coherent with claim declaration
+  columns: [date_reclamation, nombre_reclamations]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: not_empty, column: date_reclamation}
+      then: {op: gte, left: nombre_reclamations, right: {value: "1"}, as: decimal}
+    - op: implies
+      if: {op: empty, column: date_reclamation}
+      then: {op: eq, left: nombre_reclamations, right: {value: "0"}}
+- id: M24
+  family: business
+  title: Broker present if and only if acquisition channel is broker
+  columns: [canal_acquisition, courtier_id]
+  category: business_rule_violation
+  severity: minor
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: canal_acquisition, right: {value: "courtier"}}
+      then: {op: not_empty, column: courtier_id}
+    - op: implies
+      if: {op: not, arg: {op: eq, left: canal_acquisition, right: {value: "courtier"}}}
+      then: {op: empty, column: courtier_id}
+- id: M25
+  family: domain
+  title: Product code matches contract type
+  columns: [produit_code, type_contrat]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "auto"}}
+      then: {op: in, column: produit_code, values: [AUT_BASE, AUT_CONFORT, AUT_TOURISME, AUT_PREMIUM]}
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "habitation"}}
+      then: {op: in, column: produit_code, values: [HAB_LOCATAIRE, HAB_PROPRIETAIRE, HAB_COPROPRIETE, HAB_PRESTIGE]}
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "vie"}}
+      then: {op: in, column: produit_code, values: [VIE_TEMPORAIRE, VIE_PERMANENTE, VIE_UNIVERSELLE]}
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "voyage"}}
+      then: {op: in, column: produit_code, values: [VOY_INDIVIDUEL, VOY_FAMILLE, VOY_ANNULATION, VOY_MULTI]}

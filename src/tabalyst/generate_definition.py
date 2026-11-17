@@ -18,10 +18,12 @@ import yaml
 
 from tabalyst.errors import ConfigurationError
 from tabalyst.generate_anomalies import (
+    CONTEXTUAL_VALUES,
     FORMAT_VALUES,
     OPERATION_KEYS,
     OPERATION_KINDS,
     ROW_KINDS,
+    SCENARIO_KINDS,
     operation_option_error,
 )
 from tabalyst.generate_rules import RuleCatalogue
@@ -705,7 +707,7 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
     profiles = _list(source, root.get("anomaly_profiles", []), "anomaly_profiles", MAX_PROFILES)
     seen_profiles: set[str] = set()
     for item in profiles:
-        _mapping(source, item, "anomaly profile", {"id", "targets", "operations"})
+        _mapping(source, item, "anomaly profile", {"id", "targets", "operations", "min_rows"})
         name = _id(source, item.get("id"), "profile id")
         if name in seen_profiles:
             _fail(source, item, f"duplicate profile id {name!r}")
@@ -720,8 +722,13 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
                 _fail(source, operation,
                       f"profile {name}: operations[{position}]: operation.{foreign} "
                       f"is not supported by the {root.get('id')} package (scenario keys are for Insurance)")
-            if not isinstance(operation.get("kind"), str) or operation["kind"] not in OPERATION_KINDS:
+            if not isinstance(operation.get("kind"), str) or operation["kind"] not in (
+                    OPERATION_KINDS | (SCENARIO_KINDS if scenarios else frozenset())):
                 _fail(source, operation, "unknown anomaly operation kind")
+            if operation["kind"] in SCENARIO_KINDS and "scenario_id" not in operation:
+                _fail(source, operation, f"profile {name}: operations[{position}]: kind "
+                                         f"{operation['kind']} needs operation.scenario_id "
+                                         "(it is a scenario profile kind)")
             column = operation.get("column")
             if operation["kind"] not in ROW_KINDS and (
                     not isinstance(column, str) or not COLUMN_NAME.fullmatch(column)):
@@ -730,11 +737,14 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
             if problem is not None:
                 _fail(source, operation, f"profile {name}: operations[{position}]: {problem}")
             value = operation.get("value")
-            if operation["kind"] in {"replace", "format", "swap"} and not isinstance(value, str):
+            if operation["kind"] in {"replace", "format", "swap", "copy_column"} and not isinstance(
+                    value, str):
                 _fail(source, operation, "operation.value must be text")
             if operation["kind"] in {"set_missing", "duplicate"} and "value" in operation:
                 _fail(source, operation, "operation.value is unused for this kind")
-            if operation["kind"] == "format" and value not in {*FORMAT_VALUES, "unit_gb"}:
+            contextual = CONTEXTUAL_VALUES if "scenario_id" in operation else frozenset()
+            if operation["kind"] == "format" and value not in {
+                    *FORMAT_VALUES, "unit_gb", *contextual}:
                 _fail(source, operation, "unknown format mutation")
             if "when" in operation and (not isinstance(operation["when"], dict)
                 or len(operation["when"]) != 1 or any(not isinstance(k, str) or not isinstance(v, str)
@@ -743,13 +753,16 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
             for target in targets:
                 names = _dataset_column_names(known[target], known, schemas)
                 required = {column} if column is not None else set()
-                if operation["kind"] == "swap":
+                if operation["kind"] in {"swap", "copy_column"}:
                     required.add(value)
                     if value == column:
-                        _fail(source, operation, "swap requires two different columns")
+                        _fail(source, operation,
+                              f"{operation['kind']} requires two different columns")
                 required.update(operation.get("when", {}))
                 if not required <= names:
                     _fail(source, operation, f"operation references unknown column in {target}")
+        if "min_rows" in item:
+            _check_min_rows(source, item, name, operations)
         for target in targets:
             problem = profile_scenario_error(operations, _dataset_column_names(known[target], known, schemas))
             if problem is not None:
@@ -762,6 +775,28 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
         source, identifier, defaults, csv_settings, schemas, tuple(entities),
         tuple(cohorts), tuple(datasets), tuple(profiles), rules,
     )
+
+
+def _check_min_rows(source: Path, item: dict[str, Any], name: str,
+                    operations: list[dict[str, Any]]) -> None:
+    """Refuse a floor on the rows that a profile cannot honor (contract insurance-v2.md 6.1).
+
+    Only a scenario profile has one, and it is at least the largest total of its scenarios:
+    a lower floor would let a run through that the counts then refuse.
+    """
+    floor = item["min_rows"]
+    if not is_scenario_profile(operations):
+        _fail(source, item, f"profile {name}: min_rows is for a scenario profile "
+                            "(an operation declares scenario_id)")
+    totals: dict[str, int] = {}
+    for operation in operations:
+        if "count" in operation:
+            scenario = operation["scenario_id"]
+            totals[scenario] = totals.get(scenario, 0) + operation["count"]
+    largest = max(totals.values(), default=1)
+    if type(floor) is not int or floor < largest:
+        _fail(source, item, f"profile {name}: min_rows must be a whole number of rows of at "
+                            f"least the largest total of its scenarios ({largest})")
 
 
 def _check_profile_rules(source: Path, item: dict[str, Any], name: str,
