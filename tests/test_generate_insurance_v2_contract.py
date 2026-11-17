@@ -40,7 +40,7 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
@@ -1910,6 +1910,109 @@ def test_quality_profiles_min_rows_floor_refusal(tmp_path: Path) -> None:
         with pytest.raises(ConfigurationError, match=f"Profile {profile} needs at least 10,000 rows"):
             build_generate_plan(example="insurance", rows=9999, seed=42, output_dir=tmp_path / "out",
                                 anomaly_profile=profile)
+
+
+# --- Lot 9: relational outputs, table truth, G01-G10 (contract 8) ---------------------------
+
+
+@contract("9")
+def test_lot9_relational_tables_structure_and_manifests(tmp_path: Path) -> None:
+    """Contract 8: --relational generates 4 clean tables and their truth manifests."""
+    out = tmp_path / "relational"
+    plan = build_generate_plan(PACKAGE, relational=True, rows=250, seed=42, output_dir=out)
+    res = generate_datasets(plan)
+
+    tables = ("clients", "contrats", "reclamations", "paiements")
+    for tbl in tables:
+        assert (out / f"{tbl}.csv").is_file()
+        assert (out / f"{tbl}.truth.csv").is_file()
+        assert (out / f"{tbl}.rules.json").is_file()
+        assert (out / f"{tbl}.metrics.json").is_file()
+        assert (out / f"{tbl}.manifest.json").is_file()
+
+        manifest = json.loads((out / f"{tbl}.manifest.json").read_text(encoding="utf-8"))
+        assert manifest["dataset"] == tbl
+        assert manifest["rows"] == res.row_counts[tbl]
+        assert len(manifest["files"]) == 4
+
+    # Contracts match requested rows
+    assert res.row_counts["contrats"] == 250
+    # Multi-contract customers ensure client count is strictly lower than contract count
+    assert 0 < res.row_counts["clients"] < 250
+
+
+@contract("9")
+def test_lot9_relational_truth_g09_g10_and_m22(tmp_path: Path) -> None:
+    """Contract 8.3 & 8.5: G09, G10 relational atypical lines and M22 orphan claim."""
+    out = tmp_path / "truth"
+    plan = build_generate_plan(
+        PACKAGE,
+        relational=True,
+        rows=500,
+        seed=123,
+        output_dir=out,
+        anomaly_profile="dirty_realistic",
+    )
+    generate_datasets(plan)
+
+    client_truth = _csv_rows(out / "clients.dirty_realistic.truth.csv")
+    reclamation_truth = _csv_rows(out / "reclamations.dirty_realistic.truth.csv")
+
+    # G09 shared address without duplicate: valid_atypical & relational
+    g09 = [r for r in client_truth if r["scenario_id"] == "G09"]
+    assert len(g09) > 0
+    assert all(r["kind"] == "relational" and r["category"] == "valid_atypical" for r in g09)
+    assert all(r["column"] == "id_menage" for r in g09)
+
+    # G10 near-identical identities: valid_atypical & relational
+    g10 = [r for r in client_truth if r["scenario_id"] == "G10"]
+    assert len(g10) > 0
+    assert all(r["kind"] == "relational" and r["category"] == "valid_atypical" for r in g10)
+    assert all(r["column"] == "nom" for r in g10)
+
+    # M22 non-existent contract reference: rule_violation & relational
+    m22 = [r for r in reclamation_truth if r["rule_id"] == "M22"]
+    assert len(m22) == 2
+    assert {r["kind"] for r in m22} == {"rule_violation", "relational"}
+    assert all(r["column"] == "id_contrat" for r in m22)
+
+
+@contract("9")
+def test_lot9_flattened_multi_contract_profiles(tmp_path: Path) -> None:
+    """Contract 7 & 8: Flattened multi-contract CSV profiles (34, 44, 48 columns)."""
+    for profile, expected_cols in [
+        ("flattened", 34),
+        ("flattened-extended", 44),
+        ("flattened-complete", 48),
+    ]:
+        out = tmp_path / profile
+        plan = build_generate_plan(
+            PACKAGE,
+            output_profile=profile,
+            rows=100,
+            seed=42,
+            output_dir=out,
+        )
+        generate_datasets(plan)
+        combined_file = out / "insurance-combined.csv"
+        assert combined_file.is_file()
+        header = combined_file.read_text(encoding="utf-8").splitlines()[0].split(",")
+        assert len(header) == expected_cols
+        assert header[0] == "id_client"
+        assert "id_contrat" in header
+        assert "filiale" in header
+
+
+@contract("9")
+def test_lot9_relational_refusals(tmp_path: Path) -> None:
+    """Contract 8: Refuse --relational on -o or non-insurance packages."""
+    with pytest.raises(ConfigurationError, match="--relational generates multiple tables; use -d."):
+        build_generate_plan(PACKAGE, relational=True, output=tmp_path / "single.csv")
+
+    computer_pkg = Path(str(files("tabalyst").joinpath("generate_examples", "computer")))
+    with pytest.raises(ConfigurationError, match="--relational applies to the Insurance package only."):
+        build_generate_plan(computer_pkg, relational=True, output_dir=tmp_path / "rel_comp")
+
 
 
 

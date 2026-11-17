@@ -814,6 +814,33 @@ Written when lot 8 was implemented:
 - **Projections**: `PopulationModel` provides `to_contract_row`, `to_client_row`, `to_claim_row`,
   and `to_payment_row` ready for lot 9 file outputs.
 
+### 8.6 What lot 9 fixed
+
+Written when lot 9 was implemented:
+- **Relational output suite (`--relational`)**: Generates four clean relational CSV tables
+  (`clients.csv` 22 columns, `contrats.csv` 23 columns, `reclamations.csv` 7 columns,
+  `paiements.csv` 7 columns) alongside their full truth artifact suites (`.truth.csv`,
+  `.rules.json`, `.metrics.json`, `.manifest.json` per table), totaling 20 published files.
+- **Flattened multi-contract profiles**: Supported via `--output-profile flattened` (34 columns on
+  combined, 33 on branch), `flattened-extended` (44 columns on combined, 43 on branch), and
+  `flattened-complete` (48 columns on combined, 47 on branch), projecting denormalized customer and
+  primary claim attributes per contract.
+- **Relational truth lines**:
+  - `G09` (shared household without duplicate): `valid_atypical` relational lines on `id_menage`
+    with `group_id="G09-<id_menage>"`.
+  - `G10` (near-identical identities): `valid_atypical` relational lines on `nom` with
+    `group_id="G10-<id_menage>"`.
+  - `M22` (orphan claim reference): `rule_violation` and `relational` lines on `id_contrat` for
+    orphan claims pointing to non-existent contract identifiers when anomaly profiles are active.
+- **CLI & validation**: CLI option `--relational` added to `tabalyst generate`. Explicit rejection
+  when passed with `-o` (`--relational generates multiple tables; use -d.`) or on non-insurance
+  packages (`--relational applies to the Insurance package only.`).
+- **Atomic publication**: Multi-table generation uses `batch_writer` with staging, `fsync`, backup
+  preservation on failure, and atomic replacement with zero orphan `.tmp` or `.bak` files.
+- **Testing & non-regression**: Dedicated test suite in `tests/test_generate_relational_outputs.py`
+  (6 tests) and contract tests in `tests/test_generate_insurance_v2_contract.py` (88 tests passing).
+  Showcase demos byte-identical.
+
 ## 9. Documentation, versions and languages
 
 - Public pages (Q5): `docs/en/generate/insurance.md` stays the overview; each lot that ships a

@@ -9,8 +9,13 @@ from __future__ import annotations
 import random
 import sys
 from collections.abc import Iterator, Mapping, Sequence
+from dataclasses import replace
 from datetime import date, timedelta
 from decimal import Decimal
+from typing import TYPE_CHECKING, Final
+
+if TYPE_CHECKING:
+    from tabalyst.generate_truth import TruthLine
 
 from tabalyst.generate_insurance import (
     ACQUISITION_CHANNELS,
@@ -46,6 +51,31 @@ PAYMENT_INSTALLMENT_WEIGHTS: tuple[list[int], list[int]] = ([1, 2, 3], [65, 25, 
 # Pre-interned identifiers and codes to keep memory strictly bounded under 150 MB for 500,000 rows
 _INTERNED_MANAGERS = tuple(sys.intern(f"GES-{i:03d}") for i in range(1, 51))
 _INTERNED_BROKERS = tuple(sys.intern(f"CRT-{i:04d}") for i in range(101, 301))
+
+RELATIONAL_CLIENTS_FIELDS: Final[tuple[str, ...]] = (
+    "id_client", "id_menage", "civilite", "prenom", "nom", "date_naissance", "sexe",
+    "langue_preferee", "numero_voie", "type_voie", "nom_voie", "orientation",
+    "appartement", "ville", "province_code", "province_nom", "code_postal",
+    "pays_code", "courriel", "telephone", "segment_client", "consentement_communication",
+)
+
+RELATIONAL_CONTRATS_FIELDS: Final[tuple[str, ...]] = (
+    "id_contrat", "id_client", "filiale", "type_contrat", "produit_code", "date_debut",
+    "date_fin", "statut_contrat", "prime_annuelle", "frequence_paiement", "mode_paiement",
+    "agence_code", "canal_acquisition", "courtier_id", "gestionnaire_id", "date_creation",
+    "date_modification", "date_resiliation", "statut_paiement", "montant_couverture",
+    "franchise", "taux_remboursement", "previous_contract_id",
+)
+
+RELATIONAL_RECLAMATIONS_FIELDS: Final[tuple[str, ...]] = (
+    "id_reclamation", "id_contrat", "date_sinistre", "date_reclamation",
+    "montant_reclamation", "montant_indemnise", "reclamation_status",
+)
+
+RELATIONAL_PAIEMENTS_FIELDS: Final[tuple[str, ...]] = (
+    "id_paiement", "id_reclamation", "id_contrat", "date_paiement",
+    "montant", "mode_paiement", "statut_paiement",
+)
 
 
 class Household:
@@ -195,6 +225,7 @@ class Claim:
     """Compact insurance claim entity (G02)."""
 
     __slots__ = (
+        "contract_id_str",
         "contract_seq",
         "decl_ordinal",
         "loss_ordinal",
@@ -215,6 +246,7 @@ class Claim:
         montant_indemnise: str,
         reclamation_status: str,
         payments: tuple[Payment, ...] = (),
+        contract_id_str: str | None = None,
     ) -> None:
         self.contract_seq = contract_seq
         self.sequence = sequence
@@ -224,6 +256,7 @@ class Claim:
         self.montant_indemnise = montant_indemnise
         self.reclamation_status = sys.intern(reclamation_status)
         self.payments = payments
+        self.contract_id_str = sys.intern(contract_id_str) if contract_id_str is not None else sys.intern(f"CTR-{contract_seq:09d}")
 
     @property
     def id_reclamation(self) -> str:
@@ -231,8 +264,7 @@ class Claim:
 
     @property
     def id_contrat(self) -> str:
-        # Reconstructed when needed
-        return f"CTR-{self.contract_seq:09d}"
+        return self.contract_id_str
 
     @property
     def date_sinistre(self) -> date:
@@ -450,6 +482,7 @@ class PopulationModel:
         total_contracts: int = 1000,
         as_of_date: str = "2026-09-16",
         branch: str | None = None,
+        m22_cases: int = 0,
     ) -> None:
         self.common: CommonProvider = CommonProvider(common)
         self.refs: InsuranceReferences = InsuranceReferences(common, package)
@@ -458,6 +491,7 @@ class PopulationModel:
         self.as_of_date_str = as_of_date
         self.as_of = date.fromisoformat(as_of_date)
         self.target_branch = branch
+        self.m22_cases = m22_cases
 
         self._households_list: list[Household] = []
         self._customers_list: list[Customer] = []
@@ -465,6 +499,7 @@ class PopulationModel:
         self._contracts_list: list[Contract] = []
         self._all_claims: list[Claim] = []
         self._all_payments: list[Payment] = []
+        self._m22_claims: list[tuple[Claim, str]] = []
 
         self._build()
 
@@ -799,6 +834,7 @@ class PopulationModel:
                                 montant_indemnise=montant_indemnise,
                                 reclamation_status=c_claim_status,
                                 payments=tuple(claim_payments),
+                                contract_id_str=contract_id_str,
                             )
                             contract_claims.append(claim_obj)
                             self._all_claims.append(claim_obj)
@@ -838,6 +874,15 @@ class PopulationModel:
                         break
                 if contracts_created >= self.total_contracts:
                     break
+
+        # Referential integrity breaking for M22 test cases
+        if self.m22_cases > 0 and self._all_claims:
+            m22_count = min(self.m22_cases, len(self._all_claims))
+            for i in range(m22_count):
+                claim = self._all_claims[i]
+                orig_ctr_id = claim.contract_id_str
+                claim.contract_id_str = sys.intern(f"CTR-ORPHAN-{i + 1:06d}")
+                self._m22_claims.append((claim, orig_ctr_id))
 
     def _build_brokers(self) -> None:
         """Create pool of 200 brokers distributed across branches."""
@@ -1007,3 +1052,145 @@ class PopulationModel:
             "mode_paiement": payment.mode_paiement,
             "statut_paiement": payment.statut_paiement,
         }
+
+    def get_table_truth_lines(self, table: str) -> list[TruthLine]:
+        """Produce verifiable ground-truth lines for a specific table or flattened output.
+
+        Covers G09 (shared household address with distinct surnames), G10 (near-identical
+        household identities with shared surname), and M22 (missing contract reference).
+        """
+        from tabalyst.generate_truth import TruthLine
+
+        lines: list[TruthLine] = []
+
+        if table in {"clients", "flattened"}:
+            # Group customers by household
+            household_custs: dict[int, list[Customer]] = {}
+            for cust in self._customers_list:
+                household_custs.setdefault(cust.household_seq, []).append(cust)
+
+            for h_seq, custs in household_custs.items():
+                if len(custs) < 2:
+                    continue
+                household = self._households_list[h_seq - 1]
+                surnames = {c.nom for c in custs}
+                is_g09 = len(surnames) > 1
+                scenario_id = "G09" if is_g09 else "G10"
+                col = "id_menage" if is_g09 else "nom"
+                canonical_val = household.id_menage if is_g09 else household.family_name
+
+                if table == "clients":
+                    for c in custs:
+                        lines.append(TruthLine(
+                            truth_id=0,
+                            kind="relational",
+                            scenario_id=scenario_id,
+                            rule_id="",
+                            category="valid_atypical",
+                            severity="info",
+                            rarity_level="uncommon",
+                            root_cause_id="",
+                            group_id=f"{scenario_id}-{household.id_menage}",
+                            event_id=0,
+                            row_number=c.customer_seq + 1,  # 1-based, header is 1
+                            column=col,
+                            canonical_value=canonical_val,
+                            expected_detection="uniqueness",
+                        ))
+                elif table == "flattened":
+                    cust_seqs = {c.customer_seq for c in custs}
+                    for ctr in self._contracts_list:
+                        if ctr.customer_seq in cust_seqs:
+                            lines.append(TruthLine(
+                                truth_id=0,
+                                kind="relational",
+                                scenario_id=scenario_id,
+                                rule_id="",
+                                category="valid_atypical",
+                                severity="info",
+                                rarity_level="uncommon",
+                                root_cause_id="",
+                                group_id=f"{scenario_id}-{household.id_menage}",
+                                event_id=0,
+                                row_number=ctr.contract_seq + 1,
+                                column=col,
+                                canonical_value=canonical_val,
+                                expected_detection="uniqueness",
+                            ))
+
+        if table in {"reclamations", "flattened"} and self._m22_claims:
+            for claim, orig_ctr_id in self._m22_claims:
+                if table == "reclamations":
+                    row_num = self._all_claims.index(claim) + 2
+                    group = f"M22-{claim.id_reclamation}"
+                    lines.append(TruthLine(
+                        truth_id=0,
+                        kind="rule_violation",
+                        scenario_id="M22",
+                        rule_id="M22",
+                        category="business_rule_violation",
+                        severity="critical",
+                        rarity_level="single",
+                        root_cause_id="",
+                        group_id=group,
+                        event_id=0,
+                        row_number=row_num,
+                        column="id_contrat",
+                        canonical_value=orig_ctr_id,
+                        expected_detection="cross_column",
+                    ))
+                    lines.append(TruthLine(
+                        truth_id=0,
+                        kind="relational",
+                        scenario_id="M22",
+                        rule_id="M22",
+                        category="business_rule_violation",
+                        severity="critical",
+                        rarity_level="single",
+                        root_cause_id="",
+                        group_id=group,
+                        event_id=0,
+                        row_number=row_num,
+                        column="id_contrat",
+                        canonical_value=orig_ctr_id,
+                        expected_detection="cross_column",
+                    ))
+                elif table == "flattened":
+                    row_num = claim.contract_seq + 1
+                    group = f"M22-{claim.id_reclamation}"
+                    lines.append(TruthLine(
+                        truth_id=0,
+                        kind="rule_violation",
+                        scenario_id="M22",
+                        rule_id="M22",
+                        category="business_rule_violation",
+                        severity="critical",
+                        rarity_level="single",
+                        root_cause_id="",
+                        group_id=group,
+                        event_id=0,
+                        row_number=row_num,
+                        column="id_contrat",
+                        canonical_value=orig_ctr_id,
+                        expected_detection="cross_column",
+                    ))
+                    lines.append(TruthLine(
+                        truth_id=0,
+                        kind="relational",
+                        scenario_id="M22",
+                        rule_id="M22",
+                        category="business_rule_violation",
+                        severity="critical",
+                        rarity_level="single",
+                        root_cause_id="",
+                        group_id=group,
+                        event_id=0,
+                        row_number=row_num,
+                        column="id_contrat",
+                        canonical_value=orig_ctr_id,
+                        expected_detection="cross_column",
+                    ))
+
+        # Sort lines stably and assign sequential truth_id
+        ordered = [replace(line, truth_id=idx) for idx, line in enumerate(sorted(lines, key=TruthLine.sort_key), 1)]
+        return ordered

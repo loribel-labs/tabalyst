@@ -152,6 +152,10 @@ def generate_command(
         bool,
         typer.Option("--force", "-f", help="Replace existing artifacts."),
     ] = False,
+    relational: Annotated[
+        bool,
+        typer.Option("--relational", help="Insurance: generate 4 relational tables (clients, contrats, reclamations, paiements) with ground truth."),
+    ] = False,
     no_progress: Annotated[
         bool,
         typer.Option("--no-progress", help="Hide the progress line. It is also hidden outside a terminal."),
@@ -175,6 +179,7 @@ def generate_command(
             market=market, locales=locales, unit_style=unit_style,
             unit_columns=unit_columns,
             validate_only=validate_only, workers=workers,
+            relational=relational,
         )
         if validate_only:
             typer.echo("Valid Generate package.", err=True)

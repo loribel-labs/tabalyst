@@ -143,4 +143,30 @@ Phase 3 begins on branch `insurance-v2/phase-3` after gate P2 ratification (dire
   - Legacy stateless `InsuranceProvider.row()` remains completely untouched and byte-identical for existing runs.
 - `generation_version` stays 2.
 
+## Relational outputs and table truth (lot 9, 2026-11-17)
+
+- **Relational output suite (`--relational`)**:
+  - Generates four clean relational CSV tables:
+    - `clients.csv`: 22 columns (`id_client`, `civilite`, `prenom`, `nom`, `date_naissance`, `sexe`, `langue_preferee`, `courriel`, `telephone`, `id_menage`, street components, city, province, postal code, country, `segment_client`, `consentement_communication`).
+    - `contrats.csv`: 23 columns (`id_contrat`, `id_client`, `filiale`, `type_contrat`, `produit_code`, `date_debut`, `date_fin`, `statut_contrat`, `prime_annuelle`, `frequence_paiement`, `mode_paiement`, `statut_paiement`, `montant_couverture`, `franchise`, `taux_remboursement`, `agence_code`, `canal_acquisition`, `courtier_id`, `gestionnaire_id`, `date_creation`, `date_modification`, `date_resiliation`, `contrat_precedent_id`).
+    - `reclamations.csv`: 7 columns (`id_reclamation`, `id_contrat`, `date_sinistre`, `date_reclamation`, `montant_reclamation`, `montant_indemnise`, `statut_reclamation`).
+    - `paiements.csv`: 7 columns (`id_paiement`, `id_reclamation`, `id_contrat`, `date_paiement`, `montant`, `mode_paiement`, `statut_paiement`).
+  - Full ground-truth artifact suite generated per table (`.truth.csv`, `.rules.json`, `.metrics.json`, `.manifest.json`), totaling 20 published files.
+- **Flattened multi-contract profiles**:
+  - Projections via `--output-profile flattened` (34 columns on combined, 33 on branch), `flattened-extended` (44 columns on combined, 43 on branch), and `flattened-complete` (48 columns on combined, 47 on branch).
+  - Evaluated per contract with denormalized customer and primary claim data.
+- **Relational ground truth**:
+  - `G09` (shared household without duplicate): `valid_atypical` relational lines on `id_menage` in `clients.truth.csv` with `group_id="G09-<id_menage>"`.
+  - `G10` (near-identical identities): `valid_atypical` relational lines on `nom` in `clients.truth.csv` with `group_id="G10-<id_menage>"`.
+  - `M22` (orphan claim reference): `rule_violation` and `relational` lines on `id_contrat` in `reclamations.truth.csv` for orphan claims pointing to non-existent contract identifiers when anomaly profiles are active.
+- **CLI integration & atomic publication**:
+  - CLI option `--relational` in `tabalyst generate`.
+  - Explicit error handling for single-file output `-o` and non-insurance packages.
+  - Multi-table staging with atomic replace and zero leftover `.tmp` or `.bak` files.
+- **Testing & verification**:
+  - 6 dedicated unit and integration tests in `tests/test_generate_relational_outputs.py`.
+  - 4 contract tests enabled in `tests/test_generate_insurance_v2_contract.py` (88 tests passing).
+- `generation_version` stays 2.
+
+
 
