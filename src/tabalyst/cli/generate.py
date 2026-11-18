@@ -139,7 +139,7 @@ def generate_command(
     ] = None,
     locales: Annotated[
         str | None,
-        typer.Option("--locales", help="Computer locales: en, fr or en,fr (default en with -o, en,fr with -d)."),
+        typer.Option("--locales", help="Locales: en, fr or en,fr (Insurance defaults to en; Computer defaults to en with -o, en,fr with -d)."),
     ] = None,
     unit_style: Annotated[
         str | None,
@@ -159,7 +159,7 @@ def generate_command(
     ] = False,
     relational: Annotated[
         bool,
-        typer.Option("--relational", help="Insurance: generate 4 relational tables (clients, contrats, reclamations, paiements) with ground truth."),
+        typer.Option("--relational", help="Insurance: generate 4 relational tables (customers/clients, contracts/contrats, claims/reclamations, payments/paiements) with ground truth."),
     ] = False,
     row_order: Annotated[
         str,
@@ -211,12 +211,15 @@ def generate_command(
                         typer.echo(f"  {p['id']}{details}", err=True)
                     typer.echo("", err=True)
             return
+        cli_locales = locales
+        if (example == "insurance" or (definition is not None and "insurance" in str(definition))) and locales is None and not english:
+            cli_locales = "en"
         plan = build_generate_plan(
             definition, example=example, output=output, output_dir=output_dir,
             rows=rows, seed=seed, as_of_date=as_of_date,
             anomaly_profile=anomaly_profile, force=force, request=request,
             generation_profile=generation_profile, output_profile=output_profile,
-            market=market, locales=locales, unit_style=unit_style,
+            market=market, locales=cli_locales, unit_style=unit_style,
             unit_columns=unit_columns,
             validate_only=validate_only, workers=workers,
             relational=relational,

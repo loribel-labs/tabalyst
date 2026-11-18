@@ -505,6 +505,7 @@ class PopulationModel:
         branch: str | None = None,
         m22_cases: int = 0,
         row_order: str = "default",
+        locale: str = "en",
     ) -> None:
         if row_order not in ROW_ORDERS:
             from tabalyst.errors import ConfigurationError
@@ -521,6 +522,7 @@ class PopulationModel:
         self.target_branch = branch
         self.m22_cases = m22_cases
         self.row_order = row_order
+        self.locale = locale
 
         self._households_list: list[Household] = []
         self._customers_list: list[Customer] = []
@@ -593,9 +595,14 @@ class PopulationModel:
                           if r["province_code"] != home_prov]
                 province = _pick(rng, others)["province_code"]
 
-            addr = self.common.address({"province": province}, rng)
-            lang = ("en" if rng.random() < 0.80 else "fr") if h_branch == "ontario" else addr["language"]
-            h_family = self.common.person({"profile": lang}, rng)["family_name"]
+            if self.locale == "en":
+                addr = self.common.address({"province": province, "profile": "en"}, rng)
+                lang = "en"
+                h_family = self.common.person({"profile": "en"}, rng)["family_name"]
+            else:
+                addr = self.common.address({"province": province}, rng)
+                lang = ("en" if rng.random() < 0.80 else "fr") if h_branch == "ontario" else addr["language"]
+                h_family = self.common.person({"profile": lang}, rng)["family_name"]
 
             household = Household(
                 household_seq=household_seq,
@@ -639,7 +646,7 @@ class PopulationModel:
 
                 sex = first_name_info["sex"]
                 civilite = "Mme" if sex == "F" and c_lang == "fr" else "M." if c_lang == "fr" else (
-                    "Ms" if sex == "F" else "Mr"
+                    "Ms." if sex == "F" else "Mr."
                 )
 
                 birth = _day(rng, date(1940, 1, 1), self.as_of - timedelta(days=18 * 365 + 6))

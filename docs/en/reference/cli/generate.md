@@ -35,11 +35,11 @@ destination is required, except with `--validate-only` and `--list-profiles`. A
 | `--request FILE` | Read `rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`, `locales`, `unit_style`, `unit_columns` and `anomaly_profile` from a JSON object. Explicit options win. |
 | `--generation-profile NAME` | Computer: bias the catalog selection. |
 | `--output-profile NAME` | Choose the columns written. Computer: `compact`, `standard`, `extended`. Insurance: `default` (33 columns on branches, 34 combined), `extended` (43 columns on branches, 44 combined), `complete` (50 columns on branches, 51 combined), or flattened profiles (`flattened`, `flattened-extended`, `flattened-complete`). |
-| `--relational` | Insurance: generate 4 relational tables (`clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv`) alongside their full ground truth. |
+| `--relational` | Insurance: generate 4 relational tables (`customers.csv`, `contracts.csv`, `claims.csv`, `payments.csv` in English; `clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv` in French) alongside their full ground truth. |
 | `--row-order NAME` | Insurance: choose contract ordering (`default`, `branch`, `chronological`, `agency`, `shuffled`). |
-| `--english` | Insurance: generate English column names (`customer_id`, `contract_id`, `branch`, etc.) and localized categorical values. |
+| `--english` | Insurance: backward-compatible alias for `--locales en`. |
 | `--market ca\|us` | Computer: the offer market. |
-| `--locales en\|fr\|en,fr` | Computer: the languages written. Default `en,fr` with `-d`, `en` with `-o`. |
+| `--locales en\|fr\|en,fr` | Locales to generate. Insurance: defaults to `en` (`insurance-main.csv`), with `fr` (`insurance-principal.csv`) or `en,fr`. Computer: defaults to `en,fr` with `-d`, `en` with `-o`. |
 | `--unit-style numeric\|localized` | Computer: plain numbers or values with units. |
 | `--unit-columns A,B` | Computer: the measurement columns to write with units; implies `localized`. |
 | `--validate-only` | Validate the package and write nothing. |
@@ -83,7 +83,9 @@ A profile can set a minimum number of rows: `rare_events` stops below
 `anomaly_diversity`, `clustered_errors`, `missing_mechanisms`, `schema_drift`,
 `ml_fraud_imbalanced`, `ml_leakage_test`, `ml_multitask`, `technical_stress`) stop
 below 10,000 rows, naming the profile, the floor and the rows requested.
-The `--english` option translates all Insurance column names to English and localizes
-all categorical domain values without changing random seeds or row ordering. See
-[Insurance rare events](../../generate/insurance-rare-events.md) and
+Insurance generates English by default (`insurance-main.csv`, English headers,
+Anglo-Saxon demographics, and relational tables `customers`, `contracts`, `claims`, `payments`).
+Use `--locales fr` for French (`insurance-principal.csv`, French demographics, `clients`, etc.)
+or `--locales en,fr` for both. The `--english` option is retained as an alias for `--locales en`.
+See [Insurance rare events](../../generate/insurance-rare-events.md) and
 [Generate insurance customers](../../generate/insurance.md).

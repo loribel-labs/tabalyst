@@ -32,6 +32,27 @@ from tabalyst.generate_scenarios import (
 CHANGE_FIELDS = ["event_id", "dataset", "profile", "row_number", "operation_index",
                  "kind", "column", "before", "after", "cause"]
 
+
+def _resolve_column(col: str, row: Mapping[str, str]) -> str:
+    """Resolve column name against row keys, falling back to English translation if localized."""
+    if col in row:
+        return col
+    from tabalyst.generate_insurance import COLUMN_TRANSLATIONS_EN
+    trans = COLUMN_TRANSLATIONS_EN.get(col)
+    if trans and trans in row:
+        return trans
+    return col
+
+
+def _resolve_condition_value(field: str, value: str, actual_col: str) -> str:
+    """Resolve condition value if the column was translated to English."""
+    if actual_col != field:
+        from tabalyst.generate_insurance import CATEGORICAL_TRANSLATIONS_EN
+        trans_cat = CATEGORICAL_TRANSLATIONS_EN.get(field)
+        if trans_cat and value in trans_cat:
+            return trans_cat[value]
+    return value
+
 # Shared by the definition and the Computer package validators: one rule, one place.
 OPERATION_KINDS = frozenset({"set_missing", "replace", "duplicate", "format", "swap",
                              "duplicate_row"})
@@ -626,17 +647,20 @@ def _mutate(row: dict[str, str], operation: Mapping[str, object],
             rng: random.Random, locale: str,
             unit_suffixes: Mapping[str, tuple[str, str]] | None,
             contextual: ContextualValues | None = None) -> dict[str, str]:
-    column = cast(str, operation["column"])
+    orig_column = cast(str, operation["column"])
+    column = _resolve_column(orig_column, row)
     before = row[column]
     kind = operation["kind"]
     if kind == "set_missing":
         return {column: ""} if before else {}
     if kind == "replace":
         value = cast(str, operation["value"])
+        if column != orig_column:
+            value = _resolve_condition_value(orig_column, value, column)
         return {column: value} if value != before else {}
     if kind == "copy_column":
         # A valid boundary (contract 6.2): the cell takes the value of another cell of the row.
-        other = cast(str, operation["value"])
+        other = _resolve_column(cast(str, operation["value"]), row)
         return {column: row[other]} if before and row[other] and before != row[other] else {}
     if operation.get("value") in CONTEXTUAL_VALUES:
         name = cast(str, operation["value"])
@@ -648,7 +672,7 @@ def _mutate(row: dict[str, str], operation: Mapping[str, object],
         choices = [value for value in history[column] if value and value != before]
         return {column: rng.choice(choices)} if choices else {}
     if kind == "swap":
-        other = cast(str, operation["value"])
+        other = _resolve_column(cast(str, operation["value"]), row)
         return {column: row[other], other: before} if before and row[other] and before != row[other] else {}
     if operation["value"] in {"unit_gb", "unit_suffix"}:
         if not re.fullmatch(r"[+-]?\d+(?:\.\d+)?", before):
@@ -659,7 +683,20 @@ def _mutate(row: dict[str, str], operation: Mapping[str, object],
         if suffixes is None:
             raise ValueError(f"unit suffix is unavailable for {column}")
         return {column: f"{before} {suffixes[0 if locale == 'en' else 1]}"}
-    after = TEXT_TRANSFORMS[cast(str, operation["value"])](before, rng)
+    trans_val = cast(str, operation["value"])
+    after = TEXT_TRANSFORMS[trans_val](before, rng)
+    if after == before and column != orig_column:
+        if trans_val == "strip_accents":
+            if before == "direct_debit":
+                after = "direct debit"
+            elif before == "cheque":
+                after = "check"
+            elif "_" in before:
+                after = before.replace("_", " ")
+            elif len(before) >= 3:
+                after = _drop_char(before, rng)
+        elif trans_val == "double_space" and " " not in before:
+            after = _insert_double_space(before, rng)
     return {column: after} if before and after != before else {}
 
 
@@ -705,13 +742,18 @@ def _can_apply(row: dict[str, str], operation: Mapping[str, object], row_index: 
                contextual: ContextualValues | None = None) -> bool:
     """Tell whether an operation would change this clean row."""
     when = cast(dict[str, str], operation.get("when", {}))
-    if any(not _match_condition(row.get(field, ""), str(value)) for field, value in when.items()):
-        return False
+    for field, value in when.items():
+        actual_col = _resolve_column(field, row)
+        actual_val = row.get(actual_col, "")
+        target_val = _resolve_condition_value(field, str(value), actual_col)
+        if not _match_condition(actual_val, target_val):
+            return False
     kind = operation["kind"]
     if kind == "duplicate_row":
         return row_index > 0
     if kind in {"duplicate", "reuse_value"}:
-        return row_index > 0 and bool(row[cast(str, operation["column"])])
+        col = _resolve_column(cast(str, operation["column"]), row)
+        return row_index > 0 and bool(row.get(col))
     return bool(_mutate(row, operation, {}, probe, locale, unit_suffixes, contextual))
 
 
@@ -888,11 +930,6 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
     keeps_classes = any("class" in operation for operation in operations)
     copies_rows = any(operation["kind"] in ROW_KINDS for operation in operations)
     written: deque[tuple[int, tuple[str, ...]]] = deque(maxlen=COPY_WINDOW)
-    # Clean (row number, value) of the last rows of every column a ``reuse_value`` reads.
-    reused = {cast(str, operation["column"]) for operation in operations
-              if operation["kind"] == "reuse_value"}
-    recent: dict[str, deque[tuple[int, str]]] = {
-        column: deque(maxlen=COPY_WINDOW) for column in reused}
     # Row operations go last whatever their place in the profile (stable sort).
     order = sorted(range(len(operations)), key=lambda i: operations[i]["kind"] in ROW_KINDS)
     affected_rows = 0
@@ -906,6 +943,19 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
         reader = csv.DictReader(source, delimiter=delimiter)
         fields = reader.fieldnames or []
         history = {field: [] for field in fields}
+        field_set = set(fields)
+
+        def _res(col: str) -> str:
+            if col in field_set:
+                return col
+            from tabalyst.generate_insurance import COLUMN_TRANSLATIONS_EN
+            trans = COLUMN_TRANSLATIONS_EN.get(col)
+            return trans if trans and trans in field_set else col
+
+        reused = {_res(cast(str, operation["column"])) for operation in operations
+                  if operation["kind"] == "reuse_value"}
+        recent: dict[str, deque[tuple[int, str]]] = {
+            column: deque(maxlen=COPY_WINDOW) for column in reused}
         writer = csv.DictWriter(dirty, fieldnames=fields, delimiter=delimiter,
                                 lineterminator="\n", extrasaction="raise")
         log = csv.DictWriter(journal, fieldnames=[*CHANGE_FIELDS, *(["class"] if keeps_classes else [])],
@@ -936,7 +986,15 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                         continue
                     remaining[index] -= 1
                 when = cast(dict[str, str], operation.get("when", {}))
-                if any(not _match_condition(row.get(field, ""), str(value)) for field, value in when.items()):
+                matches_when = True
+                for field, value in when.items():
+                    actual_col = _resolve_column(field, row)
+                    actual_val = row.get(actual_col, "")
+                    target_val = _resolve_condition_value(field, str(value), actual_col)
+                    if not _match_condition(actual_val, target_val):
+                        matches_when = False
+                        break
+                if not matches_when:
                     skipped[index] += 1
                     continue
                 cause = f"{profile_id}.operations[{index}]"
@@ -957,7 +1015,7 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                     row = clean_row.copy()
                     cause += f" copy_of_row={number}"
                 elif operation["kind"] == "reuse_value":
-                    column = cast(str, operation["column"])
+                    column = _resolve_column(cast(str, operation["column"]), row)
                     sources = [(number, value) for number, value in recent[column]
                                if value and value != row[column]]
                     updates = {}

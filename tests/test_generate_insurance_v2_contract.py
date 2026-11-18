@@ -4399,8 +4399,8 @@ def test_lot19_english_option_relational(tmp_path: Path) -> None:
     assert plan.english is True
     generate_datasets(plan)
 
-    # 1. clients.csv
-    with (out / "clients.csv").open("r", encoding="utf-8") as f:
+    # 1. customers.csv
+    with (out / "customers.csv").open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         headers = set(reader.fieldnames or [])
         assert "customer_id" in headers
@@ -4411,8 +4411,8 @@ def test_lot19_english_option_relational(tmp_path: Path) -> None:
         assert "customer_segment" in headers
         assert "communication_consent" in headers
 
-    # 2. contrats.csv
-    with (out / "contrats.csv").open("r", encoding="utf-8") as f:
+    # 2. contracts.csv
+    with (out / "contracts.csv").open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         headers = set(reader.fieldnames or [])
         assert "contract_id" in headers
@@ -4423,8 +4423,8 @@ def test_lot19_english_option_relational(tmp_path: Path) -> None:
         assert "payment_method" in headers
         assert "previous_contract_id" in headers
 
-    # 3. reclamations.csv
-    with (out / "reclamations.csv").open("r", encoding="utf-8") as f:
+    # 3. claims.csv
+    with (out / "claims.csv").open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         headers = set(reader.fieldnames or [])
         assert "claim_id" in headers
@@ -4433,8 +4433,8 @@ def test_lot19_english_option_relational(tmp_path: Path) -> None:
         assert "claim_date" in headers
         assert "claim_status" in headers
 
-    # 4. paiements.csv
-    with (out / "paiements.csv").open("r", encoding="utf-8") as f:
+    # 4. payments.csv
+    with (out / "payments.csv").open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         headers = set(reader.fieldnames or [])
         assert "payment_id" in headers
@@ -4488,16 +4488,17 @@ def test_lot19_english_cli(tmp_path: Path) -> None:
 
 @contract("19")
 def test_lot19_english_non_regression_default_french(tmp_path: Path) -> None:
-    """Contract §2: Ensure default generation without --english keeps exact original French schema."""
+    """Contract §2: Ensure generation with --locales fr keeps exact original French schema."""
     out = tmp_path / "fr_default"
     plan = build_generate_plan(
         PACKAGE,
-        english=False,
+        locales="fr",
         rows=100,
         seed=42,
         output_dir=out,
     )
     assert plan.english is False
+    assert plan.locales == ("fr",)
     generate_datasets(plan)
 
     with (out / "insurance-combined.csv").open("r", encoding="utf-8") as f:
@@ -4511,6 +4512,88 @@ def test_lot19_english_non_regression_default_french(tmp_path: Path) -> None:
         assert "type_contrat" in headers
         assert "customer_id" not in headers
         assert "contract_id" not in headers
+
+
+@contract("19")
+def test_lot19_english_default_and_locales(tmp_path: Path) -> None:
+    """Lot 19b: Test English default and --locales support for Insurance."""
+    from typer.testing import CliRunner
+
+    from tabalyst.cli.app import app
+
+    runner = CliRunner()
+
+    # 1. CLI without --locales defaults to English
+    out_cli_default = tmp_path / "cli_default_en"
+    res = runner.invoke(app, [
+        "generate", "--example", "insurance",
+        "--rows", "20", "--seed", "42", "-d", str(out_cli_default),
+    ])
+    assert res.exit_code == 0
+    assert (out_cli_default / "insurance-main.csv").is_file()
+    assert (out_cli_default / "insurance-combined.csv").is_file()
+
+    # 2. CLI relational defaults to English table names
+    out_cli_rel = tmp_path / "cli_rel_en"
+    res = runner.invoke(app, [
+        "generate", "--example", "insurance", "--relational",
+        "--rows", "20", "--seed", "42", "-d", str(out_cli_rel),
+    ])
+    assert res.exit_code == 0
+    assert (out_cli_rel / "customers.csv").is_file()
+    assert (out_cli_rel / "contracts.csv").is_file()
+    assert (out_cli_rel / "claims.csv").is_file()
+    assert (out_cli_rel / "payments.csv").is_file()
+
+    # 3. API with locales="en" produces English
+    out_default = tmp_path / "default_en"
+    plan_default = build_generate_plan(
+        PACKAGE,
+        locales="en",
+        rows=50,
+        seed=42,
+        output_dir=out_default,
+    )
+    assert plan_default.english is True
+    assert plan_default.locales == ("en",)
+    generate_datasets(plan_default)
+    assert (out_default / "insurance-main.csv").is_file()
+    assert (out_default / "insurance-combined.csv").is_file()
+
+    # 4. Relational with locales="en" produces English tables
+    out_rel = tmp_path / "rel_default"
+    plan_rel = build_generate_plan(
+        PACKAGE,
+        relational=True,
+        locales="en",
+        rows=50,
+        seed=42,
+        output_dir=out_rel,
+    )
+    assert plan_rel.english is True
+    generate_datasets(plan_rel)
+    assert (out_rel / "customers.csv").is_file()
+    assert (out_rel / "contracts.csv").is_file()
+    assert (out_rel / "claims.csv").is_file()
+    assert (out_rel / "payments.csv").is_file()
+
+    # 5. Relational with locales="fr" produces French file names
+    out_rel_fr = tmp_path / "rel_fr"
+    plan_rel_fr = build_generate_plan(
+        PACKAGE,
+        relational=True,
+        locales="fr",
+        rows=50,
+        seed=42,
+        output_dir=out_rel_fr,
+    )
+    assert plan_rel_fr.english is False
+    generate_datasets(plan_rel_fr)
+    assert (out_rel_fr / "clients.csv").is_file()
+    assert (out_rel_fr / "contrats.csv").is_file()
+    assert (out_rel_fr / "reclamations.csv").is_file()
+    assert (out_rel_fr / "paiements.csv").is_file()
+
 
 
 

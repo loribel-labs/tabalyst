@@ -12,7 +12,7 @@ tabalyst generate --example insurance --rows 3000 -d insurance-output/
 ```
 
 ```text
-Created: insurance-output/insurance-principal.csv
+Created: insurance-output/insurance-main.csv
 Created: insurance-output/insurance-ontario.csv
 Created: insurance-output/insurance-quebec.csv
 Created: insurance-output/insurance-combined.csv
@@ -29,14 +29,14 @@ fixed proportions. Without `--rows`, the default is 275,000 rows.
 
 | File | Share | Rows by default | Rows with `--rows 3000` |
 | --- | ---: | ---: | ---: |
-| `insurance-principal.csv` | 73% | 200,000 | 2,182 |
+| `insurance-main.csv` (`insurance-principal.csv` with `--locales fr`) | 73% | 200,000 | 2,182 |
 | `insurance-ontario.csv` | 9% | 25,000 | 273 |
 | `insurance-quebec.csv` | 18% | 50,000 | 545 |
 | `insurance-combined.csv` | 100% | 275,000 | 3,000 |
 
-The combined file has the same 33 columns as a branch plus `filiale`, which
-names the branch of the row (`principal`, `ontario` or `quebec`): 34 columns
-in all. The columns and their values are in French, as in a Quebec insurer.
+The combined file has the same 33 columns as a branch plus `branch` (`filiale` in French), which
+names the branch of the row (`main`/`principal`, `ontario` or `quebec`): 34 columns
+in all. By default, columns and values are in English; pass `--locales fr` for French.
 
 ## What the files hold
 
@@ -94,19 +94,23 @@ between `0.00` and `1.00`, `consentement_communication` is a boolean indicator,
 software versions (`v1.0`, `v2.0`, `v2.1`) and origin IT systems (`SYS_PRI`, `SYS_QC`,
 `SYS_ON_CORE`, `SYS_ON_LEGACY`).
 
-### English localization
+### Locales and English default
 
-Pass `--english` to produce all Insurance customer files with English column headers
-and localized categorical values:
+By default, Insurance generates English customer files (`insurance-main.csv`,
+English column headers, Anglo-Saxon demographics via CommonProvider, Mr./Ms. titles).
+Pass `--locales fr` to produce French files (`insurance-principal.csv`, French demographics):
 
 ```console
-tabalyst generate --example insurance -d out/ --english
+tabalyst generate --example insurance -d out/ --locales fr
 ```
 
-Headers are translated to English (`customer_id`, `contract_id`, `branch`, `annual_premium`, etc.),
+Or `--locales en,fr` to write both variants. The `--english` option is retained as an alias for `--locales en`.
+Headers are translated (`customer_id`, `contract_id`, `branch`, `annual_premium`, etc.),
 and categorical values are adapted (`auto`, `home`, `life`, `travel` for contract types;
 `active`, `expired`, `suspended`, `cancelled` for statuses; `Mr.`, `Ms.` for honorifics).
-The underlying random draws and entity properties remain identical.
+Relational table names also follow the locale (`customers.csv`, `contracts.csv`, `claims.csv`, `payments.csv`
+in English; `clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv` in French).
+The underlying random draws and entity properties remain deterministic.
 
 The values follow the rules of the domain, and the clean files hold no
 exception to them, so they can serve to test analyses across columns:

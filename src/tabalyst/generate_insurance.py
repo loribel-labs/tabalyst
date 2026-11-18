@@ -178,9 +178,10 @@ class InsuranceReferences:
 class InsuranceProvider:
     """Generate coherent branch rows from declared Insurance resources."""
 
-    def __init__(self, common: CommonReferences, package: DatasetPackage) -> None:
+    def __init__(self, common: CommonReferences, package: DatasetPackage, locale: str = "en") -> None:
         self.common: CommonProvider = CommonProvider(common)
         self.refs: InsuranceReferences = InsuranceReferences(common, package)
+        self.locale: str = locale
 
     def row(self, branch: str | None, number: int, rng: random.Random,
             as_of_date: str) -> dict[str, str]:
@@ -196,9 +197,14 @@ class InsuranceProvider:
             others = [r for r in self.common.refs.tables["geography/provinces_ca.csv"]
                       if r["province_code"] != home]
             province = _pick(rng, others)["province_code"]
-        address = self.common.address({"province": province}, rng)
-        language = ("en" if rng.random() < 0.80 else "fr") if branch == "ontario" else address["language"]
-        person = self.common.person({"profile": language}, rng)
+        if self.locale == "en":
+            address = self.common.address({"province": province, "profile": "en"}, rng)
+            language = "en"
+            person = self.common.person({"profile": "en"}, rng)
+        else:
+            address = self.common.address({"province": province}, rng)
+            language = ("en" if rng.random() < 0.80 else "fr") if branch == "ontario" else address["language"]
+            person = self.common.person({"profile": language}, rng)
         contact = self.common.contact(
             {"first": "prenom", "last": "nom", "province": "province_code",
              "language": "langue_preferee"},
@@ -306,6 +312,207 @@ OUTPUT_PROFILES: dict[str, tuple[str, ...]] = {
     "complete": (*DEFAULT_FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS, *TRANCHE_C_FIELDS),
 }
 
+COLUMN_TRANSLATIONS_EN: dict[str, str] = {
+    # Default fields
+    "id_client": "customer_id",
+    "civilite": "title",
+    "prenom": "first_name",
+    "nom": "last_name",
+    "date_naissance": "birth_date",
+    "sexe": "gender",
+    "langue_preferee": "preferred_language",
+    "numero_voie": "street_number",
+    "type_voie": "street_type",
+    "nom_voie": "street_name",
+    "orientation": "street_direction",
+    "appartement": "unit_number",
+    "ville": "city",
+    "province_code": "province_code",
+    "province_nom": "province_name",
+    "code_postal": "postal_code",
+    "pays_code": "country_code",
+    "courriel": "email",
+    "telephone": "phone",
+    "id_contrat": "contract_id",
+    "type_contrat": "contract_type",
+    "date_debut": "start_date",
+    "date_fin": "end_date",
+    "statut_contrat": "contract_status",
+    "prime_annuelle": "annual_premium",
+    "frequence_paiement": "payment_frequency",
+    "mode_paiement": "payment_method",
+    "agence_code": "agency_code",
+    "date_creation": "creation_date",
+    "date_modification": "modification_date",
+    "date_reclamation": "claim_date",
+    "montant_reclamation": "claim_amount",
+    "reclamation_status": "claim_status",
+    "filiale": "branch",
+    # Extended fields (Tranche A)
+    "date_sinistre": "loss_date",
+    "montant_couverture": "coverage_amount",
+    "franchise": "deductible",
+    "montant_indemnise": "indemnity_amount",
+    "date_resiliation": "cancellation_date",
+    "statut_paiement": "payment_status",
+    "canal_acquisition": "acquisition_channel",
+    "courtier_id": "broker_id",
+    "produit_code": "product_code",
+    "nombre_reclamations": "claim_count",
+    # Tranche B
+    "taux_remboursement": "reimbursement_rate",
+    "consentement_communication": "communication_consent",
+    "gestionnaire_id": "manager_id",
+    "segment_client": "customer_segment",
+    # Tranche C
+    "date_observation": "observation_date",
+    "version_source": "source_version",
+    "source_system": "source_system",
+    # Relational model fields
+    "id_menage": "household_id",
+    "id_reclamation": "claim_id",
+    "id_paiement": "payment_id",
+    "date_paiement": "payment_date",
+    "montant": "amount",
+    "previous_contract_id": "previous_contract_id",
+}
+
+COLUMN_CANONICAL: dict[str, str] = {v: k for k, v in COLUMN_TRANSLATIONS_EN.items()}
+
+CATEGORICAL_TRANSLATIONS_EN: dict[str, dict[str, str]] = {
+    "civilite": {
+        "M.": "Mr.",
+        "Mme": "Ms.",
+    },
+    "type_contrat": {
+        "auto": "auto",
+        "habitation": "home",
+        "vie": "life",
+        "voyage": "travel",
+    },
+    "statut_contrat": {
+        "actif": "active",
+        "expiré": "expired",
+        "suspendu": "suspended",
+        "résilié": "cancelled",
+    },
+    "frequence_paiement": {
+        "mensuelle": "monthly",
+        "trimestrielle": "quarterly",
+        "semestrielle": "semi-annual",
+        "annuelle": "annual",
+    },
+    "mode_paiement": {
+        "prélèvement": "direct_debit",
+        "carte": "credit_card",
+        "virement": "bank_transfer",
+        "chèque": "cheque",
+    },
+    "reclamation_status": {
+        "ouvert": "open",
+        "en_cours": "in_progress",
+        "fermé": "closed",
+        "rejeté": "rejected",
+    },
+    "statut_paiement": {
+        "payé": "paid",
+        "partiel": "partial",
+        "en_retard": "late",
+        "impayé": "unpaid",
+    },
+    "canal_acquisition": {
+        "web": "web",
+        "courtier": "broker",
+        "agence": "agency",
+        "téléphone": "phone",
+    },
+    "segment_client": {
+        "particulier": "individual",
+        "professionnel": "professional",
+        "entreprise": "business",
+        "vip": "vip",
+    },
+    "filiale": {
+        "principal": "main",
+        "quebec": "quebec",
+        "ontario": "ontario",
+    },
+    "province_nom": {
+        "Québec": "Quebec",
+        "Ontario": "Ontario",
+        "Colombie-Britannique": "British Columbia",
+        "Alberta": "Alberta",
+        "Nouveau-Brunswick": "New Brunswick",
+        "Nouvelle-Écosse": "Nova Scotia",
+        "Manitoba": "Manitoba",
+        "Saskatchewan": "Saskatchewan",
+        "Terre-Neuve-et-Labrador": "Newfoundland and Labrador",
+        "Île-du-Prince-Édouard": "Prince Edward Island",
+        "Yukon": "Yukon",
+        "Territoires du Nord-Ouest": "Northwest Territories",
+        "Nunavut": "Nunavut",
+    },
+}
+
+INSURANCE_DATASET_NAMES: dict[str, dict[str, str]] = {
+    "en": {
+        "insurance-principal": "insurance-main",
+        "insurance-quebec": "insurance-quebec",
+        "insurance-ontario": "insurance-ontario",
+        "insurance-combined": "insurance-combined",
+    },
+    "fr": {
+        "insurance-principal": "insurance-principal",
+        "insurance-quebec": "insurance-quebec",
+        "insurance-ontario": "insurance-ontario",
+        "insurance-combined": "insurance-combined",
+    },
+}
+
+INSURANCE_RELATIONAL_TABLES: dict[str, tuple[str, ...]] = {
+    "en": ("customers", "contracts", "claims", "payments"),
+    "fr": ("clients", "contrats", "reclamations", "paiements"),
+}
+
+RELATIONAL_TABLE_TRANSLATIONS_EN: dict[str, str] = {
+    "clients": "customers",
+    "contrats": "contracts",
+    "reclamations": "claims",
+    "paiements": "payments",
+}
+
+RELATIONAL_TABLE_CANONICAL: dict[str, str] = {
+    "customers": "clients",
+    "contracts": "contrats",
+    "claims": "reclamations",
+    "payments": "paiements",
+    "clients": "clients",
+    "contrats": "contrats",
+    "reclamations": "reclamations",
+    "paiements": "paiements",
+}
+
+
+def localize_insurance_headers(headers: Sequence[str], english: bool = False) -> list[str]:
+    """Translate Insurance column headers to English if english is True, else preserve headers."""
+    if not english:
+        return list(headers)
+    return [COLUMN_TRANSLATIONS_EN.get(col, col) for col in headers]
+
+
+def localize_insurance_row(row: Mapping[str, str], english: bool = False) -> dict[str, str]:
+    """Translate Insurance column names and categorical values to English if english is True."""
+    if not english:
+        return dict(row)
+    localized: dict[str, str] = {}
+    for col, val in row.items():
+        translated_col = COLUMN_TRANSLATIONS_EN.get(col, col)
+        cat_map = CATEGORICAL_TRANSLATIONS_EN.get(col)
+        translated_val = cat_map.get(val, val) if cat_map and val in cat_map else val
+        localized[translated_col] = translated_val
+    return localized
+
+
 # Contract insurance-v2.md 4.5: the type of each column decides how its clean cell is normalized.
 DATE_COLUMNS = frozenset({"date_naissance", "date_debut", "date_fin", "date_creation",
                           "date_modification", "date_reclamation", "date_sinistre",
@@ -326,15 +533,19 @@ def insurance_canonical(column: str, value: str, row: Mapping[str, str]) -> str:
     other text is NFC and trimmed. Raises ValueError for a date whose row has no known branch
     or does not follow its convention.
     """
-    if column in IDENTIFIER_COLUMNS or not value:
+    col_canon = COLUMN_CANONICAL.get(column, column)
+    if col_canon in IDENTIFIER_COLUMNS or not value:
         return value
-    if column in DATE_COLUMNS:
-        branch = BRANCHES.get(row.get(BRANCH_COLUMN, ""))
+    if col_canon in DATE_COLUMNS:
+        branch_val = row.get(BRANCH_COLUMN) or row.get("branch", "")
+        if branch_val == "main":
+            branch_val = "principal"
+        branch = BRANCHES.get(branch_val)
         if branch is None:
             raise ValueError(f"canonical value of {column}: unknown {BRANCH_COLUMN} "
-                             f"{row.get(BRANCH_COLUMN)!r}")
+                             f"{branch_val!r}")
         return canonical_date(value, branch[2])
-    if column in AMOUNT_COLUMNS:
+    if col_canon in AMOUNT_COLUMNS:
         return canonical_decimal(value)
     return canonical_text(value)
 
@@ -362,7 +573,7 @@ def insurance_contextual(references: CommonReferences) -> dict[str, ContextualVa
         if province not in elsewhere:
             raise ValueError("postal_other_province needs a province_code column with a known "
                              f"province, got {province!r}")
-        postal = row.get("code_postal", "")
+        postal = row.get("postal_code") or row.get("code_postal", "")
         found = POSTAL_CODE.match(postal)
         if found is None:
             return postal
@@ -627,142 +838,4 @@ def extend_tranche_c_row(row: Mapping[str, str], branch: str,
     return {**row, **tranche_c}
 
 
-COLUMN_TRANSLATIONS_EN: dict[str, str] = {
-    # Default fields
-    "id_client": "customer_id",
-    "civilite": "title",
-    "prenom": "first_name",
-    "nom": "last_name",
-    "date_naissance": "birth_date",
-    "sexe": "gender",
-    "langue_preferee": "preferred_language",
-    "numero_voie": "street_number",
-    "type_voie": "street_type",
-    "nom_voie": "street_name",
-    "orientation": "street_direction",
-    "appartement": "unit_number",
-    "ville": "city",
-    "province_code": "province_code",
-    "province_nom": "province_name",
-    "code_postal": "postal_code",
-    "pays_code": "country_code",
-    "courriel": "email",
-    "telephone": "phone",
-    "id_contrat": "contract_id",
-    "type_contrat": "contract_type",
-    "date_debut": "start_date",
-    "date_fin": "end_date",
-    "statut_contrat": "contract_status",
-    "prime_annuelle": "annual_premium",
-    "frequence_paiement": "payment_frequency",
-    "mode_paiement": "payment_method",
-    "agence_code": "agency_code",
-    "date_creation": "creation_date",
-    "date_modification": "modification_date",
-    "date_reclamation": "claim_date",
-    "montant_reclamation": "claim_amount",
-    "reclamation_status": "claim_status",
-    "filiale": "branch",
-    # Extended fields (Tranche A)
-    "date_sinistre": "loss_date",
-    "montant_couverture": "coverage_amount",
-    "franchise": "deductible",
-    "montant_indemnise": "indemnity_amount",
-    "date_resiliation": "cancellation_date",
-    "statut_paiement": "payment_status",
-    "canal_acquisition": "acquisition_channel",
-    "courtier_id": "broker_id",
-    "produit_code": "product_code",
-    "nombre_reclamations": "claim_count",
-    # Tranche B
-    "taux_remboursement": "reimbursement_rate",
-    "consentement_communication": "communication_consent",
-    "gestionnaire_id": "manager_id",
-    "segment_client": "customer_segment",
-    # Tranche C
-    "date_observation": "observation_date",
-    "version_source": "source_version",
-    "source_system": "source_system",
-    # Relational model fields
-    "id_menage": "household_id",
-    "id_reclamation": "claim_id",
-    "id_paiement": "payment_id",
-    "date_paiement": "payment_date",
-    "montant": "amount",
-    "previous_contract_id": "previous_contract_id",
-}
 
-CATEGORICAL_TRANSLATIONS_EN: dict[str, dict[str, str]] = {
-    "civilite": {
-        "M.": "Mr.",
-        "Mme": "Ms.",
-    },
-    "type_contrat": {
-        "auto": "auto",
-        "habitation": "home",
-        "vie": "life",
-        "voyage": "travel",
-    },
-    "statut_contrat": {
-        "actif": "active",
-        "expiré": "expired",
-        "suspendu": "suspended",
-        "résilié": "cancelled",
-    },
-    "frequence_paiement": {
-        "mensuelle": "monthly",
-        "trimestrielle": "quarterly",
-        "semestrielle": "semi-annual",
-        "annuelle": "annual",
-    },
-    "mode_paiement": {
-        "prélèvement": "direct_debit",
-        "carte": "credit_card",
-        "virement": "bank_transfer",
-        "chèque": "cheque",
-    },
-    "reclamation_status": {
-        "ouvert": "open",
-        "en_cours": "in_progress",
-        "fermé": "closed",
-        "rejeté": "rejected",
-    },
-    "statut_paiement": {
-        "payé": "paid",
-        "partiel": "partial",
-        "en_retard": "late",
-        "impayé": "unpaid",
-    },
-    "canal_acquisition": {
-        "web": "web",
-        "courtier": "broker",
-        "agence": "agency",
-        "téléphone": "phone",
-    },
-    "segment_client": {
-        "particulier": "individual",
-        "professionnel": "professional",
-        "entreprise": "business",
-        "vip": "vip",
-    },
-}
-
-
-def localize_insurance_headers(headers: Sequence[str], english: bool = False) -> list[str]:
-    """Translate Insurance column headers to English if english is True, else preserve headers."""
-    if not english:
-        return list(headers)
-    return [COLUMN_TRANSLATIONS_EN.get(col, col) for col in headers]
-
-
-def localize_insurance_row(row: Mapping[str, str], english: bool = False) -> dict[str, str]:
-    """Translate Insurance column names and categorical values to English if english is True."""
-    if not english:
-        return dict(row)
-    localized: dict[str, str] = {}
-    for col, val in row.items():
-        translated_col = COLUMN_TRANSLATIONS_EN.get(col, col)
-        cat_map = CATEGORICAL_TRANSLATIONS_EN.get(col)
-        translated_val = cat_map.get(val, val) if cat_map and val in cat_map else val
-        localized[translated_col] = translated_val
-    return localized
