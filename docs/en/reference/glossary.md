@@ -170,3 +170,10 @@ Keep these exactly as written in every language:
 | valid atypical case | cas atypique valide | A value that is valid but unusual, such as a contract ending the day it starts: a scenario of the category `valid_atypical` writes it and the truth says it is not a defect |
 | canonical value | valeur canonique | What a clean cell means, written one way (a date in ISO 8601, an amount as a plain decimal), kept in the truth when a defect rewrites the cell |
 | partial scan | analyse partielle | A scan with status `partial`, which excluded some records under the `tolerant` policy |
+| relational dataset | jeu de données relationnel | A multi-table dataset with explicit foreign key cardinalities (`clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv`), generated from an in-memory population model |
+| missing mechanism | mécanisme d'absence | Rubin's classification of missing data processes (`mcar`, `mar`, `mnar`), tracked in metrics and ground truth |
+| temporal drift | dérive temporelle | Controlled chronological evolution of schemas, systems (`source_system`), or regulatory thresholds over time windows |
+| synthetic fraud | fraude synthétique | Supervised machine learning target patterns generated independently from technical data quality defects, with realistic class imbalance and overlapping distributions |
+| data leakage | fuite de données | Information leakage across customer contracts, temporal horizons, or artificial shortcuts, evaluated against holdout test partitions |
+| split, partition | partition de données | Leakage-free train, validation, and test fold assignments (`splits.csv`), grouping customers or enforcing chronological horizons |
+| latent variable | variable latente | Generator ground-truth scores and probabilities (`latent.csv`) isolated strictly outside feature tables to avoid trivial predictability |

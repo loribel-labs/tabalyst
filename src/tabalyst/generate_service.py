@@ -45,6 +45,17 @@ from tabalyst.generate_computer_parallel import worker_count
 from tabalyst.generate_csv import write_csv
 from tabalyst.generate_definition import GenerateDefinition
 from tabalyst.generate_insurance import (
+    COLUMN_TRANSLATIONS_EN,
+    InsuranceProvider,
+    extend_insurance_row,
+    extend_tranche_b_row,
+    extend_tranche_c_row,
+    insurance_canonical,
+    insurance_contextual,
+    localize_insurance_headers,
+    localize_insurance_row,
+)
+from tabalyst.generate_insurance import (
     EXTENDED_FIELDS as INSURANCE_EXTENDED_FIELDS,
 )
 from tabalyst.generate_insurance import (
@@ -55,14 +66,6 @@ from tabalyst.generate_insurance import (
 )
 from tabalyst.generate_insurance import (
     TRANCHE_C_FIELDS as INSURANCE_TRANCHE_C_FIELDS,
-)
-from tabalyst.generate_insurance import (
-    InsuranceProvider,
-    extend_insurance_row,
-    extend_tranche_b_row,
-    extend_tranche_c_row,
-    insurance_canonical,
-    insurance_contextual,
 )
 from tabalyst.generate_ml import (
     is_ml_profile,
@@ -133,6 +136,7 @@ class GeneratePlan:
     relational: bool = False
     row_order: str = "default"
     anomaly_profiles: tuple[str, ...] = ()
+    english: bool = False
 
     def __post_init__(self) -> None:
         if not self.anomaly_profiles and self.anomaly_profile is not None:
@@ -594,6 +598,7 @@ def build_generate_plan(
     workers: int | None = None,
     relational: bool = False,
     row_order: str = "default",
+    english: bool = False,
 ) -> GeneratePlan | ComputerPlan:
     """Validate a Generate source and plan every artifact before writing."""
     if package_path is not None:
@@ -616,6 +621,8 @@ def build_generate_plan(
                 raise ConfigurationError("--relational applies to the Insurance package only.")
             if row_order != "default":
                 raise ConfigurationError("--row-order applies to the Insurance package only.")
+            if english:
+                raise ConfigurationError("--english applies to the Insurance package only.")
             return _computer_plan(
                 source_path, output_dir=output_dir, output=output, request=request,
                 rows=rows, seed=seed, as_of_date=as_of_date,
@@ -639,6 +646,8 @@ def build_generate_plan(
                 raise ConfigurationError("--relational generates multiple tables; use -d.")
         if row_order != "default" and package.id != "insurance":
             raise ConfigurationError("--row-order applies to the Insurance package only.")
+        if english and package.id != "insurance":
+            raise ConfigurationError("--english applies to the Insurance package only.")
 
         if anomaly_profile is None:
             effective_anomalies: tuple[str, ...] = ()
@@ -678,7 +687,8 @@ def build_generate_plan(
             return GeneratePlan(definition, (), {}, 0, definition.defaults.get("as_of_date", "2000-01-01"),
                                 effective_anomalies[0] if effective_anomalies else None, force, package,
                                 output_profile=effective_output, relational=relational,
-                                row_order=row_order, anomaly_profiles=effective_anomalies)
+                                row_order=row_order, anomaly_profiles=effective_anomalies,
+                                english=english)
     else:
         raise ConfigurationError(
             f"PACKAGE_FORMAT: {source_path} is not a Generate package; "
@@ -813,6 +823,7 @@ def build_generate_plan(
         relational=relational,
         row_order=row_order,
         anomaly_profiles=effective_anomalies,
+        english=english,
     )
 
 
@@ -1025,6 +1036,9 @@ def _generate_relational(
                 tbl = artifact.dataset_id
                 headers, row_iter, total = table_generators[tbl]
                 stage = stages[artifact.path]
+                if plan.english:
+                    headers = tuple(localize_insurance_headers(headers, english=True))
+                    row_iter = (localize_insurance_row(r, english=True) for r in row_iter)
                 write_csv(
                     stage, list(headers), row_iter, delimiter=",", total=total,
                     on_rows=partial(_report_stage, report, f"Writing {artifact.path.name}", total),
@@ -1273,6 +1287,7 @@ def _generate(plan: GeneratePlan | ComputerPlan,
     )
     if needs_insurance and references is None:
         references = CommonReferences()
+    is_insurance = plan.package is not None and plan.package.id == "insurance"
     insurance = (InsuranceProvider(references, plan.package)
                  if needs_insurance and references is not None and plan.package is not None else None)
     pools = {
@@ -1301,7 +1316,10 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 reader = csv.DictReader(stream, delimiter=delimiter)
                 for row in reader:
                     if dataset["combine"].get("source_column"):
-                        row[dataset["combine"]["source_column"]] = (
+                        scol = dataset["combine"]["source_column"]
+                        if is_insurance and plan.english:
+                            scol = COLUMN_TRANSLATIONS_EN.get(scol, scol)
+                        row[scol] = (
                             datasets[input_id].get("source", input_id)
                         )
                     if target_headers is not None:
@@ -1417,6 +1435,8 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                     if cname not in seen_headers:
                         headers.append(cname)
                         seen_headers.add(cname)
+            if is_insurance and plan.english:
+                headers = localize_insurance_headers(headers, english=True)
             rows = combined_rows(dataset, headers)
         else:
             columns = dataset.get("columns") or plan.definition.schemas[dataset["schema"]]["columns"]
@@ -1463,6 +1483,9 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                     rows = ext_rows
             else:
                 rows = base_rows
+        if is_insurance and plan.english:
+            headers = localize_insurance_headers(headers, english=True)
+            rows = (localize_insurance_row(row, english=True) for row in rows)
         total = plan.rows[artifact.dataset_id]
         count = write_csv(
             stage, headers, rows, delimiter=delimiter, total=total,

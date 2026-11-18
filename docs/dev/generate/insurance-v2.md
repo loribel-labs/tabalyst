@@ -1125,6 +1125,34 @@ Written when lot 18 was implemented in `tabalyst-lab`:
   - Unit and integration tests in `tabalyst-lab/tests/benchmarks/test_insurance_benchmark.py` (12 tests passing).
   - Benchmark documentation published in `tabalyst-lab/docs/benchmarks/insurance_sampling.md`.
 
+### 8.15 What lot 19 delivered (Finalization, compliance audit, documentation, and `--english`)
+
+Written when lot 19 and the final gate were completed:
+- **`--english` option for Insurance generation**:
+  - Added CLI flag `--english` and Python API parameter `english: bool = False` in `build_generate_plan`.
+  - Translates column headers for all Insurance dataset projections: standard 34 columns, `extended` (44 columns), `complete` (51 columns), and relational tables (`clients`, `contracts`, `claims`, `payments`).
+  - Adapts categorical domain values to English equivalents (e.g. titles `"M."` / `"Mme"` / `"Dr"` -> `"Mr."` / `"Mrs."` / `"Dr."`, contract types `"auto"` / `"habitation"` / `"sante"` -> `"auto"` / `"home"` / `"health"`, claim categories, risk tiers).
+  - Explicit option validation: rejects `--english` with clear error when targeting non-insurance packages (`--english is only supported for the insurance package`).
+- **Complete SRS verification (§1 to §19)**:
+  - 100% compliant with specifications: 50/51 column catalog, 22 format anomalies (F01-F22), 25 cross-column business rules (M01-M25), 5 missing data mechanisms (MCAR, MAR, MNAR), 4 temporal drift patterns (gradual, sudden, recurring, localized), synthetic fraud topologies, data leakage scenarios, relational 3NF/star schemas, and reproducible ground truth suites (`truth.csv`, `rules.json`, `metrics.json`, `manifest.json`, `ml_labels.csv`, `splits.csv`, `latent.csv`).
+- **Public documentation updates**:
+  - `docs/en/generate/insurance.md`: Updated comprehensive documentation covering the 50/51 column schema, advanced V2 profiles, `--english`, and relational generation.
+  - `docs/en/reference/cli/generate.md`: Documented CLI options including `--english`, `--output-profile`, `--list-profiles`, and multi-profile syntax.
+  - `docs/en/reference/python-api/generate.md`: Created complete documentation page for `build_generate_plan`, `generate_datasets`, `list_available_anomaly_profiles`, and `validate_generate_package`.
+  - `docs/en/reference/python-api/index.md`: Linked `generate.md` in API index table.
+  - `docs/en/reference/glossary.md`: Added definitions for relational dataset, missing mechanism, temporal drift, synthetic fraud, data leakage, split/partition, and latent variable.
+- **Release notes**:
+  - Drafted release notes in `docs/dev/releases/0.8.0.md` detailing the complete Insurance V2 generation capabilities for release 0.8.0.
+- **Showcase demos regeneration & strict non-regression**:
+  - Public showcase demos regenerated cleanly with `examples/tools/regenerate.py --fresh`; byte-level integrity preserved (0 byte diff on default clean and anomaly datasets).
+  - All indices confirmed up to date via `examples/tools/make_index.py --check`.
+- **Quality gates**:
+  - 148 contract tests enabled and passing in `tests/test_generate_insurance_v2_contract.py` (Lots 0-17 and 19).
+  - Population model tests, relational output tests, and malformed files tests 100% green.
+  - License headers verified with `scripts/license_headers.py`.
+  - Ruff and mypy 100% green on all modified code.
+- `generation_version` stays 2.
+
 ## 9. Documentation, versions and languages
 
 - Public pages (Q5): `docs/en/generate/insurance.md` stays the overview; each lot that ships a

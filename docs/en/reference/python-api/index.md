@@ -25,6 +25,7 @@ batch = tabalyst.generate_reports(["*.csv"], output_dir="reports")
 | Find how to read a JSON, JSONL or Excel file | `tabalyst.inspect()`, `tabalyst.generate_inspections()` | [Python API: Inspect](inspect.md) |
 | Write a smaller CSV file | `tabalyst.sample_csv()`, `tabalyst.generate_samples()` | [Python API: sampling](sample.md) |
 | Remove the exact duplicate rows of CSV files | `tabalyst.dedup_csv()`, `tabalyst.generate_dedups()` | [Python API: Dedup](dedup.md) |
+| Generate synthetic datasets and reference benchmarks | `tabalyst.build_generate_plan()`, `tabalyst.generate_datasets()`, `tabalyst.list_available_anomaly_profiles()` | [Python API: Generate](generate.md) |
 
 ## Conventions
 

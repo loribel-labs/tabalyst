@@ -74,7 +74,7 @@ contracts, and `courtier_id` is populated only when `canal_acquisition` is
 
 ### Complete output profile
 
-Pass `--output-profile complete` to append tranche B columns after the extended
+Pass `--output-profile complete` to append tranche B and tranche C columns after the extended
 columns:
 
 ```console
@@ -84,12 +84,29 @@ tabalyst generate --example insurance -d out/ --output-profile complete
 | Group | Columns |
 | --- | --- |
 | Tranche B (4) | `taux_remboursement`, `consentement_communication`, `gestionnaire_id`, `segment_client` |
+| Tranche C (3) | `date_observation`, `version_source`, `source_system` |
 
-Branch files have 47 columns; `insurance-combined.csv` has 48 columns (with `filiale`).
+Branch files have 50 columns; `insurance-combined.csv` has 51 columns (with `filiale`).
 All columns satisfy strict domain rules: `taux_remboursement` is a bounded decimal
 between `0.00` and `1.00`, `consentement_communication` is a boolean indicator,
-`gestionnaire_id` follows the `GES-XXX` pattern, and `segment_client` belongs to
-`particulier`, `professionnel`, `entreprise` or `vip`.
+`gestionnaire_id` follows the `GES-XXX` pattern, `segment_client` belongs to
+`particulier`, `professionnel`, `entreprise` or `vip`, and tranche C captures
+software versions (`v1.0`, `v2.0`, `v2.1`) and origin IT systems (`SYS_PRI`, `SYS_QC`,
+`SYS_ON_CORE`, `SYS_ON_LEGACY`).
+
+### English localization
+
+Pass `--english` to produce all Insurance customer files with English column headers
+and localized categorical values:
+
+```console
+tabalyst generate --example insurance -d out/ --english
+```
+
+Headers are translated to English (`customer_id`, `contract_id`, `branch`, `annual_premium`, etc.),
+and categorical values are adapted (`auto`, `home`, `life`, `travel` for contract types;
+`active`, `expired`, `suspended`, `cancelled` for statuses; `Mr.`, `Ms.` for honorifics).
+The underlying random draws and entity properties remain identical.
 
 The values follow the rules of the domain, and the clean files hold no
 exception to them, so they can serve to test analyses across columns:
@@ -249,6 +266,27 @@ tabalyst generate --example insurance -d out/ --anomaly-profile format_vs_busine
 ```
 
 This generates independent altered files (`insurance-combined.format_vs_business.csv`, `insurance-combined.anomaly_diversity.csv`) and their respective isolated ground-truth suites.
+
+### Advanced scenario profiles
+
+Insurance V2 provides dedicated scenario profiles targeting specific quality and machine learning challenges (floor: 10,000 rows):
+
+- `missing_mechanisms`: Little & Rubin (1987) missingness models (MCAR, MAR conditioned on branches or recent years, MNAR on extreme claim and premium values) with documented reasons (`unreported`, `client_refusal`, `system_omission`, etc.).
+- `schema_drift`: IT migrations, historical tariff periods, and regulatory deductible floors across timeline windows.
+- `ml_fraud_imbalanced`: synthetic fraud patterns at 1%, 0.1% and 0.01% prevalence across 4 typologies without trivial artifacts, with label noise and delayed investigation labels (`ml_labels.csv`).
+- `ml_leakage_test`: intentional cross-contract, temporal, and shortcut leakage benchmarks with customer-grouped and temporal partition splits (`splits.csv`).
+- `ml_multitask`: comprehensive multi-target supervised benchmark combining claim occurrence, claim cost regression, and customer retention.
+- `technical_stress`: volumetric stress, multiline CSV text, complex Unicode, UUID high-cardinality columns, and extreme float precision.
+
+### Relational database generation
+
+Pass `--relational` with `-d` to generate a normalized 4-table relational database:
+
+```console
+tabalyst generate --example insurance -d out/ --relational
+```
+
+This publishes `clients.csv` (22 columns), `contrats.csv` (23 columns), `reclamations.csv` (7 columns), and `paiements.csv` (7 columns) alongside their table-specific ground-truth artifacts.
 
 ## Next steps
 

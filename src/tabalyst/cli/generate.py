@@ -165,6 +165,10 @@ def generate_command(
         str,
         typer.Option("--row-order", help="Sampling row ordering for Insurance: default, branch, chronological, agency, shuffled."),
     ] = "default",
+    english: Annotated[
+        bool,
+        typer.Option("--english", help="Insurance: generate English column names and localized categorical values."),
+    ] = False,
     no_progress: Annotated[
         bool,
         typer.Option("--no-progress", help="Hide the progress line. It is also hidden outside a terminal."),
@@ -217,6 +221,7 @@ def generate_command(
             validate_only=validate_only, workers=workers,
             relational=relational,
             row_order=row_order,
+            english=english,
         )
         if validate_only:
             typer.echo("Valid Generate package.", err=True)

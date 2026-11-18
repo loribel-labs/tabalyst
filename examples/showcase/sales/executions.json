@@ -2,20 +2,20 @@
   "schema_version": "1.0",
   "executions": [
     {
-      "timestamp": "2026-11-17T22:02:51.631425Z",
+      "timestamp": "2026-11-18T18:29:44.619789Z",
       "tabalyst_version": "0.7.7",
       "source_file": "sales.xlsx",
       "html_file": "report.html",
       "json_file": "report.json",
       "rows": 120,
       "columns": 9,
-      "analysis_seconds": 0.075,
-      "total_seconds": 0.2958,
+      "analysis_seconds": 0.1131,
+      "total_seconds": 0.3171,
       "git": {
         "available": true,
-        "commit": "33337a828d68c31127dc7eaf35a85c5c9476e981",
+        "commit": "2567375ea8bceac4c9d934497e74d65d349d19b7",
         "dirty": true,
-        "state": "33337a82+working"
+        "state": "2567375e+working"
       }
     }
   ]

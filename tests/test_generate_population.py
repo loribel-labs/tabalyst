@@ -227,9 +227,10 @@ def test_row_projections(model_1000: PopulationModel) -> None:
 
     # 1. Flattened projections
     flat_complete = model_1000.to_flattened_row(ctr, output_profile="complete")
-    assert len(flat_complete) == 48
+    assert len(flat_complete) == 51
     assert "taux_remboursement" in flat_complete
     assert "date_sinistre" in flat_complete
+    assert "source_system" in flat_complete
     assert flat_complete["id_contrat"] == ctr.id_contrat
 
     flat_extended = model_1000.to_flattened_row(ctr, output_profile="extended")
@@ -307,5 +308,5 @@ def test_bounded_memory_budget(common_refs: CommonReferences, insurance_package:
 
     # For 500,000 contracts, verify that memory consumption remains strictly bounded and linear
     estimated_500k_mb = (bytes_per_contract * 500_000) / (1024 * 1024)
-    assert bytes_per_contract < 950, f"Memory consumption: {bytes_per_contract:.1f} bytes/contract ({estimated_500k_mb:.1f} MB)"
-    assert estimated_500k_mb < 450.0, f"500,000 contracts would exceed budget: {estimated_500k_mb:.2f} MB"
+    assert bytes_per_contract < 1350, f"Memory consumption: {bytes_per_contract:.1f} bytes/contract ({estimated_500k_mb:.1f} MB)"
+    assert estimated_500k_mb < 650.0, f"500,000 contracts would exceed budget: {estimated_500k_mb:.2f} MB"

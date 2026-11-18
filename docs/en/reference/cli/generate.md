@@ -34,9 +34,10 @@ destination is required, except with `--validate-only` and `--list-profiles`. A
 | `--list-profiles` | List available anomaly profiles for the package, or for all built-in examples when used without a package. |
 | `--request FILE` | Read `rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`, `locales`, `unit_style`, `unit_columns` and `anomaly_profile` from a JSON object. Explicit options win. |
 | `--generation-profile NAME` | Computer: bias the catalog selection. |
-| `--output-profile NAME` | Choose the columns written. Computer: `compact`, `standard`, `extended`. Insurance: `default` (33 columns on branches, 34 combined), `extended` (43 columns on branches, 44 combined), `complete` (47 columns on branches, 48 combined), or flattened profiles (`flattened`, `flattened-extended`, `flattened-complete`). |
+| `--output-profile NAME` | Choose the columns written. Computer: `compact`, `standard`, `extended`. Insurance: `default` (33 columns on branches, 34 combined), `extended` (43 columns on branches, 44 combined), `complete` (50 columns on branches, 51 combined), or flattened profiles (`flattened`, `flattened-extended`, `flattened-complete`). |
 | `--relational` | Insurance: generate 4 relational tables (`clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv`) alongside their full ground truth. |
 | `--row-order NAME` | Insurance: choose contract ordering (`default`, `branch`, `chronological`, `agency`, `shuffled`). |
+| `--english` | Insurance: generate English column names (`customer_id`, `contract_id`, `branch`, etc.) and localized categorical values. |
 | `--market ca\|us` | Computer: the offer market. |
 | `--locales en\|fr\|en,fr` | Computer: the languages written. Default `en,fr` with `-d`, `en` with `-o`. |
 | `--unit-style numeric\|localized` | Computer: plain numbers or values with units. |
@@ -78,8 +79,11 @@ writes `<dataset>.<profile>.truth.csv`, `.rules.json`, `.metrics.json` and
 an existing one needs `--force`. See
 [Insurance ground truth files](../../generate/insurance-ground-truth.md).
 A profile can set a minimum number of rows: `rare_events` stops below
-100,000 rows, while `format_vs_business`, `anomaly_diversity` and
-`clustered_errors` stop below 10,000 rows, naming the profile, the floor
-and the rows requested. See
+100,000 rows, while other V2 scenario profiles (`format_vs_business`,
+`anomaly_diversity`, `clustered_errors`, `missing_mechanisms`, `schema_drift`,
+`ml_fraud_imbalanced`, `ml_leakage_test`, `ml_multitask`, `technical_stress`) stop
+below 10,000 rows, naming the profile, the floor and the rows requested.
+The `--english` option translates all Insurance column names to English and localizes
+all categorical domain values without changing random seeds or row ordering. See
 [Insurance rare events](../../generate/insurance-rare-events.md) and
 [Generate insurance customers](../../generate/insurance.md).

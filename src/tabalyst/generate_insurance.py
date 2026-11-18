@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import random
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
@@ -625,3 +625,144 @@ def extend_tranche_c_row(row: Mapping[str, str], branch: str,
         "source_system": src,
     }
     return {**row, **tranche_c}
+
+
+COLUMN_TRANSLATIONS_EN: dict[str, str] = {
+    # Default fields
+    "id_client": "customer_id",
+    "civilite": "title",
+    "prenom": "first_name",
+    "nom": "last_name",
+    "date_naissance": "birth_date",
+    "sexe": "gender",
+    "langue_preferee": "preferred_language",
+    "numero_voie": "street_number",
+    "type_voie": "street_type",
+    "nom_voie": "street_name",
+    "orientation": "street_direction",
+    "appartement": "unit_number",
+    "ville": "city",
+    "province_code": "province_code",
+    "province_nom": "province_name",
+    "code_postal": "postal_code",
+    "pays_code": "country_code",
+    "courriel": "email",
+    "telephone": "phone",
+    "id_contrat": "contract_id",
+    "type_contrat": "contract_type",
+    "date_debut": "start_date",
+    "date_fin": "end_date",
+    "statut_contrat": "contract_status",
+    "prime_annuelle": "annual_premium",
+    "frequence_paiement": "payment_frequency",
+    "mode_paiement": "payment_method",
+    "agence_code": "agency_code",
+    "date_creation": "creation_date",
+    "date_modification": "modification_date",
+    "date_reclamation": "claim_date",
+    "montant_reclamation": "claim_amount",
+    "reclamation_status": "claim_status",
+    "filiale": "branch",
+    # Extended fields (Tranche A)
+    "date_sinistre": "loss_date",
+    "montant_couverture": "coverage_amount",
+    "franchise": "deductible",
+    "montant_indemnise": "indemnity_amount",
+    "date_resiliation": "cancellation_date",
+    "statut_paiement": "payment_status",
+    "canal_acquisition": "acquisition_channel",
+    "courtier_id": "broker_id",
+    "produit_code": "product_code",
+    "nombre_reclamations": "claim_count",
+    # Tranche B
+    "taux_remboursement": "reimbursement_rate",
+    "consentement_communication": "communication_consent",
+    "gestionnaire_id": "manager_id",
+    "segment_client": "customer_segment",
+    # Tranche C
+    "date_observation": "observation_date",
+    "version_source": "source_version",
+    "source_system": "source_system",
+    # Relational model fields
+    "id_menage": "household_id",
+    "id_reclamation": "claim_id",
+    "id_paiement": "payment_id",
+    "date_paiement": "payment_date",
+    "montant": "amount",
+    "previous_contract_id": "previous_contract_id",
+}
+
+CATEGORICAL_TRANSLATIONS_EN: dict[str, dict[str, str]] = {
+    "civilite": {
+        "M.": "Mr.",
+        "Mme": "Ms.",
+    },
+    "type_contrat": {
+        "auto": "auto",
+        "habitation": "home",
+        "vie": "life",
+        "voyage": "travel",
+    },
+    "statut_contrat": {
+        "actif": "active",
+        "expiré": "expired",
+        "suspendu": "suspended",
+        "résilié": "cancelled",
+    },
+    "frequence_paiement": {
+        "mensuelle": "monthly",
+        "trimestrielle": "quarterly",
+        "semestrielle": "semi-annual",
+        "annuelle": "annual",
+    },
+    "mode_paiement": {
+        "prélèvement": "direct_debit",
+        "carte": "credit_card",
+        "virement": "bank_transfer",
+        "chèque": "cheque",
+    },
+    "reclamation_status": {
+        "ouvert": "open",
+        "en_cours": "in_progress",
+        "fermé": "closed",
+        "rejeté": "rejected",
+    },
+    "statut_paiement": {
+        "payé": "paid",
+        "partiel": "partial",
+        "en_retard": "late",
+        "impayé": "unpaid",
+    },
+    "canal_acquisition": {
+        "web": "web",
+        "courtier": "broker",
+        "agence": "agency",
+        "téléphone": "phone",
+    },
+    "segment_client": {
+        "particulier": "individual",
+        "professionnel": "professional",
+        "entreprise": "business",
+        "vip": "vip",
+    },
+}
+
+
+def localize_insurance_headers(headers: Sequence[str], english: bool = False) -> list[str]:
+    """Translate Insurance column headers to English if english is True, else preserve headers."""
+    if not english:
+        return list(headers)
+    return [COLUMN_TRANSLATIONS_EN.get(col, col) for col in headers]
+
+
+def localize_insurance_row(row: Mapping[str, str], english: bool = False) -> dict[str, str]:
+    """Translate Insurance column names and categorical values to English if english is True."""
+    if not english:
+        return dict(row)
+    localized: dict[str, str] = {}
+    for col, val in row.items():
+        translated_col = COLUMN_TRANSLATIONS_EN.get(col, col)
+        cat_map = CATEGORICAL_TRANSLATIONS_EN.get(col)
+        translated_val = cat_map.get(val, val) if cat_map and val in cat_map else val
+        localized[translated_col] = translated_val
+    return localized

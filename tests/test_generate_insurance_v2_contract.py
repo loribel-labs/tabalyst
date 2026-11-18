@@ -49,7 +49,7 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13", "14", "15", "16", "17"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13", "14", "15", "16", "17", "19"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
@@ -4271,6 +4271,247 @@ def test_lot17_strict_non_regression_defaults_and_single_profiles(tmp_path: Path
     # For a single profile run, anomaly_counts maintains exact legacy key format without profile suffix
     assert "insurance-combined" in res.anomaly_counts
     assert "insurance-combined/dirty_realistic" not in res.anomaly_counts
+
+
+# --- Lot 19: English option and finalization -----------------------------------------------
+
+
+@contract("19")
+def test_lot19_english_option_insurance_columns_and_categoricals(tmp_path: Path) -> None:
+    """SRS §15, Lot 19: Support --english option translating columns and categorical values."""
+    out = tmp_path / "eng_default"
+    plan = build_generate_plan(
+        PACKAGE,
+        english=True,
+        rows=100,
+        seed=42,
+        output_dir=out,
+    )
+    assert plan.english is True
+    _res = generate_datasets(plan)
+    assert (out / "insurance-combined.csv").is_file()
+
+    with (out / "insurance-combined.csv").open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        headers = reader.fieldnames or []
+        assert "customer_id" in headers
+        assert "title" in headers
+        assert "first_name" in headers
+        assert "last_name" in headers
+        assert "contract_id" in headers
+        assert "contract_type" in headers
+        assert "contract_status" in headers
+        assert "annual_premium" in headers
+        assert "payment_frequency" in headers
+        assert "payment_method" in headers
+        assert "claim_status" in headers
+        assert "branch" in headers
+
+        # Ensure no legacy French header remained
+        assert "id_client" not in headers
+        assert "civilite" not in headers
+        assert "prenom" not in headers
+        assert "id_contrat" not in headers
+        assert "type_contrat" not in headers
+        assert "filiale" not in headers
+
+        rows = list(reader)
+        assert len(rows) == 100
+        titles = {r["title"] for r in rows}
+        assert titles.issubset({"Mr.", "Ms."})
+        contract_types = {r["contract_type"] for r in rows}
+        assert contract_types.issubset({"auto", "home", "life", "travel"})
+        contract_statuses = {r["contract_status"] for r in rows}
+        assert contract_statuses.issubset({"active", "expired", "suspended", "cancelled"})
+        payment_frequencies = {r["payment_frequency"] for r in rows}
+        assert payment_frequencies.issubset({"monthly", "quarterly", "semi-annual", "annual"})
+        payment_methods = {r["payment_method"] for r in rows}
+        assert payment_methods.issubset({"direct_debit", "credit_card", "bank_transfer", "cheque"})
+
+
+@contract("19")
+def test_lot19_english_option_extended_and_complete(tmp_path: Path) -> None:
+    """SRS §15, Lot 19: Support --english with extended and complete profiles."""
+    out = tmp_path / "eng_complete"
+    plan = build_generate_plan(
+        PACKAGE,
+        output_profile="complete",
+        english=True,
+        rows=100,
+        seed=42,
+        output_dir=out,
+    )
+    assert plan.output_profile == "complete"
+    assert plan.english is True
+    generate_datasets(plan)
+
+    with (out / "insurance-combined.csv").open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        headers = set(reader.fieldnames or [])
+
+        # Tranche A
+        assert "loss_date" in headers
+        assert "coverage_amount" in headers
+        assert "deductible" in headers
+        assert "indemnity_amount" in headers
+        assert "cancellation_date" in headers
+        assert "payment_status" in headers
+        assert "acquisition_channel" in headers
+        assert "broker_id" in headers
+        assert "product_code" in headers
+        assert "claim_count" in headers
+
+        # Tranche B
+        assert "reimbursement_rate" in headers
+        assert "communication_consent" in headers
+        assert "manager_id" in headers
+        assert "customer_segment" in headers
+
+        # Tranche C
+        assert "observation_date" in headers
+        assert "source_version" in headers
+        assert "source_system" in headers
+
+        rows = list(reader)
+        pay_statuses = {r["payment_status"] for r in rows if r["payment_status"]}
+        assert pay_statuses.issubset({"paid", "partial", "late", "unpaid"})
+
+        acq_channels = {r["acquisition_channel"] for r in rows if r["acquisition_channel"]}
+        assert acq_channels.issubset({"web", "broker", "agency", "phone"})
+
+        segments = {r["customer_segment"] for r in rows if r["customer_segment"]}
+        assert segments.issubset({"individual", "professional", "business", "vip"})
+
+
+@contract("19")
+def test_lot19_english_option_relational(tmp_path: Path) -> None:
+    """SRS §15, Lot 19: Support --english with --relational output."""
+    out = tmp_path / "eng_relational"
+    plan = build_generate_plan(
+        PACKAGE,
+        relational=True,
+        english=True,
+        rows=50,
+        seed=42,
+        output_dir=out,
+    )
+    assert plan.relational is True
+    assert plan.english is True
+    generate_datasets(plan)
+
+    # 1. clients.csv
+    with (out / "clients.csv").open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        headers = set(reader.fieldnames or [])
+        assert "customer_id" in headers
+        assert "household_id" in headers
+        assert "title" in headers
+        assert "first_name" in headers
+        assert "last_name" in headers
+        assert "customer_segment" in headers
+        assert "communication_consent" in headers
+
+    # 2. contrats.csv
+    with (out / "contrats.csv").open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        headers = set(reader.fieldnames or [])
+        assert "contract_id" in headers
+        assert "customer_id" in headers
+        assert "branch" in headers
+        assert "contract_type" in headers
+        assert "annual_premium" in headers
+        assert "payment_method" in headers
+        assert "previous_contract_id" in headers
+
+    # 3. reclamations.csv
+    with (out / "reclamations.csv").open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        headers = set(reader.fieldnames or [])
+        assert "claim_id" in headers
+        assert "contract_id" in headers
+        assert "loss_date" in headers
+        assert "claim_date" in headers
+        assert "claim_status" in headers
+
+    # 4. paiements.csv
+    with (out / "paiements.csv").open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        headers = set(reader.fieldnames or [])
+        assert "payment_id" in headers
+        assert "claim_id" in headers
+        assert "contract_id" in headers
+        assert "payment_date" in headers
+        assert "amount" in headers
+        assert "payment_method" in headers
+        assert "payment_status" in headers
+
+
+@contract("19")
+def test_lot19_english_option_refusals(tmp_path: Path) -> None:
+    """SRS §15, Lot 19: Rejection of --english on non-Insurance packages."""
+    out = tmp_path / "refusals"
+
+    # CRM
+    with pytest.raises(ConfigurationError, match=r"--english applies to the Insurance package only\."):
+        build_generate_plan(example="crm", english=True, rows=100, output_dir=out)
+
+    # Computer
+    with pytest.raises(ConfigurationError, match=r"--english applies to the Insurance package only\."):
+        build_generate_plan(example="computer", english=True, rows=100, output_dir=out)
+
+
+@contract("19")
+def test_lot19_english_cli(tmp_path: Path) -> None:
+    """SRS §15, Lot 19: Test CLI --english flag."""
+    from typer.testing import CliRunner
+
+    from tabalyst.cli.app import app
+
+    runner = CliRunner()
+    target_dir = tmp_path / "eng_cli_dir"
+    res = runner.invoke(app, [
+        "generate", "--example", "insurance", "--english",
+        "--rows", "20", "--seed", "42", "-d", str(target_dir),
+    ])
+    assert res.exit_code == 0
+    target_csv = target_dir / "insurance-combined.csv"
+    assert target_csv.is_file()
+
+    with target_csv.open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        headers = set(reader.fieldnames or [])
+        assert "customer_id" in headers
+        assert "contract_id" in headers
+        assert "contract_type" in headers
+        assert "id_client" not in headers
+
+
+@contract("19")
+def test_lot19_english_non_regression_default_french(tmp_path: Path) -> None:
+    """Contract §2: Ensure default generation without --english keeps exact original French schema."""
+    out = tmp_path / "fr_default"
+    plan = build_generate_plan(
+        PACKAGE,
+        english=False,
+        rows=100,
+        seed=42,
+        output_dir=out,
+    )
+    assert plan.english is False
+    generate_datasets(plan)
+
+    with (out / "insurance-combined.csv").open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        headers = set(reader.fieldnames or [])
+        assert "id_client" in headers
+        assert "civilite" in headers
+        assert "prenom" in headers
+        assert "nom" in headers
+        assert "id_contrat" in headers
+        assert "type_contrat" in headers
+        assert "customer_id" not in headers
+        assert "contract_id" not in headers
+
 
 
 
