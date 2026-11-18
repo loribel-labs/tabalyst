@@ -32,14 +32,18 @@ MISSING_MECHANISMS = frozenset({"mcar", "mar", "mnar"})
 MISSING_REASONS = frozenset({
     "unreported", "client_refusal", "not_applicable", "system_omission", "unknown",
 })
+FRAUD_TYPES = frozenset({
+    "phantom_claim", "inflated_claim", "collusion", "organized_fraud",
+})
 SCENARIO_KEYS = frozenset({
     "scenario_id", "rule_id", "category", "severity", "rarity_level", "root_cause_id",
     "requires", "conflicts_with", "can_overlap", "expected_detection", "description",
-    "missing_mechanism", "missing_reason",
+    "missing_mechanism", "missing_reason", "fraud_type",
 })
 # What every operation of one scenario must say the same way: the truth file reads them per scenario.
 SHARED_KEYS = ("category", "severity", "rarity_level", "rule_id", "root_cause_id",
-               "expected_detection", "description", "missing_mechanism", "missing_reason")
+               "expected_detection", "description", "missing_mechanism", "missing_reason",
+               "fraud_type")
 # The free text of a scenario in manifest.json (report 15 "expected effect"), never interpreted.
 MAX_DESCRIPTION = 500
 # Output profiles that add columns to the 34 of the default one (contract section 7), so that a
@@ -157,6 +161,8 @@ def scenario_option_error(operation: Mapping[str, object]) -> str | None:
                 checks.append("operation.missing_mechanism mnar must condition on the missing column itself")
     if "missing_reason" in operation:
         checks.append(_choice_error(operation, "missing_reason", MISSING_REASONS))
+    if "fraud_type" in operation:
+        checks.append(_choice_error(operation, "fraud_type", FRAUD_TYPES))
     problem = next((problem for problem in checks if problem is not None), None)
     if problem is None and operation["category"] == "valid_atypical":
         # Contract 3.1: a non-defect is harmless and no detector should be right to report it.

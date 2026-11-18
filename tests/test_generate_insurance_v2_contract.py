@@ -46,13 +46,13 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_PROFILES = {"dirty_realistic", "dirty_stress", "rule_breaks"}
-# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7, 11 and 12).
-V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms", "schema_drift"}
+# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7, 11, 12 and 13).
+V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms", "schema_drift", "ml_fraud_imbalanced"}
 
 # Section 3.3 of the contract: the unit is the case; the band is what a scenario total may be.
 NOMINAL_CASES = {"frequent": 5000, "uncommon": 500, "rare": 100, "very_rare": 50,
@@ -2766,6 +2766,297 @@ def test_lot12_rules_json_contains_periods_and_temporal_attributes(tmp_path: Pat
     # M30 has period
     assert rules_by_id["M30"]["period"] == "modern_tariff"
     assert rules_by_id["M30"]["temporal_column"] == "date_debut"
+
+
+# --- LOT 13: Synthetic fraud, hard cases, noise and delayed labels (ML01 to ML08, ML20) ---
+
+
+@contract("13")
+def test_lot13_ml_labels_artifact_and_manifest(tmp_path: Path) -> None:
+    """SRS §8, §15 & Lot 13: ml_labels.csv artifact generation and manifest inclusion."""
+    out = tmp_path / "ml_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_fraud_imbalanced",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    # 1. Output profile defaults to extended (44 columns on combined)
+    combined_file = out / "insurance-combined.csv"
+    with combined_file.open("r", encoding="utf-8", newline="") as f:
+        header = f.readline().strip().split(",")
+    assert len(header) == 44
+
+    # 2. Separate ml_labels.csv exists
+    labels_file = out / "insurance-combined.ml_fraud_imbalanced.ml_labels.csv"
+    assert labels_file.is_file(), "Missing ml_labels.csv"
+
+    # 3. CSV columns check (exact 7 columns)
+    with labels_file.open("r", encoding="utf-8", newline="") as f:
+        reader = list(csv.DictReader(f))
+    assert len(reader) == 10000
+    assert list(reader[0].keys()) == [
+        "row_number",
+        "id_contrat",
+        "is_fraud",
+        "observed_label",
+        "confirmation_date",
+        "fraud_type",
+        "latent_probability",
+    ]
+
+    # 4. Manifest includes ml_labels with role "ml_labels"
+    manifest_file = out / "insurance-combined.ml_fraud_imbalanced.manifest.json"
+    manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+    files_by_role = {entry["role"]: entry for entry in manifest["files"]}
+    assert "ml_labels" in files_by_role
+    ml_entry = files_by_role["ml_labels"]
+    assert ml_entry["name"] == "insurance-combined.ml_fraud_imbalanced.ml_labels.csv"
+    assert len(ml_entry["sha256"]) == 64
+    assert ml_entry["bytes"] > 0
+
+
+@contract("13")
+def test_lot13_fraud_rates_and_imbalance(tmp_path: Path) -> None:
+    """SRS §8 ML01, ML02, ML03: 1%, 0.1%, and 0.01% fraud rates and class imbalance."""
+    out = tmp_path / "rates_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_fraud_imbalanced",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    metrics_file = out / "insurance-combined.ml_fraud_imbalanced.metrics.json"
+    metrics = json.loads(metrics_file.read_text(encoding="utf-8"))
+    assert "ml_fraud" in metrics
+    ml_m = metrics["ml_fraud"]
+
+    # Overall fraud rate ~1% (ML01: 104 total true frauds out of 10000 rows)
+    assert 0.009 <= ml_m["rates"]["true_fraud_rate"] <= 0.012
+    assert 90 <= ml_m["true_frauds"] <= 120
+
+    # Rare fraud scenario at 0.1% (ML02: 10 cases / 10000)
+    scenarios = metrics["scenarios"]
+    assert "ML02_RARE_01PCT" in scenarios
+    assert scenarios["ML02_RARE_01PCT"]["applied_cases"] == 10
+    assert scenarios["ML02_RARE_01PCT"]["category"] == "contextual_invalid"
+
+    # Extremely rare fraud scenario at 0.01% (ML03: 1 case / 10000)
+    assert "ML03_EXTREME" in scenarios
+    assert scenarios["ML03_EXTREME"]["applied_cases"] == 1
+    assert scenarios["ML03_EXTREME"]["rarity_level"] == "single"
+
+
+@contract("13")
+def test_lot13_fraud_typologies_coverage(tmp_path: Path) -> None:
+    """SRS §8 ML04: Multi-class fraud typologies (phantom, inflated, collusion, organized)."""
+    out = tmp_path / "typologies_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_fraud_imbalanced",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    metrics = json.loads((out / "insurance-combined.ml_fraud_imbalanced.metrics.json").read_text(encoding="utf-8"))
+    ml_m = metrics["ml_fraud"]
+    fraud_types = ml_m["fraud_types"]
+
+    # All 4 typologies present with positive counts
+    assert "phantom_claim" in fraud_types and fraud_types["phantom_claim"] >= 20
+    assert "inflated_claim" in fraud_types and fraud_types["inflated_claim"] >= 20
+    assert "collusion" in fraud_types and fraud_types["collusion"] >= 10
+    assert "organized_fraud" in fraud_types and fraud_types["organized_fraud"] >= 10
+
+    # Check distinct values in ml_labels.csv
+    labels_file = out / "insurance-combined.ml_fraud_imbalanced.ml_labels.csv"
+    with labels_file.open("r", encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    csv_types = {r["fraud_type"] for r in rows if r["is_fraud"] == "1"}
+    assert csv_types == {"phantom_claim", "inflated_claim", "collusion", "organized_fraud"}
+
+
+@contract("13")
+def test_lot13_hard_cases_and_continuous_overlap(tmp_path: Path) -> None:
+    """SRS §8 ML05: Hard cases near boundary and continuous latent probability overlap."""
+    out = tmp_path / "hard_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_fraud_imbalanced",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    labels_file = out / "insurance-combined.ml_fraud_imbalanced.ml_labels.csv"
+    with labels_file.open("r", encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    frauds = [r for r in rows if r["is_fraud"] == "1"]
+    cleans = [r for r in rows if r["is_fraud"] == "0"]
+
+    fraud_probs = [float(r["latent_probability"]) for r in frauds]
+    clean_probs = [float(r["latent_probability"]) for r in cleans]
+
+    # Probabilities strictly in [0.0, 1.0]
+    assert all(0.0 <= p <= 1.0 for p in fraud_probs)
+    assert all(0.0 <= p <= 1.0 for p in clean_probs)
+
+    # Significant statistical overlap zone between [0.45, 0.65]
+    overlap_frauds = [p for p in fraud_probs if 0.45 <= p <= 0.65]
+    overlap_cleans = [p for p in clean_probs if 0.45 <= p <= 0.65]
+    assert len(overlap_frauds) >= 5, "Hard fraud cases should fall into the boundary overlap zone"
+    assert len(overlap_cleans) >= 20, "Plausible false positives / atypicals should overlap with fraud"
+
+    # Distribution separation: mean fraud prob is significantly higher than clean mean
+    assert sum(fraud_probs) / len(fraud_probs) > 0.65
+    assert sum(clean_probs) / len(clean_probs) < 0.20
+
+
+@contract("13")
+def test_lot13_plausible_false_positives_and_atypical(tmp_path: Path) -> None:
+    """SRS §8 ML06, ML20: Plausible false positives and valid atypical cases."""
+    out = tmp_path / "fp_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_fraud_imbalanced",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    truth_file = out / "insurance-combined.ml_fraud_imbalanced.truth.csv"
+    with truth_file.open("r", encoding="utf-8", newline="") as f:
+        trows = list(csv.DictReader(f))
+
+    # ML06 and ML20 are valid_atypical with severity info and expected_detection none
+    fp_events = [t for t in trows if t["scenario_id"] == "ML06_FALSE_POS" and t["kind"] == "valid_atypical"]
+    assert len(fp_events) == 40
+    assert all(t["category"] == "valid_atypical" for t in fp_events)
+    assert all(t["expected_detection"] == "none" for t in fp_events)
+
+    atyp_events = [t for t in trows if t["scenario_id"] == "ML20_ATYPICAL" and t["kind"] == "valid_atypical"]
+    assert len(atyp_events) == 50
+    assert all(t["category"] == "valid_atypical" for t in atyp_events)
+    assert all(t["expected_detection"] == "none" for t in atyp_events)
+
+    # In ml_labels.csv, these cases are strictly non-fraud (is_fraud == "0")
+    labels_file = out / "insurance-combined.ml_fraud_imbalanced.ml_labels.csv"
+    with labels_file.open("r", encoding="utf-8", newline="") as f:
+        lrows = {int(r["row_number"]): r for r in csv.DictReader(f)}
+
+    for t in fp_events:
+        row_num = int(t["row_number"])
+        label_entry = lrows[row_num]
+        assert label_entry["is_fraud"] == "0", "Plausible false positive must have is_fraud == 0"
+        assert label_entry["fraud_type"] == ""
+
+
+@contract("13")
+def test_lot13_noisy_and_delayed_labels(tmp_path: Path) -> None:
+    """SRS §8 ML07, ML08: Label noise (inverted labels) and delayed unresolved investigations."""
+    out = tmp_path / "noise_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_fraud_imbalanced",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    labels_file = out / "insurance-combined.ml_fraud_imbalanced.ml_labels.csv"
+    with labels_file.open("r", encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    metrics = json.loads((out / "insurance-combined.ml_fraud_imbalanced.metrics.json").read_text(encoding="utf-8"))
+    ml_m = metrics["ml_fraud"]
+
+    # ML08: Delayed labels have is_fraud == "1", observed_label == "", confirmation_date == ""
+    delayed = [r for r in rows if r["is_fraud"] == "1" and r["observed_label"] == ""]
+    assert len(delayed) == 15
+    assert all(r["confirmation_date"] == "" for r in delayed)
+    assert ml_m["delayed_labels"] == 15
+
+    # ML07: Label noise has observed_label != is_fraud
+    noisy = [r for r in rows if r["observed_label"] != "" and r["observed_label"] != r["is_fraud"]]
+    assert len(noisy) == 10
+    assert ml_m["noisy_labels"] == 10
+    # Both false negatives and false positives exist in label noise
+    assert any(r["is_fraud"] == "1" and r["observed_label"] == "0" for r in noisy)
+    assert any(r["is_fraud"] == "0" and r["observed_label"] == "1" for r in noisy)
+
+
+@contract("13")
+def test_lot13_no_trivial_artifacts(tmp_path: Path) -> None:
+    """SRS §8: No trivial artifacts (premiums != 0, amounts != 999999, 0 rule violations)."""
+    out = tmp_path / "artifacts_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_fraud_imbalanced",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    labels_file = out / "insurance-combined.ml_fraud_imbalanced.ml_labels.csv"
+    data_file = out / "insurance-combined.ml_fraud_imbalanced.csv"
+    truth_file = out / "insurance-combined.ml_fraud_imbalanced.truth.csv"
+
+    with labels_file.open("r", encoding="utf-8", newline="") as f:
+        lrows = list(csv.DictReader(f))
+    with data_file.open("r", encoding="utf-8", newline="") as f:
+        drows = list(csv.DictReader(f))
+    with truth_file.open("r", encoding="utf-8", newline="") as f:
+        trows = list(csv.DictReader(f))
+
+    # Match fraud rows with data rows
+    frauds = [d for l, d in zip(lrows, drows, strict=True) if l["is_fraud"] == "1"]
+    assert len(frauds) >= 90
+
+    # 1. No premium equal to 0
+    assert not any(float(f["prime_annuelle"]) == 0.0 for f in frauds)
+
+    # 2. No arbitrary magic amount
+    for f in frauds:
+        assert "999999" not in f.get("prime_annuelle", "")
+        assert "999999" not in f.get("montant_reclamation", "")
+
+    # 3. Exactly 0 rule violations in the whole run
+    violations = [t for t in trows if t["kind"] == "rule_violation"]
+    assert len(violations) == 0, f"Unexpected rule violations: {violations}"
+
+
+@contract("13")
+def test_lot13_ml_labels_schema_validation() -> None:
+    """SRS §15 & Lot 13: tabalyst.generate.ml_labels.schema.json validates against Draft202012."""
+    import jsonschema
+
+    from tabalyst.generate_ml import MLFraudMetrics, ml_labels_document
+
+    schema_file = ROOT / "src/tabalyst/schemas/tabalyst.generate.ml_labels.schema.json"
+    assert schema_file.is_file(), "Schema file missing"
+    schema = json.loads(schema_file.read_text(encoding="utf-8"))
+
+    # Draft202012 schema check
+    jsonschema.Draft202012Validator.check_schema(schema)
+
+    # Instance validation
+    doc = ml_labels_document("insurance-combined", "ml_fraud_imbalanced", 10000, MLFraudMetrics())
+    jsonschema.validate(doc.model_dump(mode="json"), schema, cls=jsonschema.Draft202012Validator)
+
 
 
 

@@ -1460,3 +1460,148 @@ anomaly_profiles:
       rarity_level: rare
       expected_detection: none
       description: Historical 250 deductible contract grandfathered under pre-2025 insurance rules
+  ml_fraud_imbalanced:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 20
+      when: {canal_acquisition: "agence"}
+      can_overlap: true
+      scenario_id: ML04_PHANTOM
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Synthetic phantom claims declared rapidly via online self-service channel
+    - kind: replace
+      column: franchise
+      value: "500.00"
+      count: 20
+      when: {type_contrat: "auto"}
+      can_overlap: true
+      scenario_id: ML04_INFLATED
+      fraud_type: inflated_claim
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Inflated claim damages exaggerated towards coverage ceilings
+    - kind: replace
+      column: courtier_id
+      value: CRT-0042
+      count: 14
+      when: {canal_acquisition: "courtier"}
+      can_overlap: true
+      scenario_id: ML04_COLLUSION
+      fraud_type: collusion
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Collusive network concentrating abnormal claim rates on broker CRT-0042
+    - kind: replace
+      column: agence_code
+      value: AG-QC-001
+      count: 10
+      when: {filiale: "quebec"}
+      can_overlap: true
+      scenario_id: ML04_ORGANIZED
+      fraud_type: organized_fraud
+      category: contextual_invalid
+      severity: critical
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: Coordinated fraud ring with clustered claims across related policies in agency AG-QC-001
+    - kind: replace
+      column: courtier_id
+      value: CRT-0099
+      count: 10
+      when: {canal_acquisition: "courtier"}
+      can_overlap: true
+      scenario_id: ML02_RARE_01PCT
+      fraud_type: collusion
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Rare collusion fraud pattern exhibiting 0.1 percent prevalence (10 cases)
+    - kind: replace
+      column: agence_code
+      value: AG-PRI-001
+      count: 1
+      when: {filiale: "principal"}
+      can_overlap: true
+      scenario_id: ML03_EXTREME
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: critical
+      rarity_level: single
+      expected_detection: statistical
+      description: Extremely rare synthetic phantom fraud at 0.01 percent prevalence (1 case)
+    - kind: replace
+      column: canal_acquisition
+      value: direct
+      count: 10
+      when: {filiale: "ontario"}
+      can_overlap: true
+      scenario_id: ML05_HARD_CASES
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Subtle borderline fraud cases closely overlapping normal policyholder profiles
+    - kind: replace
+      column: agence_code
+      value: AG-QC-001
+      count: 40
+      when: {filiale: "quebec"}
+      can_overlap: true
+      scenario_id: ML06_FALSE_POS
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Legitimate policyholders flagged by naive statistical thresholds (plausible false positives)
+    - kind: replace
+      column: statut_paiement
+      value: payé
+      count: 10
+      when: {statut_contrat: "actif"}
+      can_overlap: true
+      scenario_id: ML07_LABEL_NOISE
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Noisy operational ground truth tracking with inverted or misclassified investigation labels
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 15
+      when: {statut_paiement: "payé"}
+      can_overlap: true
+      scenario_id: ML08_DELAYED
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Open claims with pending investigations lacking confirmed operational labels at observation date
+    - kind: replace
+      column: franchise
+      value: "1000.00"
+      count: 50
+      when: {canal_acquisition: "courtier"}
+      can_overlap: true
+      scenario_id: ML20_ATYPICAL
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Valid atypical policyholder choices benchmarked for unsupervised anomaly detection

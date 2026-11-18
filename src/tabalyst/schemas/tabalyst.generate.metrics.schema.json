@@ -85,6 +85,65 @@
       "title": "Counts",
       "type": "object"
     },
+    "MLFraudMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on machine learning labels and synthetic fraud patterns.",
+      "properties": {
+        "total_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Rows",
+          "type": "integer"
+        },
+        "true_frauds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "True Frauds",
+          "type": "integer"
+        },
+        "observed_frauds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Observed Frauds",
+          "type": "integer"
+        },
+        "fraud_types": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Fraud Types",
+          "type": "object"
+        },
+        "rates": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Rates",
+          "type": "object"
+        },
+        "noisy_labels": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Noisy Labels",
+          "type": "integer"
+        },
+        "delayed_labels": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Delayed Labels",
+          "type": "integer"
+        },
+        "atypical_normal": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Atypical Normal",
+          "type": "integer"
+        }
+      },
+      "title": "MLFraudMetrics",
+      "type": "object"
+    },
     "MissingDataMetrics": {
       "additionalProperties": false,
       "description": "Aggregate metrics on missing data mechanisms (MCAR, MAR, MNAR) and reasons.",
@@ -278,6 +337,18 @@
           ],
           "default": null,
           "title": "Missing Reason"
+        },
+        "fraud_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fraud Type"
         }
       },
       "required": [
@@ -408,6 +479,9 @@
     },
     "temporal_drift": {
       "$ref": "#/$defs/TemporalDriftMetrics"
+    },
+    "ml_fraud": {
+      "$ref": "#/$defs/MLFraudMetrics"
     }
   },
   "required": [

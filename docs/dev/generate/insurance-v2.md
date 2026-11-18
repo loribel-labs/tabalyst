@@ -399,12 +399,25 @@ inputs, with the reason in `docs/dev/generate/insurance-v2-changelog.md`, create
 `sha256` of every other file of the run, never of the manifest itself), `truth_columns`
 (the columns of 5.2, so a reader of `truth.csv` finds its format here).
 
-### 5.6 Latent scores (Q2)
+### 5.6 Machine learning targets, fraud patterns and separate labels (lot 13)
 
-`risque_sinistre` and any score that would make a prediction trivial are written to
-`<dataset>.<profile>.latent.csv` (a row key and the scores), listed in the manifest with
-`"role": "latent"` and the note that it is not an input variable. They are never columns of
-the main CSV (D11). Only the ML profiles (lots 13 to 15) write it.
+`<dataset>.<profile>.ml_labels.csv` is generated for ML scenario profiles (such as `ml_fraud_imbalanced`).
+It isolates supervised learning targets and latent risk probabilities from input feature files.
+It contains 7 columns:
+- `row_number`: 1-based physical row number in the dataset CSV (matching `truth.csv`).
+- `id_contrat`: Primary contract key for dataset joins.
+- `is_fraud`: True ground-truth binary label (`1` = confirmed fraud, `0` = non-fraud).
+- `observed_label`: Observed operational label in IT systems (`"1"` = flagged, `"0"` = cleared, empty = unresolved/pending).
+- `confirmation_date`: ISO date YYYY-MM-DD of investigation conclusion or error recording, empty if unresolved.
+- `fraud_type`: Synthetic fraud typology: `phantom_claim`, `inflated_claim`, `collusion`, `organized_fraud`, or empty.
+- `latent_probability`: Continuous latent risk probability in [0.0, 1.0] capturing realistic statistical overlap.
+
+It is registered in `manifest.json` with role `"ml_labels"`.
+The JSON schema `src/tabalyst/schemas/tabalyst.generate.ml_labels.schema.json` formalizes the format
+`tabalyst.generate.ml_labels`, version `0.2.0`, revision 1.
+Aggregated counts and rates are serialized in `metrics.json` under `ml_fraud` (`MLFraudMetrics`).
+
+Latent scores and raw risk generators that would make prediction trivial remain excluded from input feature tables (D11).
 
 ### 5.7 Formats and versions
 

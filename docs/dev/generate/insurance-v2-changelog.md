@@ -251,6 +251,40 @@ Phase 3 begins on branch `insurance-v2/phase-3` after gate P2 ratification (dire
   - 5 new contract tests in `tests/test_generate_insurance_v2_contract.py` (105 contract tests passing).
 - `generation_version` stays 2.
 
+## Synthetic fraud, hard cases, noise and delayed labels, ml_labels.csv (lot 13, 2026-11-17)
+
+- **Separate ground-truth label file `<dataset>.<profile>.ml_labels.csv` (SRS §8, §15, Lot 13)**:
+  - Isolates supervised machine learning targets and continuous latent probabilities from input features.
+  - 7 standard columns: `row_number`, `id_contrat`, `is_fraud`, `observed_label`, `confirmation_date`, `fraud_type`, `latent_probability`.
+  - Registered in `manifest.json` with role `"ml_labels"`, carrying byte size and SHA-256 digest.
+  - New committed schema `src/tabalyst/schemas/tabalyst.generate.ml_labels.schema.json` formalizing format `tabalyst.generate.ml_labels`, version `0.2.0`, revision 1.
+- **Synthetic fraud patterns without trivial artifacts (SRS §8)**:
+  - Modeled independently from technical format errors; all fraud rows satisfy contractual and business validity constraints (0 rule violations).
+  - 4 realistic multi-class fraud typologies (ML04):
+    - `phantom_claim`: expedited claims reported rapidly after policy inception without third-party physical injury;
+    - `inflated_claim`: genuine loss with exaggerated claim amount staying within policy coverage caps;
+    - `collusion`: concentrated suspicious claims through designated high-risk broker;
+    - `organized_fraud`: coordinated ring with clustered claims across related contracts.
+  - Imbalanced class prevalence rates:
+    - 1% overall fraud rate (ML01);
+    - 0.1% rare fraud class (ML02, `ML02_RARE_01PCT`);
+    - 0.01% extremely rare single case (ML03, `ML03_EXTREME`).
+- **Hard cases and continuous latent probability overlap (ML05)**:
+  - Frauds share continuous distributions overlapping with clean policyholders; `latent_probability` provides continuous boundary uncertainty in `[0.45, 0.65]`.
+- **Plausible false positives and valid atypicals (ML06, ML20)**:
+  - Benign policyholders (`is_fraud = 0`, `category = valid_atypical`, `expected_detection = none`) exhibiting elevated suspicion traits for unsupervised anomaly detection benchmarks.
+- **Label noise and delayed operational labels (ML07, ML08)**:
+  - Operational tracking label noise (ML07): false negatives (`is_fraud = 1`, `observed_label = "0"`) and false positives (`is_fraud = 0`, `observed_label = "1"`).
+  - Delayed unresolved investigations (ML08): open claims lacking confirmation (`observed_label = ""`, `confirmation_date = ""`).
+- **Profile `ml_fraud_imbalanced`**:
+  - Added to `dataset.yaml` with `min_rows: 10000`, 11 scenarios covering ML01 through ML08 and ML20.
+  - Defaults `effective_output` to `extended` (44 columns on `insurance-combined.csv`).
+- **Metrics integration**:
+  - `MetricsDocument` carries `ml_fraud: MLFraudMetrics` tracking total rows, true frauds, observed frauds, counts per fraud type, rates, label noise, delayed labels, and atypical normal cases.
+- **Testing**:
+  - 8 new contract tests in `tests/test_generate_insurance_v2_contract.py` (total 113 contract tests passing).
+- `generation_version` stays 2.
+
 
 
 

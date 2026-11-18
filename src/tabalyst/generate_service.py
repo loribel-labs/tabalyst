@@ -64,6 +64,7 @@ from tabalyst.generate_insurance import (
     insurance_canonical,
     insurance_contextual,
 )
+from tabalyst.generate_ml import is_ml_profile, write_ml_labels_csv
 from tabalyst.generate_package import MAX_ROWS, DatasetPackage, load_generate_package
 from tabalyst.generate_population import (
     RELATIONAL_CLIENTS_FIELDS,
@@ -574,6 +575,8 @@ def build_generate_plan(
                 effective_output = "extended"
             elif anomaly_profile == "schema_drift" and output_profile is None:
                 effective_output = "complete"
+            elif anomaly_profile == "ml_fraud_imbalanced" and output_profile is None:
+                effective_output = "extended"
             elif output_profile is None:
                 effective_output = "default"
             if effective_output not in {
@@ -660,10 +663,11 @@ def build_generate_plan(
         for tbl in table_ids:
             artifacts.append(GenerateArtifact(tbl, "clean", destination / f"{tbl}.csv"))
             profile_prefix = f"{tbl}.{anomaly_profile}" if anomaly_profile else tbl
-            artifacts.extend(
-                GenerateArtifact(tbl, role, Path(f"{destination}/{profile_prefix}.{role}.{suffix}"))
-                for role, suffix in TRUTH_ARTIFACTS
-            )
+            ops = profiles.get(anomaly_profile, {}).get("operations", []) if anomaly_profile else []
+            for role, suffix in TRUTH_ARTIFACTS:
+                if role == "manifest" and anomaly_profile and is_ml_profile(profiles[anomaly_profile], ops):
+                    artifacts.append(GenerateArtifact(tbl, "ml_labels", Path(f"{destination}/{profile_prefix}.ml_labels.csv")))
+                artifacts.append(GenerateArtifact(tbl, role, Path(f"{destination}/{profile_prefix}.{role}.{suffix}")))
         total_contracts = rows if rows is not None else definition.defaults.get("rows", 275000)
         counts = {tbl: total_contracts for tbl in table_ids}
     else:
@@ -681,8 +685,11 @@ def build_generate_plan(
                 if is_scenario_profile(profiles[anomaly_profile]["operations"]):
                     # The ground truth of a scenario profile (contract insurance-v2.md 5.1). The
                     # manifest comes last: it lists the digest of every other file.
-                    artifacts.extend(GenerateArtifact(name, role, Path(f"{prefix}.{role}.{suffix}"))
-                                     for role, suffix in TRUTH_ARTIFACTS)
+                    ops = profiles[anomaly_profile]["operations"]
+                    for role, suffix in TRUTH_ARTIFACTS:
+                        if role == "manifest" and is_ml_profile(profiles[anomaly_profile], ops):
+                            artifacts.append(GenerateArtifact(name, "ml_labels", Path(f"{prefix}.ml_labels.csv")))
+                        artifacts.append(GenerateArtifact(name, role, Path(f"{prefix}.{role}.{suffix}")))
     protected = [definition.source]
     if package is not None:
         if destination.resolve().is_relative_to(package.root):
@@ -810,7 +817,7 @@ def _publish_artifacts(
     )
 
 
-TRUTH_KINDS = frozenset(role for role, _ in TRUTH_ARTIFACTS)
+TRUTH_KINDS = frozenset(role for role, _ in TRUTH_ARTIFACTS) | {"ml_labels"}
 
 
 def _write_truth_artifact(
@@ -840,11 +847,14 @@ def _write_truth_artifact(
             dataset=dataset, profile=profile,
             rules=[rule for rule in catalogue.rules if rule.id in used],
             conventions=catalogue.conventions, as_of_date=plan.as_of_date,
-            delimiter=delimiter, canonical=insurance_canonical)
+            delimiter=delimiter, canonical=insurance_canonical, seed=plan.seed)
         report(f"Writing the truth of {altered.name}", plan.rows[dataset], plan.rows[dataset])
     truth = truths[dataset]
     if artifact.kind == "truth":
         write_truth_csv(stage, truth.lines)
+        return
+    if artifact.kind == "ml_labels":
+        write_ml_labels_csv(stage, truth.ml_labels)
         return
     if artifact.kind == "rules":
         text = document_text(truth.rules)

@@ -22,6 +22,13 @@ from typing import Annotated, Any, Final, Literal, cast
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from tabalyst.generate_anomalies import AnomalyEvent
+from tabalyst.generate_ml import (
+    MLFraudMetrics,
+    MLLabelRow,
+    MLLabelsDocument,
+    build_ml_labels,
+    is_ml_profile,
+)
 from tabalyst.generate_rarity import SAMPLE_SIZES, absence_probability
 from tabalyst.generate_rules import (
     FORMAT_REVISION,
@@ -51,6 +58,7 @@ SCHEMA_FILES: Final = {
     "rules": "tabalyst.generate.rules.schema.json",
     "metrics": "tabalyst.generate.metrics.schema.json",
     "manifest": "tabalyst.generate.manifest.schema.json",
+    "ml_labels": "tabalyst.generate.ml_labels.schema.json",
 }
 
 Count = Annotated[int, Field(ge=0)]
@@ -125,6 +133,7 @@ class ScenarioMetrics(_Model):
     severity: str
     missing_mechanism: str | None = None
     missing_reason: str | None = None
+    fraud_type: str | None = None
 
 
 class AbsenceProbability(_Model):
@@ -191,6 +200,7 @@ class MetricsDocument(_Model):
     root_causes: dict[str, RootCauseMetrics] = Field(default_factory=dict)
     missing_data: MissingDataMetrics = Field(default_factory=MissingDataMetrics)
     temporal_drift: TemporalDriftMetrics = Field(default_factory=TemporalDriftMetrics)
+    ml_fraud: MLFraudMetrics = Field(default_factory=MLFraudMetrics)
 
 
 class ScenarioEntry(_Model):
@@ -239,6 +249,7 @@ class TruthResult:
     lines: tuple[TruthLine, ...]
     metrics: MetricsDocument
     rules: RulesDocument
+    ml_labels: tuple[MLLabelRow, ...] = ()
 
 
 def _text(operation: Mapping[str, object], key: str) -> str:
@@ -263,7 +274,7 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
                 summary: Mapping[str, object], *, dataset: str,
                 profile: Mapping[str, object], rules: Sequence[Rule],
                 conventions: Conventions, as_of_date: str, delimiter: str,
-                canonical: CanonicalReader) -> TruthResult:
+                canonical: CanonicalReader, seed: int = 0) -> TruthResult:
     """Read the clean and altered files together once and return their truth.
 
     The clean file must satisfy every rule of the profile (ADR 2026-11-11, contract 5.3):
@@ -296,6 +307,9 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
     branches: Counter[str] = Counter()
     violations = []
     total = 0
+    is_ml = is_ml_profile(profile, operations)
+    clean_collected: list[dict[str, str]] = []
+    altered_collected: list[dict[str, str]] = []
     with (clean.open("r", encoding="utf-8", newline="") as left,
           altered.open("r", encoding="utf-8", newline="") as right):
         clean_rows = csv.DictReader(left, delimiter=delimiter)
@@ -303,6 +317,9 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
         for number, (clean_row, altered_row) in enumerate(
                 zip(clean_rows, altered_rows, strict=True), 2):
             total += 1
+            if is_ml:
+                clean_collected.append(clean_row)
+                altered_collected.append(altered_row)
             if number in watched:
                 clean_watched[number], altered_watched[number] = clean_row, altered_row
             branches[clean_row.get(conventions.branch_column, "")] += 1
@@ -346,11 +363,18 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
                              expected_detection=rule.detection))
     ordered = tuple(replace(line, truth_id=position) for position, line in
                     enumerate(sorted(lines, key=TruthLine.sort_key), 1))
+    ml_labels_tuple: tuple[MLLabelRow, ...] = ()
+    ml_fraud = MLFraudMetrics()
+    if is_ml:
+        ml_labels_tuple, ml_fraud = build_ml_labels(
+            clean_collected, altered_collected, events, profile,
+            seed=seed, as_of_date=as_of_date, dataset=dataset,
+        )
     metrics = _metrics(ordered, summary, operations, rules, dataset=dataset, profile=profile_id,
-                       total=total, branches=branches)
+                       total=total, branches=branches, ml_fraud=ml_fraud)
     document = RulesDocument(dataset=dataset, profile=profile_id, as_of_date=as_of_date,
                              conventions=conventions, rules=list(rules))
-    return TruthResult(ordered, metrics, document)
+    return TruthResult(ordered, metrics, document, ml_labels=ml_labels_tuple)
 
 
 def _relational_lines(event: AnomalyEvent, operation: Mapping[str, object], dataset: str,
@@ -379,7 +403,8 @@ def _relational_lines(event: AnomalyEvent, operation: Mapping[str, object], data
 def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
              operations: Sequence[Mapping[str, object]], rules: Sequence[Rule], *,
              dataset: str, profile: str, total: int,
-             branches: Mapping[str, int]) -> MetricsDocument:
+             branches: Mapping[str, int],
+             ml_fraud: MLFraudMetrics | None = None) -> MetricsDocument:
     injected = [line for line in lines if line.kind == "injected"]
     counts = Counts(
         events=len({line.event_id for line in injected}),
@@ -415,6 +440,7 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
             severity=cast(str, operation["severity"]),
             missing_mechanism=cast("str | None", operation.get("missing_mechanism")),
             missing_reason=cast("str | None", operation.get("missing_reason")),
+            fraud_type=cast("str | None", operation.get("fraud_type")),
         )
     categories = dict.fromkeys(sorted(CATEGORIES), 0)
     for metrics in scenarios.values():
@@ -493,7 +519,8 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
             for scenario, entry in scenarios.items()},
         root_causes=root_causes,
         missing_data=missing_data,
-        temporal_drift=temporal_drift)
+        temporal_drift=temporal_drift,
+        ml_fraud=ml_fraud or MLFraudMetrics())
 
 
 def _absence(rows: int, cases: int, spans_rows: bool) -> AbsenceProbability:
@@ -560,7 +587,7 @@ def _schema(model: type[BaseModel], title: str, what: str) -> dict[str, Any]:
 
 
 def generate_schemas() -> dict[str, str]:
-    """The committed schema files of the three documents, by role, as their text."""
+    """The committed schema files of the documents, by role, as their text."""
     schemas = {
         "rules": _schema(RulesDocument, "Tabalyst Generate rules",
                          "the verifiable rules a scenario profile uses."),
@@ -568,6 +595,8 @@ def generate_schemas() -> dict[str, str]:
                            "the exact counts of a scenario profile's run."),
         "manifest": _schema(ManifestDocument, "Tabalyst Generate manifest",
                             "the inputs and file digests of a scenario profile's run."),
+        "ml_labels": _schema(MLLabelsDocument, "Tabalyst Generate ML labels",
+                             "the synthetic fraud and machine learning labels specification."),
     }
     return {role: json.dumps(schema, indent=2, ensure_ascii=False) + "\n"
             for role, schema in schemas.items()}

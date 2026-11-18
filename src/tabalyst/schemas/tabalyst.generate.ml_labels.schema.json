@@ -1,0 +1,154 @@
+{
+  "$defs": {
+    "MLFraudMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on machine learning labels and synthetic fraud patterns.",
+      "properties": {
+        "total_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Rows",
+          "type": "integer"
+        },
+        "true_frauds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "True Frauds",
+          "type": "integer"
+        },
+        "observed_frauds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Observed Frauds",
+          "type": "integer"
+        },
+        "fraud_types": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Fraud Types",
+          "type": "object"
+        },
+        "rates": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Rates",
+          "type": "object"
+        },
+        "noisy_labels": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Noisy Labels",
+          "type": "integer"
+        },
+        "delayed_labels": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Delayed Labels",
+          "type": "integer"
+        },
+        "atypical_normal": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Atypical Normal",
+          "type": "integer"
+        }
+      },
+      "title": "MLFraudMetrics",
+      "type": "object"
+    },
+    "MLLabelColumnSpec": {
+      "additionalProperties": false,
+      "description": "Specification of one column in ml_labels.csv.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description"
+      ],
+      "title": "MLLabelColumnSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Document tabalyst.generate.ml_labels, format 0.2.0 revision 1: the synthetic fraud and machine learning labels specification.",
+  "properties": {
+    "format": {
+      "const": "tabalyst.generate.ml_labels",
+      "default": "tabalyst.generate.ml_labels",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 1,
+      "default": 1,
+      "title": "Format Revision",
+      "type": "integer"
+    },
+    "dataset": {
+      "title": "Dataset",
+      "type": "string"
+    },
+    "profile": {
+      "title": "Profile",
+      "type": "string"
+    },
+    "rows": {
+      "minimum": 0,
+      "title": "Rows",
+      "type": "integer"
+    },
+    "columns": {
+      "items": {
+        "$ref": "#/$defs/MLLabelColumnSpec"
+      },
+      "title": "Columns",
+      "type": "array"
+    },
+    "fraud_types": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Fraud Types",
+      "type": "array"
+    },
+    "metrics": {
+      "$ref": "#/$defs/MLFraudMetrics"
+    }
+  },
+  "required": [
+    "dataset",
+    "profile",
+    "rows",
+    "columns",
+    "fraud_types",
+    "metrics",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst Generate ML labels",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
