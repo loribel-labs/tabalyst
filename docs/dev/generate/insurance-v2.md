@@ -445,6 +445,33 @@ Partition counts and fold shares are serialized in `metrics.json` under `splits`
 
 Latent scores and raw risk generators that would make prediction trivial remain excluded from input feature tables (D11).
 
+#### 5.6.3 Latent generator variables (`latent.csv`) (lot 15)
+
+`<dataset>.<profile>.latent.csv` is produced alongside `ml_labels.csv` and `splits.csv` for ML scenario profiles (`ml_fraud_imbalanced`, `ml_leakage_test`, `ml_multitask`).
+It isolates the unobserved, uncorrupted generator scores and ground-truth probabilities (SRS §8, Contract §5.6, D11, Q2):
+- `row_number`: 1-based physical row number in the dataset CSV.
+- `id_contrat`: Contract identifier for entity joins.
+- `id_client`: Customer identifier.
+- `latent_fraud_probability`: Continuous uncorrupted latent probability of fraud in `[0.0, 1.0]`.
+- `latent_claim_probability`: Continuous latent probability of loss claim occurrence (`risque_sinistre`) in `[0.0, 1.0]`.
+- `latent_claim_cost`: Theoretical expected loss amount in currency units.
+- `latent_renewal_probability`: Continuous latent propensity for policy renewal in `[0.0, 1.0]`.
+- `latent_risk_score`: Calibrated composite actuarial risk rating score in `[100.0, 900.0]`.
+- `latent_churn_risk`: Continuous latent risk of customer churn in `[0.0, 1.0]` (strictly `1.0 - latent_renewal_probability`).
+
+Strict exclusion principle (D11): none of these latent variables or generator scores are exposed in the input feature table `insurance-combined.csv`.
+It is registered in `manifest.json` under role `"latent"`.
+The JSON schema `src/tabalyst/schemas/tabalyst.generate.latent.schema.json` formalizes the format `tabalyst.generate.latent`, version `0.2.0`, revision 1.
+Aggregated distributions and averages across all latent variables are recorded in `metrics.json` under `latent` (`LatentMetrics`).
+
+#### 5.6.4 Final ML profiles assembly (lot 15)
+
+The Insurance package delivers three finalized machine learning scenario profiles in `dataset.yaml`:
+1. `ml_fraud_imbalanced`: imbalanced binary classification, rare typologies (1%, 0.1%, 0.01%), label noise, and delayed investigations.
+2. `ml_leakage_test`: intentional leakage scenarios, post-claim temporal leakage, shortcuts, branch imbalances, and segment-conditioned missingness.
+3. `ml_multitask`: comprehensive multi-task benchmark combining synthetic fraud, future claim occurrence, claim cost regression, renewal, and actuarial rating across 15 extended columns in `ml_labels.csv`.
+All three profiles default to `--output-profile extended` (44 columns on `insurance-combined.csv`) and enforce a minimum floor `min_rows: 10000`.
+
 ### 5.7 Formats and versions
 
 The four JSON files carry `format`, `format_version` and `format_revision`, in the family of

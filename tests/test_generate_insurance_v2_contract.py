@@ -15,6 +15,7 @@ assertions, so the suite stays green between lots and a test left unwritten fail
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import re
 import shutil
@@ -46,13 +47,13 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13", "14"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13", "14", "15"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_PROFILES = {"dirty_realistic", "dirty_stress", "rule_breaks"}
-# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7, 11, 12, 13 and 14).
-V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms", "schema_drift", "ml_fraud_imbalanced", "ml_leakage_test"}
+# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7, 11, 12, 13, 14 and 15).
+V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms", "schema_drift", "ml_fraud_imbalanced", "ml_leakage_test", "ml_multitask"}
 
 # Section 3.3 of the contract: the unit is the case; the band is what a scenario total may be.
 NOMINAL_CASES = {"frequent": 5000, "uncommon": 500, "rare": 100, "very_rare": 50,
@@ -3414,6 +3415,278 @@ def test_lot14_manifest_includes_splits(tmp_path: Path) -> None:
     assert splits_file.is_file()
     actual_hash = hashlib.sha256(splits_file.read_bytes()).hexdigest()
     assert sp_entry["sha256"] == actual_hash
+
+
+# --- LOT 15: Final ML Profiles Assembly, Latent File, and Phase 4 Metrics ---
+
+
+@contract("15")
+def test_lot15_ml_profiles_trio_assembly_and_manifest(tmp_path: Path) -> None:
+    """SRS §8, §14, §15 & Lot 15: Trio of ML profiles assembled with complete phase 4 artifacts."""
+    # 1. Package declares the 3 finalized ML profiles
+    package = load_generate_package(PACKAGE)
+    profiles = package.manifest["anomaly_profiles"]
+    for p_name in ("ml_fraud_imbalanced", "ml_leakage_test", "ml_multitask"):
+        assert p_name in profiles, f"Missing ML profile {p_name}"
+        p = profiles[p_name]
+        assert p["targets"] == ["insurance-combined"]
+        assert p["min_rows"] >= 10000
+        assert all("scenario_id" in op for op in p["operations"])
+
+    # 2. Run ml_multitask
+    out = tmp_path / "multitask_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_multitask",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    # 3. Output profile defaults to extended (44 columns)
+    combined_file = out / "insurance-combined.csv"
+    with combined_file.open("r", encoding="utf-8", newline="") as f:
+        header = f.readline().strip().split(",")
+    assert len(header) == 44
+
+    # 4. All phase 4 ML artifacts are generated
+    for suffix in ("ml_labels.csv", "splits.csv", "latent.csv"):
+        art_path = out / f"insurance-combined.ml_multitask.{suffix}"
+        assert art_path.is_file(), f"Missing artifact {art_path.name}"
+
+    # 5. Manifest registers role "latent", "ml_labels", and "splits"
+    manifest_file = out / "insurance-combined.ml_multitask.manifest.json"
+    manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+    files_by_role = {entry["role"]: entry for entry in manifest["files"]}
+
+    for role, filename in (
+        ("ml_labels", "insurance-combined.ml_multitask.ml_labels.csv"),
+        ("splits", "insurance-combined.ml_multitask.splits.csv"),
+        ("latent", "insurance-combined.ml_multitask.latent.csv"),
+    ):
+        assert role in files_by_role, f"Manifest missing role {role}"
+        entry = files_by_role[role]
+        assert entry["name"] == filename
+        assert len(entry["sha256"]) == 64
+        assert entry["bytes"] > 0
+        actual_hash = hashlib.sha256((out / filename).read_bytes()).hexdigest()
+        assert entry["sha256"] == actual_hash
+
+
+@contract("15")
+def test_lot15_latent_csv_structure_and_exclusion(tmp_path: Path) -> None:
+    """SRS §8, Contract §5.6, D11, Q2: latent.csv isolates pure risk generators excluded from inputs."""
+    out = tmp_path / "latent_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_multitask",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    latent_file = out / "insurance-combined.ml_multitask.latent.csv"
+    assert latent_file.is_file(), "latent.csv must exist"
+    with latent_file.open("r", encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    assert len(rows) == 10000
+    expected_latent_cols = [
+        "row_number",
+        "id_contrat",
+        "id_client",
+        "latent_fraud_probability",
+        "latent_claim_probability",
+        "latent_claim_cost",
+        "latent_renewal_probability",
+        "latent_risk_score",
+        "latent_churn_risk",
+    ]
+    assert list(rows[0].keys()) == expected_latent_cols
+
+    # D11 & Contract 5.6: STRICT EXCLUSION
+    # No latent score or generator variable may appear in the input data table
+    combined_file = out / "insurance-combined.csv"
+    with combined_file.open("r", encoding="utf-8", newline="") as f:
+        data_header = set(f.readline().strip().split(","))
+
+    latent_vars = set(expected_latent_cols[3:])
+    assert latent_vars.isdisjoint(data_header), (
+        f"Input feature table must NOT contain latent variables: {latent_vars & data_header}"
+    )
+
+    # Value ranges and domain constraints
+    for r in rows:
+        fp = float(r["latent_fraud_probability"])
+        assert 0.0 <= fp <= 1.0
+        cp = float(r["latent_claim_probability"])
+        assert 0.0 <= cp <= 1.0
+        cost = float(r["latent_claim_cost"])
+        assert cost > 0.0
+        rp = float(r["latent_renewal_probability"])
+        assert 0.0 <= rp <= 1.0
+        rs = float(r["latent_risk_score"])
+        assert 100.0 <= rs <= 900.0
+        cr = float(r["latent_churn_risk"])
+        assert 0.0 <= cr <= 1.0
+
+
+@contract("15")
+def test_lot15_latent_schema_validation() -> None:
+    """SRS §15 & Lot 15: tabalyst.generate.latent.schema.json validates against Draft202012."""
+    import jsonschema
+
+    from tabalyst.generate_ml import LatentMetrics, latent_document
+
+    schema_file = ROOT / "src/tabalyst/schemas/tabalyst.generate.latent.schema.json"
+    assert schema_file.is_file(), "Latent schema file missing"
+    schema = json.loads(schema_file.read_text(encoding="utf-8"))
+
+    # Draft202012 schema check
+    jsonschema.Draft202012Validator.check_schema(schema)
+
+    # Instance validation
+    doc = latent_document("insurance-combined", "ml_multitask", 10000, LatentMetrics())
+    jsonschema.validate(doc.model_dump(mode="json"), schema, cls=jsonschema.Draft202012Validator)
+
+
+@contract("15")
+def test_lot15_ml_multitask_profile_coverage(tmp_path: Path) -> None:
+    """SRS §8, §14: ml_multitask covers fraud, future claims, regression, renewal, and risk categories."""
+    out = tmp_path / "coverage_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_multitask",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    labels_file = out / "insurance-combined.ml_multitask.ml_labels.csv"
+    with labels_file.open("r", encoding="utf-8", newline="") as f:
+        lrows = list(csv.DictReader(f))
+
+    # All 15 extended columns present
+    assert len(lrows[0]) == 15
+    assert "future_claim" in lrows[0]
+    assert "cout_sinistre" in lrows[0]
+    assert "renouvellement" in lrows[0]
+    assert "risque_categorie" in lrows[0]
+
+    # Both fraud instances and non-fraud instances present
+    frauds = [r for r in lrows if r["is_fraud"] == "1"]
+    assert 80 <= len(frauds) <= 150
+    fraud_types = {r["fraud_type"] for r in frauds}
+    assert fraud_types == {"phantom_claim", "inflated_claim", "collusion", "organized_fraud"}
+
+    # Future claims and regression costs present
+    future_claims = [r for r in lrows if r["future_claim"] == "1"]
+    assert 500 <= len(future_claims) <= 2500
+    assert all(float(r["cout_sinistre"]) > 0.0 for r in future_claims)
+
+    # Renewal rate > 60%
+    renewals = [r for r in lrows if r["renouvellement"] == "1"]
+    assert len(renewals) > 6000
+
+    # Risk categories all 4 present
+    cats = {r["risque_categorie"] for r in lrows}
+    assert cats == {"faible", "moyen", "eleve", "tres_eleve"}
+
+
+@contract("15")
+def test_lot15_phase4_metrics_consolidation(tmp_path: Path) -> None:
+    """SRS §15 & Lot 15: metrics.json consolidates ml_fraud, splits, and latent metrics."""
+    out = tmp_path / "metrics_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_multitask",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    metrics_file = out / "insurance-combined.ml_multitask.metrics.json"
+    metrics = json.loads(metrics_file.read_text(encoding="utf-8"))
+
+    # Phase 4 keys in metrics.json
+    assert "ml_fraud" in metrics
+    assert "splits" in metrics
+    assert "latent" in metrics
+
+    # Latent metrics contents
+    lat_m = metrics["latent"]
+    assert lat_m["total_rows"] == 10000
+    assert 0.005 <= lat_m["mean_fraud_probability"] <= 0.20
+    assert 0.05 <= lat_m["mean_claim_probability"] <= 0.40
+    assert lat_m["mean_claim_cost"] > 500.0
+    assert 0.50 <= lat_m["mean_renewal_probability"] <= 0.95
+    assert 100.0 <= lat_m["mean_risk_score"] <= 900.0
+    assert 0.05 <= lat_m["mean_churn_risk"] <= 0.50
+    assert len(lat_m["latent_variables"]) == 6
+
+
+@contract("15")
+def test_lot15_non_regression_default_and_legacy_profiles(tmp_path: Path) -> None:
+    """Contract §5.1, §5.6: Default and legacy profiles never produce ML artifacts or latent files."""
+    out = tmp_path / "legacy_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="dirty_realistic",
+        rows=1000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    # Legacy profile outputs only legacy files
+    for suffix in ("ml_labels.csv", "splits.csv", "latent.csv", "truth.csv", "rules.json"):
+        art_path = out / f"insurance-combined.dirty_realistic.{suffix}"
+        assert not art_path.exists(), f"Legacy profile must not write {art_path.name}"
+
+
+@contract("15")
+def test_lot15_latent_calibration_consistency(tmp_path: Path) -> None:
+    """SRS §8 & Lot 15: Statistical calibration between latent variables and observed labels."""
+    out = tmp_path / "calib_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_multitask",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    latent_file = out / "insurance-combined.ml_multitask.latent.csv"
+    labels_file = out / "insurance-combined.ml_multitask.ml_labels.csv"
+
+    with latent_file.open("r", encoding="utf-8", newline="") as f:
+        lat_rows = list(csv.DictReader(f))
+    with labels_file.open("r", encoding="utf-8", newline="") as f:
+        lbl_rows = list(csv.DictReader(f))
+
+    # 1. Fraud probability calibration: true frauds have much higher mean latent prob
+    fraud_probs = [float(r["latent_fraud_probability"]) for r, l in zip(lat_rows, lbl_rows, strict=True) if l["is_fraud"] == "1"]
+    clean_probs = [float(r["latent_fraud_probability"]) for r, l in zip(lat_rows, lbl_rows, strict=True) if l["is_fraud"] == "0"]
+    assert sum(fraud_probs) / len(fraud_probs) > 0.65
+    assert sum(clean_probs) / len(clean_probs) < 0.20
+
+    # 2. Claim probability calibration: future claims have much higher mean claim prob
+    fc_probs = [float(r["latent_claim_probability"]) for r, l in zip(lat_rows, lbl_rows, strict=True) if l["future_claim"] == "1"]
+    no_fc_probs = [float(r["latent_claim_probability"]) for r, l in zip(lat_rows, lbl_rows, strict=True) if l["future_claim"] == "0"]
+    assert sum(fc_probs) / len(fc_probs) > 0.50
+    assert sum(no_fc_probs) / len(no_fc_probs) < 0.20
+
+    # 3. Churn risk is strictly 1.0 - renewal_probability
+    for r in lat_rows:
+        rp = float(r["latent_renewal_probability"])
+        cr = float(r["latent_churn_risk"])
+        assert abs(cr - round(1.0 - rp, 4)) < 1e-5
+
 
 
 

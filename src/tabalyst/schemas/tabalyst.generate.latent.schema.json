@@ -1,0 +1,145 @@
+{
+  "$defs": {
+    "LatentColumnSpec": {
+      "additionalProperties": false,
+      "description": "Specification of one column in latent.csv.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description"
+      ],
+      "title": "LatentColumnSpec",
+      "type": "object"
+    },
+    "LatentMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on latent variables and unobserved generator scores.",
+      "properties": {
+        "total_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Rows",
+          "type": "integer"
+        },
+        "mean_fraud_probability": {
+          "default": 0.0,
+          "title": "Mean Fraud Probability",
+          "type": "number"
+        },
+        "mean_claim_probability": {
+          "default": 0.0,
+          "title": "Mean Claim Probability",
+          "type": "number"
+        },
+        "mean_claim_cost": {
+          "default": 0.0,
+          "title": "Mean Claim Cost",
+          "type": "number"
+        },
+        "mean_renewal_probability": {
+          "default": 0.0,
+          "title": "Mean Renewal Probability",
+          "type": "number"
+        },
+        "mean_risk_score": {
+          "default": 0.0,
+          "title": "Mean Risk Score",
+          "type": "number"
+        },
+        "mean_churn_risk": {
+          "default": 0.0,
+          "title": "Mean Churn Risk",
+          "type": "number"
+        },
+        "latent_variables": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Latent Variables",
+          "type": "array"
+        }
+      },
+      "title": "LatentMetrics",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Document tabalyst.generate.latent, format 0.2.0 revision 1: the pure unobserved latent generator variables and scores specification.",
+  "properties": {
+    "format": {
+      "const": "tabalyst.generate.latent",
+      "default": "tabalyst.generate.latent",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 1,
+      "default": 1,
+      "title": "Format Revision",
+      "type": "integer"
+    },
+    "dataset": {
+      "title": "Dataset",
+      "type": "string"
+    },
+    "profile": {
+      "title": "Profile",
+      "type": "string"
+    },
+    "rows": {
+      "minimum": 0,
+      "title": "Rows",
+      "type": "integer"
+    },
+    "columns": {
+      "items": {
+        "$ref": "#/$defs/LatentColumnSpec"
+      },
+      "title": "Columns",
+      "type": "array"
+    },
+    "latent_variables": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Latent Variables",
+      "type": "array"
+    },
+    "metrics": {
+      "$ref": "#/$defs/LatentMetrics"
+    }
+  },
+  "required": [
+    "dataset",
+    "profile",
+    "rows",
+    "columns",
+    "metrics",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst Generate latent",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

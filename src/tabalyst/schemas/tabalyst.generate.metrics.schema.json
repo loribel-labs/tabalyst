@@ -85,6 +85,57 @@
       "title": "Counts",
       "type": "object"
     },
+    "LatentMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on latent variables and unobserved generator scores.",
+      "properties": {
+        "total_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Rows",
+          "type": "integer"
+        },
+        "mean_fraud_probability": {
+          "default": 0.0,
+          "title": "Mean Fraud Probability",
+          "type": "number"
+        },
+        "mean_claim_probability": {
+          "default": 0.0,
+          "title": "Mean Claim Probability",
+          "type": "number"
+        },
+        "mean_claim_cost": {
+          "default": 0.0,
+          "title": "Mean Claim Cost",
+          "type": "number"
+        },
+        "mean_renewal_probability": {
+          "default": 0.0,
+          "title": "Mean Renewal Probability",
+          "type": "number"
+        },
+        "mean_risk_score": {
+          "default": 0.0,
+          "title": "Mean Risk Score",
+          "type": "number"
+        },
+        "mean_churn_risk": {
+          "default": 0.0,
+          "title": "Mean Churn Risk",
+          "type": "number"
+        },
+        "latent_variables": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Latent Variables",
+          "type": "array"
+        }
+      },
+      "title": "LatentMetrics",
+      "type": "object"
+    },
     "MLFraudMetrics": {
       "additionalProperties": false,
       "description": "Aggregate metrics on machine learning labels and synthetic fraud patterns.",
@@ -540,6 +591,9 @@
     },
     "splits": {
       "$ref": "#/$defs/SplitMetrics"
+    },
+    "latent": {
+      "$ref": "#/$defs/LatentMetrics"
     }
   },
   "required": [

@@ -23,12 +23,16 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from tabalyst.generate_anomalies import AnomalyEvent
 from tabalyst.generate_ml import (
+    LatentDocument,
+    LatentMetrics,
+    LatentRow,
     MLFraudMetrics,
     MLLabelRow,
     MLLabelsDocument,
     SplitMetrics,
     SplitRow,
     SplitsDocument,
+    build_latent,
     build_ml_labels,
     build_splits,
     is_extended_ml_profile,
@@ -65,6 +69,7 @@ SCHEMA_FILES: Final = {
     "manifest": "tabalyst.generate.manifest.schema.json",
     "ml_labels": "tabalyst.generate.ml_labels.schema.json",
     "splits": "tabalyst.generate.splits.schema.json",
+    "latent": "tabalyst.generate.latent.schema.json",
 }
 
 Count = Annotated[int, Field(ge=0)]
@@ -208,6 +213,7 @@ class MetricsDocument(_Model):
     temporal_drift: TemporalDriftMetrics = Field(default_factory=TemporalDriftMetrics)
     ml_fraud: MLFraudMetrics = Field(default_factory=MLFraudMetrics)
     splits: SplitMetrics = Field(default_factory=SplitMetrics)
+    latent: LatentMetrics = Field(default_factory=LatentMetrics)
 
 
 class ScenarioEntry(_Model):
@@ -258,6 +264,7 @@ class TruthResult:
     rules: RulesDocument
     ml_labels: tuple[MLLabelRow, ...] = ()
     splits: tuple[SplitRow, ...] = ()
+    latent: tuple[LatentRow, ...] = ()
     is_extended_ml: bool = False
 
 
@@ -376,6 +383,8 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
     ml_fraud = MLFraudMetrics()
     splits_tuple: tuple[SplitRow, ...] = ()
     splits_metrics: SplitMetrics | None = None
+    latent_tuple: tuple[LatentRow, ...] = ()
+    latent_metrics: LatentMetrics | None = None
     is_ext_ml = False
     if is_ml:
         is_ext_ml = is_extended_ml_profile(profile, operations)
@@ -387,11 +396,17 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
             clean_collected, altered_collected, ml_labels_tuple, profile,
             seed=seed, dataset=dataset, as_of_date=as_of_date,
         )
+        latent_tuple, latent_metrics = build_latent(
+            clean_collected, altered_collected, ml_labels_tuple, profile,
+            seed=seed, dataset=dataset, as_of_date=as_of_date,
+        )
     metrics = _metrics(ordered, summary, operations, rules, dataset=dataset, profile=profile_id,
-                       total=total, branches=branches, ml_fraud=ml_fraud, splits=splits_metrics)
+                       total=total, branches=branches, ml_fraud=ml_fraud, splits=splits_metrics,
+                       latent=latent_metrics)
     document = RulesDocument(dataset=dataset, profile=profile_id, as_of_date=as_of_date,
                              conventions=conventions, rules=list(rules))
-    return TruthResult(ordered, metrics, document, ml_labels=ml_labels_tuple, splits=splits_tuple, is_extended_ml=is_ext_ml)
+    return TruthResult(ordered, metrics, document, ml_labels=ml_labels_tuple, splits=splits_tuple,
+                       latent=latent_tuple, is_extended_ml=is_ext_ml)
 
 
 def _relational_lines(event: AnomalyEvent, operation: Mapping[str, object], dataset: str,
@@ -422,7 +437,8 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
              dataset: str, profile: str, total: int,
              branches: Mapping[str, int],
              ml_fraud: MLFraudMetrics | None = None,
-             splits: SplitMetrics | None = None) -> MetricsDocument:
+             splits: SplitMetrics | None = None,
+             latent: LatentMetrics | None = None) -> MetricsDocument:
     injected = [line for line in lines if line.kind == "injected"]
     counts = Counts(
         events=len({line.event_id for line in injected}),
@@ -539,7 +555,8 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
         missing_data=missing_data,
         temporal_drift=temporal_drift,
         ml_fraud=ml_fraud or MLFraudMetrics(),
-        splits=splits or SplitMetrics())
+        splits=splits or SplitMetrics(),
+        latent=latent or LatentMetrics())
 
 
 def _absence(rows: int, cases: int, spans_rows: bool) -> AbsenceProbability:
@@ -618,6 +635,8 @@ def generate_schemas() -> dict[str, str]:
                              "the synthetic fraud and machine learning labels specification."),
         "splits": _schema(SplitsDocument, "Tabalyst Generate splits",
                           "the dataset partitioning and leakage prevention specification."),
+        "latent": _schema(LatentDocument, "Tabalyst Generate latent",
+                          "the pure unobserved latent generator variables and scores specification."),
     }
     return {role: json.dumps(schema, indent=2, ensure_ascii=False) + "\n"
             for role, schema in schemas.items()}

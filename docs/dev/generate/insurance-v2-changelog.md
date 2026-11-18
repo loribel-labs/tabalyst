@@ -317,6 +317,28 @@ Phase 3 begins on branch `insurance-v2/phase-3` after gate P2 ratification (dire
   - 8 new contract tests in `tests/test_generate_insurance_v2_contract.py` (total 121 contract tests passing).
 - `generation_version` stays 2.
 
+## Final ML profiles assembly, latent file, and phase 4 metrics (lot 15, 2026-11-18)
+
+- **Separate latent variables file `<dataset>.<profile>.latent.csv` (SRS §8, Contract §5.6, D11, Q2)**:
+  - Isolates pure continuous generator probabilities, raw risk scores, and theoretical claim costs from input features.
+  - 9 standard columns: `row_number`, `id_contrat`, `id_client`, `latent_fraud_probability`, `latent_claim_probability`, `latent_claim_cost`, `latent_renewal_probability`, `latent_risk_score`, `latent_churn_risk`.
+  - Guarantees strict exclusion: no latent variable appears in `insurance-combined.csv`.
+  - Registered in `manifest.json` under role `"latent"`, with size and SHA-256 digest.
+  - New committed schema `src/tabalyst/schemas/tabalyst.generate.latent.schema.json` formalizing format `tabalyst.generate.latent`, version `0.2.0`, revision 1.
+- **Phase 4 metrics consolidation**:
+  - `LatentMetrics` integrated into `metrics.json` under key `latent`, tracking `total_rows`, average fraud and claim probabilities, average claim cost, renewal propensity, risk score, and churn risk.
+  - Updated committed JSON schema `src/tabalyst/schemas/tabalyst.generate.metrics.schema.json`.
+- **Finalized ML profile trio in `dataset.yaml`**:
+  - `ml_fraud_imbalanced`: synthetic fraud detection across 4 typologies, imbalanced rarity classes (1%, 0.1%, 0.01%), label noise, and delayed investigations.
+  - `ml_leakage_test`: intentional leakage scenarios, post-claim temporal leakage, shortcuts, branch imbalances, and segment-conditioned missingness.
+  - `ml_multitask`: comprehensive multi-task benchmark combining fraud classification, future claim prediction, claim cost regression, policy renewal, and actuarial risk ratings.
+  - All three profiles default to `--output-profile extended` (44 columns) and declare floor `min_rows: 10000`.
+- **Testing and non-regression**:
+  - 7 new contract tests in `tests/test_generate_insurance_v2_contract.py` (total 128 contract tests passing).
+  - Default runs and legacy profiles (`dirty_realistic`, `dirty_stress`, `rule_breaks`) strictly omit ML artifacts and remain byte-identical.
+- `generation_version` stays 2.
+
+
 
 
 

@@ -72,6 +72,19 @@ SPLITS_COLUMNS: Final = (
 SPLIT_MODES: Final = ("random_client", "temporal")
 SPLIT_PARTITIONS: Final = ("train", "validation", "test")
 
+LATENT_FORMAT: Final = "tabalyst.generate.latent"
+LATENT_COLUMNS: Final = (
+    "row_number",
+    "id_contrat",
+    "id_client",
+    "latent_fraud_probability",
+    "latent_claim_probability",
+    "latent_claim_cost",
+    "latent_renewal_probability",
+    "latent_risk_score",
+    "latent_churn_risk",
+)
+
 Count = Annotated[int, Field(ge=0)]
 
 
@@ -148,6 +161,56 @@ class SplitsDocument(_Model):
     metrics: SplitMetrics
 
 
+class LatentColumnSpec(_Model):
+    """Specification of one column in latent.csv."""
+
+    name: str
+    type: str
+    description: str
+
+
+class LatentMetrics(_Model):
+    """Aggregate metrics on latent variables and unobserved generator scores."""
+
+    total_rows: Count = 0
+    mean_fraud_probability: float = 0.0
+    mean_claim_probability: float = 0.0
+    mean_claim_cost: float = 0.0
+    mean_renewal_probability: float = 0.0
+    mean_risk_score: float = 0.0
+    mean_churn_risk: float = 0.0
+    latent_variables: list[str] = Field(default_factory=list)
+
+
+class LatentDocument(_Model):
+    """Document tabalyst.generate.latent: specification and metadata of latent variables."""
+
+    format: Literal["tabalyst.generate.latent"] = LATENT_FORMAT
+    format_version: Literal["0.2.0"] = FORMAT_VERSION
+    format_revision: Literal[1] = FORMAT_REVISION
+    dataset: str
+    profile: str
+    rows: Count
+    columns: list[LatentColumnSpec]
+    latent_variables: list[str] = Field(default_factory=list)
+    metrics: LatentMetrics
+
+
+@dataclass(frozen=True)
+class LatentRow:
+    """One record of the separate latent.csv file."""
+
+    row_number: int
+    id_contrat: str
+    id_client: str
+    latent_fraud_probability: float
+    latent_claim_probability: float
+    latent_claim_cost: float
+    latent_renewal_probability: float
+    latent_risk_score: float
+    latent_churn_risk: float
+
+
 @dataclass(frozen=True)
 class MLLabelRow:
     """One record of the separate ml_labels.csv file."""
@@ -194,7 +257,7 @@ def is_ml_profile(profile: Mapping[str, object], operations: Sequence[Mapping[st
 
 def is_extended_ml_profile(profile: Mapping[str, object], operations: Sequence[Mapping[str, object]]) -> bool:
     """Tell whether an ML profile includes extended prediction targets (ML09-ML12)."""
-    if profile.get("ml_targets") is True or profile.get("id") == "ml_leakage_test":
+    if profile.get("ml_targets") is True or profile.get("id") in ("ml_leakage_test", "ml_multitask"):
         return True
     return any(
         str(op.get("scenario_id", "")).startswith((
@@ -802,5 +865,192 @@ def splits_document(
         rows=rows,
         columns=col_specs,
         modes=list(SPLIT_MODES),
+        metrics=metrics,
+    )
+
+
+def build_latent(
+    clean_rows: Sequence[Mapping[str, str]],
+    altered_rows: Sequence[Mapping[str, str]],
+    ml_labels: Sequence[MLLabelRow],
+    profile: Mapping[str, object],
+    *,
+    seed: int,
+    dataset: str,
+    as_of_date: str,
+) -> tuple[tuple[LatentRow, ...], LatentMetrics]:
+    """Build the pure unobserved latent generator variables and metrics for ML profiles.
+
+    Strictly isolates latent risk generators, uncorrupted fraud probabilities and
+    theoretical claim costs that would make machine learning prediction trivial if included
+    in input feature tables (D11, Q2, Contract 5.6).
+    """
+    total_rows = len(altered_rows)
+    latent_rows: list[LatentRow] = []
+
+    sum_fraud_prob = 0.0
+    sum_claim_prob = 0.0
+    sum_claim_cost = 0.0
+    sum_renewal_prob = 0.0
+    sum_risk_score = 0.0
+    sum_churn_risk = 0.0
+
+    for idx, (clean_row, altered_row) in enumerate(zip(clean_rows, altered_rows, strict=True)):
+        physical_row_number = idx + 2
+        id_contrat = altered_row.get("id_contrat") or clean_row.get("id_contrat") or f"ROW-{physical_row_number}"
+        id_client = altered_row.get("id_client") or clean_row.get("id_client") or f"CLI-{physical_row_number}"
+        label = ml_labels[idx]
+
+        p_rand = _pseudo_random_float(seed, dataset, id_contrat, "prob")
+        p_renew = _pseudo_random_float(seed, dataset, id_contrat, "renew")
+
+        # 1. Pure latent fraud probability (from label row)
+        latent_fraud_prob = round(label.latent_probability, 4)
+
+        # 2. Pure latent claim probability (risque_sinistre)
+        # Higher for true fraud, high latent risk, or existing claims
+        if label.is_fraud == 1:
+            latent_claim_prob = round(0.85 + 0.14 * p_rand, 4)
+        elif label.future_claim == 1:
+            latent_claim_prob = round(0.65 + 0.30 * p_rand, 4)
+        else:
+            latent_claim_prob = round(0.01 + 0.18 * (p_rand**1.5), 4)
+
+        # 3. Pure latent claim cost (theoretical expected loss amount in EUR/CAD)
+        if float(label.cout_sinistre) > 0.0:
+            latent_cost = round(float(label.cout_sinistre), 2)
+        else:
+            latent_cost = round(600.0 + 3800.0 * p_rand, 2)
+
+        # 4. Pure latent renewal probability
+        contract_status = altered_row.get("statut_contrat") or clean_row.get("statut_contrat", "")
+        if label.is_fraud == 1 or contract_status == "résilié":
+            latent_renewal_prob = round(0.02 * p_renew, 4)
+        elif label.renouvellement == 1:
+            latent_renewal_prob = round(0.70 + 0.28 * (1.0 - p_renew), 4)
+        else:
+            latent_renewal_prob = round(0.15 + 0.30 * (1.0 - p_renew), 4)
+
+        # 5. Pure latent risk score in [100.0, 900.0]
+        latent_risk = round(label.score_risque_interne, 1)
+
+        # 6. Pure latent churn risk (complement of renewal probability)
+        latent_churn = round(1.0 - latent_renewal_prob, 4)
+
+        sum_fraud_prob += latent_fraud_prob
+        sum_claim_prob += latent_claim_prob
+        sum_claim_cost += latent_cost
+        sum_renewal_prob += latent_renewal_prob
+        sum_risk_score += latent_risk
+        sum_churn_risk += latent_churn
+
+        latent_rows.append(
+            LatentRow(
+                row_number=physical_row_number,
+                id_contrat=id_contrat,
+                id_client=id_client,
+                latent_fraud_probability=latent_fraud_prob,
+                latent_claim_probability=latent_claim_prob,
+                latent_claim_cost=latent_cost,
+                latent_renewal_probability=latent_renewal_prob,
+                latent_risk_score=latent_risk,
+                latent_churn_risk=latent_churn,
+            )
+        )
+
+    metrics = LatentMetrics(
+        total_rows=total_rows,
+        mean_fraud_probability=round(sum_fraud_prob / total_rows, 4) if total_rows > 0 else 0.0,
+        mean_claim_probability=round(sum_claim_prob / total_rows, 4) if total_rows > 0 else 0.0,
+        mean_claim_cost=round(sum_claim_cost / total_rows, 2) if total_rows > 0 else 0.0,
+        mean_renewal_probability=round(sum_renewal_prob / total_rows, 4) if total_rows > 0 else 0.0,
+        mean_risk_score=round(sum_risk_score / total_rows, 1) if total_rows > 0 else 0.0,
+        mean_churn_risk=round(sum_churn_risk / total_rows, 4) if total_rows > 0 else 0.0,
+        latent_variables=list(LATENT_COLUMNS[3:]),
+    )
+
+    return tuple(latent_rows), metrics
+
+
+def write_latent_csv(path: Path, latent_rows: Sequence[LatentRow]) -> None:
+    """Write the separate latent.csv file with deterministic LF line endings."""
+    with path.open("w", encoding="utf-8", newline="\n") as stream:
+        writer = csv.writer(stream, lineterminator="\n")
+        writer.writerow(LATENT_COLUMNS)
+        for row in latent_rows:
+            writer.writerow([
+                row.row_number,
+                row.id_contrat,
+                row.id_client,
+                f"{row.latent_fraud_probability:.4f}",
+                f"{row.latent_claim_probability:.4f}",
+                f"{row.latent_claim_cost:.2f}",
+                f"{row.latent_renewal_probability:.4f}",
+                f"{row.latent_risk_score:.1f}",
+                f"{row.latent_churn_risk:.4f}",
+            ])
+
+
+def latent_document(
+    dataset: str,
+    profile: str,
+    rows: int,
+    metrics: LatentMetrics,
+) -> LatentDocument:
+    """Create the LatentDocument model describing the latent variables."""
+    col_specs = [
+        LatentColumnSpec(
+            name="row_number",
+            type="integer",
+            description="1-based physical row number in the dataset CSV",
+        ),
+        LatentColumnSpec(
+            name="id_contrat",
+            type="string",
+            description="Contract primary identifier for join",
+        ),
+        LatentColumnSpec(
+            name="id_client",
+            type="string",
+            description="Customer identifier",
+        ),
+        LatentColumnSpec(
+            name="latent_fraud_probability",
+            type="number",
+            description="Continuous uncorrupted latent probability of fraud in [0.0, 1.0]",
+        ),
+        LatentColumnSpec(
+            name="latent_claim_probability",
+            type="number",
+            description="Continuous latent probability of loss claim occurrence (risque_sinistre) in [0.0, 1.0]",
+        ),
+        LatentColumnSpec(
+            name="latent_claim_cost",
+            type="number",
+            description="Theoretical expected claim loss cost in currency units",
+        ),
+        LatentColumnSpec(
+            name="latent_renewal_probability",
+            type="number",
+            description="Continuous latent propensity for customer policy renewal in [0.0, 1.0]",
+        ),
+        LatentColumnSpec(
+            name="latent_risk_score",
+            type="number",
+            description="Calibrated composite actuarial risk rating score in [100.0, 900.0]",
+        ),
+        LatentColumnSpec(
+            name="latent_churn_risk",
+            type="number",
+            description="Continuous latent risk of customer churn in [0.0, 1.0]",
+        ),
+    ]
+
+    return LatentDocument(
+        dataset=dataset,
+        profile=profile,
+        rows=rows,
+        columns=col_specs,
+        latent_variables=list(LATENT_COLUMNS[3:]),
         metrics=metrics,
     )
