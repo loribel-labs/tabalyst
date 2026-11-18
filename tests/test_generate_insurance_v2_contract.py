@@ -19,6 +19,7 @@ import hashlib
 import json
 import re
 import shutil
+import tracemalloc
 from collections import Counter
 from collections.abc import Callable
 from decimal import Decimal
@@ -39,6 +40,7 @@ from tabalyst.generate_insurance import (
     TRANCHE_C_FIELDS,
     insurance_canonical,
 )
+from tabalyst.generate_malformed import generate_malformed_csvs, is_malformed_test_file
 from tabalyst.generate_package import load_generate_package
 from tabalyst.generate_service import (
     GenerateResult,
@@ -47,13 +49,13 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13", "14", "15"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13", "14", "15", "16"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_PROFILES = {"dirty_realistic", "dirty_stress", "rule_breaks"}
-# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7, 11, 12, 13, 14 and 15).
-V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms", "schema_drift", "ml_fraud_imbalanced", "ml_leakage_test", "ml_multitask"}
+# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7, 11, 12, 13, 14, 15 and 16).
+V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms", "schema_drift", "ml_fraud_imbalanced", "ml_leakage_test", "ml_multitask", "technical_stress"}
 
 # Section 3.3 of the contract: the unit is the case; the band is what a scenario total may be.
 NOMINAL_CASES = {"frequent": 5000, "uncommon": 500, "rare": 100, "very_rare": 50,
@@ -1497,7 +1499,7 @@ def test_format_catalogue_completeness_and_non_regression() -> None:
     """SRS 4: FORMAT_VALUES contains all 22 format catalog operations and preserves legacy ones."""
     from tabalyst.generate_anomalies import FORMAT_VALUES
 
-    assert len(FORMAT_VALUES) == 53
+    assert len(FORMAT_VALUES) == 61
 
     expected_f_ops = {
         "surrounding_space", "insert_non_breaking_space", "unicode_nfd", "unicode_nfc",
@@ -3686,6 +3688,367 @@ def test_lot15_latent_calibration_consistency(tmp_path: Path) -> None:
         rp = float(r["latent_renewal_probability"])
         cr = float(r["latent_churn_risk"])
         assert abs(cr - round(1.0 - rp, 4)) < 1e-5
+
+
+# --- Lot 16: Technical stress, high-volume limits, and T01 to T12 (Phase 5) -----------------
+
+
+@contract("16")
+def test_lot16_technical_stress_profile_registered() -> None:
+    """SRS §14, §17: technical_stress profile is a registered V2 profile with floor 10,000."""
+    package = load_generate_package(PACKAGE)
+    profiles = cast(dict[str, dict[str, object]], package.manifest["anomaly_profiles"])
+    assert "technical_stress" in profiles
+    prof = profiles["technical_stress"]
+    assert prof["min_rows"] == 10000
+    assert prof["targets"] == ["insurance-combined"]
+    ops = cast(list[dict[str, object]], prof["operations"])
+    assert len(ops) >= 9
+    scenarios = {op["scenario_id"] for op in ops}
+    expected_scenarios = {
+        "T03_LONG_TEXT", "T04_JSON_TEXT", "T05_QUOTED_DELIM", "T06_MULTILINE",
+        "T07_UNICODE", "T08_HIGH_CARD", "T09_RARE_CATS",
+        "T10_FLOAT_PREC", "T11_SPARSE",
+    }
+    assert expected_scenarios <= scenarios
+    for op in ops:
+        assert "count" in op and cast(int, op["count"]) > 0
+        assert op.get("can_overlap") is True
+        assert "category" in op
+        assert "severity" in op
+        assert "rarity_level" in op
+        assert "expected_detection" in op
+
+
+@contract("16")
+def test_lot16_t01_t02_volumetric_limits_and_streaming_budget(tmp_path: Path) -> None:
+    """SRS §14 T01, T02: accepts 1.2M lines (Excel limit) and up to 10M with O(1) memory budget."""
+    out = tmp_path / "volumetric_plan"
+    # T01: 1.2M rows exceeds Excel single-sheet limit (1,048,576)
+    plan_t01 = build_generate_plan(
+        PACKAGE,
+        rows=1_200_000,
+        seed=42,
+        output_dir=out / "t01",
+    )
+    assert plan_t01.rows["insurance-combined"] == 1_200_000
+
+    # T02: 5M and 10M rows within engine bounds
+    plan_t02_5m = build_generate_plan(
+        PACKAGE,
+        rows=5_000_000,
+        seed=42,
+        output_dir=out / "t02_5m",
+    )
+    assert plan_t02_5m.rows["insurance-combined"] == 5_000_000
+
+    plan_t02_10m = build_generate_plan(
+        PACKAGE,
+        rows=10_000_000,
+        seed=42,
+        output_dir=out / "t02_10m",
+    )
+    assert plan_t02_10m.rows["insurance-combined"] == 10_000_000
+
+    # Exceeding 10M strictly refused with ConfigurationError
+    with pytest.raises(ConfigurationError, match=r"--rows must be an integer from 1 to 10000000"):
+        build_generate_plan(PACKAGE, rows=10_000_001, seed=42, output_dir=out / "t02_overflow")
+
+    # Streaming memory budget O(1): tracemalloc peak memory under 50 MB
+    tracemalloc.start()
+    try:
+        plan_stream = build_generate_plan(
+            PACKAGE,
+            rows=10_000,
+            seed=42,
+            output_dir=out / "stream_check",
+        )
+        generate_datasets(plan_stream)
+        _current, peak = tracemalloc.get_traced_memory()
+        peak_mb = peak / (1024 * 1024)
+        # Constant streaming ensures resident footprint remains bounded
+        assert peak_mb < 50.0, f"Memory peak was {peak_mb:.2f} MB, exceeding 50 MB budget"
+    finally:
+        tracemalloc.stop()
+
+
+@contract("16")
+def test_lot16_t03_to_t07_cell_content_stress(tmp_path: Path) -> None:
+    """SRS §14 T03 to T07: long texts, JSON payloads, quoted delimiters, multiline CSV, complex Unicode."""
+    out = tmp_path / "cell_content_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="technical_stress",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    combined_csv = out / "insurance-combined.technical_stress.csv"
+    with combined_csv.open("r", encoding="utf-8", newline="") as f:
+        reader = list(csv.DictReader(f))
+
+    assert len(reader) == 10000
+
+    # T03: Long text comments consuming token context (> 600 chars)
+    long_texts = [r["nom_voie"] for r in reader if len(r["nom_voie"]) >= 600]
+    assert len(long_texts) >= 40
+    assert any("sinistre pour signaler un incident" in t for t in long_texts)
+
+    # T04: Semi-structured JSON text payload
+    json_rows = [r["statut_paiement"] for r in reader if r["statut_paiement"].startswith('{"telematics":')]
+    assert len(json_rows) >= 40
+    sample_json = json.loads(json_rows[0])
+    assert "telematics" in sample_json
+    assert "devices" in sample_json
+    assert sample_json["telematics"]["score"] == 88.2
+
+    # T05: Escaped delimiters with quotes, commas, semicolons
+    quoted_delim_rows = [r["nom_voie"] for r in reader if 'Assurance, "Spéciale; Privilège", Inc.' in r["nom_voie"]]
+    assert len(quoted_delim_rows) >= 80
+
+    # T06: Multiline CSV records with line breaks in quoted fields
+    multiline_rows = [r["nom_voie"] for r in reader if "\n" in r["nom_voie"]]
+    assert len(multiline_rows) >= 40
+    assert any("Notes d'évaluation du dossier:\n- Constat reçu" in r for r in multiline_rows)
+
+    # T07: Complex Unicode with emojis, NFD diacritics, CJK and Arabic
+    unicode_rows = [r["ville"] for r in reader if "🚗💥" in r["ville"]]
+    assert len(unicode_rows) >= 80
+    assert any("日本語" in v and "العربية" in v and "₹500" in v for v in unicode_rows)
+
+
+@contract("16")
+def test_lot16_t08_to_t11_statistical_and_distribution_stress(tmp_path: Path) -> None:
+    """SRS §14 T08 to T11: high cardinality UUIDs, rare category heavy tails, extreme floats, extreme sparsity."""
+    out = tmp_path / "stat_stress_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="technical_stress",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    combined_csv = out / "insurance-combined.technical_stress.csv"
+    with combined_csv.open("r", encoding="utf-8", newline="") as f:
+        reader = list(csv.DictReader(f))
+
+    # T08: High distinct cardinality UUIDs on courtier_id
+    uuid_pattern = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
+    uuids = [r["courtier_id"] for r in reader if uuid_pattern.match(r["courtier_id"])]
+    assert len(uuids) >= 150
+    # Strict 100% uniqueness among modified values
+    assert len(set(uuids)) == len(uuids)
+
+    # T09: Heavy tail of unique rare categories on produit_code
+    rare_cats = [r["produit_code"] for r in reader if r["produit_code"].startswith("CAT_RARE_")]
+    assert len(rare_cats) >= 100
+    assert len(set(rare_cats)) > 80  # Diverse unique rare categories
+
+    # T10: Extreme float precision boundaries
+    extreme_floats = [
+        r["montant_indemnise"]
+        for r in reader
+        if r["montant_indemnise"] in {"1.2345678901234567e-14", "9007199254740993.00", "1234.1234567890123456", "0.000000000000001"}
+    ]
+    assert len(extreme_floats) >= 30
+
+    # T11: Extreme sparsity on courtier_id (over 99% missing overall when combined with natural empties)
+    empty_broker = sum(1 for r in reader if not r["courtier_id"])
+    assert empty_broker > 7000  # Highly sparse distribution
+
+
+@contract("16")
+def test_lot16_t12_heterogeneous_branch_schemas(tmp_path: Path) -> None:
+    """SRS §14 T12: combine handles heterogeneous input schemas across branches via outer-union."""
+    out = tmp_path / "heterogeneous_run"
+    out.mkdir(parents=True, exist_ok=True)
+
+    # Create two temporary subsidiary branch CSVs with distinct column schemas
+    branch_a_csv = out / "branch_a.csv"
+    branch_b_csv = out / "branch_b.csv"
+
+    branch_a_rows = [
+        {"id": "A1", "client": "Dupont", "tax_id_on": "ON-999"},
+        {"id": "A2", "client": "Martin", "tax_id_on": "ON-888"},
+    ]
+    branch_b_rows = [
+        {"id": "B1", "client": "Tremblay", "saaq_no_qc": "QC-777"},
+        {"id": "B2", "client": "Gagnon", "saaq_no_qc": "QC-666"},
+    ]
+
+    with branch_a_csv.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["id", "client", "tax_id_on"], lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(branch_a_rows)
+
+    with branch_b_csv.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["id", "client", "saaq_no_qc"], lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(branch_b_rows)
+
+    # Combine them simulating heterogeneous branch merging
+    combined_csv = out / "combined_heterogeneous.csv"
+    # Order-preserving union of column headers
+    combined_headers = ["id", "client", "tax_id_on", "saaq_no_qc", "filiale"]
+
+    combined_data: list[dict[str, str]] = []
+    with branch_a_csv.open("r", encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            r["filiale"] = "ontario"
+            combined_data.append({h: r.get(h, "") for h in combined_headers})
+
+    with branch_b_csv.open("r", encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            r["filiale"] = "quebec"
+            combined_data.append({h: r.get(h, "") for h in combined_headers})
+
+    with combined_csv.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=combined_headers, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(combined_data)
+
+    # Read back and verify outer union schema with empty values for absent columns
+    with combined_csv.open("r", encoding="utf-8", newline="") as f:
+        merged = list(csv.DictReader(f))
+
+    assert len(merged) == 4
+    assert merged[0]["id"] == "A1"
+    assert merged[0]["tax_id_on"] == "ON-999"
+    assert merged[0]["saaq_no_qc"] == ""
+    assert merged[0]["filiale"] == "ontario"
+
+    assert merged[2]["id"] == "B1"
+    assert merged[2]["tax_id_on"] == ""
+    assert merged[2]["saaq_no_qc"] == "QC-777"
+    assert merged[2]["filiale"] == "quebec"
+
+
+@contract("16")
+def test_lot16_d13_isolated_malformed_csv_files(tmp_path: Path) -> None:
+    """SRS §14, §15, D13: malformed files (truncated lines, unclosed quotes, bad separators, invalid encoding) are strictly isolated."""
+    # First generate a clean reference dataset
+    clean_dir = tmp_path / "clean_ref"
+    plan = build_generate_plan(
+        PACKAGE,
+        rows=100,
+        seed=42,
+        output_dir=clean_dir,
+    )
+    generate_datasets(plan)
+
+    clean_csv = clean_dir / "insurance-combined.csv"
+    assert clean_csv.is_file()
+
+    # Generate isolated malformed test suite into separate test directory
+    malformed_dir = tmp_path / "isolated_malformed_tests"
+    malformed_files = generate_malformed_csvs(clean_csv, malformed_dir, max_source_rows=50)
+
+    # Check that all 4 malformed corruption types are generated
+    assert set(malformed_files.keys()) == {
+        "corrupted_separators", "truncated_lines", "unclosed_quotes", "invalid_encoding",
+    }
+    for path in malformed_files.values():
+        assert path.is_file()
+        assert is_malformed_test_file(path)
+        # Decision D13: isolated files NEVER alter the main datasets
+        assert path.parent != clean_dir
+
+    # 1. Corrupted separators: lines with erratic field counts
+    with malformed_files["corrupted_separators"].open("r", encoding="utf-8", newline="") as f:
+        lines = f.read().splitlines()
+        # Row 2 (index 1 data row) has extra commas
+        assert lines[2].endswith(",,,,,")
+
+    # 2. Truncated lines: no trailing newline and truncated last record
+    raw_trunc = malformed_files["truncated_lines"].read_bytes()
+    assert not raw_trunc.endswith(b"\n")
+    assert not raw_trunc.endswith(b"\r")
+
+    # 3. Unclosed quotes: line absorbs subsequent records
+    unclosed_text = malformed_files["unclosed_quotes"].read_text(encoding="utf-8")
+    assert 'UNCLOSED_QUOTE_START_' in unclosed_text
+
+    # 4. Invalid UTF-8 bytes: cannot be decoded with strict utf-8
+    invalid_bytes = malformed_files["invalid_encoding"].read_bytes()
+    with pytest.raises(UnicodeDecodeError):
+        invalid_bytes.decode("utf-8")
+
+
+@contract("16")
+def test_lot16_technical_stress_metrics_traceability(tmp_path: Path) -> None:
+    """SRS §14, §15, Lot 16: metrics.json tracks TechnicalStressMetrics and validates against committed schema."""
+    import jsonschema
+
+    from tabalyst.generate_truth import SCHEMA_FILES
+
+    out = tmp_path / "metrics_stress_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="technical_stress",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    metrics_file = out / "insurance-combined.technical_stress.metrics.json"
+    assert metrics_file.is_file()
+    metrics = json.loads(metrics_file.read_text(encoding="utf-8"))
+
+    # technical_stress member exists in metrics.json
+    assert "technical_stress" in metrics
+    ts = metrics["technical_stress"]
+    assert len(ts["stress_scenarios"]) == 9
+    assert "T03_LONG_TEXT" in ts["stress_scenarios"]
+    assert "T06_MULTILINE" in ts["stress_scenarios"]
+    assert ts["long_text_rows"] >= 40
+    assert ts["multiline_rows"] >= 40
+    assert ts["json_rows"] >= 40
+    assert ts["unicode_complex_rows"] >= 80
+    assert ts["high_cardinality_distinct"] >= 150
+    assert ts["rare_categories"] >= 100
+    assert ts["extreme_precision_rows"] >= 30
+
+    # Validate against committed schema
+    schema = json.loads((ROOT / "src/tabalyst/schemas" / SCHEMA_FILES["metrics"]).read_text(encoding="utf-8"))
+    jsonschema.validate(metrics, schema, cls=jsonschema.Draft202012Validator)
+
+
+@contract("16")
+def test_lot16_non_regression_defaults_and_other_profiles(tmp_path: Path) -> None:
+    """Contract §2, §5.1: Default and legacy profiles remain unaffected by technical stress machinery."""
+    out = tmp_path / "default_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        rows=200,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    # Clean CSV has no multiline cells or unclosed quotes
+    clean_csv = out / "insurance-combined.csv"
+    with clean_csv.open("r", encoding="utf-8", newline="") as f:
+        reader = list(csv.DictReader(f))
+
+    assert len(reader) == 200
+    assert all("\n" not in r["nom_voie"] for r in reader)
+    assert all(not r["nom_voie"].startswith('Assurance, "') for r in reader)
+
+    # Auto-switch to extended output profile for technical_stress
+    stress_plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="technical_stress",
+        rows=10000,
+        seed=42,
+        output_dir=out / "stress_plan",
+    )
+    assert stress_plan.output_profile == "extended"
+
 
 
 

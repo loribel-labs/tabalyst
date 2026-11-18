@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import math
 import random
 import re
@@ -56,6 +57,8 @@ FORMAT_VALUES = frozenset({
     "postal_no_space", "postal_invalid_syntax", "decimal_comma", "decimal_dot",
     "thousands_space", "thousands_comma", "date_impossible", "date_swap_month_day",
     "drop_leading_zeros", "similar_char",
+    "long_text", "json_text", "quoted_delimiters", "multiline_text",
+    "unicode_complex", "high_cardinality_uuid", "rare_category", "float_precision_extreme",
 })
 CURRENCY_CODE = "CAD"
 CLASS_NAME = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
@@ -446,6 +449,67 @@ def _similar_char(value: str, rng: random.Random) -> str:
     return value
 
 
+def _long_text(value: str, rng: random.Random) -> str:
+    """A long text narrative (600+ characters) testing token consumption (SRS §14 T03)."""
+    sentences = [
+        "Le client a contacte le service sinistre pour signaler un incident survenu lors d'un deplacement professionnel.",
+        "Le constat amiable a ete complété avec l'ensemble des parties prenantes et transmis pour analyse technique approfondie.",
+        "Les premieres constatations materielles confirment des dommages importants sur l'aile avant droite et le pare-chocs.",
+        "Un rapport d'expertise contradictoire a ete diligente aupres du garage agree le plus proche dans les delais impartis.",
+        "Les pieces justificatives complementaires ont ete versees au dossier informatique pour traitement prioritaire.",
+        "Une demande de prise en charge directe a ete formulee sous reserve de la franchise contractuelle applicable.",
+        "L'assure a confirme ses coordonnees bancaires ainsi que son accord explicite pour la communication electronique securisee.",
+    ]
+    return " ".join(sentences * 2) + f" [Ref: {value}]"
+
+
+def _json_text(value: str, rng: random.Random) -> str:
+    """A semi-structured JSON text payload embedded within a CSV cell (SRS §14 T04)."""
+    val_esc = value.replace('"', '\\"')
+    return (
+        '{"telematics": {"hard_braking_events": 3, "rapid_accel": 1, "night_driving_pct": 14.5, '
+        '"score": 88.2}, "devices": ["obd_dongle", "mobile_app"], "metadata": {"firmware": "v3.1.2", '
+        f'"payload_id": "{val_esc}"}}}}'
+    )
+
+
+def _quoted_delimiters(value: str, rng: random.Random) -> str:
+    """A string containing commas, double quotes, semicolons, and pipes (SRS §14 T05)."""
+    return f'Assurance, "Spéciale; Privilège", Inc. | Ref: {value}'
+
+
+def _multiline_text(value: str, rng: random.Random) -> str:
+    """A multiline string containing line breaks within a quoted CSV cell (SRS §14 T06)."""
+    return f"Notes d'évaluation du dossier:\n- Constat reçu et validé\n- Examen technique en attente\n- ID: {value}"
+
+
+def _unicode_complex(value: str, rng: random.Random) -> str:
+    """Unicode strings with emojis, CJK, Arabic, combined NFD diacritics and symbols (SRS §14 T07)."""
+    return f"Assuré 🚗💥 [Éléphant/e\u0301] 日本語 العربية ₹500 €1000 - {value}"
+
+
+def _high_cardinality_uuid(value: str, rng: random.Random) -> str:
+    """A unique UUID-like 128-bit hex token for distinct cardinality stress (SRS §14 T08)."""
+    h = hashlib.sha256(f"{value}:{rng.getrandbits(64)}".encode()).hexdigest()
+    return f"{h[:8]}-{h[8:12]}-4{h[13:16]}-a{h[17:20]}-{h[20:32]}"
+
+
+def _rare_category(value: str, rng: random.Random) -> str:
+    """A unique rare category token from a heavy-tail distribution (SRS §14 T09)."""
+    return f"CAT_RARE_{rng.randint(10000, 99999):05d}"
+
+
+def _float_precision_extreme(value: str, rng: random.Random) -> str:
+    """A floating-point numeric string probing IEEE 754 precision limits (SRS §14 T10)."""
+    choices = [
+        "1.2345678901234567e-14",
+        "9007199254740993.00",
+        "1234.1234567890123456",
+        "0.000000000000001",
+    ]
+    return choices[rng.randint(0, len(choices) - 1)]
+
+
 # The random stream is passed to every transform so that adding one never shifts another.
 TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "upper": lambda value, rng: value.upper(),
@@ -501,6 +565,14 @@ TEXT_TRANSFORMS: dict[str, Callable[[str, random.Random], str]] = {
     "date_swap_month_day": _date_swap_month_day,
     "drop_leading_zeros": _drop_leading_zeros,
     "similar_char": _similar_char,
+    "long_text": _long_text,
+    "json_text": _json_text,
+    "quoted_delimiters": _quoted_delimiters,
+    "multiline_text": _multiline_text,
+    "unicode_complex": _unicode_complex,
+    "high_cardinality_uuid": _high_cardinality_uuid,
+    "rare_category": _rare_category,
+    "float_precision_extreme": _float_precision_extreme,
 }
 
 

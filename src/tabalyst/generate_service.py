@@ -580,7 +580,7 @@ def build_generate_plan(
                 effective_output = "extended"
             elif anomaly_profile == "schema_drift" and output_profile is None:
                 effective_output = "complete"
-            elif anomaly_profile in {"ml_fraud_imbalanced", "ml_leakage_test", "ml_multitask"} and output_profile is None:
+            elif anomaly_profile in {"ml_fraud_imbalanced", "ml_leakage_test", "ml_multitask", "technical_stress"} and output_profile is None:
                 effective_output = "extended"
             elif output_profile is None:
                 effective_output = "default"
@@ -1196,7 +1196,7 @@ def _generate(plan: GeneratePlan | ComputerPlan,
     profiles = {profile["id"]: profile for profile in plan.definition.anomaly_profiles}
     delimiter = plan.definition.csv.get("delimiter", ",")
 
-    def combined_rows(dataset: dict):
+    def combined_rows(dataset: dict, target_headers: list[str] | None = None):
         with ExitStack() as stack:
             for input_id in dataset["combine"]["inputs"]:
                 stream = stack.enter_context(staged_clean[input_id].open(
@@ -1208,7 +1208,10 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                         row[dataset["combine"]["source_column"]] = (
                             datasets[input_id].get("source", input_id)
                         )
-                    yield row
+                    if target_headers is not None:
+                        yield {h: row.get(h, "") for h in target_headers}
+                    else:
+                        yield row
 
     def writer(artifact: GenerateArtifact, stage: Path) -> None:
         staged[artifact.path] = stage
@@ -1290,17 +1293,32 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 for ctr in pop_model.contracts
             )
         elif "combine" in dataset:
-            first = datasets[dataset["combine"]["inputs"][0]]
-            columns = first.get("columns") or plan.definition.schemas[first["schema"]]["columns"]
-            headers = [column["name"] for column in columns]
+            headers = []
+            seen_headers: set[str] = set()
+            for input_id in dataset["combine"]["inputs"]:
+                inp = datasets[input_id]
+                inp_cols = inp.get("columns") or plan.definition.schemas[inp["schema"]]["columns"]
+                for column in inp_cols:
+                    cname = column["name"]
+                    if cname not in seen_headers:
+                        headers.append(cname)
+                        seen_headers.add(cname)
             if dataset["combine"].get("source_column"):
-                headers.append(dataset["combine"]["source_column"])
+                scol = dataset["combine"]["source_column"]
+                if scol not in seen_headers:
+                    headers.append(scol)
+                    seen_headers.add(scol)
             if is_extended_insurance:
-                headers.extend(INSURANCE_EXTENDED_FIELDS)
+                for cname in INSURANCE_EXTENDED_FIELDS:
+                    if cname not in seen_headers:
+                        headers.append(cname)
+                        seen_headers.add(cname)
             if is_complete_insurance:
-                headers.extend(INSURANCE_TRANCHE_B_FIELDS)
-                headers.extend(INSURANCE_TRANCHE_C_FIELDS)
-            rows = combined_rows(dataset)
+                for cname in (*INSURANCE_TRANCHE_B_FIELDS, *INSURANCE_TRANCHE_C_FIELDS):
+                    if cname not in seen_headers:
+                        headers.append(cname)
+                        seen_headers.add(cname)
+            rows = combined_rows(dataset, headers)
         else:
             columns = dataset.get("columns") or plan.definition.schemas[dataset["schema"]]["columns"]
             headers = [column["name"] for column in columns]

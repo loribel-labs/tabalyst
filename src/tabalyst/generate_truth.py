@@ -193,6 +193,20 @@ class TemporalDriftMetrics(_Model):
     temporal_rules: dict[str, Count] = Field(default_factory=dict)
 
 
+class TechnicalStressMetrics(_Model):
+    """Aggregate metrics on technical stress test cases (SRS §14, Lot 16)."""
+
+    stress_scenarios: list[str] = Field(default_factory=list)
+    multiline_rows: int = 0
+    long_text_rows: int = 0
+    json_rows: int = 0
+    unicode_complex_rows: int = 0
+    high_cardinality_distinct: int = 0
+    rare_categories: int = 0
+    extreme_precision_rows: int = 0
+    sparse_cells_empty: int = 0
+
+
 class MetricsDocument(_Model):
     """``<dataset>.<profile>.metrics.json`` (contract 5.4)."""
 
@@ -214,6 +228,7 @@ class MetricsDocument(_Model):
     ml_fraud: MLFraudMetrics = Field(default_factory=MLFraudMetrics)
     splits: SplitMetrics = Field(default_factory=SplitMetrics)
     latent: LatentMetrics = Field(default_factory=LatentMetrics)
+    technical_stress: TechnicalStressMetrics = Field(default_factory=TechnicalStressMetrics)
 
 
 class ScenarioEntry(_Model):
@@ -400,7 +415,7 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
             clean_collected, altered_collected, ml_labels_tuple, profile,
             seed=seed, dataset=dataset, as_of_date=as_of_date,
         )
-    metrics = _metrics(ordered, summary, operations, rules, dataset=dataset, profile=profile_id,
+    metrics = _metrics(ordered, summary, operations, rules, events=events, dataset=dataset, profile=profile_id,
                        total=total, branches=branches, ml_fraud=ml_fraud, splits=splits_metrics,
                        latent=latent_metrics)
     document = RulesDocument(dataset=dataset, profile=profile_id, as_of_date=as_of_date,
@@ -436,6 +451,7 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
              operations: Sequence[Mapping[str, object]], rules: Sequence[Rule], *,
              dataset: str, profile: str, total: int,
              branches: Mapping[str, int],
+             events: Sequence[AnomalyEvent] | None = None,
              ml_fraud: MLFraudMetrics | None = None,
              splits: SplitMetrics | None = None,
              latent: LatentMetrics | None = None) -> MetricsDocument:
@@ -543,6 +559,49 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
         drift_scenarios=sorted([s for s in scenarios if s.startswith("SD_")]),
         temporal_rules=temporal_rules,
     )
+    stress_scenarios = sorted([s for s in scenarios if s.startswith("T")])
+    stress_multiline = 0
+    stress_long_text = 0
+    stress_json = 0
+    stress_unicode = 0
+    stress_high_card = 0
+    stress_rare_cat = 0
+    stress_extreme_prec = 0
+    stress_sparse_empty = 0
+
+    for event in (events or ()):
+        operation = operations[event.operation_index - 1]
+        sc = cast(str, operation.get("scenario_id", ""))
+        if sc.startswith("T"):
+            after_val = event.after
+            if "\n" in after_val:
+                stress_multiline += 1
+            if len(after_val) >= 500:
+                stress_long_text += 1
+            if after_val.startswith('{"telematics":'):
+                stress_json += 1
+            if "🚗" in after_val or "Éléphant" in after_val:
+                stress_unicode += 1
+            if sc == "T08_HIGH_CARD":
+                stress_high_card += 1
+            if sc == "T09_RARE_CATS":
+                stress_rare_cat += 1
+            if sc == "T10_FLOAT_PREC":
+                stress_extreme_prec += 1
+            if sc == "T11_SPARSE" and not after_val:
+                stress_sparse_empty += 1
+
+    technical_stress = TechnicalStressMetrics(
+        stress_scenarios=stress_scenarios,
+        multiline_rows=stress_multiline,
+        long_text_rows=stress_long_text,
+        json_rows=stress_json,
+        unicode_complex_rows=stress_unicode,
+        high_cardinality_distinct=stress_high_card,
+        rare_categories=stress_rare_cat,
+        extreme_precision_rows=stress_extreme_prec,
+        sparse_cells_empty=stress_sparse_empty,
+    )
     return MetricsDocument(
         dataset=dataset, profile=profile,
         rows=Rows(total=total, by_branch=dict(sorted(branches.items()))), counts=counts,
@@ -556,7 +615,8 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
         temporal_drift=temporal_drift,
         ml_fraud=ml_fraud or MLFraudMetrics(),
         splits=splits or SplitMetrics(),
-        latent=latent or LatentMetrics())
+        latent=latent or LatentMetrics(),
+        technical_stress=technical_stress)
 
 
 def _absence(rows: int, cases: int, spans_rows: bool) -> AbsenceProbability:

@@ -126,7 +126,9 @@ def test_insurance_package_quotas(tmp_path: Path) -> None:
     assert len(FIELDS) == 33 < MAX_COLUMNS
     assert set(package.manifest["anomaly_profiles"]) == {
         "dirty_realistic", "dirty_stress", "rule_breaks", "rare_events",
-        "format_vs_business", "anomaly_diversity", "clustered_errors"}
+        "format_vs_business", "anomaly_diversity", "clustered_errors",
+        "missing_mechanisms", "schema_drift", "ml_fraud_imbalanced",
+        "ml_leakage_test", "ml_multitask", "technical_stress"}
     assert len(package.manifest["anomaly_profiles"]) < MAX_PROFILES
     plan = build_generate_plan(example="insurance", output_dir=tmp_path,
                                anomaly_profile="dirty_realistic")

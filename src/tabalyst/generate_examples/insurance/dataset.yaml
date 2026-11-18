@@ -1930,3 +1930,109 @@ anomaly_profiles:
       rarity_level: very_rare
       expected_detection: statistical
       description: Segment-conditioned missing demographic feature benchmarked for incomplete learning
+  technical_stress:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: format
+      column: nom_voie
+      value: long_text
+      count: 50
+      can_overlap: true
+      scenario_id: T03_LONG_TEXT
+      category: format_variant
+      severity: info
+      rarity_level: very_rare
+      expected_detection: syntactic
+      description: Long textual narratives exceeding 600 characters consuming extensive token context
+    - kind: format
+      column: statut_paiement
+      value: json_text
+      count: 50
+      can_overlap: true
+      scenario_id: T04_JSON_TEXT
+      category: format_variant
+      severity: info
+      rarity_level: very_rare
+      expected_detection: syntactic
+      description: Semi-structured JSON payloads embedded as text inside standard CSV cells
+    - kind: format
+      column: nom_voie
+      value: quoted_delimiters
+      count: 100
+      can_overlap: true
+      scenario_id: T05_QUOTED_DELIM
+      category: format_variant
+      severity: info
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Escaped RFC 4180 delimiters including commas, quotes, semicolons, and pipes
+    - kind: format
+      column: nom_voie
+      value: multiline_text
+      count: 50
+      can_overlap: true
+      scenario_id: T06_MULTILINE
+      category: format_variant
+      severity: info
+      rarity_level: very_rare
+      expected_detection: syntactic
+      description: Embedded line breaks within quoted fields testing multiline CSV parsing
+    - kind: format
+      column: ville
+      value: unicode_complex
+      count: 100
+      can_overlap: true
+      scenario_id: T07_UNICODE
+      category: format_variant
+      severity: info
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Complex Unicode strings including emojis, NFD diacritics, CJK, Arabic, and currency symbols
+    - kind: format
+      column: courtier_id
+      value: high_cardinality_uuid
+      count: 200
+      can_overlap: true
+      scenario_id: T08_HIGH_CARD
+      category: valid_atypical
+      severity: info
+      rarity_level: uncommon
+      expected_detection: none
+      description: High distinct cardinality columns with unique 128-bit identifiers testing cardinality estimators
+    - kind: format
+      column: produit_code
+      value: rare_category
+      count: 150
+      can_overlap: true
+      scenario_id: T09_RARE_CATS
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: Heavy tail of unique rare categories testing frequency distribution limits
+    - kind: format
+      column: montant_indemnise
+      value: float_precision_extreme
+      count: 50
+      when: {statut_paiement: "payé"}
+      can_overlap: true
+      scenario_id: T10_FLOAT_PREC
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Extreme floating point precision values testing IEEE 754 precision boundaries
+    - kind: set_missing
+      column: courtier_id
+      count: 200
+      can_overlap: true
+      scenario_id: T11_SPARSE
+      missing_mechanism: mcar
+      missing_reason: not_applicable
+      category: valid_atypical
+      severity: info
+      rarity_level: uncommon
+      expected_detection: none
+      description: Extremely sparse columns with over 99 percent missing values testing memory storage

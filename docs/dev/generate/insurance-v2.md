@@ -1046,6 +1046,37 @@ Written when lot 14 was implemented:
   - 121 contract tests passing.
 - `generation_version` stays 2.
 
+### 8.12 What lot 16 fixed
+
+Written when lot 16 was implemented:
+- **Dedicated technical stress profile `technical_stress` (SRS §14, §15)**:
+  - Added to `dataset.yaml` with floor `min_rows: 10000`, 9 scenarios covering T03 through T11:
+    - T03 (`T03_LONG_TEXT`): Long free-text comments exceeding 600 characters in `commentaires` (text overflow / token limits).
+    - T04 (`T04_JSON_TEXT`): Semi-structured JSON text formatted into string cells in `notes_gestion`.
+    - T05 (`T05_QUOTED_DELIM`): RFC 4180 escaped delimiters, embedded commas, double-quote escaping.
+    - T06 (`T06_MULTILINE`): Multiline CSV entries with newline characters (`\n`, `\r\n`) inside properly quoted fields.
+    - T07 (`T07_UNICODE`): Complex Unicode with accented characters, emojis, non-Latin scripts (CJK, Arabic, Cyrillic), and special currency symbols.
+    - T08 (`T08_HIGH_CARD`): High distinct cardinality columns populated with valid UUID v4 strings.
+    - T09 (`T09_RARE_CATS`): Heavy-tailed long-tail distribution of rare categories.
+    - T10 (`T10_FLOAT_PREC`): Extreme floating-point values near IEEE 754 precision boundaries, subnormals, and precision limits.
+    - T11 (`T11_SPARSE`): Extremely sparse columns (99%+ missing / empty values).
+  - Automatically defaults `effective_output` to `extended` (44 columns on `insurance-combined.csv`).
+- **Cell-level stress generators**:
+  - Implemented in `src/tabalyst/generate_anomalies.py`: `_long_text`, `_json_text`, `_quoted_delimiters`, `_multiline_text`, `_unicode_complex`, `_high_cardinality_uuid`, `_rare_category`, `_float_precision_extreme`.
+- **Volumetric boundaries (T01 & T02)**:
+  - T01: 1,200,000 rows exceeding standard spreadsheet limits (Excel 1,048,576 rows).
+  - T02: 5,000,000 and 10,000,000 rows streaming under $O(1)$ memory budgets.
+- **Heterogeneous branch schemas in combine (T12)**:
+  - Outer-union column merging across branches preserving subsidiary schemas, padding missing values with `""`.
+- **Malformed files isolation (D13)**:
+  - Module `src/tabalyst/generate_malformed.py` isolates syntactically broken CSVs, truncated rows, and unclosed quotes into standalone test artifacts (`malformed_corrupted_separators.csv`, `malformed_truncated_lines.csv`, `malformed_unclosed_quotes.csv`, `malformed_invalid_encoding.csv`), strictly preventing pollution of reference datasets.
+- **Metrics integration**:
+  - `TechnicalStressMetrics` serialized in `metrics.json` under `technical_stress`.
+  - Schema `tabalyst.generate.metrics.schema.json` regenerated and validated.
+- **Strict non-regression**:
+  - 136 contract tests passing (Lots 0-16).
+- `generation_version` stays 2.
+
 ## 9. Documentation, versions and languages
 
 - Public pages (Q5): `docs/en/generate/insurance.md` stays the overview; each lot that ships a
@@ -1079,7 +1110,7 @@ Written when lot 14 was implemented:
 | 10 | distributions, ordering bias, Simpson, unseen categories | 8.7, §7, §12 |
 | 11 to 12 | absence mechanisms, drift | 5.4, 5.3 |
 | 13 to 15 | ML labels, leakage, splits, latent file | 5.6 |
-| 16 | technical stress, malformed files in separate files (D13) | none yet |
+| 16 | technical stress, malformed files in separate files (D13) | 8.12 |
 | 17 | catalogue, several profiles, ergonomics | 9 |
 | 18 | benchmark in `tabalyst-lab` (D3) | none (outside) |
 | 19 | conformity, documentation, release | 9 |

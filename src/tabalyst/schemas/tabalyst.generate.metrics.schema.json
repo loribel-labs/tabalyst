@@ -469,6 +469,61 @@
       "title": "SplitMetrics",
       "type": "object"
     },
+    "TechnicalStressMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on technical stress test cases (SRS §14, Lot 16).",
+      "properties": {
+        "stress_scenarios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Stress Scenarios",
+          "type": "array"
+        },
+        "multiline_rows": {
+          "default": 0,
+          "title": "Multiline Rows",
+          "type": "integer"
+        },
+        "long_text_rows": {
+          "default": 0,
+          "title": "Long Text Rows",
+          "type": "integer"
+        },
+        "json_rows": {
+          "default": 0,
+          "title": "Json Rows",
+          "type": "integer"
+        },
+        "unicode_complex_rows": {
+          "default": 0,
+          "title": "Unicode Complex Rows",
+          "type": "integer"
+        },
+        "high_cardinality_distinct": {
+          "default": 0,
+          "title": "High Cardinality Distinct",
+          "type": "integer"
+        },
+        "rare_categories": {
+          "default": 0,
+          "title": "Rare Categories",
+          "type": "integer"
+        },
+        "extreme_precision_rows": {
+          "default": 0,
+          "title": "Extreme Precision Rows",
+          "type": "integer"
+        },
+        "sparse_cells_empty": {
+          "default": 0,
+          "title": "Sparse Cells Empty",
+          "type": "integer"
+        }
+      },
+      "title": "TechnicalStressMetrics",
+      "type": "object"
+    },
     "TemporalDriftMetrics": {
       "additionalProperties": false,
       "description": "Aggregate metrics on temporal rule validity, periods, and drift scenarios.",
@@ -594,6 +649,9 @@
     },
     "latent": {
       "$ref": "#/$defs/LatentMetrics"
+    },
+    "technical_stress": {
+      "$ref": "#/$defs/TechnicalStressMetrics"
     }
   },
   "required": [
