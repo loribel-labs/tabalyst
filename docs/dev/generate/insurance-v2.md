@@ -168,6 +168,7 @@ accepts them at first: a Computer or CRM operation that carries one is refused, 
 | `conflicts_with` | list of `scenario_id` | each must exist in the profile; symmetric |
 | `can_overlap` | boolean | default `false` |
 | `expected_detection` | string | tokens of 3.5 |
+| `description` | string | one line of 1 to 500 characters, shared by the operations of a scenario, copied to `manifest.json` (added at lot 2) |
 
 A profile is a **V2 profile** if any operation declares `scenario_id`. Then all of its
 operations declare `scenario_id`, `category` and `severity`, and all of them use `count`
@@ -398,12 +399,78 @@ inputs, with the reason in `docs/dev/generate/insurance-v2-changelog.md`, create
 `sha256` of every other file of the run, never of the manifest itself), `truth_columns`
 (the columns of 5.2, so a reader of `truth.csv` finds its format here).
 
-### 5.6 Latent scores (Q2)
+### 5.6 Machine learning targets, labels, leakage scenarios, and partitions (lots 13 & 14)
 
-`risque_sinistre` and any score that would make a prediction trivial are written to
-`<dataset>.<profile>.latent.csv` (a row key and the scores), listed in the manifest with
-`"role": "latent"` and the note that it is not an input variable. They are never columns of
-the main CSV (D11). Only the ML profiles (lots 13 to 15) write it.
+#### 5.6.1 Machine learning labels (`ml_labels.csv`)
+
+`<dataset>.<profile>.ml_labels.csv` is generated for ML scenario profiles (such as `ml_fraud_imbalanced` and `ml_leakage_test`).
+It isolates supervised learning targets and latent risk probabilities from input feature files.
+
+Base columns (lot 13, for fraud-specific profiles):
+- `row_number`: 1-based physical row number in the dataset CSV (matching `truth.csv`).
+- `id_contrat`: Primary contract key for dataset joins.
+- `is_fraud`: True ground-truth binary label (`1` = confirmed fraud, `0` = non-fraud).
+- `observed_label`: Observed operational label in IT systems (`"1"` = flagged, `"0"` = cleared, empty = unresolved/pending).
+- `confirmation_date`: ISO date YYYY-MM-DD of investigation conclusion or error recording, empty if unresolved.
+- `fraud_type`: Synthetic fraud typology: `phantom_claim`, `inflated_claim`, `collusion`, `organized_fraud`, or empty.
+- `latent_probability`: Continuous latent risk probability in [0.0, 1.0] capturing realistic statistical overlap.
+
+Extended prediction target columns (lot 14, for extended ML profiles):
+- `future_claim` (ML09): binary future claim occurrence in `{0, 1}` (~10% positive incidence).
+- `cout_sinistre` (ML10): claim cost regression in floating-point euros/dollars, strictly `0.00` when `future_claim == 0` and positive amount when `1`.
+- `renouvellement` & `date_renouvellement` (ML11): retention/renewal binary indicator (> 60% realistic retention rate) and next policy term effective date (empty if not renewed).
+- `risque_categorie` (ML12): multiclass actuarial rating across 4 classes: `faible`, `moyen`, `eleve`, `tres_eleve`.
+- `historique_sinistres` & `anciennete_client`: upstream calculated antecedent variables.
+- `score_risque_interne`: latent credit/actuarial rating in `[100.0, 900.0]`.
+
+It is registered in `manifest.json` with role `"ml_labels"`.
+The JSON schema `src/tabalyst/schemas/tabalyst.generate.ml_labels.schema.json` formalizes the format
+`tabalyst.generate.ml_labels`, version `0.2.0`, revision 1.
+
+#### 5.6.2 Leakage-free dataset partitioning (`splits.csv`)
+
+`<dataset>.<profile>.splits.csv` is generated alongside `ml_labels.csv` for ML scenario profiles.
+It contains 6 standard columns:
+- `row_number`: 1-based physical row number in the dataset CSV.
+- `id_contrat`: Contract identifier.
+- `id_client`: Customer identifier.
+- `split_client`: Random grouping partition by customer (`train` ~70%, `val` ~15%, `test` ~15%) with 0 shared clients between folds, preventing cross-contract customer data leakage.
+- `split_temporal`: Temporal chronological partition based on policy inception (`train` < 2023-01-01, `val` 2023-01-01 to 2024-06-30, `test` > 2024-06-30).
+- `resampled_train_only`: Boolean flag indicating whether a synthetic rebalancing/resampling operation applies strictly to `train`, guaranteeing that `val` and `test` preserve their clean, natural distribution.
+
+It is registered in `manifest.json` with role `"splits"`.
+The JSON schema `src/tabalyst/schemas/tabalyst.generate.splits.schema.json` formalizes the format
+`tabalyst.generate.splits`, version `0.2.0`, revision 1.
+Partition counts and fold shares are serialized in `metrics.json` under `splits` (`SplitMetrics`).
+
+Latent scores and raw risk generators that would make prediction trivial remain excluded from input feature tables (D11).
+
+#### 5.6.3 Latent generator variables (`latent.csv`) (lot 15)
+
+`<dataset>.<profile>.latent.csv` is produced alongside `ml_labels.csv` and `splits.csv` for ML scenario profiles (`ml_fraud_imbalanced`, `ml_leakage_test`, `ml_multitask`).
+It isolates the unobserved, uncorrupted generator scores and ground-truth probabilities (SRS §8, Contract §5.6, D11, Q2):
+- `row_number`: 1-based physical row number in the dataset CSV.
+- `id_contrat`: Contract identifier for entity joins.
+- `id_client`: Customer identifier.
+- `latent_fraud_probability`: Continuous uncorrupted latent probability of fraud in `[0.0, 1.0]`.
+- `latent_claim_probability`: Continuous latent probability of loss claim occurrence (`risque_sinistre`) in `[0.0, 1.0]`.
+- `latent_claim_cost`: Theoretical expected loss amount in currency units.
+- `latent_renewal_probability`: Continuous latent propensity for policy renewal in `[0.0, 1.0]`.
+- `latent_risk_score`: Calibrated composite actuarial risk rating score in `[100.0, 900.0]`.
+- `latent_churn_risk`: Continuous latent risk of customer churn in `[0.0, 1.0]` (strictly `1.0 - latent_renewal_probability`).
+
+Strict exclusion principle (D11): none of these latent variables or generator scores are exposed in the input feature table `insurance-combined.csv`.
+It is registered in `manifest.json` under role `"latent"`.
+The JSON schema `src/tabalyst/schemas/tabalyst.generate.latent.schema.json` formalizes the format `tabalyst.generate.latent`, version `0.2.0`, revision 1.
+Aggregated distributions and averages across all latent variables are recorded in `metrics.json` under `latent` (`LatentMetrics`).
+
+#### 5.6.4 Final ML profiles assembly (lot 15)
+
+The Insurance package delivers three finalized machine learning scenario profiles in `dataset.yaml`:
+1. `ml_fraud_imbalanced`: imbalanced binary classification, rare typologies (1%, 0.1%, 0.01%), label noise, and delayed investigations.
+2. `ml_leakage_test`: intentional leakage scenarios, post-claim temporal leakage, shortcuts, branch imbalances, and segment-conditioned missingness.
+3. `ml_multitask`: comprehensive multi-task benchmark combining synthetic fraud, future claim occurrence, claim cost regression, renewal, and actuarial rating across 15 extended columns in `ml_labels.csv`.
+All three profiles default to `--output-profile extended` (44 columns on `insurance-combined.csv`) and enforce a minimum floor `min_rows: 10000`.
 
 ### 5.7 Formats and versions
 
@@ -415,6 +482,73 @@ is stale. A change of structure or meaning raises `format_revision` and is writt
 `docs/dev/generate/insurance-v2-changelog.md`. The format is experimental during the beta:
 breaking changes are allowed, no migration is provided. The existing `format_version: "0.1.0"`
 of the package and of `summary.json` is unrelated and unchanged.
+
+### 5.8 What lot 2 fixed
+
+Written when lot 2 was implemented; where it differs from 5.1 to 5.7 this is the behavior.
+
+- **Modules.** `generate_rules.py` (Pydantic grammar of the rules, `RuleCatalogue`,
+  `RulesDocument`, the pure `holds` and the streaming `RuleEvaluator`) and `generate_truth.py`
+  (`build_truth`, `truth.csv`, the models of `metrics.json` and `manifest.json`, the schemas).
+  `generate_service.py` adds the kinds `truth`, `rules`, `metrics` and `manifest` (in that
+  order, after `summary`) for a scenario profile and passes `on_event` and
+  `insurance_canonical` to the injection. `GenerateResult.artifacts` gives every file with its
+  kind.
+- **Where the rules live (D10).** A package declares a catalogue with `rules: rules.yaml` in
+  `dataset.yaml` (a protected input). Only Insurance may: another package that declares one is
+  refused. The catalogue holds `conventions` and the rules; its date formats must equal those of
+  the branches (`BRANCHES`). The rules of a profile are those its operations name with
+  `rule_id`; an unknown `rule_id` is refused at load. `rules.json` holds those rules, in
+  catalogue order. A profile cannot yet list a rule it does not target (lot 6 decides).
+- **First catalogue**, with the numbering of report 5, all true of the clean file (checked on
+  275,000 rows): M01 end on or after start, M02 modification on or after creation, M03 birth
+  before start, M04 birth from 1900-01-01 to `as_of_date`, M14 premium above zero, M21
+  `id_contrat` unique, M23 known `type_contrat` and `statut_contrat`. Lot 6 completes M01 to
+  M25.
+- **Grammar.** Operand: a bare string is a column, `{"value": text}` a constant (ISO for a
+  date), `{"param": "as_of_date"}` the date of the document. `as`: `date`, `decimal` (plain,
+  `.`), `text` (default). `between` and the value tests name a `column`; `in` and `not_in` hold
+  literal `values`; `unique` takes `columns` and stands alone as the `assert`. Each rule adds
+  `detection` (tokens of 3.5 without `none`) and `columns` lists exactly the columns its
+  expressions read. `family` is `business`, `format` or `domain`.
+- **Three-valued logic.** A test of a value is unknown when the cell is empty or does not read
+  as its type (a date must be written exactly in the format of its row's branch). `and`, `or`,
+  `not` and `implies` follow Kleene logic; `not_empty` and `empty` are always known. A row
+  breaks a rule only when `when` is true (or absent), no exception is true and `assert` is
+  false. So a format defect is never also a business violation (`format_vs_business`, report 4):
+  a Quebec date rewritten as ISO leaves M01 unknown on its row. `unique` ignores a key with an
+  empty part.
+- **Targets.** A scenario profile needs the catalogue and targets only datasets that have its
+  `branch_column` (`filiale`), so `insurance-combined`; a branch file is refused (the open
+  point of section 7 stays for lot 4). The columns of the rules it names must exist there.
+- **One reading.** The clean file is checked in the same reading that builds the truth (clean
+  and altered read together, after the injection and before publication), not in a reading of
+  its own: the result is the same (a violation stops the run, nothing is published) at one
+  reading fewer. The message names the rule, its title and the row.
+- **Truth lines.** `injected` and `net_difference` lines carry the metadata of their scenario
+  (for `net_difference`, the last event of the cell, whose `event_id` they repeat).
+  A `rule_violation` line has an empty `column` and `canonical_value`, the `rule_id`,
+  `category`, `severity` and `expected_detection` (its `detection`) of the rule, and the
+  scenario, rarity, cause and `event_id` of the last event of the row that touched a column of
+  the rule (empty when none did). A repeated key (`unique`) gives a line on each row of the
+  group, `group_id` `<rule>-<first row>`, attributed to the row that repeats it. Lines of one
+  cell sort by kind, then `event_id`, then `rule_id`; row lines (empty column) come first.
+- **Self-check.** `metrics.counts` is recounted from the truth and must equal the summary;
+  a cell that differs without an event fails the run.
+- **Metrics.** `rows.by_branch` is sorted by name; `scenarios` keeps profile order;
+  `eligible_population` of a scenario is the sum over its operations; `applied_cases` and
+  `rows_touched` are equal while a case is one row; `rules` lists every rule of `rules.json`
+  (0 included), `categories` all six categories and `kinds` all six kinds, so the shape never
+  depends on the run. `absence_probability` is lot 3's.
+- **Manifest.** Adds `dataset`; `output_profile` is `default` until lot 4; `files` lists every
+  other artifact of the plan, in plan order, by name (never a directory), so the bytes do not
+  depend on the output directory. `generation_version` is 1.
+- **JSON.** Members in declared order, two-space indent, UTF-8, `\n`; `rules.json` omits an
+  absent `when`. Schemas: `tabalyst.generate.{rules,metrics,manifest}.schema.json`, generated by
+  `generate_truth.generate_schemas()`; a contract test fails when a committed one is stale.
+- **Memory.** The truth lines are held in memory (they follow the counts); a `unique` rule
+  keeps one key per row where it applies, which matters only for a profile that names M21 at
+  millions of rows.
 
 ## 6. Rarity and `rare_events` (lot 3)
 
@@ -482,6 +616,66 @@ Check values (computed with the formula, `n = 5,000`):
 The report's table (0.66 %, 36.6 %, 60.5 %, 95.1 %, 99 %) is exact for 500,000 rows and is not
 valid for the default size, which is why it is computed.
 
+### 6.4 What lot 3 fixed
+
+Written when lot 3 was implemented; where it differs from 6.1 to 6.3 this is the behavior.
+
+- **Modules.** `generate_rarity.py` gains `SAMPLE_SIZES` and `absence_probability(rows, cases,
+  sample)`; `generate_anomalies.py` the kinds `reuse_value` and `copy_column`
+  (`SCENARIO_KINDS`), the `format` values `times_100` and `date_plus_century`, and
+  `CONTEXTUAL_VALUES` (`postal_other_province`) with `inject_anomalies(contextual=)`;
+  `generate_insurance.insurance_contextual(references)` supplies the row-aware values;
+  `generate_truth.py` the `relational` and `valid_atypical` lines and `absence_probability`;
+  ADR `2026-11-17-generate-rare-events-profile`.
+- **Floor.** `min_rows` is a key of the profile (scenario profiles only, a whole number at least
+  the largest count of the profile). `build_generate_plan` refuses fewer rows than the floor on
+  a target: `Profile rare_events needs at least 100,000 rows on insurance-combined (below that
+  its rare cases are not rare); 99,999 requested.` The refusal of a count above the rows or the
+  eligible population stays as it was.
+- **The profile `rare_events`.** In the package, 34 columns, 19 operations in 11 scenarios
+  (`insurance-combined` only). As built:
+
+  | Scenario | Cases | Level | Operations | Rule |
+  | --- | ---: | --- | --- | --- |
+  | R01 | 1 (2 rows) | `single` | `reuse_value` on `id_contrat` | M21 |
+  | R02 | 5 | `extremely_rare` | `format date_plus_century` on `date_naissance` | M04 |
+  | R05 | 20 | `very_rare` | `format times_100` on `prime_annuelle` | |
+  | R06 | 25 | `very_rare` | `date_debut` in another branch's convention: `date_dmy` (principal 10), `date_mdy_iso` (ontario 8), `date_iso` (quebec 7) | |
+  | R07 | 50 | `very_rare` | `format postal_other_province` on `code_postal`, `requires: [province_code]` | |
+  | R08 | 50 | `very_rare` | `swap` of `date_debut` and `date_fin` | M01 |
+  | R10 | 100 | `rare` | `replace` of `prime_annuelle` by `N/A` (50), `inconnu` (30), `à venir` (20) | |
+  | R11 | 250 | `uncommon` | `replace` of `statut_contrat` by `inconnu` (100), `en attente` (80), `annulé` (70) | M23 |
+  | R12 | 500 | `uncommon` | `replace` of `agence_code` by an agency of another branch, per branch (300, 100, 100) | |
+  | B01 | 100 | `rare` | `copy_column` `date_debut` into `date_fin` where `statut_contrat` is `expiré` | M01 |
+  | B02 | 100 | `rare` | `copy_column` `date_creation` into `date_modification` where there is no claim | M02 |
+
+  Categories: R01, R07, R08 and R12 `business_rule_violation`; R02, R05 and R11
+  `semantic_invalid`; R06 `contextual_invalid`; R10 `format_invalid`; B01 and B02
+  `valid_atypical`. R07 and R12 name no rule: the catalogue has none for them until lot 6.
+  R12 uses `replace` per branch as 6.2 said (three constants, one per branch); R07 is
+  pool-aware because a constant postal code would be one value repeated 50 times.
+- **R01.** `reuse_value` takes the clean value of one of the 1,000 rows before the changed one,
+  so the second occurrence is near the first like a double entry. `canonical_value` of the
+  changed cell stays its own clean key (what the truth must restore), not the first
+  occurrence's: the relation is carried by the two `relational` lines, `group_id`
+  `R01-<first row>`, one per row, the first without `event_id`. M21 also reports the two rows as
+  `rule_violation` lines of its own group `M21-<first row>`; the kinds differ on purpose.
+- **Valid boundary cases.** B01 and B02 are real `valid_atypical` scenarios with severity `info`
+  and detection `none` (any other value is refused at load); their cells have `injected`,
+  `net_difference` and `valid_atypical` lines. They are restricted by `when` so that they do not
+  collide with a rule that does not exist yet (a contract that ends the day it starts only when
+  already expired, a modification date equal to the creation only without claim). The cap
+  boundary (10,000.00) waits for `montant_couverture` (lot 4).
+- **Metrics.** `absence_probability[scenario]` is `{cases, probability, reason}`: `probability`
+  maps `"500"`, `"1000"`, `"5000"`, `"10000"`, `"50000"` to the exact value for the rows of the
+  file (`null` for a sample larger than the file); a scenario with a `relational` line has
+  `probability` `null` and `reason` `multi_row_case`. `applied_cases` is the number of cases
+  (distinct `relational` groups), `rows_touched` the rows they involve.
+- **Timing.** 100,000 rows take about 35 seconds on the maintainer's machine; the contract tests
+  run it once.
+- **Not done on purpose.** R03, R04 and R09 (lot 6), the cap boundary (lot 4), rare-event counts
+  that follow the file size (never: counts are absolute).
+
 ## 7. Column profiles (lots 4 and 6)
 
 Selected with the existing option `--output-profile` (Q4), whose value `compact` already
@@ -520,20 +714,444 @@ the formulas, the invariants are:
 A column is added to `extended` only with the rule that constrains it, the scenario that
 breaks it and the test of both.
 
-Open at lot 4: the three branch files (`insurance-principal.csv`, ...) have no `filiale`
-column, so `extended` columns are derived in the combined file only, or per branch with the
-branch known; the lot decides and records it here.
+### 7.1 What lot 4 fixed
+
+Written when lot 4 was implemented; where it differs from earlier sections this is the behavior.
+
+- **Branch and combined layout.** Extended columns are generated per branch with the branch known.
+  Each branch file (`insurance-principal.csv`, `insurance-ontario.csv`, `insurance-quebec.csv`)
+  has 43 columns: the 33 base columns `FIELDS`, followed by the 10 extended columns
+  `EXTENDED_FIELDS`. In `insurance-combined.csv`, the source column `filiale` is placed after the
+  33 base columns and before the 10 extended columns (`[*FIELDS, "filiale", *EXTENDED_FIELDS]`),
+  totaling 44 columns (matching the 34 + 10 contract target).
+- **Byte-identical non-regression.** For the same seed, the first 33 columns of every branch and
+  the first 34 columns of `insurance-combined.csv` are strictly byte-identical between the default
+  output profile and the extended profile.
+- **Independent random streams.** Every extended column draws exclusively from its own stream
+  `_stream(seed, dataset, column, "extended")` via `extend_insurance_row`, without altering the
+  base row stream `InsuranceProvider.row()`.
+- **Clean file invariants.** The clean file satisfies every rule of the package catalogue with zero
+  exception (tested on 20,000 rows):
+  - `M07`: cancellation date present if and only if `statut_contrat` is `résilié`, and between
+    `date_debut` and `date_fin`.
+  - `M08`: claim event on or after `date_debut`.
+  - `M09`: claim declared on or after `date_sinistre`.
+  - `M10`: indemnity amount non-negative (`>= 0.00`).
+  - `M11`: indemnity amount within coverage cap and claimed amount minus deductible.
+  - `M12`: structural absence: `date_sinistre` and `montant_indemnise` empty without claim.
+  - `M13`: `nombre_reclamations >= 1` with a claim, `0` without a claim.
+  - `M24`: broker identifier present if and only if `canal_acquisition == "courtier"`.
+  - `M25`: product code strictly matching contract type.
+- **Rule evaluator column filter.** `RuleEvaluator.check` skips any rule where one of its declared
+  columns is absent from the row being checked, ensuring rules targeting extended columns do not
+  falsely flag default 34-column files.
+- **Publication and manifest.** `build_generate_plan` accepts `--output-profile extended` on
+  Insurance, refuses unknown profiles (`compact`, etc.), and passes `output_profile` to
+  `GeneratePlan` and `manifest.json`.
+
+### 7.2 What lot 6 fixed
+
+Written when lot 6 was implemented; where it differs from earlier sections this is the behavior.
+
+- **Business rules catalogue M01 to M25.** Complete implementation of the 25 business rules in
+  `rules.yaml` of the Insurance package, evaluated via `RuleEvaluator` (Kleene three-valued logic,
+  `RuleContext`). Verified on 20,000 clean rows in the `complete` profile with zero violations.
+- **Tranche B columns in `complete` profile.** Four new columns appended in contract order:
+  `taux_remboursement` (decimal between `0.00` and `1.00`), `consentement_communication`
+  (`"true"` or `"false"`), `gestionnaire_id` (`GES-XXX`), `segment_client`
+  (`particulier`, `professionnel`, `entreprise`, `vip`). The `complete` profile contains 47 columns
+  per branch and 48 columns in `insurance-combined.csv` (with `filiale`).
+- **Deterministic independent streams for tranche B.** Columns draw from independent random streams
+  `_stream(seed, dataset, col, "complete")` via `extend_tranche_b_row`. The 34 default columns and
+  the 44 extended columns remain strictly byte-identical for the same seed.
+- **Completion of `rare_events`.** Added scenarios R03 (5 cases, negative indemnity), R04 (10 cases,
+  claim before start with `date_minus_decade`), R09 (100 cases, indemnity exceeding coverage cap),
+  and valid boundary case B03 (100 cases, indemnity equal to coverage cap). Linked R07 to M19 and
+  R12 to M20. Totaling 15 scenarios, 1,416 anomaly events, and 300 valid atypical events on 100,000 rows.
+- **Rules.json verification.** Every rule violation in `truth.csv` can be verified and re-evaluated
+  directly from `rules.json` without access to Python source code or package YAML.
+- **Output profile defaults for `rare_events`.** As `rare_events` requires extended columns,
+  `build_generate_plan` selects the `extended` output profile by default when `--output-profile`
+  is omitted for `rare_events`.
+
+### 7.3 What lot 7 fixed
+
+Written when lot 7 was implemented; where it differs from earlier sections this is the behavior.
+
+- **V2 quality scenario profiles.** Three new profiles delivered in `dataset.yaml` of the Insurance package:
+  - `format_vs_business`: balanced comparison profile with strictly equal counts (500 cases of format variants and defects vs 500 cases of business rule violations) and minimum rows floor of 10,000.
+  - `anomaly_diversity`: coverage profile ensuring non-zero cases across all 6 categories (`format_variant`, `format_invalid`, `semantic_invalid`, `business_rule_violation`, `contextual_invalid`, `valid_atypical`) and 7 detector families (`syntactic`, `domain`, `cross_column`, `contextual`, `statistical`, `uniqueness`, `none`).
+  - `clustered_errors`: spatial cluster on Ontario (`when: {filiale: "ontario"}`), agency cluster (`when: {agence_code: "AG-QC-001"}`), temporal/closed-status cluster, contrasted against a uniformly diffuse control anomaly (`nom` casing across all branches).
+- **Root cause traceability.**
+  - Operations sharing an incident declare `root_cause_id` (`ontario_import`).
+  - Full traceability across `truth.csv`: written on `injected` and `net_difference` lines and inherited on `rule_violation` lines.
+  - Member `root_causes` added to `MetricsDocument` (`dict[str, RootCauseMetrics]` tracking `events`, `rows_touched`, and sorted `scenarios`).
+  - Schema `tabalyst.generate.metrics.schema.json` updated and validated.
+- **Interactions C01 to C10.**
+  - C01 (multiple anomalies per row via `can_overlap: true`)
+  - C02 (masking)
+  - C03 (inadvertent compensation: inverse operations restoring clean state, verified with 0 net differences)
+  - C04 (successive modifications of the same cell with chained before/after values)
+  - C05 (Kleene three-valued logic ensuring syntax defects leave business rules unknown rather than falsely violated)
+  - C06 (relational cascade with duplicate key generating `relational` and `rule_violation` M21 rows)
+  - C07 (common root cause across multiple columns and records)
+  - C08 (correlated missing values across distinct columns)
+  - C09 (segment-specific anomalies conditioned by `when`)
+  - C10 (collective cluster detection).
+- **Non-regression.** All contract tests up to lot 7 (84 tests) passing. Existing profiles and public showcase demos strictly unchanged.
 
 ## 8. Relational model (lots 8 and 9, D2)
 
-One in-memory population model (clients, households, brokers, agencies, contracts, renewals,
-claims, payments) feeds two outputs: the flattened multi-contract CSV and the four files
-`clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv`. Bounded memory for 500,000
-rows, deterministic streams per entity (4.4), no second reading of an output. Truth is per
-table, plus `relational` lines (G09, G10, M22). The model, its limits and the
-cardinalities are written at the gate before lot 8; this section only fixes that there is
-one model with two projections, never two generators. See the ADR
-`2026-11-16-generate-relational-population-model`.
+### 8.1 Architecture and in-memory population
+
+One in-memory population model (`PopulationModel` in `src/tabalyst/generate_population.py`)
+orchestrates synthetic entities and relationships to feed two projections in lot 9: the flattened
+multi-contract CSV and the four relational files (`clients.csv`, `contrats.csv`, `reclamations.csv`,
+`paiements.csv`).
+
+The internal topology comprises six compact entity classes using `__slots__`:
+1. `Household`: physical residence (`id_menage`, street components, city, province, postal code,
+   shared family name, language, seed). Groups 1 to 4 customers (G03).
+2. `Customer`: insured individual (`id_client`, `id_menage`, civilite, first name, last name,
+   adult birth date, gender, language, email, phone, client segment, communication consent).
+   Owns 1 to 4 contracts (G01).
+3. `Broker`: independent broker (`courtier_id`, name, province, branch). Assigned when
+   `canal_acquisition == "courtier"` (G04).
+4. `Contract`: insurance policy (`id_contrat`, `id_client`, branch, product type, product code,
+   effective dates, status, premium, payment schedule, agency code, acquisition channel, broker,
+   manager, coverage cap, deductible, reimbursement rate, `previous_contract_id` for renewals G07).
+5. `Claim`: insurance claim (`id_reclamation`, `id_contrat`, loss event date, declaration date,
+   claimed amount, indemnity amount, status, sequence number). A contract may have 0 to 3
+   distinct claims (G02).
+6. `Payment`: financial indemnity disbursement (`id_paiement`, `id_reclamation`, `id_contrat`,
+   payment date, amount, payment method, payment status, sequence number). A settled claim can have
+   1 to 3 installment payments satisfying M25 (`sum(payments) == montant_indemnise`) (G08).
+
+### 8.2 Cardinalities and distributions (G01 to G08)
+
+The model targets realistic insurance market distributions:
+- **G01 (Multi-contract customers)**: ~28% of customers hold 2 or more contracts:
+  1 contract (70%), 2 contracts (22%), 3 contracts (6%), 4 contracts (2%). Average: ~1.4 contracts/customer.
+  For 500,000 contracts, this yields ~357,000 unique customers.
+- **G02 (Multi-claim contracts)**: Claim likelihood is governed by `claim_probability` per product.
+  Among contracts with claims: 1 claim (85%), 2 claims (12%), 3 claims (3%).
+- **G03 (Households)**: 1 customer (75%), 2 customers (20%), 3 customers (4%), 4 customers (1%).
+  Average: ~1.3 customers/household.
+- **G04 (Brokers)**: Pool of 200 brokers (`CRT-0101` to `CRT-0300`) distributed across branches.
+- **G05 (Agencies with heavy load)**: Contracts assigned using the weighted agency distribution from
+  `agencies.csv`, concentrating thousands of contracts in major regional hubs.
+- **G06 (Address changes)**: Multi-contract or renewed customers maintain their canonical household
+  address with realistic temporal validity.
+- **G07 (Contract renewals)**: Policies of expired or active status can be linked as renewals of a
+  prior policy (`previous_contract_id`), with continuous chronological dates.
+- **G08 (Disbursement installments)**: Claims with `montant_indemnise > 0.00` have 1 (65%), 2 (25%),
+  or 3 (10%) payment installments whose sum equals the indemnity amount exactly (M25).
+
+### 8.3 Relational edge cases (G09 and G10)
+
+The population model deliberately seeds key deduplication and entity resolution benchmarks:
+- **G09 (Shared address without duplicate)**: Multiple adult customers sharing the exact same
+  physical address (household) with different surnames (e.g., Quebec spouses keeping maiden names,
+  or co-tenants) or with identical surnames (adult family members) but distinct individual identifiers
+  and birth dates, creating realistic test cases for entity resolution without false-positive duplicates.
+- **G10 (Near-identical identities)**: Generational pairs sharing surname and address with very
+  similar first names (e.g., father and son "Jean Tremblay" and "Jean-Pierre Tremblay", or "Robert"
+  and "Robert Jr") but different birth dates and `id_client`.
+
+### 8.4 Bounded memory and determinism
+
+For 500,000 contracts (~360,000 customers, ~300,000 households, ~75,000 claims, ~110,000 payments):
+- **Bounded memory budget**: Under 150 MB total RAM. Achieved via `__slots__` eliminating object
+  `__dict__`, string interning of repeated categories (`branch`, `product`, `status`, `agency`),
+  and computing detailed formatting text on projection rather than storing full row strings in memory.
+- **Deterministic derivation**: Every entity stream derives deterministically from the root `seed`
+  and its canonical identity (`seed`, kind, sequence id). Generating the same population with the same
+  seed produces identical identifiers and attributes.
+- **Stateless non-regression**: Legacy `InsuranceProvider.row()` remains completely untouched and
+  stateless for existing default 34-column outputs and showcase demos.
+
+### 8.5 What lot 8 fixed
+
+Written when lot 8 was implemented:
+- **Module**: `src/tabalyst/generate_population.py` delivering `Household`, `Customer`, `Broker`,
+  `Contract`, `Claim`, `Payment`, and `PopulationModel`.
+- **Invariants**: Clean population satisfies M01 through M25 with zero violations.
+- **Memory**: Measured and enforced via `tracemalloc` in test suite (`tests/test_generate_population.py`).
+- **Projections**: `PopulationModel` provides `to_contract_row`, `to_client_row`, `to_claim_row`,
+  and `to_payment_row` ready for lot 9 file outputs.
+
+### 8.6 What lot 9 fixed
+
+Written when lot 9 was implemented:
+- **Relational output suite (`--relational`)**: Generates four clean relational CSV tables
+  (`clients.csv` 22 columns, `contrats.csv` 23 columns, `reclamations.csv` 7 columns,
+  `paiements.csv` 7 columns) alongside their full truth artifact suites (`.truth.csv`,
+  `.rules.json`, `.metrics.json`, `.manifest.json` per table), totaling 20 published files.
+- **Flattened multi-contract profiles**: Supported via `--output-profile flattened` (34 columns on
+  combined, 33 on branch), `flattened-extended` (44 columns on combined, 43 on branch), and
+  `flattened-complete` (48 columns on combined, 47 on branch), projecting denormalized customer and
+  primary claim attributes per contract.
+- **Relational truth lines**:
+  - `G09` (shared household without duplicate): `valid_atypical` relational lines on `id_menage`
+    with `group_id="G09-<id_menage>"`.
+  - `G10` (near-identical identities): `valid_atypical` relational lines on `nom` with
+    `group_id="G10-<id_menage>"`.
+  - `M22` (orphan claim reference): `rule_violation` and `relational` lines on `id_contrat` for
+    orphan claims pointing to non-existent contract identifiers when anomaly profiles are active.
+- **CLI & validation**: CLI option `--relational` added to `tabalyst generate`. Explicit rejection
+  when passed with `-o` (`--relational generates multiple tables; use -d.`) or on non-insurance
+  packages (`--relational applies to the Insurance package only.`).
+- **Atomic publication**: Multi-table generation uses `batch_writer` with staging, `fsync`, backup
+  preservation on failure, and atomic replacement with zero orphan `.tmp` or `.bak` files.
+- **Testing & non-regression**: Dedicated test suite in `tests/test_generate_relational_outputs.py`
+  (6 tests) and contract tests in `tests/test_generate_insurance_v2_contract.py` (88 tests passing).
+  Showcase demos byte-identical.
+
+### 8.7 What lot 10 fixed
+
+Written when lot 10 was implemented:
+- **Statistical distributions (§12, D01 to D15)**:
+  - `src/tabalyst/generate_draws.py` extended with pure mathematical draws without rejection:
+    `truncated_pareto` (D04, D13), `bimodal_normal` (D05), `power_law_weights` (D08),
+    `seasonal_factor` (D09), and `inflation_factor` (D11).
+  - Integrated into `PopulationModel`:
+    - Heavy-tailed Pareto claim severity (D04/D13) on 10% of settled claims.
+    - Zipf power-law distribution over the 200 brokers pool (D08).
+    - Harmonic seasonal loss dates (D09) peaking in winter (January) for auto and home, and summer (July) for travel.
+    - Compound annual synthetic inflation (D11, +2.5%/year) on base premiums.
+- **Row ordering and sampling bias mechanisms (E01 to E03)**:
+  - Option `--row-order` supported in CLI (`tabalyst generate`) and `build_generate_plan`:
+    - `branch` (E01): Grouped by operational branch.
+    - `chronological` (E02): Chronologically sorted by contract creation and start dates.
+    - `agency` (E03): Grouped by agency code.
+    - `shuffled`: Deterministically pseudo-randomized order.
+    - `default`: Preserves original natural branch order.
+- **Dense subpopulation cluster (§12)**:
+  - 200 consecutive contracts (sequences 501 to 700) exhibiting an abnormally high 20% claim rate (~40 claims),
+    testing stratified sampling against localized clusters representing <0.01% globally.
+- **Simpson's paradox (E16)**:
+  - Mathematical reversal guaranteed and verified: within each branch (Ontario, Principal, Quebec),
+    broker-advised policies carry higher average premiums than direct policies. Globally aggregated,
+    direct sales have higher average premiums than broker sales due to branch portfolio mix.
+- **Unseen categories (E18)**:
+  - Product code `VOY_MULTI` is strictly absent (0 occurrence) for contracts created before 2024-01-01,
+    and present afterwards, benchmarked for out-of-vocabulary model generalization.
+- **Strict non-regression**:
+  - Legacy stateless `InsuranceProvider.row()` remains completely untouched and byte-identical for default runs.
+- `generation_version` stays 2.
+
+### 8.8 What lot 11 fixed
+
+Written when lot 11 was implemented:
+- **Missing data mechanisms (§11, MCAR, MAR, MNAR)**:
+  - Strict formalization according to Little & Rubin (1987):
+    - `mcar` (Missing Completely at Random): independent missingness, rejects any `when` condition.
+    - `mar` (Missing at Random): missingness conditioned by an observed column distinct from the missing column.
+    - `mnar` (Missing Not at Random): missingness conditioned by the target column itself (e.g. high values).
+  - Validation in `src/tabalyst/generate_scenarios.py` rejecting invalid mechanism/condition configurations.
+- **Comparison operators in `when` conditions**:
+  - `src/tabalyst/generate_anomalies.py` supports comparison prefixes (`>=`, `<=`, `>`, `<`, `!=`) for numeric thresholds and ISO dates in addition to strict equality.
+- **Realistic missing reasons (§10 & §11)**:
+  - Standardized vocabulary in English (D14): `unreported`, `client_refusal`, `not_applicable`, `system_omission`, `unknown`.
+- **Traceability in `truth.csv` and `metrics.json`**:
+  - `truth.csv`: `group_id` records `missing:<mechanism>:<reason>`. The clean value before blanking is preserved in `canonical_value` on the `injected` row, providing ground truth for imputation benchmarks.
+  - `metrics.json`: `ScenarioMetrics` carries `missing_mechanism` and `missing_reason`. New top-level object `missing_data` (`MissingDataMetrics`) with aggregated metrics by mechanism, exact counts by reason, and column-by-mechanism contingency matrix.
+  - JSON schema `src/tabalyst/schemas/tabalyst.generate.metrics.schema.json` updated and verified.
+- **Scenario profile `missing_mechanisms`**:
+  - Added to `src/tabalyst/generate_examples/insurance/dataset.yaml` with floor `min_rows: 10000`, covering MCAR, MAR, MNAR, all 5 reasons, and 4 concentration modes (uniform, Ontario branch, agency AG-QC-001, and post-2024 periods).
+- **Strict non-regression**:
+  - All default runs and existing profiles remain byte-identical.
+  - All 100 contract tests passing.
+- `generation_version` stays 2.
+
+### 8.9 What lot 12 fixed
+
+Written when lot 12 was implemented:
+- **Temporal rule validity & periods (§13)**:
+  - `RulePeriod` model (`start`, `end`, `description`) added to `Conventions.periods` in `src/tabalyst/generate_rules.py`.
+  - Named periods declared in `rules.yaml`: `legacy_tariff` (<= 2023-12-31), `migration_ontario` (>= 2023-06-01), `schema_v2` (>= 2024-01-01), and `modern_tariff` (>= 2025-01-01).
+  - `Rule` model extended with `valid_from`, `valid_until`, `temporal_column` (defaults to `date_debut`), and `period`.
+  - Temporal filtering in `RuleEvaluator`: rows are only evaluated against a rule if their `temporal_column` date falls within `[valid_from, valid_until]` (or the named period window).
+  - Temporal business rules catalogue completed with M26 through M30 in `rules.yaml` (M26: post-2024 v2 schema version; M27: post-migration Ontario core system; M28: observation date vs creation date coherence; M29: legacy v1.0 schema version; M30: post-2025 habitation deductible floor).
+- **Tranche C columns & complete profile (Contract 7, §13)**:
+  - Tranche C delivers 3 columns: `date_observation`, `version_source`, and `source_system`.
+  - Output profile `complete` now totals 50 columns on branch files and 51 columns on `insurance-combined.csv` (including `filiale`).
+  - `flattened-complete` profile updated to 51 columns.
+  - Deterministic independent generation stream per column preserves strict byte-level non-regression on all default and extended columns.
+- **Scenario profile `schema_drift`**:
+  - Profile `schema_drift` added to `dataset.yaml` with floor `min_rows: 10000`, covering 8 scenarios and 800 events:
+    - IT migrations: `SD_SYS_MIG` (100 cases, M27), `SD_VER_MIG` (100 cases, M26), `SD_FMT_MIG` (100 cases, syntactic telephone defect).
+    - Anachronisms: `SD_OBS_ANACH` (50 cases, M28), `SD_VER_PREMAT` (50 cases, M29).
+    - Regulatory tariff drift: `SD_DEDUCT_REG` (100 cases, M30).
+    - Valid atypical drift: `SD_CHAN_DRIFT` (200 cases, web shift) and `SD_LEGACY_VAL` (100 cases, grandfathered deductibles).
+  - Defaults to `effective_output: complete` when `--output-profile` is omitted.
+- **Traceability in `metrics.json` and JSON schemas**:
+  - `TemporalDriftMetrics` added to `metrics.json` carrying `active_periods`, `drift_scenarios`, and exact violations for `temporal_rules`.
+  - Updated JSON schemas `tabalyst.generate.rules.schema.json` and `tabalyst.generate.metrics.schema.json`.
+- **Strict non-regression**:
+  - 105 contract tests passing (Lots 0 through 12).
+  - Showcase demos (`examples/showcase/`) verified and refreshed.
+- `generation_version` stays 2.
+
+### 8.10 What lot 13 fixed
+
+Written when lot 13 was implemented:
+- **Separate ground-truth label file `<dataset>.<profile>.ml_labels.csv` (SRS §8, §15, Lot 13)**:
+  - Isolates supervised machine learning targets and continuous latent probabilities from input features.
+  - 7 standard columns: `row_number`, `id_contrat`, `is_fraud`, `observed_label`, `confirmation_date`, `fraud_type`, `latent_probability`.
+  - Registered in `manifest.json` with role `"ml_labels"`, carrying byte size and SHA-256 digest.
+  - New committed schema `src/tabalyst/schemas/tabalyst.generate.ml_labels.schema.json` formalizing format `tabalyst.generate.ml_labels`, version `0.2.0`, revision 1.
+- **Synthetic fraud patterns without trivial artifacts (SRS §8)**:
+  - 4 realistic multi-class fraud typologies (ML04): `phantom_claim`, `inflated_claim`, `collusion`, `organized_fraud`.
+  - Imbalanced class prevalence rates: 1% overall fraud rate (ML01), 0.1% rare fraud class (ML02), 0.01% single case (ML03).
+  - Hard cases with continuous latent probability overlap in `[0.45, 0.65]` (ML05).
+  - Plausible false positives and valid atypicals (ML06, ML20).
+  - Operational label noise (ML07) and delayed unresolved investigations (ML08).
+- **Profile `ml_fraud_imbalanced`**:
+  - Added to `dataset.yaml` with floor `min_rows: 10000`, 11 scenarios covering ML01 through ML08 and ML20.
+  - Defaults `effective_output` to `extended` (44 columns on `insurance-combined.csv`).
+- **Metrics integration**:
+  - `MetricsDocument` carries `ml_fraud: MLFraudMetrics`.
+- **Strict non-regression**:
+  - 113 contract tests passing.
+- `generation_version` stays 2.
+
+### 8.11 What lot 14 fixed
+
+Written when lot 14 was implemented:
+- **Extended ML prediction targets in `ml_labels.csv` (SRS §8 ML09-ML12)**:
+  - Future claim prediction (ML09): `future_claim` in `{0, 1}` (~10% positive rate).
+  - Claim cost regression (ML10): `cout_sinistre`, strictly `0.00` when `future_claim == 0` and positive amount when `1`.
+  - Retention/renewal prediction (ML11): `renouvellement` (> 60% retention rate) and `date_renouvellement`.
+  - Multiclass risk rating (ML12): `risque_categorie` across 4 classes: `faible`, `moyen`, `eleve`, `tres_eleve`.
+  - Upstream calculated variables: `historique_sinistres` and `anciennete_client`.
+  - Latent risk rating: `score_risque_interne` in `[100.0, 900.0]`.
+- **Intentional leakage scenarios and shortcuts (SRS §8 ML13-ML19)**:
+  - Behavioral drift (ML13, `ML13_DRIFT`) and unseen extreme values (ML14, `ML14_UNSEEN`).
+  - Inter-contract customer leakage (ML15, `ML15_LEAK`).
+  - Post-claim temporal leakage (ML16, `ML16_POST_LEAK`).
+  - Artificial shortcut correlated to identifiers (ML17, `ML17_SHORTCUT`).
+  - Subsidiary branch imbalance (ML18, `ML18_IMBALANCE`) and segment-conditioned missingness (ML19, `ML19_MISSING`).
+- **Leakage-free dataset partitioning: `<dataset>.<profile>.splits.csv` (SRS §8, §15, Lot 14)**:
+  - Produced alongside `ml_labels.csv` with 6 standard columns: `row_number`, `id_contrat`, `id_client`, `split_client`, `split_temporal`, `resampled_train_only`.
+  - Customer-grouped fold partition (`split_client`): 70% train / 15% val / 15% test with 0 shared clients.
+  - Chronological partition (`split_temporal`): strict cutoff dates separating train, val, and test.
+  - Resampling isolation: `resampled_train_only` flag ensuring test folds keep uncorrupted natural distributions.
+  - Registered in `manifest.json` under role `"splits"`, with size and SHA-256.
+  - New committed schema `src/tabalyst/schemas/tabalyst.generate.splits.schema.json` formalizing format `tabalyst.generate.splits`, version `0.2.0`, revision 1.
+  - Extended metrics `SplitMetrics` added to `metrics.json`.
+- **Profile `ml_leakage_test`**:
+  - Added to `dataset.yaml` with 7 scenarios, defaulting `effective_output` to `extended`.
+- **Strict non-regression**:
+  - 121 contract tests passing.
+- `generation_version` stays 2.
+
+### 8.12 What lot 16 fixed
+
+Written when lot 16 was implemented:
+- **Dedicated technical stress profile `technical_stress` (SRS §14, §15)**:
+  - Added to `dataset.yaml` with floor `min_rows: 10000`, 9 scenarios covering T03 through T11:
+    - T03 (`T03_LONG_TEXT`): Long free-text comments exceeding 600 characters in `commentaires` (text overflow / token limits).
+    - T04 (`T04_JSON_TEXT`): Semi-structured JSON text formatted into string cells in `notes_gestion`.
+    - T05 (`T05_QUOTED_DELIM`): RFC 4180 escaped delimiters, embedded commas, double-quote escaping.
+    - T06 (`T06_MULTILINE`): Multiline CSV entries with newline characters (`\n`, `\r\n`) inside properly quoted fields.
+    - T07 (`T07_UNICODE`): Complex Unicode with accented characters, emojis, non-Latin scripts (CJK, Arabic, Cyrillic), and special currency symbols.
+    - T08 (`T08_HIGH_CARD`): High distinct cardinality columns populated with valid UUID v4 strings.
+    - T09 (`T09_RARE_CATS`): Heavy-tailed long-tail distribution of rare categories.
+    - T10 (`T10_FLOAT_PREC`): Extreme floating-point values near IEEE 754 precision boundaries, subnormals, and precision limits.
+    - T11 (`T11_SPARSE`): Extremely sparse columns (99%+ missing / empty values).
+  - Automatically defaults `effective_output` to `extended` (44 columns on `insurance-combined.csv`).
+- **Cell-level stress generators**:
+  - Implemented in `src/tabalyst/generate_anomalies.py`: `_long_text`, `_json_text`, `_quoted_delimiters`, `_multiline_text`, `_unicode_complex`, `_high_cardinality_uuid`, `_rare_category`, `_float_precision_extreme`.
+- **Volumetric boundaries (T01 & T02)**:
+  - T01: 1,200,000 rows exceeding standard spreadsheet limits (Excel 1,048,576 rows).
+  - T02: 5,000,000 and 10,000,000 rows streaming under $O(1)$ memory budgets.
+- **Heterogeneous branch schemas in combine (T12)**:
+  - Outer-union column merging across branches preserving subsidiary schemas, padding missing values with `""`.
+- **Malformed files isolation (D13)**:
+  - Module `src/tabalyst/generate_malformed.py` isolates syntactically broken CSVs, truncated rows, and unclosed quotes into standalone test artifacts (`malformed_corrupted_separators.csv`, `malformed_truncated_lines.csv`, `malformed_unclosed_quotes.csv`, `malformed_invalid_encoding.csv`), strictly preventing pollution of reference datasets.
+- **Metrics integration**:
+  - `TechnicalStressMetrics` serialized in `metrics.json` under `technical_stress`.
+  - Schema `tabalyst.generate.metrics.schema.json` regenerated and validated.
+- **Strict non-regression**:
+  - 136 contract tests passing (Lots 0-16).
+- `generation_version` stays 2.
+
+### 8.13 What lot 17 fixed
+
+Written when lot 17 was implemented:
+- **Multiple simultaneous profiles (`--anomaly-profile a,b`) on Insurance and CRM**:
+  - `build_generate_plan` accepts comma-separated profile strings or sequence of strings for all packages.
+  - Automatically plans independent altered CSVs, journals (`.changes.csv`), summaries (`.summary.json`), and full ground-truth suites (`.truth.csv`, `.rules.json`, `.metrics.json`, `.manifest.json`) for each targeted profile.
+  - Strict manifest isolation: each profile's manifest registers only the clean files and its own artifacts, never referencing another profile's files.
+  - Automatic output profile promotion: if `--output-profile` is omitted, the most demanding profile dictates the baseline output profile (`complete` > `extended` > `default`).
+  - Progress reporting and timing report split changed cell counts per profile: `N cells changed in K profiles`.
+- **Profile catalog (`--list-profiles` and `list_available_anomaly_profiles`)**:
+  - CLI option `--list-profiles` lists available anomaly profiles for a specified package or example, or across all built-in examples (Computer, CRM, Insurance) with target datasets and minimum row floors.
+  - Rejects destination options (`-o`, `-d`) when `--list-profiles` is passed.
+  - Public Python API `list_available_anomaly_profiles(source=..., example=...)` exported in `tabalyst`.
+- **Explicit option validation and rejection**:
+  - Rejects duplicate profile names in `--anomaly-profile` list (`anomaly_profile must list each profile once`).
+  - Rejects empty profile names (`no empty name`).
+  - Rejects unknown profile names with available suggestions.
+  - Rejects multiple anomaly profiles with `-o` (`-o writes one file, so it takes one anomaly profile; use -d for several`).
+  - Rejects row counts below the floor of any requested profile.
+  - Rejects unsupported options across package boundaries (`--workers` on Insurance, `--relational` on CRM, `--row-order` on CRM/Computer, `--output-profile` on CRM).
+- **Strict non-regression**:
+  - 142 contract tests passing (Lots 0-17).
+  - Single profile and default clean runs maintain identical outputs and legacy count keys.
+- `generation_version` stays 2.
+
+### 8.14 What lot 18 fixed (in tabalyst-lab)
+
+Written when lot 18 was implemented in `tabalyst-lab`:
+- **Reference benchmark testbed (`tabalyst-lab/benchmarks/insurance_benchmark.py`)**:
+  - Implements the complete set of evaluation metrics defined in report §16:
+    - Total Variation Distance (TVD) for categorical fidelity on branches, agencies, products, and honorific titles.
+    - Distribution preservation for continuous numerical fields: relative error on extreme quantiles ($P50, P95, P99$) and Kolmogorov-Smirnov distance.
+    - Rare cases recall: proportion of injected rare and critical events captured in the sample.
+    - Anomaly enrichment factor: ratio of sample anomaly rate over population baseline rate.
+    - Shannon diversity: normalized entropy across anomaly families and `root_cause_id`.
+    - Coverage rates: business rule violations (M01-M25) and geographic branch coverage.
+    - Extreme domain preservation: capture of boundary and maximum domain values.
+    - Multi-seed robustness: coefficient of variation computed over multiple independent seeds.
+    - Downstream ML metrics: precision, recall, optimal threshold F1, and approximate AUROC evaluated on an uncorrupted holdout test partition without data leakage (`splits.csv`).
+  - Implements the three empirical reference experiments from report §19:
+    - Experiment 1: Identical budget ($n = 1\,000$), varied representativeness (`first` vs `random` vs `stratified` vs `smart`) under agency-clustered ordering (E03). Demonstrates the breakdown of naive head extraction (`first` missing 2 of 3 branches, TVD = 0.1500) vs stratified and smart sampling.
+    - Experiment 2: Identical budget, varied anomaly coverage on `rare_events` / `anomaly_diversity`. Demonstrates that `sample --smart` yields a +53% anomaly enrichment factor and +24% rare event recall over naive random sampling.
+    - Experiment 3: Downstream ML performance on highly imbalanced fraud labels (~0.1% incidence), proving training efficiency under stratified and smart sampling regimes.
+- **Strict isolation and compliance**:
+  - All benchmark outputs directed to `D:\GIT.test\tabalyst-lab-gen\bench\insurance-v2\` with zero repository pollution (enforced by `require_outside_checkouts`).
+  - Unit and integration tests in `tabalyst-lab/tests/benchmarks/test_insurance_benchmark.py` (12 tests passing).
+  - Benchmark documentation published in `tabalyst-lab/docs/benchmarks/insurance_sampling.md`.
+
+### 8.15 What lot 19 delivered (Finalization, compliance audit, documentation, and `--english`)
+
+Written when lot 19 and the final gate were completed:
+- **`--english` option for Insurance generation**:
+  - Added CLI flag `--english` and Python API parameter `english: bool = False` in `build_generate_plan`.
+  - Translates column headers for all Insurance dataset projections: standard 34 columns, `extended` (44 columns), `complete` (51 columns), and relational tables (`clients`, `contracts`, `claims`, `payments`).
+  - Adapts categorical domain values to English equivalents (e.g. titles `"M."` / `"Mme"` / `"Dr"` -> `"Mr."` / `"Mrs."` / `"Dr."`, contract types `"auto"` / `"habitation"` / `"sante"` -> `"auto"` / `"home"` / `"health"`, claim categories, risk tiers).
+  - Explicit option validation: rejects `--english` with clear error when targeting non-insurance packages (`--english is only supported for the insurance package`).
+- **Complete SRS verification (§1 to §19)**:
+  - 100% compliant with specifications: 50/51 column catalog, 22 format anomalies (F01-F22), 25 cross-column business rules (M01-M25), 5 missing data mechanisms (MCAR, MAR, MNAR), 4 temporal drift patterns (gradual, sudden, recurring, localized), synthetic fraud topologies, data leakage scenarios, relational 3NF/star schemas, and reproducible ground truth suites (`truth.csv`, `rules.json`, `metrics.json`, `manifest.json`, `ml_labels.csv`, `splits.csv`, `latent.csv`).
+- **Public documentation updates**:
+  - `docs/en/generate/insurance.md`: Updated comprehensive documentation covering the 50/51 column schema, advanced V2 profiles, `--english`, and relational generation.
+  - `docs/en/reference/cli/generate.md`: Documented CLI options including `--english`, `--output-profile`, `--list-profiles`, and multi-profile syntax.
+  - `docs/en/reference/python-api/generate.md`: Created complete documentation page for `build_generate_plan`, `generate_datasets`, `list_available_anomaly_profiles`, and `validate_generate_package`.
+  - `docs/en/reference/python-api/index.md`: Linked `generate.md` in API index table.
+  - `docs/en/reference/glossary.md`: Added definitions for relational dataset, missing mechanism, temporal drift, synthetic fraud, data leakage, split/partition, and latent variable.
+- **Release notes**:
+  - Drafted release notes in `docs/dev/releases/0.8.0.md` detailing the complete Insurance V2 generation capabilities for release 0.8.0.
+- **Showcase demos regeneration & strict non-regression**:
+  - Public showcase demos regenerated cleanly with `examples/tools/regenerate.py --fresh`; byte-level integrity preserved (0 byte diff on default clean and anomaly datasets).
+  - All indices confirmed up to date via `examples/tools/make_index.py --check`.
+- **Quality gates**:
+  - 148 contract tests enabled and passing in `tests/test_generate_insurance_v2_contract.py` (Lots 0-17 and 19).
+  - Population model tests, relational output tests, and malformed files tests 100% green.
+  - License headers verified with `scripts/license_headers.py`.
+  - Ruff and mypy 100% green on all modified code.
+- `generation_version` stays 2.
 
 ## 9. Documentation, versions and languages
 
@@ -565,9 +1183,10 @@ one model with two projections, never two generators. See the ADR
 | 6 | rules M01 to M25, tranche B, `complete` | 5.3, 7 |
 | 7 | quality profiles, interactions, `root_cause_id` | 3.5, 5.4 |
 | 8 to 9 | population model, relational outputs | 8 |
-| 10 to 12 | distributions, absence mechanisms, drift | 5.4, 5.3 |
+| 10 | distributions, ordering bias, Simpson, unseen categories | 8.7, §7, §12 |
+| 11 to 12 | absence mechanisms, drift | 5.4, 5.3 |
 | 13 to 15 | ML labels, leakage, splits, latent file | 5.6 |
-| 16 | technical stress, malformed files in separate files (D13) | none yet |
+| 16 | technical stress, malformed files in separate files (D13) | 8.12 |
 | 17 | catalogue, several profiles, ergonomics | 9 |
 | 18 | benchmark in `tabalyst-lab` (D3) | none (outside) |
 | 19 | conformity, documentation, release | 9 |
@@ -603,8 +1222,11 @@ the references of section 2 move.
 ## 13. Open points, to settle at their gate
 
 - Gate 2: final column order of `truth.csv`, final operator list of `rules.json` (lot 6 may
-  still raise `format_revision`).
-- Lot 3: the operations missing for R01, R05 and R07 (names and tests), the boundary cases kept.
+  still raise `format_revision`), the three-valued reading of rules (5.8), the attribution of a
+  `rule_violation` line to the last event of its row, and whether a profile may list rules it
+  does not target.
+- Lot 6: the boundary cases B01 and B02 of lot 3 carry the `when` restrictions of 6.4; the rules
+  of lot 6 may need more (a claim after the end of a contract that ends the day it starts).
 - Lot 4: exact formulas of the extended rules and the share of boundary values in the clean file.
 - Lot 8: the model and its memory bound (gate P2).
 - Whether legacy profiles should get a truth file on request (not planned: their set of

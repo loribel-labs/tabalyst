@@ -12,6 +12,7 @@ import os
 import shutil
 import tempfile
 import time
+from collections import Counter
 from collections.abc import Callable
 from contextlib import ExitStack
 from dataclasses import dataclass, field, replace
@@ -29,6 +30,7 @@ from tabalyst.generate_anomalies import (
     OPERATION_KEYS,
     OPERATION_KINDS,
     ROW_KINDS,
+    AnomalyEvent,
     check_operation_counts,
     operation_option_error,
 )
@@ -42,11 +44,72 @@ from tabalyst.generate_computer_output import (
 from tabalyst.generate_computer_parallel import worker_count
 from tabalyst.generate_csv import write_csv
 from tabalyst.generate_definition import GenerateDefinition
-from tabalyst.generate_insurance import InsuranceProvider
+from tabalyst.generate_insurance import (
+    COLUMN_TRANSLATIONS_EN,
+    INSURANCE_DATASET_NAMES,
+    INSURANCE_RELATIONAL_TABLES,
+    RELATIONAL_TABLE_CANONICAL,
+    InsuranceProvider,
+    extend_insurance_row,
+    extend_tranche_b_row,
+    extend_tranche_c_row,
+    insurance_canonical,
+    insurance_contextual,
+    localize_insurance_headers,
+    localize_insurance_row,
+)
+from tabalyst.generate_insurance import (
+    EXTENDED_FIELDS as INSURANCE_EXTENDED_FIELDS,
+)
+from tabalyst.generate_insurance import (
+    FIELDS as INSURANCE_FIELDS,
+)
+from tabalyst.generate_insurance import (
+    TRANCHE_B_FIELDS as INSURANCE_TRANCHE_B_FIELDS,
+)
+from tabalyst.generate_insurance import (
+    TRANCHE_C_FIELDS as INSURANCE_TRANCHE_C_FIELDS,
+)
+from tabalyst.generate_ml import (
+    is_ml_profile,
+    write_latent_csv,
+    write_ml_labels_csv,
+    write_splits_csv,
+)
 from tabalyst.generate_package import MAX_ROWS, DatasetPackage, load_generate_package
+from tabalyst.generate_population import (
+    RELATIONAL_CLIENTS_FIELDS,
+    RELATIONAL_CONTRATS_FIELDS,
+    RELATIONAL_PAIEMENTS_FIELDS,
+    RELATIONAL_RECLAMATIONS_FIELDS,
+    PopulationModel,
+)
 from tabalyst.generate_references import SCHEMAS, CommonReferences
-from tabalyst.generate_scenarios import foreign_scenario_key
-from tabalyst.generate_values import generate_rows
+from tabalyst.generate_rules import Conventions
+from tabalyst.generate_scenarios import (
+    CATEGORIES,
+    foreign_scenario_key,
+    is_scenario_profile,
+)
+from tabalyst.generate_truth import (
+    GENERATION_VERSION,
+    KINDS,
+    TRUTH_COLUMNS,
+    AbsenceProbability,
+    Counts,
+    ManifestDocument,
+    MetricsDocument,
+    Rows,
+    RulesDocument,
+    ScenarioMetrics,
+    TruthResult,
+    build_truth,
+    document_text,
+    file_entry,
+    scenario_entries,
+    write_truth_csv,
+)
+from tabalyst.generate_values import _stream, generate_rows
 
 
 @dataclass(frozen=True)
@@ -54,6 +117,13 @@ class GenerateArtifact:
     dataset_id: str
     kind: str
     path: Path
+    profile: str | None = None
+    locale: str | None = None
+
+
+# Kinds and suffixes of the files a scenario profile adds, manifest last (contract 5.1).
+TRUTH_ARTIFACTS = (("truth", "csv"), ("rules", "json"), ("metrics", "json"),
+                   ("manifest", "json"))
 
 
 @dataclass(frozen=True)
@@ -66,6 +136,16 @@ class GeneratePlan:
     anomaly_profile: str | None
     force: bool
     package: DatasetPackage | None = None
+    output_profile: str = "default"
+    relational: bool = False
+    row_order: str = "default"
+    anomaly_profiles: tuple[str, ...] = ()
+    english: bool = False
+    locales: tuple[str, ...] = ("en",)
+
+    def __post_init__(self) -> None:
+        if not self.anomaly_profiles and self.anomaly_profile is not None:
+            object.__setattr__(self, "anomaly_profiles", (self.anomaly_profile,))
 
 
 @dataclass(frozen=True)
@@ -109,7 +189,9 @@ class GenerateResult:
     `timings` splits `seconds` into `rows` (generation), `errors` (anomaly
     injection) and `publish` (staging, checks and replacing the files); it is
     empty for packages that report only the total. `workers` is the number of
-    processes that generated the rows.
+    processes that generated the rows. `artifacts` are the files written with
+    their kind, in the order of `paths` (a scenario profile adds `truth`,
+    `rules`, `metrics` and `manifest`).
     """
 
     paths: tuple[Path, ...]
@@ -118,6 +200,7 @@ class GenerateResult:
     seconds: float = 0.0
     timings: dict[str, float] = field(default_factory=dict)
     workers: int = 1
+    artifacts: tuple[GenerateArtifact, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -174,6 +257,65 @@ def validate_generate_package(path: str | Path) -> ValidationResult:
     if any(dataset.get("row_source") == "catalog_steps" for dataset in _package_datasets(package)):
         _validate_computer_anomaly_profiles(package)
     return ValidationResult(package.id, tuple(sorted(package.input_paths)))
+
+
+def list_available_anomaly_profiles(
+    source: str | Path | None = None,
+    *,
+    example: str | None = None,
+) -> dict[str, list[dict[str, object]]]:
+    """Return available anomaly profiles for a package, an example, or all built-in examples."""
+    targets: dict[str, Path] = {}
+    if example is not None:
+        if source is not None:
+            raise ConfigurationError("Give either source definition or example, not both.")
+        targets[example] = _example_path(example)
+    elif source is not None:
+        src_path = Path(source)
+        pkg_id = src_path.stem if src_path.is_file() else src_path.name
+        targets[pkg_id] = src_path
+    else:
+        for ex in ("computer", "crm", "insurance"):
+            targets[ex] = _example_path(ex)
+
+    result: dict[str, list[dict[str, object]]] = {}
+    for pkg_name, pkg_path in targets.items():
+        package = load_generate_package(pkg_path)
+        actual_id = package.id or pkg_name
+        is_computer = any(
+            dataset.get("row_source") == "catalog_steps"
+            for dataset in _package_datasets(package)
+        )
+        profiles_list: list[dict[str, object]] = []
+        if is_computer:
+            raw_profiles = package.manifest.get("anomaly_profiles", {})
+            if isinstance(raw_profiles, dict):
+                for prof_id, prof_data in raw_profiles.items():
+                    item: dict[str, object] = {
+                        "id": prof_id,
+                        "targets": prof_data.get("targets", ["computers"]) if isinstance(prof_data, dict) else ["computers"],
+                    }
+                    if isinstance(prof_data, dict):
+                        if "min_rows" in prof_data:
+                            item["min_rows"] = prof_data["min_rows"]
+                        if "description" in prof_data:
+                            item["description"] = prof_data["description"]
+                    profiles_list.append(item)
+        else:
+            definition = load_columns_definition(package)
+            for prof in definition.anomaly_profiles:
+                item = {
+                    "id": prof["id"],
+                    "targets": prof.get("targets", []),
+                }
+                if "min_rows" in prof:
+                    item["min_rows"] = prof["min_rows"]
+                if "description" in prof:
+                    item["description"] = prof["description"]
+                profiles_list.append(item)
+        result[actual_id] = profiles_list
+
+    return result
 
 
 def _computer_anomaly_profile(
@@ -459,6 +601,9 @@ def build_generate_plan(
     unit_columns: str | None = None,
     validate_only: bool = False,
     workers: int | None = None,
+    relational: bool = False,
+    row_order: str = "default",
+    english: bool = False,
 ) -> GeneratePlan | ComputerPlan:
     """Validate a Generate source and plan every artifact before writing."""
     if package_path is not None:
@@ -477,6 +622,12 @@ def build_generate_plan(
         package = load_generate_package(source_path)
         if any(dataset.get("row_source") == "catalog_steps"
                for dataset in _package_datasets(package)):
+            if relational:
+                raise ConfigurationError("--relational applies to the Insurance package only.")
+            if row_order != "default":
+                raise ConfigurationError("--row-order applies to the Insurance package only.")
+            if english:
+                raise ConfigurationError("--english applies to the Insurance package only.")
             return _computer_plan(
                 source_path, output_dir=output_dir, output=output, request=request,
                 rows=rows, seed=seed, as_of_date=as_of_date,
@@ -488,20 +639,86 @@ def build_generate_plan(
                 validate_only=validate_only,
                 workers=workers,
             )
+        if row_order not in {"default", "branch", "chronological", "agency", "shuffled"}:
+            raise ConfigurationError(
+                f"Unsupported row order: {row_order!r}. Expected one of: "
+                "agency, branch, chronological, default, shuffled."
+            )
+        if relational:
+            if package.id != "insurance":
+                raise ConfigurationError("--relational applies to the Insurance package only.")
+            if output is not None:
+                raise ConfigurationError("--relational generates multiple tables; use -d.")
+        if row_order != "default" and package.id != "insurance":
+            raise ConfigurationError("--row-order applies to the Insurance package only.")
+        if english and package.id != "insurance":
+            raise ConfigurationError("--english applies to the Insurance package only.")
+        if locales is not None and package.id != "insurance":
+            raise ConfigurationError("--locales applies to the Computer and Insurance packages only.")
+
+        effective_locales: tuple[str, ...] = ("fr",)
+        if package.id == "insurance":
+            if locales is not None:
+                requested_locales = [item.strip() for item in locales.split(",") if item.strip()]
+                if not requested_locales or any(loc not in {"en", "fr"} for loc in requested_locales) or len(set(requested_locales)) != len(requested_locales):
+                    raise ConfigurationError("Insurance locales must be en, fr or en,fr.")
+                effective_locales = tuple(item for item in ("en", "fr") if item in requested_locales)
+            elif english:
+                effective_locales = ("en",)
+            else:
+                effective_locales = ("fr",)
+            if output is not None and len(effective_locales) != 1:
+                raise ConfigurationError("-o writes one locale; use --locales en or --locales fr, or use -d.")
+        effective_english = ("en" in effective_locales)
+
+        if anomaly_profile is None:
+            effective_anomalies: tuple[str, ...] = ()
+        elif isinstance(anomaly_profile, str):
+            effective_anomalies = tuple(item.strip() for item in anomaly_profile.split(","))
+        elif isinstance(anomaly_profile, (list, tuple)) and all(isinstance(item, str) for item in anomaly_profile):
+            effective_anomalies = tuple(anomaly_profile)
+        else:
+            raise ConfigurationError("anomaly_profile must name a profile.")
+        if not all(effective_anomalies) or len(set(effective_anomalies)) != len(effective_anomalies):
+            raise ConfigurationError("anomaly_profile must list each profile once, with no empty name.")
+
+        effective_output = output_profile or "default"
+        if package.id == "insurance":
+            if output_profile is None:
+                if "schema_drift" in effective_anomalies:
+                    effective_output = "complete"
+                elif any(p in effective_anomalies for p in ("rare_events", "ml_fraud_imbalanced", "ml_leakage_test", "ml_multitask", "technical_stress")):
+                    effective_output = "extended"
+                else:
+                    effective_output = "default"
+            if effective_output not in {
+                "default", "extended", "complete", "flattened", "flattened-extended", "flattened-complete",
+            }:
+                raise ConfigurationError(f"unsupported Insurance output profile {output_profile!r}")
+        elif output_profile is not None:
+            raise ConfigurationError("--output-profile applies to the Computer and Insurance packages only.")
         definition = load_columns_definition(package)
         if validate_only:
             if output is not None or output_dir is not None:
                 raise ConfigurationError("--validate-only does not take a destination.")
+            profiles = {profile["id"]: profile for profile in definition.anomaly_profiles}
+            for prof_name in effective_anomalies:
+                if prof_name not in profiles:
+                    raise ConfigurationError(
+                        f"Unknown anomaly profile: {prof_name}. Available: {', '.join(profiles) or 'none'}")
             return GeneratePlan(definition, (), {}, 0, definition.defaults.get("as_of_date", "2000-01-01"),
-                                None, force, package)
+                                effective_anomalies[0] if effective_anomalies else None, force, package,
+                                output_profile=effective_output, relational=relational,
+                                row_order=row_order, anomaly_profiles=effective_anomalies,
+                                english=effective_english, locales=effective_locales)
     else:
         raise ConfigurationError(
             f"PACKAGE_FORMAT: {source_path} is not a Generate package; "
             "definition_version: 1 YAML is unsupported. Supply a package directory "
             "or its dataset.yaml."
         )
-    if (request is not None or generation_profile is not None or output_profile is not None
-        or market is not None or locales is not None or unit_style is not None
+    if (request is not None or generation_profile is not None
+        or market is not None or unit_style is not None
         or unit_columns is not None):
         raise ConfigurationError("Package request and profile options require a package path.")
     if workers is not None:
@@ -519,9 +736,10 @@ def build_generate_plan(
     except (TypeError, ValueError) as exc:
         raise ConfigurationError("--as-of-date must be YYYY-MM-DD.") from exc
     profiles = {profile["id"]: profile for profile in definition.anomaly_profiles}
-    if anomaly_profile is not None and anomaly_profile not in profiles:
-        raise ConfigurationError(
-            f"Unknown anomaly profile: {anomaly_profile}. Available: {', '.join(profiles) or 'none'}")
+    for prof_name in effective_anomalies:
+        if prof_name not in profiles:
+            raise ConfigurationError(
+                f"Unknown anomaly profile: {prof_name}. Available: {', '.join(profiles) or 'none'}")
     dataset_by_id = {dataset["id"]: dataset for dataset in definition.datasets}
     counts = {
         name: dataset["rows"] for name, dataset in dataset_by_id.items()
@@ -537,13 +755,20 @@ def build_generate_plan(
             raise ConfigurationError("--rows is ambiguous for independent datasets.")
     for dataset in combined:
         counts[dataset["id"]] = sum(counts[name] for name in dataset["combine"]["inputs"])
-    if anomaly_profile is not None:
-        for target in profiles[anomaly_profile]["targets"]:
-            _check_counts(profiles[anomaly_profile]["operations"], counts[target],
-                          f"{anomaly_profile} on {target}")
+    for prof_name in effective_anomalies:
+        p = profiles[prof_name]
+        floor = p.get("min_rows")
+        for target in p["targets"]:
+            if floor is not None and counts[target] < floor:
+                raise ConfigurationError(
+                    f"Profile {prof_name} needs at least {floor:,} rows on {target} "
+                    f"(below that its rare cases are not rare); {counts[target]:,} requested.")
+            _check_counts(p["operations"], counts[target], f"{prof_name} on {target}")
 
     if output is not None:
-        if len(definition.datasets) != 1 or anomaly_profile is not None:
+        if len(effective_anomalies) > 1:
+            raise ConfigurationError("-o writes one file, so it takes one anomaly profile; use -d for several.")
+        if len(definition.datasets) != 1 or effective_anomalies:
             raise ConfigurationError("-o requires exactly one clean CSV; use -d.")
         target = Path(output)
         if target.suffix.lower() != ".csv":
@@ -555,17 +780,58 @@ def build_generate_plan(
         if destination.exists() and not destination.is_dir():
             raise InputError(f"Output directory path is a file: {destination}")
     artifacts: list[GenerateArtifact] = []
-    for dataset in definition.datasets:
-        name = dataset["id"]
-        clean = Path(output) if output is not None else destination / f"{name}.csv"
-        artifacts.append(GenerateArtifact(name, "clean", clean))
-        if anomaly_profile and name in profiles[anomaly_profile]["targets"]:
-            prefix = destination / f"{name}.{anomaly_profile}"
-            artifacts.extend((
-                GenerateArtifact(name, "altered", Path(f"{prefix}.csv")),
-                GenerateArtifact(name, "changes", Path(f"{prefix}.changes.csv")),
-                GenerateArtifact(name, "summary", Path(f"{prefix}.summary.json")),
-            ))
+    is_insurance = package is not None and package.id == "insurance"
+    if relational:
+        for loc in effective_locales:
+            table_ids = INSURANCE_RELATIONAL_TABLES[loc] if is_insurance else ("clients", "contrats", "reclamations", "paiements")
+            for tbl in table_ids:
+                artifacts.append(GenerateArtifact(tbl, "clean", destination / f"{tbl}.csv", locale=loc))
+                if not effective_anomalies:
+                    for role, suffix in TRUTH_ARTIFACTS:
+                        artifacts.append(GenerateArtifact(tbl, role, Path(f"{destination}/{tbl}.{role}.{suffix}"), locale=loc))
+                else:
+                    for prof_name in effective_anomalies:
+                        prof = profiles[prof_name]
+                        profile_prefix = f"{tbl}.{prof_name}"
+                        ops = prof.get("operations", [])
+                        for role, suffix in TRUTH_ARTIFACTS:
+                            if role == "manifest" and is_ml_profile(prof, ops):
+                                artifacts.append(GenerateArtifact(tbl, "ml_labels", Path(f"{destination}/{profile_prefix}.ml_labels.csv"), profile=prof_name, locale=loc))
+                                artifacts.append(GenerateArtifact(tbl, "splits", Path(f"{destination}/{profile_prefix}.splits.csv"), profile=prof_name, locale=loc))
+                                artifacts.append(GenerateArtifact(tbl, "latent", Path(f"{destination}/{profile_prefix}.latent.csv"), profile=prof_name, locale=loc))
+                            artifacts.append(GenerateArtifact(tbl, role, Path(f"{destination}/{profile_prefix}.{role}.{suffix}"), profile=prof_name, locale=loc))
+        total_contracts = rows if rows is not None else definition.defaults.get("rows", 275000)
+        table_keys = INSURANCE_RELATIONAL_TABLES[effective_locales[0]] if is_insurance else ("clients", "contrats", "reclamations", "paiements")
+        counts = {tbl: total_contracts for tbl in table_keys}
+    else:
+        multi_loc = len(effective_locales) > 1
+        for loc in effective_locales:
+            for dataset in definition.datasets:
+                name = dataset["id"]
+                if is_insurance:
+                    base_stem = INSURANCE_DATASET_NAMES[loc].get(name, name)
+                    file_stem = f"{base_stem}-{loc}" if multi_loc else base_stem
+                else:
+                    file_stem = name
+                clean = Path(output) if output is not None else destination / f"{file_stem}.csv"
+                artifacts.append(GenerateArtifact(name, "clean", clean, locale=loc))
+                for prof_name in effective_anomalies:
+                    prof = profiles[prof_name]
+                    if name in prof["targets"]:
+                        prefix = destination / f"{file_stem}.{prof_name}"
+                        artifacts.extend((
+                            GenerateArtifact(name, "altered", Path(f"{prefix}.csv"), profile=prof_name, locale=loc),
+                            GenerateArtifact(name, "changes", Path(f"{prefix}.changes.csv"), profile=prof_name, locale=loc),
+                            GenerateArtifact(name, "summary", Path(f"{prefix}.summary.json"), profile=prof_name, locale=loc),
+                        ))
+                        if is_scenario_profile(prof["operations"]):
+                            ops = prof["operations"]
+                            for role, suffix in TRUTH_ARTIFACTS:
+                                if role == "manifest" and is_ml_profile(prof, ops):
+                                    artifacts.append(GenerateArtifact(name, "ml_labels", Path(f"{prefix}.ml_labels.csv"), profile=prof_name, locale=loc))
+                                    artifacts.append(GenerateArtifact(name, "splits", Path(f"{prefix}.splits.csv"), profile=prof_name, locale=loc))
+                                    artifacts.append(GenerateArtifact(name, "latent", Path(f"{prefix}.latent.csv"), profile=prof_name, locale=loc))
+                                artifacts.append(GenerateArtifact(name, role, Path(f"{prefix}.{role}.{suffix}"), profile=prof_name, locale=loc))
     protected = [definition.source]
     if package is not None:
         if destination.resolve().is_relative_to(package.root):
@@ -584,7 +850,13 @@ def build_generate_plan(
     return GeneratePlan(
         definition, tuple(artifacts), counts,
         seed if seed is not None else definition.defaults.get("seed", 0),
-        effective_date, anomaly_profile, force, package,
+        effective_date, effective_anomalies[0] if effective_anomalies else None, force, package,
+        output_profile=effective_output,
+        relational=relational,
+        row_order=row_order,
+        anomaly_profiles=effective_anomalies,
+        english=effective_english,
+        locales=effective_locales,
     )
 
 
@@ -686,8 +958,225 @@ def _publish_artifacts(
                 path.unlink(missing_ok=True)
     return GenerateResult(
         tuple(artifact.path for artifact in plan.artifacts),
-        dict(plan.rows), dict(anomaly_counts or {}),
+        dict(plan.rows), dict(anomaly_counts or {}), artifacts=plan.artifacts,
     )
+
+
+TRUTH_KINDS = frozenset(role for role, _ in TRUTH_ARTIFACTS) | {"ml_labels", "splits", "latent"}
+
+
+def _write_truth_artifact(
+    plan: GeneratePlan, artifact: GenerateArtifact, stage: Path, staged: dict[Path, Path],
+    staged_clean: dict[str, Path], events: dict[tuple[str, str], list[AnomalyEvent]],
+    truths: dict[tuple[str, str], TruthResult], summaries: dict[tuple[str, str], dict], delimiter: str,
+    report: Callable[[str, int, int], None],
+) -> None:
+    """Write one ground-truth file of a scenario profile (contract insurance-v2.md 5).
+
+    The truth is built once, with the first of these files, from the staged clean and altered
+    files; the manifest digests every other staged file of the plan, so it is written last.
+    """
+    dataset = artifact.dataset_id
+    prof_name = artifact.profile or plan.anomaly_profile or ""
+    profile = next(p for p in plan.definition.anomaly_profiles if p["id"] == prof_name)
+    truth_key = (dataset, prof_name)
+    if truth_key not in truths:
+        catalogue = plan.definition.rules
+        if catalogue is None:  # validate_generate_mapping refuses this profile already
+            raise ConfigurationError(f"{profile['id']}: a scenario profile needs rules")
+        used = {operation["rule_id"] for operation in profile["operations"]
+                if "rule_id" in operation}
+        altered = next(a.path for a in plan.artifacts
+                       if a.dataset_id == dataset and a.kind == "altered" and (a.profile == prof_name or not a.profile))
+        report(f"Writing the truth of {altered.name}", 0, plan.rows[dataset])
+        truths[truth_key] = build_truth(
+            staged_clean[dataset], staged[altered], events.get(truth_key, []), summaries[truth_key],
+            dataset=dataset, profile=profile,
+            rules=[rule for rule in catalogue.rules if rule.id in used],
+            conventions=catalogue.conventions, as_of_date=plan.as_of_date,
+            delimiter=delimiter, canonical=insurance_canonical, seed=plan.seed)
+        report(f"Writing the truth of {altered.name}", plan.rows[dataset], plan.rows[dataset])
+    truth = truths[truth_key]
+    if artifact.kind == "truth":
+        write_truth_csv(stage, truth.lines)
+        return
+    if artifact.kind == "ml_labels":
+        write_ml_labels_csv(stage, truth.ml_labels, extended=truth.is_extended_ml)
+        return
+    if artifact.kind == "splits":
+        write_splits_csv(stage, truth.splits)
+        return
+    if artifact.kind == "latent":
+        write_latent_csv(stage, truth.latent)
+        return
+    if artifact.kind == "rules":
+        text = document_text(truth.rules)
+    elif artifact.kind == "metrics":
+        text = document_text(truth.metrics)
+    else:
+        files = [file_entry(other.kind, other.path.name, staged[other.path])
+                 for other in plan.artifacts
+                 if other.kind != "manifest" and (other.profile is None or other.profile == prof_name)]
+        manifest = ManifestDocument(
+            tabalyst_version=__version__, generation_version=GENERATION_VERSION,
+            seed=plan.seed, as_of_date=plan.as_of_date, rows=plan.rows[dataset],
+            dataset=dataset, profile=profile["id"], output_profile=plan.output_profile,
+            package_version=plan.package.package_version if plan.package else None,
+            definition_id=plan.definition.id,
+            scenarios=scenario_entries(profile["operations"]), files=files,
+            truth_columns=list(TRUTH_COLUMNS))
+        text = document_text(manifest)
+    stage.write_text(text, encoding="utf-8", newline="\n")
+
+
+def _generate_relational(
+    plan: GeneratePlan,
+    report: Callable[[str, int, int], None],
+) -> GenerateResult:
+    """Generate the four relational tables and their ground truth files from PopulationModel."""
+    references = CommonReferences()
+    total_contracts = plan.rows.get("contrats", plan.rows.get("contracts", 275000))
+    m22_count = 1 if (plan.anomaly_profile or plan.anomaly_profiles) else 0
+    assert plan.package is not None
+    model = PopulationModel(
+        common=references,
+        package=plan.package,
+        seed=plan.seed,
+        total_contracts=total_contracts,
+        as_of_date=plan.as_of_date,
+        m22_cases=m22_count,
+        row_order=plan.row_order,
+        locale=plan.locales[0] if plan.locales else "en",
+    )
+
+    actual_counts = {
+        "clients": len(model._customers_list),
+        "contrats": len(model.contracts),
+        "reclamations": len(model.all_claims),
+        "paiements": len(model.all_payments),
+    }
+
+    def write_relational(stages: dict[Path, Path]) -> None:
+        table_generators = {
+            "clients": (RELATIONAL_CLIENTS_FIELDS, (model.to_client_row(c) for c in model._customers_list), len(model._customers_list)),
+            "contrats": (RELATIONAL_CONTRATS_FIELDS, (model.to_relational_contract_row(ctr) for ctr in model.contracts), len(model.contracts)),
+            "reclamations": (RELATIONAL_RECLAMATIONS_FIELDS, (model.to_claim_row(clm) for clm in model.all_claims), len(model.all_claims)),
+            "paiements": (RELATIONAL_PAIEMENTS_FIELDS, (model.to_payment_row(pmt) for pmt in model.all_payments), len(model.all_payments)),
+        }
+
+        # 1. Clean CSV tables
+        for artifact in plan.artifacts:
+            if artifact.kind == "clean":
+                tbl = artifact.dataset_id
+                canon_tbl = RELATIONAL_TABLE_CANONICAL.get(tbl, tbl)
+                headers, row_iter, total = table_generators[canon_tbl]
+                stage = stages[artifact.path]
+                loc = artifact.locale or (plan.locales[0] if plan.locales else "en")
+                if loc == "en":
+                    headers = tuple(localize_insurance_headers(headers, english=True))
+                    row_iter = (localize_insurance_row(r, english=True) for r in row_iter)
+                write_csv(
+                    stage, list(headers), row_iter, delimiter=",", total=total,
+                    on_rows=partial(_report_stage, report, f"Writing {artifact.path.name}", total),
+                )
+
+        # 2. Ground truth per table
+        catalogue = plan.definition.rules
+        for artifact in plan.artifacts:
+            if artifact.kind not in TRUTH_KINDS:
+                continue
+            tbl = artifact.dataset_id
+            canon_tbl = RELATIONAL_TABLE_CANONICAL.get(tbl, tbl)
+            stage = stages[artifact.path]
+            lines = model.get_table_truth_lines(canon_tbl)
+            prof_name = artifact.profile or plan.anomaly_profile or "relational"
+            if artifact.kind == "truth":
+                write_truth_csv(stage, lines)
+            elif artifact.kind == "rules":
+                rules = [r for r in catalogue.rules if r.id in {line.rule_id for line in lines if line.rule_id}] if catalogue else []
+                conventions = catalogue.conventions if catalogue else Conventions(branch_column="filiale", date_format={"principal": "%Y-%m-%d"})
+                rules_doc = RulesDocument(
+                    dataset=tbl, profile=prof_name,
+                    as_of_date=plan.as_of_date, conventions=conventions,
+                    rules=rules,
+                )
+                stage.write_text(document_text(rules_doc), encoding="utf-8", newline="\n")
+            elif artifact.kind == "metrics":
+                injected = [line for line in lines if line.kind == "injected"]
+                counts = Counts(
+                    events=len({line.event_id for line in injected}),
+                    changed_cells=len(injected),
+                    distinct_changed_cells=len({(line.row_number, line.column) for line in injected}),
+                    net_differences=sum(line.kind == "net_difference" for line in lines),
+                )
+                categories = dict.fromkeys(sorted(CATEGORIES), 0)
+                kinds = dict.fromkeys(sorted(KINDS), 0)
+                for line in lines:
+                    kinds[line.kind] = kinds.get(line.kind, 0) + 1
+                    if line.category in categories:
+                        categories[line.category] += 1
+                rule_violations = Counter(line.rule_id for line in lines if line.kind == "rule_violation" and line.rule_id)
+                scenarios_metrics: dict[str, ScenarioMetrics] = {}
+                scenario_groups: dict[str, set[str]] = {}
+                scenario_rows: dict[str, set[int]] = {}
+                scenario_meta: dict[str, tuple[str | None, str, str]] = {}
+                for line in lines:
+                    if line.scenario_id:
+                        scenario_groups.setdefault(line.scenario_id, set()).add(line.group_id or str(line.row_number))
+                        scenario_rows.setdefault(line.scenario_id, set()).add(line.row_number)
+                        scenario_meta[line.scenario_id] = (line.rarity_level or "uncommon", line.category, line.severity)
+                for sc_id, groups in scenario_groups.items():
+                    sc_rarity, sc_cat, sc_sev = scenario_meta[sc_id]
+                    scenarios_metrics[sc_id] = ScenarioMetrics(
+                        rarity_level=sc_rarity,
+                        requested_cases=len(groups),
+                        applied_cases=len(groups),
+                        rows_touched=len(scenario_rows.get(sc_id, set())),
+                        eligible_population=actual_counts[canon_tbl],
+                        category=sc_cat,
+                        severity=sc_sev,
+                    )
+                absence = {
+                    sc_id: AbsenceProbability(cases=len(groups), probability=None, reason="multi_row_case")
+                    for sc_id, groups in scenario_groups.items()
+                }
+                metrics_doc = MetricsDocument(
+                    dataset=tbl, profile=prof_name,
+                    rows=Rows(total=actual_counts[canon_tbl], by_branch={}),
+                    counts=counts,
+                    scenarios=scenarios_metrics,
+                    rules=dict(rule_violations),
+                    categories=categories,
+                    kinds=kinds,
+                    absence_probability=absence,
+                    root_causes={},
+                )
+                stage.write_text(document_text(metrics_doc), encoding="utf-8", newline="\n")
+            elif artifact.kind == "manifest":
+                tbl_files = [
+                    file_entry(other.kind, other.path.name, stages[other.path])
+                    for other in plan.artifacts
+                    if other.dataset_id == tbl and other.kind != "manifest" and (other.profile is None or other.profile == prof_name)
+                ]
+                manifest_doc = ManifestDocument(
+                    tabalyst_version=__version__,
+                    generation_version=GENERATION_VERSION,
+                    seed=plan.seed,
+                    as_of_date=plan.as_of_date,
+                    rows=actual_counts[canon_tbl],
+                    dataset=tbl,
+                    profile=prof_name,
+                    output_profile=plan.output_profile,
+                    package_version=plan.package.package_version if plan.package else None,
+                    definition_id=plan.definition.id,
+                    scenarios=[],
+                    files=tbl_files,
+                    truth_columns=list(TRUTH_COLUMNS),
+                )
+                stage.write_text(document_text(manifest_doc), encoding="utf-8", newline="\n")
+
+    published = _publish_artifacts(plan, lambda _a, _s: None, batch_writer=write_relational)
+    return replace(published, row_counts=actual_counts)
 
 
 def generate_datasets(plan: GeneratePlan | ComputerPlan,
@@ -806,6 +1295,8 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                                            anomaly_counts=computer_anomaly_counts,
                                            batch_writer=write_computer)
         return replace(published, timings=timings, workers=workers)
+    if isinstance(plan, GeneratePlan) and plan.relational:
+        return _generate_relational(plan, report)
     if not plan.artifacts:
         raise ConfigurationError("A validation-only plan has no outputs to generate.")
     from tabalyst.generate_anomalies import inject_anomalies
@@ -833,7 +1324,8 @@ def _generate(plan: GeneratePlan | ComputerPlan,
     )
     if needs_insurance and references is None:
         references = CommonReferences()
-    insurance = (InsuranceProvider(references, plan.package)
+    is_insurance = plan.package is not None and plan.package.id == "insurance"
+    insurance = (InsuranceProvider(references, plan.package, locale=plan.locales[0] if is_insurance else "en")
                  if needs_insurance and references is not None and plan.package is not None else None)
     pools = {
         entity["id"]: list(generate_rows(
@@ -843,13 +1335,16 @@ def _generate(plan: GeneratePlan | ComputerPlan,
         )) for entity in plan.definition.entities
     }
     staged_clean: dict[str, Path] = {}
-    staged_changes: dict[str, Path] = {}
-    summaries: dict[str, dict] = {}
+    staged_changes: dict[tuple[str, str], Path] = {}
+    staged: dict[Path, Path] = {}
+    events: dict[tuple[str, str], list[AnomalyEvent]] = {}
+    truths: dict[tuple[str, str], TruthResult] = {}
+    summaries: dict[tuple[str, str], dict] = {}
     anomaly_counts: dict[str, int] = {}
     profiles = {profile["id"]: profile for profile in plan.definition.anomaly_profiles}
     delimiter = plan.definition.csv.get("delimiter", ",")
 
-    def combined_rows(dataset: dict):
+    def combined_rows(dataset: dict, target_headers: list[str] | None = None):
         with ExitStack() as stack:
             for input_id in dataset["combine"]["inputs"]:
                 stream = stack.enter_context(staged_clean[input_id].open(
@@ -858,24 +1353,43 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 reader = csv.DictReader(stream, delimiter=delimiter)
                 for row in reader:
                     if dataset["combine"].get("source_column"):
-                        row[dataset["combine"]["source_column"]] = (
-                            datasets[input_id].get("source", input_id)
-                        )
-                    yield row
+                        scol = dataset["combine"]["source_column"]
+                        val = datasets[input_id].get("source", input_id)
+                        if is_insurance and plan.english:
+                            scol = COLUMN_TRANSLATIONS_EN.get(scol, scol)
+                            val = {"principal": "main", "quebec": "quebec", "ontario": "ontario"}.get(val, val)
+                        row[scol] = val
+                    if target_headers is not None:
+                        yield {h: row.get(h, "") for h in target_headers}
+                    else:
+                        yield row
 
     def writer(artifact: GenerateArtifact, stage: Path) -> None:
+        staged[artifact.path] = stage
         dataset = datasets[artifact.dataset_id]
+        prof_name = artifact.profile or plan.anomaly_profile or ""
+        truth_key = (artifact.dataset_id, prof_name)
+        if artifact.kind in TRUTH_KINDS:
+            _write_truth_artifact(plan, artifact, stage, staged, staged_clean, events, truths,
+                                  summaries, delimiter, report)
+            return
         if artifact.kind == "altered":
             descriptor, name = tempfile.mkstemp(dir=stage.parent, prefix=".generate-changes-", suffix=".tmp")
             os.close(descriptor)
             journal = Path(name)
-            staged_changes[artifact.dataset_id] = journal
+            staged_changes[truth_key] = journal
+            profile = profiles[prof_name]
+            scenarios = is_scenario_profile(profile["operations"])
+            found = events.setdefault(truth_key, [])
             summary = inject_anomalies(
                 staged_clean[artifact.dataset_id], stage, journal,
-                dataset=artifact.dataset_id, profile=profiles[plan.anomaly_profile],
+                dataset=artifact.dataset_id, profile=profile,
                 seed=plan.seed, count=plan.rows[artifact.dataset_id], delimiter=delimiter,
                 on_row=partial(_report_stage, report, f"Injecting errors in {artifact.path.name}",
                                plan.rows[artifact.dataset_id]),
+                on_event=found.append if scenarios else None,
+                canonical=insurance_canonical if scenarios else None,
+                contextual=insurance_contextual(references) if scenarios and references else None,
             )
             summary.update({
                 "definition_id": plan.definition.id,
@@ -886,34 +1400,132 @@ def _generate(plan: GeneratePlan | ComputerPlan,
                 summary.update({"format": "tabalyst.generate.package",
                                 "format_version": "0.1.0",
                                 "package_version": plan.package.package_version})
-            summaries[artifact.dataset_id] = summary
-            anomaly_counts[artifact.dataset_id] = cast(int, summary["changed_cells"])
+            summaries[truth_key] = summary
+            count_key = f"{artifact.dataset_id}/{prof_name}" if len(plan.anomaly_profiles) > 1 else artifact.dataset_id
+            anomaly_counts[count_key] = cast(int, summary["changed_cells"])
             return
         if artifact.kind == "changes":
-            shutil.copyfile(staged_changes[artifact.dataset_id], stage)
+            shutil.copyfile(staged_changes[truth_key], stage)
             return
         if artifact.kind == "summary":
-            stage.write_text(json.dumps(summaries[artifact.dataset_id],
+            stage.write_text(json.dumps(summaries[truth_key],
                                         ensure_ascii=False, indent=2) + "\n",
                              encoding="utf-8", newline="\n")
             return
-        if "combine" in dataset:
-            first = datasets[dataset["combine"]["inputs"][0]]
-            columns = first.get("columns") or plan.definition.schemas[first["schema"]]["columns"]
-            headers = [column["name"] for column in columns]
+        is_insurance = plan.package is not None and plan.package.id == "insurance"
+        is_flattened_insurance = is_insurance and plan.output_profile.startswith("flattened")
+        is_extended_insurance = is_insurance and plan.output_profile in {"extended", "complete"}
+        is_complete_insurance = is_insurance and plan.output_profile == "complete"
+
+        if is_flattened_insurance:
+            sub_profile = "default" if plan.output_profile == "flattened" else plan.output_profile.split("-", 1)[1]
+            is_combined = "combine" in dataset or artifact.dataset_id == "insurance-combined"
+            if is_combined:
+                headers = [*INSURANCE_FIELDS, "filiale"]
+            else:
+                headers = list(INSURANCE_FIELDS)
+            if sub_profile in {"extended", "complete"}:
+                headers.extend(INSURANCE_EXTENDED_FIELDS)
+            if sub_profile == "complete":
+                headers.extend(INSURANCE_TRANCHE_B_FIELDS)
+                headers.extend(INSURANCE_TRANCHE_C_FIELDS)
+
+            assert references is not None
+            assert plan.package is not None
+            loc = artifact.locale or (plan.locales[0] if is_insurance else "en")
+            pop_model = PopulationModel(
+                common=references,
+                package=plan.package,
+                seed=plan.seed,
+                total_contracts=plan.rows[artifact.dataset_id],
+                as_of_date=plan.as_of_date,
+                branch=dataset.get("source"),
+                row_order=plan.row_order,
+                locale=loc,
+            )
+            headers_set = set(headers)
+            rows = (
+                {k: v for k, v in pop_model.to_flattened_row(ctr, output_profile=sub_profile).items() if k in headers_set}
+                for ctr in pop_model.contracts
+            )
+        elif "combine" in dataset:
+            headers = []
+            seen_headers: set[str] = set()
+            for input_id in dataset["combine"]["inputs"]:
+                inp = datasets[input_id]
+                inp_cols = inp.get("columns") or plan.definition.schemas[inp["schema"]]["columns"]
+                for column in inp_cols:
+                    cname = column["name"]
+                    if cname not in seen_headers:
+                        headers.append(cname)
+                        seen_headers.add(cname)
             if dataset["combine"].get("source_column"):
-                headers.append(dataset["combine"]["source_column"])
-            rows = combined_rows(dataset)
+                scol = dataset["combine"]["source_column"]
+                if scol not in seen_headers:
+                    headers.append(scol)
+                    seen_headers.add(scol)
+            if is_extended_insurance:
+                for cname in INSURANCE_EXTENDED_FIELDS:
+                    if cname not in seen_headers:
+                        headers.append(cname)
+                        seen_headers.add(cname)
+            if is_complete_insurance:
+                for cname in (*INSURANCE_TRANCHE_B_FIELDS, *INSURANCE_TRANCHE_C_FIELDS):
+                    if cname not in seen_headers:
+                        headers.append(cname)
+                        seen_headers.add(cname)
+            if is_insurance and plan.english:
+                headers = localize_insurance_headers(headers, english=True)
+            rows = combined_rows(dataset, headers)
         else:
             columns = dataset.get("columns") or plan.definition.schemas[dataset["schema"]]["columns"]
             headers = [column["name"] for column in columns]
-            rows = generate_rows(
+            base_rows = generate_rows(
                 artifact.dataset_id, columns, plan.rows[artifact.dataset_id],
                 plan.seed, plan.as_of_date, pools, references,
                 cohorts=plan.definition.cohorts, fixed_cohort=dataset.get("cohort"),
                 source=dataset.get("source"),
                 insurance_provider=insurance,
             )
+            if is_extended_insurance:
+                headers.extend(INSURANCE_EXTENDED_FIELDS)
+                streams_ext = {
+                    col: _stream(plan.seed, artifact.dataset_id, col, "extended")
+                    for col in INSURANCE_EXTENDED_FIELDS
+                }
+                branch = dataset.get("source", "")
+                ext_rows = (
+                    extend_insurance_row(row, branch, streams_ext, plan.as_of_date)
+                    for row in base_rows
+                )
+                if is_complete_insurance:
+                    headers.extend(INSURANCE_TRANCHE_B_FIELDS)
+                    headers.extend(INSURANCE_TRANCHE_C_FIELDS)
+                    streams_b = {
+                        col: _stream(plan.seed, artifact.dataset_id, col, "complete")
+                        for col in INSURANCE_TRANCHE_B_FIELDS
+                    }
+                    streams_c = {
+                        col: _stream(plan.seed, artifact.dataset_id, col, "complete")
+                        for col in INSURANCE_TRANCHE_C_FIELDS
+                    }
+                    rows = (
+                        extend_tranche_c_row(
+                            extend_tranche_b_row(row, streams_b),
+                            branch,
+                            streams_c,
+                            plan.as_of_date,
+                        )
+                        for row in ext_rows
+                    )
+                else:
+                    rows = ext_rows
+            else:
+                rows = base_rows
+        loc = artifact.locale or (plan.locales[0] if is_insurance else "en")
+        if is_insurance and loc == "en":
+            headers = localize_insurance_headers(headers, english=True)
+            rows = (localize_insurance_row(row, english=True) for row in rows)
         total = plan.rows[artifact.dataset_id]
         count = write_csv(
             stage, headers, rows, delimiter=delimiter, total=total,

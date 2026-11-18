@@ -1,0 +1,192 @@
+{
+  "$defs": {
+    "FileEntry": {
+      "additionalProperties": false,
+      "description": "One other file of the run, by role (the artifact kind) and name.",
+      "properties": {
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "bytes": {
+          "minimum": 0,
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "name",
+        "bytes",
+        "sha256"
+      ],
+      "title": "FileEntry",
+      "type": "object"
+    },
+    "ScenarioEntry": {
+      "additionalProperties": false,
+      "description": "One scenario of the profile: its free description and the operations that serve it.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Description"
+        },
+        "operations": {
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "title": "Operations",
+          "type": "array"
+        },
+        "expected_cases": {
+          "minimum": 0,
+          "title": "Expected Cases",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "operations",
+        "expected_cases"
+      ],
+      "title": "ScenarioEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Document tabalyst.generate.manifest, format 0.2.0 revision 1: the inputs and file digests of a scenario profile's run.",
+  "properties": {
+    "format": {
+      "const": "tabalyst.generate.manifest",
+      "default": "tabalyst.generate.manifest",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 1,
+      "default": 1,
+      "title": "Format Revision",
+      "type": "integer"
+    },
+    "tabalyst_version": {
+      "title": "Tabalyst Version",
+      "type": "string"
+    },
+    "generation_version": {
+      "minimum": 1,
+      "title": "Generation Version",
+      "type": "integer"
+    },
+    "seed": {
+      "title": "Seed",
+      "type": "integer"
+    },
+    "as_of_date": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "title": "As Of Date",
+      "type": "string"
+    },
+    "rows": {
+      "minimum": 0,
+      "title": "Rows",
+      "type": "integer"
+    },
+    "dataset": {
+      "title": "Dataset",
+      "type": "string"
+    },
+    "profile": {
+      "title": "Profile",
+      "type": "string"
+    },
+    "output_profile": {
+      "title": "Output Profile",
+      "type": "string"
+    },
+    "package_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Package Version"
+    },
+    "definition_id": {
+      "title": "Definition Id",
+      "type": "string"
+    },
+    "scenarios": {
+      "items": {
+        "$ref": "#/$defs/ScenarioEntry"
+      },
+      "title": "Scenarios",
+      "type": "array"
+    },
+    "files": {
+      "items": {
+        "$ref": "#/$defs/FileEntry"
+      },
+      "title": "Files",
+      "type": "array"
+    },
+    "truth_columns": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Truth Columns",
+      "type": "array"
+    }
+  },
+  "required": [
+    "tabalyst_version",
+    "generation_version",
+    "seed",
+    "as_of_date",
+    "rows",
+    "dataset",
+    "profile",
+    "output_profile",
+    "package_version",
+    "definition_id",
+    "scenarios",
+    "files",
+    "truth_columns",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst Generate manifest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

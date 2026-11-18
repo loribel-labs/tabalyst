@@ -55,7 +55,7 @@ def _rows(path: Path) -> list[dict[str, str]]:
 def test_insurance_branches_combine_and_profile(tmp_path: Path) -> None:
     clean_dir = tmp_path / "clean"
     dirty_dir = tmp_path / "dirty"
-    clean_plan = build_generate_plan(example="insurance", rows=3000, seed=42, output_dir=clean_dir)
+    clean_plan = build_generate_plan(example="insurance", rows=3000, seed=42, output_dir=clean_dir, locales="fr")
     assert clean_plan.rows == {
         "insurance-principal": 2182, "insurance-ontario": 273,
         "insurance-quebec": 545, "insurance-combined": 3000,
@@ -63,7 +63,7 @@ def test_insurance_branches_combine_and_profile(tmp_path: Path) -> None:
     generate_datasets(clean_plan)
     generate_datasets(build_generate_plan(
         example="insurance", rows=3000, seed=42, anomaly_profile="dirty_realistic",
-        output_dir=dirty_dir,
+        output_dir=dirty_dir, locales="fr",
     ))
     combined = _rows(clean_dir / "insurance-combined.csv")
     assert len(combined) == 3000
@@ -124,7 +124,11 @@ def test_insurance_package_quotas(tmp_path: Path) -> None:
     assert sum(len(table.rows) * len(table.columns) for table in package.tables.values()) < MAX_CELLS
     assert all(path.stat().st_size <= MAX_YAML_BYTES for path in PACKAGE.rglob("*.yaml"))
     assert len(FIELDS) == 33 < MAX_COLUMNS
-    assert set(package.manifest["anomaly_profiles"]) == {"dirty_realistic", "dirty_stress", "rule_breaks"}
+    assert set(package.manifest["anomaly_profiles"]) == {
+        "dirty_realistic", "dirty_stress", "rule_breaks", "rare_events",
+        "format_vs_business", "anomaly_diversity", "clustered_errors",
+        "missing_mechanisms", "schema_drift", "ml_fraud_imbalanced",
+        "ml_leakage_test", "ml_multitask", "technical_stress"}
     assert len(package.manifest["anomaly_profiles"]) < MAX_PROFILES
     plan = build_generate_plan(example="insurance", output_dir=tmp_path,
                                anomaly_profile="dirty_realistic")
@@ -153,7 +157,7 @@ def test_insurance_columns_follow_their_cross_column_rules(tmp_path: Path) -> No
     from collections import Counter
     from datetime import date
     from statistics import median
-    generate_datasets(build_generate_plan(example="insurance", rows=8000, seed=7, output_dir=tmp_path))
+    generate_datasets(build_generate_plan(example="insurance", rows=8000, seed=7, output_dir=tmp_path, locales="fr"))
     rows = _rows(tmp_path / "insurance-principal.csv")
     as_of = date(2026, 9, 16)
     agencies = {"Montréal": "AG-PR-001", "Sherbrooke": "AG-PR-004", "Toronto": "AG-PR-005"}
@@ -202,3 +206,34 @@ def test_insurance_rule_breaks_logs_each_broken_rule_with_its_class(tmp_path: Pa
         "agency_vs_branch", "customer_under_18", "payment_vs_frequency",
     }
     assert all(count > 0 for count in classes.values())
+
+
+def test_insurance_english_cli_default_generation(tmp_path: Path) -> None:
+    """CLI default generation for Insurance is English: insurance-main.csv, English headers."""
+    from typer.testing import CliRunner
+
+    from tabalyst.cli.app import app
+
+    runner = CliRunner()
+    res = runner.invoke(app, [
+        "generate", "--example", "insurance",
+        "--rows", "100", "--seed", "42", "-d", str(tmp_path),
+    ])
+    assert res.exit_code == 0
+    assert (tmp_path / "insurance-main.csv").exists()
+    assert (tmp_path / "insurance-combined.csv").exists()
+    assert not (tmp_path / "insurance-principal.csv").exists()
+
+    rows = _rows(tmp_path / "insurance-main.csv")
+    assert "customer_id" in rows[0]
+    assert "birth_date" in rows[0]
+    assert "first_name" in rows[0]
+    titles = {row["title"] for row in rows}
+    assert titles <= {"Mr.", "Ms."}
+
+    combined = _rows(tmp_path / "insurance-combined.csv")
+    assert "branch" in combined[0]
+    assert "customer_id" in combined[0]
+    branches = {row["branch"] for row in combined}
+    assert branches == {"main", "quebec", "ontario"}
+

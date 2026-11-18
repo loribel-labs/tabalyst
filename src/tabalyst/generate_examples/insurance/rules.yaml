@@ -1,0 +1,489 @@
+# Verifiable rules of the Insurance package (contract docs/dev/generate/insurance-v2.md 5.3).
+# The clean files satisfy every rule; a scenario profile names the rule a case breaks with
+# rule_id, and its rules.json carries the rules it names. Complete catalogue M01 to M25 of the
+# Insurance V2 report (SRS section 5 and contract section 5.3).
+conventions:
+  branch_column: filiale
+  date_format:
+    principal: "%Y-%m-%d"
+    ontario: "%m-%d-%Y"
+    quebec: "%d-%m-%Y"
+  decimal: plain
+  periods:
+    legacy_tariff:
+      end: "2023-12-31"
+      description: "Historical product catalogue and schema v1.0 period"
+    migration_ontario:
+      start: "2023-06-01"
+      description: "Ontario branch migration from legacy to unified core system"
+    schema_v2:
+      start: "2024-01-01"
+      description: "Deployment of schema version 2.0 and modern product offerings"
+    modern_tariff:
+      start: "2025-01-01"
+      description: "Regulatory schedule imposing minimum deductible floors"
+rules:
+- id: M01
+  family: business
+  title: Contract ends on or after its start
+  columns: [date_debut, date_fin]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  when: {op: not_empty, column: date_fin}
+  assert: {op: gte, left: date_fin, right: date_debut, as: date}
+  valid_boundaries: ["date_fin == date_debut"]
+- id: M02
+  family: business
+  title: Record modified on or after its creation
+  columns: [date_creation, date_modification]
+  category: business_rule_violation
+  severity: minor
+  detection: cross_column
+  assert: {op: gte, left: date_modification, right: date_creation, as: date}
+  valid_boundaries: ["date_modification == date_creation"]
+- id: M03
+  family: business
+  title: Customer born before the contract starts
+  columns: [date_debut, date_naissance]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert: {op: gt, left: date_debut, right: date_naissance, as: date}
+- id: M04
+  family: business
+  title: Plausible birth date
+  columns: [date_naissance]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  assert:
+    op: between
+    column: date_naissance
+    low: {value: "1900-01-01"}
+    high: {param: as_of_date}
+    as: date
+  valid_boundaries: ["date_naissance == as_of_date"]
+- id: M05
+  family: business
+  title: Customer of contractual age for product
+  columns: [date_naissance, type_contrat]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  assert:
+    op: implies
+    if: {op: in, column: type_contrat, values: [auto, habitation, vie, voyage]}
+    then: {op: lte, left: date_naissance, right: {value: "2008-09-16"}, as: date}
+- id: M06
+  family: business
+  title: Contract status coherent with expiry date and observation date
+  columns: [date_fin, statut_contrat]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: statut_contrat, right: {value: "expiré"}}
+      then:
+        op: and
+        args:
+        - {op: not_empty, column: date_fin}
+        - {op: lte, left: date_fin, right: {param: as_of_date}, as: date}
+    - op: implies
+      if: {op: eq, left: statut_contrat, right: {value: "actif"}}
+      then:
+        op: or
+        args:
+        - {op: empty, column: date_fin}
+        - {op: gte, left: date_fin, right: {param: as_of_date}, as: date}
+- id: M07
+  family: business
+  title: Cancellation date coherent with contract status and period
+  columns: [date_debut, date_resiliation, statut_contrat]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: statut_contrat, right: {value: "résilié"}}
+      then:
+        op: and
+        args:
+        - {op: not_empty, column: date_resiliation}
+        - {op: gte, left: date_resiliation, right: date_debut, as: date}
+    - op: implies
+      if: {op: not, arg: {op: eq, left: statut_contrat, right: {value: "résilié"}}}
+      then: {op: empty, column: date_resiliation}
+- id: M08
+  family: business
+  title: Claim event within coverage start
+  columns: [date_debut, date_sinistre]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  when: {op: not_empty, column: date_sinistre}
+  assert: {op: gte, left: date_sinistre, right: date_debut, as: date}
+- id: M09
+  family: business
+  title: Claim declared on or after event date
+  columns: [date_reclamation, date_sinistre]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  when: {op: not_empty, column: date_reclamation}
+  assert:
+    op: and
+    args:
+    - {op: not_empty, column: date_sinistre}
+    - {op: lte, left: date_sinistre, right: date_reclamation, as: date}
+- id: M10
+  family: business
+  title: Indemnity non-negative
+  columns: [montant_indemnise]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  when: {op: not_empty, column: montant_indemnise}
+  assert: {op: gte, left: montant_indemnise, right: {value: "0.00"}, as: decimal}
+- id: M11
+  family: business
+  title: Indemnity within coverage cap
+  columns: [montant_couverture, montant_indemnise]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  when: {op: not_empty, column: montant_indemnise}
+  assert: {op: lte, left: montant_indemnise, right: montant_couverture, as: decimal}
+  valid_boundaries: ["montant_indemnise == montant_couverture"]
+- id: M12
+  family: business
+  title: Claim details absent without a claim
+  columns: [date_reclamation, date_sinistre, montant_indemnise]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  when: {op: empty, column: date_reclamation}
+  assert:
+    op: and
+    args:
+    - {op: empty, column: date_sinistre}
+    - {op: empty, column: montant_indemnise}
+- id: M13
+  family: business
+  title: Claim count coherent with claim declaration
+  columns: [date_reclamation, nombre_reclamations]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: not_empty, column: date_reclamation}
+      then: {op: gte, left: nombre_reclamations, right: {value: "1"}, as: decimal}
+    - op: implies
+      if: {op: empty, column: date_reclamation}
+      then: {op: eq, left: nombre_reclamations, right: {value: "0"}}
+- id: M14
+  family: business
+  title: Annual premium above zero
+  columns: [prime_annuelle]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  assert: {op: gt, left: prime_annuelle, right: {value: "0"}, as: decimal}
+- id: M15
+  family: business
+  title: Annual premium within plausible range for product
+  columns: [prime_annuelle, type_contrat]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "auto"}}
+      then: {op: between, column: prime_annuelle, low: {value: "50.00"}, high: {value: "6000.00"}, as: decimal}
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "habitation"}}
+      then: {op: between, column: prime_annuelle, low: {value: "100.00"}, high: {value: "6000.00"}, as: decimal}
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "vie"}}
+      then: {op: between, column: prime_annuelle, low: {value: "50.00"}, high: {value: "15000.00"}, as: decimal}
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "voyage"}}
+      then: {op: between, column: prime_annuelle, low: {value: "20.00"}, high: {value: "2000.00"}, as: decimal}
+- id: M16
+  family: business
+  title: Payment method coherent with payment frequency
+  columns: [frequence_paiement, mode_paiement]
+  category: business_rule_violation
+  severity: minor
+  detection: cross_column
+  assert:
+    op: implies
+    if: {op: eq, left: frequence_paiement, right: {value: "mensuelle"}}
+    then: {op: in, column: mode_paiement, values: ["prélèvement", "carte"]}
+- id: M17
+  family: business
+  title: Province name coherent with province code
+  columns: [province_code, province_nom]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "QC"}}
+      then: {op: in, column: province_nom, values: ["Québec", "Quebec"]}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "ON"}}
+      then: {op: eq, left: province_nom, right: {value: "Ontario"}}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "BC"}}
+      then: {op: in, column: province_nom, values: ["Colombie-Britannique", "British Columbia"]}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "AB"}}
+      then: {op: eq, left: province_nom, right: {value: "Alberta"}}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "MB"}}
+      then: {op: eq, left: province_nom, right: {value: "Manitoba"}}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "NB"}}
+      then: {op: in, column: province_nom, values: ["Nouveau-Brunswick", "New Brunswick"]}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "NS"}}
+      then: {op: in, column: province_nom, values: ["Nouvelle-Écosse", "Nova Scotia"]}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "NL"}}
+      then: {op: in, column: province_nom, values: ["Terre-Neuve-et-Labrador", "Newfoundland and Labrador"]}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "PE"}}
+      then: {op: in, column: province_nom, values: ["Île-du-Prince-Édouard", "Prince Edward Island"]}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "SK"}}
+      then: {op: eq, left: province_nom, right: {value: "Saskatchewan"}}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "YT"}}
+      then: {op: eq, left: province_nom, right: {value: "Yukon"}}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "NT"}}
+      then: {op: in, column: province_nom, values: ["Territoires du Nord-Ouest", "Northwest Territories"]}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "NU"}}
+      then: {op: eq, left: province_nom, right: {value: "Nunavut"}}
+- id: M18
+  family: business
+  title: City coherent with province
+  columns: [province_code, ville]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: in, column: ville, values: [Montréal, Québec, Laval, Gatineau, Longueuil, Sherbrooke, Lévis, Saguenay, Trois-Rivières, Terrebonne]}
+      then: {op: eq, left: province_code, right: {value: "QC"}}
+    - op: implies
+      if: {op: in, column: ville, values: [Toronto, Ottawa, Mississauga, Brampton, Hamilton, London, Waterloo, Grand Sudbury]}
+      then: {op: eq, left: province_code, right: {value: "ON"}}
+    - op: implies
+      if: {op: in, column: ville, values: [Vancouver, Victoria, Surrey, Kelowna, Prince George]}
+      then: {op: eq, left: province_code, right: {value: "BC"}}
+    - op: implies
+      if: {op: in, column: ville, values: [Calgary, Edmonton, Red Deer, Lethbridge]}
+      then: {op: eq, left: province_code, right: {value: "AB"}}
+- id: M19
+  family: business
+  title: Postal code coherent with province
+  columns: [code_postal, province_code]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "QC"}}
+      then: {op: regex, column: code_postal, pattern: "^[GHJ].*"}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "ON"}}
+      then: {op: regex, column: code_postal, pattern: "^[KLMNP].*"}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "BC"}}
+      then: {op: regex, column: code_postal, pattern: "^V.*"}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "AB"}}
+      then: {op: regex, column: code_postal, pattern: "^T.*"}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "MB"}}
+      then: {op: regex, column: code_postal, pattern: "^R.*"}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "SK"}}
+      then: {op: regex, column: code_postal, pattern: "^S.*"}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "NB"}}
+      then: {op: regex, column: code_postal, pattern: "^E.*"}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "NS"}}
+      then: {op: regex, column: code_postal, pattern: "^B.*"}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "NL"}}
+      then: {op: regex, column: code_postal, pattern: "^A.*"}
+    - op: implies
+      if: {op: eq, left: province_code, right: {value: "PE"}}
+      then: {op: regex, column: code_postal, pattern: "^C.*"}
+- id: M20
+  family: business
+  title: Agency authorized for branch
+  columns: [agence_code, filiale]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: filiale, right: {value: "principal"}}
+      then: {op: regex, column: agence_code, pattern: "^AG-PR-.*"}
+    - op: implies
+      if: {op: eq, left: filiale, right: {value: "ontario"}}
+      then: {op: regex, column: agence_code, pattern: "^AG-ON-.*"}
+    - op: implies
+      if: {op: eq, left: filiale, right: {value: "quebec"}}
+      then: {op: regex, column: agence_code, pattern: "^AG-QC-.*"}
+- id: M21
+  family: business
+  title: Contract identifier unique
+  columns: [id_contrat]
+  category: business_rule_violation
+  severity: critical
+  detection: uniqueness
+  assert: {op: unique, columns: [id_contrat]}
+- id: M22
+  family: business
+  title: Claim associated with valid contract identifier
+  columns: [date_reclamation, id_contrat]
+  category: business_rule_violation
+  severity: critical
+  detection: cross_column
+  when: {op: not_empty, column: date_reclamation}
+  assert:
+    op: and
+    args:
+    - {op: not_empty, column: id_contrat}
+    - {op: regex, column: id_contrat, pattern: "^CTR-[A-Z0-9-]{6,16}$"}
+- id: M23
+  family: domain
+  title: Known contract type and status
+  columns: [statut_contrat, type_contrat]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  assert:
+    op: and
+    args:
+    - {op: in, column: type_contrat, values: [auto, habitation, vie, voyage]}
+    - {op: in, column: statut_contrat, values: [actif, suspendu, expiré, résilié]}
+- id: M24
+  family: business
+  title: Broker present if and only if acquisition channel is broker
+  columns: [canal_acquisition, courtier_id]
+  category: business_rule_violation
+  severity: minor
+  detection: cross_column
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: canal_acquisition, right: {value: "courtier"}}
+      then: {op: not_empty, column: courtier_id}
+    - op: implies
+      if: {op: not, arg: {op: eq, left: canal_acquisition, right: {value: "courtier"}}}
+      then: {op: empty, column: courtier_id}
+- id: M25
+  family: domain
+  title: Product code matches contract type
+  columns: [produit_code, type_contrat]
+  category: semantic_invalid
+  severity: major
+  detection: domain
+  assert:
+    op: and
+    args:
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "auto"}}
+      then: {op: in, column: produit_code, values: [AUT_BASE, AUT_CONFORT, AUT_TOURISME, AUT_PREMIUM]}
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "habitation"}}
+      then: {op: in, column: produit_code, values: [HAB_LOCATAIRE, HAB_PROPRIETAIRE, HAB_COPROPRIETE, HAB_PRESTIGE]}
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "vie"}}
+      then: {op: in, column: produit_code, values: [VIE_TEMPORAIRE, VIE_PERMANENTE, VIE_UNIVERSELLE]}
+    - op: implies
+      if: {op: eq, left: type_contrat, right: {value: "voyage"}}
+      then: {op: in, column: produit_code, values: [VOY_INDIVIDUEL, VOY_FAMILLE, VOY_ANNULATION, VOY_MULTI]}
+- id: M26
+  family: business
+  title: Valid schema version after schema v2 migration
+  columns: [date_creation, version_source]
+  category: business_rule_violation
+  severity: major
+  detection: contextual|cross_column
+  valid_from: "2024-01-01"
+  temporal_column: date_creation
+  period: schema_v2
+  assert: {op: in, column: version_source, values: ["v2.0", "v2.1"]}
+- id: M27
+  family: business
+  title: Ontario branch system migration to unified core
+  columns: [date_creation, filiale, source_system]
+  category: business_rule_violation
+  severity: critical
+  detection: contextual|cross_column
+  valid_from: "2023-06-01"
+  temporal_column: date_creation
+  period: migration_ontario
+  when: {op: eq, left: filiale, right: {value: "ontario"}}
+  assert: {op: not, arg: {op: eq, left: source_system, right: {value: "SYS_ON_LEGACY"}}}
+- id: M28
+  family: business
+  title: Contract creation before observation snapshot date
+  columns: [date_creation, date_observation]
+  category: business_rule_violation
+  severity: major
+  detection: cross_column
+  temporal_column: date_creation
+  assert: {op: lte, left: date_creation, right: date_observation, as: date}
+- id: M29
+  family: business
+  title: Schema version v1.0 enforced prior to v2.0 deployment
+  columns: [date_creation, version_source]
+  category: business_rule_violation
+  severity: major
+  detection: contextual|cross_column
+  valid_until: "2023-12-31"
+  temporal_column: date_creation
+  period: legacy_tariff
+  assert: {op: eq, left: version_source, right: {value: "v1.0"}}
+- id: M30
+  family: business
+  title: Regulatory minimum deductible under modern schedule
+  columns: [date_debut, franchise, type_contrat]
+  category: business_rule_violation
+  severity: major
+  detection: contextual|cross_column
+  valid_from: "2025-01-01"
+  temporal_column: date_debut
+  period: modern_tariff
+  when: {op: eq, left: type_contrat, right: {value: "habitation"}}
+  assert: {op: gte, left: franchise, right: {value: "500.00"}, as: decimal}
+  valid_boundaries: ["franchise == 500.00"]

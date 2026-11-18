@@ -61,6 +61,9 @@ offers `dirty_realistic` ([CRM page](crm.md)) and Computer offers four more
 profiles ([Computer page](computer.md)). Each example also offers
 `rule_breaks`, which leaves the formats alone and breaks the rules between
 columns on purpose, each change named by a `class` in the change log.
+An insurance profile whose operations declare scenarios also writes the
+ground truth of the run: see
+[Insurance ground truth files](insurance-ground-truth.md).
 
 To get several levels of errors at once, name several profiles with `-d`. The
 rows are generated once and each profile makes its own variant, so the clean

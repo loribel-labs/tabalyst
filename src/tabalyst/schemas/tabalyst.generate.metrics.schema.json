@@ -1,0 +1,674 @@
+{
+  "$defs": {
+    "AbsenceProbability": {
+      "additionalProperties": false,
+      "description": "Chance that a uniform sample misses every case of a scenario (contract 6.3).\n\n``probability`` maps a sample size to the exact probability for this file, ``null`` for a\nsize above the number of rows, and is itself ``null`` with ``reason`` ``multi_row_case``\nwhen a case spans several rows (the formula counts single-row cases).",
+      "properties": {
+        "cases": {
+          "minimum": 0,
+          "title": "Cases",
+          "type": "integer"
+        },
+        "probability": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Probability"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "const": "multi_row_case",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "cases",
+        "probability",
+        "reason"
+      ],
+      "title": "AbsenceProbability",
+      "type": "object"
+    },
+    "Counts": {
+      "additionalProperties": false,
+      "description": "The numbers of contract 4.2, recounted from the truth.",
+      "properties": {
+        "events": {
+          "minimum": 0,
+          "title": "Events",
+          "type": "integer"
+        },
+        "changed_cells": {
+          "minimum": 0,
+          "title": "Changed Cells",
+          "type": "integer"
+        },
+        "distinct_changed_cells": {
+          "minimum": 0,
+          "title": "Distinct Changed Cells",
+          "type": "integer"
+        },
+        "net_differences": {
+          "minimum": 0,
+          "title": "Net Differences",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "events",
+        "changed_cells",
+        "distinct_changed_cells",
+        "net_differences"
+      ],
+      "title": "Counts",
+      "type": "object"
+    },
+    "LatentMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on latent variables and unobserved generator scores.",
+      "properties": {
+        "total_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Rows",
+          "type": "integer"
+        },
+        "mean_fraud_probability": {
+          "default": 0.0,
+          "title": "Mean Fraud Probability",
+          "type": "number"
+        },
+        "mean_claim_probability": {
+          "default": 0.0,
+          "title": "Mean Claim Probability",
+          "type": "number"
+        },
+        "mean_claim_cost": {
+          "default": 0.0,
+          "title": "Mean Claim Cost",
+          "type": "number"
+        },
+        "mean_renewal_probability": {
+          "default": 0.0,
+          "title": "Mean Renewal Probability",
+          "type": "number"
+        },
+        "mean_risk_score": {
+          "default": 0.0,
+          "title": "Mean Risk Score",
+          "type": "number"
+        },
+        "mean_churn_risk": {
+          "default": 0.0,
+          "title": "Mean Churn Risk",
+          "type": "number"
+        },
+        "latent_variables": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Latent Variables",
+          "type": "array"
+        }
+      },
+      "title": "LatentMetrics",
+      "type": "object"
+    },
+    "MLFraudMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on machine learning labels and synthetic fraud patterns.",
+      "properties": {
+        "total_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Rows",
+          "type": "integer"
+        },
+        "true_frauds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "True Frauds",
+          "type": "integer"
+        },
+        "observed_frauds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Observed Frauds",
+          "type": "integer"
+        },
+        "fraud_types": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Fraud Types",
+          "type": "object"
+        },
+        "rates": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Rates",
+          "type": "object"
+        },
+        "noisy_labels": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Noisy Labels",
+          "type": "integer"
+        },
+        "delayed_labels": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Delayed Labels",
+          "type": "integer"
+        },
+        "atypical_normal": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Atypical Normal",
+          "type": "integer"
+        }
+      },
+      "title": "MLFraudMetrics",
+      "type": "object"
+    },
+    "MissingDataMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on missing data mechanisms (MCAR, MAR, MNAR) and reasons.",
+      "properties": {
+        "mechanisms": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MissingMechanismMetrics"
+          },
+          "title": "Mechanisms",
+          "type": "object"
+        },
+        "reasons": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Reasons",
+          "type": "object"
+        },
+        "by_column": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "title": "By Column",
+          "type": "object"
+        }
+      },
+      "title": "MissingDataMetrics",
+      "type": "object"
+    },
+    "MissingMechanismMetrics": {
+      "additionalProperties": false,
+      "description": "The aggregate impact of one missing data mechanism across scenarios.",
+      "properties": {
+        "events": {
+          "minimum": 0,
+          "title": "Events",
+          "type": "integer"
+        },
+        "rows_touched": {
+          "minimum": 0,
+          "title": "Rows Touched",
+          "type": "integer"
+        },
+        "columns": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "scenarios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scenarios",
+          "type": "array"
+        }
+      },
+      "required": [
+        "events",
+        "rows_touched",
+        "columns",
+        "scenarios"
+      ],
+      "title": "MissingMechanismMetrics",
+      "type": "object"
+    },
+    "RootCauseMetrics": {
+      "additionalProperties": false,
+      "description": "The aggregate impact of one common root cause across scenarios (contract 5.4).",
+      "properties": {
+        "events": {
+          "minimum": 0,
+          "title": "Events",
+          "type": "integer"
+        },
+        "rows_touched": {
+          "minimum": 0,
+          "title": "Rows Touched",
+          "type": "integer"
+        },
+        "scenarios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scenarios",
+          "type": "array"
+        }
+      },
+      "required": [
+        "events",
+        "rows_touched",
+        "scenarios"
+      ],
+      "title": "RootCauseMetrics",
+      "type": "object"
+    },
+    "Rows": {
+      "additionalProperties": false,
+      "description": "Rows of the altered file, in total and per branch.",
+      "properties": {
+        "total": {
+          "minimum": 0,
+          "title": "Total",
+          "type": "integer"
+        },
+        "by_branch": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "By Branch",
+          "type": "object"
+        }
+      },
+      "required": [
+        "total",
+        "by_branch"
+      ],
+      "title": "Rows",
+      "type": "object"
+    },
+    "ScenarioMetrics": {
+      "additionalProperties": false,
+      "description": "What one scenario asked for and what the files hold.\n\n``eligible_population`` is the sum over its operations of the rows each can change in the\nclean file. ``applied_cases`` counts the cases (a key reused on two contracts is one) and\n``rows_touched`` the rows they involve: equal while a case is one row.",
+      "properties": {
+        "rarity_level": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rarity Level"
+        },
+        "requested_cases": {
+          "minimum": 0,
+          "title": "Requested Cases",
+          "type": "integer"
+        },
+        "applied_cases": {
+          "minimum": 0,
+          "title": "Applied Cases",
+          "type": "integer"
+        },
+        "rows_touched": {
+          "minimum": 0,
+          "title": "Rows Touched",
+          "type": "integer"
+        },
+        "eligible_population": {
+          "minimum": 0,
+          "title": "Eligible Population",
+          "type": "integer"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "severity": {
+          "title": "Severity",
+          "type": "string"
+        },
+        "missing_mechanism": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Mechanism"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "fraud_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fraud Type"
+        }
+      },
+      "required": [
+        "rarity_level",
+        "requested_cases",
+        "applied_cases",
+        "rows_touched",
+        "eligible_population",
+        "category",
+        "severity"
+      ],
+      "title": "ScenarioMetrics",
+      "type": "object"
+    },
+    "SplitMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on dataset partitions and leakage prevention.",
+      "properties": {
+        "total_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Rows",
+          "type": "integer"
+        },
+        "client_mode_counts": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Client Mode Counts",
+          "type": "object"
+        },
+        "temporal_mode_counts": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Temporal Mode Counts",
+          "type": "object"
+        },
+        "unique_clients": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Unique Clients",
+          "type": "integer"
+        },
+        "client_leakage_cases": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Client Leakage Cases",
+          "type": "integer"
+        },
+        "resampled_train_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Resampled Train Rows",
+          "type": "integer"
+        },
+        "temporal_cutoffs": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Temporal Cutoffs",
+          "type": "object"
+        }
+      },
+      "title": "SplitMetrics",
+      "type": "object"
+    },
+    "TechnicalStressMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on technical stress test cases (SRS §14, Lot 16).",
+      "properties": {
+        "stress_scenarios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Stress Scenarios",
+          "type": "array"
+        },
+        "multiline_rows": {
+          "default": 0,
+          "title": "Multiline Rows",
+          "type": "integer"
+        },
+        "long_text_rows": {
+          "default": 0,
+          "title": "Long Text Rows",
+          "type": "integer"
+        },
+        "json_rows": {
+          "default": 0,
+          "title": "Json Rows",
+          "type": "integer"
+        },
+        "unicode_complex_rows": {
+          "default": 0,
+          "title": "Unicode Complex Rows",
+          "type": "integer"
+        },
+        "high_cardinality_distinct": {
+          "default": 0,
+          "title": "High Cardinality Distinct",
+          "type": "integer"
+        },
+        "rare_categories": {
+          "default": 0,
+          "title": "Rare Categories",
+          "type": "integer"
+        },
+        "extreme_precision_rows": {
+          "default": 0,
+          "title": "Extreme Precision Rows",
+          "type": "integer"
+        },
+        "sparse_cells_empty": {
+          "default": 0,
+          "title": "Sparse Cells Empty",
+          "type": "integer"
+        }
+      },
+      "title": "TechnicalStressMetrics",
+      "type": "object"
+    },
+    "TemporalDriftMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on temporal rule validity, periods, and drift scenarios.",
+      "properties": {
+        "active_periods": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Active Periods",
+          "type": "array"
+        },
+        "drift_scenarios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Drift Scenarios",
+          "type": "array"
+        },
+        "temporal_rules": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Temporal Rules",
+          "type": "object"
+        }
+      },
+      "title": "TemporalDriftMetrics",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Document tabalyst.generate.metrics, format 0.2.0 revision 1: the exact counts of a scenario profile's run.",
+  "properties": {
+    "format": {
+      "const": "tabalyst.generate.metrics",
+      "default": "tabalyst.generate.metrics",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 1,
+      "default": 1,
+      "title": "Format Revision",
+      "type": "integer"
+    },
+    "dataset": {
+      "title": "Dataset",
+      "type": "string"
+    },
+    "profile": {
+      "title": "Profile",
+      "type": "string"
+    },
+    "rows": {
+      "$ref": "#/$defs/Rows"
+    },
+    "counts": {
+      "$ref": "#/$defs/Counts"
+    },
+    "scenarios": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ScenarioMetrics"
+      },
+      "title": "Scenarios",
+      "type": "object"
+    },
+    "rules": {
+      "additionalProperties": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "title": "Rules",
+      "type": "object"
+    },
+    "categories": {
+      "additionalProperties": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "title": "Categories",
+      "type": "object"
+    },
+    "kinds": {
+      "additionalProperties": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "title": "Kinds",
+      "type": "object"
+    },
+    "absence_probability": {
+      "additionalProperties": {
+        "$ref": "#/$defs/AbsenceProbability"
+      },
+      "title": "Absence Probability",
+      "type": "object"
+    },
+    "root_causes": {
+      "additionalProperties": {
+        "$ref": "#/$defs/RootCauseMetrics"
+      },
+      "title": "Root Causes",
+      "type": "object"
+    },
+    "missing_data": {
+      "$ref": "#/$defs/MissingDataMetrics"
+    },
+    "temporal_drift": {
+      "$ref": "#/$defs/TemporalDriftMetrics"
+    },
+    "ml_fraud": {
+      "$ref": "#/$defs/MLFraudMetrics"
+    },
+    "splits": {
+      "$ref": "#/$defs/SplitMetrics"
+    },
+    "latent": {
+      "$ref": "#/$defs/LatentMetrics"
+    },
+    "technical_stress": {
+      "$ref": "#/$defs/TechnicalStressMetrics"
+    }
+  },
+  "required": [
+    "dataset",
+    "profile",
+    "rows",
+    "counts",
+    "scenarios",
+    "rules",
+    "categories",
+    "kinds",
+    "absence_probability",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst Generate metrics",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

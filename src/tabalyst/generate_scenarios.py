@@ -28,13 +28,24 @@ SEVERITIES = frozenset({"info", "minor", "major", "critical"})
 DETECTION_FAMILIES = frozenset({
     "syntactic", "domain", "cross_column", "uniqueness", "contextual", "statistical", "none",
 })
+MISSING_MECHANISMS = frozenset({"mcar", "mar", "mnar"})
+MISSING_REASONS = frozenset({
+    "unreported", "client_refusal", "not_applicable", "system_omission", "unknown",
+})
+FRAUD_TYPES = frozenset({
+    "phantom_claim", "inflated_claim", "collusion", "organized_fraud",
+})
 SCENARIO_KEYS = frozenset({
     "scenario_id", "rule_id", "category", "severity", "rarity_level", "root_cause_id",
-    "requires", "conflicts_with", "can_overlap", "expected_detection",
+    "requires", "conflicts_with", "can_overlap", "expected_detection", "description",
+    "missing_mechanism", "missing_reason", "fraud_type",
 })
 # What every operation of one scenario must say the same way: the truth file reads them per scenario.
 SHARED_KEYS = ("category", "severity", "rarity_level", "rule_id", "root_cause_id",
-               "expected_detection")
+               "expected_detection", "description", "missing_mechanism", "missing_reason",
+               "fraud_type")
+# The free text of a scenario in manifest.json (report 15 "expected effect"), never interpreted.
+MAX_DESCRIPTION = 500
 # Output profiles that add columns to the 34 of the default one (contract section 7), so that a
 # refusal can say which profile provides a column. Lot 4 owns the content of ``extended``.
 PROVIDING_PROFILES: dict[str, str] = {
@@ -44,7 +55,8 @@ PROVIDING_PROFILES: dict[str, str] = {
          "produit_code", "nombre_reclamations"), "extended"),
     **dict.fromkeys(
         ("taux_remboursement", "consentement_communication", "gestionnaire_id",
-         "segment_client"), "complete"),
+         "segment_client", "date_observation", "version_source",
+         "source_system"), "complete"),
 }
 
 
@@ -122,7 +134,44 @@ def scenario_option_error(operation: Mapping[str, object]) -> str | None:
         checks.append("operation.can_overlap must be true or false")
     if "expected_detection" in operation:
         checks.append(_detection_error(operation))
-    return next((problem for problem in checks if problem is not None), None)
+    if "description" in operation:
+        text = operation["description"]
+        if (not isinstance(text, str) or not text.strip() or len(text) > MAX_DESCRIPTION
+                or not text.isprintable()):
+            checks.append(f"operation.description must be one line of 1 to {MAX_DESCRIPTION} "
+                          "characters")
+    if "missing_mechanism" in operation:
+        checks.append(_choice_error(operation, "missing_mechanism", MISSING_MECHANISMS))
+        if operation.get("kind") != "set_missing":
+            checks.append("operation.missing_mechanism requires kind: set_missing")
+        mech = operation["missing_mechanism"]
+        when = operation.get("when")
+        col = operation.get("column")
+        if mech == "mcar" and when:
+            checks.append("operation.missing_mechanism mcar must not declare when (independent missingness)")
+        elif mech == "mar":
+            if not when:
+                checks.append("operation.missing_mechanism mar requires when condition on observed variable")
+            elif isinstance(when, dict) and col in when:
+                checks.append("operation.missing_mechanism mar must condition on a different column than the missing column")
+        elif mech == "mnar":
+            if not when:
+                checks.append("operation.missing_mechanism mnar requires when condition on the missing column itself")
+            elif isinstance(when, dict) and col not in when:
+                checks.append("operation.missing_mechanism mnar must condition on the missing column itself")
+    if "missing_reason" in operation:
+        checks.append(_choice_error(operation, "missing_reason", MISSING_REASONS))
+    if "fraud_type" in operation:
+        checks.append(_choice_error(operation, "fraud_type", FRAUD_TYPES))
+    problem = next((problem for problem in checks if problem is not None), None)
+    if problem is None and operation["category"] == "valid_atypical":
+        # Contract 3.1: a non-defect is harmless and no detector should be right to report it.
+        if operation["severity"] != "info":
+            return "operation.severity must be info for a valid_atypical scenario (not a defect)"
+        if operation.get("expected_detection") != "none":
+            return ("operation.expected_detection must be none for a valid_atypical scenario "
+                    "(not a defect)")
+    return problem
 
 
 def foreign_scenario_key(operation: Mapping[str, object]) -> str | None:

@@ -351,11 +351,17 @@ def _manifest(path: Path) -> dict[str, object]:
     root = _mapping(_yaml(path), path, {
         "format", "format_version", "id", "package_version", "catalog", "defaults",
         "entities", "cohorts", "datasets", "generation_profiles",
-        "output_profiles", "anomaly_profiles",
+        "output_profiles", "anomaly_profiles", "rules",
     }, {"format", "format_version", "id", "package_version", "catalog", "defaults", "datasets"})
     if root["format"] != "tabalyst.generate.package" or root["format_version"] != "0.1.0":
         _fail("PACKAGE_FORMAT", path, "unsupported package format or version")
     _identifier(root["id"], path, "package id")
+    if "rules" in root and root["id"] != "insurance":
+        # Only Insurance has scenario profiles; refused here so that no package path, column
+        # or Computer, could carry a catalogue it never reads.
+        _fail("PACKAGE_SCHEMA", path,
+              f"rules is not supported by the {root['id']} package "
+              "(rules are for the scenario profiles of Insurance)")
     version = root["package_version"]
     if not isinstance(version, str) or not re.fullmatch(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)", version):
         _fail("PACKAGE_SCHEMA", path, "package_version must be SemVer")
@@ -534,6 +540,13 @@ def load_generate_package(path: Path | str) -> DatasetPackage:
     if not isinstance(entries, dict) or len(entries) > MAX_TABLES:
         _fail("PACKAGE_LIMIT", catalog_path, "catalog must contain at most 128 tables")
     paths = {manifest_path.resolve(), catalog_path}
+    if "rules" in manifest:
+        # The rules catalogue of the scenario profiles (contract insurance-v2.md 5.3); its
+        # content is validated with the profiles that use it (generate_columns_package).
+        rules_path = _relative(root, manifest["rules"], manifest_path)
+        if rules_path.suffix != ".yaml":
+            _fail("PACKAGE_PATH", manifest_path, "rules must name a YAML file")
+        paths.add(rules_path)
     tables: dict[str, PackageTable] = {}
     bytes_total = 0
     cells_total = 0

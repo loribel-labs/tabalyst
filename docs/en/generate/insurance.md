@@ -12,7 +12,7 @@ tabalyst generate --example insurance --rows 3000 -d insurance-output/
 ```
 
 ```text
-Created: insurance-output/insurance-principal.csv
+Created: insurance-output/insurance-main.csv
 Created: insurance-output/insurance-ontario.csv
 Created: insurance-output/insurance-quebec.csv
 Created: insurance-output/insurance-combined.csv
@@ -29,14 +29,14 @@ fixed proportions. Without `--rows`, the default is 275,000 rows.
 
 | File | Share | Rows by default | Rows with `--rows 3000` |
 | --- | ---: | ---: | ---: |
-| `insurance-principal.csv` | 73% | 200,000 | 2,182 |
+| `insurance-main.csv` (`insurance-principal.csv` with `--locales fr`) | 73% | 200,000 | 2,182 |
 | `insurance-ontario.csv` | 9% | 25,000 | 273 |
 | `insurance-quebec.csv` | 18% | 50,000 | 545 |
 | `insurance-combined.csv` | 100% | 275,000 | 3,000 |
 
-The combined file has the same 33 columns as a branch plus `filiale`, which
-names the branch of the row (`principal`, `ontario` or `quebec`): 34 columns
-in all. The columns and their values are in French, as in a Quebec insurer.
+The combined file has the same 33 columns as a branch plus `branch` (`filiale` in French), which
+names the branch of the row (`main`/`principal`, `ontario` or `quebec`): 34 columns
+in all. By default, columns and values are in English; pass `--locales fr` for French.
 
 ## What the files hold
 
@@ -48,6 +48,69 @@ in all. The columns and their values are in French, as in a Quebec insurer.
 | Contract (9) | `id_contrat`, `type_contrat`, `date_debut`, `date_fin`, `statut_contrat`, `prime_annuelle`, `frequence_paiement`, `mode_paiement`, `agence_code` |
 | Record (2) | `date_creation`, `date_modification` |
 | Claim (3) | `date_reclamation`, `montant_reclamation`, `reclamation_status` |
+
+### Extended output profile
+
+Pass `--output-profile extended` to append 10 domain columns after the base
+columns:
+
+```console
+tabalyst generate --example insurance -d out/ --output-profile extended
+```
+
+| Group | Columns |
+| --- | --- |
+| Claim detail (4) | `date_sinistre`, `montant_couverture`, `franchise`, `montant_indemnise` |
+| Contract detail (2) | `date_resiliation`, `statut_paiement` |
+| Distribution (3) | `canal_acquisition`, `courtier_id`, `produit_code` |
+| Activity (1) | `nombre_reclamations` |
+
+Branch files have 43 columns; `insurance-combined.csv` keeps `filiale` in
+35th position and has 44 columns. The clean files enforce domain invariants:
+`date_sinistre` precedes `date_reclamation`, `montant_indemnise` never exceeds
+coverage minus deductible, `date_resiliation` exists only on cancelled
+contracts, and `courtier_id` is populated only when `canal_acquisition` is
+`courtier`.
+
+### Complete output profile
+
+Pass `--output-profile complete` to append tranche B and tranche C columns after the extended
+columns:
+
+```console
+tabalyst generate --example insurance -d out/ --output-profile complete
+```
+
+| Group | Columns |
+| --- | --- |
+| Tranche B (4) | `taux_remboursement`, `consentement_communication`, `gestionnaire_id`, `segment_client` |
+| Tranche C (3) | `date_observation`, `version_source`, `source_system` |
+
+Branch files have 50 columns; `insurance-combined.csv` has 51 columns (with `filiale`).
+All columns satisfy strict domain rules: `taux_remboursement` is a bounded decimal
+between `0.00` and `1.00`, `consentement_communication` is a boolean indicator,
+`gestionnaire_id` follows the `GES-XXX` pattern, `segment_client` belongs to
+`particulier`, `professionnel`, `entreprise` or `vip`, and tranche C captures
+software versions (`v1.0`, `v2.0`, `v2.1`) and origin IT systems (`SYS_PRI`, `SYS_QC`,
+`SYS_ON_CORE`, `SYS_ON_LEGACY`).
+
+### Locales and English default
+
+By default, Insurance generates English customer files (`insurance-main.csv`,
+English column headers, Anglo-Saxon demographics via CommonProvider, Mr./Ms. titles).
+Pass `--locales fr` to produce French files (`insurance-principal.csv`, French demographics):
+
+```console
+tabalyst generate --example insurance -d out/ --locales fr
+```
+
+Or `--locales en,fr` to write both variants. The `--english` option is retained as an alias for `--locales en`.
+Headers are translated (`customer_id`, `contract_id`, `branch`, `annual_premium`, etc.),
+and categorical values are adapted (`auto`, `home`, `life`, `travel` for contract types;
+`active`, `expired`, `suspended`, `cancelled` for statuses; `Mr.`, `Ms.` for honorifics).
+Relational table names also follow the locale (`customers.csv`, `contracts.csv`, `claims.csv`, `payments.csv`
+in English; `clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv` in French).
+The underlying random draws and entity properties remain deterministic.
 
 The values follow the rules of the domain, and the clean files hold no
 exception to them, so they can serve to test analyses across columns:
@@ -180,8 +243,62 @@ so the number of rows changed depends on the data. The summary gives it for
 every operation. The dates are replaced in the principal branch only, whose
 dates are ISO, so a broken rule never comes with a format defect.
 
+### Quality benchmark profiles
+
+Three scenario profiles provide controlled reference benchmarks for data quality analysis and sampling comparisons (minimum 10,000 rows):
+
+- `format_vs_business`: strictly equal counts of format variants/defects (500 cases) and business rule violations (500 cases), allowing detectors to compare format vs business sensitivity without class imbalance.
+- `anomaly_diversity`: broad coverage across all 6 categories (`format_variant`, `format_invalid`, `semantic_invalid`, `business_rule_violation`, `contextual_invalid`, `valid_atypical`) and 7 detector families.
+- `clustered_errors`: spatial, agency, and temporal error clusters (such as an Ontario system import batch failure with common `root_cause_id`), contrasted with diffuse anomalies across branches.
+
+```console
+tabalyst generate --example insurance -d out/ --anomaly-profile format_vs_business
+```
+
+### Multiple simultaneous profiles and profile catalog
+
+You can inspect all available anomaly profiles for Insurance (or any package) with `--list-profiles`:
+
+```console
+tabalyst generate --example insurance --list-profiles
+```
+
+You can also generate several anomaly profiles in a single command by passing comma-separated profile names with `-d`:
+
+```console
+tabalyst generate --example insurance -d out/ --anomaly-profile format_vs_business,anomaly_diversity
+```
+
+This generates independent altered files (`insurance-combined.format_vs_business.csv`, `insurance-combined.anomaly_diversity.csv`) and their respective isolated ground-truth suites.
+
+### Advanced scenario profiles
+
+Insurance V2 provides dedicated scenario profiles targeting specific quality and machine learning challenges (floor: 10,000 rows):
+
+- `missing_mechanisms`: Little & Rubin (1987) missingness models (MCAR, MAR conditioned on branches or recent years, MNAR on extreme claim and premium values) with documented reasons (`unreported`, `client_refusal`, `system_omission`, etc.).
+- `schema_drift`: IT migrations, historical tariff periods, and regulatory deductible floors across timeline windows.
+- `ml_fraud_imbalanced`: synthetic fraud patterns at 1%, 0.1% and 0.01% prevalence across 4 typologies without trivial artifacts, with label noise and delayed investigation labels (`ml_labels.csv`).
+- `ml_leakage_test`: intentional cross-contract, temporal, and shortcut leakage benchmarks with customer-grouped and temporal partition splits (`splits.csv`).
+- `ml_multitask`: comprehensive multi-target supervised benchmark combining claim occurrence, claim cost regression, and customer retention.
+- `technical_stress`: volumetric stress, multiline CSV text, complex Unicode, UUID high-cardinality columns, and extreme float precision.
+
+### Relational database generation
+
+Pass `--relational` with `-d` to generate a normalized 4-table relational database:
+
+```console
+tabalyst generate --example insurance -d out/ --relational
+```
+
+This publishes `clients.csv` (22 columns), `contrats.csv` (23 columns), `reclamations.csv` (7 columns), and `paiements.csv` (7 columns) alongside their table-specific ground-truth artifacts.
+
 ## Next steps
 
+- [Insurance ground truth files](insurance-ground-truth.md) explains the
+  scenario profiles, whose truth, rules, metrics and manifest files describe
+  exactly what a run injected.
+- [Insurance rare events](insurance-rare-events.md) describes `rare_events`,
+  a profile of exact, very rare cases for at least 100,000 rows.
 - [Tabalyst Generate](index.md) explains packages and how to write your own
   anomaly profile.
 - The [CLI reference](../reference/cli/generate.md) lists every option.

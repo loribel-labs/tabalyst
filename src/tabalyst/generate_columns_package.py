@@ -10,8 +10,10 @@ from typing import Any
 
 from tabalyst.errors import ConfigurationError
 from tabalyst.generate_definition import GenerateDefinition, validate_generate_mapping
+from tabalyst.generate_insurance import BRANCHES
 from tabalyst.generate_insurance import FIELDS as INSURANCE_FIELDS
 from tabalyst.generate_package import DatasetPackage, _relative, _yaml
+from tabalyst.generate_rules import RuleCatalogue, parse_catalogue
 
 
 # YAML schemas are validated at runtime, so nested operation values remain dynamic.
@@ -41,6 +43,28 @@ def _columns(package: DatasetPackage, name: object) -> list[dict[str, Any]]:
                 operation["provider"] = provider.split(".")[1]
             del operation["name"]
     return columns
+
+
+def load_rule_catalogue(package: DatasetPackage) -> RuleCatalogue | None:
+    """Return the rules catalogue a package declares with ``rules:``, or None.
+
+    Only the Insurance package may declare rules (``load_generate_package`` refuses them
+    elsewhere); its date formats must be those of its branches, the ones the generator writes.
+    """
+    source = package.root / "dataset.yaml"
+    if "rules" not in package.manifest:
+        return None
+    path = _relative(package.root, package.manifest["rules"], source)
+    try:
+        catalogue = parse_catalogue(_yaml(path))
+    except ValueError as exc:
+        raise ConfigurationError(f"PACKAGE_RULES: {path.name}: {exc}") from exc
+    expected = {branch: spec[2] for branch, spec in BRANCHES.items()}
+    if catalogue.conventions.date_format != expected:
+        raise ConfigurationError(
+            f"PACKAGE_RULES: {path.name}: conventions.date_format must be the date formats of "
+            f"the branches: {expected}")
+    return catalogue
 
 
 def load_columns_definition(package: DatasetPackage) -> GenerateDefinition:
@@ -80,15 +104,18 @@ def load_columns_definition(package: DatasetPackage) -> GenerateDefinition:
             raise ConfigurationError("PACKAGE_SCHEMA: expected column dataset or combine")
     anomaly_profiles = []
     for ident, profile in profiles.items():
-        if not isinstance(profile, dict) or set(profile) != {"targets", "operations"}:
+        if not isinstance(profile, dict) or not {"targets", "operations"} <= set(profile) <= {
+                "targets", "operations", "min_rows"}:
             raise ConfigurationError(f"PACKAGE_SCHEMA: invalid anomaly profile {ident}")
         anomaly_profiles.append({"id": ident, **profile})
     mapping = {"id": package.id, "defaults": {
         key: value for key, value in defaults.items() if key in {"seed", "as_of_date"}},
         "entities": resolved_entities, "cohorts": cohorts,
-        "datasets": resolved_datasets, "anomaly_profiles": anomaly_profiles}
+        "datasets": resolved_datasets, "anomaly_profiles": anomaly_profiles,
+        **({"output_profiles": manifest["output_profiles"]} if "output_profiles" in manifest else {})}
     # Scenario keys (Insurance V2) are the Insurance package's alone: any other refuses them.
-    definition = validate_generate_mapping(mapping, source, scenarios=package.id == "insurance")
+    definition = validate_generate_mapping(mapping, source, scenarios=package.id == "insurance",
+                                           rules=load_rule_catalogue(package))
     insurance_datasets = [dataset for dataset in resolved_datasets
                           if "columns" in dataset and any(
                               column["generate"]["kind"] == "insurance"

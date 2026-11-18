@@ -18,13 +18,20 @@ import yaml
 
 from tabalyst.errors import ConfigurationError
 from tabalyst.generate_anomalies import (
+    CONTEXTUAL_VALUES,
     FORMAT_VALUES,
     OPERATION_KEYS,
     OPERATION_KINDS,
     ROW_KINDS,
+    SCENARIO_KINDS,
     operation_option_error,
 )
-from tabalyst.generate_scenarios import foreign_scenario_key, profile_scenario_error
+from tabalyst.generate_rules import RuleCatalogue
+from tabalyst.generate_scenarios import (
+    foreign_scenario_key,
+    is_scenario_profile,
+    profile_scenario_error,
+)
 
 MAX_DATASETS = 64
 MAX_COLUMNS = 256
@@ -140,6 +147,8 @@ class GenerateDefinition:
     cohorts: tuple[dict[str, Any], ...]
     datasets: tuple[dict[str, Any], ...]
     anomaly_profiles: tuple[dict[str, Any], ...]
+    # The rules catalogue of the package, read by the scenario profiles (insurance-v2.md 5.3).
+    rules: RuleCatalogue | None = None
 
 
 def _fail(source: Path, value: Any, message: str) -> NoReturn:
@@ -543,28 +552,38 @@ def _columns(source: Path, value: Any, where: str) -> None:
                 _fail(source, generator, "decimal.by_month.from must be an ISO date or datetime column")
 
 
-def _dataset_column_names(dataset: dict, known: dict[str, dict], schemas: dict) -> set[str]:
+def _dataset_column_names(dataset: dict, known: dict[str, dict], schemas: dict,
+                          output_profiles: dict[str, Any] | None = None) -> set[str]:
     """Return the column names a dataset writes, the source column of a combine included."""
     if "combine" in dataset:
         first = known[dataset["combine"]["inputs"][0]]
         names = {c["name"] for c in (first.get("columns") or schemas[first["schema"]]["columns"])}
         if dataset["combine"].get("source_column"):
             names.add(dataset["combine"]["source_column"])
-        return names
-    return {c["name"] for c in (dataset.get("columns") or schemas[dataset["schema"]]["columns"])}
+    else:
+        names = {c["name"] for c in (dataset.get("columns") or schemas[dataset["schema"]]["columns"])}
+    if output_profiles and isinstance(output_profiles, dict):
+        for profile_cols in output_profiles.values():
+            if isinstance(profile_cols, list):
+                names.update(col for col in profile_cols if isinstance(col, str))
+    return names
 
 
-def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = False) -> GenerateDefinition:
+def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = False,
+                              rules: RuleCatalogue | None = None) -> GenerateDefinition:
     """Validate the normalized column model assembled from a package.
 
     ``scenarios`` allows the scenario keys of Insurance V2 on profile operations (contract
     insurance-v2.md 4.1): only the Insurance package asks for it, so any other package that
-    carries one is refused, never ignored.
+    carries one is refused, never ignored. A scenario profile needs ``rules``, the catalogue
+    of its package (5.3): every ``rule_id`` it names must be there, and each target must have
+    the branch column of the catalogue and the columns of the rules the profile names.
     """
     root = _mapping(source, root, "definition", {
         "id", "defaults", "csv", "schemas", "entities",
-        "cohorts", "datasets", "anomaly_profiles",
+        "cohorts", "datasets", "anomaly_profiles", "output_profiles",
     })
+    output_profiles = root.get("output_profiles")
     identifier = _id(source, root.get("id"), "definition id")
     defaults = _mapping(source, root.get("defaults", {}), "defaults", {"seed", "as_of_date"})
     if "seed" in defaults and type(defaults["seed"]) is not int:
@@ -695,7 +714,7 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
     profiles = _list(source, root.get("anomaly_profiles", []), "anomaly_profiles", MAX_PROFILES)
     seen_profiles: set[str] = set()
     for item in profiles:
-        _mapping(source, item, "anomaly profile", {"id", "targets", "operations"})
+        _mapping(source, item, "anomaly profile", {"id", "targets", "operations", "min_rows"})
         name = _id(source, item.get("id"), "profile id")
         if name in seen_profiles:
             _fail(source, item, f"duplicate profile id {name!r}")
@@ -710,8 +729,13 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
                 _fail(source, operation,
                       f"profile {name}: operations[{position}]: operation.{foreign} "
                       f"is not supported by the {root.get('id')} package (scenario keys are for Insurance)")
-            if not isinstance(operation.get("kind"), str) or operation["kind"] not in OPERATION_KINDS:
+            if not isinstance(operation.get("kind"), str) or operation["kind"] not in (
+                    OPERATION_KINDS | (SCENARIO_KINDS if scenarios else frozenset())):
                 _fail(source, operation, "unknown anomaly operation kind")
+            if operation["kind"] in SCENARIO_KINDS and "scenario_id" not in operation:
+                _fail(source, operation, f"profile {name}: operations[{position}]: kind "
+                                         f"{operation['kind']} needs operation.scenario_id "
+                                         "(it is a scenario profile kind)")
             column = operation.get("column")
             if operation["kind"] not in ROW_KINDS and (
                     not isinstance(column, str) or not COLUMN_NAME.fullmatch(column)):
@@ -720,31 +744,91 @@ def validate_generate_mapping(root: Any, source: Path, *, scenarios: bool = Fals
             if problem is not None:
                 _fail(source, operation, f"profile {name}: operations[{position}]: {problem}")
             value = operation.get("value")
-            if operation["kind"] in {"replace", "format", "swap"} and not isinstance(value, str):
+            if operation["kind"] in {"replace", "format", "swap", "copy_column"} and not isinstance(
+                    value, str):
                 _fail(source, operation, "operation.value must be text")
             if operation["kind"] in {"set_missing", "duplicate"} and "value" in operation:
                 _fail(source, operation, "operation.value is unused for this kind")
-            if operation["kind"] == "format" and value not in {*FORMAT_VALUES, "unit_gb"}:
+            contextual = CONTEXTUAL_VALUES if "scenario_id" in operation else frozenset()
+            if operation["kind"] == "format" and value not in {
+                    *FORMAT_VALUES, "unit_gb", *contextual}:
                 _fail(source, operation, "unknown format mutation")
             if "when" in operation and (not isinstance(operation["when"], dict)
-                or len(operation["when"]) != 1 or any(not isinstance(k, str) or not isinstance(v, str)
+                or len(operation["when"]) < 1 or any(not isinstance(k, str) or not isinstance(v, str)
                                                  for k, v in operation["when"].items())):
-                _fail(source, operation, "operation.when must map one column to text")
+                _fail(source, operation, "operation.when must map columns to text")
             for target in targets:
-                names = _dataset_column_names(known[target], known, schemas)
+                names = _dataset_column_names(known[target], known, schemas, output_profiles)
                 required = {column} if column is not None else set()
-                if operation["kind"] == "swap":
+                if operation["kind"] in {"swap", "copy_column"}:
                     required.add(value)
                     if value == column:
-                        _fail(source, operation, "swap requires two different columns")
+                        _fail(source, operation,
+                              f"{operation['kind']} requires two different columns")
                 required.update(operation.get("when", {}))
                 if not required <= names:
                     _fail(source, operation, f"operation references unknown column in {target}")
+        if "min_rows" in item:
+            _check_min_rows(source, item, name, operations)
         for target in targets:
             problem = profile_scenario_error(operations, _dataset_column_names(known[target], known, schemas))
             if problem is not None:
                 _fail(source, item, f"profile {name}: {problem}")
+        if is_scenario_profile(operations):
+            _check_profile_rules(source, item, name, operations, rules,
+                                 {target: _dataset_column_names(known[target], known, schemas, output_profiles)
+                                  for target in targets})
     return GenerateDefinition(
         source, identifier, defaults, csv_settings, schemas, tuple(entities),
-        tuple(cohorts), tuple(datasets), tuple(profiles),
+        tuple(cohorts), tuple(datasets), tuple(profiles), rules,
     )
+
+
+def _check_min_rows(source: Path, item: dict[str, Any], name: str,
+                    operations: list[dict[str, Any]]) -> None:
+    """Refuse a floor on the rows that a profile cannot honor (contract insurance-v2.md 6.1).
+
+    Only a scenario profile has one, and it is at least the largest total of its scenarios:
+    a lower floor would let a run through that the counts then refuse.
+    """
+    floor = item["min_rows"]
+    if not is_scenario_profile(operations):
+        _fail(source, item, f"profile {name}: min_rows is for a scenario profile "
+                            "(an operation declares scenario_id)")
+    totals: dict[str, int] = {}
+    for operation in operations:
+        if "count" in operation:
+            scenario = operation["scenario_id"]
+            totals[scenario] = totals.get(scenario, 0) + operation["count"]
+    largest = max(totals.values(), default=1)
+    if type(floor) is not int or floor < largest:
+        _fail(source, item, f"profile {name}: min_rows must be a whole number of rows of at "
+                            f"least the largest total of its scenarios ({largest})")
+
+
+def _check_profile_rules(source: Path, item: dict[str, Any], name: str,
+                         operations: list[dict[str, Any]], rules: RuleCatalogue | None,
+                         columns: dict[str, set[str]]) -> None:
+    """Refuse a scenario profile whose truth could not be written (contract insurance-v2.md 5)."""
+    if rules is None:
+        _fail(source, item, f"profile {name}: a scenario profile needs the rules catalogue of "
+                            "its package (rules: in dataset.yaml)")
+    catalogue = rules.by_id()
+    for position, operation in enumerate(operations, 1):
+        rule_id = operation.get("rule_id")
+        if rule_id is not None and rule_id not in catalogue:
+            _fail(source, operation, f"profile {name}: operations[{position}]: rule_id "
+                                     f"{rule_id} is not a rule of the package "
+                                     f"(known: {', '.join(catalogue)})")
+    used = {operation["rule_id"] for operation in operations if "rule_id" in operation}
+    branch = rules.conventions.branch_column
+    for target, names in columns.items():
+        if branch not in names:
+            _fail(source, item, f"profile {name}: target {target} has no {branch} column; a "
+                                "scenario profile reads every date with the convention of its "
+                                "row's branch")
+        for rule in rules.rules:
+            missing = sorted(set(rule.columns) - names) if rule.id in used else []
+            if missing:
+                _fail(source, item, f"profile {name}: rule {rule.id} reads {missing[0]!r}, "
+                                    f"which {target} does not have")

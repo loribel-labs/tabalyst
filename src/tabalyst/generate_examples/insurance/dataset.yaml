@@ -3,6 +3,7 @@ format_version: 0.1.0
 id: insurance
 package_version: 0.1.0
 catalog: catalog.yaml
+rules: rules.yaml
 defaults:
   rows: 275000
   seed: 20260916
@@ -33,6 +34,136 @@ datasets:
   - insurance-ontario
   - insurance-quebec
   source_column: filiale
+output_profiles:
+  default:
+  - id_client
+  - civilite
+  - prenom
+  - nom
+  - date_naissance
+  - sexe
+  - langue_preferee
+  - numero_voie
+  - type_voie
+  - nom_voie
+  - orientation
+  - appartement
+  - ville
+  - province_code
+  - province_nom
+  - code_postal
+  - pays_code
+  - courriel
+  - telephone
+  - id_contrat
+  - type_contrat
+  - date_debut
+  - date_fin
+  - statut_contrat
+  - prime_annuelle
+  - frequence_paiement
+  - mode_paiement
+  - agence_code
+  - date_creation
+  - date_modification
+  - date_reclamation
+  - montant_reclamation
+  - reclamation_status
+  extended:
+  - id_client
+  - civilite
+  - prenom
+  - nom
+  - date_naissance
+  - sexe
+  - langue_preferee
+  - numero_voie
+  - type_voie
+  - nom_voie
+  - orientation
+  - appartement
+  - ville
+  - province_code
+  - province_nom
+  - code_postal
+  - pays_code
+  - courriel
+  - telephone
+  - id_contrat
+  - type_contrat
+  - date_debut
+  - date_fin
+  - statut_contrat
+  - prime_annuelle
+  - frequence_paiement
+  - mode_paiement
+  - agence_code
+  - date_creation
+  - date_modification
+  - date_reclamation
+  - montant_reclamation
+  - reclamation_status
+  - date_sinistre
+  - montant_couverture
+  - franchise
+  - montant_indemnise
+  - date_resiliation
+  - statut_paiement
+  - canal_acquisition
+  - courtier_id
+  - produit_code
+  - nombre_reclamations
+  complete:
+  - id_client
+  - civilite
+  - prenom
+  - nom
+  - date_naissance
+  - sexe
+  - langue_preferee
+  - numero_voie
+  - type_voie
+  - nom_voie
+  - orientation
+  - appartement
+  - ville
+  - province_code
+  - province_nom
+  - code_postal
+  - pays_code
+  - courriel
+  - telephone
+  - id_contrat
+  - type_contrat
+  - date_debut
+  - date_fin
+  - statut_contrat
+  - prime_annuelle
+  - frequence_paiement
+  - mode_paiement
+  - agence_code
+  - date_creation
+  - date_modification
+  - date_reclamation
+  - montant_reclamation
+  - reclamation_status
+  - date_sinistre
+  - montant_couverture
+  - franchise
+  - montant_indemnise
+  - date_resiliation
+  - statut_paiement
+  - canal_acquisition
+  - courtier_id
+  - produit_code
+  - nombre_reclamations
+  - taux_remboursement
+  - consentement_communication
+  - gestionnaire_id
+  - segment_client
+  - date_observation
+  - version_source
+  - source_system
 anomaly_profiles:
   dirty_realistic:
     targets:
@@ -660,3 +791,1248 @@ anomaly_profiles:
       rate: 0.003
       when: {frequence_paiement: "mensuelle"}
       class: payment_vs_frequency
+  # Rare events of Insurance V2 (contract docs/dev/generate/insurance-v2.md 6.2): one scenario
+  # per case, exact counts that do not follow the file size, 34 columns. Below min_rows the
+  # run is refused: a 500-case scenario must stay at 0.5 percent of the file at most.
+  rare_events:
+    targets:
+    - insurance-combined
+    min_rows: 100000
+    operations:
+    - kind: reuse_value
+      column: id_contrat
+      count: 1
+      scenario_id: R01
+      rule_id: M21
+      category: business_rule_violation
+      severity: critical
+      rarity_level: single
+      expected_detection: uniqueness
+      description: A contract identifier reused on a second contract
+    - kind: format
+      column: date_naissance
+      value: date_plus_century
+      count: 5
+      scenario_id: R02
+      rule_id: M04
+      category: semantic_invalid
+      severity: major
+      rarity_level: extremely_rare
+      expected_detection: domain
+      description: A birth date a century later, so in the future
+    - kind: replace
+      column: montant_indemnise
+      value: "-500.00"
+      count: 5
+      when: {reclamation_status: "fermé"}
+      scenario_id: R03
+      rule_id: M10
+      category: semantic_invalid
+      severity: major
+      rarity_level: extremely_rare
+      expected_detection: domain
+      description: A negative indemnity amount
+    - kind: format
+      column: date_sinistre
+      value: date_minus_decade
+      count: 10
+      when: {reclamation_status: "fermé"}
+      scenario_id: R04
+      rule_id: M08
+      category: business_rule_violation
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: A claim event date preceding the contract start date
+    - kind: format
+      column: prime_annuelle
+      value: times_100
+      count: 20
+      scenario_id: R05
+      category: semantic_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: An annual premium multiplied by 100
+    - kind: format
+      column: date_debut
+      value: date_dmy
+      count: 10
+      when: {filiale: "principal"}
+      scenario_id: R06
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: contextual
+      description: A start date written in the convention of another branch
+    - kind: format
+      column: date_debut
+      value: date_mdy_iso
+      count: 8
+      when: {filiale: "ontario"}
+      scenario_id: R06
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: contextual
+      description: A start date written in the convention of another branch
+    - kind: format
+      column: date_debut
+      value: date_iso
+      count: 7
+      when: {filiale: "quebec"}
+      scenario_id: R06
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: contextual
+      description: A start date written in the convention of another branch
+    - kind: format
+      column: code_postal
+      value: postal_other_province
+      count: 50
+      requires: [province_code]
+      scenario_id: R07
+      rule_id: M19
+      category: business_rule_violation
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: A postal code of another province than the customer's
+    - kind: swap
+      column: date_debut
+      value: date_fin
+      count: 50
+      when: {date_reclamation: ""}
+      scenario_id: R08
+      rule_id: M01
+      category: business_rule_violation
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: A contract ending before it starts
+    - kind: replace
+      column: montant_indemnise
+      value: "9999999.00"
+      count: 100
+      when: {reclamation_status: "fermé"}
+      scenario_id: R09
+      rule_id: M11
+      category: business_rule_violation
+      severity: major
+      rarity_level: rare
+      expected_detection: cross_column
+      description: An indemnity amount exceeding the coverage cap
+    - kind: replace
+      column: prime_annuelle
+      value: "N/A"
+      count: 50
+      scenario_id: R10
+      category: format_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: syntactic
+      description: An annual premium replaced by text
+    - kind: replace
+      column: prime_annuelle
+      value: "inconnu"
+      count: 30
+      scenario_id: R10
+      category: format_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: syntactic
+      description: An annual premium replaced by text
+    - kind: replace
+      column: prime_annuelle
+      value: "à venir"
+      count: 20
+      scenario_id: R10
+      category: format_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: syntactic
+      description: An annual premium replaced by text
+    - kind: replace
+      column: statut_contrat
+      value: "inconnu"
+      count: 100
+      scenario_id: R11
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: uncommon
+      expected_detection: domain
+      description: A contract status that is not one of the four statuses
+    - kind: replace
+      column: statut_contrat
+      value: "en attente"
+      count: 80
+      scenario_id: R11
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: uncommon
+      expected_detection: domain
+      description: A contract status that is not one of the four statuses
+    - kind: replace
+      column: statut_contrat
+      value: "annulé"
+      count: 70
+      scenario_id: R11
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: uncommon
+      expected_detection: domain
+      description: A contract status that is not one of the four statuses
+    - kind: replace
+      column: agence_code
+      value: "AG-ON-001"
+      count: 300
+      when: {filiale: "principal"}
+      scenario_id: R12
+      rule_id: M20
+      category: business_rule_violation
+      severity: major
+      rarity_level: uncommon
+      expected_detection: cross_column
+      description: An agency code that belongs to another branch
+    - kind: replace
+      column: agence_code
+      value: "AG-QC-001"
+      count: 100
+      when: {filiale: "ontario"}
+      scenario_id: R12
+      rule_id: M20
+      category: business_rule_violation
+      severity: major
+      rarity_level: uncommon
+      expected_detection: cross_column
+      description: An agency code that belongs to another branch
+    - kind: replace
+      column: agence_code
+      value: "AG-PR-001"
+      count: 100
+      when: {filiale: "quebec"}
+      scenario_id: R12
+      rule_id: M20
+      category: business_rule_violation
+      severity: major
+      rarity_level: uncommon
+      expected_detection: cross_column
+      description: An agency code that belongs to another branch
+    - kind: copy_column
+      column: date_fin
+      value: date_debut
+      count: 100
+      when: {statut_contrat: "expiré"}
+      scenario_id: B01
+      rule_id: M01
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: A contract that ends the day it starts, which M01 allows
+    - kind: copy_column
+      column: date_modification
+      value: date_creation
+      count: 100
+      when: {date_reclamation: ""}
+      scenario_id: B02
+      rule_id: M02
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: A record modified the day it was created, which M02 allows
+    - kind: copy_column
+      column: montant_indemnise
+      value: montant_couverture
+      count: 100
+      when: {reclamation_status: "fermé"}
+      scenario_id: B03
+      rule_id: M11
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: An indemnity amount exactly equal to the coverage cap, which M11 allows
+  format_vs_business:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: format
+      column: telephone
+      value: phone_spaces
+      count: 250
+      scenario_id: FB_F01
+      category: format_variant
+      severity: minor
+      rarity_level: uncommon
+      expected_detection: syntactic
+      description: Phone numbers with spacing variants
+    - kind: format
+      column: code_postal
+      value: postal_no_space
+      count: 250
+      scenario_id: FB_F02
+      category: format_variant
+      severity: minor
+      rarity_level: uncommon
+      expected_detection: syntactic
+      description: Postal codes without space separator
+    - kind: swap
+      column: date_debut
+      value: date_fin
+      count: 250
+      when: {date_reclamation: ""}
+      scenario_id: FB_B01
+      rule_id: M01
+      category: business_rule_violation
+      severity: major
+      rarity_level: uncommon
+      expected_detection: cross_column
+      description: Contract end date before start date
+    - kind: replace
+      column: statut_contrat
+      value: "inconnu"
+      count: 250
+      scenario_id: FB_B02
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: uncommon
+      expected_detection: domain
+      description: Contract status outside allowed referential
+  anomaly_diversity:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: format
+      column: nom
+      value: upper
+      count: 100
+      scenario_id: AD_FVAR
+      category: format_variant
+      severity: info
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Uppercase representation of customer last names
+    - kind: format
+      column: telephone
+      value: phone_drop_digit
+      count: 100
+      scenario_id: AD_FINV
+      category: format_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Phone numbers missing a trailing digit
+    - kind: replace
+      column: statut_contrat
+      value: "inconnu"
+      count: 100
+      scenario_id: AD_SEMINV
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: domain
+      description: Unknown contract status violating domain referential
+    - kind: swap
+      column: date_debut
+      value: date_fin
+      count: 100
+      when: {date_reclamation: ""}
+      scenario_id: AD_BIZVIOL
+      rule_id: M01
+      category: business_rule_violation
+      severity: major
+      rarity_level: rare
+      expected_detection: cross_column
+      description: Inverted contract start and end dates
+    - kind: format
+      column: date_debut
+      value: date_mdy_iso
+      count: 100
+      when: {filiale: "ontario"}
+      scenario_id: AD_CTXINV
+      category: contextual_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: contextual
+      description: Ontario date written in ISO format breaking branch convention
+    - kind: copy_column
+      column: date_fin
+      value: date_debut
+      count: 100
+      when: {statut_contrat: "expiré"}
+      scenario_id: AD_ATYP
+      rule_id: M01
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: Valid edge case of contract ending on its start date
+    - kind: format
+      column: prime_annuelle
+      value: times_100
+      count: 100
+      scenario_id: AD_STAT
+      category: semantic_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: statistical
+      description: Outlier annual premiums multiplied by 100
+    - kind: reuse_value
+      column: id_contrat
+      count: 1
+      scenario_id: AD_UNIQ
+      rule_id: M21
+      category: business_rule_violation
+      severity: critical
+      rarity_level: single
+      expected_detection: uniqueness
+      description: Duplicated contract identifier breaking uniqueness
+  clustered_errors:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: format
+      column: date_debut
+      value: date_swap_month_day
+      count: 150
+      when: {filiale: "ontario"}
+      can_overlap: true
+      root_cause_id: "ontario_import"
+      scenario_id: CE_ON_DATE
+      category: contextual_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: contextual
+      description: Ontario batch import swapped month and day in dates
+    - kind: format
+      column: prime_annuelle
+      value: decimal_comma
+      count: 150
+      when: {filiale: "ontario"}
+      can_overlap: true
+      root_cause_id: "ontario_import"
+      scenario_id: CE_ON_AMOUNT
+      category: format_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Ontario batch import localized decimal commas in premiums
+    - kind: format
+      column: telephone
+      value: phone_drop_digit
+      count: 150
+      when: {filiale: "ontario"}
+      can_overlap: true
+      root_cause_id: "ontario_import"
+      scenario_id: CE_ON_PHONE
+      category: format_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Ontario batch import truncated phone numbers
+    - kind: replace
+      column: pays_code
+      value: "USA"
+      count: 100
+      when: {agence_code: "AG-QC-001"}
+      scenario_id: CE_AGENCY
+      category: semantic_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: domain
+      description: Agency AG-QC-001 misconfigured country code
+    - kind: replace
+      column: statut_contrat
+      value: "annulé"
+      count: 100
+      when: {reclamation_status: "fermé"}
+      scenario_id: CE_PERIOD
+      rule_id: M23
+      category: semantic_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: domain
+      description: Closed claims with contract marked cancelled
+    - kind: format
+      column: nom
+      value: upper
+      count: 200
+      scenario_id: CE_DIFFUSE
+      category: format_variant
+      severity: info
+      rarity_level: uncommon
+      expected_detection: syntactic
+      description: Uniformly distributed name casing across all branches
+  missing_mechanisms:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: set_missing
+      column: prime_annuelle
+      count: 200
+      scenario_id: MM_MCAR_PREM
+      missing_mechanism: mcar
+      missing_reason: unreported
+      category: semantic_invalid
+      severity: minor
+      rarity_level: uncommon
+      expected_detection: statistical
+      description: Completely random missing premiums across all branches
+    - kind: set_missing
+      column: courriel
+      count: 150
+      when: {filiale: "ontario"}
+      scenario_id: MM_MAR_BRANCH
+      missing_mechanism: mar
+      missing_reason: client_refusal
+      category: semantic_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: domain
+      description: Missing emails driven by Ontario branch customer privacy refusal
+    - kind: set_missing
+      column: telephone
+      count: 100
+      when: {agence_code: "AG-QC-001"}
+      scenario_id: MM_MAR_AGENCY
+      missing_mechanism: mar
+      missing_reason: system_omission
+      category: semantic_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: domain
+      description: Agency AG-QC-001 system transmission failure dropping phone numbers
+    - kind: set_missing
+      column: code_postal
+      count: 100
+      when: {date_creation: ">=2024-01-01"}
+      scenario_id: MM_MAR_PERIOD
+      missing_mechanism: mar
+      missing_reason: unreported
+      category: semantic_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: domain
+      description: Recent contract registrations omitting postal codes
+    - kind: set_missing
+      column: prime_annuelle
+      count: 100
+      when: {prime_annuelle: ">=1500"}
+      scenario_id: MM_MNAR_PREM
+      missing_mechanism: mnar
+      missing_reason: client_refusal
+      category: semantic_invalid
+      severity: major
+      rarity_level: rare
+      expected_detection: statistical
+      description: High-value policyholders refusing to disclose annual premium
+    - kind: set_missing
+      column: montant_reclamation
+      count: 50
+      when: {montant_reclamation: ">=5000"}
+      scenario_id: MM_MNAR_CLAIM
+      missing_mechanism: mnar
+      missing_reason: unknown
+      category: semantic_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Severe open claims with pending unquantified loss amounts
+    - kind: set_missing
+      column: langue_preferee
+      count: 100
+      when: {filiale: "principal"}
+      scenario_id: MM_OPT_LANG
+      missing_mechanism: mar
+      missing_reason: not_applicable
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: Preferred language omission considered optional valid atypical in Principal branch
+  schema_drift:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: replace
+      column: source_system
+      value: SYS_ON_LEGACY
+      count: 100
+      when: {filiale: "ontario", source_system: "SYS_ON_CORE"}
+      scenario_id: SD_SYS_MIG
+      rule_id: M27
+      category: business_rule_violation
+      severity: critical
+      rarity_level: rare
+      expected_detection: contextual|cross_column
+      description: Deprecated legacy source system appearing on Ontario contracts after core migration
+    - kind: replace
+      column: version_source
+      value: v1.0
+      count: 100
+      when: {version_source: "v2.0"}
+      scenario_id: SD_VER_MIG
+      rule_id: M26
+      category: business_rule_violation
+      severity: major
+      rarity_level: rare
+      expected_detection: contextual|cross_column
+      description: Obsolete schema version v1.0 persisting on post-2024 contract records
+    - kind: replace
+      column: franchise
+      value: "250.00"
+      count: 100
+      when: {type_contrat: "habitation", version_source: "v2.1"}
+      scenario_id: SD_DEDUCT_REG
+      rule_id: M30
+      category: business_rule_violation
+      severity: major
+      rarity_level: rare
+      expected_detection: contextual|cross_column
+      description: Home insurance policy breaching post-2025 regulatory minimum deductible floor
+    - kind: replace
+      column: date_observation
+      value: "2020-01-01"
+      count: 50
+      when: {filiale: "principal", version_source: "v2.0"}
+      scenario_id: SD_OBS_ANACH
+      rule_id: M28
+      category: business_rule_violation
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: Historical snapshot observation date predating contract creation timestamp
+    - kind: replace
+      column: version_source
+      value: v2.0
+      count: 50
+      when: {version_source: "v1.0"}
+      scenario_id: SD_VER_PREMAT
+      rule_id: M29
+      category: business_rule_violation
+      severity: major
+      rarity_level: very_rare
+      expected_detection: contextual|cross_column
+      description: Premature v2.0 schema version label appearing on legacy historical records
+    - kind: format
+      column: telephone
+      value: phone_drop_digit
+      count: 100
+      when: {filiale: "ontario", source_system: "SYS_ON_CORE"}
+      scenario_id: SD_FMT_MIG
+      category: format_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Phone number truncation defect introduced by Ontario legacy migration script
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 200
+      when: {canal_acquisition: "courtier"}
+      scenario_id: SD_CHAN_DRIFT
+      category: valid_atypical
+      severity: info
+      rarity_level: uncommon
+      expected_detection: none
+      description: Rapid digital transformation surge concentrating acquisitions on web channel
+    - kind: replace
+      column: franchise
+      value: "250.00"
+      count: 100
+      when: {type_contrat: "auto", version_source: "v1.0"}
+      scenario_id: SD_LEGACY_VAL
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: Historical 250 deductible contract grandfathered under pre-2025 insurance rules
+  ml_fraud_imbalanced:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 20
+      when: {canal_acquisition: "agence"}
+      can_overlap: true
+      scenario_id: ML04_PHANTOM
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Synthetic phantom claims declared rapidly via online self-service channel
+    - kind: replace
+      column: franchise
+      value: "500.00"
+      count: 20
+      when: {type_contrat: "auto"}
+      can_overlap: true
+      scenario_id: ML04_INFLATED
+      fraud_type: inflated_claim
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Inflated claim damages exaggerated towards coverage ceilings
+    - kind: replace
+      column: courtier_id
+      value: CRT-0042
+      count: 14
+      when: {canal_acquisition: "courtier"}
+      can_overlap: true
+      scenario_id: ML04_COLLUSION
+      fraud_type: collusion
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Collusive network concentrating abnormal claim rates on broker CRT-0042
+    - kind: replace
+      column: agence_code
+      value: AG-QC-001
+      count: 10
+      when: {filiale: "quebec"}
+      can_overlap: true
+      scenario_id: ML04_ORGANIZED
+      fraud_type: organized_fraud
+      category: contextual_invalid
+      severity: critical
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: Coordinated fraud ring with clustered claims across related policies in agency AG-QC-001
+    - kind: replace
+      column: courtier_id
+      value: CRT-0099
+      count: 10
+      when: {canal_acquisition: "courtier"}
+      can_overlap: true
+      scenario_id: ML02_RARE_01PCT
+      fraud_type: collusion
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Rare collusion fraud pattern exhibiting 0.1 percent prevalence (10 cases)
+    - kind: replace
+      column: agence_code
+      value: AG-PRI-001
+      count: 1
+      when: {filiale: "principal"}
+      can_overlap: true
+      scenario_id: ML03_EXTREME
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: critical
+      rarity_level: single
+      expected_detection: statistical
+      description: Extremely rare synthetic phantom fraud at 0.01 percent prevalence (1 case)
+    - kind: replace
+      column: canal_acquisition
+      value: direct
+      count: 10
+      when: {filiale: "ontario"}
+      can_overlap: true
+      scenario_id: ML05_HARD_CASES
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Subtle borderline fraud cases closely overlapping normal policyholder profiles
+    - kind: replace
+      column: agence_code
+      value: AG-QC-001
+      count: 40
+      when: {filiale: "quebec"}
+      can_overlap: true
+      scenario_id: ML06_FALSE_POS
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Legitimate policyholders flagged by naive statistical thresholds (plausible false positives)
+    - kind: replace
+      column: statut_paiement
+      value: payé
+      count: 10
+      when: {statut_contrat: "actif"}
+      can_overlap: true
+      scenario_id: ML07_LABEL_NOISE
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Noisy operational ground truth tracking with inverted or misclassified investigation labels
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 15
+      when: {statut_paiement: "payé"}
+      can_overlap: true
+      scenario_id: ML08_DELAYED
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Open claims with pending investigations lacking confirmed operational labels at observation date
+    - kind: replace
+      column: franchise
+      value: "1000.00"
+      count: 50
+      when: {canal_acquisition: "courtier"}
+      can_overlap: true
+      scenario_id: ML20_ATYPICAL
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Valid atypical policyholder choices benchmarked for unsupervised anomaly detection
+  ml_leakage_test:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 100
+      when: {date_creation: ">=2024-01-01"}
+      can_overlap: true
+      scenario_id: ML13_DRIFT
+      category: contextual_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: statistical
+      description: Behavioral drift accelerating shift to online web declarations post-2024
+    - kind: replace
+      column: produit_code
+      value: VOY_MULTI
+      count: 25
+      when: {type_contrat: "voyage", date_creation: ">=2024-01-01"}
+      can_overlap: true
+      scenario_id: ML14_UNSEEN
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Unseen product category VOY_MULTI absent from pre-2024 historical training partition
+    - kind: format
+      column: nom
+      value: upper
+      count: 50
+      when: {statut_contrat: "actif"}
+      can_overlap: true
+      scenario_id: ML15_LEAK
+      category: format_variant
+      severity: info
+      rarity_level: very_rare
+      expected_detection: syntactic
+      description: Multi-contract insured identity susceptible to data leakage across naive splits
+    - kind: replace
+      column: statut_paiement
+      value: payé
+      count: 30
+      when: {reclamation_status: "fermé"}
+      can_overlap: true
+      scenario_id: ML16_POST_LEAK
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: Post-claim administrative payment status update leaking claim occurrence
+    - kind: replace
+      column: prime_annuelle
+      value: "877.00"
+      count: 20
+      when: {type_contrat: "auto"}
+      can_overlap: true
+      scenario_id: ML17_SHORTCUT
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Artificial shortcut feature pattern correlated with identifier suffix
+    - kind: replace
+      column: agence_code
+      value: AG-ONT-001
+      count: 40
+      when: {filiale: "ontario"}
+      can_overlap: true
+      scenario_id: ML18_IMBALANCE
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Branch-level class distribution skew concentrating elevated claim rates in Ontario
+    - kind: set_missing
+      column: date_naissance
+      count: 30
+      when: {filiale: "quebec", statut_contrat: "actif"}
+      can_overlap: true
+      scenario_id: ML19_MISSING
+      missing_mechanism: mar
+      missing_reason: unreported
+      category: semantic_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Segment-conditioned missing demographic feature benchmarked for incomplete learning
+  ml_multitask:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 20
+      when: {canal_acquisition: "agence"}
+      can_overlap: true
+      scenario_id: ML04_PHANTOM
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Synthetic phantom claims declared rapidly via online self-service channel
+    - kind: replace
+      column: franchise
+      value: "500.00"
+      count: 20
+      when: {type_contrat: "auto"}
+      can_overlap: true
+      scenario_id: ML04_INFLATED
+      fraud_type: inflated_claim
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Inflated claim damages exaggerated towards coverage ceilings
+    - kind: replace
+      column: courtier_id
+      value: CRT-0042
+      count: 14
+      when: {canal_acquisition: "courtier"}
+      can_overlap: true
+      conflicts_with: [ML02_RARE_01PCT]
+      scenario_id: ML04_COLLUSION
+      fraud_type: collusion
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Collusive network concentrating abnormal claim rates on broker CRT-0042
+    - kind: replace
+      column: agence_code
+      value: AG-QC-001
+      count: 10
+      when: {filiale: "quebec"}
+      can_overlap: true
+      scenario_id: ML04_ORGANIZED
+      fraud_type: organized_fraud
+      category: contextual_invalid
+      severity: critical
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: Coordinated fraud ring with clustered claims across related policies in agency AG-QC-001
+    - kind: replace
+      column: courtier_id
+      value: CRT-0099
+      count: 10
+      when: {canal_acquisition: "courtier"}
+      can_overlap: true
+      scenario_id: ML02_RARE_01PCT
+      fraud_type: collusion
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Rare collusion fraud pattern exhibiting 0.1 percent prevalence (10 cases)
+    - kind: replace
+      column: agence_code
+      value: AG-PRI-001
+      count: 1
+      when: {filiale: "principal"}
+      can_overlap: true
+      scenario_id: ML03_EXTREME
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: critical
+      rarity_level: single
+      expected_detection: statistical
+      description: Extremely rare synthetic phantom fraud at 0.01 percent prevalence (1 case)
+    - kind: replace
+      column: canal_acquisition
+      value: direct
+      count: 10
+      when: {filiale: "ontario"}
+      can_overlap: true
+      scenario_id: ML05_HARD_CASES
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Subtle borderline fraud cases closely overlapping normal policyholder profiles
+    - kind: replace
+      column: agence_code
+      value: AG-QC-001
+      count: 40
+      when: {filiale: "quebec"}
+      can_overlap: true
+      conflicts_with: [ML04_ORGANIZED]
+      scenario_id: ML06_FALSE_POS
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Legitimate policyholders flagged by naive statistical thresholds (plausible false positives)
+    - kind: replace
+      column: statut_paiement
+      value: payé
+      count: 10
+      when: {statut_contrat: "actif"}
+      can_overlap: true
+      scenario_id: ML07_LABEL_NOISE
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Noisy operational ground truth tracking with inverted or misclassified investigation labels
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 15
+      when: {statut_paiement: "payé"}
+      can_overlap: true
+      scenario_id: ML08_DELAYED
+      fraud_type: phantom_claim
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Open claims with pending investigations lacking confirmed operational labels at observation date
+    - kind: replace
+      column: franchise
+      value: "1000.00"
+      count: 50
+      when: {canal_acquisition: "courtier"}
+      can_overlap: true
+      conflicts_with: [ML04_INFLATED]
+      scenario_id: ML20_ATYPICAL
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Valid atypical policyholder choices benchmarked for unsupervised anomaly detection
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 100
+      when: {date_creation: ">=2024-01-01"}
+      can_overlap: true
+      conflicts_with: [ML04_PHANTOM, ML05_HARD_CASES, ML08_DELAYED]
+      scenario_id: ML13_DRIFT
+      category: contextual_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: statistical
+      description: Behavioral acquisition channel drift towards web self-service post-2024
+    - kind: replace
+      column: produit_code
+      value: VOY_MULTI
+      count: 25
+      when: {type_contrat: "voyage", date_creation: ">=2024-01-01"}
+      can_overlap: true
+      scenario_id: ML14_UNSEEN
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Unseen product category VOY_MULTI absent from pre-2024 historical training partition
+    - kind: format
+      column: nom
+      value: upper
+      count: 50
+      when: {statut_contrat: "actif"}
+      can_overlap: true
+      scenario_id: ML15_LEAK
+      category: format_variant
+      severity: info
+      rarity_level: very_rare
+      expected_detection: syntactic
+      description: Multi-contract insured identity susceptible to data leakage across naive splits
+    - kind: replace
+      column: statut_paiement
+      value: payé
+      count: 30
+      when: {reclamation_status: "fermé"}
+      can_overlap: true
+      conflicts_with: [ML07_LABEL_NOISE]
+      scenario_id: ML16_POST_LEAK
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: Post-claim administrative payment status update leaking claim occurrence
+    - kind: replace
+      column: prime_annuelle
+      value: "877.00"
+      count: 20
+      when: {type_contrat: "auto"}
+      can_overlap: true
+      scenario_id: ML17_SHORTCUT
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Artificial shortcut feature pattern correlated with identifier suffix
+    - kind: replace
+      column: agence_code
+      value: AG-ONT-001
+      count: 40
+      when: {filiale: "ontario"}
+      can_overlap: true
+      scenario_id: ML18_IMBALANCE
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Branch-level class distribution skew concentrating elevated claim rates in Ontario
+    - kind: set_missing
+      column: date_naissance
+      count: 30
+      when: {filiale: "quebec", statut_contrat: "actif"}
+      can_overlap: true
+      scenario_id: ML19_MISSING
+      missing_mechanism: mar
+      missing_reason: unreported
+      category: semantic_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Segment-conditioned missing demographic feature benchmarked for incomplete learning
+  technical_stress:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: format
+      column: nom_voie
+      value: long_text
+      count: 50
+      can_overlap: true
+      scenario_id: T03_LONG_TEXT
+      category: format_variant
+      severity: info
+      rarity_level: very_rare
+      expected_detection: syntactic
+      description: Long textual narratives exceeding 600 characters consuming extensive token context
+    - kind: format
+      column: statut_paiement
+      value: json_text
+      count: 50
+      can_overlap: true
+      scenario_id: T04_JSON_TEXT
+      category: format_variant
+      severity: info
+      rarity_level: very_rare
+      expected_detection: syntactic
+      description: Semi-structured JSON payloads embedded as text inside standard CSV cells
+    - kind: format
+      column: nom_voie
+      value: quoted_delimiters
+      count: 100
+      can_overlap: true
+      scenario_id: T05_QUOTED_DELIM
+      category: format_variant
+      severity: info
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Escaped RFC 4180 delimiters including commas, quotes, semicolons, and pipes
+    - kind: format
+      column: nom_voie
+      value: multiline_text
+      count: 50
+      can_overlap: true
+      scenario_id: T06_MULTILINE
+      category: format_variant
+      severity: info
+      rarity_level: very_rare
+      expected_detection: syntactic
+      description: Embedded line breaks within quoted fields testing multiline CSV parsing
+    - kind: format
+      column: ville
+      value: unicode_complex
+      count: 100
+      can_overlap: true
+      scenario_id: T07_UNICODE
+      category: format_variant
+      severity: info
+      rarity_level: rare
+      expected_detection: syntactic
+      description: Complex Unicode strings including emojis, NFD diacritics, CJK, Arabic, and currency symbols
+    - kind: format
+      column: courtier_id
+      value: high_cardinality_uuid
+      count: 200
+      can_overlap: true
+      scenario_id: T08_HIGH_CARD
+      category: valid_atypical
+      severity: info
+      rarity_level: uncommon
+      expected_detection: none
+      description: High distinct cardinality columns with unique 128-bit identifiers testing cardinality estimators
+    - kind: format
+      column: produit_code
+      value: rare_category
+      count: 150
+      can_overlap: true
+      scenario_id: T09_RARE_CATS
+      category: valid_atypical
+      severity: info
+      rarity_level: rare
+      expected_detection: none
+      description: Heavy tail of unique rare categories testing frequency distribution limits
+    - kind: format
+      column: montant_indemnise
+      value: float_precision_extreme
+      count: 50
+      when: {statut_paiement: "payé"}
+      can_overlap: true
+      scenario_id: T10_FLOAT_PREC
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Extreme floating point precision values testing IEEE 754 precision boundaries
+    - kind: set_missing
+      column: courtier_id
+      count: 200
+      can_overlap: true
+      scenario_id: T11_SPARSE
+      missing_mechanism: mcar
+      missing_reason: not_applicable
+      category: valid_atypical
+      severity: info
+      rarity_level: uncommon
+      expected_detection: none
+      description: Extremely sparse columns with over 99 percent missing values testing memory storage

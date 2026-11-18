@@ -87,6 +87,10 @@ structural or semantic change. See the
   operations: `generate_scenarios.py` validates the keys and the coherence of a
   profile, `generate_rarity.py` holds the rarity bands and
   `generate_canonical.py` the canonical value of a clean cell.
+  `generate_rules.py` is the grammar, catalogue (`rules.yaml` of a package) and
+  pure evaluator of the verifiable rules, and `generate_truth.py` builds the
+  ground truth of a scenario profile (`truth.csv`, `metrics.json`,
+  `manifest.json`) from the clean and altered files read together once.
   `generate_insurance.py` loads and validates packaged Insurance tables and
   generates one coherent 33-field branch row per request; the shared CSV
   writer and combine pass produce its three branch files and union.
