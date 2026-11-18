@@ -1077,6 +1077,54 @@ Written when lot 16 was implemented:
   - 136 contract tests passing (Lots 0-16).
 - `generation_version` stays 2.
 
+### 8.13 What lot 17 fixed
+
+Written when lot 17 was implemented:
+- **Multiple simultaneous profiles (`--anomaly-profile a,b`) on Insurance and CRM**:
+  - `build_generate_plan` accepts comma-separated profile strings or sequence of strings for all packages.
+  - Automatically plans independent altered CSVs, journals (`.changes.csv`), summaries (`.summary.json`), and full ground-truth suites (`.truth.csv`, `.rules.json`, `.metrics.json`, `.manifest.json`) for each targeted profile.
+  - Strict manifest isolation: each profile's manifest registers only the clean files and its own artifacts, never referencing another profile's files.
+  - Automatic output profile promotion: if `--output-profile` is omitted, the most demanding profile dictates the baseline output profile (`complete` > `extended` > `default`).
+  - Progress reporting and timing report split changed cell counts per profile: `N cells changed in K profiles`.
+- **Profile catalog (`--list-profiles` and `list_available_anomaly_profiles`)**:
+  - CLI option `--list-profiles` lists available anomaly profiles for a specified package or example, or across all built-in examples (Computer, CRM, Insurance) with target datasets and minimum row floors.
+  - Rejects destination options (`-o`, `-d`) when `--list-profiles` is passed.
+  - Public Python API `list_available_anomaly_profiles(source=..., example=...)` exported in `tabalyst`.
+- **Explicit option validation and rejection**:
+  - Rejects duplicate profile names in `--anomaly-profile` list (`anomaly_profile must list each profile once`).
+  - Rejects empty profile names (`no empty name`).
+  - Rejects unknown profile names with available suggestions.
+  - Rejects multiple anomaly profiles with `-o` (`-o writes one file, so it takes one anomaly profile; use -d for several`).
+  - Rejects row counts below the floor of any requested profile.
+  - Rejects unsupported options across package boundaries (`--workers` on Insurance, `--relational` on CRM, `--row-order` on CRM/Computer, `--output-profile` on CRM).
+- **Strict non-regression**:
+  - 142 contract tests passing (Lots 0-17).
+  - Single profile and default clean runs maintain identical outputs and legacy count keys.
+- `generation_version` stays 2.
+
+### 8.14 What lot 18 fixed (in tabalyst-lab)
+
+Written when lot 18 was implemented in `tabalyst-lab`:
+- **Reference benchmark testbed (`tabalyst-lab/benchmarks/insurance_benchmark.py`)**:
+  - Implements the complete set of evaluation metrics defined in report §16:
+    - Total Variation Distance (TVD) for categorical fidelity on branches, agencies, products, and honorific titles.
+    - Distribution preservation for continuous numerical fields: relative error on extreme quantiles ($P50, P95, P99$) and Kolmogorov-Smirnov distance.
+    - Rare cases recall: proportion of injected rare and critical events captured in the sample.
+    - Anomaly enrichment factor: ratio of sample anomaly rate over population baseline rate.
+    - Shannon diversity: normalized entropy across anomaly families and `root_cause_id`.
+    - Coverage rates: business rule violations (M01-M25) and geographic branch coverage.
+    - Extreme domain preservation: capture of boundary and maximum domain values.
+    - Multi-seed robustness: coefficient of variation computed over multiple independent seeds.
+    - Downstream ML metrics: precision, recall, optimal threshold F1, and approximate AUROC evaluated on an uncorrupted holdout test partition without data leakage (`splits.csv`).
+  - Implements the three empirical reference experiments from report §19:
+    - Experiment 1: Identical budget ($n = 1\,000$), varied representativeness (`first` vs `random` vs `stratified` vs `smart`) under agency-clustered ordering (E03). Demonstrates the breakdown of naive head extraction (`first` missing 2 of 3 branches, TVD = 0.1500) vs stratified and smart sampling.
+    - Experiment 2: Identical budget, varied anomaly coverage on `rare_events` / `anomaly_diversity`. Demonstrates that `sample --smart` yields a +53% anomaly enrichment factor and +24% rare event recall over naive random sampling.
+    - Experiment 3: Downstream ML performance on highly imbalanced fraud labels (~0.1% incidence), proving training efficiency under stratified and smart sampling regimes.
+- **Strict isolation and compliance**:
+  - All benchmark outputs directed to `D:\GIT.test\tabalyst-lab-gen\bench\insurance-v2\` with zero repository pollution (enforced by `require_outside_checkouts`).
+  - Unit and integration tests in `tabalyst-lab/tests/benchmarks/test_insurance_benchmark.py` (12 tests passing).
+  - Benchmark documentation published in `tabalyst-lab/docs/benchmarks/insurance_sampling.md`.
+
 ## 9. Documentation, versions and languages
 
 - Public pages (Q5): `docs/en/generate/insurance.md` stays the overview; each lot that ships a

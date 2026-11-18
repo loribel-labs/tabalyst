@@ -14,11 +14,12 @@ the progress and timing output need 0.7.3 or later. See
 tabalyst generate PACKAGE (-o FILE.csv | -d DIR) [options]
 tabalyst generate --example NAME (-o FILE.csv | -d DIR) [options]
 tabalyst generate (PACKAGE | --example NAME) --validate-only
+tabalyst generate [PACKAGE | --example NAME] --list-profiles
 ```
 
 Provide exactly one source: a package directory or its `dataset.yaml`, or
 `--example crm`, `--example insurance` or `--example computer`. Exactly one
-destination is required, except with `--validate-only`. A
+destination is required, except with `--validate-only` and `--list-profiles`. A
 `definition_version: 1` YAML file stops the command with `PACKAGE_FORMAT`.
 
 | Option | Meaning |
@@ -29,10 +30,13 @@ destination is required, except with `--validate-only`. A
 | `--rows N` | Override the generated row count; for insurance, allocate the combined total across its branches. |
 | `--seed INTEGER` | Override the root random seed. |
 | `--as-of-date YYYY-MM-DD` | Override the reference date. |
-| `--anomaly-profile NAME` | Produce the selected anomaly variant, cell change log and summary (with `-d`). Computer: `dirty_realistic`, `dirty_stress`, `unit_variants`, `unit_variants_extended`, `rule_breaks`; every example has `rule_breaks`, which breaks the rules between columns. Insurance: `dirty_realistic`, `dirty_stress`, `rule_breaks` and `rare_events` (exact rare cases, at least 100,000 rows). Give several names separated by commas to get one variant of each (with `-d`). An unknown name lists the available ones. |
+| `--anomaly-profile NAME` | Produce the selected anomaly variant, cell change log and summary (with `-d`). Available across packages (Computer, CRM, Insurance). Give several names separated by commas (`--anomaly-profile a,b`) to get one variant of each (with `-d`). An unknown name lists the available ones. |
+| `--list-profiles` | List available anomaly profiles for the package, or for all built-in examples when used without a package. |
 | `--request FILE` | Read `rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`, `locales`, `unit_style`, `unit_columns` and `anomaly_profile` from a JSON object. Explicit options win. |
 | `--generation-profile NAME` | Computer: bias the catalog selection. |
-| `--output-profile NAME` | Choose the columns written. Computer: `compact`, `standard`, `extended`. Insurance: `default` (33 columns on branches, 34 combined), `extended` (43 columns on branches, 44 combined), `complete` (47 columns on branches, 48 combined). |
+| `--output-profile NAME` | Choose the columns written. Computer: `compact`, `standard`, `extended`. Insurance: `default` (33 columns on branches, 34 combined), `extended` (43 columns on branches, 44 combined), `complete` (47 columns on branches, 48 combined), or flattened profiles (`flattened`, `flattened-extended`, `flattened-complete`). |
+| `--relational` | Insurance: generate 4 relational tables (`clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv`) alongside their full ground truth. |
+| `--row-order NAME` | Insurance: choose contract ordering (`default`, `branch`, `chronological`, `agency`, `shuffled`). |
 | `--market ca\|us` | Computer: the offer market. |
 | `--locales en\|fr\|en,fr` | Computer: the languages written. Default `en,fr` with `-d`, `en` with `-o`. |
 | `--unit-style numeric\|localized` | Computer: plain numbers or values with units. |

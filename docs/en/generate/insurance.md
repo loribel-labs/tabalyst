@@ -234,6 +234,22 @@ Three scenario profiles provide controlled reference benchmarks for data quality
 tabalyst generate --example insurance -d out/ --anomaly-profile format_vs_business
 ```
 
+### Multiple simultaneous profiles and profile catalog
+
+You can inspect all available anomaly profiles for Insurance (or any package) with `--list-profiles`:
+
+```console
+tabalyst generate --example insurance --list-profiles
+```
+
+You can also generate several anomaly profiles in a single command by passing comma-separated profile names with `-d`:
+
+```console
+tabalyst generate --example insurance -d out/ --anomaly-profile format_vs_business,anomaly_diversity
+```
+
+This generates independent altered files (`insurance-combined.format_vs_business.csv`, `insurance-combined.anomaly_diversity.csv`) and their respective isolated ground-truth suites.
+
 ## Next steps
 
 - [Insurance ground truth files](insurance-ground-truth.md) explains the

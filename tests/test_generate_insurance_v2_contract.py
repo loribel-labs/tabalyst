@@ -49,7 +49,7 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13", "14", "15", "16"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13", "14", "15", "16", "17"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
@@ -4048,6 +4048,230 @@ def test_lot16_non_regression_defaults_and_other_profiles(tmp_path: Path) -> Non
         output_dir=out / "stress_plan",
     )
     assert stress_plan.output_profile == "extended"
+
+
+@contract("17")
+def test_lot17_multi_anomaly_profile_insurance(tmp_path: Path) -> None:
+    """SRS §15, §17, Lot 17: Support multiple simultaneous profiles on Insurance via --anomaly-profile a,b."""
+    out = tmp_path / "multi_insurance"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="format_vs_business,anomaly_diversity",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    assert plan.anomaly_profiles == ("format_vs_business", "anomaly_diversity")
+    assert plan.anomaly_profile == "format_vs_business"
+
+    res = generate_datasets(plan)
+
+    # Both profiles generated distinct altered CSVs and ground-truth artifact suites
+    for prof in ("format_vs_business", "anomaly_diversity"):
+        assert (out / f"insurance-combined.{prof}.csv").is_file()
+        assert (out / f"insurance-combined.{prof}.changes.csv").is_file()
+        assert (out / f"insurance-combined.{prof}.summary.json").is_file()
+        assert (out / f"insurance-combined.{prof}.truth.csv").is_file()
+        assert (out / f"insurance-combined.{prof}.rules.json").is_file()
+        assert (out / f"insurance-combined.{prof}.metrics.json").is_file()
+        assert (out / f"insurance-combined.{prof}.manifest.json").is_file()
+
+    # Manifest isolation: manifest of profile A never references artifacts of profile B
+    man_fmt = json.loads((out / "insurance-combined.format_vs_business.manifest.json").read_text(encoding="utf-8"))
+    man_div = json.loads((out / "insurance-combined.anomaly_diversity.manifest.json").read_text(encoding="utf-8"))
+
+    files_fmt = {f["name"] for f in man_fmt["files"]}
+    files_div = {f["name"] for f in man_div["files"]}
+
+    assert "insurance-combined.format_vs_business.truth.csv" in files_fmt
+    assert "insurance-combined.anomaly_diversity.truth.csv" not in files_fmt
+    assert "insurance-combined.csv" in files_fmt
+
+    assert "insurance-combined.anomaly_diversity.truth.csv" in files_div
+    assert "insurance-combined.format_vs_business.truth.csv" not in files_div
+    assert "insurance-combined.csv" in files_div
+
+    # Anomaly counts split by profile in result
+    assert "insurance-combined/format_vs_business" in res.anomaly_counts
+    assert "insurance-combined/anomaly_diversity" in res.anomaly_counts
+    assert res.anomaly_counts["insurance-combined/format_vs_business"] == 1250
+    assert res.anomaly_counts["insurance-combined/anomaly_diversity"] == 801
+
+
+@contract("17")
+def test_lot17_multi_anomaly_profile_crm(tmp_path: Path) -> None:
+    """SRS §15, §17, Lot 17: Support multiple simultaneous profiles on CRM via --anomaly-profile a,b."""
+    out = tmp_path / "multi_crm"
+    plan = build_generate_plan(
+        example="crm",
+        anomaly_profile="dirty_realistic,rule_breaks",
+        rows=100,
+        seed=42,
+        output_dir=out,
+    )
+    assert plan.anomaly_profiles == ("dirty_realistic", "rule_breaks")
+    assert plan.anomaly_profile == "dirty_realistic"
+
+    res = generate_datasets(plan)
+
+    assert (out / "crm-contacts.dirty_realistic.csv").is_file()
+    assert (out / "crm-contacts.dirty_realistic.changes.csv").is_file()
+    assert (out / "crm-contacts.dirty_realistic.summary.json").is_file()
+
+    assert (out / "crm-contacts.rule_breaks.csv").is_file()
+    assert (out / "crm-contacts.rule_breaks.changes.csv").is_file()
+    assert (out / "crm-contacts.rule_breaks.summary.json").is_file()
+
+    assert "crm-contacts/dirty_realistic" in res.anomaly_counts
+    assert "crm-contacts/rule_breaks" in res.anomaly_counts
+
+
+@contract("17")
+def test_lot17_multi_profile_auto_output_profile(tmp_path: Path) -> None:
+    """SRS §15, Lot 17: Automatic promotion of effective_output profile with multiple profiles."""
+    out = tmp_path / "auto_profiles"
+
+    # 1. Neither profile requires extended -> stays default
+    p1 = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="dirty_realistic,format_vs_business",
+        rows=10000,
+        seed=42,
+        output_dir=out / "p1",
+    )
+    assert p1.output_profile == "default"
+
+    # 2. One profile requires extended (rare_events) -> promotes to extended
+    p2 = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="dirty_realistic,rare_events",
+        rows=100000,
+        seed=42,
+        output_dir=out / "p2",
+    )
+    assert p2.output_profile == "extended"
+
+    # 3. One profile requires complete (schema_drift) -> promotes to complete
+    p3 = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="rare_events,schema_drift",
+        rows=100000,
+        seed=42,
+        output_dir=out / "p3",
+    )
+    assert p3.output_profile == "complete"
+
+
+@contract("17")
+def test_lot17_list_available_profiles_api_and_cli(tmp_path: Path) -> None:
+    """SRS §15, Lot 17: Profile catalog listing via Python API and CLI --list-profiles."""
+    from typer.testing import CliRunner
+
+    from tabalyst import list_available_anomaly_profiles
+    from tabalyst.cli.app import app
+
+    # 1. Python API per package / example
+    ins_profiles = list_available_anomaly_profiles(example="insurance")
+    assert "insurance" in ins_profiles
+    ins_ids = {p["id"] for p in ins_profiles["insurance"]}
+    assert {"dirty_realistic", "dirty_stress", "rule_breaks", "rare_events",
+            "format_vs_business", "schema_drift", "technical_stress"}.issubset(ins_ids)
+
+    crm_profiles = list_available_anomaly_profiles(example="crm")
+    assert "crm" in crm_profiles
+    crm_ids = {p["id"] for p in crm_profiles["crm"]}
+    assert crm_ids == {"dirty_realistic", "rule_breaks"}
+
+    comp_profiles = list_available_anomaly_profiles(example="computer")
+    assert "mini_computer" in comp_profiles
+    comp_ids = {p["id"] for p in comp_profiles["mini_computer"]}
+    assert {"dirty_realistic", "dirty_stress", "rule_breaks", "unit_variants"}.issubset(comp_ids)
+
+    # 2. Global listing
+    all_profiles = list_available_anomaly_profiles()
+    assert set(all_profiles.keys()) == {"crm", "insurance", "mini_computer"}
+
+    # 3. CLI --list-profiles
+    runner = CliRunner()
+    res_ins = runner.invoke(app, ["generate", "--example", "insurance", "--list-profiles"])
+    assert res_ins.exit_code == 0
+    assert "Available anomaly profiles for insurance:" in res_ins.output
+    assert "rare_events" in res_ins.output
+    assert "min 100,000 rows" in res_ins.output
+
+    res_all = runner.invoke(app, ["generate", "--list-profiles"])
+    assert res_all.exit_code == 0
+    assert "Available anomaly profiles by example:" in res_all.output
+    assert "insurance:" in res_all.output
+    assert "crm:" in res_all.output
+
+    # Destination rejected with --list-profiles
+    res_err = runner.invoke(app, ["generate", "--example", "insurance", "-d", str(tmp_path), "--list-profiles"])
+    assert res_err.exit_code != 0
+    assert "--list-profiles does not take a destination" in res_err.output
+
+
+@contract("17")
+def test_lot17_refusal_unsupported_and_incompatible_options(tmp_path: Path) -> None:
+    """SRS §15, Lot 17: Explicit refusal of unknown, duplicated, malformed, or incompatible options."""
+    out = tmp_path / "refusals"
+
+    # 1. Unknown profile
+    with pytest.raises(ConfigurationError, match="Unknown anomaly profile: unknown_prof"):
+        build_generate_plan(PACKAGE, anomaly_profile="unknown_prof", rows=1000, output_dir=out)
+
+    # 2. Duplicate profile in list
+    with pytest.raises(ConfigurationError, match="anomaly_profile must list each profile once"):
+        build_generate_plan(PACKAGE, anomaly_profile="rare_events,rare_events", rows=100000, output_dir=out)
+
+    # 3. Empty profile name in list
+    with pytest.raises(ConfigurationError, match="anomaly_profile must list each profile once, with no empty name"):
+        build_generate_plan(PACKAGE, anomaly_profile="rare_events,", rows=100000, output_dir=out)
+
+    # 4. Multiple anomaly profiles with single file output -o
+    with pytest.raises(ConfigurationError, match="-o writes one file, so it takes one anomaly profile; use -d for several"):
+        build_generate_plan(PACKAGE, anomaly_profile="rare_events,format_vs_business", rows=100000, output=out / "out.csv")
+
+    # 5. Row count below floor of one of the requested profiles
+    with pytest.raises(ConfigurationError, match="Profile rare_events needs at least 100,000 rows"):
+        build_generate_plan(PACKAGE, anomaly_profile="dirty_realistic,rare_events", rows=10000, output_dir=out)
+
+    # 6. Options reserved for other packages
+    with pytest.raises(ConfigurationError, match="--workers applies to the Computer package only"):
+        build_generate_plan(PACKAGE, rows=100, output_dir=out, workers=2)
+
+    with pytest.raises(ConfigurationError, match="--relational applies to the Insurance package only"):
+        build_generate_plan(example="crm", rows=100, output_dir=out, relational=True)
+
+    with pytest.raises(ConfigurationError, match="--row-order applies to the Insurance package only"):
+        build_generate_plan(example="crm", rows=100, output_dir=out, row_order="branch")
+
+    with pytest.raises(ConfigurationError, match="--output-profile applies to the Computer and Insurance packages only"):
+        build_generate_plan(example="crm", rows=100, output_dir=out, output_profile="extended")
+
+    with pytest.raises(ConfigurationError, match="unsupported Insurance output profile 'invalid_profile'"):
+        build_generate_plan(PACKAGE, rows=100, output_dir=out, output_profile="invalid_profile")
+
+
+@contract("17")
+def test_lot17_strict_non_regression_defaults_and_single_profiles(tmp_path: Path) -> None:
+    """Contract §2, §5.1: Strict non-regression on single profile and clean runs."""
+    out = tmp_path / "single_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="dirty_realistic",
+        rows=1000,
+        seed=42,
+        output_dir=out,
+    )
+    assert plan.anomaly_profile == "dirty_realistic"
+    assert plan.anomaly_profiles == ("dirty_realistic",)
+    res = generate_datasets(plan)
+
+    # For a single profile run, anomaly_counts maintains exact legacy key format without profile suffix
+    assert "insurance-combined" in res.anomaly_counts
+    assert "insurance-combined/dirty_realistic" not in res.anomaly_counts
+
 
 
 

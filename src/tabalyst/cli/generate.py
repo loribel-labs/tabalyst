@@ -11,12 +11,13 @@ from typing import Annotated
 import typer
 
 from tabalyst.cli.terminal import error_exit_code
-from tabalyst.errors import TabalystError
+from tabalyst.errors import ConfigurationError, TabalystError
 from tabalyst.generate_service import (
     GenerateProgress,
     GenerateResult,
     build_generate_plan,
     generate_datasets,
+    list_available_anomaly_profiles,
 )
 
 PHASE_NAMES = {"rows": "generating rows", "errors": "injecting errors", "publish": "writing files"}
@@ -114,8 +115,12 @@ def generate_command(
     ] = None,
     anomaly_profile: Annotated[
         str | None,
-        typer.Option("--anomaly-profile", help="Inject errors. Computer: dirty_realistic, dirty_stress, unit_variants, unit_variants_extended, rule_breaks; every example has rule_breaks; several, comma separated, with -d."),
+        typer.Option("--anomaly-profile", help="Inject errors. Computer: dirty_realistic, dirty_stress, unit_variants, unit_variants_extended, rule_breaks; every example has rule_breaks; several, comma separated, with -d. Available profiles can be viewed with --list-profiles."),
     ] = None,
+    list_profiles: Annotated[
+        bool,
+        typer.Option("--list-profiles", help="List available anomaly profiles for the package or packaged examples."),
+    ] = False,
     request: Annotated[
         Path | None,
         typer.Option("--request", help="JSON generation request."),
@@ -175,6 +180,33 @@ def generate_command(
 ) -> None:
     """Validate and generate datasets from a definition or package."""
     try:
+        if list_profiles:
+            if output is not None or output_dir is not None:
+                raise ConfigurationError("--list-profiles does not take a destination.")
+            profiles_by_pkg = list_available_anomaly_profiles(definition, example=example)
+            if len(profiles_by_pkg) == 1:
+                pkg_id, prof_list = next(iter(profiles_by_pkg.items()))
+                typer.echo(f"Available anomaly profiles for {pkg_id}:", err=True)
+                for p in prof_list:
+                    targets = p.get("targets")
+                    targets_str = f"targets {', '.join(targets)}" if isinstance(targets, list) and targets else ""
+                    min_rows = p.get("min_rows")
+                    min_str = f", min {min_rows:,} rows" if isinstance(min_rows, int) else ""
+                    details = f" ({targets_str}{min_str})" if targets_str or min_str else ""
+                    typer.echo(f"  {p['id']}{details}", err=True)
+            else:
+                typer.echo("Available anomaly profiles by example:\n", err=True)
+                for pkg_id, prof_list in sorted(profiles_by_pkg.items()):
+                    typer.echo(f"{pkg_id}:", err=True)
+                    for p in prof_list:
+                        targets = p.get("targets")
+                        targets_str = f"targets {', '.join(targets)}" if isinstance(targets, list) and targets else ""
+                        min_rows = p.get("min_rows")
+                        min_str = f", min {min_rows:,} rows" if isinstance(min_rows, int) else ""
+                        details = f" ({targets_str}{min_str})" if targets_str or min_str else ""
+                        typer.echo(f"  {p['id']}{details}", err=True)
+                    typer.echo("", err=True)
+            return
         plan = build_generate_plan(
             definition, example=example, output=output, output_dir=output_dir,
             rows=rows, seed=seed, as_of_date=as_of_date,

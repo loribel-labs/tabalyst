@@ -31,6 +31,9 @@ if TYPE_CHECKING:
     from tabalyst.generate_service import build_generate_plan as build_generate_plan
     from tabalyst.generate_service import generate_datasets as generate_datasets
     from tabalyst.generate_service import (
+        list_available_anomaly_profiles as list_available_anomaly_profiles,
+    )
+    from tabalyst.generate_service import (
         validate_generate_package as validate_generate_package,
     )
     from tabalyst.inspect_service import InspectResult as InspectResult
@@ -90,6 +93,7 @@ _LAZY: dict[str, str] = {
     "ValidationResult": "tabalyst.generate_service",
     "build_generate_plan": "tabalyst.generate_service",
     "generate_datasets": "tabalyst.generate_service",
+    "list_available_anomaly_profiles": "tabalyst.generate_service",
     "validate_generate_package": "tabalyst.generate_service",
     "InspectResult": "tabalyst.inspect_service",
     "generate_inspections": "tabalyst.inspect_service",

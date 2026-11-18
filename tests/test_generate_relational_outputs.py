@@ -212,7 +212,7 @@ def test_flattened_insurance_profiles(tmp_path: Path) -> None:
     assert "date_sinistre" in ext_headers
     assert "courtier_id" in ext_headers
 
-    # 3. Flattened complete (48 columns on combined)
+    # 3. Flattened complete (51 columns on combined: 34 base + 10 extended + 4 tranche B + 3 tranche C)
     plan_cmp = build_generate_plan(
         PACKAGE,
         output_profile="flattened-complete",
@@ -222,7 +222,7 @@ def test_flattened_insurance_profiles(tmp_path: Path) -> None:
     )
     generate_datasets(plan_cmp)
     cmp_headers = _read_csv_headers(out / "cmp" / "insurance-combined.csv")
-    assert len(cmp_headers) == 48
+    assert len(cmp_headers) == 51
     assert "taux_remboursement" in cmp_headers
     assert "segment_client" in cmp_headers
 
