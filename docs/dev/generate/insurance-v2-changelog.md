@@ -285,6 +285,39 @@ Phase 3 begins on branch `insurance-v2/phase-3` after gate P2 ratification (dire
   - 8 new contract tests in `tests/test_generate_insurance_v2_contract.py` (total 113 contract tests passing).
 - `generation_version` stays 2.
 
+## Additional ML targets, leakage scenarios, and leakage-free splits.csv (lot 14, 2026-11-18)
+
+- **Extended ML prediction targets in `ml_labels.csv` (SRS §8 ML09-ML12)**:
+  - Extended target columns automatically appended when extended ML profiles (such as `ml_leakage_test`) are evaluated:
+    - `future_claim` (ML09): binary future claim occurrence in `{0, 1}` with realistic ~10% frequency;
+    - `cout_sinistre` (ML10): continuous claim cost regression, strictly `0.00` when `future_claim == 0` and positive amount when `1`;
+    - `renouvellement` & `date_renouvellement` (ML11): policy renewal binary indicator (> 60% retention rate) and next effective term date (empty if not renewed);
+    - `risque_categorie` (ML12): multiclass actuarial risk rating covering 4 classes (`faible`, `moyen`, `eleve`, `tres_eleve`);
+    - `historique_sinistres` and `anciennete_client`: upstream calculated antecedent variables;
+    - `score_risque_interne`: latent credit/actuarial rating in `[100.0, 900.0]`.
+  - Legacy/fraud-only profiles (`ml_fraud_imbalanced`) preserve the compact 7-column format without regression.
+- **Intentional leakage scenarios and shortcuts (SRS §8 ML13-ML19)**:
+  - Behavioral drift (ML13, `ML13_DRIFT`) and unseen extreme values (ML14, `ML14_UNSEEN`);
+  - Inter-contract customer leakage (ML15, `ML15_LEAK`);
+  - Post-claim temporal leakage (ML16, `ML16_POST_LEAK`);
+  - Artificial shortcut correlated to identifiers (ML17, `ML17_SHORTCUT`);
+  - Subsidiary branch imbalance (ML18, `ML18_IMBALANCE`) and segment-conditioned missingness (ML19, `ML19_MISSING`).
+- **Leakage-free dataset partitioning: `<dataset>.<profile>.splits.csv` (SRS §8, §15, Lot 14)**:
+  - Produced alongside `ml_labels.csv` for ML profiles:
+    - 6 standard columns: `row_number`, `id_contrat`, `id_client`, `split_client`, `split_temporal`, `resampled_train_only`.
+    - Grouped partitioning by customer (`split_client`): 70% train / 15% validation / 15% test with 0 client overlap across folds (preventing customer data leakage).
+    - Temporal chronological partitioning (`split_temporal`): strict cutoff dates (`< 2023-01-01` train, `2023-01-01` to `2024-06-30` val, `> 2024-06-30` test).
+    - `resampled_train_only`: boolean flag ensuring over/undersampling is strictly isolated to training rows, preserving pristine natural test distributions.
+  - Registered in `manifest.json` under role `"splits"`, with size and SHA-256.
+  - New committed schema `src/tabalyst/schemas/tabalyst.generate.splits.schema.json` formalizing format `tabalyst.generate.splits`, version `0.2.0`, revision 1.
+  - Extended metrics `SplitMetrics` added to `metrics.json`.
+- **Profile `ml_leakage_test`**:
+  - Added to `dataset.yaml` with 7 scenarios, defaulting `effective_output` to `extended`.
+- **Testing**:
+  - 8 new contract tests in `tests/test_generate_insurance_v2_contract.py` (total 121 contract tests passing).
+- `generation_version` stays 2.
+
+
 
 
 

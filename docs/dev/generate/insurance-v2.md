@@ -399,11 +399,14 @@ inputs, with the reason in `docs/dev/generate/insurance-v2-changelog.md`, create
 `sha256` of every other file of the run, never of the manifest itself), `truth_columns`
 (the columns of 5.2, so a reader of `truth.csv` finds its format here).
 
-### 5.6 Machine learning targets, fraud patterns and separate labels (lot 13)
+### 5.6 Machine learning targets, labels, leakage scenarios, and partitions (lots 13 & 14)
 
-`<dataset>.<profile>.ml_labels.csv` is generated for ML scenario profiles (such as `ml_fraud_imbalanced`).
+#### 5.6.1 Machine learning labels (`ml_labels.csv`)
+
+`<dataset>.<profile>.ml_labels.csv` is generated for ML scenario profiles (such as `ml_fraud_imbalanced` and `ml_leakage_test`).
 It isolates supervised learning targets and latent risk probabilities from input feature files.
-It contains 7 columns:
+
+Base columns (lot 13, for fraud-specific profiles):
 - `row_number`: 1-based physical row number in the dataset CSV (matching `truth.csv`).
 - `id_contrat`: Primary contract key for dataset joins.
 - `is_fraud`: True ground-truth binary label (`1` = confirmed fraud, `0` = non-fraud).
@@ -412,10 +415,33 @@ It contains 7 columns:
 - `fraud_type`: Synthetic fraud typology: `phantom_claim`, `inflated_claim`, `collusion`, `organized_fraud`, or empty.
 - `latent_probability`: Continuous latent risk probability in [0.0, 1.0] capturing realistic statistical overlap.
 
+Extended prediction target columns (lot 14, for extended ML profiles):
+- `future_claim` (ML09): binary future claim occurrence in `{0, 1}` (~10% positive incidence).
+- `cout_sinistre` (ML10): claim cost regression in floating-point euros/dollars, strictly `0.00` when `future_claim == 0` and positive amount when `1`.
+- `renouvellement` & `date_renouvellement` (ML11): retention/renewal binary indicator (> 60% realistic retention rate) and next policy term effective date (empty if not renewed).
+- `risque_categorie` (ML12): multiclass actuarial rating across 4 classes: `faible`, `moyen`, `eleve`, `tres_eleve`.
+- `historique_sinistres` & `anciennete_client`: upstream calculated antecedent variables.
+- `score_risque_interne`: latent credit/actuarial rating in `[100.0, 900.0]`.
+
 It is registered in `manifest.json` with role `"ml_labels"`.
 The JSON schema `src/tabalyst/schemas/tabalyst.generate.ml_labels.schema.json` formalizes the format
 `tabalyst.generate.ml_labels`, version `0.2.0`, revision 1.
-Aggregated counts and rates are serialized in `metrics.json` under `ml_fraud` (`MLFraudMetrics`).
+
+#### 5.6.2 Leakage-free dataset partitioning (`splits.csv`)
+
+`<dataset>.<profile>.splits.csv` is generated alongside `ml_labels.csv` for ML scenario profiles.
+It contains 6 standard columns:
+- `row_number`: 1-based physical row number in the dataset CSV.
+- `id_contrat`: Contract identifier.
+- `id_client`: Customer identifier.
+- `split_client`: Random grouping partition by customer (`train` ~70%, `val` ~15%, `test` ~15%) with 0 shared clients between folds, preventing cross-contract customer data leakage.
+- `split_temporal`: Temporal chronological partition based on policy inception (`train` < 2023-01-01, `val` 2023-01-01 to 2024-06-30, `test` > 2024-06-30).
+- `resampled_train_only`: Boolean flag indicating whether a synthetic rebalancing/resampling operation applies strictly to `train`, guaranteeing that `val` and `test` preserve their clean, natural distribution.
+
+It is registered in `manifest.json` with role `"splits"`.
+The JSON schema `src/tabalyst/schemas/tabalyst.generate.splits.schema.json` formalizes the format
+`tabalyst.generate.splits`, version `0.2.0`, revision 1.
+Partition counts and fold shares are serialized in `metrics.json` under `splits` (`SplitMetrics`).
 
 Latent scores and raw risk generators that would make prediction trivial remain excluded from input feature tables (D11).
 
@@ -938,6 +964,59 @@ Written when lot 12 was implemented:
 - **Strict non-regression**:
   - 105 contract tests passing (Lots 0 through 12).
   - Showcase demos (`examples/showcase/`) verified and refreshed.
+- `generation_version` stays 2.
+
+### 8.10 What lot 13 fixed
+
+Written when lot 13 was implemented:
+- **Separate ground-truth label file `<dataset>.<profile>.ml_labels.csv` (SRS §8, §15, Lot 13)**:
+  - Isolates supervised machine learning targets and continuous latent probabilities from input features.
+  - 7 standard columns: `row_number`, `id_contrat`, `is_fraud`, `observed_label`, `confirmation_date`, `fraud_type`, `latent_probability`.
+  - Registered in `manifest.json` with role `"ml_labels"`, carrying byte size and SHA-256 digest.
+  - New committed schema `src/tabalyst/schemas/tabalyst.generate.ml_labels.schema.json` formalizing format `tabalyst.generate.ml_labels`, version `0.2.0`, revision 1.
+- **Synthetic fraud patterns without trivial artifacts (SRS §8)**:
+  - 4 realistic multi-class fraud typologies (ML04): `phantom_claim`, `inflated_claim`, `collusion`, `organized_fraud`.
+  - Imbalanced class prevalence rates: 1% overall fraud rate (ML01), 0.1% rare fraud class (ML02), 0.01% single case (ML03).
+  - Hard cases with continuous latent probability overlap in `[0.45, 0.65]` (ML05).
+  - Plausible false positives and valid atypicals (ML06, ML20).
+  - Operational label noise (ML07) and delayed unresolved investigations (ML08).
+- **Profile `ml_fraud_imbalanced`**:
+  - Added to `dataset.yaml` with floor `min_rows: 10000`, 11 scenarios covering ML01 through ML08 and ML20.
+  - Defaults `effective_output` to `extended` (44 columns on `insurance-combined.csv`).
+- **Metrics integration**:
+  - `MetricsDocument` carries `ml_fraud: MLFraudMetrics`.
+- **Strict non-regression**:
+  - 113 contract tests passing.
+- `generation_version` stays 2.
+
+### 8.11 What lot 14 fixed
+
+Written when lot 14 was implemented:
+- **Extended ML prediction targets in `ml_labels.csv` (SRS §8 ML09-ML12)**:
+  - Future claim prediction (ML09): `future_claim` in `{0, 1}` (~10% positive rate).
+  - Claim cost regression (ML10): `cout_sinistre`, strictly `0.00` when `future_claim == 0` and positive amount when `1`.
+  - Retention/renewal prediction (ML11): `renouvellement` (> 60% retention rate) and `date_renouvellement`.
+  - Multiclass risk rating (ML12): `risque_categorie` across 4 classes: `faible`, `moyen`, `eleve`, `tres_eleve`.
+  - Upstream calculated variables: `historique_sinistres` and `anciennete_client`.
+  - Latent risk rating: `score_risque_interne` in `[100.0, 900.0]`.
+- **Intentional leakage scenarios and shortcuts (SRS §8 ML13-ML19)**:
+  - Behavioral drift (ML13, `ML13_DRIFT`) and unseen extreme values (ML14, `ML14_UNSEEN`).
+  - Inter-contract customer leakage (ML15, `ML15_LEAK`).
+  - Post-claim temporal leakage (ML16, `ML16_POST_LEAK`).
+  - Artificial shortcut correlated to identifiers (ML17, `ML17_SHORTCUT`).
+  - Subsidiary branch imbalance (ML18, `ML18_IMBALANCE`) and segment-conditioned missingness (ML19, `ML19_MISSING`).
+- **Leakage-free dataset partitioning: `<dataset>.<profile>.splits.csv` (SRS §8, §15, Lot 14)**:
+  - Produced alongside `ml_labels.csv` with 6 standard columns: `row_number`, `id_contrat`, `id_client`, `split_client`, `split_temporal`, `resampled_train_only`.
+  - Customer-grouped fold partition (`split_client`): 70% train / 15% val / 15% test with 0 shared clients.
+  - Chronological partition (`split_temporal`): strict cutoff dates separating train, val, and test.
+  - Resampling isolation: `resampled_train_only` flag ensuring test folds keep uncorrupted natural distributions.
+  - Registered in `manifest.json` under role `"splits"`, with size and SHA-256.
+  - New committed schema `src/tabalyst/schemas/tabalyst.generate.splits.schema.json` formalizing format `tabalyst.generate.splits`, version `0.2.0`, revision 1.
+  - Extended metrics `SplitMetrics` added to `metrics.json`.
+- **Profile `ml_leakage_test`**:
+  - Added to `dataset.yaml` with 7 scenarios, defaulting `effective_output` to `extended`.
+- **Strict non-regression**:
+  - 121 contract tests passing.
 - `generation_version` stays 2.
 
 ## 9. Documentation, versions and languages

@@ -1605,3 +1605,93 @@ anomaly_profiles:
       rarity_level: very_rare
       expected_detection: none
       description: Valid atypical policyholder choices benchmarked for unsupervised anomaly detection
+  ml_leakage_test:
+    targets:
+    - insurance-combined
+    min_rows: 10000
+    operations:
+    - kind: replace
+      column: canal_acquisition
+      value: web
+      count: 100
+      when: {date_creation: ">=2024-01-01"}
+      can_overlap: true
+      scenario_id: ML13_DRIFT
+      category: contextual_invalid
+      severity: minor
+      rarity_level: rare
+      expected_detection: statistical
+      description: Behavioral drift accelerating shift to online web declarations post-2024
+    - kind: replace
+      column: produit_code
+      value: VOY_MULTI
+      count: 25
+      when: {type_contrat: "voyage", date_creation: ">=2024-01-01"}
+      can_overlap: true
+      scenario_id: ML14_UNSEEN
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Unseen product category VOY_MULTI absent from pre-2024 historical training partition
+    - kind: format
+      column: nom
+      value: upper
+      count: 50
+      when: {statut_contrat: "actif"}
+      can_overlap: true
+      scenario_id: ML15_LEAK
+      category: format_variant
+      severity: info
+      rarity_level: very_rare
+      expected_detection: syntactic
+      description: Multi-contract insured identity susceptible to data leakage across naive splits
+    - kind: replace
+      column: statut_paiement
+      value: payé
+      count: 30
+      when: {reclamation_status: "fermé"}
+      can_overlap: true
+      scenario_id: ML16_POST_LEAK
+      category: contextual_invalid
+      severity: major
+      rarity_level: very_rare
+      expected_detection: cross_column
+      description: Post-claim administrative payment status update leaking claim occurrence
+    - kind: replace
+      column: prime_annuelle
+      value: "877.00"
+      count: 20
+      when: {type_contrat: "auto"}
+      can_overlap: true
+      scenario_id: ML17_SHORTCUT
+      category: valid_atypical
+      severity: info
+      rarity_level: very_rare
+      expected_detection: none
+      description: Artificial shortcut feature pattern correlated with identifier suffix
+    - kind: replace
+      column: agence_code
+      value: AG-ONT-001
+      count: 40
+      when: {filiale: "ontario"}
+      can_overlap: true
+      scenario_id: ML18_IMBALANCE
+      category: contextual_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Branch-level class distribution skew concentrating elevated claim rates in Ontario
+    - kind: set_missing
+      column: date_naissance
+      count: 30
+      when: {filiale: "quebec", statut_contrat: "actif"}
+      can_overlap: true
+      scenario_id: ML19_MISSING
+      missing_mechanism: mar
+      missing_reason: unreported
+      category: semantic_invalid
+      severity: minor
+      rarity_level: very_rare
+      expected_detection: statistical
+      description: Segment-conditioned missing demographic feature benchmarked for incomplete learning

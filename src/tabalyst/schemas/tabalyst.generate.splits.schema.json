@@ -1,0 +1,149 @@
+{
+  "$defs": {
+    "SplitColumnSpec": {
+      "additionalProperties": false,
+      "description": "Specification of one column in splits.csv.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description"
+      ],
+      "title": "SplitColumnSpec",
+      "type": "object"
+    },
+    "SplitMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on dataset partitions and leakage prevention.",
+      "properties": {
+        "total_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Rows",
+          "type": "integer"
+        },
+        "client_mode_counts": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Client Mode Counts",
+          "type": "object"
+        },
+        "temporal_mode_counts": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Temporal Mode Counts",
+          "type": "object"
+        },
+        "unique_clients": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Unique Clients",
+          "type": "integer"
+        },
+        "client_leakage_cases": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Client Leakage Cases",
+          "type": "integer"
+        },
+        "resampled_train_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Resampled Train Rows",
+          "type": "integer"
+        },
+        "temporal_cutoffs": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Temporal Cutoffs",
+          "type": "object"
+        }
+      },
+      "title": "SplitMetrics",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Document tabalyst.generate.splits, format 0.2.0 revision 1: the dataset partitioning and leakage prevention specification.",
+  "properties": {
+    "format": {
+      "const": "tabalyst.generate.splits",
+      "default": "tabalyst.generate.splits",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 1,
+      "default": 1,
+      "title": "Format Revision",
+      "type": "integer"
+    },
+    "dataset": {
+      "title": "Dataset",
+      "type": "string"
+    },
+    "profile": {
+      "title": "Profile",
+      "type": "string"
+    },
+    "rows": {
+      "minimum": 0,
+      "title": "Rows",
+      "type": "integer"
+    },
+    "columns": {
+      "items": {
+        "$ref": "#/$defs/SplitColumnSpec"
+      },
+      "title": "Columns",
+      "type": "array"
+    },
+    "modes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Modes",
+      "type": "array"
+    },
+    "metrics": {
+      "$ref": "#/$defs/SplitMetrics"
+    }
+  },
+  "required": [
+    "dataset",
+    "profile",
+    "rows",
+    "columns",
+    "metrics",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst Generate splits",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

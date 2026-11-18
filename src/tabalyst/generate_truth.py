@@ -26,7 +26,12 @@ from tabalyst.generate_ml import (
     MLFraudMetrics,
     MLLabelRow,
     MLLabelsDocument,
+    SplitMetrics,
+    SplitRow,
+    SplitsDocument,
     build_ml_labels,
+    build_splits,
+    is_extended_ml_profile,
     is_ml_profile,
 )
 from tabalyst.generate_rarity import SAMPLE_SIZES, absence_probability
@@ -59,6 +64,7 @@ SCHEMA_FILES: Final = {
     "metrics": "tabalyst.generate.metrics.schema.json",
     "manifest": "tabalyst.generate.manifest.schema.json",
     "ml_labels": "tabalyst.generate.ml_labels.schema.json",
+    "splits": "tabalyst.generate.splits.schema.json",
 }
 
 Count = Annotated[int, Field(ge=0)]
@@ -201,6 +207,7 @@ class MetricsDocument(_Model):
     missing_data: MissingDataMetrics = Field(default_factory=MissingDataMetrics)
     temporal_drift: TemporalDriftMetrics = Field(default_factory=TemporalDriftMetrics)
     ml_fraud: MLFraudMetrics = Field(default_factory=MLFraudMetrics)
+    splits: SplitMetrics = Field(default_factory=SplitMetrics)
 
 
 class ScenarioEntry(_Model):
@@ -250,6 +257,8 @@ class TruthResult:
     metrics: MetricsDocument
     rules: RulesDocument
     ml_labels: tuple[MLLabelRow, ...] = ()
+    splits: tuple[SplitRow, ...] = ()
+    is_extended_ml: bool = False
 
 
 def _text(operation: Mapping[str, object], key: str) -> str:
@@ -365,16 +374,24 @@ def build_truth(clean: Path, altered: Path, events: Sequence[AnomalyEvent],
                     enumerate(sorted(lines, key=TruthLine.sort_key), 1))
     ml_labels_tuple: tuple[MLLabelRow, ...] = ()
     ml_fraud = MLFraudMetrics()
+    splits_tuple: tuple[SplitRow, ...] = ()
+    splits_metrics: SplitMetrics | None = None
+    is_ext_ml = False
     if is_ml:
+        is_ext_ml = is_extended_ml_profile(profile, operations)
         ml_labels_tuple, ml_fraud = build_ml_labels(
             clean_collected, altered_collected, events, profile,
             seed=seed, as_of_date=as_of_date, dataset=dataset,
         )
+        splits_tuple, splits_metrics = build_splits(
+            clean_collected, altered_collected, ml_labels_tuple, profile,
+            seed=seed, dataset=dataset, as_of_date=as_of_date,
+        )
     metrics = _metrics(ordered, summary, operations, rules, dataset=dataset, profile=profile_id,
-                       total=total, branches=branches, ml_fraud=ml_fraud)
+                       total=total, branches=branches, ml_fraud=ml_fraud, splits=splits_metrics)
     document = RulesDocument(dataset=dataset, profile=profile_id, as_of_date=as_of_date,
                              conventions=conventions, rules=list(rules))
-    return TruthResult(ordered, metrics, document, ml_labels=ml_labels_tuple)
+    return TruthResult(ordered, metrics, document, ml_labels=ml_labels_tuple, splits=splits_tuple, is_extended_ml=is_ext_ml)
 
 
 def _relational_lines(event: AnomalyEvent, operation: Mapping[str, object], dataset: str,
@@ -404,7 +421,8 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
              operations: Sequence[Mapping[str, object]], rules: Sequence[Rule], *,
              dataset: str, profile: str, total: int,
              branches: Mapping[str, int],
-             ml_fraud: MLFraudMetrics | None = None) -> MetricsDocument:
+             ml_fraud: MLFraudMetrics | None = None,
+             splits: SplitMetrics | None = None) -> MetricsDocument:
     injected = [line for line in lines if line.kind == "injected"]
     counts = Counts(
         events=len({line.event_id for line in injected}),
@@ -520,7 +538,8 @@ def _metrics(lines: Sequence[TruthLine], summary: Mapping[str, object],
         root_causes=root_causes,
         missing_data=missing_data,
         temporal_drift=temporal_drift,
-        ml_fraud=ml_fraud or MLFraudMetrics())
+        ml_fraud=ml_fraud or MLFraudMetrics(),
+        splits=splits or SplitMetrics())
 
 
 def _absence(rows: int, cases: int, spans_rows: bool) -> AbsenceProbability:
@@ -597,6 +616,8 @@ def generate_schemas() -> dict[str, str]:
                             "the inputs and file digests of a scenario profile's run."),
         "ml_labels": _schema(MLLabelsDocument, "Tabalyst Generate ML labels",
                              "the synthetic fraud and machine learning labels specification."),
+        "splits": _schema(SplitsDocument, "Tabalyst Generate splits",
+                          "the dataset partitioning and leakage prevention specification."),
     }
     return {role: json.dumps(schema, indent=2, ensure_ascii=False) + "\n"
             for role, schema in schemas.items()}

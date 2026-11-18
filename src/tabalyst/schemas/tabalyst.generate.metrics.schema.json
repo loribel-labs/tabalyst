@@ -363,6 +363,61 @@
       "title": "ScenarioMetrics",
       "type": "object"
     },
+    "SplitMetrics": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics on dataset partitions and leakage prevention.",
+      "properties": {
+        "total_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Rows",
+          "type": "integer"
+        },
+        "client_mode_counts": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Client Mode Counts",
+          "type": "object"
+        },
+        "temporal_mode_counts": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Temporal Mode Counts",
+          "type": "object"
+        },
+        "unique_clients": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Unique Clients",
+          "type": "integer"
+        },
+        "client_leakage_cases": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Client Leakage Cases",
+          "type": "integer"
+        },
+        "resampled_train_rows": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Resampled Train Rows",
+          "type": "integer"
+        },
+        "temporal_cutoffs": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Temporal Cutoffs",
+          "type": "object"
+        }
+      },
+      "title": "SplitMetrics",
+      "type": "object"
+    },
     "TemporalDriftMetrics": {
       "additionalProperties": false,
       "description": "Aggregate metrics on temporal rule validity, periods, and drift scenarios.",
@@ -482,6 +537,9 @@
     },
     "ml_fraud": {
       "$ref": "#/$defs/MLFraudMetrics"
+    },
+    "splits": {
+      "$ref": "#/$defs/SplitMetrics"
     }
   },
   "required": [

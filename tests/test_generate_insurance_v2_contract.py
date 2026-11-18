@@ -46,13 +46,13 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13"}
+ENABLED_LOTS: set[str] = {"0", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13", "14"}
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_PROFILES = {"dirty_realistic", "dirty_stress", "rule_breaks"}
-# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7, 11, 12 and 13).
-V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms", "schema_drift", "ml_fraud_imbalanced"}
+# The scenario profiles the package ships: each lot that delivers one adds it here (lots 3, 7, 11, 12, 13 and 14).
+V2_PROFILES = {"rare_events", "format_vs_business", "anomaly_diversity", "clustered_errors", "missing_mechanisms", "schema_drift", "ml_fraud_imbalanced", "ml_leakage_test"}
 
 # Section 3.3 of the contract: the unit is the case; the band is what a scenario total may be.
 NOMINAL_CASES = {"frequent": 5000, "uncommon": 500, "rare": 100, "very_rare": 50,
@@ -3056,6 +3056,365 @@ def test_lot13_ml_labels_schema_validation() -> None:
     # Instance validation
     doc = ml_labels_document("insurance-combined", "ml_fraud_imbalanced", 10000, MLFraudMetrics())
     jsonschema.validate(doc.model_dump(mode="json"), schema, cls=jsonschema.Draft202012Validator)
+
+
+@contract("14")
+def test_lot14_ml_targets_and_features(tmp_path: Path) -> None:
+    """SRS §8 ML09-ML12: Extended ML prediction targets in ml_labels.csv."""
+    out = tmp_path / "targets_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_leakage_test",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    labels_file = out / "insurance-combined.ml_leakage_test.ml_labels.csv"
+    assert labels_file.is_file(), "ml_labels.csv must be produced for ml_leakage_test"
+    with labels_file.open("r", encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    assert len(rows) == 10000
+    expected_cols = [
+        "row_number",
+        "id_contrat",
+        "is_fraud",
+        "observed_label",
+        "confirmation_date",
+        "fraud_type",
+        "latent_probability",
+        "future_claim",
+        "cout_sinistre",
+        "renouvellement",
+        "date_renouvellement",
+        "risque_categorie",
+        "historique_sinistres",
+        "anciennete_client",
+        "score_risque_interne",
+    ]
+    assert list(rows[0].keys()) == expected_cols
+
+    # ML09: future_claim in {0, 1} with realistic positive frequency
+    future_claims = [int(r["future_claim"]) for r in rows]
+    assert all(fc in (0, 1) for fc in future_claims)
+    fc_pos = sum(future_claims)
+    assert 500 <= fc_pos <= 2500, f"Expected ~10% future claims, got {fc_pos}"
+
+    # ML10: cout_sinistre >= 0.00, and 0.00 when future_claim == 0
+    for r in rows:
+        cost = float(r["cout_sinistre"])
+        fc = int(r["future_claim"])
+        if fc == 0:
+            assert cost == 0.0, "Zero claim cost when future_claim == 0"
+        else:
+            assert cost > 0.0, "Positive claim cost when future_claim == 1"
+
+    # ML11: renouvellement in {0, 1} and date_renouvellement non-empty iff renewed
+    renewals = [int(r["renouvellement"]) for r in rows]
+    assert all(rn in (0, 1) for rn in renewals)
+    assert sum(renewals) > 6000, "Realistic renewal rate > 60%"
+    for r in rows:
+        if int(r["renouvellement"]) == 1:
+            assert re.match(r"^\d{4}-\d{2}-\d{2}$", r["date_renouvellement"])
+        else:
+            assert r["date_renouvellement"] == ""
+
+    # ML12: risque_categorie covers all 4 risk classes
+    cats = Counter(r["risque_categorie"] for r in rows)
+    assert set(cats.keys()) == {"faible", "moyen", "eleve", "tres_eleve"}
+    assert cats["faible"] > 2000
+    assert cats["moyen"] > 2000
+    assert cats["eleve"] > 500
+    assert cats["tres_eleve"] > 50
+
+
+@contract("14")
+def test_lot14_calculated_antecedent_features(tmp_path: Path) -> None:
+    """SRS §8: Upstream engineered features (historique_sinistres, anciennete_client)."""
+    out = tmp_path / "antecedents_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_leakage_test",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    labels_file = out / "insurance-combined.ml_leakage_test.ml_labels.csv"
+    splits_file = out / "insurance-combined.ml_leakage_test.splits.csv"
+    with labels_file.open("r", encoding="utf-8", newline="") as f:
+        lrows = list(csv.DictReader(f))
+    with splits_file.open("r", encoding="utf-8", newline="") as f:
+        srows = list(csv.DictReader(f))
+
+    # All historique_sinistres are non-negative integers
+    hist_vals = [int(r["historique_sinistres"]) for r in lrows]
+    assert all(h >= 0 for h in hist_vals)
+    assert any(h > 0 for h in hist_vals)
+
+    # Anciennete_client is non-negative and bounded realistically (<= 25 years)
+    tenure_vals = [int(r["anciennete_client"]) for r in lrows]
+    assert all(0 <= t <= 25 for t in tenure_vals)
+    assert any(t > 0 for t in tenure_vals)
+
+    # Group by id_client: verify that all contracts of the same client share identical tenure
+    client_tenures: dict[str, set[str]] = {}
+    for lr, sr in zip(lrows, srows, strict=True):
+        client_tenures.setdefault(sr["id_client"], set()).add(lr["anciennete_client"])
+    assert all(len(tenures) == 1 for tenures in client_tenures.values()), "Tenure must be consistent per client"
+
+
+@contract("14")
+def test_lot14_leakage_and_shortcut_scenarios(tmp_path: Path) -> None:
+    """SRS §8 ML13-ML19: Behavioral drift, unseen categories, shortcuts, and branch imbalances."""
+    out = tmp_path / "leak_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_leakage_test",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    truth_file = out / "insurance-combined.ml_leakage_test.truth.csv"
+    with truth_file.open("r", encoding="utf-8", newline="") as f:
+        trows = list(csv.DictReader(f))
+
+    scenarios_found = {r["scenario_id"] for r in trows if r["scenario_id"]}
+    assert "ML13_DRIFT" in scenarios_found
+    assert "ML14_UNSEEN" in scenarios_found
+    assert "ML15_LEAK" in scenarios_found
+    assert "ML16_POST_LEAK" in scenarios_found
+    assert "ML17_SHORTCUT" in scenarios_found
+    assert "ML18_IMBALANCE" in scenarios_found
+    assert "ML19_MISSING" in scenarios_found
+
+    # ML16: Post-claim leak modifies payment status on closed claims
+    post_claim_events = [r for r in trows if r["scenario_id"] == "ML16_POST_LEAK" and r["kind"] == "injected"]
+    assert len(post_claim_events) == 30
+    assert all(r["column"] == "statut_paiement" for r in post_claim_events)
+
+    # ML17: ID shortcut injection
+    shortcut_events = [r for r in trows if r["scenario_id"] == "ML17_SHORTCUT" and r["kind"] == "injected"]
+    assert len(shortcut_events) == 20
+
+    # ML19: Missing values conditioned on segment/branch
+    missing_events = [r for r in trows if r["scenario_id"] == "ML19_MISSING" and r["kind"] == "injected"]
+    assert len(missing_events) == 30
+    assert all(r["canonical_value"] != "" for r in missing_events)
+
+
+@contract("14")
+def test_lot14_splits_client_grouping_no_leakage(tmp_path: Path) -> None:
+    """SRS §8 & Lot 14: Random client grouping in splits.csv guarantees zero client leakage."""
+    out = tmp_path / "splits_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_leakage_test",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    splits_file = out / "insurance-combined.ml_leakage_test.splits.csv"
+    assert splits_file.is_file(), "splits.csv must be published"
+    with splits_file.open("r", encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    assert len(rows) == 10000
+    assert list(rows[0].keys()) == [
+        "row_number",
+        "id_contrat",
+        "id_client",
+        "split_client",
+        "split_temporal",
+        "resampled_train_only",
+    ]
+
+    # Group by id_client across partitions
+    train_clients: set[str] = set()
+    val_clients: set[str] = set()
+    test_clients: set[str] = set()
+
+    client_splits: dict[str, set[str]] = {}
+    for r in rows:
+        cid = r["id_client"]
+        sp = r["split_client"]
+        assert sp in ("train", "validation", "test")
+        client_splits.setdefault(cid, set()).add(sp)
+        if sp == "train":
+            train_clients.add(cid)
+        elif sp == "validation":
+            val_clients.add(cid)
+        else:
+            test_clients.add(cid)
+
+    # STRICT ZERO LEAKAGE INVARIANT: Every single client belongs to exactly ONE partition
+    assert all(len(parts) == 1 for parts in client_splits.values()), "Clients must not be split across partitions"
+    assert train_clients.isdisjoint(val_clients), "Train and validation must share zero clients"
+    assert train_clients.isdisjoint(test_clients), "Train and test must share zero clients"
+    assert val_clients.isdisjoint(test_clients), "Validation and test must share zero clients"
+
+    # Partition proportions approximately 70% / 15% / 15%
+    c_counts = Counter(r["split_client"] for r in rows)
+    assert 6500 <= c_counts["train"] <= 7500
+    assert 1200 <= c_counts["validation"] <= 1800
+    assert 1200 <= c_counts["test"] <= 1800
+
+    # Also check metrics.json
+    metrics = json.loads((out / "insurance-combined.ml_leakage_test.metrics.json").read_text(encoding="utf-8"))
+    assert "splits" in metrics
+    sp_m = metrics["splits"]
+    assert sp_m["client_leakage_cases"] == 0
+    assert sp_m["total_rows"] == 10000
+
+
+@contract("14")
+def test_lot14_splits_temporal_chronology(tmp_path: Path) -> None:
+    """SRS §8 & Lot 14: Temporal split respects strict chronology without future data leakage."""
+    out = tmp_path / "temp_splits_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_leakage_test",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    splits_file = out / "insurance-combined.ml_leakage_test.splits.csv"
+    data_file = out / "insurance-combined.ml_leakage_test.csv"
+    with splits_file.open("r", encoding="utf-8", newline="") as f:
+        srows = list(csv.DictReader(f))
+    with data_file.open("r", encoding="utf-8", newline="") as f:
+        drows = list(csv.DictReader(f))
+
+    from datetime import date, datetime
+
+    def parse_d(text: str) -> date | None:
+        for fmt in ("%Y-%m-%d", "%m-%d-%Y", "%d-%m-%Y"):
+            try:
+                return datetime.strptime(text[:10], fmt).date()  # noqa: DTZ007
+            except ValueError:
+                continue
+        return None
+
+    train_dates: list[date] = []
+    val_dates: list[date] = []
+    test_dates: list[date] = []
+
+    for sr, dr in zip(srows, drows, strict=True):
+        dt = parse_d(dr["date_debut"])
+        if dt is None:
+            continue
+        part = sr["split_temporal"]
+        if part == "train":
+            train_dates.append(dt)
+        elif part == "validation":
+            val_dates.append(dt)
+        elif part == "test":
+            test_dates.append(dt)
+
+    # Invariants for temporal split:
+    # All train rows strictly before 2024-01-01
+    assert all(d < date(2024, 1, 1) for d in train_dates)
+    # All validation rows in [2024-01-01, 2024-12-31]
+    assert all(date(2024, 1, 1) <= d < date(2025, 1, 1) for d in val_dates)
+    # All test rows strictly on or after 2025-01-01
+    assert all(d >= date(2025, 1, 1) for d in test_dates)
+
+    # Chronological separation: max(train) < min(val) and max(val) < min(test)
+    assert max(train_dates) < min(val_dates)
+    assert max(val_dates) < min(test_dates)
+
+
+@contract("14")
+def test_lot14_splits_resampling_train_isolation(tmp_path: Path) -> None:
+    """SRS §8 & Lot 14: Resampling is strictly isolated to training partition."""
+    out = tmp_path / "resample_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_leakage_test",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    splits_file = out / "insurance-combined.ml_leakage_test.splits.csv"
+    with splits_file.open("r", encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    # All resampled_train_only flags must be in {0, 1}
+    assert all(r["resampled_train_only"] in ("0", "1") for r in rows)
+
+    # STRICT INVARIANT: If partition is NOT train, resampled_train_only must be 0!
+    val_test_rows = [r for r in rows if r["split_client"] in ("validation", "test")]
+    assert all(r["resampled_train_only"] == "0" for r in val_test_rows), (
+        "Validation and test partitions must never be resampled"
+    )
+
+    # In train partition, resampled positive instances exist
+    train_rows = [r for r in rows if r["split_client"] == "train"]
+    resampled_train = [r for r in train_rows if r["resampled_train_only"] == "1"]
+    assert len(resampled_train) > 0, "Train partition should flag resampled positive cases"
+
+
+@contract("14")
+def test_lot14_splits_schema_validation() -> None:
+    """SRS §15 & Lot 14: tabalyst.generate.splits.schema.json validates against Draft202012."""
+    import jsonschema
+
+    from tabalyst.generate_ml import SplitMetrics, splits_document
+
+    schema_file = ROOT / "src/tabalyst/schemas/tabalyst.generate.splits.schema.json"
+    assert schema_file.is_file(), "Splits schema file missing"
+    schema = json.loads(schema_file.read_text(encoding="utf-8"))
+
+    # Draft202012 schema check
+    jsonschema.Draft202012Validator.check_schema(schema)
+
+    # Instance validation
+    doc = splits_document("insurance-combined", "ml_leakage_test", 10000, SplitMetrics())
+    jsonschema.validate(doc.model_dump(mode="json"), schema, cls=jsonschema.Draft202012Validator)
+
+
+@contract("14")
+def test_lot14_manifest_includes_splits(tmp_path: Path) -> None:
+    """SRS §15 & Lot 14: manifest.json includes splits.csv with role 'splits' and sha256."""
+    out = tmp_path / "manifest_run"
+    plan = build_generate_plan(
+        PACKAGE,
+        anomaly_profile="ml_leakage_test",
+        rows=10000,
+        seed=42,
+        output_dir=out,
+    )
+    generate_datasets(plan)
+
+    manifest_file = out / "insurance-combined.ml_leakage_test.manifest.json"
+    manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+    files_by_role = {entry["role"]: entry for entry in manifest["files"]}
+
+    assert "splits" in files_by_role, "Manifest must register role 'splits'"
+    sp_entry = files_by_role["splits"]
+    assert sp_entry["name"] == "insurance-combined.ml_leakage_test.splits.csv"
+    assert len(sp_entry["sha256"]) == 64
+    assert sp_entry["bytes"] > 0
+
+    # Verify sha256 digest against actual file on disk
+    import hashlib
+
+    splits_file = out / "insurance-combined.ml_leakage_test.splits.csv"
+    assert splits_file.is_file()
+    actual_hash = hashlib.sha256(splits_file.read_bytes()).hexdigest()
+    assert sp_entry["sha256"] == actual_hash
+
 
 
 
