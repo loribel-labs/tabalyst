@@ -1,7 +1,22 @@
 ---
 title: Release notes
-description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.7.7.
+description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.8.0.
 ---
+
+## 0.8.0
+
+[Tabalyst Generate](../generate/index.md) delivers the complete **Insurance V2**
+benchmark engine, transforming insurance customer generation into an open-source reference
+testbed for data quality, sampling strategies and machine learning. Every scenario profile
+automatically produces a ground-truth suite (`truth.csv`, `rules.json`, `metrics.json`,
+`manifest.json`). Adds exact-count rarity levels (`rare_events`), normalized
+relational database generation with 4 tables (`--relational`), operational row-order
+biases (`--row-order`), missingness mechanisms (`missing_mechanisms`), temporal drift
+and schema evolution (`schema_drift`), supervised fraud detection targets and
+leakage-free partitions (`splits.csv`), and technical stress edge cases.
+Generation is now in English by default (`--locales en`, `insurance-main.csv`,
+English demographics and titles, English showcase demo), with French support (`--locales fr`).
+Includes full Python API support and empirical benchmarks in `tabalyst-lab`.
 
 ## 0.7.7
 
