@@ -615,7 +615,7 @@ CLAIM_COUNTS: tuple[list[int], list[int]] = (
 
 
 def _parse_branch_date(text: str, fmt: str) -> date:
-    return datetime.strptime(text, fmt).date()  # noqa: DTZ007 - a date has no zone
+    return datetime.strptime(text, fmt).date()
 
 
 def extend_insurance_row(row: Mapping[str, str], branch: str,

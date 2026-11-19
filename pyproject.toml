@@ -95,3 +95,8 @@ target-version = "py311"
 # default and ruff 0.17 does not, so the exemption lives here and not in a noqa comment.
 "src/tabalyst/scanner/secondpass/orders.py" = ["DTZ001"]
 "tests/scan/test_date_order.py" = ["DTZ001"]
+# Naive date parsing for Generate; ruff 0.16 enables DTZ007 by default and ruff 0.17+ does not.
+"src/tabalyst/generate_insurance.py" = ["DTZ007"]
+"src/tabalyst/generate_ml.py" = ["DTZ007"]
+"src/tabalyst/generate_rules.py" = ["DTZ007"]
+"tests/test_generate_insurance_v2_contract.py" = ["DTZ007"]

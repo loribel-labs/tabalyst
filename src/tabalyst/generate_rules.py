@@ -344,7 +344,7 @@ class RuleContext:
         else:
             pattern = _ISO_DATE
         try:
-            parsed = datetime.strptime(text, pattern)  # noqa: DTZ007 - a date has no zone
+            parsed = datetime.strptime(text, pattern)
         except ValueError:
             return None
         return parsed.date() if parsed.strftime(pattern) == text else None

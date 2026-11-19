@@ -3302,7 +3302,7 @@ def test_lot14_splits_temporal_chronology(tmp_path: Path) -> None:
     def parse_d(text: str) -> date | None:
         for fmt in ("%Y-%m-%d", "%m-%d-%Y", "%d-%m-%Y"):
             try:
-                return datetime.strptime(text[:10], fmt).date()  # noqa: DTZ007
+                return datetime.strptime(text[:10], fmt).date()
             except ValueError:
                 continue
         return None

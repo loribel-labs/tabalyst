@@ -280,7 +280,7 @@ def _parse_iso_date(value: str) -> date | None:
     if not value or len(value) < 10:
         return None
     try:
-        return datetime.strptime(value[:10], "%Y-%m-%d").date()  # noqa: DTZ007
+        return datetime.strptime(value[:10], "%Y-%m-%d").date()
     except ValueError:
         return None
 
@@ -292,7 +292,7 @@ def _parse_flexible_date(value: str) -> date | None:
     val = value.strip()
     for fmt in ("%Y-%m-%d", "%m-%d-%Y", "%d-%m-%Y"):
         try:
-            return datetime.strptime(val[:10], fmt).date()  # noqa: DTZ007
+            return datetime.strptime(val[:10], fmt).date()
         except ValueError:
             continue
     return None
