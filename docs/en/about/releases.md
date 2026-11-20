@@ -1,7 +1,16 @@
 ---
 title: Release notes
-description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.8.0.
+description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.8.1.
 ---
+
+## 0.8.1
+
+[Tabalyst Generate](../generate/index.md) unifies the main generated file name to
+`insurance-main.csv` across all locales (retiring `insurance-principal.csv`), with
+symmetric naming in multi-locale mode (`insurance-main-en.csv`, `insurance-main-fr.csv`).
+Enriches the documentation with a dedicated `Locales and languages` section and a complete
+column mapping table between English and French headers. The public showcase demo
+`insurance-customers` and its interactive report are updated in English.
 
 ## 0.8.0
 
