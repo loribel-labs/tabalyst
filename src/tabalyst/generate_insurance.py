@@ -462,7 +462,7 @@ INSURANCE_DATASET_NAMES: dict[str, dict[str, str]] = {
         "insurance-combined": "insurance-combined",
     },
     "fr": {
-        "insurance-principal": "insurance-principal",
+        "insurance-principal": "insurance-main",
         "insurance-quebec": "insurance-quebec",
         "insurance-ontario": "insurance-ontario",
         "insurance-combined": "insurance-combined",

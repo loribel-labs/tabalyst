@@ -1172,7 +1172,7 @@ def test_default_profile_keeps_34_columns_and_combined_35(tmp_path: Path) -> Non
     plan = build_generate_plan(example="insurance", rows=100, seed=42, output_dir=out)
     assert plan.output_profile == "default"
     generate_datasets(plan)
-    for branch in ("insurance-principal", "insurance-ontario", "insurance-quebec"):
+    for branch in ("insurance-main", "insurance-ontario", "insurance-quebec"):
         header = (out / f"{branch}.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
         assert header == list(FIELDS)
     combined_header = (out / "insurance-combined.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
@@ -1192,7 +1192,7 @@ def test_extended_output_profile_appends_10_columns_in_contract_order(tmp_path: 
     generate_datasets(plan_ext)
 
     # Branches: 43 columns (*FIELDS, *EXTENDED_FIELDS)
-    for branch in ("insurance-principal", "insurance-ontario", "insurance-quebec"):
+    for branch in ("insurance-main", "insurance-ontario", "insurance-quebec"):
         def_rows = _csv_rows(out_def / f"{branch}.csv")
         ext_rows = _csv_rows(out_ext / f"{branch}.csv")
         ext_header = (out_ext / f"{branch}.csv").read_text(encoding="utf-8").splitlines()[0].split(",")
@@ -1347,8 +1347,8 @@ def test_extended_streams_independence(tmp_path: Path) -> None:
     generate_datasets(plan1)
     generate_datasets(plan2)
 
-    rows1 = _csv_rows(out1 / "insurance-principal.csv")
-    rows2 = _csv_rows(out2 / "insurance-principal.csv")
+    rows1 = _csv_rows(out1 / "insurance-main.csv")
+    rows2 = _csv_rows(out2 / "insurance-main.csv")
     assert rows1 == rows2
 
     # Verifying that extend_insurance_row uses the column streams deterministically
@@ -1577,7 +1577,7 @@ def test_complete_output_profile_appends_tranche_b_columns_in_contract_order(tmp
     generate_datasets(plan_com)
 
     # Branches: 50 columns (*FIELDS, *EXTENDED_FIELDS, *TRANCHE_B_FIELDS, *TRANCHE_C_FIELDS)
-    for branch in ("insurance-principal", "insurance-ontario", "insurance-quebec"):
+    for branch in ("insurance-main", "insurance-ontario", "insurance-quebec"):
         def_rows = _csv_rows(out_def / f"{branch}.csv")
         ext_rows = _csv_rows(out_ext / f"{branch}.csv")
         com_rows = _csv_rows(out_com / f"{branch}.csv")
@@ -2595,8 +2595,12 @@ def test_lot12_tranche_c_columns_in_complete_profile(tmp_path: Path) -> None:
     assert fields[-3:] == ["date_observation", "version_source", "source_system"]
 
     # Each branch file has 50 columns (47 + 3 Tranche C, no 'filiale')
-    for branch in ("principal", "quebec", "ontario"):
-        bf = out / f"insurance-{branch}.csv"
+    for branch, file_name in (
+        ("principal", "insurance-main.csv"),
+        ("quebec", "insurance-quebec.csv"),
+        ("ontario", "insurance-ontario.csv"),
+    ):
+        bf = out / file_name
         assert bf.is_file()
         with bf.open("r", encoding="utf-8", newline="") as f:
             bfields = (csv.DictReader(f).fieldnames or [])
@@ -2640,7 +2644,7 @@ def test_lot12_schema_drift_execution_and_metrics(tmp_path: Path) -> None:
         "insurance-combined.schema_drift.rules.json",
         "insurance-combined.schema_drift.metrics.json",
         "insurance-combined.schema_drift.manifest.json",
-        "insurance-principal.csv",
+        "insurance-main.csv",
         "insurance-quebec.csv",
         "insurance-ontario.csv",
     ]

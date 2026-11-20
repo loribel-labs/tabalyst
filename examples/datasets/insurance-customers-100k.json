@@ -5,6 +5,7 @@
     "example": "insurance",
     "rows": 100000,
     "seed": 20260916,
+    "locales": "en",
     "anomaly_profile": "dirty_stress"
   },
   "files": {

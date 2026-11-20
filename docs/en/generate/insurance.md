@@ -29,14 +29,18 @@ fixed proportions. Without `--rows`, the default is 275,000 rows.
 
 | File | Share | Rows by default | Rows with `--rows 3000` |
 | --- | ---: | ---: | ---: |
-| `insurance-main.csv` (`insurance-principal.csv` with `--locales fr`) | 73% | 200,000 | 2,182 |
+| `insurance-main.csv` | 73% | 200,000 | 2,182 |
 | `insurance-ontario.csv` | 9% | 25,000 | 273 |
 | `insurance-quebec.csv` | 18% | 50,000 | 545 |
 | `insurance-combined.csv` | 100% | 275,000 | 3,000 |
 
+To unify and simplify file naming, the primary branch is always named
+`insurance-main.csv` in all locales. The legacy name `insurance-principal.csv` is
+no longer used.
+
 The combined file has the same 33 columns as a branch plus `branch` (`filiale` in French), which
-names the branch of the row (`main`/`principal`, `ontario` or `quebec`): 34 columns
-in all. By default, columns and values are in English; pass `--locales fr` for French.
+names the branch of the row (`main`, `ontario` or `quebec` in English; `principal`, `ontario` or `quebec` in French): 34 columns
+in all. By default, columns and values are in English; pass `--locales fr` for French, or `--locales en,fr` for both.
 
 ## What the files hold
 
@@ -94,23 +98,123 @@ between `0.00` and `1.00`, `consentement_communication` is a boolean indicator,
 software versions (`v1.0`, `v2.0`, `v2.1`) and origin IT systems (`SYS_PRI`, `SYS_QC`,
 `SYS_ON_CORE`, `SYS_ON_LEGACY`).
 
-### Locales and English default
+## Locales and languages
 
-By default, Insurance generates English customer files (`insurance-main.csv`,
-English column headers, Anglo-Saxon demographics via CommonProvider, Mr./Ms. titles).
-Pass `--locales fr` to produce French files (`insurance-principal.csv`, French demographics):
+The insurance generator supports English and French. The underlying random draws
+and entity properties remain deterministic: generating with the same seed
+produces identical customer records, localized to the chosen language.
+
+### English (default: `--locales en`)
+
+By default, Insurance generates customer files in English:
 
 ```console
-tabalyst generate --example insurance -d out/ --locales fr
+tabalyst generate --example insurance --rows 3000 -d out/
 ```
 
-Or `--locales en,fr` to write both variants. The `--english` option is retained as an alias for `--locales en`.
-Headers are translated (`customer_id`, `contract_id`, `branch`, `annual_premium`, etc.),
-and categorical values are adapted (`auto`, `home`, `life`, `travel` for contract types;
-`active`, `expired`, `suspended`, `cancelled` for statuses; `Mr.`, `Ms.` for honorifics).
-Relational table names also follow the locale (`customers.csv`, `contracts.csv`, `claims.csv`, `payments.csv`
-in English; `clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv` in French).
-The underlying random draws and entity properties remain deterministic.
+- **File names**: `insurance-main.csv`, `insurance-ontario.csv`, `insurance-quebec.csv`, and `insurance-combined.csv`.
+- **Headers**: English column names (`customer_id`, `title`, `first_name`, `last_name`, `branch`, `annual_premium`, etc.).
+- **Demographics & honorifics**: Anglo-Saxon first names and surnames; honorific titles `Mr.` and `Ms.`.
+- **Categorical values**: English terms (`auto`, `home`, `life`, `travel` for contract types; `active`, `expired`, `suspended`, `cancelled` for contract statuses; `open`, `in_progress`, `closed`, `rejected` for claim statuses; `main`, `ontario`, `quebec` for branch).
+- **Relational mode (`--relational`)**: generates `customers.csv`, `contracts.csv`, `claims.csv`, and `payments.csv`.
+
+`--english` is retained as a backward-compatible alias for `--locales en`.
+
+### French (`--locales fr`)
+
+Pass `--locales fr` to generate customer files in French:
+
+```console
+tabalyst generate --example insurance --rows 3000 -d out/ --locales fr
+```
+
+- **File names**: `insurance-main.csv` (unified with English, replacing `insurance-principal.csv`), `insurance-ontario.csv`, `insurance-quebec.csv`, and `insurance-combined.csv`.
+- **Headers**: French column names (`id_client`, `civilite`, `prenom`, `nom`, `filiale`, `prime_annuelle`, etc.), matching the column lists in [What the files hold](#what-the-files-hold).
+- **Demographics & honorifics**: French first names and surnames; honorific titles `M.` and `Mme`.
+- **Categorical values**: French terms (`auto`, `habitation`, `vie`, `voyage` for contract types; `actif`, `expiré`, `suspendu`, `résilié` for contract statuses; `ouvert`, `en_cours`, `fermé`, `rejeté` for claim statuses; `principal`, `ontario`, `quebec` for filiale).
+- **Relational mode (`--relational`)**: generates `clients.csv`, `contrats.csv`, `reclamations.csv`, and `paiements.csv`.
+
+### Both locales simultaneously (`--locales en,fr`)
+
+Pass `--locales en,fr` to generate both variants in one command:
+
+```console
+tabalyst generate --example insurance --rows 3000 -d out/ --locales en,fr
+```
+
+```text
+Created: out/insurance-main-en.csv
+Created: out/insurance-ontario-en.csv
+Created: out/insurance-quebec-en.csv
+Created: out/insurance-combined-en.csv
+Created: out/insurance-main-fr.csv
+Created: out/insurance-ontario-fr.csv
+Created: out/insurance-quebec-fr.csv
+Created: out/insurance-combined-fr.csv
+Done in 3.1s
+```
+
+When writing both locales, file stems receive `-en` and `-fr` suffixes so both sets coexist cleanly in the target directory. The primary branch is symmetrically named `insurance-main-en.csv` and `insurance-main-fr.csv`.
+
+In relational mode (`--relational --locales en,fr`), both English tables (`customers.csv`, `contracts.csv`, `claims.csv`, `payments.csv`) and French tables (`clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv`) are written side-by-side.
+
+### Column mapping between locales
+
+The tables in [What the files hold](#what-the-files-hold) list the native French column identifiers. When generating in English (the default), headers are translated as follows:
+
+| French column (`--locales fr`) | English column (default / `--locales en`) | Output profile |
+| --- | --- | --- |
+| `id_client` | `customer_id` | Base |
+| `civilite` | `title` | Base |
+| `prenom` | `first_name` | Base |
+| `nom` | `last_name` | Base |
+| `date_naissance` | `birth_date` | Base |
+| `sexe` | `gender` | Base |
+| `langue_preferee` | `preferred_language` | Base |
+| `numero_voie` | `street_number` | Base |
+| `type_voie` | `street_type` | Base |
+| `nom_voie` | `street_name` | Base |
+| `orientation` | `street_direction` | Base |
+| `appartement` | `unit_number` | Base |
+| `ville` | `city` | Base |
+| `province_code` | `province_code` | Base |
+| `province_nom` | `province_name` | Base |
+| `code_postal` | `postal_code` | Base |
+| `pays_code` | `country_code` | Base |
+| `courriel` | `email` | Base |
+| `telephone` | `phone` | Base |
+| `id_contrat` | `contract_id` | Base |
+| `type_contrat` | `contract_type` | Base |
+| `date_debut` | `start_date` | Base |
+| `date_fin` | `end_date` | Base |
+| `statut_contrat` | `contract_status` | Base |
+| `prime_annuelle` | `annual_premium` | Base |
+| `frequence_paiement` | `payment_frequency` | Base |
+| `mode_paiement` | `payment_method` | Base |
+| `agence_code` | `agency_code` | Base |
+| `date_creation` | `creation_date` | Base |
+| `date_modification` | `modification_date` | Base |
+| `date_reclamation` | `claim_date` | Base |
+| `montant_reclamation` | `claim_amount` | Base |
+| `reclamation_status` | `claim_status` | Base |
+| `filiale` (combined file) | `branch` (combined file) | Base |
+| `date_sinistre` | `loss_date` | Extended |
+| `montant_couverture` | `coverage_amount` | Extended |
+| `franchise` | `deductible` | Extended |
+| `montant_indemnise` | `indemnity_amount` | Extended |
+| `date_resiliation` | `cancellation_date` | Extended |
+| `statut_paiement` | `payment_status` | Extended |
+| `canal_acquisition` | `acquisition_channel` | Extended |
+| `courtier_id` | `broker_id` | Extended |
+| `produit_code` | `product_code` | Extended |
+| `nombre_reclamations` | `claim_count` | Extended |
+| `taux_remboursement` | `reimbursement_rate` | Complete (Tranche B) |
+| `consentement_communication` | `communication_consent` | Complete (Tranche B) |
+| `gestionnaire_id` | `manager_id` | Complete (Tranche B) |
+| `segment_client` | `customer_segment` | Complete (Tranche B) |
+| `date_observation` | `observation_date` | Complete (Tranche C) |
+| `version_source` | `source_version` | Complete (Tranche C) |
+| `source_system` | `source_system` | Complete (Tranche C) |
 
 The values follow the rules of the domain, and the clean files hold no
 exception to them, so they can serve to test analyses across columns:
@@ -164,7 +268,7 @@ tabalyst generate --example insurance --rows 3000 -d out/ --anomaly-profile dirt
 ```
 
 ```text
-Created: out/insurance-principal.csv
+Created: out/insurance-main.csv
 Created: out/insurance-ontario.csv
 Created: out/insurance-quebec.csv
 Created: out/insurance-combined.csv
@@ -200,7 +304,7 @@ tabalyst generate --example insurance --rows 3000 -d out/ --anomaly-profile dirt
 ```
 
 ```text
-Created: out/insurance-principal.csv
+Created: out/insurance-main.csv
 Created: out/insurance-ontario.csv
 Created: out/insurance-quebec.csv
 Created: out/insurance-combined.csv
@@ -228,19 +332,19 @@ tabalyst generate --example insurance -d out/ --anomaly-profile rule_breaks
 
 | Class | What changes | Rows changed by default |
 | --- | --- | ---: |
-| `end_before_start` | `date_fin` set to `2016-01-01`, before every start (principal branch) | 797 |
+| `end_before_start` | `date_fin` set to `2016-01-01`, before every start (main branch) | 797 |
 | `status_vs_end_date` | `statut_contrat` set to `actif` on an expired contract | 1,495 |
 | `amount_vs_claim_status` | `montant_reclamation` emptied on a `fermé` claim | 309 |
 | `claim_status_without_date` | `reclamation_status` set to `ouvert` without a claim | 707 |
 | `civilite_vs_sexe` | `civilite` set to `M.` for a woman | 557 |
 | `province_name_vs_code` | `province_nom` set to `Ontario` for a Quebec code | 618 |
 | `agency_vs_branch` | `agence_code` of the Ontario branch in the Quebec branch | 149 |
-| `customer_under_18` | `date_naissance` set to `2015-05-05` (principal branch) | 400 |
+| `customer_under_18` | `date_naissance` set to `2015-05-05` (main branch) | 400 |
 | `payment_vs_frequency` | `mode_paiement` set to `chèque` on a monthly payment | 543 |
 
 A rule applies only to the rows it targets, such as the expired contracts,
 so the number of rows changed depends on the data. The summary gives it for
-every operation. The dates are replaced in the principal branch only, whose
+every operation. The dates are replaced in the main branch only, whose
 dates are ISO, so a broken rule never comes with a format defect.
 
 ### Quality benchmark profiles
@@ -290,7 +394,7 @@ Pass `--relational` with `-d` to generate a normalized 4-table relational databa
 tabalyst generate --example insurance -d out/ --relational
 ```
 
-This publishes `clients.csv` (22 columns), `contrats.csv` (23 columns), `reclamations.csv` (7 columns), and `paiements.csv` (7 columns) alongside their table-specific ground-truth artifacts.
+By default (English), this publishes `customers.csv` (22 columns), `contracts.csv` (23 columns), `claims.csv` (7 columns), and `payments.csv` (7 columns) alongside their table-specific ground-truth artifacts. Pass `--locales fr` to generate French tables (`clients.csv`, `contrats.csv`, `reclamations.csv`, `paiements.csv`), or `--locales en,fr` to write both variants side-by-side.
 
 ## Next steps
 

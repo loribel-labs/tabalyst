@@ -158,7 +158,7 @@ EXPECTED: dict[str, dict[str, str]] = {
             "b45e9265584a810756b02c1d1a65d564ccd7c5667bbe2ce21f61aa51d6046d43",
         "insurance-ontario.csv":
             "2df6a543b016b6dc0de720827b0d688dbfa4dc9b773aac33635e76b808361066",
-        "insurance-principal.csv":
+        "insurance-main.csv":
             "eb59985ff105eed321500a0df2304b86dc7cc31d8cc95c28f5c05e752afb5bea",
         "insurance-quebec.csv":
             "c9af71aefa79e17056f375e4e88ef71fdd803504679b7fcf4e647d4d68e26e88",
@@ -174,7 +174,7 @@ EXPECTED: dict[str, dict[str, str]] = {
             "c9089a9c725acf3d97822a3dab1255fa666379f87a38e616225dc270f941bf12",
         "insurance-ontario.csv":
             "2df6a543b016b6dc0de720827b0d688dbfa4dc9b773aac33635e76b808361066",
-        "insurance-principal.csv":
+        "insurance-main.csv":
             "eb59985ff105eed321500a0df2304b86dc7cc31d8cc95c28f5c05e752afb5bea",
         "insurance-quebec.csv":
             "c9af71aefa79e17056f375e4e88ef71fdd803504679b7fcf4e647d4d68e26e88",
@@ -190,7 +190,7 @@ EXPECTED: dict[str, dict[str, str]] = {
             "68820e51ee60d9d4de7e2565fb3f9da43e302e02a08155c01853e383865c1b02",
         "insurance-ontario.csv":
             "2df6a543b016b6dc0de720827b0d688dbfa4dc9b773aac33635e76b808361066",
-        "insurance-principal.csv":
+        "insurance-main.csv":
             "eb59985ff105eed321500a0df2304b86dc7cc31d8cc95c28f5c05e752afb5bea",
         "insurance-quebec.csv":
             "c9af71aefa79e17056f375e4e88ef71fdd803504679b7fcf4e647d4d68e26e88",

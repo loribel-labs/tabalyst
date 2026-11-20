@@ -1,223 +1,229 @@
-Plan for insurance-customers-100k.csv (plan 604ea87ddd31, planner 1).
-333 candidates: 43 selected, 125 already answered by the scan, 165 left out.
+Plan for insurance-customers-100k.csv (plan 2289399502d2, planner 1).
+334 candidates: 48 selected, 125 already answered by the scan, 161 left out.
 
 Selected:
-  1. category_crosstab [contingency_table]: rows / civilite and sexe (prefix) (up to 996.6 KiB, CPU low, automatic)
-  2. category_crosstab [contingency_table]: rows / sexe and civilite (length) (up to 996.6 KiB, CPU low, automatic)
-  3. category_crosstab [contingency_table]: rows / filiale and id_client (prefix) (up to 1007.2 KiB, CPU low, automatic)
-  4. category_crosstab [contingency_table]: rows / province_nom and province_code (prefix) (up to 1.1 MiB, CPU low, automatic)
-  5. category_crosstab [contingency_table]: rows / agence_code and id_client (prefix) (up to 1.3 MiB, CPU low, automatic)
-  6. category_crosstab [contingency_table]: rows / agence_code and filiale (length) (up to 1.3 MiB, CPU low, automatic)
-  7. category_crosstab [contingency_table]: rows / province_code and province_nom (prefix) (up to 1.1 MiB, CPU low, automatic)
-  8. category_crosstab [contingency_table]: rows / province_code and code_postal (prefix) (up to 1.1 MiB, CPU low, automatic)
-  9. category_stats [group_moments]: rows / type_contrat and montant_reclamation (up to 893.5 KiB, CPU moderate, automatic)
-  10. category_stats [group_moments]: rows / type_contrat and prime_annuelle (up to 893.5 KiB, CPU moderate, automatic)
-  11. exact_frequencies [hash_table]: rows / prenom (up to 286.9 KiB, CPU low, automatic)
-  12. exact_frequencies [hash_table]: rows / nom (up to 285.0 KiB, CPU low, automatic)
-  13. exact_frequencies [hash_table]: rows / nom_voie (up to 327.9 KiB, CPU low, automatic)
-  14. exact_frequencies [hash_table]: rows / appartement (up to 396.4 KiB, CPU low, automatic)
-  15. exact_frequencies [hash_table]: rows / ville (up to 273.2 KiB, CPU low, automatic)
-  16. pattern_validation [family_recognizer]: rows / agence_code (up to 19.8 KiB, CPU moderate, automatic)
-  17. numeric_histogram [dense_counts]: rows / appartement (up to 258.8 KiB, CPU moderate, automatic)
-  18. numeric_histogram [dense_counts]: rows / numero_voie (up to 329.1 KiB, CPU moderate, automatic)
-  19. numeric_histogram [bins]: rows / prime_annuelle (up to 279.4 KiB, CPU moderate, automatic)
-  20. numeric_histogram [bins]: rows / montant_reclamation (up to 279.4 KiB, CPU moderate, automatic)
-  21. pattern_validation [family_recognizer]: rows / telephone (up to 348.1 KiB, CPU moderate, automatic)
-  22. residual_values [residual_table]: rows / telephone (up to 452.8 KiB, CPU moderate, automatic)
-  23. pattern_validation [family_recognizer]: rows / date_reclamation (up to 696.2 KiB, CPU moderate, automatic)
-  24. pattern_validation [family_recognizer]: rows / date_fin (up to 809.2 KiB, CPU moderate, automatic)
-  25. pattern_validation [family_recognizer]: rows / id_contrat (up to 1.1 MiB, CPU moderate, automatic)
-  26. pattern_validation [family_recognizer]: rows / id_client (up to 1.1 MiB, CPU moderate, automatic)
-  27. pattern_validation [family_recognizer]: rows / date_modification (up to 1.1 MiB, CPU moderate, automatic)
-  28. pattern_validation [family_recognizer]: rows / date_debut (up to 1.2 MiB, CPU moderate, automatic)
-  29. pattern_validation [family_recognizer]: rows / code_postal (up to 1.2 MiB, CPU moderate, automatic)
-  30. pattern_validation [family_recognizer]: rows / date_naissance (up to 1.2 MiB, CPU moderate, automatic)
-  31. pattern_validation [family_recognizer]: rows / date_creation (up to 1.3 MiB, CPU moderate, automatic)
-  32. residual_values [residual_table]: rows / date_reclamation (up to 1.7 MiB, CPU moderate, automatic)
-  33. temporal_distribution [period_counts]: rows / date_reclamation (up to 2.0 MiB, CPU moderate, automatic)
-  34. residual_values [residual_table]: rows / date_fin (up to 2.2 MiB, CPU moderate, automatic)
-  35. residual_values [residual_table]: rows / date_modification (up to 2.8 MiB, CPU moderate, automatic)
-  36. residual_values [residual_table]: rows / date_debut (up to 3.3 MiB, CPU moderate, automatic)
-  37. residual_values [residual_table]: rows / date_creation (up to 3.3 MiB, CPU moderate, automatic)
-  38. temporal_distribution [period_counts]: rows / date_modification (up to 3.2 MiB, CPU moderate, automatic)
-  39. temporal_distribution [period_counts]: rows / date_debut (up to 3.8 MiB, CPU moderate, automatic)
-  40. temporal_distribution [period_counts]: rows / date_creation (up to 3.8 MiB, CPU moderate, automatic)
-  41. duplicates_report [digest_table]: rows / id_client (up to 21.1 MiB, CPU moderate, automatic)
-  42. duplicates_report [digest_table]: rows / code_postal (up to 21.1 MiB, CPU moderate, automatic)
-  43. missing_id_copies [extra_copies_without_id]: rows / $ (up to 260.8 KiB, CPU very_low, automatic)
+  1. category_crosstab [contingency_table]: rows / title and gender (prefix) (up to 996.6 KiB, CPU low, automatic)
+  2. category_crosstab [contingency_table]: rows / gender and title (prefix) (up to 996.6 KiB, CPU low, automatic)
+  3. category_crosstab [contingency_table]: rows / branch and customer_id (prefix) (up to 1007.2 KiB, CPU low, automatic)
+  4. category_crosstab [contingency_table]: rows / province_name and province_code (prefix) (up to 1.1 MiB, CPU low, automatic)
+  5. category_crosstab [contingency_table]: rows / province_code and province_name (length) (up to 1.1 MiB, CPU low, automatic)
+  6. category_crosstab [contingency_table]: rows / agency_code and customer_id (prefix) (up to 1.3 MiB, CPU low, automatic)
+  7. category_crosstab [contingency_table]: rows / agency_code and branch (length) (up to 1.3 MiB, CPU low, automatic)
+  8. category_crosstab [contingency_table]: rows / province_code and postal_code (prefix) (up to 1.1 MiB, CPU low, automatic)
+  9. residual_values [residual_table]: rows / first_name (up to 53.9 KiB, CPU low, automatic)
+  10. residual_values [residual_table]: rows / last_name (up to 84.4 KiB, CPU low, automatic)
+  11. category_stats [group_moments]: rows / contract_type and annual_premium (up to 890.5 KiB, CPU moderate, automatic)
+  12. exact_frequencies [hash_table]: rows / first_name (up to 271.7 KiB, CPU low, automatic)
+  13. exact_frequencies [hash_table]: rows / last_name (up to 284.5 KiB, CPU low, automatic)
+  14. exact_frequencies [hash_table]: rows / street_name (up to 304.5 KiB, CPU low, automatic)
+  15. exact_frequencies [hash_table]: rows / unit_number (up to 396.4 KiB, CPU low, automatic)
+  16. exact_frequencies [hash_table]: rows / city (up to 274.2 KiB, CPU low, automatic)
+  17. pattern_validation [family_recognizer]: rows / title (up to 2.0 KiB, CPU moderate, automatic)
+  18. pattern_validation [family_recognizer]: rows / payment_method (up to 10.2 KiB, CPU moderate, automatic)
+  19. pattern_validation [family_recognizer]: rows / agency_code (up to 19.4 KiB, CPU moderate, automatic)
+  20. pattern_validation [family_recognizer]: rows / first_name (up to 119.5 KiB, CPU moderate, automatic)
+  21. pattern_validation [family_recognizer]: rows / last_name (up to 208.8 KiB, CPU moderate, automatic)
+  22. numeric_histogram [dense_counts]: rows / unit_number (up to 258.8 KiB, CPU moderate, automatic)
+  23. numeric_histogram [dense_counts]: rows / street_number (up to 329.1 KiB, CPU moderate, automatic)
+  24. numeric_histogram [bins]: rows / annual_premium (up to 279.4 KiB, CPU moderate, automatic)
+  25. numeric_histogram [bins]: rows / claim_amount (up to 279.4 KiB, CPU moderate, automatic)
+  26. pattern_validation [family_recognizer]: rows / phone (up to 352.6 KiB, CPU moderate, automatic)
+  27. residual_values [residual_table]: rows / phone (up to 454.2 KiB, CPU moderate, automatic)
+  28. pattern_validation [family_recognizer]: rows / claim_date (up to 689.5 KiB, CPU moderate, automatic)
+  29. pattern_validation [family_recognizer]: rows / end_date (up to 821.6 KiB, CPU moderate, automatic)
+  30. pattern_validation [family_recognizer]: rows / modification_date (up to 973.2 KiB, CPU moderate, automatic)
+  31. pattern_validation [family_recognizer]: rows / contract_id (up to 1.1 MiB, CPU moderate, automatic)
+  32. pattern_validation [family_recognizer]: rows / customer_id (up to 1.1 MiB, CPU moderate, automatic)
+  33. pattern_validation [family_recognizer]: rows / start_date (up to 1.2 MiB, CPU moderate, automatic)
+  34. pattern_validation [family_recognizer]: rows / birth_date (up to 1.2 MiB, CPU moderate, automatic)
+  35. pattern_validation [family_recognizer]: rows / postal_code (up to 1.2 MiB, CPU moderate, automatic)
+  36. pattern_validation [family_recognizer]: rows / creation_date (up to 1.2 MiB, CPU moderate, automatic)
+  37. residual_values [residual_table]: rows / claim_date (up to 1.7 MiB, CPU moderate, automatic)
+  38. temporal_distribution [period_counts]: rows / claim_date (up to 2.0 MiB, CPU moderate, automatic)
+  39. residual_values [residual_table]: rows / end_date (up to 2.2 MiB, CPU moderate, automatic)
+  40. residual_values [residual_table]: rows / modification_date (up to 2.7 MiB, CPU moderate, automatic)
+  41. residual_values [residual_table]: rows / start_date (up to 3.3 MiB, CPU moderate, automatic)
+  42. temporal_distribution [period_counts]: rows / modification_date (up to 3.1 MiB, CPU moderate, automatic)
+  43. residual_values [residual_table]: rows / creation_date (up to 3.3 MiB, CPU moderate, automatic)
+  44. temporal_distribution [period_counts]: rows / start_date (up to 3.7 MiB, CPU moderate, automatic)
+  45. temporal_distribution [period_counts]: rows / creation_date (up to 3.7 MiB, CPU moderate, automatic)
+  46. duplicates_report [digest_table]: rows / customer_id (up to 21.1 MiB, CPU moderate, automatic)
+  47. duplicates_report [digest_table]: rows / postal_code (up to 21.1 MiB, CPU moderate, automatic)
+  48. missing_id_copies [extra_copies_without_id]: rows / $ (up to 260.7 KiB, CPU very_low, automatic)
 
 Left out:
-  residual_values [residual_table]: rows / id_client: its CPU class is above the automatic limit
-  residual_values [residual_table]: rows / date_naissance: its CPU class is above the automatic limit
-  residual_values [residual_table]: rows / code_postal: its CPU class is above the automatic limit
-  residual_values [residual_table]: rows / courriel: its CPU class is above the automatic limit
-  residual_values [residual_table]: rows / id_contrat: its CPU class is above the automatic limit
-  residual_values [residual_table]: rows / prime_annuelle: its CPU class is above the automatic limit
-  duplicates_report [digest_table]: rows / courriel: its memory does not fit in the budget with the analyses already selected
-  duplicates_report [digest_table]: rows / id_contrat: its memory does not fit in the budget with the analyses already selected
-  pearson_correlation [pairwise_complete]: rows / prime_annuelle and montant_reclamation: too little expected benefit for an automatic choice
-  pearson_correlation [pairwise_complete]: rows / numero_voie and appartement: too little expected benefit for an automatic choice
-  category_crosstab [contingency_table]: rows / filiale and agence_code (value): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and code_postal (prefix): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and type_voie (prefix): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and nom_voie (length): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and ville (prefix): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and id_client (prefix): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and filiale (length): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / filiale and langue_preferee (prefix): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / province_nom and code_postal (prefix): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / orientation and langue_preferee (prefix): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / province_nom and langue_preferee (prefix): enough tables were already chosen automatically
-  category_crosstab [contingency_table]: rows / langue_preferee and province_nom (value): enough tables were already chosen automatically
-  category_stats [group_moments]: rows / reclamation_status and montant_reclamation: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / statut_contrat and montant_reclamation: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / agence_code and montant_reclamation: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / frequence_paiement and montant_reclamation: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / agence_code and appartement: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / province_nom and appartement: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / type_voie and prime_annuelle: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / orientation and numero_voie: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / agence_code and prime_annuelle: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / filiale and montant_reclamation: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / mode_paiement and montant_reclamation: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / langue_preferee and montant_reclamation: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / type_voie and appartement: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / orientation and appartement: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / type_contrat and appartement: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / type_voie and numero_voie: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / frequence_paiement and prime_annuelle: too little expected benefit for an automatic choice
-  category_stats [group_moments]: rows / filiale and appartement: too little expected benefit for an automatic choice
-  numeric_shape [value_table]: rows / numero_voie: too little expected benefit for an automatic choice
-  numeric_shape [value_table]: rows / appartement: too little expected benefit for an automatic choice
-  numeric_shape [value_table]: rows / prime_annuelle: too little expected benefit for an automatic choice
-  numeric_shape [value_table]: rows / montant_reclamation: too little expected benefit for an automatic choice
-  datetime_parts [calendar_parts]: rows / date_naissance: too little expected benefit for an automatic choice
-  datetime_parts [calendar_parts]: rows / date_debut: too little expected benefit for an automatic choice
-  datetime_parts [calendar_parts]: rows / date_fin: too little expected benefit for an automatic choice
-  datetime_parts [calendar_parts]: rows / date_creation: too little expected benefit for an automatic choice
-  datetime_parts [calendar_parts]: rows / date_modification: too little expected benefit for an automatic choice
-  datetime_parts [calendar_parts]: rows / date_reclamation: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / civilite: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / prenom: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / nom: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / date_naissance: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / sexe: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / langue_preferee: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / type_voie: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / orientation: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / appartement: too little expected benefit for an automatic choice
+  residual_values [residual_table]: rows / customer_id: its CPU class is above the automatic limit
+  residual_values [residual_table]: rows / birth_date: its CPU class is above the automatic limit
+  residual_values [residual_table]: rows / postal_code: its CPU class is above the automatic limit
+  residual_values [residual_table]: rows / email: its CPU class is above the automatic limit
+  residual_values [residual_table]: rows / contract_id: its CPU class is above the automatic limit
+  residual_values [residual_table]: rows / annual_premium: its CPU class is above the automatic limit
+  duplicates_report [digest_table]: rows / email: its memory does not fit in the budget with the analyses already selected
+  duplicates_report [digest_table]: rows / contract_id: its memory does not fit in the budget with the analyses already selected
+  category_crosstab [contingency_table]: rows / contract_status and contract_type (length): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / contract_type and contract_status (length): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / province_name and postal_code (prefix): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / branch and agency_code (value): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / agency_code and postal_code (prefix): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / agency_code and province_name (prefix): enough tables were already chosen automatically
+  category_crosstab [contingency_table]: rows / title and gender (value): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / branch and customer_id (pattern): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / branch and customer_id (length): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / province_name and province_code (value): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / province_code and province_name (prefix): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / agency_code and branch (prefix): another feature of the same two columns says more
+  category_stats [group_moments]: rows / street_type and claim_amount: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / contract_type and claim_amount: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / contract_status and annual_premium: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / claim_status and annual_premium: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / agency_code and unit_number: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / street_direction and street_number: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / title and annual_premium: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / gender and annual_premium: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / province_code and annual_premium: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / province_name and annual_premium: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / street_type and annual_premium: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / payment_method and street_number: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / agency_code and street_number: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / title and unit_number: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / gender and unit_number: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / contract_type and street_number: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / contract_status and street_number: too little expected benefit for an automatic choice
+  category_stats [group_moments]: rows / payment_method and annual_premium: too little expected benefit for an automatic choice
+  numeric_shape [value_table]: rows / street_number: too little expected benefit for an automatic choice
+  numeric_shape [value_table]: rows / unit_number: too little expected benefit for an automatic choice
+  numeric_shape [value_table]: rows / annual_premium: too little expected benefit for an automatic choice
+  numeric_shape [value_table]: rows / claim_amount: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / birth_date: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / start_date: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / end_date: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / creation_date: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / modification_date: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / claim_date: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / title: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / first_name: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / last_name: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / birth_date: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / gender: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / street_type: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / street_direction: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / unit_number: too little expected benefit for an automatic choice
   position_drift [slices]: rows / province_code: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / province_nom: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / pays_code: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / id_contrat: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / type_contrat: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / date_fin: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / statut_contrat: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / prime_annuelle: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / frequence_paiement: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / mode_paiement: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / agence_code: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / date_reclamation: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / montant_reclamation: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / reclamation_status: too little expected benefit for an automatic choice
-  position_drift [slices]: rows / filiale: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / prenom: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / nom: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / date_naissance: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / orientation: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / appartement: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / province_name: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / country_code: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / email: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / contract_id: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / contract_type: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / end_date: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / contract_status: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / annual_premium: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / payment_frequency: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / payment_method: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / agency_code: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / claim_date: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / claim_amount: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / claim_status: too little expected benefit for an automatic choice
+  position_drift [slices]: rows / branch: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / first_name: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / last_name: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / birth_date: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / street_direction: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / unit_number: too little expected benefit for an automatic choice
   missing_matrix [bit_sets]: rows / province_code: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / id_contrat: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / type_contrat: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / date_fin: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / prime_annuelle: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / date_reclamation: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / montant_reclamation: too little expected benefit for an automatic choice
-  missing_matrix [bit_sets]: rows / reclamation_status: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / email: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / contract_id: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / contract_type: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / end_date: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / annual_premium: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / claim_date: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / claim_amount: too little expected benefit for an automatic choice
+  missing_matrix [bit_sets]: rows / claim_status: too little expected benefit for an automatic choice
   missing_patterns [pattern_table]: rows / $: too little expected benefit for an automatic choice
-  date_order [compare]: rows / date_naissance and date_creation: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_naissance and date_debut: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_naissance and date_modification: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_creation and date_debut: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_creation and date_modification: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_creation and date_fin: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_naissance and date_fin: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_debut and date_fin: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_creation and date_reclamation: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_naissance and date_reclamation: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_debut and date_reclamation: its CPU class is above the automatic limit
-  date_order [compare]: rows / date_reclamation and date_fin: its CPU class is above the automatic limit
-  text_profile [text_counters]: rows / nom_voie: too little expected benefit for an automatic choice
-  fingerprint_distinct [fingerprints]: rows / nom_voie: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / id_client: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / prenom: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / nom: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / date_naissance: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / numero_voie: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / nom_voie: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / appartement: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / ville: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / code_postal: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / courriel: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / telephone: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / id_contrat: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / date_debut: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / date_fin: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / prime_annuelle: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / date_creation: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / date_modification: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / date_reclamation: too little expected benefit for an automatic choice
-  character_profile [character_census]: rows / montant_reclamation: too little expected benefit for an automatic choice
+  date_order [compare]: rows / creation_date and start_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / birth_date and start_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / birth_date and creation_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / creation_date and modification_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / birth_date and modification_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / creation_date and end_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / start_date and end_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / birth_date and end_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / birth_date and claim_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / start_date and claim_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / claim_date and modification_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / creation_date and claim_date: its CPU class is above the automatic limit
+  date_order [compare]: rows / claim_date and end_date: its CPU class is above the automatic limit
+  text_profile [text_counters]: rows / street_name: too little expected benefit for an automatic choice
+  fingerprint_distinct [fingerprints]: rows / street_name: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / customer_id: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / first_name: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / last_name: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / birth_date: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / street_number: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / street_name: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / unit_number: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / city: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / postal_code: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / email: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / phone: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / contract_id: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / start_date: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / end_date: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / annual_premium: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / creation_date: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / modification_date: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / claim_date: too little expected benefit for an automatic choice
+  character_profile [character_census]: rows / claim_amount: too little expected benefit for an automatic choice
 
 Not applicable:
   14 x too many distinct values for a table of frequencies
   1 x fewer than half of the values carry a currency marker, a percent sign or a unit
-  19 x a pattern would describe its values poorly, so the scan did not look for one
+  14 x a pattern would describe its values poorly, so the scan did not look for one
   10 x the field misses no value and has too many distinct values to follow by position
+  1 x too few distinct values to infer patterns
 
-A second reading of the source is needed (3,400,000 cells, CPU low). Memory: 28.6 MiB to 112.4 MiB, about 57.1 MiB.
-Estimated time: 3 s to 11 s (a guide from the first pass, not a promise).
+A second reading of the source is needed (3,400,000 cells, CPU low). Memory: 28.6 MiB to 112.1 MiB, about 57.0 MiB.
+Estimated time: 2 s to 9 s (a guide from the first pass, not a promise).
 Running it would not ask for a confirmation.
 
 Smart sample plan for insurance-customers-100k.csv (dataset rows, 100,000 rows)
 
 A smart sample covers diversity and rare cases; its proportions are not those of the population. The targets are those the Scan and the stored second pass know: other cases may exist.
 
-Targets: 1459 (157 mandatory, 1302 optional), 124 left out by the limits of the plan (budget of targets, groups of typos).
-  Low cardinality: 922 targets, 157 mandatory
-  Structured strings: 47 targets, 0 mandatory
+Targets: 1204 (132 mandatory, 1072 optional), 104 left out by the limits of the plan (budget of targets, groups of typos).
+  Low cardinality: 752 targets, 132 mandatory
+  Structured strings: 48 targets, 0 mandatory
   Numeric: 53 targets, 0 mandatory
   Dates: 70 targets, 0 mandatory
-  Quality: 206 targets, 0 mandatory, 124 left out
-  Relations: 161 targets, 0 mandatory
+  Quality: 180 targets, 0 mandatory, 104 left out
+  Relations: 101 targets, 0 mandatory
 
 Columns whose values are only partly known:
-  id_client (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
-  date_naissance (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
-  code_postal (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
-  telephone (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
-  id_contrat (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
-  date_debut (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
-  date_fin (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
-  date_creation (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
-  date_modification (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
-  date_reclamation (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  customer_id (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  birth_date (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  postal_code (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  phone (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  contract_id (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  start_date (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  end_date (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  creation_date (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  modification_date (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  claim_date (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
 
 Heaviest targets:
-  11  code_postal: residual_value (1 row, 0.0010%)
-  11  code_postal: residual_value (1 row, 0.0010%)
-  11  code_postal: residual_value (1 row, 0.0010%)
-  11  code_postal: residual_value (1 row, 0.0010%)
-  11  code_postal: residual_value (1 row, 0.0010%)
-  11  code_postal: residual_value (1 row, 0.0010%)
-  11  code_postal: residual_value (1 row, 0.0010%)
-  11  code_postal: residual_value (1 row, 0.0010%)
-  11  code_postal: residual_value (1 row, 0.0010%)
-  11  code_postal: residual_value (1 row, 0.0010%)
+  11  postal_code: residual_value (1 row, 0.0010%)
+  11  postal_code: residual_value (1 row, 0.0010%)
+  11  postal_code: residual_value (1 row, 0.0010%)
+  11  postal_code: residual_value (1 row, 0.0010%)
+  11  postal_code: residual_value (1 row, 0.0010%)
+  11  postal_code: residual_value (1 row, 0.0010%)
+  11  postal_code: residual_value (1 row, 0.0010%)
+  11  postal_code: residual_value (1 row, 0.0010%)
+  11  postal_code: residual_value (1 row, 0.0010%)
+  11  postal_code: residual_value (1 row, 0.0010%)
 
-Size: 3,000 rows asked; 157 rows are enough for the mandatory targets one by one; beyond 1,824 rows only the reserve grows.
+Size: 3,000 rows asked; 132 rows are enough for the mandatory targets one by one; beyond 1,505 rows only the reserve grows.
 Reserve of ordinary rows: 20%, 600 rows.
-Candidate rows kept in memory: up to 3,518, about 944.8 KiB of source text.
+Candidate rows kept in memory: up to 3,008, about 772.6 KiB of source text.
 
 Readings of the source: 1
   scan (not needed): a current Scan is stored: it is not read again

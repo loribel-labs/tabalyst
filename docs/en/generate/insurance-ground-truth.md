@@ -15,7 +15,7 @@ tabalyst generate my-insurance/ --rows 3000 -d out/ --anomaly-profile v2_demo
 ```
 
 ```text
-Created: out/insurance-principal.csv
+Created: out/insurance-main.csv
 Created: out/insurance-ontario.csv
 Created: out/insurance-quebec.csv
 Created: out/insurance-combined.csv

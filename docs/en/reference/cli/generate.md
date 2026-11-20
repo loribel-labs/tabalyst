@@ -39,7 +39,7 @@ destination is required, except with `--validate-only` and `--list-profiles`. A
 | `--row-order NAME` | Insurance: choose contract ordering (`default`, `branch`, `chronological`, `agency`, `shuffled`). |
 | `--english` | Insurance: backward-compatible alias for `--locales en`. |
 | `--market ca\|us` | Computer: the offer market. |
-| `--locales en\|fr\|en,fr` | Locales to generate. Insurance: defaults to `en` (`insurance-main.csv`), with `fr` (`insurance-principal.csv`) or `en,fr`. Computer: defaults to `en,fr` with `-d`, `en` with `-o`. |
+| `--locales en\|fr\|en,fr` | Locales to generate. Insurance: defaults to `en` (`insurance-main.csv`), with `fr` (`insurance-main.csv` with French headers and values) or `en,fr` (`insurance-main-en.csv`, `insurance-main-fr.csv`). Computer: defaults to `en,fr` with `-d`, `en` with `-o`. |
 | `--unit-style numeric\|localized` | Computer: plain numbers or values with units. |
 | `--unit-columns A,B` | Computer: the measurement columns to write with units; implies `localized`. |
 | `--validate-only` | Validate the package and write nothing. |
@@ -85,7 +85,7 @@ A profile can set a minimum number of rows: `rare_events` stops below
 below 10,000 rows, naming the profile, the floor and the rows requested.
 Insurance generates English by default (`insurance-main.csv`, English headers,
 Anglo-Saxon demographics, and relational tables `customers`, `contracts`, `claims`, `payments`).
-Use `--locales fr` for French (`insurance-principal.csv`, French demographics, `clients`, etc.)
-or `--locales en,fr` for both. The `--english` option is retained as an alias for `--locales en`.
+Use `--locales fr` for French (`insurance-main.csv`, French headers and demographics, `clients`, etc.)
+or `--locales en,fr` for both (`insurance-main-en.csv`, `insurance-main-fr.csv`, etc.). The `--english` option is retained as an alias for `--locales en`.
 See [Insurance rare events](../../generate/insurance-rare-events.md) and
 [Generate insurance customers](../../generate/insurance.md).

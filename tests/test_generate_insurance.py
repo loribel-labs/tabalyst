@@ -37,7 +37,7 @@ from tabalyst.generate_service import (
 
 PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 V1_SHA256 = {
-    "insurance-principal.csv": "eb59985ff105eed321500a0df2304b86dc7cc31d8cc95c28f5c05e752afb5bea",
+    "insurance-main.csv": "eb59985ff105eed321500a0df2304b86dc7cc31d8cc95c28f5c05e752afb5bea",
     "insurance-ontario.csv": "2df6a543b016b6dc0de720827b0d688dbfa4dc9b773aac33635e76b808361066",
     "insurance-quebec.csv": "c9af71aefa79e17056f375e4e88ef71fdd803504679b7fcf4e647d4d68e26e88",
     "insurance-combined.csv": "a012c2832926b85332df9370a3814af4dcb92d8671113a4cf5039038d053afef",
@@ -76,21 +76,19 @@ def test_insurance_branches_combine_and_profile(tmp_path: Path) -> None:
     emails = [row["courriel"] for row in combined if row["courriel"]]
     assert len(set(emails)) == len(emails) > 2600
     assert all(email.endswith(".example") for email in emails)
-    for branch, pattern in (
-        ("principal", r"\d{4}-\d{2}-\d{2}"),
-        ("ontario", r"\d{2}-\d{2}-\d{4}"),
-        ("quebec", r"\d{2}-\d{2}-\d{4}"),
+    for file_name, pattern, prefix in (
+        ("insurance-main.csv", r"\d{4}-\d{2}-\d{2}", "AG-PR-"),
+        ("insurance-ontario.csv", r"\d{2}-\d{2}-\d{4}", "AG-ON-"),
+        ("insurance-quebec.csv", r"\d{2}-\d{2}-\d{4}", "AG-QC-"),
     ):
-        rows = _rows(clean_dir / f"insurance-{branch}.csv")
+        rows = _rows(clean_dir / file_name)
         assert all(re.fullmatch(pattern, row["date_naissance"]) for row in rows)
         assert all(row["pays_code"] == "CA" for row in rows)
         assert all(row["date_reclamation"] or not row["montant_reclamation"]
                    for row in rows)
-        assert all(row["agence_code"].startswith({
-            "principal": "AG-PR-", "ontario": "AG-ON-", "quebec": "AG-QC-",
-        }[branch]) for row in rows)
-        assert (clean_dir / f"insurance-{branch}.csv").read_bytes() == (
-            dirty_dir / f"insurance-{branch}.csv").read_bytes()
+        assert all(row["agence_code"].startswith(prefix) for row in rows)
+        assert (clean_dir / file_name).read_bytes() == (
+            dirty_dir / file_name).read_bytes()
     assert (clean_dir / "insurance-combined.csv").read_bytes() == (
         dirty_dir / "insurance-combined.csv").read_bytes()
     assert len(list(dirty_dir.iterdir())) == 7
@@ -158,7 +156,7 @@ def test_insurance_columns_follow_their_cross_column_rules(tmp_path: Path) -> No
     from datetime import date
     from statistics import median
     generate_datasets(build_generate_plan(example="insurance", rows=8000, seed=7, output_dir=tmp_path, locales="fr"))
-    rows = _rows(tmp_path / "insurance-principal.csv")
+    rows = _rows(tmp_path / "insurance-main.csv")
     as_of = date(2026, 9, 16)
     agencies = {"Montréal": "AG-PR-001", "Sherbrooke": "AG-PR-004", "Toronto": "AG-PR-005"}
     for row in rows:
